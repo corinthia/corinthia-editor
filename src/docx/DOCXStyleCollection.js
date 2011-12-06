@@ -2,9 +2,9 @@ function DOCXStyleCollection(stylesElem)
 {
     this.styles = new Object();
 
-    if (isWordElement(stylesElem,"styles")) {
+    if (DOCXUtil.isWordElement(stylesElem,"styles")) {
         for (var child = stylesElem.firstChild; child != null; child = child.nextSibling) {
-            if (isWordElement(child,"style")) {
+            if (DOCXUtil.isWordElement(child,"style")) {
                 var styleId = child.getAttributeNS(WORD_NAMESPACE,"styleId");
                 if (styleId == null) {
                     warning("style element has no styleId");

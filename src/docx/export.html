@@ -270,10 +270,13 @@ allowing both aspects of a workflow to be expressed in the one language.</p>
 <!-- sync with import.html -->
 <script language="javascript" src="../ElementProxy.js"></script>
 <script language="javascript" src="../ElementProxyMap.js"></script>
+<script language="javascript" src="elements/DOCXAbstractNum.js"></script>
 <script language="javascript" src="elements/DOCXBorderProperties.js"></script>
 <script language="javascript" src="elements/DOCXCellProperties.js"></script>
 <script language="javascript" src="elements/DOCXIndentation.js"></script>
 <script language="javascript" src="elements/DOCXIndividualBorder.js"></script>
+<script language="javascript" src="elements/DOCXLevel.js"></script>
+<script language="javascript" src="elements/DOCXNumbering.js"></script>
 <script language="javascript" src="elements/DOCXNumPr.js"></script>
 <script language="javascript" src="elements/DOCXParagraphProperties.js"></script>
 <script language="javascript" src="elements/DOCXRunProperties.js"></script>
@@ -287,17 +290,24 @@ allowing both aspects of a workflow to be expressed in the one language.</p>
 <script language="javascript" src="DOCXStyle.js"></script>
 <script language="javascript" src="DOCXStyleCollection.js"></script>
 <script language="javascript" src="DOCXUtil.js"></script>
-<script language="javascript" src="common.js"></script>
 <script language="javascript" src="filesystem.js"></script>
 <script language="javascript" src="colors.js"></script>
-<script language="javascript" src="numbering.js"></script>
-<script language="javascript" src="styles.js"></script>
 <script language="javascript" src="htmltable.js"></script>
 <script language="javascript" src="DOCXDocument.js"></script>
 <script language="javascript" src="html2docx.js"></script>
 
 <script language="javascript">
 html2docx("saved/saved1");
+
+function debug(str)
+{
+    console.log(str);
+}
+
+function warning(str)
+{
+    console.log("WARNING: "+str);
+}
 </script>
 
 </body>

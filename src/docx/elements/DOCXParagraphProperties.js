@@ -32,18 +32,18 @@ function DOCXParagraphProperties(element)
                     warning("numPr element contains no numId child");
                     continue;
                 }
-                if ((word == null) || (DOCXDocument.instance.numbering == null)) {
+                if (DOCXDocument.instance.numbering == null) {
                     continue;
                 }
-                if (DOCXDocument.instance.numbering[numPr.numId] == null) {
+                if (DOCXDocument.instance.numbering.nums[numPr.numId] == null) {
                     warning("no such numbering style "+numPr.numId);
                     continue;
                 }
-                if (DOCXDocument.instance.numbering[numPr.numId].levels[numPr.ilvl] == null) {
+                if (DOCXDocument.instance.numbering.nums[numPr.numId].levels[numPr.ilvl] == null) {
                     warning("no level "+numPr.ilvl+" for numbering style "+numPr.numId);
                     continue;
                 }
-                this.numPr = DOCXDocument.instance.numbering[numPr.numId].levels[numPr.ilvl];
+                this.numPr = DOCXDocument.instance.numbering.nums[numPr.numId].levels[numPr.ilvl];
             }
             else if (child.localName == "outlineLvl")
                 this.outlineLvl = child.getAttributeNS(WORD_NAMESPACE,"outlineLvl");

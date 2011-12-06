@@ -75,3 +75,25 @@ DOCXUtil.cssRuleText = function(selector,cssProperties)
     str += "}\n";
     return str;
 }
+
+DOCXUtil.percentage = function(numerator,denominator)
+{
+    if (denominator <= 0)
+        return "0%";
+    var ratio = Math.min(1,numerator/denominator);
+    return Math.round(1000*ratio)/10 + "%";
+}
+
+DOCXUtil.isWordElement = function(node,name)
+{
+    return (node.namespaceURI == WORD_NAMESPACE) && (node.localName == name);
+}
+
+DOCXUtil.firstChildElement = function(node)
+{
+    for (var child = node.firstChild; child != null; child = child.nextSibling) {
+        if (child.nodeType == Node.ELEMENT_NODE)
+            return child;
+    }
+    return null;
+}
