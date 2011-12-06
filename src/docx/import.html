@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html> <head>
+<title></title>
+</head>
+
+<style type="text/css">
+p { page-break-inside: avoid }
+</style>
+
+<script language="javascript">
+function save()
+{
+    var win = window.open();
+    var text = win.document.createTextNode(document.documentElement.outerHTML);
+    var pre = win.document.createElement("PRE");
+    pre.appendChild(text);
+    win.document.body.appendChild(pre);
+}
+</script>
+
+<body>
+
+<p><input type="button" value="Save" onclick="save()"></p>
+
+<!-- sync with export.html -->
+<script language="javascript" src="../ElementProxy.js"></script>
+<script language="javascript" src="../ElementProxyMap.js"></script>
+<script language="javascript" src="elements/DOCXBorderProperties.js"></script>
+<script language="javascript" src="elements/DOCXCellProperties.js"></script>
+<script language="javascript" src="elements/DOCXIndentation.js"></script>
+<script language="javascript" src="elements/DOCXIndividualBorder.js"></script>
+<script language="javascript" src="elements/DOCXNumPr.js"></script>
+<script language="javascript" src="elements/DOCXParagraphProperties.js"></script>
+<script language="javascript" src="elements/DOCXRunProperties.js"></script>
+<script language="javascript" src="elements/DOCXSectionProperties.js"></script>
+<script language="javascript" src="elements/DOCXSpacing.js"></script>
+<script language="javascript" src="elements/DOCXTableGrid.js"></script>
+<script language="javascript" src="elements/DOCXTableLook.js"></script>
+<script language="javascript" src="elements/DOCXTableProperties.js"></script>
+<script language="javascript" src="elements/DOCXTableWidth.js"></script>
+<script language="javascript" src="DOCXUtil.js"></script>
+<script language="javascript" src="common.js"></script>
+<script language="javascript" src="filesystem.js"></script>
+<script language="javascript" src="colors.js"></script>
+<script language="javascript" src="numbering.js"></script>
+<script language="javascript" src="styles.js"></script>
+<script language="javascript" src="htmltable.js"></script>
+<script language="javascript" src="DOCXDocument.js"></script>
+<script language="javascript" src="html2docx.js"></script>
+
+<script language="javascript">
+var filename = "docx/docs/table-styles-3.docx";
+//var filename = "docx/docs/builtin-table-styles.docx";
+
+var word = new Object();
+word.numbering = processNumbering(filename);
+word.styles = processStyles(filename);
+
+//printNumbering(word.numbering);
+//printStyles(word.styles);
+
+var doc = new DOCXDocument(filename);
+doc.toHTML(filename);
+
+
+
+function printNumbering(numbering)
+{
+    for (var i = 0; i < numbering.length; i++) {
+        var abstractNum = numbering[i];
+        if (abstractNum == null)
+            continue;
+        for (var level = 0; level < abstractNum.levels.length; level++) {
+            var l = abstractNum.levels[level];
+            debug("num "+i+" level "+level+
+                  " start "+l.start+
+                  " numFmt "+l.numFmt+
+                  " lvlText "+l.lvlText+
+                  " lvlJc "+l.lvlJc);
+        }
+    }
+}
+
+function printStyles(styles)
+{
+    debug("printStyles");
+    for (var styleId in styles) {
+        var style = styles[styleId];
+        debug("style "+styleId+":");
+        style.print("    ");
+        debug("");
+        var cssProperties = new Object();
+        style.applyCSSProperties(cssProperties);
+        mergeCSSProperties(cssProperties);
+
+        var names = new Array();
+        for (name in cssProperties)
+            names.push(name);
+        names.sort();
+        debug("."+styleId+" {");
+        for (var i = 0; i < names.length; i++) {
+            var line = "    "+names[i]+": "+cssProperties[names[i]];
+            if (i+1 < names.length)
+                debug(line+";");
+            else
+                debug(line);
+        }
+        debug("}");
+        debug("");
+    }
+}
+</script>
+
+</body>

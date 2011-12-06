@@ -1,0 +1,300 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title></title>
+</head>
+
+<style type="text/css">
+p { page-break-inside: avoid }
+</style>
+
+<script language="javascript">
+function save()
+{
+    var win = window.open();
+    var text = win.document.createTextNode(document.documentElement.outerHTML);
+    var pre = win.document.createElement("PRE");
+    pre.appendChild(text);
+    win.document.body.appendChild(pre);
+}
+</script>
+
+<body>
+
+<table border="1">
+  <tr>
+    <td>A</td>
+    <td>B</td>
+    <td>C</td>
+  </tr>
+  <tr>
+    <td>D</td>
+    <td>E</td>
+    <td>F</td>
+  </tr>
+  <tr>
+    <td>G</td>
+    <td>H</td>
+    <td>I</td>
+  </tr>
+</table>
+
+<table border="1">
+  <tr>
+    <td>A</td>
+    <td>B</td>
+    <td>C</td>
+    <td rowspan="3">V Merged 2</td>
+    <td>D</td>
+  </tr>
+  <tr>
+    <td colspan="2">H Merged 1</td>
+    <td>E</td>
+    <td rowspan="3">V Merged 3</td>
+  </tr>
+  <tr>
+    <td rowspan="3">V Merged 1</td>
+    <td>G</td>
+    <td>H</td>
+  </tr>
+  <tr>
+    <td colspan="3">H Merged 2</td>
+  </tr>
+  <tr>
+    <td>K</td>
+    <td>L</td>
+    <td>M</td>
+    <td>N</td>
+  </tr>
+
+  <tr>
+    <td>O</td>
+    <td>P</td>
+    <td>Q</td>
+    <td>R</td>
+    <td>S</td>
+  </tr>
+</table>
+
+<table border="1">
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td colspan="3" rowspan="3">Horizontal and vertical merge</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<p>
+Fonts (general):
+<span style="font-family: Serif">Serif</span>
+<span style="font-family: Sans-serif">Sans-serif</span>
+<span style="font-family: Cursive">Cursive</span>
+<span style="font-family: Fantasy">Fantasy</span>
+<span style="font-family: Monospace">Monospace</span>
+</p>
+
+<p>
+Fonts (specific):
+<span style="font-family: &quot;Bank gothic&quot;">Bank gothic</span>
+<span style="font-family: &quot;Bauhaus 93&quot;">Bauhaus 93</span>
+<span style="font-family: &quot;Monaco&quot;">Monaco</span>
+</p>
+
+<p>
+<b>Bold</b>
+<i>Italic</i>
+<u>Underline</u>
+<tt>Typewriter</tt>
+<span style="text-decoration: line-through">Strikethrough</span>
+<span style="color: blue">blue</span>
+<span style="color: rgb(0,192,0)">rgb(0,192,0)</span>
+<span style="color: #ff0000">#ff0000</span>
+</p>
+
+<p>
+<span style="font-weight: bold">Bold</span>
+<span style="font-style: italic">Italic</span>
+<span style="font-style: oblique">Oblique</span>
+<span style="text-decoration: underline">Underline</span>
+<span style="text-decoration: underline line-through">Underline and line through</span>
+</p>
+
+<p>
+<em>em</em>
+<strong>strong</strong>
+<cite>cite</cite>
+<dfn>dfn</dfn>
+<code>code</code>
+<samp>samp</samp>
+<kbd>kbd</kbd>
+<var>var</var>
+<abbr>abbr</abbr>
+<acronym>acronym</acronym>
+</p>
+
+<p>
+Font sizes (absolute):
+<span style="font-size: xx-small">xx-small</span>
+<span style="font-size: x-small">x-small</span>
+<span style="font-size: small">small</span>
+<span style="font-size: medium">medium</span>
+<span style="font-size: large">large</span>
+<span style="font-size: x-large">x-large</span>
+<span style="font-size: xx-large">xx-large</span>
+</p>
+
+<p>
+Font sizes (relative):
+<span style="font-size: smaller">smaller</span>
+normal
+<span style="font-size: larger">larger</span>
+</p>
+
+<p>
+Font sizes (percentage):
+<span style="font-size: 50%">50%</span>
+<span style="font-size: 100%">100%</span>
+<span style="font-size: 150%">150%</span>
+<span style="font-size: 200%">200%</span>
+</p>
+
+<p>
+Font sizes (pt):
+<span style="font-size: 12pt">12pt</span>
+<span style="font-size: 24pt">24pt</span>
+<span style="font-size: 36pt">36pt</span>
+<span style="font-size: 48pt">48pt</span>
+</p>
+
+<p>
+Font sizes (pc):
+<span style="font-size: 1pc">1pc</span>
+<span style="font-size: 2pc">2pc</span>
+<span style="font-size: 3pc">3pc</span>
+<span style="font-size: 4pc">4pc</span>
+</p>
+
+<p>
+Font sizes (px):
+<span style="font-size: 16px">16px</span>
+<span style="font-size: 32px">32px</span>
+<span style="font-size: 48px">48px</span>
+<span style="font-size: 64px">64px</span>
+</p>
+
+<p>
+Font sizes (in):
+<span style="font-size: 0.2in">0.2in</span>
+<span style="font-size: 0.3in">0.4in</span>
+<span style="font-size: 0.4in">0.6in</span>
+<span style="font-size: 0.5in">0.8in</span>
+</p>
+
+<p>
+Font sizes (cm):
+<span style="font-size: 0.4cm">0.4cm</span>
+<span style="font-size: 0.8cm">0.8cm</span>
+<span style="font-size: 1.2cm">1.2cm</span>
+<span style="font-size: 1.6cm">1.6cm</span>
+</p>
+
+<p>
+Font sizes (mm):
+<span style="font-size: 4mm">4mm</span>
+<span style="font-size: 8mm">8mm</span>
+<span style="font-size: 12mm">12mm</span>
+<span style="font-size: 16mm">16mm</span>
+</p>
+
+<p>
+Font sizes (em):
+<span style="font-size: 1em">1em</span>
+<span style="font-size: 2em">2em</span>
+<span style="font-size: 3em">3em</span>
+<span style="font-size: 4em">4em</span>
+</p>
+
+<p>
+Font sizes (ex):
+<span style="font-size: 2ex">2ex</span>
+<span style="font-size: 4ex">4ex</span>
+<span style="font-size: 6ex">6ex</span>
+<span style="font-size: 8ex">8ex</span>
+</p>
+
+<p>Workflow languages          are a form of high-level programming language designed for coordinating
+tasks implemented by different
+
+pieces of software, <b> </b> <b> </b> <b> </b> <b> </b> often executed across multiple computers
+using technologies such as web services. Advantages of workflow languages include automatic
+parallelisation, built-in support for accessing services, and simple programming models that
+abstract away many of the complexities associated with distributed and parallel programming.
+In this thesis, we focus on data-oriented workflow languages, in which all computation is free of
+side effects.</p>
+
+<p>Despite their advantages, existing workflow languages sacrifice support for internal computation
+and data manipulation, in an attempt to provide programming models that are simple to
+understand and contain implicit parallelism. These limitations inconvenience users, who are
+forced to define additional components in separate scripting languages whenever they need to
+implement programming logic that cannot be expressed in the workflow language
+itself.</p>
+
+<p>In this thesis, we propose the use of functional programming as a model for data-oriented
+workflow languages. Functional programming languages are both highly expressive and
+amenable to automatic parallelisation. Our approach combines the coordination facilities of
+workflow languages with the computation facilities of functional programming languages,
+allowing both aspects of a workflow to be expressed in the one language.</p>
+
+
+<!-- sync with import.html -->
+<script language="javascript" src="../ElementProxy.js"></script>
+<script language="javascript" src="../ElementProxyMap.js"></script>
+<script language="javascript" src="elements/DOCXBorderProperties.js"></script>
+<script language="javascript" src="elements/DOCXCellProperties.js"></script>
+<script language="javascript" src="elements/DOCXIndentation.js"></script>
+<script language="javascript" src="elements/DOCXIndividualBorder.js"></script>
+<script language="javascript" src="elements/DOCXNumPr.js"></script>
+<script language="javascript" src="elements/DOCXParagraphProperties.js"></script>
+<script language="javascript" src="elements/DOCXRunProperties.js"></script>
+<script language="javascript" src="elements/DOCXSectionProperties.js"></script>
+<script language="javascript" src="elements/DOCXSpacing.js"></script>
+<script language="javascript" src="elements/DOCXTableGrid.js"></script>
+<script language="javascript" src="elements/DOCXTableLook.js"></script>
+<script language="javascript" src="elements/DOCXTableProperties.js"></script>
+<script language="javascript" src="elements/DOCXTableWidth.js"></script>
+<script language="javascript" src="DOCXUtil.js"></script>
+<script language="javascript" src="common.js"></script>
+<script language="javascript" src="filesystem.js"></script>
+<script language="javascript" src="colors.js"></script>
+<script language="javascript" src="numbering.js"></script>
+<script language="javascript" src="styles.js"></script>
+<script language="javascript" src="htmltable.js"></script>
+<script language="javascript" src="DOCXDocument.js"></script>
+<script language="javascript" src="html2docx.js"></script>
+
+<script language="javascript">
+html2docx("saved/saved1");
+</script>
+
+</body>
