@@ -1,0 +1,4 @@
+function StringBuilder()
+{
+    this.str = "";
+}
