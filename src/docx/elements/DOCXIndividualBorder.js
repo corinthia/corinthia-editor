@@ -38,7 +38,7 @@ DOCXIndividualBorder.prototype.applyCSSProperties = function(cssProperties)
     var prefix = this.side+"-";
 
     if (this.color != null)
-        cssProperties[prefix+"color"] = DOCXHTMLColor(this.color);
+        cssProperties[prefix+"color"] = DOCXUtil.htmlColor(this.color);
 
     if (this.val == "nil")
         cssProperties[prefix+"style"] = "hidden";

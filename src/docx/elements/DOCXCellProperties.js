@@ -69,7 +69,7 @@ function DOCXCellProperties(element)
 DOCXCellProperties.prototype.applyCSSProperties = function(cssProperties)
 {
     if ((this.shd != null) && (this.shd != "auto"))
-        cssProperties["background-color"] = DOCXHTMLColor(this.shd);
+        cssProperties["background-color"] = DOCXUtil.htmlColor(this.shd);
     if (this.tcBorders != null)
         this.tcBorders.applyCSSProperties(cssProperties);
     if (this.vAlign == "top")

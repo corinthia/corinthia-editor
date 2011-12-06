@@ -32,18 +32,18 @@ function DOCXParagraphProperties(element)
                     warning("numPr element contains no numId child");
                     continue;
                 }
-                if ((word == null) || (word.numbering == null)) {
+                if ((word == null) || (DOCXDocument.instance.numbering == null)) {
                     continue;
                 }
-                if (word.numbering[numPr.numId] == null) {
+                if (DOCXDocument.instance.numbering[numPr.numId] == null) {
                     warning("no such numbering style "+numPr.numId);
                     continue;
                 }
-                if (word.numbering[numPr.numId].levels[numPr.ilvl] == null) {
+                if (DOCXDocument.instance.numbering[numPr.numId].levels[numPr.ilvl] == null) {
                     warning("no level "+numPr.ilvl+" for numbering style "+numPr.numId);
                     continue;
                 }
-                this.numPr = word.numbering[numPr.numId].levels[numPr.ilvl];
+                this.numPr = DOCXDocument.instance.numbering[numPr.numId].levels[numPr.ilvl];
             }
             else if (child.localName == "outlineLvl")
                 this.outlineLvl = child.getAttributeNS(WORD_NAMESPACE,"outlineLvl");
@@ -83,7 +83,7 @@ DOCXParagraphProperties.prototype.applyCSSProperties = function(cssProperties)
     if (this.jc == "left")
         cssProperties["text-align"] = "left";
     if ((this.shd != null) && (this.shd != "auto"))
-        cssProperties["background-color"] = DOCXHTMLColor(this.shd);
+        cssProperties["background-color"] = DOCXUtil.htmlColor(this.shd);
     if (this.ind != null)
         this.ind.applyCSSProperties(cssProperties);
     if (this.spacing != null)

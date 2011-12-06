@@ -111,7 +111,7 @@ DOCXRunProperties.prototype.applyStyleCSSProperties = function(cssProperties)
     if (this.strike)
         cssProperties["text-decoration"] = "line-through";
     if (this.color != null)
-        cssProperties["color"] = DOCXHTMLColor(this.color);
+        cssProperties["color"] = DOCXUtil.htmlColor(this.color);
     if (this.sz != null)
         cssProperties["font-size"] = this.sz/2+"pt";
     if (this.rFonts != null) {
@@ -366,9 +366,9 @@ DOCXRunProperties.prototype.applyCSSProperties = function(cssProperties)
         cssProperties["font-variant"] = "small-caps";
 
     if (this.color != null)
-        cssProperties["color"] = DOCXHTMLColor(this.color);
+        cssProperties["color"] = DOCXUtil.htmlColor(this.color);
     if (this.shd != null)
-        cssProperties["background-color"] = DOCXHTMLColor(this.shd);
+        cssProperties["background-color"] = DOCXUtil.htmlColor(this.shd);
 
     if (this.strike) {
         if (cssProperties["text-decoration"] != null)

@@ -6,6 +6,9 @@
 function DOCXDocument(filename)
 {
     this.filename = filename;
+    this.numbering = processNumbering(filename);
+    this.styles = processStyles(filename);
+    DOCXDocument.instance = this;
 }
 
 DOCXDocument.prototype.toHTML = function() {
@@ -33,7 +36,7 @@ DOCXDocument.prototype.toHTML = function() {
         style.setAttribute("type","text/css");
         head.appendChild(style);
 
-        var text = document.createTextNode(word.styles.toCSSStyleSheet());
+        var text = document.createTextNode(DOCXDocument.instance.styles.toCSSStyleSheet());
         style.appendChild(text);
     }
 
@@ -179,8 +182,8 @@ DOCXDocument.prototype.toHTML = function() {
             }
 
             // Set style attribute
-            mergeCSSProperties(cssProperties);
-            var style = cssPropertiesText(cssProperties);
+            DOCXUtil.mergeCSSProperties(cssProperties);
+            var style = DOCXUtil.cssPropertiesText(cssProperties);
             if (style != null)
                 paragraph.setAttribute("style",style);
 
@@ -228,7 +231,7 @@ DOCXDocument.prototype.toHTML = function() {
 
                 var cssProperties = new Object();
                 runProperties.applyStyleCSSProperties(cssProperties);
-                var styleValue = cssPropertiesText(cssProperties);
+                var styleValue = DOCXUtil.cssPropertiesText(cssProperties);
                 if (styleValue != null) {
                     htmlParent = addChild(htmlParent,"SPAN");
                     htmlParent.setAttribute("style",styleValue);
@@ -258,7 +261,7 @@ DOCXDocument.prototype.toHTML = function() {
 
             var style = null;
             if (table.properties.tblStyle != null)
-                style = word.styles.styles[table.properties.tblStyle];
+                style = DOCXDocument.instance.styles.styles[table.properties.tblStyle];
 
             if (style != null) {
                 styleHasFirstRow = style.hasTableStyleType("firstRow");
@@ -369,7 +372,7 @@ DOCXDocument.prototype.toHTML = function() {
                 }
             }
 
-            var style = cssPropertiesText(cssProperties);
+            var style = DOCXUtil.cssPropertiesText(cssProperties);
             if (style != null)
                 htmlTable.setAttribute("style",style);
 
@@ -460,7 +463,7 @@ DOCXDocument.prototype.toHTML = function() {
                     if (cell.properties != null)
                         cell.properties.applyCSSProperties(cssProperties);
 
-                    mergeCSSProperties(cssProperties);
+                    DOCXUtil.mergeCSSProperties(cssProperties);
 
                     // Any border properties set on cells have to be marked !important, to
                     // override the default rule that cells on the edge have border: none
@@ -469,7 +472,7 @@ DOCXDocument.prototype.toHTML = function() {
                             cssProperties[name] += " !important";
                     }
 
-                    var style = cssPropertiesText(cssProperties);
+                    var style = DOCXUtil.cssPropertiesText(cssProperties);
                     if (style != null)
                         htmlTD.setAttribute("style",style);
                 }
@@ -641,7 +644,7 @@ DOCXDocument.prototype.toHTML = function() {
     bodyCSSProperties["margin-right"] = Math.round(1000*marginRight)/10 + "%";
     bodyCSSProperties["margin-top"] = Math.round(1000*marginTop)/10 + "%";
     bodyCSSProperties["margin-bottom"] = Math.round(1000*marginBottom)/10 + "%";
-    document.body.setAttribute("style",cssPropertiesText(bodyCSSProperties));
+    document.body.setAttribute("style",DOCXUtil.cssPropertiesText(bodyCSSProperties));
 
     // Translate document to HTML
     recurse(xml.documentElement,document.body,docSectionProperties.contentWidth);
