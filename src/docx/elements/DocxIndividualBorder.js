@@ -1,4 +1,4 @@
-function DOCXIndividualBorder(element,side)
+function DocxIndividualBorder(element,side)
 {
     this.color = null;
     this.sz = null;
@@ -13,14 +13,14 @@ function DOCXIndividualBorder(element,side)
         this.val = element.getAttributeNS(WORD_NAMESPACE,"val");
 }
 
-DOCXIndividualBorder.prototype.equals = function(other)
+DocxIndividualBorder.prototype.equals = function(other)
 {
     return ((other.color == color) &&
             (other.sz == sz) &&
             (other.val == val));
 }
 
-DOCXIndividualBorder.prototype.print = function(indent)
+DocxIndividualBorder.prototype.print = function(indent)
 {
     if (this.color != null)
         debug(indent+"Color: "+this.color);
@@ -30,7 +30,7 @@ DOCXIndividualBorder.prototype.print = function(indent)
         debug(indent+"Style: "+this.val);
 }
 
-DOCXIndividualBorder.prototype.applyCSSProperties = function(cssProperties)
+DocxIndividualBorder.prototype.applyCSSProperties = function(cssProperties)
 {
     if (this.side == null)
         throw new Error("Attempt to apply CSS properties for individual border with no side");
@@ -38,7 +38,7 @@ DOCXIndividualBorder.prototype.applyCSSProperties = function(cssProperties)
     var prefix = this.side+"-";
 
     if (this.color != null)
-        cssProperties[prefix+"color"] = DOCXUtil.htmlColor(this.color);
+        cssProperties[prefix+"color"] = DocxUtil.htmlColor(this.color);
 
     if (this.val == "nil")
         cssProperties[prefix+"style"] = "hidden";

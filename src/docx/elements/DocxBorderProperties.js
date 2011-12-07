@@ -1,5 +1,5 @@
 // pBdr, tblBorders, and tcBorders
-function DOCXBorderProperties(element)
+function DocxBorderProperties(element)
 {
     this.left = null;
     this.right = null;
@@ -15,26 +15,26 @@ function DOCXBorderProperties(element)
             // Note: the spec mentions "start" and "end" elements, but word actually uses
             // left and right elements.
             if ((child.localName == "left") || (child.localName == "start"))
-                this.left = new DOCXIndividualBorder(child,"border-left");
+                this.left = new DocxIndividualBorder(child,"border-left");
             else if ((child.localName == "right") || (child.localName == "end"))
-                this.right = new DOCXIndividualBorder(child,"border-right");
+                this.right = new DocxIndividualBorder(child,"border-right");
             else if (child.localName == "top")
-                this.top = new DOCXIndividualBorder(child,"border-top");
+                this.top = new DocxIndividualBorder(child,"border-top");
             else if (child.localName == "bottom")
-                this.bottom = new DOCXIndividualBorder(child,"border-bottom");
+                this.bottom = new DocxIndividualBorder(child,"border-bottom");
             else if (child.localName == "bar")
-                this.bar = new DOCXIndividualBorder(child,null);
+                this.bar = new DocxIndividualBorder(child,null);
             else if (child.localName == "between")
-                this.between = new DOCXIndividualBorder(child,null);
+                this.between = new DocxIndividualBorder(child,null);
             else if (child.localName == "insideH")
-                this.insideH = new DOCXIndividualBorder(child,"word-insideH");
+                this.insideH = new DocxIndividualBorder(child,"word-insideH");
             else if (child.localName == "insideV")
-                this.insideV = new DOCXIndividualBorder(child,"word-insideV");
+                this.insideV = new DocxIndividualBorder(child,"word-insideV");
         }
     }
 }
 
-DOCXBorderProperties.prototype.applyCSSProperties = function(cssProperties)
+DocxBorderProperties.prototype.applyCSSProperties = function(cssProperties)
 {
     if (this.left != null)
         this.left.applyCSSProperties(cssProperties);
@@ -51,7 +51,7 @@ DOCXBorderProperties.prototype.applyCSSProperties = function(cssProperties)
         this.insideV.applyCSSProperties(cssProperties);
 }
 
-DOCXBorderProperties.prototype.print = function(indent)
+DocxBorderProperties.prototype.print = function(indent)
 {
     if (this.left != null) {
         debug(indent+"Left border:");

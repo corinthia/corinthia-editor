@@ -1,16 +1,16 @@
-DOCXUtil = new Object();
+DocxUtil = new Object();
 
-DOCXUtil.htmlColor = function(docxColor)
+DocxUtil.htmlColor = function(DocxColor)
 {
-    if (docxColor == "auto")
+    if (DocxColor == "auto")
         return "black";
-    else if (docxColor != null)
-        return "#"+docxColor;
+    else if (DocxColor != null)
+        return "#"+DocxColor;
     else
         return null;
 }
 
-DOCXUtil.mergeCSSProperties = function(cssProperties)
+DocxUtil.mergeCSSProperties = function(cssProperties)
 {
     mergeVals("border-left",["border-left-width","border-left-style","border-left-color"]);
     mergeVals("border-right",["border-right-width","border-right-style","border-right-color"]);
@@ -47,7 +47,7 @@ DOCXUtil.mergeCSSProperties = function(cssProperties)
     }
 }
 
-DOCXUtil.cssPropertiesText = function(cssProperties)
+DocxUtil.cssPropertiesText = function(cssProperties)
 {
     var props = new Array();
     for (var name in cssProperties)
@@ -58,7 +58,7 @@ DOCXUtil.cssPropertiesText = function(cssProperties)
         return null;
 }
 
-DOCXUtil.cssRuleText = function(selector,cssProperties)
+DocxUtil.cssRuleText = function(selector,cssProperties)
 {
     var names = new Array();
     for (name in cssProperties) {
@@ -76,7 +76,7 @@ DOCXUtil.cssRuleText = function(selector,cssProperties)
     return str;
 }
 
-DOCXUtil.percentage = function(numerator,denominator)
+DocxUtil.percentage = function(numerator,denominator)
 {
     if (denominator <= 0)
         return "0%";
@@ -84,12 +84,12 @@ DOCXUtil.percentage = function(numerator,denominator)
     return Math.round(1000*ratio)/10 + "%";
 }
 
-DOCXUtil.isWordElement = function(node,name)
+DocxUtil.isWordElement = function(node,name)
 {
     return (node.namespaceURI == WORD_NAMESPACE) && (node.localName == name);
 }
 
-DOCXUtil.firstChildElement = function(node)
+DocxUtil.firstChildElement = function(node)
 {
     for (var child = node.firstChild; child != null; child = child.nextSibling) {
         if (child.nodeType == Node.ELEMENT_NODE)

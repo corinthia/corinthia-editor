@@ -1,5 +1,5 @@
 // Represents a lvl chlid of an abstractNum element
-function DOCXLevel(abstractNumId,element)
+function DocxLevel(abstractNumId,element)
 {
     this.abstractNumId = abstractNumId;
     this.ilvl = element.getAttributeNS(WORD_NAMESPACE,"ilvl");

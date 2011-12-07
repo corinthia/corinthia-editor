@@ -1,5 +1,5 @@
 // ind element
-function DOCXIndentation(element)
+function DocxIndentation(element)
 {
     // Both the ECMA and ISO versions of the OOXML spec say that ind has "start" and "end"
     // attributes, but word 2011 uses "left" and "right"
@@ -25,7 +25,7 @@ function DOCXIndentation(element)
         this.firstLine = null;
 }
 
-DOCXIndentation.prototype.applyCSSProperties = function(cssProperties)
+DocxIndentation.prototype.applyCSSProperties = function(cssProperties)
 {
     if (this.left != null)
         cssProperties["margin-left"] = this.left/20 + "pt";

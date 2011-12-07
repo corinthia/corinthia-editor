@@ -1,4 +1,4 @@
-function DOCXStyle(styleId,element)
+function DocxStyle(styleId,element)
 {
     this.styleId = styleId;
     this.computedCascade = false;
@@ -24,22 +24,22 @@ function DOCXStyle(styleId,element)
             else if (child.localName == "basedOn")
                 this.basedOn = child.getAttributeNS(WORD_NAMESPACE,"val");
             else if (child.localName == "pPr")
-                this.paragraphProperties = new DOCXParagraphProperties(child);
+                this.paragraphProperties = new DocxParagraphProperties(child);
             else if (child.localName == "rPr")
-                this.runProperties = new DOCXRunProperties(child);
+                this.runProperties = new DocxRunProperties(child);
             else if (child.localName == "tblPr")
-                this.tableProperties = new DOCXTableProperties(child);
+                this.tableProperties = new DocxTableProperties(child);
             else if (child.localName == "tcPr")
-                this.cellProperties = new DOCXCellProperties(child);
+                this.cellProperties = new DocxCellProperties(child);
             else if (child.localName == "tblStylePr") {
                 var type = child.getAttributeNS(WORD_NAMESPACE,"type");
-                this.tableStyleProperties[type] = new DOCXTableStyleProperties(child);
+                this.tableStyleProperties[type] = new DocxTableStyleProperties(child);
             }
         }
     }
 }
 
-DOCXStyle.prototype.print = function(indent)
+DocxStyle.prototype.print = function(indent)
 {
     if (this.name != null)
         debug(indent+"Name: "+this.name);
@@ -59,7 +59,7 @@ DOCXStyle.prototype.print = function(indent)
     }
 }
 
-DOCXStyle.prototype.applyCSSProperties = function(cssProperties)
+DocxStyle.prototype.applyCSSProperties = function(cssProperties)
 {
     if (this.parent != null)
         this.parent.applyCSSProperties(cssProperties);
@@ -73,7 +73,7 @@ DOCXStyle.prototype.applyCSSProperties = function(cssProperties)
         this.cellProperties.applyCSSProperties(cssProperties);
 }
 
-DOCXStyle.prototype.applyTableStyleCSSProperties = function(type,cssProperties)
+DocxStyle.prototype.applyTableStyleCSSProperties = function(type,cssProperties)
 {
     if (this.parent != null)
         this.parent.applyTableStyleCSSProperties(type,cssProperties);
@@ -81,7 +81,7 @@ DOCXStyle.prototype.applyTableStyleCSSProperties = function(type,cssProperties)
         this.tableStyleProperties[type].applyCSSProperties(cssProperties);
 }
 
-DOCXStyle.prototype.computeCascadedProperties = function(styleCollection,indent)
+DocxStyle.prototype.computeCascadedProperties = function(styleCollection,indent)
 {
     if (this.computedCascade)
         return;
@@ -98,7 +98,7 @@ DOCXStyle.prototype.computeCascadedProperties = function(styleCollection,indent)
     }
 }
 
-DOCXStyle.prototype.hasTableStyleType = function(type)
+DocxStyle.prototype.hasTableStyleType = function(type)
 {
     if (this.tableStyleProperties[type] != null)
         return true;

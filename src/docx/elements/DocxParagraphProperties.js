@@ -1,5 +1,5 @@
 // pPr element
-function DOCXParagraphProperties(element)
+function DocxParagraphProperties(element)
 {
     this.framePtr = null; // Text frame properties
     this.ind = null; // Paragraph indentation
@@ -19,11 +19,11 @@ function DOCXParagraphProperties(element)
             if (child.localName == "framePtr")
                 this.framePtr = null;
             else if (child.localName == "ind")
-                this.ind = new DOCXIndentation(child);
+                this.ind = new DocxIndentation(child);
             else if (child.localName == "jc")
                 this.jc = child.getAttributeNS(WORD_NAMESPACE,"val");
             else if (child.localName == "numPr") {
-                var numPr = new DOCXNumPr(child);
+                var numPr = new DocxNumPr(child);
                 if (numPr.ilvl == null) {
                     warning("numPr element contains no ilvl child");
                     continue;
@@ -32,23 +32,23 @@ function DOCXParagraphProperties(element)
                     warning("numPr element contains no numId child");
                     continue;
                 }
-                if (DOCXDocument.instance.numbering == null) {
+                if (DocxDocument.instance.numbering == null) {
                     continue;
                 }
-                if (DOCXDocument.instance.numbering.nums[numPr.numId] == null) {
+                if (DocxDocument.instance.numbering.nums[numPr.numId] == null) {
                     warning("no such numbering style "+numPr.numId);
                     continue;
                 }
-                if (DOCXDocument.instance.numbering.nums[numPr.numId].levels[numPr.ilvl] == null) {
+                if (DocxDocument.instance.numbering.nums[numPr.numId].levels[numPr.ilvl] == null) {
                     warning("no level "+numPr.ilvl+" for numbering style "+numPr.numId);
                     continue;
                 }
-                this.numPr = DOCXDocument.instance.numbering.nums[numPr.numId].levels[numPr.ilvl];
+                this.numPr = DocxDocument.instance.numbering.nums[numPr.numId].levels[numPr.ilvl];
             }
             else if (child.localName == "outlineLvl")
                 this.outlineLvl = child.getAttributeNS(WORD_NAMESPACE,"outlineLvl");
             else if (child.localName == "pBdr") {
-                this.pBdr = new DOCXBorderProperties(child);
+                this.pBdr = new DocxBorderProperties(child);
             }
             else if (child.localName == "pStyle")
                 this.pStyle = child.getAttributeNS(WORD_NAMESPACE,"val");
@@ -59,14 +59,14 @@ function DOCXParagraphProperties(element)
             else if (child.localName == "shd")
                 this.shd = child.getAttributeNS(WORD_NAMESPACE,"fill");
             else if (child.localName == "spacing")
-                this.spacing = new DOCXSpacing(child);
+                this.spacing = new DocxSpacing(child);
             else if (child.localName == "textAlignment")
                 this.textAlignment = null;
         }
     }
 }
 
-DOCXParagraphProperties.prototype.applyCSSProperties = function(cssProperties)
+DocxParagraphProperties.prototype.applyCSSProperties = function(cssProperties)
 {
     if (this.pBdr != null)
         this.pBdr.applyCSSProperties(cssProperties);
@@ -83,14 +83,14 @@ DOCXParagraphProperties.prototype.applyCSSProperties = function(cssProperties)
     if (this.jc == "left")
         cssProperties["text-align"] = "left";
     if ((this.shd != null) && (this.shd != "auto"))
-        cssProperties["background-color"] = DOCXUtil.htmlColor(this.shd);
+        cssProperties["background-color"] = DocxUtil.htmlColor(this.shd);
     if (this.ind != null)
         this.ind.applyCSSProperties(cssProperties);
     if (this.spacing != null)
         this.spacing.applyCSSProperties(cssProperties);
 }
 
-DOCXParagraphProperties.prototype.print = function(indent)
+DocxParagraphProperties.prototype.print = function(indent)
 {
     if (this.framePtr != null) {}
     if (this.ind != null) {}

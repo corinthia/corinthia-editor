@@ -1,10 +1,10 @@
-// FIXME: make this a property of DOCXTableProperties
-var DOCXTablePropertiesId = 0;
+// FIXME: make this a property of DocxTableProperties
+var DocxTablePropertiesId = 0;
 
 // Represents a tblPr child of a tbl element
-function DOCXTableProperties(element)
+function DocxTableProperties(element)
 {
-    this.id = DOCXTablePropertiesId++;
+    this.id = DocxTablePropertiesId++;
     this.bidiVisual = null;
     this.jc = null;
     this.shd = null;
@@ -33,7 +33,7 @@ function DOCXTableProperties(element)
             else if (child.localName == "shd")
                 this.shd = null;
             else if (child.localName == "tblBorders")
-                this.tblBorders = new DOCXBorderProperties(child);
+                this.tblBorders = new DocxBorderProperties(child);
             else if (child.localName == "tblCaption")
                 this.tblCaption = null;
             else if (child.localName == "tblCellMar")
@@ -47,7 +47,7 @@ function DOCXTableProperties(element)
             else if (child.localName == "tblLayout")
                 this.tblLayout = null;
             else if (child.localName == "tblLook")
-                this.tblLook = new DOCXTableLook(child);
+                this.tblLook = new DocxTableLook(child);
             else if (child.localName == "tblOverlap")
                 this.tblOverlap = null;
             else if (child.localName == "tblpPr")
@@ -61,18 +61,18 @@ function DOCXTableProperties(element)
             else if (child.localName == "tblStyleRowBandSize")
                 this.tblStyleRowBandSize = null;
             else if (child.localName == "tblW")
-                this.tblW = new DOCXTableWidth(child);
+                this.tblW = new DocxTableWidth(child);
         }
     }
 }
 
-DOCXTableProperties.prototype.print = function(indent)
+DocxTableProperties.prototype.print = function(indent)
 {
     if (this.tblBorders != null)
         this.tblBorders.print(indent);
 }
 
-DOCXTableProperties.prototype.applyCSSProperties = function(cssProperties)
+DocxTableProperties.prototype.applyCSSProperties = function(cssProperties)
 {
     if (this.tblBorders != null)
         this.tblBorders.applyCSSProperties(cssProperties);

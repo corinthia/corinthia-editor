@@ -1,4 +1,4 @@
-function DOCXSectionProperties(element)
+function DocxSectionProperties(element)
 {
     // Defaults that word uses (A4)
     this.pageWidth = 11900; // 210 mm

@@ -1,4 +1,4 @@
-function DOCXNumPr(element)
+function DocxNumPr(element)
 {
     this.ilvl = null;
     this.numId = null;

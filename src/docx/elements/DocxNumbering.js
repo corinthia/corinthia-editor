@@ -1,27 +1,27 @@
 // http://msdn.microsoft.com/en-us/library/ee922775.aspx
 
 // Represents a numbering element at the root of numbering.xml, if present
-function DOCXNumbering(element)
+function DocxNumbering(element)
 {
     this.nums = new Array();
-    if (DOCXUtil.isWordElement(element,"numbering")) {
+    if (DocxUtil.isWordElement(element,"numbering")) {
 
         // Find all the abstractNum elements
         var abstractNums = new Array();
         for (var child = element.firstChild; child != null; child = child.nextSibling) {
-            if (DOCXUtil.isWordElement(child,"abstractNum")) {
+            if (DocxUtil.isWordElement(child,"abstractNum")) {
                 var abstractNumId = child.getAttributeNS(WORD_NAMESPACE,"abstractNumId");
                 if (abstractNumId == null) {
                     warning("abstractNum element has no abstractNumId attribute");
                     continue;
                 }
-                abstractNums[abstractNumId] = new DOCXAbstractNum(child);
+                abstractNums[abstractNumId] = new DocxAbstractNum(child);
             }
         }
 
         // Find all the num elements
         for (var child = element.firstChild; child != null; child = child.nextSibling) {
-            if (DOCXUtil.isWordElement(child,"num")) {
+            if (DocxUtil.isWordElement(child,"num")) {
                 var numId = child.getAttributeNS(WORD_NAMESPACE,"numId");
                 if (numId == null) {
                     warning("num element has no numId attribute");

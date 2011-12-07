@@ -25,30 +25,30 @@ function save()
 <!-- sync with export.html -->
 <script language="javascript" src="../ElementProxy.js"></script>
 <script language="javascript" src="../ElementProxyMap.js"></script>
-<script language="javascript" src="elements/DOCXAbstractNum.js"></script>
-<script language="javascript" src="elements/DOCXBorderProperties.js"></script>
-<script language="javascript" src="elements/DOCXCellProperties.js"></script>
-<script language="javascript" src="elements/DOCXIndentation.js"></script>
-<script language="javascript" src="elements/DOCXIndividualBorder.js"></script>
-<script language="javascript" src="elements/DOCXLevel.js"></script>
-<script language="javascript" src="elements/DOCXNumbering.js"></script>
-<script language="javascript" src="elements/DOCXNumPr.js"></script>
-<script language="javascript" src="elements/DOCXParagraphProperties.js"></script>
-<script language="javascript" src="elements/DOCXRunProperties.js"></script>
-<script language="javascript" src="elements/DOCXSectionProperties.js"></script>
-<script language="javascript" src="elements/DOCXSpacing.js"></script>
-<script language="javascript" src="elements/DOCXTableGrid.js"></script>
-<script language="javascript" src="elements/DOCXTableLook.js"></script>
-<script language="javascript" src="elements/DOCXTableProperties.js"></script>
-<script language="javascript" src="elements/DOCXTableStyleProperties.js"></script>
-<script language="javascript" src="elements/DOCXTableWidth.js"></script>
-<script language="javascript" src="DOCXStyle.js"></script>
-<script language="javascript" src="DOCXStyleCollection.js"></script>
-<script language="javascript" src="DOCXUtil.js"></script>
+<script language="javascript" src="elements/DocxAbstractNum.js"></script>
+<script language="javascript" src="elements/DocxBorderProperties.js"></script>
+<script language="javascript" src="elements/DocxCellProperties.js"></script>
+<script language="javascript" src="elements/DocxIndentation.js"></script>
+<script language="javascript" src="elements/DocxIndividualBorder.js"></script>
+<script language="javascript" src="elements/DocxLevel.js"></script>
+<script language="javascript" src="elements/DocxNumbering.js"></script>
+<script language="javascript" src="elements/DocxNumPr.js"></script>
+<script language="javascript" src="elements/DocxParagraphProperties.js"></script>
+<script language="javascript" src="elements/DocxRunProperties.js"></script>
+<script language="javascript" src="elements/DocxSectionProperties.js"></script>
+<script language="javascript" src="elements/DocxSpacing.js"></script>
+<script language="javascript" src="elements/DocxTableGrid.js"></script>
+<script language="javascript" src="elements/DocxTableLook.js"></script>
+<script language="javascript" src="elements/DocxTableProperties.js"></script>
+<script language="javascript" src="elements/DocxTableStyleProperties.js"></script>
+<script language="javascript" src="elements/DocxTableWidth.js"></script>
+<script language="javascript" src="DocxStyle.js"></script>
+<script language="javascript" src="DocxStyleCollection.js"></script>
+<script language="javascript" src="DocxUtil.js"></script>
 <script language="javascript" src="filesystem.js"></script>
 <script language="javascript" src="colors.js"></script>
 <script language="javascript" src="htmltable.js"></script>
-<script language="javascript" src="DOCXDocument.js"></script>
+<script language="javascript" src="DocxDocument.js"></script>
 <script language="javascript" src="html2docx.js"></script>
 
 <script language="javascript">
@@ -59,7 +59,7 @@ var filename = "docx/docs/table-styles-3.docx";
 //printNumbering(word.numbering);
 //printStyles(word.styles);
 
-var doc = new DOCXDocument(filename);
+var doc = new DocxDocument(filename);
 doc.toHTML(filename);
 
 

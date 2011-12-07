@@ -1,4 +1,4 @@
-function DOCXRunProperties(element)
+function DocxRunProperties(element)
 {
     this.b = false; // Bold
     this.bdr = null; // Text border
@@ -73,7 +73,7 @@ function DOCXRunProperties(element)
     }
 }
 
-DOCXRunProperties.prototype.print = function(indent)
+DocxRunProperties.prototype.print = function(indent)
 {
     if (this.b != null)
         debug(indent+"Bold: "+this.b);
@@ -106,12 +106,12 @@ DOCXRunProperties.prototype.print = function(indent)
 // "style" attribute, as opposed to individual HTML elements. For example we include things
 // like font-family and color here, but bold and italic result in <B> and <I> elements being
 // added to the output document.
-DOCXRunProperties.prototype.applyStyleCSSProperties = function(cssProperties)
+DocxRunProperties.prototype.applyStyleCSSProperties = function(cssProperties)
 {
     if (this.strike)
         cssProperties["text-decoration"] = "line-through";
     if (this.color != null)
-        cssProperties["color"] = DOCXUtil.htmlColor(this.color);
+        cssProperties["color"] = DocxUtil.htmlColor(this.color);
     if (this.sz != null)
         cssProperties["font-size"] = this.sz/2+"pt";
     if (this.rFonts != null) {
@@ -122,7 +122,7 @@ DOCXRunProperties.prototype.applyStyleCSSProperties = function(cssProperties)
     }
 }
 
-DOCXRunProperties.prototype.fromCSSStyleDeclaration = function(style,node)
+DocxRunProperties.prototype.fromCSSStyleDeclaration = function(style,node)
 {
     function cssListContains(list,ident)
     {
@@ -265,7 +265,7 @@ DOCXRunProperties.prototype.fromCSSStyleDeclaration = function(style,node)
     }
 }
 
-DOCXRunProperties.prototype.fromHTML = function(node)
+DocxRunProperties.prototype.fromHTML = function(node)
 {
     for (; node != null; node = node.parentNode) {
         if ((node.nodeType == Node.ELEMENT_NODE) && (node.hasAttribute("style"))) {
@@ -309,7 +309,7 @@ DOCXRunProperties.prototype.fromHTML = function(node)
     }
 }
 
-DOCXRunProperties.prototype.toXML = function(doc)
+DocxRunProperties.prototype.toXML = function(doc)
 {
     var rPr = doc.createElementNS(WORD_NAMESPACE,"w:rPr");
     if (this.b) {
@@ -356,7 +356,7 @@ DOCXRunProperties.prototype.toXML = function(doc)
         return rPr;
 }
 
-DOCXRunProperties.prototype.applyCSSProperties = function(cssProperties)
+DocxRunProperties.prototype.applyCSSProperties = function(cssProperties)
 {
     if (this.b)
         cssProperties["font-weight"] = "bold";
@@ -366,9 +366,9 @@ DOCXRunProperties.prototype.applyCSSProperties = function(cssProperties)
         cssProperties["font-variant"] = "small-caps";
 
     if (this.color != null)
-        cssProperties["color"] = DOCXUtil.htmlColor(this.color);
+        cssProperties["color"] = DocxUtil.htmlColor(this.color);
     if (this.shd != null)
-        cssProperties["background-color"] = DOCXUtil.htmlColor(this.shd);
+        cssProperties["background-color"] = DocxUtil.htmlColor(this.shd);
 
     if (this.strike) {
         if (cssProperties["text-decoration"] != null)

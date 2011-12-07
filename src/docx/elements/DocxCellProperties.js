@@ -1,5 +1,5 @@
 // Represents a tcPr child of a tc element
-function DOCXCellProperties(element)
+function DocxCellProperties(element)
 {
     this.cellDel = null; // Table Cell Deletion
     this.cellIns = null; // Table Cell Insertion
@@ -43,7 +43,7 @@ function DOCXCellProperties(element)
             else if (child.localName == "shd")
                 this.shd = child.getAttributeNS(WORD_NAMESPACE,"fill");
             else if (child.localName == "tcBorders")
-                this.tcBorders = new DOCXBorderProperties(child);
+                this.tcBorders = new DocxBorderProperties(child);
             else if (child.localName == "tcFitText")
                 this.tcFitText = null;
             else if (child.localName == "tcMar")
@@ -51,7 +51,7 @@ function DOCXCellProperties(element)
             else if (child.localName == "tcPrChange")
                 this.tcPrChange = null;
             else if (child.localName == "tcW")
-                this.tcW = new DOCXTableWidth(child);
+                this.tcW = new DocxTableWidth(child);
             else if (child.localName == "textDirection")
                 this.textDirection = null;
             else if (child.localName == "vAlign")
@@ -66,10 +66,10 @@ function DOCXCellProperties(element)
     }
 }
 
-DOCXCellProperties.prototype.applyCSSProperties = function(cssProperties)
+DocxCellProperties.prototype.applyCSSProperties = function(cssProperties)
 {
     if ((this.shd != null) && (this.shd != "auto"))
-        cssProperties["background-color"] = DOCXUtil.htmlColor(this.shd);
+        cssProperties["background-color"] = DocxUtil.htmlColor(this.shd);
     if (this.tcBorders != null)
         this.tcBorders.applyCSSProperties(cssProperties);
     if (this.vAlign == "top")

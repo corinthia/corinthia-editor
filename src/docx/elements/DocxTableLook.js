@@ -9,7 +9,7 @@ not documented in the spec. Word 2008 stores the bitfield too, but also sets the
 So we turn on the various options if either the appropriate bit or attribute is set.
 */
 
-function DOCXTableLook(element)
+function DocxTableLook(element)
 {
     this.firstRow = false;
     this.lastRow = false;

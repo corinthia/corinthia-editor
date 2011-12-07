@@ -5,27 +5,27 @@ var WORD_NAMESPACE = "http://schemas.openxmlformats.org/wordprocessingml/2006/ma
 
 // FIXME: after translation, remove all attributes starting with "word-"
 
-function DOCXDocument(filename)
+function DocxDocument(filename)
 {
-    DOCXDocument.instance = this;
+    DocxDocument.instance = this;
     this.filename = filename;
 
     var numberingXML = filesystem.readXML(filename+"/word/numbering.xml");
     if (numberingXML != null)
-        this.numbering = new DOCXNumbering(numberingXML.documentElement);
+        this.numbering = new DocxNumbering(numberingXML.documentElement);
     else
         this.numbering = null;
 
     var stylesXML = filesystem.readXML(filename+"/word/styles.xml");
     if (stylesXML != null)
-        this.styles = new DOCXStyleCollection(stylesXML.documentElement);
+        this.styles = new DocxStyleCollection(stylesXML.documentElement);
     else
         this.styles = null;
 
     this.lastListForNumId = new Object();
 }
 
-DOCXDocument.prototype.addStyleSheet = function()
+DocxDocument.prototype.addStyleSheet = function()
 {
     var head = document.documentElement.firstChild;
     while ((head != null) && (head.nodeName != "HEAD"))
@@ -39,31 +39,31 @@ DOCXDocument.prototype.addStyleSheet = function()
     style.setAttribute("type","text/css");
     head.appendChild(style);
 
-    var text = document.createTextNode(DOCXDocument.instance.styles.toCSSStyleSheet());
+    var text = document.createTextNode(DocxDocument.instance.styles.toCSSStyleSheet());
     style.appendChild(text);
 }
 
-DOCXDocument.prototype.getDocSectionProperties = function(doc)
+DocxDocument.prototype.getDocSectionProperties = function(doc)
 {
     var body = doc.documentElement.lastChild;
-    if ((body != null) && DOCXUtil.isWordElement(body,"body")) {
+    if ((body != null) && DocxUtil.isWordElement(body,"body")) {
         for (var child = body.lastChild; body != null; body = body.previousSibling) {
-            if (DOCXUtil.isWordElement(child,"sectPr"))
-                return new DOCXSectionProperties(child);
+            if (DocxUtil.isWordElement(child,"sectPr"))
+                return new DocxSectionProperties(child);
         }
     }
-    return new DOCXSectionProperties();
+    return new DocxSectionProperties();
 }
 
-DOCXDocument.prototype.recurseP = function(node,htmlParent,containingBlockWidth)
+DocxDocument.prototype.recurseP = function(node,htmlParent,containingBlockWidth)
 {
     var htmlElementName = "P";
     var cssProperties = new Object();
 
-    var pPr = DOCXUtil.firstChildElement(node);
+    var pPr = DocxUtil.firstChildElement(node);
     var properties = null;
-    if ((pPr != null) && DOCXUtil.isWordElement(pPr,"pPr")) {
-        properties = new DOCXParagraphProperties(pPr);
+    if ((pPr != null) && DocxUtil.isWordElement(pPr,"pPr")) {
+        properties = new DocxParagraphProperties(pPr);
     }
 
     if (properties != null) {
@@ -178,8 +178,8 @@ DOCXDocument.prototype.recurseP = function(node,htmlParent,containingBlockWidth)
     }
 
     // Set style attribute
-    DOCXUtil.mergeCSSProperties(cssProperties);
-    var style = DOCXUtil.cssPropertiesText(cssProperties);
+    DocxUtil.mergeCSSProperties(cssProperties);
+    var style = DocxUtil.cssPropertiesText(cssProperties);
     if (style != null)
         paragraph.setAttribute("style",style);
 
@@ -190,11 +190,11 @@ DOCXDocument.prototype.recurseP = function(node,htmlParent,containingBlockWidth)
         paragraph.parentNode.removeChild(paragraph);
 }
 
-DOCXDocument.prototype.recurseR = function(node,htmlParent,containingBlockWidth)
+DocxDocument.prototype.recurseR = function(node,htmlParent,containingBlockWidth)
 {
-    var rPr = DOCXUtil.firstChildElement(node);
-    if ((rPr != null) && DOCXUtil.isWordElement(rPr,"rPr")) {
-        var runProperties = new DOCXRunProperties(rPr);
+    var rPr = DocxUtil.firstChildElement(node);
+    if ((rPr != null) && DocxUtil.isWordElement(rPr,"rPr")) {
+        var runProperties = new DocxRunProperties(rPr);
         if (runProperties.b)
             htmlParent = this.addChild(htmlParent,"B");
         if (runProperties.i)
@@ -229,7 +229,7 @@ DOCXDocument.prototype.recurseR = function(node,htmlParent,containingBlockWidth)
 
         var cssProperties = new Object();
         runProperties.applyStyleCSSProperties(cssProperties);
-        var styleValue = DOCXUtil.cssPropertiesText(cssProperties);
+        var styleValue = DocxUtil.cssPropertiesText(cssProperties);
         if (styleValue != null) {
             htmlParent = this.addChild(htmlParent,"SPAN");
             htmlParent.setAttribute("style",styleValue);
@@ -238,7 +238,7 @@ DOCXDocument.prototype.recurseR = function(node,htmlParent,containingBlockWidth)
     this.recurseChildren(node,htmlParent,containingBlockWidth);
 }
 
-DOCXDocument.prototype.recurseTbl = function(node,htmlParent,containingBlockWidth)
+DocxDocument.prototype.recurseTbl = function(node,htmlParent,containingBlockWidth)
 {
     var table = new TranslationTable(node);
     var htmlTable = this.addChild(htmlParent,"TABLE");
@@ -261,7 +261,7 @@ DOCXDocument.prototype.recurseTbl = function(node,htmlParent,containingBlockWidt
 
     var style = null;
     if (table.properties.tblStyle != null)
-        style = DOCXDocument.instance.styles.styles[table.properties.tblStyle];
+        style = DocxDocument.instance.styles.styles[table.properties.tblStyle];
 
     if (style != null) {
         styleHasFirstRow = style.hasTableStyleType("firstRow");
@@ -316,7 +316,7 @@ DOCXDocument.prototype.recurseTbl = function(node,htmlParent,containingBlockWidt
     // Table width: dxa (units: 1/20th of a point)
     else if (tblW && (tblW.type == "dxa")) {
         // Convert to a percentage
-        cssProperties["width"] = DOCXUtil.percentage(tblW.w,containingBlockWidth);
+        cssProperties["width"] = DocxUtil.percentage(tblW.w,containingBlockWidth);
     }
     // Table width: auto (or unspecified)
     else {
@@ -365,14 +365,14 @@ DOCXDocument.prototype.recurseTbl = function(node,htmlParent,containingBlockWidt
                     maxRowWidth = rowWidth;
             }
 
-            cssProperties["width"] = DOCXUtil.percentage(maxRowWidth,containingBlockWidth);
+            cssProperties["width"] = DocxUtil.percentage(maxRowWidth,containingBlockWidth);
         }
         else {
             cssProperties["width"] = "100%";
         }
     }
 
-    var style = DOCXUtil.cssPropertiesText(cssProperties);
+    var style = DocxUtil.cssPropertiesText(cssProperties);
     if (style != null)
         htmlTable.setAttribute("style",style);
 
@@ -463,7 +463,7 @@ DOCXDocument.prototype.recurseTbl = function(node,htmlParent,containingBlockWidt
             if (cell.properties != null)
                 cell.properties.applyCSSProperties(cssProperties);
 
-            DOCXUtil.mergeCSSProperties(cssProperties);
+            DocxUtil.mergeCSSProperties(cssProperties);
 
             // Any border properties set on cells have to be marked !important, to
             // override the default rule that cells on the edge have border: none
@@ -472,14 +472,14 @@ DOCXDocument.prototype.recurseTbl = function(node,htmlParent,containingBlockWidt
                     cssProperties[name] += " !important";
             }
 
-            var style = DOCXUtil.cssPropertiesText(cssProperties);
+            var style = DocxUtil.cssPropertiesText(cssProperties);
             if (style != null)
                 htmlTD.setAttribute("style",style);
         }
     }
 }
 
-DOCXDocument.prototype.recurse = function(node,htmlParent,containingBlockWidth)
+DocxDocument.prototype.recurse = function(node,htmlParent,containingBlockWidth)
 {
     if (node.nodeType == Node.TEXT_NODE)
         htmlParent.appendChild(document.createTextNode(node.nodeValue));
@@ -495,23 +495,23 @@ DOCXDocument.prototype.recurse = function(node,htmlParent,containingBlockWidth)
         this.recurseChildren(node,htmlParent,containingBlockWidth);
 }
 
-DOCXDocument.prototype.addChild = function(parent,name)
+DocxDocument.prototype.addChild = function(parent,name)
 {
     var child = document.createElement(name);
     parent.appendChild(child);
     return child;
 }
 
-DOCXDocument.prototype.recurseChildren = function(node,htmlParent,containingBlockWidth)
+DocxDocument.prototype.recurseChildren = function(node,htmlParent,containingBlockWidth)
 {
     for (var child = node.firstChild; child != null; child = child.nextSibling)
         this.recurse(child,htmlParent,containingBlockWidth);
 }
 
-DOCXDocument.prototype.toHTML = function() {
+DocxDocument.prototype.toHTML = function() {
     var filename = this.filename;
 
-    // docx2html main
+    // Docx2html main
     var documentFilename = filename+"/word/document.xml";
     var xml = filesystem.readXML(documentFilename);
     if (xml == null)
@@ -534,7 +534,7 @@ DOCXDocument.prototype.toHTML = function() {
     bodyCSSProperties["margin-right"] = Math.round(1000*marginRight)/10 + "%";
     bodyCSSProperties["margin-top"] = Math.round(1000*marginTop)/10 + "%";
     bodyCSSProperties["margin-bottom"] = Math.round(1000*marginBottom)/10 + "%";
-    document.body.setAttribute("style",DOCXUtil.cssPropertiesText(bodyCSSProperties));
+    document.body.setAttribute("style",DocxUtil.cssPropertiesText(bodyCSSProperties));
 
     // Translate document to HTML
     this.recurse(xml.documentElement,document.body,this.docSectionProperties.contentWidth);
@@ -561,9 +561,9 @@ function TranslationTable(element)
     for (var child = element.firstChild; child != null; child = child.nextSibling) {
         if (child.namespaceURI == WORD_NAMESPACE) {
             if (child.localName == "tblGrid")
-                this.grid = new DOCXTableGrid(child);
+                this.grid = new DocxTableGrid(child);
             else if (child.localName == "tblPr")
-                this.properties = new DOCXTableProperties(child);
+                this.properties = new DocxTableProperties(child);
         }
     }
 
@@ -623,13 +623,13 @@ TranslationTable.prototype.get = function(row,col)
 
 TranslationTable.prototype.processTable = function(node)
 {
-    if (DOCXUtil.isWordElement(node,"tc")) {
+    if (DocxUtil.isWordElement(node,"tc")) {
         var properties = null;
 
         for (var child = node.firstChild; child != null; child = child.nextSibling) {
             if (child.namespaceURI == WORD_NAMESPACE) {
                 if (child.localName == "tcPr")
-                    properties = new DOCXCellProperties(child);
+                    properties = new DocxCellProperties(child);
             }
         }
 
@@ -651,7 +651,7 @@ TranslationTable.prototype.processTable = function(node)
 
         this.col += cell.colspan;
     }
-    else if (DOCXUtil.isWordElement(node,"tr")) {
+    else if (DocxUtil.isWordElement(node,"tr")) {
         for (var child = node.firstChild; child != null; child = child.nextSibling)
             this.processTable(child);
         this.row++;

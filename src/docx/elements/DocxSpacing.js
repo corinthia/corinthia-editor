@@ -1,4 +1,4 @@
-function DOCXSpacing(element)
+function DocxSpacing(element)
 {
     if (element.hasAttributeNS(WORD_NAMESPACE,"before"))
         this.before = parseInt(element.getAttributeNS(WORD_NAMESPACE,"before"));
@@ -16,7 +16,7 @@ function DOCXSpacing(element)
         this.line = null;
 }
 
-DOCXSpacing.prototype.applyCSSProperties = function(cssProperties)
+DocxSpacing.prototype.applyCSSProperties = function(cssProperties)
 {
     if (this.before != null)
         cssProperties["margin-top"] = this.before/20 + "pt";

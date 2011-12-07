@@ -1,5 +1,5 @@
 // Represents a tblStylePr
-function DOCXTableStyleProperties(element)
+function DocxTableStyleProperties(element)
 {
     this.pPr = null;
     this.rPr = null;
@@ -8,16 +8,16 @@ function DOCXTableStyleProperties(element)
     for (var child = element.firstChild; child != null; child = child.nextSibling) {
         if (child.namespaceURI == WORD_NAMESPACE) {
             if (child.localName == "pPr")
-                this.pPr = new DOCXParagraphProperties(child);
+                this.pPr = new DocxParagraphProperties(child);
             else if (child.localName == "rPr")
-                this.rPr = new DOCXRunProperties(child);
+                this.rPr = new DocxRunProperties(child);
             else if (child.localName == "tcPr")
-                this.tcPr = new DOCXCellProperties(child);
+                this.tcPr = new DocxCellProperties(child);
         }
     }
 }
 
-DOCXTableStyleProperties.prototype.applyCSSProperties = function(cssProperties)
+DocxTableStyleProperties.prototype.applyCSSProperties = function(cssProperties)
 {
     if (this.pPr != null)
         this.pPr.applyCSSProperties(cssProperties);
@@ -27,7 +27,7 @@ DOCXTableStyleProperties.prototype.applyCSSProperties = function(cssProperties)
         this.tcPr.applyCSSProperties(cssProperties);
 }
 
-DOCXTableStyleProperties.prototype.applyCellCSSProperties = function(cssProperties)
+DocxTableStyleProperties.prototype.applyCellCSSProperties = function(cssProperties)
 {
     if (this.tcPr != null)
         this.tcPr.applyCSSProperties(cssProperties);

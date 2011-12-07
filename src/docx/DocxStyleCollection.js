@@ -1,16 +1,16 @@
-function DOCXStyleCollection(stylesElem)
+function DocxStyleCollection(stylesElem)
 {
     this.styles = new Object();
 
-    if (DOCXUtil.isWordElement(stylesElem,"styles")) {
+    if (DocxUtil.isWordElement(stylesElem,"styles")) {
         for (var child = stylesElem.firstChild; child != null; child = child.nextSibling) {
-            if (DOCXUtil.isWordElement(child,"style")) {
+            if (DocxUtil.isWordElement(child,"style")) {
                 var styleId = child.getAttributeNS(WORD_NAMESPACE,"styleId");
                 if (styleId == null) {
                     warning("style element has no styleId");
                     continue;
                 }
-                this.styles[styleId] = new DOCXStyle(styleId,child);
+                this.styles[styleId] = new DocxStyle(styleId,child);
             }
         }
     }
@@ -18,7 +18,7 @@ function DOCXStyleCollection(stylesElem)
     this.computeCascadedProperties();
 }
 
-DOCXStyleCollection.prototype.extractCellProperties = function(cssProperties)
+DocxStyleCollection.prototype.extractCellProperties = function(cssProperties)
 {
     var cellCSSProperties = new Object();
     var haveCellProperties = false;
@@ -45,13 +45,13 @@ DOCXStyleCollection.prototype.extractCellProperties = function(cssProperties)
         return null;
 }
 
-DOCXStyleCollection.prototype.computeCascadedProperties = function()
+DocxStyleCollection.prototype.computeCascadedProperties = function()
 {
     for (var name in this.styles)
         this.styles[name].computeCascadedProperties(this,"");
 }
 
-DOCXStyleCollection.prototype.toCSSStyleSheet = function()
+DocxStyleCollection.prototype.toCSSStyleSheet = function()
 {
     var cssText = "";
 
@@ -68,7 +68,7 @@ DOCXStyleCollection.prototype.toCSSStyleSheet = function()
         style.applyCSSProperties(cssProperties);
 
 
-        DOCXUtil.mergeCSSProperties(cssProperties);
+        DocxUtil.mergeCSSProperties(cssProperties);
         cssText += "\n\n\n/* "+style.styleId+" ("+style.type+") */\n\n";
 
         var baseSelector;
@@ -78,22 +78,22 @@ DOCXStyleCollection.prototype.toCSSStyleSheet = function()
             baseSelector = "."+styleId;;
 
         var cellCSSProperties = this.extractCellProperties(cssProperties);
-        cssText += DOCXUtil.cssRuleText(baseSelector,cssProperties);
+        cssText += DocxUtil.cssRuleText(baseSelector,cssProperties);
 
         // Special case: border properties set on a table style also apply to its children
         if (cellCSSProperties != null) {
-            DOCXUtil.mergeCSSProperties(cellCSSProperties);
-            cssText += DOCXUtil.cssRuleText(baseSelector+" > tbody > tr > *",
+            DocxUtil.mergeCSSProperties(cellCSSProperties);
+            cssText += DocxUtil.cssRuleText(baseSelector+" > tbody > tr > *",
                                             cellCSSProperties);
 
             if ((style.hasTableStyleType("nwCell") || style.hasTableStyleType("neCell")) &&
                 !style.hasTableStyleType("firstRow"))
-                cssText += DOCXUtil.cssRuleText(baseSelector+" > thead > tr > *",
+                cssText += DocxUtil.cssRuleText(baseSelector+" > thead > tr > *",
                                                 cellCSSProperties);
 
             if ((style.hasTableStyleType("swCell") || style.hasTableStyleType("seCell")) &&
                 !style.hasTableStyleType("lastRow"))
-                cssText += DOCXUtil.cssRuleText(baseSelector+" > tfoot > tr > *",
+                cssText += DocxUtil.cssRuleText(baseSelector+" > tfoot > tr > *",
                                                 cellCSSProperties);
 
             cssText += baseSelector+" > tbody > tr > td:first-of-type { border-left: none }\n"
@@ -273,7 +273,7 @@ DOCXStyleCollection.prototype.toCSSStyleSheet = function()
     return cssText;
 }
 
-DOCXStyleCollection.prototype.tblStyle2 =
+DocxStyleCollection.prototype.tblStyle2 =
     function(style,type,selector,cell,top,bottom,left,right,allowInsideH,allowInsideV)
 {
     // FIXME: need to deal with inheritance here
@@ -289,7 +289,7 @@ DOCXStyleCollection.prototype.tblStyle2 =
 }
 
 // FIXME: use this for regular table cells too?
-DOCXStyleCollection.prototype.tblStyle3 =
+DocxStyleCollection.prototype.tblStyle3 =
     function(cssProperties,selector,cell,top,bottom,left,right,allowInsideH,allowInsideV)
 {
     var cssText = "";
@@ -374,34 +374,34 @@ DOCXStyleCollection.prototype.tblStyle3 =
     if (cell == null)
         this.copyAll(cellProperties,cssProperties);
 
-    DOCXUtil.mergeCSSProperties(cssProperties);
-    DOCXUtil.mergeCSSProperties(topProperties);
-    DOCXUtil.mergeCSSProperties(bottomProperties);
-    DOCXUtil.mergeCSSProperties(leftProperties);
-    DOCXUtil.mergeCSSProperties(rightProperties);
-    DOCXUtil.mergeCSSProperties(cellProperties);
+    DocxUtil.mergeCSSProperties(cssProperties);
+    DocxUtil.mergeCSSProperties(topProperties);
+    DocxUtil.mergeCSSProperties(bottomProperties);
+    DocxUtil.mergeCSSProperties(leftProperties);
+    DocxUtil.mergeCSSProperties(rightProperties);
+    DocxUtil.mergeCSSProperties(cellProperties);
 
-    cssText += DOCXUtil.cssRuleText(selector,cssProperties);
+    cssText += DocxUtil.cssRuleText(selector,cssProperties);
 
     if ((top != null) && !this.emptyProp(topProperties))
-        cssText += DOCXUtil.cssRuleText(top,topProperties);
+        cssText += DocxUtil.cssRuleText(top,topProperties);
 
     if ((bottom != null) && !this.emptyProp(bottomProperties))
-        cssText += DOCXUtil.cssRuleText(bottom,bottomProperties);
+        cssText += DocxUtil.cssRuleText(bottom,bottomProperties);
 
     if ((left != null) && !this.emptyProp(leftProperties))
-        cssText += DOCXUtil.cssRuleText(left,leftProperties);
+        cssText += DocxUtil.cssRuleText(left,leftProperties);
 
     if ((right != null) && !this.emptyProp(rightProperties))
-        cssText += DOCXUtil.cssRuleText(right,rightProperties);
+        cssText += DocxUtil.cssRuleText(right,rightProperties);
 
     if ((cell != null) && !this.emptyProp(cellProperties))
-        cssText += DOCXUtil.cssRuleText(cell,cellProperties);
+        cssText += DocxUtil.cssRuleText(cell,cellProperties);
 
     return cssText;
 }
 
-DOCXStyleCollection.prototype.copyProp = function(from,fromName,to,toName)
+DocxStyleCollection.prototype.copyProp = function(from,fromName,to,toName)
 {
     if (from[fromName] != null) {
         if (toName == null)
@@ -410,25 +410,25 @@ DOCXStyleCollection.prototype.copyProp = function(from,fromName,to,toName)
     }
 }
 
-DOCXStyleCollection.prototype.deleteProp = function(from,fromName)
+DocxStyleCollection.prototype.deleteProp = function(from,fromName)
 {
     delete from[fromName];
 }
 
-DOCXStyleCollection.prototype.moveProp = function(from,fromName,to,toName)
+DocxStyleCollection.prototype.moveProp = function(from,fromName,to,toName)
 {
     this.copyProp(from,fromName,to,toName);
     this.deleteProp(from,fromName);
 }
 
-DOCXStyleCollection.prototype.emptyProp = function(properties)
+DocxStyleCollection.prototype.emptyProp = function(properties)
 {
     for (var name in properties)
         return false;
     return true;
 }
 
-DOCXStyleCollection.prototype.copyAll = function(from,to)
+DocxStyleCollection.prototype.copyAll = function(from,to)
 {
     for (name in from)
         to[name] = from[name];
