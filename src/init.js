@@ -111,7 +111,7 @@ try {
     document.onclick = reportSelectionFormatting;
 //    document.body.contentEditable = true;
 //    document.body.style.padding = "15%";
-    document.body.style.padding = "5%";
+//    document.body.style.padding = "5%";
     document.body.style.textAlign = "justify";
     window.onkeydown = keydown;
 
