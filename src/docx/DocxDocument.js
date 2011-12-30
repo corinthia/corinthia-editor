@@ -10,19 +10,48 @@ function DocxDocument(filename)
     DocxDocument.instance = this;
     this.filename = filename;
 
-    var numberingXML = filesystem.readXML(filename+"/word/numbering.xml");
-    if (numberingXML != null)
-        this.numbering = new DocxNumbering(numberingXML.documentElement);
+    this.numberingXML = filesystem.readXML(filename+"/word/numbering.xml");
+    this.stylesXML = filesystem.readXML(filename+"/word/styles.xml");
+    this.documentXML = filesystem.readXML(filename+"/word/document.xml");
+
+    if (this.numberingXML != null)
+        this.numbering = new DocxNumbering(this.numberingXML.documentElement);
     else
         this.numbering = null;
 
-    var stylesXML = filesystem.readXML(filename+"/word/styles.xml");
-    if (stylesXML != null)
-        this.styles = new DocxStyleCollection(stylesXML.documentElement);
+    if (this.stylesXML != null)
+        this.styles = new DocxStyleCollection(this.stylesXML.documentElement);
     else
         this.styles = null;
 
+    if (this.documentXML == null)
+        throw new Error("Could not load document.xml");
+
     this.lastListForNumId = new Object();
+}
+
+DocxDocument.prototype.serializeNumberingXML = function()
+{
+    if (this.numberingXML == null)
+        return null;
+    else
+        return new XMLSerializer().serializeToString(this.numberingXML);
+}
+
+DocxDocument.prototype.serializeStylesXML = function()
+{
+    if (this.stylesXML == null)
+        return null;
+    else
+        return new XMLSerializer().serializeToString(this.stylesXML);
+}
+
+DocxDocument.prototype.serializeDocumentXML = function()
+{
+    if (this.documentXML == null)
+        return null;
+    else
+        return new XMLSerializer().serializeToString(this.documentXML);
 }
 
 DocxDocument.prototype.addStyleSheet = function()
@@ -512,10 +541,7 @@ DocxDocument.prototype.toHTML = function() {
     var filename = this.filename;
 
     // Docx2html main
-    var documentFilename = filename+"/word/document.xml";
-    var xml = filesystem.readXML(documentFilename);
-    if (xml == null)
-        throw new Error("Could not load "+documentFilename);
+    var xml = this.documentXML;
 
     // Find page size and margins
     this.docSectionProperties = this.getDocSectionProperties(xml);
