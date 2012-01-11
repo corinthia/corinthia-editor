@@ -1,3 +1,12 @@
+function clearDocument()
+{
+    var style = document.getElementById("style");
+    while (style.firstChild != null)
+        style.removeChild(style.firstChild);
+    while (document.body.firstChild != null)
+        document.body.removeChild(document.body.firstChild);
+}
+
 function setStyleSheet(selector,cssText)
 {
     var previewText =
@@ -16,13 +25,9 @@ function setStyleSheet(selector,cssText)
     "venenatis, leo in pulvinar pharetra, eros nisi convallis elit, vitae luctus \n"+
     "magna velit ut lorem."
 
-    var style = document.getElementById("style");
-
-    while (style.firstChild != null)
-        style.removeChild(style.firstChild);
-    while (document.body.firstChild != null)
-        document.body.removeChild(document.body.firstChild);
+    clearDocument();
     
+    var style = document.getElementById("style");
     style.appendChild(document.createTextNode(cssText));
     
     var element;
