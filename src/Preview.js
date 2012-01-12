@@ -1,6 +1,18 @@
-function clearDocument()
+function getStyleElement()
 {
     var style = document.getElementById("style");
+    if (style == null) {
+        style = document.createElement("STYLE");
+        style.setAttribute("id","style");
+        var head = document.getElementsByTagName("HEAD")[0];
+        head.appendChild(style);
+    }
+    return style;
+}
+
+function clearDocument()
+{
+    var style = getStyleElement();
     while (style.firstChild != null)
         style.removeChild(style.firstChild);
     while (document.body.firstChild != null)
@@ -27,7 +39,7 @@ function setStyleSheet(selector,cssText)
 
     clearDocument();
     
-    var style = document.getElementById("style");
+    var style = getStyleElement();
     style.appendChild(document.createTextNode(cssText));
     
     var element;
