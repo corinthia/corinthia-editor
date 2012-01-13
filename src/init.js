@@ -45,31 +45,22 @@ function getStyles()
     var list = new Array();
     for (var i = 0; i < document.styleSheets.length; i++) {
         var sheet = document.styleSheets[i];
-        // debug(sheet);
-//        alert("here");
-//        alert("sheet = "+sheet);
         var str = "";
         for (name in sheet)
             str += name+"\n";
-//        alert("Sheet properties:\n"+str);
-//        alert("sheet.rules = "+sheet.rules);
         for (var j = 0; j < sheet.cssRules.length; j++) {
             var rule = sheet.cssRules[j];
-            // debug("  (applies to "+rule.selectorText+")");
             if (rule.type == CSSRule.STYLE_RULE) {
-                // debug("  "+rule.cssText);
-                // for (k = 0; k < rule.style.length; k++)
-                //     debug("    "+rule.style[k]+" "+rule.style.getPropertyValue(rule.style[k]));
-
-                var obj = new Object();
-                obj.selector = rule.selectorText;
+                var properties = new Object();
                 for (k = 0; k < rule.style.length; k++)
-                    obj[rule.style[k]] = rule.style.getPropertyValue(rule.style[k]);
-                list.push(obj);
+                    properties[rule.style[k]] = rule.style.getPropertyValue(rule.style[k]);
+                
+                list.push({"selector": rule.selectorText,
+                           "properties": properties });
             }
         }
     }
-    editor.setStyles(encodeJSON(list));
+    editor.setStyles(list);
 }
 
 function jumpToSection(sectionId)
