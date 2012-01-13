@@ -131,7 +131,7 @@ function setStyleElement(cssText)
     var head;
     if (heads.length == 0) {
         head = document.createElement("HEAD");
-        document.documentElement.appendChild(head);
+        document.documentElement.insertBefore(head,document.documentElement.firstChild);
     }
     else {
         head = heads[0];
