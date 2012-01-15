@@ -389,6 +389,17 @@
         destroyCursorDiv();
     }
 
+    // public
+    function flashCursor()
+    {
+        if (cursorDiv != null) {
+            if (cursorDiv.style.visibility == "hidden")
+                cursorDiv.style.visibility = "visible";
+            else
+                cursorDiv.style.visibility = "hidden";
+        }
+    }
+
     window.checkForSelectionChange = checkForSelectionChange;
     window.setVisibleArea = setVisibleArea;
     window.positionCursor = positionCursor;
@@ -399,5 +410,6 @@
     window.deleteCharacter = deleteCharacter;
     window.enterPressed = enterPressed;
     window.updateCursor = updateCursor;
+    window.flashCursor = flashCursor;
 
 })();
