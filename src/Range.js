@@ -134,3 +134,27 @@ Range.prototype.ensureRangeValidHierarchy = function()
         }
     }
 }
+
+Range.prototype.getClientRects = function()
+{
+    // WebKit in iOS 5.0 has a bug where if the selection spans multiple paragraphs, the complete
+    // rect for paragraphs other than the first is returned, instead of just the portions of it
+    // that are actually in the range. To get around this problem, we go through each text node
+    // individually and collect all the rects.
+    var result = new Array();
+    var domRange = document.createRange();
+    for (var node = this.start.node; node != null; node = nextNode(node)) {
+        if (node.nodeType == Node.TEXT_NODE) {
+            var startOffset = (node == this.start.node) ? this.start.offset : 0;
+            var endOffset = (node == this.end.node) ? this.end.offset : node.nodeValue.length;
+            domRange.setStart(node,startOffset);
+            domRange.setEnd(node,endOffset);
+            var rects = domRange.getClientRects();
+            for (var i = 0; i < rects.length; i++)
+                result.push(rects[i]);
+        }
+        if (node == this.end.node)
+            break;
+    }
+    return result;
+}

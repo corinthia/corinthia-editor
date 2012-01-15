@@ -65,7 +65,10 @@
         cursorOffset = offset;
         
         var selection = window.getSelection();
-        selection.setBaseAndExtent(cursorNode,cursorOffset,cursorNode,cursorOffset);
+        if (cursorNode != null)
+            selection.setBaseAndExtent(cursorNode,cursorOffset,cursorNode,cursorOffset);
+        else
+            selection.removeAllRanges();
         // setBaseAndExtent may actually record a different base node/offset, so make sure that's
         // what we're comparing with in setBaseAndExtent()
         prevSelectionNode = selection.baseNode;
@@ -199,6 +202,12 @@
         if (range == null)
             return;
         setCursorNodeAndOffset(range.startContainer,range.startOffset);
+    }
+
+    // public
+    function clearCursor()
+    {
+        setCursorNodeAndOffset(null,0);
     }
 
     // public
@@ -383,6 +392,7 @@
     window.checkForSelectionChange = checkForSelectionChange;
     window.setVisibleArea = setVisibleArea;
     window.positionCursor = positionCursor;
+    window.clearCursor = clearCursor;
     window.moveLeft = moveLeft;
     window.moveRight = moveRight;
     window.insertCharacter = insertCharacter;
