@@ -135,26 +135,109 @@ Range.prototype.ensureRangeValidHierarchy = function()
     }
 }
 
+Range.prototype.getSelectedNodes = function()
+{
+    var result = new Array();
+
+    var startNode = this.start.node;
+    var startOffset = this.start.offset;
+    var endNode = this.end.node;
+    var endOffset = this.end.offset;
+
+    // If the end node is contained within the start node, change the start node to the first
+    // node in document order that is not an ancestor of the end node
+    while (isAncestor(startNode,endNode) &&
+           (startNode != endNode) &&
+           (startNode.firstChild != null)) {
+        startNode = startNode.firstChild;
+    }
+
+    if (startNode == endNode) {
+        result.push(startNode);
+        return result;
+    }
+
+    // Find common ancestor
+    var common = null;
+    var startAncestor = null;
+    var endAncestor = null;
+    for (var startA = startNode; startA != null; startA = startA.parentNode) {
+        for (var endA = endNode; endA != null; endA = endA.parentNode) {
+            if ((startA.parentNode != null) && (startA.parentNode == endA.parentNode)) {
+                startAncestor = startA;
+                endAncestor = endA;
+                common = startA.parentNode;
+                break;
+            }
+        }
+        if (common != null)
+            break;
+    }
+
+    if (common == null)
+        return result;
+
+    var top = startNode;
+    do {
+        result.push(top);
+        while ((top.nextSibling == null) && (top.parentNode != common))
+            top = top.parentNode;
+        if (top.parentNode != common)
+            top = top.nextSibling;
+    } while (top.parentNode != common);
+    
+    for (var middle = startAncestor.nextSibling;
+         (middle != null) && (middle != endAncestor);
+         middle = middle.nextSibling) {
+        result.push(middle);
+    }
+
+    var bottom = endNode;
+    do {
+        result.push(bottom);
+        while ((bottom.previousSibling == null) && (bottom.parentNode != common))
+            bottom = bottom.parentNode;
+        if (bottom.parentNode != bottom)
+            bottom = bottom.previousSibling;
+    } while (bottom.parentNode != common);
+
+    return result;
+
+    function isAncestor(ancestor,descendant)
+    {
+        while ((descendant != null) && (descendant != ancestor))
+            descendant = descendant.parentNode;
+        return (descendant == ancestor);
+    }
+}
+
 Range.prototype.getClientRects = function()
 {
+    if (!this.isForwards())
+        return new Array();
+
+    var nodes = this.getSelectedNodes();
+
     // WebKit in iOS 5.0 has a bug where if the selection spans multiple paragraphs, the complete
     // rect for paragraphs other than the first is returned, instead of just the portions of it
     // that are actually in the range. To get around this problem, we go through each text node
     // individually and collect all the rects.
     var result = new Array();
     var domRange = document.createRange();
-    for (var node = this.start.node; node != null; node = nextNode(node)) {
+    for (var nodeIndex = 0; nodeIndex < nodes.length; nodeIndex++) {
+        var node = nodes[nodeIndex];
         if (node.nodeType == Node.TEXT_NODE) {
             var startOffset = (node == this.start.node) ? this.start.offset : 0;
             var endOffset = (node == this.end.node) ? this.end.offset : node.nodeValue.length;
             domRange.setStart(node,startOffset);
             domRange.setEnd(node,endOffset);
             var rects = domRange.getClientRects();
-            for (var i = 0; i < rects.length; i++)
-                result.push(rects[i]);
+            for (var rectIndex = 0; rectIndex < rects.length; rectIndex++)
+                result.push(rects[rectIndex]);
         }
-        if (node == this.end.node)
-            break;
+        else if (node.nodeType == Node.ELEMENT_NODE) {
+            result.push(node.getBoundingClientRect());
+        }
     }
     return result;
 }

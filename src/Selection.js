@@ -9,8 +9,12 @@
             selectionDivs[i].parentNode.removeChild(selectionDivs[i]);
         selectionDivs = new Array();
 
-        if (selectionRange != null) {
-            var rects = selectionRange.getClientRects();
+        var rects = null;
+        if (selectionRange != null)
+            rects = selectionRange.getClientRects();
+
+        if ((rects != null) && (rects.length > 0)) {
+
             for (var i = 0; i < rects.length; i++) {
                 var div = document.createElement("DIV");
                 div.style.position = "absolute";
