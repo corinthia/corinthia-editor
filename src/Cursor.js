@@ -201,6 +201,16 @@
         var range = document.caretRangeFromPoint(x/zoom,y/zoom);
         if (range == null)
             return;
+        if ((range.startContainer == cursorNode) && (range.startOffset == cursorOffset)) {
+            var rects = range.getClientRects();
+            if (rects.length > 0) {
+                var zoom = getZoom();
+                var left = (rects[0].left + window.scrollX) * zoom;
+                var top = (rects[0].top + window.scrollY) * zoom;
+                var height = rects[0].height * zoom;
+                editor.showCursorMenu(left,top,height);
+            }
+        }
         setCursorNodeAndOffset(range.startContainer,range.startOffset);
     }
 

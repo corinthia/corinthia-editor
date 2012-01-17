@@ -14,6 +14,10 @@
             rects = selectionRange.getClientRects();
 
         if ((rects != null) && (rects.length > 0)) {
+            var boundsLeft = null;
+            var boundsRight = null;
+            var boundsTop = null;
+            var boundsBottom = null
 
             for (var i = 0; i < rects.length; i++) {
                 var div = document.createElement("DIV");
@@ -23,6 +27,25 @@
                 var top = rects[i].top + window.scrollY;
                 var width = rects[i].width;
                 var height = rects[i].height;
+                var right = left + width;
+                var bottom = top + height;
+
+                if (boundsLeft == null) {
+                    boundsLeft = left;
+                    boundsTop = top;
+                    boundsRight = right;
+                    boundsBottom = bottom;
+                }
+                else {
+                    if (boundsLeft > left)
+                        boundsLeft = left;
+                    if (boundsRight < right)
+                        boundsRight = right;
+                    if (boundsTop > top)
+                        boundsTop = top;
+                    if (boundsBottom < bottom)
+                        boundsBottom = bottom;
+                }
 
                 div.style.left = left+"px";
                 div.style.top = top+"px";
@@ -47,10 +70,20 @@
             var height2 = lastRect.height*zoom;
 
             editor.setSelectionHandles(x1,y1,height1,x2,y2,height2);
+            editor.setSelectionBounds(boundsLeft*zoom,boundsTop*zoom,
+                                      boundsRight*zoom,boundsBottom*zoom);
         }
         else {
             editor.clearSelectionHandles();
         }
+    }
+
+    // public
+    function selectAll()
+    {
+        selectionRange = new Range(new Position(document.body,0),
+                                   new Position(document.body,document.body.childNodes.length));
+        updateSelectionDisplay();
     }
 
     // public
@@ -104,6 +137,7 @@
         updateSelectionDisplay();
     }
 
+    window.selectAll = selectAll;
     window.beginSelection = beginSelection;
     window.setSelectionStart = setSelectionStart;
     window.setSelectionEnd = setSelectionEnd;
