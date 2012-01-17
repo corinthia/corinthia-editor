@@ -17,6 +17,12 @@ Range.fromSelection = function()
                      new Position(r.endContainer,r.endOffset));
 }
 
+Range.prototype.copy = function()
+{
+    return new Range(new Position(this.start.node,this.start.offset),
+                     new Position(this.end.node,this.end.offset));
+}
+
 Range.prototype.selectWholeWords = function()
 {
     if ((this.start.node.nodeType == Node.TEXT_NODE) &&
@@ -44,9 +50,11 @@ Range.prototype.isForwards = function()
 {
     if (this.start.node == this.end.node)
         return (this.start.offset < this.end.offset);
-    else
-        return (this.start.node.compareDocumentPosition(this.end.node) ==
-                Node.DOCUMENT_POSITION_FOLLOWING);
+    else {
+        var cmp = this.start.node.compareDocumentPosition(this.end.node);
+        return (cmp & (Node.DOCUMENT_POSITION_FOLLOWING | Node.DOCUMENT_POSITION_CONTAINED_BY));
+
+    }
 }
 
 Range.prototype.getParagraphNodes = function()
@@ -70,13 +78,8 @@ Range.prototype.getInlineNodes = function()
     var result = new Array();
     var node = this.start.node;
     while (true) {
-        if (isInlineNode(node)) {
-            debug("getInlineNodes: "+node.nodeName+" is inline");
+        if (isInlineNode(node))
             result.push(node);
-        }
-        else {
-            debug("getInlineNodes: "+node.nodeName+" is NOT inline");
-        }
         if (node == this.end.node)
             break;
         node = nextNode(node);
@@ -135,14 +138,49 @@ Range.prototype.ensureRangeValidHierarchy = function()
     }
 }
 
+// Converts the range to a form in which the start node has an offset of 0, and the end node
+// has an offset of nodeValue.length or childNodes.length (depending on the node type). This
+// simplifies dealing with ranges as it relieves us from having to deal witih offets in element
+// nodes.
+Range.prototype.convertToOffsetFree = function()
+{
+    if ((this.start.node.nodeType == Node.ELEMENT_NODE) && (this.start.offset > 0)) {
+        this.start.node = this.start.node.childNodes[this.start.offset];
+        this.start.offset = 0;
+    }
+
+    if ((this.end.node.nodeType == Node.ELEMENT_NODE) &&
+        (this.end.offset < this.end.node.childNodes.length)) {
+        if (this.end.offset == 0) {
+            this.end.node = prevNode(this.end.node);
+        }
+        else {
+            this.end.node = this.end.node.childNodes[this.end.offset-1];
+        }
+
+        // Now set the offset to be the start of the node
+        if (this.end.node.nodeType == Node.TEXT_NODE) {
+            this.end.offset = this.end.node.nodeValue.length;
+        }
+        else if (this.end.node.nodeType == Node.ELEMENT_NODE) {
+            this.end.offset = this.end.node.childNodes.length;
+        }
+        else
+            this.end.offset = 0;
+    }
+}
+
 Range.prototype.getSelectedNodes = function()
 {
+    if (!this.isForwards())
+        return new Array();
+
     var result = new Array();
 
+    this.convertToOffsetFree();
+
     var startNode = this.start.node;
-    var startOffset = this.start.offset;
     var endNode = this.end.node;
-    var endOffset = this.end.offset;
 
     // If the end node is contained within the start node, change the start node to the first
     // node in document order that is not an ancestor of the end node
@@ -153,12 +191,12 @@ Range.prototype.getSelectedNodes = function()
     }
 
     if (startNode == endNode) {
-        result.push(startNode);
+        addNode(result,startNode);
         return result;
     }
 
     // Find common ancestor
-    var common = null;
+    var commonAncestor = null;
     var startAncestor = null;
     var endAncestor = null;
     for (var startA = startNode; startA != null; startA = startA.parentNode) {
@@ -166,40 +204,44 @@ Range.prototype.getSelectedNodes = function()
             if ((startA.parentNode != null) && (startA.parentNode == endA.parentNode)) {
                 startAncestor = startA;
                 endAncestor = endA;
-                common = startA.parentNode;
+                commonAncestor = startA.parentNode;
                 break;
             }
         }
-        if (common != null)
+        if (commonAncestor != null)
             break;
     }
 
-    if (common == null)
+    if (commonAncestor == null) {
         return result;
+    }
 
     var top = startNode;
     do {
-        result.push(top);
-        while ((top.nextSibling == null) && (top.parentNode != common))
+        addNode(result,top);
+        while ((top.nextSibling == null) && (top.parentNode != commonAncestor))
             top = top.parentNode;
-        if (top.parentNode != common)
+        if (top.parentNode != commonAncestor)
             top = top.nextSibling;
-    } while (top.parentNode != common);
+    } while (top.parentNode != commonAncestor);
     
     for (var middle = startAncestor.nextSibling;
          (middle != null) && (middle != endAncestor);
          middle = middle.nextSibling) {
-        result.push(middle);
+        addNode(result,middle);
     }
 
+    var endNodes = new Array();
     var bottom = endNode;
     do {
-        result.push(bottom);
-        while ((bottom.previousSibling == null) && (bottom.parentNode != common))
+        addNodeReverse(endNodes,bottom);
+        while ((bottom.previousSibling == null) && (bottom.parentNode != commonAncestor))
             bottom = bottom.parentNode;
         if (bottom.parentNode != bottom)
             bottom = bottom.previousSibling;
-    } while (bottom.parentNode != common);
+    } while (bottom.parentNode != commonAncestor);
+    for (var i = endNodes.length-1; i >= 0; i--)
+        result.push(endNodes[i]);
 
     return result;
 
@@ -209,13 +251,48 @@ Range.prototype.getSelectedNodes = function()
             descendant = descendant.parentNode;
         return (descendant == ancestor);
     }
+
+    function addAllDescendants(result,node)
+    {
+        if (node.nodeType == Node.TEXT_NODE) {
+            result.push(node);
+        }
+        else {
+            for (var child = node.firstChild; child != null; child = child.nextSibling)
+                addAllDescendants(result,child);
+        }
+    }
+
+    function addAllDescendantsReverse(result,node)
+    {
+        if (node.nodeType == Node.TEXT_NODE) {
+            result.push(node);
+        }
+        else {
+            for (var child = node.lastChild; child != null; child = child.previousSibling)
+                addAllDescendants(result,child);
+        }
+    }
+
+    function addNode(result,node)
+    {
+        if (isInlineNode(node))
+            addAllDescendants(result,node);
+        else
+            result.push(node);
+    }
+
+    function addNodeReverse(result,node)
+    {
+        if (isInlineNode(node))
+            addAllDescendantsReverse(result,node);
+        else
+            result.push(node);
+    }
 }
 
 Range.prototype.getClientRects = function()
 {
-    if (!this.isForwards())
-        return new Array();
-
     var nodes = this.getSelectedNodes();
 
     // WebKit in iOS 5.0 has a bug where if the selection spans multiple paragraphs, the complete
