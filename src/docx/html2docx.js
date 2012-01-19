@@ -1,3 +1,5 @@
+// Copyright (c) 2011-2012 UX Productivity. All rights reserved.
+
 (function() {
 
     var TYPES_NAMESPACE = "http://schemas.openxmlformats.org/package/2006/content-types";

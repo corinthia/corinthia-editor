@@ -1,3 +1,5 @@
+// Copyright (c) 2011-2012 UX Productivity. All rights reserved.
+
 var WORD_NAMESPACE = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 
 // FIXME: don't delete empty paragraphs that separate two tables

@@ -1,3 +1,5 @@
+// Copyright (c) 2011-2012 UX Productivity. All rights reserved.
+
 var CSS_COLORS_BY_NAME = {
   maroon: { r: 128, g: 0,  b: 0 },
   red: { r: 255, g: 0,  b: 0 },

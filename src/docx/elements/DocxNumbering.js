@@ -1,3 +1,5 @@
+// Copyright (c) 2011-2012 UX Productivity. All rights reserved.
+
 // http://msdn.microsoft.com/en-us/library/ee922775.aspx
 
 // Represents a numbering element at the root of numbering.xml, if present

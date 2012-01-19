@@ -1,3 +1,5 @@
+// Copyright (c) 2011-2012 UX Productivity. All rights reserved.
+
 var nextOutlineSectionId = 0;
 
 function getOutline()

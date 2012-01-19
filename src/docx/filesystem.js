@@ -1,3 +1,5 @@
+// Copyright (c) 2011-2012 UX Productivity. All rights reserved.
+
 var filesystem = new Object();
 
 filesystem.mkdir = function(filename,content)

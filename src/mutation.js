@@ -1,3 +1,5 @@
+// Copyright (c) 2011-2012 UX Productivity. All rights reserved.
+
 function sectionTitleMaybeChanged(node)
 {
     for (var p = node; p != null; p = p.parentNode) {

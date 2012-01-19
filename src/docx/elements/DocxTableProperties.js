@@ -1,3 +1,5 @@
+// Copyright (c) 2011-2012 UX Productivity. All rights reserved.
+
 // FIXME: make this a property of DocxTableProperties
 var DocxTablePropertiesId = 0;
 

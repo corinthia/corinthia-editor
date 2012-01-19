@@ -1,3 +1,5 @@
+// Copyright (c) 2011-2012 UX Productivity. All rights reserved.
+
 // Represents a tblGrid child of a tbl element
 function DocxTableGrid(element)
 {
