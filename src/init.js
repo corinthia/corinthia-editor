@@ -112,6 +112,7 @@ try {
     setupMutation();
     getOutline();
     getStyles();
+    structure.examineDocument();
     jsInitOk = true;
 }
 catch (e) {
