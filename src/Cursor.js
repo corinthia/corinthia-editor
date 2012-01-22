@@ -214,9 +214,6 @@
     // public
     function enterPressed()
     {
-        // FIXME: too many BRs are inserted when you press enter multiple times to create
-        // empty paragraphs
-
         var selectionRange = getSelectionRange();
         if (selectionRange == null)
             return;
@@ -291,8 +288,10 @@
             // a BR element as a child
             function fixEmptyParagraph(paragraph)
             {
-                if (getNodeText(paragraph) == "")
+                if ((getNodeText(paragraph) == "") &&
+                    ((paragraph.lastChild == null) || (paragraph.lastChild.nodeName != "BR"))) {
                     paragraph.appendChild(document.createElement("BR"));
+                }
             }
         }
     }
