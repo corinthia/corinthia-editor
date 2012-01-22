@@ -30,7 +30,7 @@ Structure.prototype.numberHeadings = function()
 
 Structure.prototype.examineDocument = function()
 {
-    this.numberHeadings();
+//    this.numberHeadings();
 }
 
 structure = new Structure();
