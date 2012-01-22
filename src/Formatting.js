@@ -3,6 +3,8 @@
 (function() {
     function SelectionFormatting()
     {
+        this.style = null;
+        this.multipleStyles = false;
         this.bold = false;
         this.italic = false;
         this.underline = false;
@@ -13,6 +15,19 @@
         this.ol = false;
         this.inBrackets = false;
         this.inQuote = false;
+    }
+
+    SelectionFormatting.prototype.setStyle = function(style)
+    {
+        if (!this.multipleStyles) {
+            if ((this.style != null) && (this.style != style)) {
+                this.style = null;
+                this.multipleStyles = true;
+            }
+            else {
+                this.style = style;
+            }
+        }
     }
 
     function checkBracketsAndQuotes(node,offset,formatting)
@@ -220,21 +235,24 @@
     // public
     function reportSelectionFormatting()
     {
-        var selection = window.getSelection();
         var formatting = new SelectionFormatting();
-        if (selection.baseNode != null) {
-            var node = selection.baseNode;
-            while (node != null) {
-                detectFormatting(formatting,node);
-
-                if (node == selection.extentNode)
-                    break;
-
-                node = nextNode(node);
-            }
-            checkBracketsAndQuotes(selection.baseNode,selection.baseOffset,formatting);
+        var selectionRange = getSelectionRange();
+        if (selectionRange == null) {
+            debug("reportSelectionFormatting: no selection");
+            return; // FIXME: report that there is no formatting info available
+        }
+        var nodes = selectionRange.getSelectedNodes();
+        for (var i = 0; i < nodes.length; i++) {
+            var node = nodes[i];
+            detectFormatting(formatting,node);
+        }
+        if (selectionRange != null) {
+            checkBracketsAndQuotes(selectionRange.start.node,
+                                   selectionRange.start.offset,
+                                   formatting);
         }
         editor.reportFormatting(formatting);
+        return;
 
         function detectFormatting(formatting,node)
         {
@@ -253,6 +271,25 @@
                 formatting.ul = true;
             if (node.nodeName == "OL")
                 formatting.ol = true;
+
+            // In the case where a heading or PRE element has the class attribute set, we ignore
+            // the class attribute and just go with the element name - otherwise it would really
+            // complicate things (we don't support multiple styles for a single paragraph).
+            if ((node.nodeName == "H1") ||
+                (node.nodeName == "H2") ||
+                (node.nodeName == "H3") ||
+                (node.nodeName == "H4") ||
+                (node.nodeName == "H5") ||
+                (node.nodeName == "H6") ||
+                (node.nodeName == "PRE")) {
+                formatting.setStyle(node.nodeName);
+            }
+            else if ((node.nodeType == Node.ELEMENT_NODE) && node.hasAttribute("class")) {
+                formatting.setStyle("."+node.getAttribute("class"));
+            }
+            else if (node.nodeName == "P") {
+                formatting.setStyle(node.nodeName);
+            }
 
             detectFormatting(formatting,node.parentNode);
         }
