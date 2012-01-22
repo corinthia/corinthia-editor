@@ -92,6 +92,36 @@ function prettyPrintDocument()
     }
 }
 
+function getDOMTree()
+{
+    var root = convertToObjects(document.documentElement);
+    return JSON.stringify(root);
+
+    function convertToObjects(node)
+    {
+        var obj = new Object();
+        obj.nodeType = node.nodeType;
+        if (node.nodeType == Node.ELEMENT_NODE) {
+            obj.nodeName = node.nodeName;
+            obj.attributes = new Object();
+            for (var i = 0; i < node.attributes.length; i++) {
+                var attr = node.attributes[i];
+                obj.attributes[attr.nodeName] = attr.nodeValue;
+            }
+            obj.childNodes = new Array();
+            for (var child = node.firstChild; child != null; child = child.nextSibling)
+                obj.childNodes.push(convertToObjects(child));
+        }
+        else if (node.nodeType == Node.TEXT_NODE) {
+            obj.nodeValue = node.nodeValue;
+        }
+        else {
+            throw new Error("Unexpected node type: "+node.nodeType);
+        }
+        return obj;
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                //
 //                                          General                                               //
