@@ -63,13 +63,7 @@
     {
         cursorNode = node;
         cursorOffset = offset;
-        
-        var selection = window.getSelection();
-        if (cursorNode != null)
-            selection.setBaseAndExtent(cursorNode,cursorOffset,cursorNode,cursorOffset);
-        else
-            selection.removeAllRanges();
-        
+
         reportSelectionFormatting();
         updateCursor();
     }
@@ -315,31 +309,28 @@
     // public
     function enterPressed()
     {
-        var selection = window.getSelection();
-        var node = selection.focusNode;
-        var offset = selection.focusOffset;
-        if (node != null) {
-            ensureValidHierarchy(node);
-            if (node.nodeType == Node.TEXT_NODE)
-                splitTextBefore(node,offset);
+        if (cursorNode != null) {
+            ensureValidHierarchy(cursorNode);
+            if (cursorNode.nodeType == Node.TEXT_NODE)
+                splitTextBefore(cursorNode,cursorOffset);
             
-            if (isParagraphNode(node)) {
+            if (isParagraphNode(cursorNode)) {
                 // Special case for when the cursor is in an empty paragraph (one that simply
                 // contains a BR element); in this case the focus node is the paragraph element
                 // itself, because there is no text node.
                 debug("enterPressed case 1");
-                var copy = makeNew(node,null);
+                var copy = makeNew(cursorNode,null);
                 setCursorNodeAndOffset(copy,0,copy,0);
                 return;
             }
             
-            for (var child = node; child.parentNode != null; child = child.parentNode) {
+            for (var child = cursorNode; child.parentNode != null; child = child.parentNode) {
                 if (isParagraphNode(child.parentNode)) {
                     debug("enterPressed case 2");
                     debug("child is \""+getNodeText(child)+"\"");
                     debug("child.parentNode is \""+getNodeText(child.parentNode)+"\"");
                     makeNew(child.parentNode,child);
-                    setCursorNodeAndOffset(node,0,node,0);
+                    setCursorNodeAndOffset(cursorNode,0,cursorNode,0);
                     return;
                 }
             }
