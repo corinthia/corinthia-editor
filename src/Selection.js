@@ -5,6 +5,7 @@
     var selectionDivs = new Array();
     var selectionRange = null;
 
+    // public
     function updateSelectionDisplay()
     {
         for (var i = 0; i < selectionDivs.length; i++)
@@ -14,6 +15,27 @@
         var rects = null;
         if (selectionRange != null)
             rects = selectionRange.getClientRects();
+
+        if ((selectionRange != null) && selectionRange.isEmpty()) {
+            // We just have a cursor
+            if ((rects != null) && (rects.length > 0)) {
+                left = rects[0].left + window.scrollX;
+                top = rects[0].top + window.scrollY;
+                width = rects[0].width;
+                height = rects[0].height;
+            }
+            else {
+                var absolute = getAbsoluteOffset(selectionRange.start.node);
+                left = absolute.offsetLeft;
+                top = absolute.offsetTop;            
+                width = selectionRange.start.node.parentNode.offsetWidth;
+                height = selectionRange.start.node.parentNode.offsetHeight;
+            }
+
+            editor.setCursor(left,top,height);
+            return;
+        }
+
 
         if ((rects != null) && (rects.length > 0)) {
             var boundsLeft = null;
@@ -76,7 +98,20 @@
                                       boundsRight*zoom,boundsBottom*zoom);
         }
         else {
-            editor.clearSelectionHandles();
+            editor.clearSelectionHandlesAndCursor();
+        }
+
+        function getAbsoluteOffset(node)
+        {
+            var offsetLeft = 0;
+            var offsetTop = 0;
+            for (; node != null; node = node.parentNode) {
+                if (node.offsetLeft != null)
+                    offsetLeft += node.offsetLeft;
+                if (node.offsetTop != null)
+                    offsetTop += node.offsetTop;
+            }
+            return { offsetLeft: offsetLeft, offsetTop: offsetTop };
         }
     }
 
@@ -133,16 +168,103 @@
     }
 
     // public
+    function getSelectionRange()
+    {
+        return selectionRange;
+    }
+
+    // public
+    function setSelectionRange(range)
+    {
+        selectionRange = range;
+        updateSelectionDisplay();
+    }
+
+    // public
+    function setEmptySelectionAt(node,offset)
+    {
+        setSelectionRange(new Range(new Position(node,offset),new Position(node,offset)));
+    }
+
+    // public
+    function deleteSelectionContents()
+    {
+        if (selectionRange == null)
+            return;
+
+        var finalNode = selectionRange.start.node;
+        var finalOffset = selectionRange.start.offset;
+
+        selectionRange.convertToOffsetFree();
+        var nodes = selectionRange.getSelectedNodes();
+        for (var i = 0; i < nodes.length; i++) {
+            var node = nodes[i];
+
+            var removeWholeNode = false;
+
+            if ((node == selectionRange.start.node) &&
+                (node == selectionRange.end.node)) {
+                var startOffset = selectionRange.start.offset;
+                var endOffset = selectionRange.end.offset;
+                if ((node.nodeType == Node.TEXT_NODE) &&
+                    ((startOffset > 0) || (endOffset < node.nodeValue.length))) {
+                    node.nodeValue = node.nodeValue.slice(0,startOffset) +
+                                     node.nodeValue.slice(endOffset);
+                }
+                else {
+                    removeWholeNode = true;
+                }
+            }
+            else if (node == selectionRange.start.node) {
+                var offset = selectionRange.start.offset;
+                if ((node.nodeType == Node.TEXT_NODE) && (offset > 0)) {
+                    node.nodeValue = node.nodeValue.slice(0,offset);
+                }
+                else {
+                    removeWholeNode = true;
+                }
+            }
+            else if (node == selectionRange.end.node) {
+                var offset = selectionRange.end.offset;
+                if ((node.nodeType == Node.TEXT_NODE) && (offset < node.nodeValue.length)) {
+                    node.nodeValue = node.nodeValue.slice(offset);
+                }
+                else {
+                    removeWholeNode = true;
+                }
+            }
+            else {
+                removeWholeNode = true;
+            }
+
+            if (removeWholeNode) {
+                if (finalNode == node) {
+                    finalNode = node.parentNode;
+                    finalOffset = 0;
+                }
+                node.parentNode.removeChild(node);
+            }
+        }
+
+        setEmptySelectionAt(finalNode,finalOffset);
+    }
+
+    // public
     function clearSelection()
     {
         selectionRange = null;
         updateSelectionDisplay();
     }
 
+    window.updateSelectionDisplay = updateSelectionDisplay;
     window.selectAll = selectAll;
     window.beginSelectionAtCoords = beginSelectionAtCoords;
     window.setSelectionStartAtCoords = setSelectionStartAtCoords;
     window.setSelectionEndAtCoords = setSelectionEndAtCoords;
+    window.getSelectionRange = getSelectionRange;
+    window.setSelectionRange = setSelectionRange;
+    window.setEmptySelectionAt = setEmptySelectionAt;
+    window.deleteSelectionContents = deleteSelectionContents;
     window.clearSelection = clearSelection;
 
 })();

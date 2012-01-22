@@ -25,6 +25,12 @@ Range.prototype.copy = function()
                      new Position(this.end.node,this.end.offset));
 }
 
+Range.prototype.isEmpty = function()
+{
+    return ((this.start.node == this.end.node) &&
+            (this.start.offset == this.end.offset));
+}
+
 Range.prototype.selectWholeWords = function()
 {
     if ((this.start.node.nodeType == Node.TEXT_NODE) &&
@@ -51,11 +57,10 @@ Range.prototype.omitEmptyTextSelection = function()
 Range.prototype.isForwards = function()
 {
     if (this.start.node == this.end.node)
-        return (this.start.offset < this.end.offset);
+        return (this.start.offset <= this.end.offset);
     else {
         var cmp = this.start.node.compareDocumentPosition(this.end.node);
         return (cmp & (Node.DOCUMENT_POSITION_FOLLOWING | Node.DOCUMENT_POSITION_CONTAINED_BY));
-
     }
 }
 
@@ -174,10 +179,15 @@ Range.prototype.convertToOffsetFree = function()
 
 Range.prototype.isOffsetFree = function()
 {
-    if (this.start.node.nodeType == Node.ELEMENT_NODE)
-        return ((this.start.offset == 0) && (this.end.offset == this.end.node.childNodes.length));
-    else
-        return true;
+    if ((this.start.node.nodeType == Node.ELEMENT_NODE) &&
+        (this.start.offset > 0))
+        return false;
+
+    if ((this.end.node.nodeType == Node.ELEMENT_NODE) &&
+        (this.end.offset < this.end.node.childNodes.length))
+        return false;
+
+    return true;
 }
 
 Range.prototype.getSelectedNodes = function()
