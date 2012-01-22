@@ -11,53 +11,12 @@
     var visibleAreaWidth = null;
     var visibleAreaHeight = null;
 
-    function ensurePointVisible(x,y)
-    {
-        var relX = x - window.scrollX;
-        var relY = y - window.scrollY;    
-        if ((relX < 0) || (relX >= visibleAreaWidth) || (relY < 0) || (relY >= visibleAreaHeight))
-            window.scrollTo(x-visibleAreaWidth/2,y-visibleAreaHeight/2);
-    }
-
     // We use these instead of selection.focusNode and selection.focusOffset, because the latter has
     // a bug where the offset can't be at the end of a space.
 
     var cursorNode = null;
     var cursorOffset = null;
     var cursorDiv = null;
-
-    function createCursorDiv()
-    {
-        if (cursorDiv == null) {
-            cursorDiv = document.createElement("DIV");
-            cursorDiv.style.position = "absolute";
-            cursorDiv.style.width = "2px";
-            cursorDiv.style.backgroundColor = "blue";
-            cursorDiv.style.opacity = "50%";
-            document.body.appendChild(cursorDiv);
-        }
-    }
-
-    function destroyCursorDiv()
-    {
-        if (cursorDiv != null) {
-            cursorDiv.parentNode.removeChild(cursorDiv);
-            cursorDiv = null;
-        }
-    }
-
-    function getAbsoluteOffset(node)
-    {
-        var offsetLeft = 0;
-        var offsetTop = 0;
-        for (; node != null; node = node.parentNode) {
-            if (node.offsetLeft != null)
-                offsetLeft += node.offsetLeft;
-            if (node.offsetTop != null)
-                offsetTop += node.offsetTop;
-        }
-        return { offsetLeft: offsetLeft, offsetTop: offsetTop };
-    }
 
     function setCursorNodeAndOffset(node,offset)
     {
@@ -66,102 +25,6 @@
 
         reportSelectionFormatting();
         updateCursor();
-    }
-
-    function removeIfEmpty(node)
-    {
-        if (node == null)
-            return;
-        var parent = node.parentNode;
-        if (node.nodeType == Node.TEXT_NODE) {
-            if (node.nodeValue.length == 0) {
-                parent.removeChild(node);
-                removeIfEmpty(parent);
-            }
-        }
-        else if (node.nodeType == Node.ELEMENT_NODE) {
-            var haveContent = false;
-            for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                if (!isWhitespaceTextNode(child)) {
-                    haveContent = true;
-                    break;
-                }
-            }
-            if (!haveContent) {
-                parent.removeChild(node);
-                removeIfEmpty(parent);
-            }
-        }
-    }
-
-    function fixTrailingSpace(node)
-    {
-        if ((node.nodeValue.length > 0) && (node.nodeValue.charAt(node.nodeValue.length-1) == " "))
-            node.nodeValue = node.nodeValue.slice(0,node.nodeValue.length-1) + "\u00a0";
-    }
-
-    function isFirstInParagraph(node)
-    {
-        while ((node != null) && isInlineNode(node)) {
-            if (node.previousSibling != null)
-                return false;
-            node = node.parentNode;
-        }
-        return true;
-    }
-
-    function makeNew(paragraph,child)
-    {
-        var copy = shallowCopyElement(paragraph);
-        
-        removeAdjacentWhitespace(paragraph);
-        
-        // If the cursor is in the last paragraph of a list item, we need to
-        // add another list item rather than another paragraph
-        if (paragraph.parentNode.nodeName == "LI") {
-            var li = paragraph.parentNode;
-            var liCopy = shallowCopyElement(li);
-            li.parentNode.insertBefore(liCopy,li.nextSibling);
-            liCopy.appendChild(copy);
-            
-            // For list items, we want to put all futher paragraphs inside the old list item
-            // inside the new one as well
-            var follow = paragraph.nextSibling;
-            while (follow != null) {
-                var next = follow.nextSibling;
-                liCopy.appendChild(follow);
-                follow = next;
-            }
-        }
-        else {
-            paragraph.parentNode.insertBefore(copy,paragraph.nextSibling);
-        }
-        
-        while (child != null) {
-            var next = child.nextSibling;
-            copy.appendChild(child);
-            child = next;
-        }
-        
-        fixEmptyParagraph(copy);
-        fixEmptyParagraph(paragraph);
-        return copy;
-    }
-
-    // An empty paragraph does not get shown and cannot be edited. We can fix this by adding
-    // a BR element as a child
-    function fixEmptyParagraph(paragraph)
-    {
-        if (getNodeText(paragraph) == "")
-            paragraph.appendChild(document.createElement("BR"));
-    }
-
-    function getParagraph(node)
-    {
-        while ((node != null) && isInlineNode(node)) {
-            node = node.parentNode;
-        }
-        return node;
     }
 
     // public
@@ -304,6 +167,59 @@
                 removeIfEmpty(cursorNode);
             }
         }
+        return;
+
+        function getParagraph(node)
+        {
+            while ((node != null) && isInlineNode(node)) {
+                node = node.parentNode;
+            }
+            return node;
+        }
+
+        function isFirstInParagraph(node)
+        {
+            while ((node != null) && isInlineNode(node)) {
+                if (node.previousSibling != null)
+                    return false;
+                node = node.parentNode;
+            }
+            return true;
+        }
+
+        function fixTrailingSpace(node)
+        {
+            if ((node.nodeValue.length > 0) &&
+                (node.nodeValue.charAt(node.nodeValue.length-1) == " ")) {
+                node.nodeValue = node.nodeValue.slice(0,node.nodeValue.length-1) + "\u00a0";
+            }
+        }
+
+        function removeIfEmpty(node)
+        {
+            if (node == null)
+                return;
+            var parent = node.parentNode;
+            if (node.nodeType == Node.TEXT_NODE) {
+                if (node.nodeValue.length == 0) {
+                    parent.removeChild(node);
+                    removeIfEmpty(parent);
+                }
+            }
+            else if (node.nodeType == Node.ELEMENT_NODE) {
+                var haveContent = false;
+                for (var child = node.firstChild; child != null; child = child.nextSibling) {
+                    if (!isWhitespaceTextNode(child)) {
+                        haveContent = true;
+                        break;
+                    }
+                }
+                if (!haveContent) {
+                    parent.removeChild(node);
+                    removeIfEmpty(parent);
+                }
+            }
+        }
     }
 
     // public
@@ -333,6 +249,53 @@
                     setCursorNodeAndOffset(cursorNode,0,cursorNode,0);
                     return;
                 }
+            }
+        }
+        return;
+
+        function makeNew(paragraph,child)
+        {
+            var copy = shallowCopyElement(paragraph);
+            
+            removeAdjacentWhitespace(paragraph);
+            
+            // If the cursor is in the last paragraph of a list item, we need to
+            // add another list item rather than another paragraph
+            if (paragraph.parentNode.nodeName == "LI") {
+                var li = paragraph.parentNode;
+                var liCopy = shallowCopyElement(li);
+                li.parentNode.insertBefore(liCopy,li.nextSibling);
+                liCopy.appendChild(copy);
+                
+                // For list items, we want to put all futher paragraphs inside the old list item
+                // inside the new one as well
+                var follow = paragraph.nextSibling;
+                while (follow != null) {
+                    var next = follow.nextSibling;
+                    liCopy.appendChild(follow);
+                    follow = next;
+                }
+            }
+            else {
+                paragraph.parentNode.insertBefore(copy,paragraph.nextSibling);
+            }
+            
+            while (child != null) {
+                var next = child.nextSibling;
+                copy.appendChild(child);
+                child = next;
+            }
+            
+            fixEmptyParagraph(copy);
+            fixEmptyParagraph(paragraph);
+            return copy;
+
+            // An empty paragraph does not get shown and cannot be edited. We can fix this by adding
+            // a BR element as a child
+            function fixEmptyParagraph(paragraph)
+            {
+                if (getNodeText(paragraph) == "")
+                    paragraph.appendChild(document.createElement("BR"));
             }
         }
     }
@@ -372,6 +335,50 @@
             return;
         }
         destroyCursorDiv();
+        return;
+
+        function getAbsoluteOffset(node)
+        {
+            var offsetLeft = 0;
+            var offsetTop = 0;
+            for (; node != null; node = node.parentNode) {
+                if (node.offsetLeft != null)
+                    offsetLeft += node.offsetLeft;
+                if (node.offsetTop != null)
+                    offsetTop += node.offsetTop;
+            }
+            return { offsetLeft: offsetLeft, offsetTop: offsetTop };
+        }
+
+        function ensurePointVisible(x,y)
+        {
+            var relX = x - window.scrollX;
+            var relY = y - window.scrollY;    
+            if ((relX < 0) || (relX >= visibleAreaWidth) ||
+                (relY < 0) || (relY >= visibleAreaHeight)) {
+                window.scrollTo(x-visibleAreaWidth/2,y-visibleAreaHeight/2);
+            }
+        }
+
+        function createCursorDiv()
+        {
+            if (cursorDiv == null) {
+                cursorDiv = document.createElement("DIV");
+                cursorDiv.style.position = "absolute";
+                cursorDiv.style.width = "2px";
+                cursorDiv.style.backgroundColor = "blue";
+                cursorDiv.style.opacity = "50%";
+                document.body.appendChild(cursorDiv);
+            }
+        }
+
+        function destroyCursorDiv()
+        {
+            if (cursorDiv != null) {
+                cursorDiv.parentNode.removeChild(cursorDiv);
+                cursorDiv = null;
+            }
+        }
     }
 
     // public
