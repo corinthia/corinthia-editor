@@ -36,6 +36,62 @@ HEADING_ELEMENTS["H4"] = true;
 HEADING_ELEMENTS["H5"] = true;
 HEADING_ELEMENTS["H6"] = true;
 
+function prettyPrintDocument()
+{
+    var clone = document.documentElement.cloneNode(true);
+    removeRedundantWhitespace(clone,"");
+    addIndentation(clone,"");
+    return clone.outerHTML;
+
+    function isWhitespaceChar(c)
+    {
+        return ((c == " ") || (c == "\t") || (c == "\r") || (c == "\n"));
+    }
+
+    // Note: This could potentially remove some whitespace that is important, e.g.
+    // in the case of <b>one </b>two... it should only be used for debugging purposes
+    function removeRedundantWhitespace(node,indent)
+    {
+        if (node.nodeType == Node.ELEMENT_NODE) {
+            var next;
+            for (var child = node.firstChild; child != null; child = next) {
+                next = child.nextSibling;
+                if (isWhitespaceTextNode(child)) {
+                    node.removeChild(child);
+                }
+                else {
+                    removeRedundantWhitespace(child,indent+"    ");
+                }
+            }
+        }
+        else if (node.nodeType == Node.TEXT_NODE) {
+            var str = node.nodeValue;
+            var start = 0;
+            var end = str.length;
+            while ((start < end) && isWhitespaceChar(str.charAt(start)))
+                start++;
+            while ((end > start) && isWhitespaceChar(str.charAt(end-1)))
+                end--;
+            node.nodeValue = str.slice(start,end);
+        }
+    }
+
+    function addIndentation(node,indent)
+    {
+        if (node.nodeType == Node.ELEMENT_NODE) {
+            var next;
+            for (var child = node.firstChild; child != null; child = next) {
+                next = child.nextSibling;
+                var text = document.createTextNode("\n"+indent+"    ");
+                node.insertBefore(text,child);
+                addIndentation(child,indent+"    ");
+            }
+            var text = document.createTextNode("\n"+indent);
+            node.appendChild(text);
+        }
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                //
 //                                          General                                               //
