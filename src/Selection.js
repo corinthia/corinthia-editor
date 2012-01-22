@@ -89,7 +89,7 @@
     }
 
     // public
-    function beginSelection(x,y)
+    function beginSelectionAtCoords(x,y)
     {
         var zoom = getZoom();
         var location = document.caretRangeFromPoint(x/zoom,y/zoom);
@@ -111,7 +111,7 @@
     }
 
     // public
-    function setSelectionStart(x,y)
+    function setSelectionStartAtCoords(x,y)
     {
         var zoom = getZoom();
         var location = document.caretRangeFromPoint(x/zoom,y/zoom);
@@ -122,7 +122,7 @@
     }
 
     // public
-    function setSelectionEnd(x,y)
+    function setSelectionEndAtCoords(x,y)
     {
         var zoom = getZoom();
         var location = document.caretRangeFromPoint(x/zoom,y/zoom);
@@ -140,9 +140,9 @@
     }
 
     window.selectAll = selectAll;
-    window.beginSelection = beginSelection;
-    window.setSelectionStart = setSelectionStart;
-    window.setSelectionEnd = setSelectionEnd;
+    window.beginSelectionAtCoords = beginSelectionAtCoords;
+    window.setSelectionStartAtCoords = setSelectionStartAtCoords;
+    window.setSelectionEndAtCoords = setSelectionEndAtCoords;
     window.clearSelection = clearSelection;
 
 })();
