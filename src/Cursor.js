@@ -3,9 +3,6 @@
 
 (function() {
 
-    var prevSelectionNode = null;
-    var prevSelectionOffset = null;
-
     // These variables keep track of the portion of the window that is visible on screen (i.e. not
     // hidden by the keyboard). We need to keep track of these since scrollIntoViewIfNeeded() does
     // not take into account the presence of the keyboard on screen, and every time we move the
@@ -72,10 +69,6 @@
             selection.setBaseAndExtent(cursorNode,cursorOffset,cursorNode,cursorOffset);
         else
             selection.removeAllRanges();
-        // setBaseAndExtent may actually record a different base node/offset, so make sure that's
-        // what we're comparing with in setBaseAndExtent()
-        prevSelectionNode = selection.baseNode;
-        prevSelectionOffset = selection.baseOffset;
         
         reportSelectionFormatting();
         updateCursor();
@@ -175,18 +168,6 @@
             node = node.parentNode;
         }
         return node;
-    }
-
-    // public
-    function checkForSelectionChange()
-    {
-        var selection = window.getSelection();
-        if ((selection.focusNode != prevSelectionNode) ||
-            (selection.focusOffset != prevSelectionOffset)) {
-            destroyCursorDiv();
-        }
-        prevSelectionNode = selection.focusNode;
-        prevSelectionOffset = selection.focusOffset;
     }
 
     // public
@@ -413,7 +394,6 @@
         }
     }
 
-    window.checkForSelectionChange = checkForSelectionChange;
     window.setVisibleArea = setVisibleArea;
     window.positionCursor = positionCursor;
     window.clearCursor = clearCursor;
