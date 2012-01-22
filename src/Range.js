@@ -172,15 +172,26 @@ Range.prototype.convertToOffsetFree = function()
     }
 }
 
+Range.prototype.isOffsetFree = function()
+{
+    if (this.start.node.nodeType == Node.ELEMENT_NODE)
+        return ((this.start.offset == 0) && (this.end.offset == this.end.node.childNodes.length));
+    else
+        return true;
+}
+
 Range.prototype.getSelectedNodes = function()
 {
     if (!this.isForwards())
         return new Array();
 
+    if (!this.isOffsetFree()) {
+        var copy = this.copy();
+        copy.convertToOffsetFree();
+        return copy.getSelectedNodes();
+    }
+
     var result = new Array();
-
-    this.convertToOffsetFree();
-
     var startNode = this.start.node;
     var endNode = this.end.node;
 
