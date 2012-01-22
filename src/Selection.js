@@ -1,5 +1,7 @@
 // Copyright (c) 2011-2012 UX Productivity. All rights reserved.
 
+// FIXME: cursor does not display correctly if it is after a space at the end of the line
+
 (function() {
 
     var selectionDivs = new Array();

@@ -214,6 +214,9 @@
     // public
     function enterPressed()
     {
+        // FIXME: too many BRs are inserted when you press enter multiple times to create
+        // empty paragraphs
+
         var selectionRange = getSelectionRange();
         if (selectionRange == null)
             return;
