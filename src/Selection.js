@@ -34,7 +34,8 @@
                 height = selectionRange.start.node.parentNode.offsetHeight;
             }
 
-            editor.setCursor(left,top,height);
+            var zoom = getZoom();
+            editor.setCursor(left*zoom,top*zoom,height*zoom);
             return;
         }
 
