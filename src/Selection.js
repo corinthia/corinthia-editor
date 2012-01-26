@@ -182,10 +182,27 @@
         updateSelectionDisplay();
     }
 
+    function ensureCursorVisible()
+    {
+        var rects = selectionRange.getClientRects();
+        if (rects.length > 0) {
+            var lastRect = rects[rects.length-1];
+            var cursorY = lastRect.top + window.scrollY + lastRect.height/2;
+            if ((cursorY < window.scrollY) ||
+                (cursorY > window.scrollY + window.innerHeight)) {
+                var newScrollY = cursorY - window.innerHeight/2;
+                if (newScrollY < 0)
+                    newScrollY = 0;
+                window.scrollTo(window.scrollX,newScrollY);
+            }
+        }
+    }
+
     // public
     function setEmptySelectionAt(node,offset)
     {
         setSelectionRange(new Range(new Position(node,offset),new Position(node,offset)));
+        ensureCursorVisible();
     }
 
     // public
