@@ -71,26 +71,6 @@ function getNodeDepth(node)
     return depth;
 }
 
-function isContainerNode(node)
-{
-    return CONTAINER_ELEMENTS[node.nodeName];
-}
-
-function isParagraphNode(node)
-{
-    return PARAGRAPH_ELEMENTS[node.nodeName];
-}
-
-function isHeadingNode(node)
-{
-    return HEADING_ELEMENTS[node.nodeName];
-}
-
-function isInlineNode(node)
-{
-    return (!isContainerNode(node) && !isParagraphNode(node));
-}
-
 function getNodeText(node)
 {
     var stringBuilder = new StringBuilder();

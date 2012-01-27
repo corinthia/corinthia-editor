@@ -312,6 +312,7 @@ function leftLoaded()
     left.contentWindow.editor = editor;
     left.contentWindow.debug = editor.debug;
 
+    // Sync with Editor.m
     var javascriptFiles = ["nulleditor.js", // must be first
                            "../src/Cursor.js",
                            "../src/ElementProxy.js",
@@ -326,6 +327,7 @@ function leftLoaded()
                            "../src/Structure.js",
                            "../src/Styles.js",
                            "../src/traversal.js",
+                           "../src/types.js",
                            "../src/util.js",
                            "../src/Viewport.js",
                            "../src/Selection.js",
