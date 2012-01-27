@@ -134,6 +134,7 @@ function showTest(dir,name)
         setLeftTitle("Working area");
         setRightTitle("Result");
         left.contentWindow.performTest();
+        left.contentWindow.clearSelection();
         setPanelText(right,getHTML(left.contentDocument.documentElement));
     }
     left.src = dir+"/"+name+"-input.html";
