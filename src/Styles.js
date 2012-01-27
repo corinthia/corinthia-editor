@@ -6,28 +6,6 @@
 //                                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function click(e)
-{
-    var node = window.getSelection().focusNode;
-    var offset = window.getSelection().focusOffset;
-    var style = "";
-    while (node != null) {
-        if ((node.nodeName == "H1") ||
-            (node.nodeName == "H2") ||
-            (node.nodeName == "H3") ||
-            (node.nodeName == "H4") ||
-            (node.nodeName == "H5") ||
-            (node.nodeName == "H6")) {
-            style = node.nodeName;
-            break;
-        }
-        node = node.parentNode;
-    }
-    editor.reportStyle(style);
-
-    reportSelectionFormatting();
-}
-
 // Enforce the restriction that any path from the root to a given node must be of the form
 //    container+ paragraph inline
 // or container+ paragraph
@@ -93,8 +71,9 @@ function setStyle(name)
     // FIXME: handle the case where there are multiple paragraphs selected.
     // We need to update the style of each of them
 
-    var cursorNode = window.getSelection().focusNode;
-    var cursorOffset = window.getSelection().focusOffset;
+    var range = getSelectionRange();
+    var cursorNode = range.start.node;
+    var cursorOffset = range.start.offset;
 
     ensureValidHierarchy(cursorNode,true);
     var styleElement = getParagraphNode(cursorNode);
@@ -106,7 +85,7 @@ function setStyle(name)
         styleElement.parentNode.removeChild(styleElement);
         while (styleElement.firstChild != null)
             newElement.appendChild(styleElement.firstChild);
-        window.getSelection().setPosition(cursorNode,cursorOffset);
+        setEmptySelectionAt(cursorNode,cursorOffset);
     }
     else {
         alert("No style element!");
