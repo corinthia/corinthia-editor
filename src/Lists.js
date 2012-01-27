@@ -36,7 +36,7 @@
     // public
     function increaseIndent()
     {
-        var range = Range.fromSelection();
+        var range = getSelectionRange();
         if (range == null)
             return null;
 
@@ -101,7 +101,7 @@
             }
         }
 
-        range.setSelection();
+        setSelectionRange(range);
 
         function firstDescendentList(node)
         {
@@ -129,7 +129,7 @@
     // public
     function decreaseIndent()
     {
-        var range = Range.fromSelection();
+        var range = getSelectionRange();
         if (range == null)
             return null;
 
@@ -210,7 +210,7 @@
             }
         }
 
-        range.setSelection();
+        setSelectionRange(range);
 
         function findContainingListItem(node)
         {
@@ -289,7 +289,7 @@
     {
         debug("clearList()");
 
-        var range = Range.fromSelection();
+        var range = getSelectionRange();
         if (range == null) {
             debug("no selection");
             return;
@@ -349,12 +349,12 @@
             }
         }
 
-        range.setSelection();
+        setSelectionRange(range);
     }
 
     function setList(type)
     {
-        var range = Range.fromSelection();
+        var range = getSelectionRange();
         if (range == null) {
             debug("no selection");
             return;
@@ -476,7 +476,7 @@
             }
         }
 
-        range.setSelection();
+        setSelectionRange(range);
         return;
     }
 
