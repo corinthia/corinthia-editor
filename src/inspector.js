@@ -62,7 +62,7 @@ Inspector.prototype = {
 
         this.buildRecursive(this.doc.body,this.element);
 
-        var range = this.win.Range.fromSelection();
+        var range = this.win.getSelectionRange();
         if (range != null) {
 //            this.setSelected(range.getAllNodes());
             this.setSelected(cw.getListOperationNodes(range));

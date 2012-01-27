@@ -331,7 +331,7 @@
 
         mergeRange(range);
 
-        range.setSelection();
+        setSelectionRange(range);
         reportSelectionFormatting();
         return range;
     }
@@ -342,7 +342,7 @@
     function selectionUnwrapElement(elementName)
     {
         debug("selectionUnwrapElement "+elementName);
-        var range = Range.fromSelection();
+        var range = getSelectionRange();
         if ((range == null) ||
             ((range.start.node == range.end.node) && (range.start.offset == range.end.offset)))
             return null;
@@ -360,7 +360,7 @@
 
         mergeRange(range);
 
-        range.setSelection();
+        setSelectionRange(range);
         debug("\n");
 
         function unwrapSingle(node,elementName)

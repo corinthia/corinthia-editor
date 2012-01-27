@@ -6,19 +6,6 @@ function Range(start,end)
     this.end = end;
 }
 
-Range.fromSelection = function()
-{
-    var selection = window.getSelection();
-
-    if (selection.rangeCount == 0)
-        return null;
-
-    var r = selection.getRangeAt(0);
-
-    return new Range(new Position(r.startContainer,r.startOffset),
-                     new Position(r.endContainer,r.endOffset));
-}
-
 Range.prototype.copy = function()
 {
     return new Range(new Position(this.start.node,this.start.offset),
@@ -105,14 +92,6 @@ Range.prototype.getAllNodes = function()
         node = nextNode(node);
     }
     return result;
-}
-
-Range.prototype.setSelection = function()
-{
-    window.getSelection().setBaseAndExtent(this.start.node,
-                                           this.start.offset,
-                                           this.end.node,
-                                           this.end.offset);
 }
 
 Range.prototype.ensureRangeValidHierarchy = function()
