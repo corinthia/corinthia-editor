@@ -19,7 +19,35 @@
             rects = selectionRange.getClientRects();
 
         if ((selectionRange != null) && selectionRange.isEmpty()) {
+
             // We just have a cursor
+
+            if ((rects != null) && (rects.length == 0)) {
+
+                // If the cursor is at the end of a paragraph and the last character is a space,
+                // getClientRects() fails to return anything. So instead, we temporarily add a
+                // single character to the end of the paragraph, get the client rect for that,
+                // and then remove the character. This client rect will be in the same location
+                // as the cursor placed at the end of the space.
+
+                    var node = selectionRange.start.node;
+                    var offset = selectionRange.start.offset;
+
+                if ((node.nodeType == Node.TEXT_NODE) && (offset == node.nodeValue.length)) {
+                    var tempNode = document.createTextNode("X");
+                    node.parentNode.insertBefore(tempNode,node.nextSibling);
+                    var tempRange = new Range(new Position(tempNode,0),
+                                              new Position(tempNode,0));
+                    rects = tempRange.getClientRects();
+                    node.parentNode.removeChild(tempNode);
+                }
+            }
+
+            var left;
+            var top;
+            var width;
+            var height;
+
             if ((rects != null) && (rects.length > 0)) {
                 left = rects[0].left + window.scrollX;
                 top = rects[0].top + window.scrollY;
