@@ -1,0 +1,16 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script language="javascript">
+function performTest()
+{
+    selectionUnwrapElement("B");
+}
+</script>
+</head>
+<body>
+<p>abcd<b>efgh<span id="selStart"></span>ijklmnopqrstuv</b>wxyz</p>
+<p>abcd<b>efghijklmnopqr<span id="selEnd"></span>stuv</b>wxyz</p>
+</body>
+</html>
