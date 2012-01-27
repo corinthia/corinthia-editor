@@ -294,6 +294,14 @@ function prettyPrint(builder,node,indent)
     }
 }
 
+function readJSCode(filename)
+{
+    var req = new XMLHttpRequest();
+    req.open("GET",filename,false);
+    req.send();
+    return req.responseText;
+}
+
 function leftLoaded()
 {
     if (leftLoadedContinuation == null)
@@ -301,12 +309,29 @@ function leftLoaded()
     var continuation = leftLoadedContinuation;
     leftLoadedContinuation = null;
 
-    var req = new XMLHttpRequest();
-    req.open("GET","../res/raw/jswrite.js",false);
-    req.send();
     left.contentWindow.editor = editor;
     left.contentWindow.debug = editor.debug;
-    left.contentWindow.eval(req.responseText);
+
+    var javascriptFiles = ["nulleditor.js", // must be first
+                           "../src/Cursor.js",
+                           "../src/ElementProxy.js",
+                           "../src/ElementProxyMap.js",
+                           "../src/Formatting.js",
+                           "../src/Lists.js",
+                           "../src/mutation.js",
+                           "../src/Outline.js",
+                           "../src/Position.js",
+                           "../src/Range.js",
+                           "../src/StringBuilder.js",
+                           "../src/Structure.js",
+                           "../src/Styles.js",
+                           "../src/traversal.js",
+                           "../src/util.js",
+                           "../src/Viewport.js",
+                           "../src/Selection.js",
+                           "../src/init.js"]; // must be last
+    for (var i = 0; i < javascriptFiles.length; i++)
+        left.contentWindow.eval(readJSCode(javascriptFiles[i]));
 
     var selStart = left.contentDocument.getElementById("selStart");
     var selEnd = left.contentDocument.getElementById("selEnd");
@@ -328,8 +353,10 @@ function leftLoaded()
         selStart.parentNode.removeChild(selStart);
         selEnd.parentNode.removeChild(selEnd);
 
-        left.contentWindow.getSelection().setBaseAndExtent(start.node,start.offset,
-                                                           end.node,end.offset);
+        var startPosition = new left.contentWindow.Position(start.node,start.offset);
+        var endPosition = new left.contentWindow.Position(end.node,end.offset);
+        var range = new left.contentWindow.Range(startPosition,endPosition);
+        left.contentWindow.setSelectionRange(range);
     }
     continuation();
 
@@ -377,6 +404,7 @@ function runAllTests()
             var actual;
             try {
                 left.contentWindow.performTest();
+                left.contentWindow.clearSelection();
                 actual = getHTML(left.contentDocument.documentElement);
             }
             catch (e) {
