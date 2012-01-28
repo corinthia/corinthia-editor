@@ -124,7 +124,7 @@ Range.prototype.ensureRangeValidHierarchy = function()
     }
 }
 
-Range.prototype.getSelectedNodes = function()
+Range.prototype.getOutermostSelectedNodes = function()
 {
     if (!this.isForwards())
         return new Array();
@@ -245,7 +245,7 @@ Range.prototype.getSelectedNodes = function()
 
 Range.prototype.getClientRects = function()
 {
-    var nodes = this.getSelectedNodes();
+    var nodes = this.getOutermostSelectedNodes();
 
     // WebKit in iOS 5.0 has a bug where if the selection spans multiple paragraphs, the complete
     // rect for paragraphs other than the first is returned, instead of just the portions of it

@@ -125,7 +125,7 @@ function updateSelectionDisplay()
         useRange.start.node.style.border = "1px solid lime";
         useRange.end.node.style.border = "1px solid red";
 
-        var nodes = useRange.getSelectedNodes();
+        var nodes = useRange.getOutermostSelectedNodes();
         for (var i = 0; i < nodes.length; i++) {
             if (nodes[i].nodeType == Node.ELEMENT_NODE)
                 nodes[i].style.backgroundColor = "#c0c0c0";
