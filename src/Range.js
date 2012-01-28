@@ -18,6 +18,11 @@ Range.prototype.isEmpty = function()
             (this.start.offset == this.end.offset));
 }
 
+Range.prototype.toString = function()
+{
+    return this.start.toString() + " - " + this.end.toString();
+}
+
 Range.prototype.selectWholeWords = function()
 {
     if ((this.start.node.nodeType == Node.TEXT_NODE) &&

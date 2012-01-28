@@ -52,7 +52,13 @@ Position.prototype.moveBackwardIfAtStart = function()
 
 Position.prototype.toString = function()
 {
-    return this.node.nodeName+" \""+
-    this.node.nodeValue+"\" offset "+
-    this.offset;
+    if (this.node.nodeType == Node.TEXT_NODE) {
+        return "(\""+this.node.nodeValue+"\","+this.offset+")";
+    }
+    else if ((this.node.nodeType == Node.ELEMENT_NODE) && (this.node.hasAttribute("id"))) {
+        return "(#"+this.node.getAttribute("id")+","+this.offset+")";
+    }
+    else {
+        return "("+this.node.nodeName+","+this.offset+")";
+    }
 }
