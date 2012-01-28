@@ -1,9 +1,9 @@
 // Copyright (c) 2011-2012 UX Productivity. All rights reserved.
 
-function Range(start,end)
+function Range(startNode,startOffset,endNode,endOffset)
 {
-    this.start = start;
-    this.end = end;
+    this.start = new Position(startNode,startOffset);
+    this.end = new Position(endNode,endOffset);
 }
 
 Range.prototype.copy = function()

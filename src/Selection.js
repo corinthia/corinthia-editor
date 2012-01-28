@@ -36,8 +36,7 @@
                 if ((node.nodeType == Node.TEXT_NODE) && (offset == node.nodeValue.length)) {
                     var tempNode = document.createTextNode("X");
                     node.parentNode.insertBefore(tempNode,node.nextSibling);
-                    var tempRange = new Range(new Position(tempNode,0),
-                                              new Position(tempNode,0));
+                    var tempRange = new Range(tempNode,0,tempNode,0);
                     rects = tempRange.getClientRects();
                     node.parentNode.removeChild(tempNode);
                 }
@@ -149,8 +148,8 @@
     // public
     function selectAll()
     {
-        selectionRange = new Range(new Position(document.body,0),
-                                   new Position(document.body,document.body.childNodes.length));
+        selectionRange = new Range(document.body,0,
+                                   document.body,document.body.childNodes.length);
         updateSelectionDisplay();
     }
 
@@ -166,8 +165,7 @@
             var node = location.startContainer;
             var offset = location.startOffset;
             if (node.nodeType == Node.TEXT_NODE) {
-                selectionRange = new Range(new Position(node,offset),
-                                           new Position(node,offset));
+                selectionRange = new Range(node,offset,node,offset);
                 selectionRange.start.moveToStartOfWord();
                 selectionRange.end.moveToEndOfWord();
             }
@@ -230,7 +228,7 @@
     // public
     function setEmptySelectionAt(node,offset)
     {
-        setSelectionRange(new Range(new Position(node,offset),new Position(node,offset)));
+        setSelectionRange(new Range(node,offset,node,offset));
         ensureCursorVisible();
     }
 
