@@ -13,12 +13,9 @@ function prevNode(node)
     }
 }
 
-function nextNode(node)
+function nextNodeAfter(node)
 {
-    if (node.firstChild) {
-        return node.firstChild;
-    }
-    else if (node.nextSibling) {
+    if (node.nextSibling) {
         return node.nextSibling;
     }
     else {
@@ -29,6 +26,14 @@ function nextNode(node)
         else
             return node.parentNode.nextSibling;
     }
+}
+
+function nextNode(node)
+{
+    if (node.firstChild)
+        return node.firstChild;
+    else
+        return nextNodeAfter(node);
 }
 
 function prevTextNode(node)

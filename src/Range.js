@@ -48,10 +48,28 @@ Range.prototype.omitEmptyTextSelection = function()
 
 Range.prototype.isForwards = function()
 {
-    if (this.start.node == this.end.node)
+    if (this.start.node == this.end.node) {
         return (this.start.offset <= this.end.offset);
+    }
     else {
-        var cmp = this.start.node.compareDocumentPosition(this.end.node);
+        var startLocation = this.start.toLocation();
+        var endLocation = this.end.toLocation();
+
+        var startNode = startLocation.child;
+        if (startNode == null)
+            startNode = nextNodeAfter(startLocation.parent);
+
+        var endNode = endLocation.child;
+        if (endNode == null)
+            endNode = nextNodeAfter(endLocation.parent);
+
+        if (endNode == null) // end of document
+            return true;
+
+        if (startNode == null) // start is at end of document, end isn't
+            return false;
+
+        var cmp = startNode.compareDocumentPosition(endNode);
         return (cmp & (Node.DOCUMENT_POSITION_FOLLOWING | Node.DOCUMENT_POSITION_CONTAINED_BY));
     }
 }
@@ -143,12 +161,10 @@ function getAncestorLocationsWithCommonParent(startLocation,endLocation)
 
 Range.prototype.getOutermostSelectedNodes = function()
 {
-/*
     if (!this.isForwards()) {
         debug("get: not forwards");
         return new Array();
     }
-*/
 
     var result = new Array();
     var startContainer = this.start.node;
