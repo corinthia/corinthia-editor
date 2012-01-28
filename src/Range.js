@@ -284,7 +284,7 @@ Range.prototype.getOutermostSelectedNodes = function()
     var top = startLocation;
     do {
         debug("Phase 1: Adding "+top);
-        addNode(result,top.child);
+        result.push(top.child);
         while ((top.nextSiblingLocation() == null) && (top.parent != commonParent))
             top = top.parentLocation();
         if (top.parent != commonParent)
@@ -297,7 +297,7 @@ Range.prototype.getOutermostSelectedNodes = function()
         c = c.nextSibling;
     for (; c != endAncestor.child; c = c.nextSibling) {
         debug("Phase 2: Adding "+(new Location(startAncestor.parent,c)));
-        addNode(result,c);
+        result.push(c);
     }
 
     // Add end nodes
@@ -306,7 +306,7 @@ Range.prototype.getOutermostSelectedNodes = function()
     var firstTime = true;
     do {
         if ((bottom.child != null) && !firstTime)
-            addNodeReverse(endNodes,bottom.child);
+            endNodes.push(bottom.child);
         firstTime = false;
         while ((bottom.previousSiblingLocation() == null) && (bottom.parent != commonParent))
             bottom = bottom.parentLocation();
@@ -345,24 +345,6 @@ Range.prototype.getOutermostSelectedNodes = function()
             for (var child = node.lastChild; child != null; child = child.previousSibling)
                 addAllDescendants(result,child);
         }
-    }
-
-    // FIXME: add the inline children in a separate pass, so we can keep this method clean with
-    // just a single "get outer nodes" operation
-    function addNode(result,node)
-    {
-        if (isInlineNode(node))
-            addAllDescendants(result,node);
-        else
-            result.push(node);
-    }
-
-    function addNodeReverse(result,node)
-    {
-        if (isInlineNode(node))
-            addAllDescendantsReverse(result,node);
-        else
-            result.push(node);
     }
 }
 
