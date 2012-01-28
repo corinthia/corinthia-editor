@@ -223,12 +223,14 @@ Range.prototype.getOutermostSelectedNodes = function()
     } while (top.parent != commonParent);
 
     // Add middle nodes
-    var c = startAncestor.child;
-    if (c != null)
-        c = c.nextSibling;
-    for (; c != endAncestor.child; c = c.nextSibling) {
-        debug("Phase 2: Adding "+(new Location(startAncestor.parent,c)));
-        result.push(c);
+    if (!Location.locationsEqual(startAncestor,endAncestor)) {
+        var c = startAncestor.child;
+        if (c != null)
+            c = c.nextSibling;
+        for (; c != endAncestor.child; c = c.nextSibling) {
+            debug("Phase 2: Adding "+(new Location(startAncestor.parent,c)));
+            result.push(c);
+        }
     }
 
     // Add end nodes
