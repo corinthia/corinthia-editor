@@ -16,7 +16,9 @@ Location.prototype.parentLocation = function()
 
 Location.prototype.nextSiblingLocation = function()
 {
-    if (this.child.nextSibling == null)
+    if (this.child == null)
+        return null;
+    else if (this.child.nextSibling == null)
         return null;
     else
         return new Location(this.parent,this.child.nextSibling);

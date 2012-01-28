@@ -163,7 +163,8 @@ Range.prototype.getOutermostSelectedNodes = function()
 {
     if (!this.isForwards()) {
         debug("get: not forwards");
-        return new Array();
+        return new Range(this.end.node,this.end.offset,
+                         this.start.node,this.start.offset).getOutermostSelectedNodes();
     }
 
     var result = new Array();
@@ -215,7 +216,8 @@ Range.prototype.getOutermostSelectedNodes = function()
     var top = startLocation;
     do {
         debug("Phase 1: Adding "+top);
-        result.push(top.child);
+        if (top.child != null)
+            result.push(top.child);
         while ((top.nextSiblingLocation() == null) && (top.parent != commonParent))
             top = top.parentLocation();
         if (top.parent != commonParent)
