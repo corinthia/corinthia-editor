@@ -241,7 +241,6 @@
         var finalNode = selectionRange.start.node;
         var finalOffset = selectionRange.start.offset;
 
-        selectionRange.convertToOffsetFree();
         var nodes = selectionRange.getSelectedNodes();
         for (var i = 0; i < nodes.length; i++) {
             var node = nodes[i];

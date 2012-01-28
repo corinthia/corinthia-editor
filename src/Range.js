@@ -124,61 +124,10 @@ Range.prototype.ensureRangeValidHierarchy = function()
     }
 }
 
-// Converts the range to a form in which the start node has an offset of 0, and the end node
-// has an offset of nodeValue.length or childNodes.length (depending on the node type). This
-// simplifies dealing with ranges as it relieves us from having to deal witih offets in element
-// nodes.
-Range.prototype.convertToOffsetFree = function()
-{
-    if ((this.start.node.nodeType == Node.ELEMENT_NODE) && (this.start.offset > 0)) {
-        this.start.node = this.start.node.childNodes[this.start.offset];
-        this.start.offset = 0;
-    }
-
-    if ((this.end.node.nodeType == Node.ELEMENT_NODE) &&
-        (this.end.offset < this.end.node.childNodes.length)) {
-        if (this.end.offset == 0) {
-            this.end.node = prevNode(this.end.node);
-        }
-        else {
-            this.end.node = this.end.node.childNodes[this.end.offset-1];
-        }
-
-        // Now set the offset to be the start of the node
-        if (this.end.node.nodeType == Node.TEXT_NODE) {
-            this.end.offset = this.end.node.nodeValue.length;
-        }
-        else if (this.end.node.nodeType == Node.ELEMENT_NODE) {
-            this.end.offset = this.end.node.childNodes.length;
-        }
-        else
-            this.end.offset = 0;
-    }
-}
-
-Range.prototype.isOffsetFree = function()
-{
-    if ((this.start.node.nodeType == Node.ELEMENT_NODE) &&
-        (this.start.offset > 0))
-        return false;
-
-    if ((this.end.node.nodeType == Node.ELEMENT_NODE) &&
-        (this.end.offset < this.end.node.childNodes.length))
-        return false;
-
-    return true;
-}
-
 Range.prototype.getSelectedNodes = function()
 {
     if (!this.isForwards())
         return new Array();
-
-    if (!this.isOffsetFree()) {
-        var copy = this.copy();
-        copy.convertToOffsetFree();
-        return copy.getSelectedNodes();
-    }
 
     var result = new Array();
     var startNode = this.start.node;
