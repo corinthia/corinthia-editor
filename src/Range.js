@@ -8,8 +8,8 @@ function Range(startNode,startOffset,endNode,endOffset)
 
 Range.prototype.copy = function()
 {
-    return new Range(new Position(this.start.node,this.start.offset),
-                     new Position(this.end.node,this.end.offset));
+    return new Range(this.start.node,this.start.offset,
+                     this.end.node,this.end.offset);
 }
 
 Range.prototype.isEmpty = function()
@@ -142,6 +142,7 @@ Range.prototype.getSelectedNodes = function()
     }
 
     if (startNode == endNode) {
+        // FIXME: won't work with offset change
         addNode(result,startNode);
         return result;
     }
