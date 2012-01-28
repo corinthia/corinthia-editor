@@ -356,9 +356,7 @@ function leftLoaded()
         selStart.parentNode.removeChild(selStart);
         selEnd.parentNode.removeChild(selEnd);
 
-        var startPosition = new left.contentWindow.Position(start.node,start.offset);
-        var endPosition = new left.contentWindow.Position(end.node,end.offset);
-        var range = new left.contentWindow.Range(startPosition,endPosition);
+        var range = new left.contentWindow.Range(start.node,start.offset,end.node,end.offset);
         left.contentWindow.setSelectionRange(range);
     }
     continuation();

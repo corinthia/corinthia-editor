@@ -171,8 +171,7 @@ function mousedown(event)
         addedLabels = true;
     }
     if ((event.target.nodeName == "DIV") && (event.target.firstChild == null)) {
-        selectionRange = new Range(new Position(event.target,0),
-                                   new Position(event.target,0));
+        selectionRange = new Range(event.target,0,event.target,0);
     }
     else {
         selectionRange = null;
@@ -187,8 +186,7 @@ function mousemove(event)
         var node = event.target;
         if ((node.nodeName == "DIV") && (node.firstChild == null)) {
             if (selectionRange == null) {
-                selectionRange = new Range(new Position(node,0),
-                                           new Position(node,0));
+                selectionRange = new Range(node,0,node,0);
             }
             else {
                 selectionRange.end = new Position(node,node.childNodes.length);
