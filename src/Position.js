@@ -1,5 +1,72 @@
 // Copyright (c) 2011-2012 UX Productivity. All rights reserved.
 
+function Location(parent,child)
+{
+    this.parent = parent;
+    this.child = child;
+}
+
+Location.prototype.parentLocation = function()
+{
+    if (this.parent.parentNode == null)
+        return null;
+    else
+        return new Location(this.parent.parentNode,this.parent);
+}
+
+Location.prototype.nextSiblingLocation = function()
+{
+    if (this.child.nextSibling == null)
+        return null;
+    else
+        return new Location(this.parent,this.child.nextSibling);
+}
+
+Location.prototype.previousSiblingLocation = function()
+{
+    if (this.child == null) { // point is at end
+        if (this.parent.lastChild != null)
+            return new Location(this.parent,this.parent.lastChild);
+        else // FIXME: would this ever be the case?
+            return null;
+    }
+    if (this.child.previousSibling == null)
+        return null;
+    else
+        return new Location(this.parent,this.child.previousSibling);
+}
+
+Location.prototype.equals = function(other)
+{
+    return ((this.parent == other.parent) && (this.child == other.child));
+}
+
+Location.prototype.toString = function()
+{
+    return "("+nodeString(this.parent)+","+nodeString(this.child)+")";
+
+    function nodeString(node) {
+        if (node == null)
+            return "null";
+        else if (node.nodeType == Node.TEXT_NODE)
+            return "\""+node.nodeValue+"\"";
+        else if ((node.nodeType == Node.ELEMENT_NODE) && (node.hasAttribute("id")))
+            return "#"+node.getAttribute("id");
+        else
+            return node.nodeName;
+    }
+}
+
+Location.locationsEqual = function (a,b)
+{
+    if ((a == null) && (b == null))
+        return true;
+    else if ((a != null) && (b != null) && a.equals(b))
+        return true;
+    else
+        return false;
+}
+
 function Position(node,offset)
 {
     this.node = node;
@@ -47,6 +114,19 @@ Position.prototype.moveBackwardIfAtStart = function()
             this.offset = this.node.nodeValue.length;
             // debug("Moved end to "+this.toString()+"\n");
         }
+    }
+}
+
+Position.prototype.toLocation = function()
+{
+    if ((this.node.nodeType == Node.ELEMENT_NODE) && (this.node.firstChild != null)) {
+        if (this.offset >= this.node.childNodes.length)
+            return new Location(this.node,null);
+        else
+            return new Location(this.node,this.node.childNodes[this.offset]);
+    }
+    else {
+        return new Location(this.node.parentNode,this.node);
     }
 }
 

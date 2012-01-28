@@ -129,80 +129,6 @@ Range.prototype.ensureRangeValidHierarchy = function()
     }
 }
 
-// FIXME: temp
-function nodeString(node) {
-    if (node == null) {
-        return "null";
-    }
-    else if (node.nodeType == Node.TEXT_NODE) {
-        return "\""+node.nodeValue+"\"";
-    }
-    else if ((node.nodeType == Node.ELEMENT_NODE) && (node.hasAttribute("id"))) {
-        return "#"+node.getAttribute("id");
-    }
-    else {
-        return node.nodeName;
-    }
-}
-
-
-
-function Location(parent,child)
-{
-    this.parent = parent;
-    this.child = child;
-}
-
-Location.prototype.parentLocation = function()
-{
-    if (this.parent.parentNode == null)
-        return null;
-    else
-        return new Location(this.parent.parentNode,this.parent);
-}
-
-Location.prototype.nextSiblingLocation = function()
-{
-    if (this.child.nextSibling == null)
-        return null;
-    else
-        return new Location(this.parent,this.child.nextSibling);
-}
-
-Location.prototype.previousSiblingLocation = function()
-{
-    if (this.child == null) { // point is at end
-        if (this.parent.lastChild != null)
-            return new Location(this.parent,this.parent.lastChild);
-        else // FIXME: would this ever be the case?
-            return null;
-    }
-    if (this.child.previousSibling == null)
-        return null;
-    else
-        return new Location(this.parent,this.child.previousSibling);
-}
-
-Location.prototype.equals = function(other)
-{
-    return ((this.parent == other.parent) && (this.child == other.child));
-}
-
-function locationsEqual(a,b)
-{
-    if ((a == null) && (b == null))
-        return true;
-    else if ((a != null) && (b != null) && a.equals(b))
-        return true;
-    else
-        return false;
-}
-
-Location.prototype.toString = function()
-{
-    return "("+nodeString(this.parent)+","+nodeString(this.child)+")";
-}
-
 function getAncestorLocationsWithCommonParent(startLocation,endLocation)
 {
     for (var start = startLocation; start != null; start = start.parentLocation()) {
@@ -213,21 +139,6 @@ function getAncestorLocationsWithCommonParent(startLocation,endLocation)
         }
     }
     return null;
-}
-
-function containerOffsetToLocation(container,offset)
-{
-    if ((container.nodeType == Node.ELEMENT_NODE) && (container.firstChild != null)) {
-        if (offset >= container.childNodes.length) {
-            return new Location(container,null);
-        }
-        else {
-            return new Location(container,container.childNodes[offset]);
-        }
-    }
-    else {
-        return new Location(container.parentNode,container);
-    }
 }
 
 Range.prototype.getOutermostSelectedNodes = function()
@@ -256,8 +167,8 @@ Range.prototype.getOutermostSelectedNodes = function()
     // way to represent a point that comes after all child nodes - in this case, the child is null.
     // The parent, however, is always non-null.
 
-    var startLocation = containerOffsetToLocation(startContainer,startOffset);
-    var endLocation = containerOffsetToLocation(endContainer,endOffset);
+    var startLocation = this.start.toLocation();
+    var endLocation = this.end.toLocation();
 
     debug("startLocation = "+startLocation);
     debug("endLocation = "+endLocation);
@@ -265,7 +176,7 @@ Range.prototype.getOutermostSelectedNodes = function()
     // If the end node is contained within the start node, change the start node to the first
     // node in document order that is not an ancestor of the end node
     while (isAncestorLocation(startLocation,endLocation) &&
-           !locationsEqual(startLocation,endLocation) &&
+           !Location.locationsEqual(startLocation,endLocation) &&
            (startLocation.child != null) &&
            (startLocation.child.firstChild != null)) {
         startLocation = new Location(startLocation.child,startLocation.child.firstChild);
@@ -324,9 +235,9 @@ Range.prototype.getOutermostSelectedNodes = function()
 
     function isAncestorLocation(ancestor,descendant)
     {
-        while ((descendant != null) && !locationsEqual(descendant,ancestor))
+        while ((descendant != null) && !Location.locationsEqual(descendant,ancestor))
             descendant = descendant.parentLocation();
-        return locationsEqual(descendant,ancestor);
+        return Location.locationsEqual(descendant,ancestor);
     }
 }
 

@@ -110,8 +110,18 @@ function updateSelectionDisplay()
         adjustPosition(useRange.end,true);
         debug("useRange = "+useRange);
 
-        useRange.start.node.style.border = "1px solid lime";
-        useRange.end.node.style.border = "1px solid red";
+//        useRange.start.node.style.border = "1px solid lime";
+//        useRange.end.node.style.border = "1px solid red";
+
+
+        var startLocation = useRange.start.toLocation();
+        var endLocation = useRange.end.toLocation();
+        if (startLocation.child != null)
+            startLocation.child.style.border = "1px solid lime";
+        if (endLocation.child != null)
+            endLocation.child.style.border = "1px solid red";
+
+
 
         var nodes = useRange.getOutermostSelectedNodes();
         for (var i = 0; i < nodes.length; i++) {
@@ -131,7 +141,7 @@ function updateSelectionDisplay()
     }
 }
 
-var ALLOW_PARENT_SELECTION = true;
+var ALLOW_PARENT_SELECTION = false;
 
 function mousedown(event)
 {
