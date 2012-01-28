@@ -129,17 +129,133 @@ Range.prototype.ensureRangeValidHierarchy = function()
     }
 }
 
+// FIXME: temp
+function nodeString(node) {
+    if (node == null) {
+        return "null";
+    }
+    else if (node.nodeType == Node.TEXT_NODE) {
+        return "\""+node.nodeValue+"\"";
+    }
+    else if ((node.nodeType == Node.ELEMENT_NODE) && (node.hasAttribute("id"))) {
+        return "#"+node.getAttribute("id");
+    }
+    else {
+        return node.nodeName;
+    }
+}
+
+
+
+function Location(parent,child)
+{
+    this.parent = parent;
+    this.child = child;
+}
+
+Location.prototype.parentLocation = function()
+{
+    if (this.parent.parentNode == null)
+        return null;
+    else
+        return new Location(this.parent.parentNode,this.parent);
+}
+
+Location.prototype.nextSiblingLocation = function()
+{
+    if (this.child.nextSibling == null)
+        return null;
+    else
+        return new Location(this.parent,this.child.nextSibling);
+}
+
+Location.prototype.previousSiblingLocation = function()
+{
+    if (this.child == null) { // point is at end
+        if (this.parent.lastChild != null)
+            return new Location(this.parent,this.parent.lastChild);
+        else // FIXME: would this ever be the case?
+            return null;
+    }
+    if (this.child.previousSibling == null)
+        return null;
+    else
+        return new Location(this.parent,this.child.previousSibling);
+}
+
+Location.prototype.equals = function(other)
+{
+    return ((this.parent == other.parent) && (this.child == other.child));
+}
+
+Location.prototype.toString = function()
+{
+    return "("+nodeString(this.parent)+","+nodeString(this.child)+")";
+}
+
+function getAncestorLocationsWithCommonParent(startLocation,endLocation)
+{
+    for (var start = startLocation; start != null; start = start.parentLocation()) {
+        for (var end = endLocation; end != null; end = end.parentLocation()) {
+            if (start.parent == end.parent) {
+                return { startAncestor: start, endAncestor: end };
+            }
+        }
+    }
+    return null;
+}
+
+function containerOffsetToLocation(container,offset)
+{
+    if ((container.nodeType == Node.ELEMENT_NODE) && (container.firstChild != null)) {
+        if (offset >= container.childNodes.length) {
+            return new Location(container,null);
+        }
+        else {
+            return new Location(container,container.childNodes[offset]);
+        }
+    }
+    else {
+        return new Location(container.parentNode,container);
+    }
+}
+
+
 Range.prototype.getOutermostSelectedNodes = function()
 {
-    if (!this.isForwards())
+/*
+    if (!this.isForwards()) {
+        debug("get: not forwards");
         return new Array();
+    }
+*/
 
     var result = new Array();
-    var startNode = this.start.node;
-    var endNode = this.end.node;
+    var startContainer = this.start.node;
+    var startOffset = this.start.offset;
+    var endContainer = this.end.node;
+    var endOffset = this.end.offset;
+
+    debug("get: this = "+this);
+
+    // Note: start and end are *points* - they are always *in between* nodes or characters, never
+    // *at* a node or character.
+    // Everything after the end point is excluded from the selection
+    // Everything after the start point, but before the end point, is included in the selection
+
+    // The reason we need the Location class, which records a (parend,child) pair, is so we have a
+    // way to represent a point that comes after all child nodes - in this case, the child is null.
+    // The parent, however, is always non-null.
+
+    var startLocation = containerOffsetToLocation(startContainer,startOffset);
+    var endLocation = containerOffsetToLocation(endContainer,endOffset);
+
+    debug("startLocation = "+startLocation);
+    debug("endLocation = "+endLocation);
 
     // If the end node is contained within the start node, change the start node to the first
     // node in document order that is not an ancestor of the end node
+/* // FIXME
     while (isAncestor(startNode,endNode) &&
            (startNode != endNode) &&
            (startNode.firstChild != null)) {
@@ -147,56 +263,56 @@ Range.prototype.getOutermostSelectedNodes = function()
     }
 
     if (startNode == endNode) {
-        // FIXME: won't work with offset change
-        addNode(result,startNode);
+    }
+*/
+
+    // FIXME: code below assumes start <= end
+
+    var ancestors = getAncestorLocationsWithCommonParent(startLocation,endLocation);
+    if (ancestors == null) {
+        debug("Could not find common parent");
         return result;
     }
+    var startAncestor = ancestors.startAncestor;
+    var endAncestor = ancestors.endAncestor;
+    var commonParent = startAncestor.parent;
+    debug("startAncestor = "+startAncestor);
+    debug("endAncestor = "+endAncestor);
 
-    // Find common ancestor
-    var commonAncestor = null;
-    var startAncestor = null;
-    var endAncestor = null;
-    for (var startA = startNode; startA != null; startA = startA.parentNode) {
-        for (var endA = endNode; endA != null; endA = endA.parentNode) {
-            if ((startA.parentNode != null) && (startA.parentNode == endA.parentNode)) {
-                startAncestor = startA;
-                endAncestor = endA;
-                commonAncestor = startA.parentNode;
-                break;
-            }
-        }
-        if (commonAncestor != null)
-            break;
-    }
 
-    if (commonAncestor == null) {
-        return result;
-    }
-
-    var top = startNode;
+    // Add start nodes
+    var top = startLocation;
     do {
-        addNode(result,top);
-        while ((top.nextSibling == null) && (top.parentNode != commonAncestor))
-            top = top.parentNode;
-        if (top.parentNode != commonAncestor)
-            top = top.nextSibling;
-    } while (top.parentNode != commonAncestor);
-    
-    for (var middle = startAncestor.nextSibling;
-         (middle != null) && (middle != endAncestor);
-         middle = middle.nextSibling) {
-        addNode(result,middle);
+        debug("Phase 1: Adding "+top);
+        addNode(result,top.child);
+        while ((top.nextSiblingLocation() == null) && (top.parent != commonParent))
+            top = top.parentLocation();
+        if (top.parent != commonParent)
+            top = top.nextSiblingLocation();
+    } while (top.parent != commonParent);
+
+    // Add middle nodes
+    var c = startAncestor.child;
+    if (c != null)
+        c = c.nextSibling;
+    for (; c != endAncestor.child; c = c.nextSibling) {
+        debug("Phase 2: Adding "+(new Location(startAncestor.parent,c)));
+        addNode(result,c);
     }
 
+    // Add end nodes
     var endNodes = new Array();
-    var bottom = endNode;
+    var bottom = endLocation;
+    var firstTime = true;
     do {
-        addNodeReverse(endNodes,bottom);
-        while ((bottom.previousSibling == null) && (bottom.parentNode != commonAncestor))
-            bottom = bottom.parentNode;
-        if (bottom.parentNode != bottom)
-            bottom = bottom.previousSibling;
-    } while (bottom.parentNode != commonAncestor);
+        if ((bottom.child != null) && !firstTime)
+            addNodeReverse(endNodes,bottom.child);
+        firstTime = false;
+        while ((bottom.previousSiblingLocation() == null) && (bottom.parent != commonParent))
+            bottom = bottom.parentLocation();
+        if (bottom.parent != commonParent)
+            bottom = bottom.previousSiblingLocation();
+    } while (bottom.parent != commonParent);
     for (var i = endNodes.length-1; i >= 0; i--)
         result.push(endNodes[i]);
 
@@ -231,6 +347,8 @@ Range.prototype.getOutermostSelectedNodes = function()
         }
     }
 
+    // FIXME: add the inline children in a separate pass, so we can keep this method clean with
+    // just a single "get outer nodes" operation
     function addNode(result,node)
     {
         if (isInlineNode(node))

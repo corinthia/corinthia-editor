@@ -63,30 +63,33 @@ function addLabels(node)
 var dragging = false;
 var selectionRange = null;
 
-function indexOfNodeIn(node,parent)
+function offsetOfNodeInParent(node)
 {
+    var parent = node.parentNode;
+    if (parent == null)
+        throw new Error("offsetOfNodeInParent: no parent");
+
     var index = 0;
     for (var child = parent.firstChild; child != null; child = child.nextSibling) {
         if (child == node)
             return index;
         index++;
     }
-    return null;
+
+    throw new Error("offsetOfNodeInParent: not found");
 }
 
 function adjustPosition(position,end)
 {
     var parent = position.node.parentNode;
     if (parent != null) {
-        var index = indexOfNodeIn(position.node,parent);
-        if (index == null)
-            throw new Error("Could not get index");
+        var index = offsetOfNodeInParent(position.node);
 
-        if (!end && (index > 0)) {
+        if (!end) {
             position.node = parent;
             position.offset = index;
         }
-        else if (end && (index < parent.childNodes.length-1)) {
+        else {
             position.node = parent;
             position.offset = index+1;
         }
@@ -99,28 +102,13 @@ function updateSelectionDisplay()
 
     if (selectionRange != null) {
 
-        var tempRange = selectionRange.copy();
-//        adjustPosition(tempRange.start,false);
-//        adjustPosition(tempRange.end,true);
-//        tempRange.convertToOffsetFree();
-        if (selectionRange.start.node != tempRange.start.node) {
-            debug("start.node mismatch (expected "+
-                  selectionRange.start.node.getAttribute("id")+", got "+
-                  tempRange.start.node.getAttribute("id")+")");
-        }
-        if (selectionRange.start.offset != tempRange.start.offset) {
-            debug("start.offset mismatch");
-        }
-        if (selectionRange.end.node != tempRange.end.node) {
-            debug("end.node mismatch (expected "+
-                  selectionRange.end.node.getAttribute("id")+", got "+
-                  tempRange.end.node.getAttribute("id")+")");
-        }
-        if (selectionRange.end.offset != tempRange.end.offset) {
-            debug("end.offset mismatch");
-        }
+        debug("");
+        debug("");
 
         var useRange = selectionRange.copy();
+        adjustPosition(useRange.start,false);
+        adjustPosition(useRange.end,true);
+        debug("useRange = "+useRange);
 
         useRange.start.node.style.border = "1px solid lime";
         useRange.end.node.style.border = "1px solid red";
@@ -191,6 +179,8 @@ function loaded()
         addNodeAtDepth(1);
         addNodeAtDepth(2);
         addNodeAtDepth(2);
+        addNodeAtDepth(3);
+        addNodeAtDepth(3);
         addNodeAtDepth(3);
         addNodeAtDepth(3);
         addNodeAtDepth(3);
