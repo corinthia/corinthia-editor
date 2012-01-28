@@ -5,58 +5,26 @@
 <style type="text/css">
     body { -webkit-user-select: none }
 </style>
+<style type="text/css">
+.node {
+    padding-left: 40px;
+    padding-right: 4px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    border: 1px solid black;
+    background-color: white;
+}
+.label {
+    font: 8pt sans-serif;
+}
+</style>
 <script language="javascript">
-var CONTAINER_ELEMENTS = new Object();
-
-CONTAINER_ELEMENTS["#document"] = true;
-CONTAINER_ELEMENTS["HTML"] = true;
-CONTAINER_ELEMENTS["BODY"] = true;
-CONTAINER_ELEMENTS["UL"] = true;
-CONTAINER_ELEMENTS["OL"] = true;
-CONTAINER_ELEMENTS["LI"] = true;
-CONTAINER_ELEMENTS["TABLE"] = true;
-CONTAINER_ELEMENTS["THEAD"] = true;
-CONTAINER_ELEMENTS["TFOOT"] = true;
-CONTAINER_ELEMENTS["TBODY"] = true;
-CONTAINER_ELEMENTS["TR"] = true;
-CONTAINER_ELEMENTS["TH"] = true;
-CONTAINER_ELEMENTS["TD"] = true;
-CONTAINER_ELEMENTS["COL"] = true;
-
-var PARAGRAPH_ELEMENTS = new Object();
-
-PARAGRAPH_ELEMENTS["P"] = true;
-PARAGRAPH_ELEMENTS["DIV"] = true;
-PARAGRAPH_ELEMENTS["H1"] = true;
-PARAGRAPH_ELEMENTS["H2"] = true;
-PARAGRAPH_ELEMENTS["H3"] = true;
-PARAGRAPH_ELEMENTS["H4"] = true;
-PARAGRAPH_ELEMENTS["H5"] = true;
-PARAGRAPH_ELEMENTS["H6"] = true;
-
-var HEADING_ELEMENTS = new Object();
-
-HEADING_ELEMENTS["H1"] = true;
-HEADING_ELEMENTS["H2"] = true;
-HEADING_ELEMENTS["H3"] = true;
-HEADING_ELEMENTS["H4"] = true;
-HEADING_ELEMENTS["H5"] = true;
-HEADING_ELEMENTS["H6"] = true;
-
-
-
-
 function debug(str)
 {
     console.log(str);
 }
 
-var INDENTATION = 40;
-var SPACING = 4;
-var LABEL_WIDTH = 200;
 var LABEL_HEIGHT = 10;
-
-
 
 var rootNode = null;
 var nextNodeId = 0;
@@ -65,6 +33,7 @@ function createDiv()
 {
     var node = document.createElement("DIV");
     node.setAttribute("id",nextNodeId++);
+    node.setAttribute("class","node");
     return node;
 }
 
@@ -89,20 +58,8 @@ function layout(node,showLabel)
     for (var child = node.firstChild; child != null; child = child.nextSibling)
         layout(child,showLabel);
 
-    node.style.border = "1px solid black";
-
-    node.style.paddingLeft = INDENTATION+"px";
-//    node.style.paddingTop = SPACING+"px";
-//    node.style.paddingBottom = SPACING+"px";
-    node.style.paddingRight = SPACING+"px";
-    node.style.marginTop = SPACING+"px";
-    node.style.marginBottom = SPACING+"px";
-
-    if (node.firstChild == null) {
+    if (node.firstChild == null)
         node.style.height = LABEL_HEIGHT+"px";
-    }
-
-//    node.appendChild(document.createTextNode("X"));
 }
 
 var addedLabels = false;
@@ -115,10 +72,10 @@ function addLabels(node)
     if (node.nodeType == Node.ELEMENT_NODE) {
         var label = document.createElement("DIV");
         var rect = node.getBoundingClientRect();
+        label.setAttribute("class","label");
         label.style.position = "absolute";
         label.style.left = rect.left+"px";
         label.style.top = rect.top+"px";
-        label.style.font = "8pt sans-serif";
         label.appendChild(document.createTextNode(node.getAttribute("id")));
         document.body.appendChild(label);
     }
@@ -190,20 +147,17 @@ function updateSelectionDisplay()
         useRange.end.node.style.border = "1px solid red";
 
         var nodes = useRange.getSelectedNodes();
-//        debug("**** nodes.length = "+nodes.length);
         for (var i = 0; i < nodes.length; i++) {
-            if (nodes[i].nodeType == Node.ELEMENT_NODE) {
+            if (nodes[i].nodeType == Node.ELEMENT_NODE)
                 nodes[i].style.backgroundColor = "#c0c0c0";
-//                nodes[i].style.border = "1px solid blue";
-            }
         }
     }
 
     function clearHighlightsRecursive(node)
     {
         if (node.nodeType == Node.ELEMENT_NODE) {
-            node.style.backgroundColor = "white";
-            node.style.border = "1px solid black";
+            node.style.removeProperty("background-color");
+            node.style.removeProperty("border");
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 clearHighlightsRecursive(child);
         }
@@ -239,8 +193,6 @@ function mousemove(event)
             else {
                 selectionRange.end = new Position(node,node.childNodes.length);
             }
-//            debug("selection: "+selectionRange.start.node.getAttribute("id")+
-//                  " - "+selectionRange.end.node.getAttribute("id"));
             updateSelectionDisplay();
         }
     }
