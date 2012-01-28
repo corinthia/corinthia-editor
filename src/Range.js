@@ -188,6 +188,16 @@ Location.prototype.equals = function(other)
     return ((this.parent == other.parent) && (this.child == other.child));
 }
 
+function locationsEqual(a,b)
+{
+    if ((a == null) && (b == null))
+        return true;
+    else if ((a != null) && (b != null) && a.equals(b))
+        return true;
+    else
+        return false;
+}
+
 Location.prototype.toString = function()
 {
     return "("+nodeString(this.parent)+","+nodeString(this.child)+")";
@@ -219,7 +229,6 @@ function containerOffsetToLocation(container,offset)
         return new Location(container.parentNode,container);
     }
 }
-
 
 Range.prototype.getOutermostSelectedNodes = function()
 {
@@ -255,19 +264,14 @@ Range.prototype.getOutermostSelectedNodes = function()
 
     // If the end node is contained within the start node, change the start node to the first
     // node in document order that is not an ancestor of the end node
-/* // FIXME
-    while (isAncestor(startNode,endNode) &&
-           (startNode != endNode) &&
-           (startNode.firstChild != null)) {
-        startNode = startNode.firstChild;
+    while (isAncestorLocation(startLocation,endLocation) &&
+           !locationsEqual(startLocation,endLocation) &&
+           (startLocation.child != null) &&
+           (startLocation.child.firstChild != null)) {
+        startLocation = new Location(startLocation.child,startLocation.child.firstChild);
     }
-
-    if (startNode == endNode) {
-    }
-*/
 
     // FIXME: code below assumes start <= end
-
     var ancestors = getAncestorLocationsWithCommonParent(startLocation,endLocation);
     if (ancestors == null) {
         debug("Could not find common parent");
@@ -318,33 +322,11 @@ Range.prototype.getOutermostSelectedNodes = function()
 
     return result;
 
-    function isAncestor(ancestor,descendant)
+    function isAncestorLocation(ancestor,descendant)
     {
-        while ((descendant != null) && (descendant != ancestor))
-            descendant = descendant.parentNode;
-        return (descendant == ancestor);
-    }
-
-    function addAllDescendants(result,node)
-    {
-        if (node.nodeType == Node.TEXT_NODE) {
-            result.push(node);
-        }
-        else {
-            for (var child = node.firstChild; child != null; child = child.nextSibling)
-                addAllDescendants(result,child);
-        }
-    }
-
-    function addAllDescendantsReverse(result,node)
-    {
-        if (node.nodeType == Node.TEXT_NODE) {
-            result.push(node);
-        }
-        else {
-            for (var child = node.lastChild; child != null; child = child.previousSibling)
-                addAllDescendants(result,child);
-        }
+        while ((descendant != null) && !locationsEqual(descendant,ancestor))
+            descendant = descendant.parentLocation();
+        return locationsEqual(descendant,ancestor);
     }
 }
 

@@ -131,14 +131,17 @@ function updateSelectionDisplay()
     }
 }
 
+var ALLOW_PARENT_SELECTION = true;
+
 function mousedown(event)
 {
     if (!addedLabels) {
         addLabels(rootNode);
         addedLabels = true;
     }
-    if ((event.target.nodeName == "DIV") && (event.target.firstChild == null)) {
-        selectionRange = new Range(event.target,0,event.target,0);
+    var node = event.target;
+    if ((node.nodeName == "DIV") && (ALLOW_PARENT_SELECTION || (node.firstChild == null))) {
+        selectionRange = new Range(node,0,node,0);
     }
     else {
         selectionRange = null;
@@ -151,7 +154,7 @@ function mousemove(event)
 {
     if (dragging) {
         var node = event.target;
-        if ((node.nodeName == "DIV") && (node.firstChild == null)) {
+        if ((node.nodeName == "DIV") && (ALLOW_PARENT_SELECTION || (node.firstChild == null))) {
             if (selectionRange == null) {
                 selectionRange = new Range(node,0,node,0);
             }
@@ -171,6 +174,15 @@ function mouseup(event)
 function loaded()
 {
     rootNode = createDiv();
+
+    addNodeAtDepth(0);
+    addNodeAtDepth(1);
+    addNodeAtDepth(2);
+    addNodeAtDepth(3);
+    addNodeAtDepth(4);
+    addNodeAtDepth(4);
+    addNodeAtDepth(4);
+    addNodeAtDepth(4);
 
     for (var i = 0; i < 4; i++) {
         addNodeAtDepth(0);
