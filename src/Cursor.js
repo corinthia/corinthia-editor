@@ -65,16 +65,50 @@
         var node = selectionRange.end.node;
         var offset = selectionRange.end.offset;
 
+        if ((node.nodeType == Node.ELEMENT_NODE) && (offset == node.childNodes.length)) {
+            node = nextNodeAfter(node);
+            while ((node != null) && !acceptNode(node))
+                node = node.nextNode(node);
+            if (node != null)
+                placeCursorAtStartOfNode(node);
+            return;
+        }
+
+        if (node.nodeType == Node.ELEMENT_NODE) {
+            node = node.childNodes[offset];
+            offset = 0;
+        }
+
         if ((node.nodeType == Node.TEXT_NODE) && (offset < node.nodeValue.length)) {
-            var newOffset = offset + 1;
-            setEmptySelectionAt(node,newOffset,node,newOffset);
+            setEmptySelectionAt(node,offset+1);
         }
         else {
             do {
-                node = nextTextNode(node);
-            } while ((node != null) && isWhitespaceTextNode(node) && (node.nodeValue.length > 0));
+                node = nextNode(node);
+            } while ((node != null) && !acceptNode(node));
             if (node != null)
-                setEmptySelectionAt(node,0,node,0);
+                placeCursorAtStartOfNode(node);
+        }
+
+        function placeCursorAtStartOfNode(node)
+        {
+            if (node.nodeType == Node.ELEMENT_NODE) {
+                var offset = 0;
+                for (var n = node.parentNode.firstChild; n != node; n = n.nextSibling)
+                    offset++;
+                setEmptySelectionAt(node.parentNode,offset);
+            }
+            else {
+                setEmptySelectionAt(node,0);
+            }
+        }
+
+        function acceptNode(node)
+        {
+            if (node.nodeType == Node.TEXT_NODE)
+                return !isWhitespaceString(node.nodeValue);
+            else
+                return ((node.nodeName == "IMG") || (node.nodeName == "TABLE"));
         }
     }
 
