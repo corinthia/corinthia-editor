@@ -37,20 +37,32 @@
         if (selectionRange == null)
             return;
 
-        var node = selectionRange.start.node;
-        var offset = selectionRange.start.offset;
+        var node = selectionRange.end.node;
+        var offset = selectionRange.end.offset;
+
+        if ((node.nodeType == Node.ELEMENT_NODE) && (offset < node.childNodes.length)) {
+            node = node.childNodes[offset];
+            offset = 0;
+        }
 
         if ((node.nodeType == Node.TEXT_NODE) && (offset > 0)) {
-            var newOffset = offset - 1;
-            setEmptySelectionAt(node,newOffset,node,newOffset);
+            setEmptySelectionAt(node,offset-1);
         }
         else {
-            do {
-                node = prevTextNode(node);
-            } while ((node != null) && isWhitespaceTextNode(node) && (node.nodeValue.length > 0));
+            node = prevNode(node);
+
+            while ((node != null) && !acceptNode(node))
+                node = prevNode(node);
             if (node != null) {
-                var length = node.nodeValue.length;
-                setEmptySelectionAt(node,length,node,length);
+                if (node.nodeType == Node.ELEMENT_NODE) {
+                    var offset = 0;
+                    for (var n = node.parentNode.firstChild; n != node; n = n.nextSibling)
+                        offset++;
+                    setEmptySelectionAt(node.parentNode,offset);
+                }
+                else {
+                    setEmptySelectionAt(node,node.nodeValue.length);
+                }
             }
         }
     }
