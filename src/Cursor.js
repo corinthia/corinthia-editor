@@ -78,6 +78,52 @@
         }
     }
 
+    // An empty paragraph does not get shown and cannot be edited. We can fix this by adding
+    // a BR element as a child
+    function updateBRAtEndOfParagraph(node)
+    {
+        var paragraph = node;
+        while ((paragraph != null) && !isParagraphNode(paragraph))
+            paragraph = paragraph.parentNode;
+        if (paragraph != null) {
+
+            var br = null;
+            for (var last = paragraph; last != null; last = last.lastChild) {
+                if (last.nodeName == "BR")
+                    br = last;
+            }
+
+            if (nodeHasContent(paragraph)) {
+                // Paragraph has content: don't want BR at end
+                if (br != null) {
+                    debug("Removing BR at end of paragraph");
+                    br.parentNode.removeChild(br);
+                }
+            }
+            else {
+                // Paragraph consists only of whitespace: must have BR at end
+                if (br == null) {
+                    debug("Adding BR at end of paragraph");
+                    br = document.createElement("BR");
+                    paragraph.appendChild(br);
+                }
+            }
+        }
+
+        function nodeHasContent(node)
+        {
+            if ((node.nodeType == Node.TEXT_NODE) && !isWhitespaceString(node.nodeValue))
+                return true;
+            if (node.nodeName == "IMG")
+                return true;
+            for (var child = node.firstChild; child != null; child = child.nextSibling) {
+                if (nodeHasContent(child))
+                    return true;
+            }
+            return false;
+        }
+    }
+
     // public
     function insertCharacter(character)
     {
@@ -103,12 +149,12 @@
 
         node.insertData(offset,character);
         setEmptySelectionAt(node,offset+1,node,offset+1);
+        updateBRAtEndOfParagraph(node);
     }
 
     // public
     function deleteCharacter()
     {
-        debug("deleteCharacter");
         var selectionRange = getSelectionRange();
         if (selectionRange == null)
             return;
@@ -159,6 +205,7 @@
                 removeIfEmpty(node);
             }
         }
+        updateBRAtEndOfParagraph(node);
         return;
 
         function getParagraph(node)
@@ -282,20 +329,11 @@
                 copy.appendChild(child);
                 child = next;
             }
-            
-            fixEmptyParagraph(copy);
-            fixEmptyParagraph(paragraph);
-            return copy;
 
-            // An empty paragraph does not get shown and cannot be edited. We can fix this by adding
-            // a BR element as a child
-            function fixEmptyParagraph(paragraph)
-            {
-                if ((getNodeText(paragraph) == "") &&
-                    ((paragraph.lastChild == null) || (paragraph.lastChild.nodeName != "BR"))) {
-                    paragraph.appendChild(document.createElement("BR"));
-                }
-            }
+            updateBRAtEndOfParagraph(copy);
+            updateBRAtEndOfParagraph(paragraph);
+            
+            return copy;
         }
     }
 

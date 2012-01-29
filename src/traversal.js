@@ -105,15 +105,24 @@ function shallowCopyElement(element)
     return copy;
 }
 
-function isWhitespaceTextNode(node)
+function isWhitespaceCharacter(c)
 {
-    if (node.nodeType != Node.TEXT_NODE)
-        return false;
-    var value = node.nodeValue;
-    for (var i = 0; i < value.length; i++) {
-        var c = value.charAt(i);
+    return ((c == " ") || (c == "\t") || (c == "\r") || (c == "\n"));
+}
+
+function isWhitespaceString(str)
+{
+    for (var i = 0; i < str.length; i++) {
+        var c = str.charAt(i);
         if ((c != " ") && (c != "\t") && (c != "\r") && (c != "\n"))
             return false;
     }
     return true;
+}
+
+function isWhitespaceTextNode(node)
+{
+    if (node.nodeType != Node.TEXT_NODE)
+        return false;
+    return isWhitespaceString(node.nodeValue);
 }
