@@ -90,19 +90,19 @@
 
         var node = selectionRange.start.node;
         var offset = selectionRange.start.offset;
-        if (node.nodeType != Node.TEXT_NODE) {
-            do {
-                node = nextTextNode(node);
-                offset = 0;
-            } while ((node != null) && isWhitespaceTextNode(node));
+
+        if (node.nodeType == Node.ELEMENT_NODE) {
+            var emptyTextNode = document.createTextNode("");
+            if (offset >= node.childNodes.length)
+                node.appendChild(emptyTextNode);
+            else
+                node.insertBefore(emptyTextNode,node.childNodes[offset]);
+            node = emptyTextNode;
+            offset = 0;
         }
-        if (node != null) {
-            node.insertData(offset,character);
-            setEmptySelectionAt(node,offset+1,node,offset+1);
-        }
-        else {
-            clearSelection();
-        }
+
+        node.insertData(offset,character);
+        setEmptySelectionAt(node,offset+1,node,offset+1);
     }
 
     // public
