@@ -155,8 +155,10 @@ Range.prototype.ensureRangeValidHierarchy = function()
 Range.prototype.getOutermostSelectedNodes = function()
 {
     if (!this.isForwards()) {
-        return new Range(this.end.node,this.end.offset,
-                         this.start.node,this.start.offset).getOutermostSelectedNodes();
+        var reverse = new Range(this.end.node,this.end.offset,this.start.node,this.start.offset);
+        if (!reverse.isForwards())
+            throw new Error("Both range "+this+" and its reverse are not forwards");
+        return reverse.getOutermostSelectedNodes();
     }
 
     var result = new Array();
