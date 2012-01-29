@@ -87,13 +87,5 @@ Position.prototype.toLocation = function()
 
 Position.prototype.toString = function()
 {
-    if (this.node.nodeType == Node.TEXT_NODE) {
-        return "(\""+this.node.nodeValue+"\","+this.offset+")";
-    }
-    else if ((this.node.nodeType == Node.ELEMENT_NODE) && (this.node.hasAttribute("id"))) {
-        return "(#"+this.node.getAttribute("id")+","+this.offset+")";
-    }
-    else {
-        return "("+this.node.nodeName+","+this.offset+")";
-    }
+    return "("+nodeString(this.node)+","+this.offset+")";
 }

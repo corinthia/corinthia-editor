@@ -33,3 +33,15 @@ function quoteString(str)
     }
     return quoted;
 }
+
+function nodeString(node)
+{
+    if (node == null)
+        return "null";
+    else if (node.nodeType == Node.TEXT_NODE)
+        return JSON.stringify(node.nodeValue);
+    else if ((node.nodeType == Node.ELEMENT_NODE) && (node.hasAttribute("id")))
+        return node.nodeName+"#"+node.getAttribute("id");
+    else
+        return node.nodeName;
+}
