@@ -147,18 +147,6 @@ Range.prototype.ensureRangeValidHierarchy = function()
     }
 }
 
-function getAncestorLocationsWithCommonParent(startLocation,endLocation)
-{
-    for (var start = startLocation; start != null; start = start.parentLocation()) {
-        for (var end = endLocation; end != null; end = end.parentLocation()) {
-            if (start.parent == end.parent) {
-                return { startAncestor: start, endAncestor: end };
-            }
-        }
-    }
-    return null;
-}
-
 Range.prototype.getOutermostSelectedNodes = function()
 {
     if (!this.isForwards()) {
@@ -192,72 +180,133 @@ Range.prototype.getOutermostSelectedNodes = function()
 
     // If the end node is contained within the start node, change the start node to the first
     // node in document order that is not an ancestor of the end node
-    while (isAncestorLocation(startLocation,endLocation) &&
-           !Location.locationsEqual(startLocation,endLocation) &&
-           (startLocation.child != null) &&
-           (startLocation.child.firstChild != null)) {
-        startLocation = new Location(startLocation.child,startLocation.child.firstChild);
+
+
+    var startParent = startLocation.parent;
+    var startChild = startLocation.child;
+
+    var endParent = endLocation.parent;
+    var endChild = endLocation.child;
+
+    while (isAncestorLocation(startParent,startChild,endParent,endChild) &&
+           ((startParent != endParent) || (startChild != endChild)) &&
+           (startChild != null) &&
+           (startChild.firstChild != null)) {
+        startParent = startChild;
+        startChild = startChild.firstChild;
     }
 
     // FIXME: code below assumes start <= end
-    var ancestors = getAncestorLocationsWithCommonParent(startLocation,endLocation);
+    var ancestors = ancestorsWithCommonParent(startParent,startChild,endParent,endChild);
     if (ancestors == null) {
         debug("Could not find common parent");
         return result;
     }
-    var startAncestor = ancestors.startAncestor;
-    var endAncestor = ancestors.endAncestor;
-    var commonParent = startAncestor.parent;
-    debug("startAncestor = "+startAncestor);
-    debug("endAncestor = "+endAncestor);
+    var commonParent = ancestors.commonParent;
 
+
+    var startAncestorChild = ancestors.startChild;
+    var endAncestorChild = ancestors.endChild;
 
     // Add start nodes
-    var top = startLocation;
+    var topParent = startParent;
+    var topChild = startChild;
     do {
-        debug("Phase 1: Adding "+top);
-        if (top.child != null)
-            result.push(top.child);
-        while ((top.nextSiblingLocation() == null) && (top.parent != commonParent))
-            top = top.parentLocation();
-        if (top.parent != commonParent)
-            top = top.nextSiblingLocation();
-    } while (top.parent != commonParent);
+        if (topChild != null) {
+            result.push(topChild);
+        }
+
+        // Using manual parent/child
+        while (((topChild == null) || (topChild.nextSibling == null)) &&
+               (topParent != commonParent)) {
+            topChild = topParent;
+            topParent = topParent.parentNode;
+        }
+        if (topParent != commonParent) {
+            topChild = topChild.nextSibling;
+        }
+
+
+    } while (topParent != commonParent);
 
     // Add middle nodes
-    if (!Location.locationsEqual(startAncestor,endAncestor)) {
-        var c = startAncestor.child;
+    if (startAncestorChild != endAncestorChild) {
+        var c = startAncestorChild;
         if (c != null)
             c = c.nextSibling;
-        for (; c != endAncestor.child; c = c.nextSibling) {
-            debug("Phase 2: Adding "+(new Location(startAncestor.parent,c)));
+        for (; c != endAncestorChild; c = c.nextSibling) {
             result.push(c);
         }
     }
 
     // Add end nodes
     var endNodes = new Array();
-    var bottom = endLocation;
+    var bottomParent = endParent;
+    var bottomChild = endChild;
     var firstTime = true;
     do {
-        if ((bottom.child != null) && !firstTime)
-            endNodes.push(bottom.child);
+        if ((bottomChild != null) && !firstTime)
+            endNodes.push(bottomChild);
         firstTime = false;
-        while ((bottom.previousSiblingLocation() == null) && (bottom.parent != commonParent))
-            bottom = bottom.parentLocation();
-        if (bottom.parent != commonParent)
-            bottom = bottom.previousSiblingLocation();
-    } while (bottom.parent != commonParent);
+
+        // Using manual parent/child
+        while ((getPreviousSibling(bottomParent,bottomChild) == null) &&
+               (bottomParent != commonParent)) {
+            bottomChild = bottomParent;
+            bottomParent = bottomParent.parentNode;
+        }
+        if (bottomParent != commonParent)
+            bottomChild = getPreviousSibling(bottomParent,bottomChild);
+
+
+
+    } while (bottomParent != commonParent);
     for (var i = endNodes.length-1; i >= 0; i--)
         result.push(endNodes[i]);
 
     return result;
 
-    function isAncestorLocation(ancestor,descendant)
+    function ancestorsWithCommonParent(startParent,startChild,endParent,endChild)
     {
-        while ((descendant != null) && !Location.locationsEqual(descendant,ancestor))
-            descendant = descendant.parentLocation();
-        return Location.locationsEqual(descendant,ancestor);
+        var startP = startParent;
+        var startC = startChild;
+        while (startP != null) {
+            var endP = endParent;
+            var endC = endChild
+            while (endP != null) {
+                if (startP == endP) {
+                    return { commonParent: startP, startChild: startC, endChild: endC };
+                }
+                endC = endP;
+                endP = endP.parentNode;
+            }
+            startC = startP;
+            startP = startP.parentNode;
+        }
+        return null;
+    }
+
+    function getPreviousSibling(parent,child)
+    {
+        if (child != null)
+            return child.previousSibling;
+        else if (parent.lastChild != null)
+            return parent.lastChild;
+        else
+            return null;
+    }
+
+    function isAncestorLocation(ancestorParent,ancestorChild,
+                                descendantParent,descendantChild)
+    {
+        while ((descendantParent != null) &&
+               ((descendantParent != ancestorParent) || (descendantChild != ancestorChild))) {
+            descendantChild = descendantParent;
+            descendantParent = descendantParent.parentNode;
+        }
+
+        return ((descendantParent == ancestorParent) &&
+                (descendantChild == ancestorChild));
     }
 }
 
