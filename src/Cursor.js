@@ -112,7 +112,21 @@
         if (node.nodeType == Node.TEXT_NODE)
             return !isWhitespaceString(node.nodeValue);
         else
-            return ((node.nodeName == "IMG") || (node.nodeName == "TABLE"));
+            return ((node.nodeName == "IMG") || (node.nodeName == "TABLE") ||
+                    (isParagraphNode(node) && !nodeHasContent(node)));
+    }
+
+    function nodeHasContent(node)
+    {
+        if ((node.nodeType == Node.TEXT_NODE) && !isWhitespaceString(node.nodeValue))
+            return true;
+        if (node.nodeName == "IMG")
+            return true;
+        for (var child = node.firstChild; child != null; child = child.nextSibling) {
+            if (nodeHasContent(child))
+                return true;
+        }
+        return false;
     }
 
     // An empty paragraph does not get shown and cannot be edited. We can fix this by adding
@@ -145,19 +159,6 @@
                     paragraph.appendChild(br);
                 }
             }
-        }
-
-        function nodeHasContent(node)
-        {
-            if ((node.nodeType == Node.TEXT_NODE) && !isWhitespaceString(node.nodeValue))
-                return true;
-            if (node.nodeName == "IMG")
-                return true;
-            for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                if (nodeHasContent(child))
-                    return true;
-            }
-            return false;
         }
     }
 
@@ -206,7 +207,7 @@
 
         if ((node.nodeType == Node.TEXT_NODE) && (offset > 0)) {
             node.nodeValue = node.nodeValue.slice(0,offset-1) +
-                node.nodeValue.slice(offset);
+                             node.nodeValue.slice(offset);
             setEmptySelectionAt(node,offset-1);
         }
         else {
