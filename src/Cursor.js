@@ -7,15 +7,15 @@
     function positionCursor(x,y)
     {
         var zoom = getZoom();
-        var pointRange = document.caretRangeFromPoint(x/zoom,y/zoom);
-        if (pointRange == null)
+        var position = positionAtPoint(x/zoom,y/zoom);
+        if (position == null)
             return;
 
         var selectionRange = getSelectionRange();
         if ((selectionRange != null) && selectionRange.isEmpty() &&
-            (pointRange.startContainer == selectionRange.start.node) &&
-            (pointRange.startOffset == selectionRange.start.offset)) {
-            var rects = pointRange.getClientRects();
+            (position.node == selectionRange.start.node) &&
+            (position.offset == selectionRange.start.offset)) {
+            var rects = position.getClientRects();
             if (rects.length > 0) {
                 var zoom = getZoom();
                 var left = (rects[0].left + window.scrollX) * zoom;
@@ -24,7 +24,7 @@
                 editor.showCursorMenu(left,top,height);
             }
         }
-        setEmptySelectionAt(pointRange.startContainer,pointRange.startOffset);
+        setEmptySelectionAt(position.node,position.offset);
     }
 
     // public

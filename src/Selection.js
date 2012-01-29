@@ -156,16 +156,13 @@
     // public
     function beginSelectionAtCoords(x,y)
     {
-        var zoom = getZoom();
-        var location = document.caretRangeFromPoint(x/zoom,y/zoom);
-
         selectionRange = null;
 
-        if (location != null) {
-            var node = location.startContainer;
-            var offset = location.startOffset;
-            if (node.nodeType == Node.TEXT_NODE) {
-                selectionRange = new Range(node,offset,node,offset);
+        var zoom = getZoom();
+        var pos = positionAtPoint(x/zoom,y/zoom);
+        if (pos != null) {
+            if (pos.node.nodeType == Node.TEXT_NODE) {
+                selectionRange = new Range(pos.node,pos.offset,pos.node,pos.offset);
                 selectionRange.start.moveToStartOfWord();
                 selectionRange.end.moveToEndOfWord();
             }
@@ -178,9 +175,9 @@
     function setSelectionStartAtCoords(x,y)
     {
         var zoom = getZoom();
-        var location = document.caretRangeFromPoint(x/zoom,y/zoom);
-        if (location != null) {
-            selectionRange.start = new Position(location.startContainer,location.startOffset);
+        var position = positionAtPoint(x/zoom,y/zoom);
+        if (position != null) {
+            selectionRange.start = position;
             updateSelectionDisplay();
         }
     }
@@ -189,9 +186,9 @@
     function setSelectionEndAtCoords(x,y)
     {
         var zoom = getZoom();
-        var location = document.caretRangeFromPoint(x/zoom,y/zoom);
-        if (location != null) {
-            selectionRange.end = new Position(location.startContainer,location.startOffset);
+        var position = positionAtPoint(x/zoom,y/zoom);
+        if (position != null) {
+            selectionRange.end = position;
             updateSelectionDisplay();
         }
     }
