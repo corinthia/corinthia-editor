@@ -18,15 +18,11 @@
         if (selectionRange != null)
             rects = selectionRange.getClientRects();
 
-        debug("");
-        debug("selectionRange = "+selectionRange);
-
         if ((selectionRange != null) && selectionRange.isEmpty()) {
 
             // We just have a cursor
 
-            if ((rects != null) &&
-                ((rects.length == 0) || (rects[0].width == 0) || (rects[0].height == 0))) {
+            if ((rects != null) && (rects.length == 0)) {
 
                 // If the cursor is at the end of a paragraph and the last character is a space,
                 // getClientRects() fails to return anything. So instead, we temporarily add a
@@ -34,71 +30,16 @@
                 // and then remove the character. This client rect will be in the same location
                 // as the cursor placed at the end of the space.
 
-                debug("No rects, so creating one from temporary node");
+                    var node = selectionRange.start.node;
+                    var offset = selectionRange.start.offset;
 
-/*
-
-                var position = selectionRange.start;
-                var location = position.toLocation();
-
-                var candidate = false;
-                if ((position.node.nodeType == Node.ELEMENT_NODE) ||
-                    ((position.node.nodeType == Node.TEXT_NODE) &&
-                     (position.offset == node.nodeValue.length))) {
-
-                    debug("position = "+position);
-                    debug("location = "+location);
-                }
-*/
-
-
-                var node = selectionRange.start.node;
-                var offset = selectionRange.start.offset;
-
-                if ((node.nodeType == Node.ELEMENT_NODE) ||
-                    (node.nodeType == Node.TEXT_NODE) && (offset == node.nodeValue.length)) {
-                    var tempNode = document.createTextNode("X");
-
-                    if (node.nodeType == Node.TEXT_NODE) {
-                        debug("tempNode: inserting after text node");
-                        node.parentNode.insertBefore(tempNode,node.nextSibling);
-                    }
-                    else if (node.nodeType == Node.ELEMENT_NODE) {
-                        if (offset >= node.childNodes.length) {
-                            if (node.lastChild != null)
-                                debug("tempNode: appending to element after "+
-                                      nodeString(node.lastChild));
-                            else
-                                debug("tempNode: appending to element");
-                            node.appendChild(tempNode);
-                        }
-                        else {
-                            debug("tempNode: inserting before "+node.childNodes[offset]);
-                            node.insertBefore(tempNode,node.childNodes[offset]);
-                        }
-                    }
-                    var tempRange = new Range(tempNode,0,tempNode,0);
-                    rects = tempRange.getClientRects();
-//                    node.parentNode.removeChild(tempNode);
-                    tempNode.parentNode.removeChild(tempNode);
-                }
-                else {
-                    debug("tempNode: Not a candidate");
-                }
-
-/*
                 if ((node.nodeType == Node.TEXT_NODE) && (offset == node.nodeValue.length)) {
                     var tempNode = document.createTextNode("X");
                     node.parentNode.insertBefore(tempNode,node.nextSibling);
                     var tempRange = new Range(tempNode,0,tempNode,0);
                     rects = tempRange.getClientRects();
                     node.parentNode.removeChild(tempNode);
-                    debug("Is a candidate");
                 }
-                else {
-                    debug("Not a candidate");
-                }
-*/
             }
 
             var left;
@@ -111,11 +52,8 @@
                 top = rects[0].top + window.scrollY;
                 width = rects[0].width;
                 height = rects[0].height;
-                debug("updateSelectionDisplay: rect for cursor at "+selectionRange.start+": ("+
-                     left+","+top+","+width+","+height+")");
             }
             else {
-                debug("updateSelectionDisplay: no rects for cursor at "+selectionRange.start);
                 var absolute = getAbsoluteOffset(selectionRange.start.node);
                 left = absolute.offsetLeft;
                 top = absolute.offsetTop;            
