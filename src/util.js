@@ -47,23 +47,34 @@ function nodeString(node)
 }
 
 // This function works around a bug in WebKit where caretRangeFromPoint sometimes returns an
-// incorrect node (the last text node in the document). Before trusting the answer, we check to see
-// if the point in question actually exists within the node's bounds.
+// incorrect node (the last text node in the document). In a previous attempt to fix this bug,
+// we first checked if the point was in the elements bounding rect, but this meant that it wasn't
+// possible to place the cursor at the nearest node, if the click location was not exactly on a
+// node.
+
+// Now we instead check to see if the result of elementFromPoint is the same as the parent node
+// of the text node returned by caretRangeFromPoint. If it isn't, then we assume that the latter
+// result is incorrect, and return null.
+
+// In the circumstances where this bug was observed, the last text node in the document was being
+// returned from caretRangeFromPoint in some cases. In the typical case, this is going to be inside
+// a paragraph node, but elementNodeFromPoint was returning the body element. The check we do now
+// comparing the results of the two functions fixes this case, but won't work as intended if the
+// document's last text node is a direct child of the body (as it may be in some HTML documents
+// that users open).
+
 function positionAtPoint(x,y)
 {
     var caretRange = document.caretRangeFromPoint(x,y);
     if (caretRange == null)
         return null;
 
-    var element = caretRange.startContainer;
-    while ((element != null) && (element.nodeType != Node.ELEMENT_NODE))
-        element = element.parentNode;
-    if (element == null)
-        return null;
+    var element = document.elementFromPoint(x,y);
 
-    var boundingRect = element.getBoundingClientRect();
-    if (!rectContainsPoint(boundingRect,x,y))
+    if ((caretRange.startContainer.nodeType == Node.TEXT_NODE) &&
+        (element != caretRange.startContainer.parentNode)) {
         return null;
+    }
 
     return new Position(caretRange.startContainer,caretRange.startOffset);
 
