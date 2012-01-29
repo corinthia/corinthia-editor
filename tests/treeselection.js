@@ -4,6 +4,10 @@ function debug(str)
 }
 
 var LABEL_HEIGHT = 10;
+var SPACING = 8;
+var NODE_WIDTH = 18;
+var NODE_HEIGHT = 30;
+var LEVEL_SPACING = 40;
 
 var rootNode = null;
 var nextNodeId = 0;
@@ -32,16 +36,108 @@ function addNodeAtDepth(depth)
     parent.appendChild(temp);
 }
 
-function layout(node,showLabel)
-{
-    for (var child = node.firstChild; child != null; child = child.nextSibling)
-        layout(child,showLabel);
+var layoutX = 0;
+var layoutY = 0;
 
-    if (node.firstChild == null)
-        node.style.height = LABEL_HEIGHT+"px";
+function layout(node)
+{
+    node.style.position = "absolute";
+    node.style.left = layoutX+"px";
+    node.style.top = layoutY+"px";
+    node.style.width = NODE_WIDTH+"px";
+    node.style.height = NODE_HEIGHT+"px";
+
+    if (node.firstChild == null) {
+        layoutX += NODE_WIDTH + SPACING;
+    }
+
+    var left = layoutX;
+    layoutY += NODE_HEIGHT + LEVEL_SPACING;
+    for (var child = node.firstChild; child != null; child = child.nextSibling) {
+        layout(child);
+    }
+    layoutY -= NODE_HEIGHT + LEVEL_SPACING;
+    var right = layoutX;
+
+    var width = right - left;
+
+    if (node.firstChild != null) {
+        node.style.left = (left + width/2 - NODE_WIDTH/2)+"px";
+    }
 }
 
-var addedLabels = false;
+function adjustRelativePositions(node)
+{
+    for (var child = node.firstChild; child != null; child = child.nextSibling) {
+        adjustRelativePositions(child);
+
+        var relX = parseInt(child.style.left) - parseInt(node.style.left);
+        var relY = parseInt(child.style.top) - parseInt(node.style.top);
+        child.style.left = relX+"px";
+        child.style.top = relY+"px";
+    }
+}
+
+function addLines(node,offsetX,offsetY)
+{
+    if (node.firstChild != null) {
+        var nodeX = offsetX + parseInt(node.style.left) + 1;
+        var nodeY = offsetY + parseInt(node.style.top) + 1;
+
+        var childrenWidth = 0;
+        for (var child = node.firstChild; child != null; child = child.nextSibling) {
+            childrenWidth += addLines(child,nodeX,nodeY);
+        }
+
+
+        var firstChildX = nodeX + parseInt(node.firstChild.style.left) +
+                                  parseInt(node.firstChild.style.width)/2;
+        var lastChildX = nodeX + parseInt(node.lastChild.style.left) +
+                                 parseInt(node.lastChild.style.width)/2;
+        var lineWidth = lastChildX - firstChildX;
+
+
+        debug("addLines "+node.id+" offset "+offsetX+","+offsetY);
+        var nodeWidth = parseInt(node.style.width);
+
+        var horizLineDiv = document.createElement("DIV");
+        horizLineDiv.style.position = "absolute";
+        horizLineDiv.style.borderTop = "1px solid black";
+        horizLineDiv.style.width = lineWidth+"px";
+        horizLineDiv.style.height = "0px";
+        horizLineDiv.style.left = firstChildX+"px";
+        horizLineDiv.style.top = (nodeY + NODE_HEIGHT + LEVEL_SPACING/2)+"px";
+        document.body.appendChild(horizLineDiv);
+
+        for (var child = node.firstChild; child != null; child = child.nextSibling) {
+            var childX = parseInt(child.style.left);
+            var childWidth = parseInt(child.style.width);
+
+            var verticalLineDiv = document.createElement("DIV");
+            verticalLineDiv.style.position = "absolute";
+            verticalLineDiv.style.borderLeft = "1px solid black";
+            verticalLineDiv.style.width = "0px";
+            verticalLineDiv.style.height = (LEVEL_SPACING/2)+"px";
+            verticalLineDiv.style.top = (nodeY + NODE_HEIGHT + LEVEL_SPACING/2)+"px";
+            verticalLineDiv.style.left = (nodeX + childX + childWidth/2)+"px";
+            document.body.appendChild(verticalLineDiv);
+        }
+
+        var topLine = document.createElement("DIV");
+        topLine.style.position = "absolute";
+        topLine.style.borderLeft = "1px solid black";
+        topLine.style.width = "0px";
+        topLine.style.height = (LEVEL_SPACING/2)+"px";
+        topLine.style.top = (nodeY + NODE_HEIGHT)+"px";
+        topLine.style.left = (nodeX + parseInt(node.style.width)/2)+"px";
+        document.body.appendChild(topLine);
+
+        return childrenWidth;
+    }
+    else {
+        return parseInt(node.style.width);
+    }
+}
 
 function addLabels(node)
 {
@@ -55,6 +151,8 @@ function addLabels(node)
         label.style.position = "absolute";
         label.style.left = rect.left+"px";
         label.style.top = rect.top+"px";
+        label.style.width = node.style.width;
+        label.style.textAlign = "center";
         label.appendChild(document.createTextNode(node.getAttribute("id")));
         document.body.appendChild(label);
     }
@@ -145,12 +243,10 @@ var ALLOW_PARENT_SELECTION = false;
 
 function mousedown(event)
 {
-    if (!addedLabels) {
-        addLabels(rootNode);
-        addedLabels = true;
-    }
     var node = event.target;
-    if ((node.nodeName == "DIV") && (ALLOW_PARENT_SELECTION || (node.firstChild == null))) {
+    if ((node.nodeName == "DIV") &&
+        (node.getAttribute("class") == "node") &&
+        (ALLOW_PARENT_SELECTION || (node.firstChild == null))) {
         selectionRange = new Range(node,0,node,0);
     }
     else {
@@ -164,7 +260,9 @@ function mousemove(event)
 {
     if (dragging) {
         var node = event.target;
-        if ((node.nodeName == "DIV") && (ALLOW_PARENT_SELECTION || (node.firstChild == null))) {
+        if ((node.nodeName == "DIV") &&
+            (node.getAttribute("class") == "node") &&
+            (ALLOW_PARENT_SELECTION || (node.firstChild == null))) {
             if (selectionRange == null) {
                 selectionRange = new Range(node,0,node,0);
             }
@@ -213,8 +311,13 @@ function loaded()
         addNodeAtDepth(0);
     }
 
-    layout(rootNode);
     document.body.appendChild(rootNode);
+    layout(rootNode);
+    adjustRelativePositions(rootNode);
+    rootNode.style.left = (parseInt(rootNode.style.left) + 20)+"px";
+    rootNode.style.top = (parseInt(rootNode.style.top) + 40)+"px";
+    addLines(rootNode,0,0);
+    addLabels(rootNode);
 
     document.onmousedown = mousedown;
     document.onmousemove = mousemove;
