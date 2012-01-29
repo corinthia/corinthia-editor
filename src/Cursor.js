@@ -65,16 +65,7 @@
         var node = selectionRange.end.node;
         var offset = selectionRange.end.offset;
 
-        if ((node.nodeType == Node.ELEMENT_NODE) && (offset == node.childNodes.length)) {
-            node = nextNodeAfter(node);
-            while ((node != null) && !acceptNode(node))
-                node = node.nextNode(node);
-            if (node != null)
-                placeCursorAtStartOfNode(node);
-            return;
-        }
-
-        if (node.nodeType == Node.ELEMENT_NODE) {
+        if ((node.nodeType == Node.ELEMENT_NODE) && (offset < node.childNodes.length)) {
             node = node.childNodes[offset];
             offset = 0;
         }
@@ -83,33 +74,33 @@
             setEmptySelectionAt(node,offset+1);
         }
         else {
-            do {
-                node = nextNode(node);
-            } while ((node != null) && !acceptNode(node));
-            if (node != null)
-                placeCursorAtStartOfNode(node);
-        }
-
-        function placeCursorAtStartOfNode(node)
-        {
-            if (node.nodeType == Node.ELEMENT_NODE) {
-                var offset = 0;
-                for (var n = node.parentNode.firstChild; n != node; n = n.nextSibling)
-                    offset++;
-                setEmptySelectionAt(node.parentNode,offset);
-            }
-            else {
-                setEmptySelectionAt(node,0);
-            }
-        }
-
-        function acceptNode(node)
-        {
-            if (node.nodeType == Node.TEXT_NODE)
-                return !isWhitespaceString(node.nodeValue);
+            if ((node.nodeType == Node.ELEMENT_NODE) && (offset == node.childNodes.length))
+                node = nextNodeAfter(node);
             else
-                return ((node.nodeName == "IMG") || (node.nodeName == "TABLE"));
+                node = nextNode(node);
+
+            while ((node != null) && !acceptNode(node))
+                node = nextNode(node);
+            if (node != null) {
+                if (node.nodeType == Node.ELEMENT_NODE) {
+                    var offset = 0;
+                    for (var n = node.parentNode.firstChild; n != node; n = n.nextSibling)
+                        offset++;
+                    setEmptySelectionAt(node.parentNode,offset);
+                }
+                else {
+                    setEmptySelectionAt(node,0);
+                }
+            }
         }
+    }
+
+    function acceptNode(node)
+    {
+        if (node.nodeType == Node.TEXT_NODE)
+            return !isWhitespaceString(node.nodeValue);
+        else
+            return ((node.nodeName == "IMG") || (node.nodeName == "TABLE"));
     }
 
     // An empty paragraph does not get shown and cannot be edited. We can fix this by adding
