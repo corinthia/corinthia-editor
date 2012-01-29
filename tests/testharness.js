@@ -225,7 +225,7 @@ function leftLoaded()
 
     // Sync with Editor.m
     var javascriptFiles = ["nulleditor.js", // must be first
-                           "../src/cursor.js",
+                           "../src/Cursor.js",
                            "../src/ElementProxy.js",
                            "../src/ElementProxyMap.js",
                            "../src/Formatting.js",
@@ -263,7 +263,10 @@ function leftLoaded()
         if (end == null)
             throw new Error("Could not find text node for selEnd");
 
+        maybeMergeTextNodes(selStart.previousSibling,selStart.nextSibling,[start,end]);
         selStart.parentNode.removeChild(selStart);
+
+        maybeMergeTextNodes(selEnd.previousSibling,selEnd.nextSibling,[start,end]);
         selEnd.parentNode.removeChild(selEnd);
 
         var range = new left.contentWindow.Range(start.node,start.offset,end.node,end.offset);
@@ -272,6 +275,25 @@ function leftLoaded()
     continuation();
 
     return;
+
+    function maybeMergeTextNodes(first,second,positions)
+    {
+        if ((first != null) && (second != null) &&
+            (first.nodeType == Node.TEXT_NODE) && (second.nodeType == Node.TEXT_NODE)) {
+
+            for (var i = 0; i < positions.length; i++) {
+                var pos = positions[i];
+                if (pos.node == second) {
+                    pos.node = first;
+                    pos.offset += first.nodeValue.length;
+                    pos.origOffset = pos.offset;
+                }
+            }
+
+            first.nodeValue += second.nodeValue;
+            second.parentNode.removeChild(second);
+        }
+    }
 
     function getPosition(node)
     {
