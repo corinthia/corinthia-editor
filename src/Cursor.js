@@ -170,7 +170,6 @@
         if ((node.nodeType == Node.TEXT_NODE) && (offset > 0)) {
             node.nodeValue = node.nodeValue.slice(0,offset-1) +
                 node.nodeValue.slice(offset);
-            fixTrailingSpace(node);
             setEmptySelectionAt(node,offset-1);
         }
         else {
@@ -199,7 +198,6 @@
                 } while ((node != null) && isWhitespaceTextNode(node));
                 if (node != null) {
                     node.nodeValue = node.nodeValue.slice(0,node.nodeValue.length-1);
-                    fixTrailingSpace(node);
                     setEmptySelectionAt(node,node.nodeValue.length);
                 }
                 removeIfEmpty(node);
@@ -224,14 +222,6 @@
                 node = node.parentNode;
             }
             return true;
-        }
-
-        function fixTrailingSpace(node)
-        {
-            if ((node.nodeValue.length > 0) &&
-                (node.nodeValue.charAt(node.nodeValue.length-1) == " ")) {
-                node.nodeValue = node.nodeValue.slice(0,node.nodeValue.length-1) + "\u00a0";
-            }
         }
 
         function removeIfEmpty(node)
