@@ -85,6 +85,22 @@ Position.prototype.toLocation = function()
     }
 }
 
+Position.prototype.toDefinitePosition = function()
+{
+    if ((this.node.nodeType == Node.ELEMENT_NODE) && (this.node.firstChild != null)) {
+        if (this.offset < this.node.childNodes.count)
+            return new Position(this.node.childNodes[this.offset],0);
+        var nextNode = nextNodeAfter(this.node);
+        if (nextNode != null)
+            return new Position(nextNode,0);
+        else
+            return null;
+    }
+    else {
+        return new Position(this.node,this.offset);
+    }
+}
+
 Position.prototype.toString = function()
 {
     return "("+nodeString(this.node)+","+this.offset+")";
