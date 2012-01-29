@@ -290,6 +290,8 @@ Range.prototype.getOutermostSelectedNodes = function()
 
 Range.prototype.getClientRects = function()
 {
+    var nodes = this.getOutermostSelectedNodes();
+
     // WebKit in iOS 5.0 has a bug where if the selection spans multiple paragraphs, the complete
     // rect for paragraphs other than the first is returned, instead of just the portions of it
     // that are actually in the range. To get around this problem, we go through each text node
