@@ -15,7 +15,10 @@
         if ((selectionRange != null) && selectionRange.isEmpty() &&
             (position.node == selectionRange.start.node) &&
             (position.offset == selectionRange.start.offset)) {
-            var rects = position.getClientRects();
+            var domRange = document.createRange();
+            domRange.setStart(position.node,position.offset);
+            domRange.setEnd(position.node,position.offset);
+            var rects = domRange.getClientRects();
             if (rects.length > 0) {
                 var zoom = getZoom();
                 var left = (rects[0].left + window.scrollX) * zoom;
