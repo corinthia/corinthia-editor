@@ -150,7 +150,6 @@ Range.prototype.ensureRangeValidHierarchy = function()
 Range.prototype.getOutermostSelectedNodes = function()
 {
     if (!this.isForwards()) {
-        debug("get: not forwards");
         return new Range(this.end.node,this.end.offset,
                          this.start.node,this.start.offset).getOutermostSelectedNodes();
     }
@@ -161,26 +160,20 @@ Range.prototype.getOutermostSelectedNodes = function()
     var endContainer = this.end.node;
     var endOffset = this.end.offset;
 
-    debug("get: this = "+this);
-
     // Note: start and end are *points* - they are always *in between* nodes or characters, never
     // *at* a node or character.
     // Everything after the end point is excluded from the selection
     // Everything after the start point, but before the end point, is included in the selection
 
-    // The reason we need the Location class, which records a (parend,child) pair, is so we have a
-    // way to represent a point that comes after all child nodes - in this case, the child is null.
-    // The parent, however, is always non-null.
+    // We use (parent,child) pairs so that we have a way to represent a point that comes after all
+    // the child nodes in a container - in which case the child is null. The parent, however, is
+    // always non-null;
 
     var startLocation = this.start.toLocation();
     var endLocation = this.end.toLocation();
 
-    debug("startLocation = "+startLocation);
-    debug("endLocation = "+endLocation);
-
     // If the end node is contained within the start node, change the start node to the first
     // node in document order that is not an ancestor of the end node
-
 
     var startParent = startLocation.parent;
     var startChild = startLocation.child;
@@ -196,15 +189,10 @@ Range.prototype.getOutermostSelectedNodes = function()
         startChild = startChild.firstChild;
     }
 
-    // FIXME: code below assumes start <= end
     var ancestors = ancestorsWithCommonParent(startParent,startChild,endParent,endChild);
-    if (ancestors == null) {
-        debug("Could not find common parent");
+    if (ancestors == null)
         return result;
-    }
     var commonParent = ancestors.commonParent;
-
-
     var startAncestorChild = ancestors.startChild;
     var endAncestorChild = ancestors.endChild;
 
@@ -212,21 +200,16 @@ Range.prototype.getOutermostSelectedNodes = function()
     var topParent = startParent;
     var topChild = startChild;
     do {
-        if (topChild != null) {
+        if (topChild != null)
             result.push(topChild);
-        }
 
-        // Using manual parent/child
         while (((topChild == null) || (topChild.nextSibling == null)) &&
                (topParent != commonParent)) {
             topChild = topParent;
             topParent = topParent.parentNode;
         }
-        if (topParent != commonParent) {
+        if (topParent != commonParent)
             topChild = topChild.nextSibling;
-        }
-
-
     } while (topParent != commonParent);
 
     // Add middle nodes
@@ -234,9 +217,8 @@ Range.prototype.getOutermostSelectedNodes = function()
         var c = startAncestorChild;
         if (c != null)
             c = c.nextSibling;
-        for (; c != endAncestorChild; c = c.nextSibling) {
+        for (; c != endAncestorChild; c = c.nextSibling)
             result.push(c);
-        }
     }
 
     // Add end nodes
@@ -249,7 +231,6 @@ Range.prototype.getOutermostSelectedNodes = function()
             endNodes.push(bottomChild);
         firstTime = false;
 
-        // Using manual parent/child
         while ((getPreviousSibling(bottomParent,bottomChild) == null) &&
                (bottomParent != commonParent)) {
             bottomChild = bottomParent;
@@ -257,9 +238,6 @@ Range.prototype.getOutermostSelectedNodes = function()
         }
         if (bottomParent != commonParent)
             bottomChild = getPreviousSibling(bottomParent,bottomChild);
-
-
-
     } while (bottomParent != commonParent);
     for (var i = endNodes.length-1; i >= 0; i--)
         result.push(endNodes[i]);

@@ -74,17 +74,9 @@ function updateSelectionDisplay()
 
     if (selectionRange != null) {
 
-        debug("");
-        debug("");
-
         var useRange = selectionRange.copy();
         adjustPosition(useRange.start,false);
         adjustPosition(useRange.end,true);
-        debug("useRange = "+useRange);
-
-//        useRange.start.node.style.border = "1px solid lime";
-//        useRange.end.node.style.border = "1px solid red";
-
 
         var startLocation = useRange.start.toLocation();
         var endLocation = useRange.end.toLocation();
@@ -92,8 +84,6 @@ function updateSelectionDisplay()
             startLocation.child.style.border = "1px solid lime";
         if (endLocation.child != null)
             endLocation.child.style.border = "1px solid red";
-
-
 
         var nodes = useRange.getOutermostSelectedNodes();
         for (var i = 0; i < nodes.length; i++) {

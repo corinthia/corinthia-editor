@@ -6,43 +6,6 @@ function Location(parent,child)
     this.child = child;
 }
 
-Location.prototype.parentLocation = function()
-{
-    if (this.parent.parentNode == null)
-        return null;
-    else
-        return new Location(this.parent.parentNode,this.parent);
-}
-
-Location.prototype.nextSiblingLocation = function()
-{
-    if (this.child == null)
-        return null;
-    else if (this.child.nextSibling == null)
-        return null;
-    else
-        return new Location(this.parent,this.child.nextSibling);
-}
-
-Location.prototype.previousSiblingLocation = function()
-{
-    if (this.child == null) { // point is at end
-        if (this.parent.lastChild != null)
-            return new Location(this.parent,this.parent.lastChild);
-        else // FIXME: would this ever be the case?
-            return null;
-    }
-    if (this.child.previousSibling == null)
-        return null;
-    else
-        return new Location(this.parent,this.child.previousSibling);
-}
-
-Location.prototype.equals = function(other)
-{
-    return ((this.parent == other.parent) && (this.child == other.child));
-}
-
 Location.prototype.toString = function()
 {
     return "("+nodeString(this.parent)+","+nodeString(this.child)+")";
@@ -57,16 +20,6 @@ Location.prototype.toString = function()
         else
             return node.nodeName;
     }
-}
-
-Location.locationsEqual = function (a,b)
-{
-    if ((a == null) && (b == null))
-        return true;
-    else if ((a != null) && (b != null) && a.equals(b))
-        return true;
-    else
-        return false;
 }
 
 function Position(node,offset)
