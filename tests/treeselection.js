@@ -3,12 +3,6 @@ function debug(str)
     console.log(str);
 }
 
-var LABEL_HEIGHT = 10;
-var SPACING = 8;
-var NODE_WIDTH = 18;
-var NODE_HEIGHT = 30;
-var LEVEL_SPACING = 40;
-
 var rootNode = null;
 var nextNodeId = 0;
 
@@ -193,7 +187,8 @@ function loaded()
 
     document.body.appendChild(rootNode);
 
-    var layout = new HorizontalLayout();
+//    var layout = new HorizontalLayout();
+    var layout = new VerticalLayout();
     layout.layoutNodes(rootNode);
 
     document.onmousedown = mousedown;

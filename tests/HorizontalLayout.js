@@ -2,16 +2,21 @@ function HorizontalLayout()
 {
 }
 
+HorizontalLayout.NODE_WIDTH = 18;
+HorizontalLayout.NODE_HEIGHT = 30;
+HorizontalLayout.LEVEL_SPACING = 40;
+HorizontalLayout.SPACING = 8;
+
 HorizontalLayout.prototype.layout = function(node,layoutX,layoutY)
 {
     node.style.position = "absolute";
     node.style.left = layoutX+"px";
     node.style.top = layoutY+"px";
-    node.style.width = NODE_WIDTH+"px";
-    node.style.height = NODE_HEIGHT+"px";
+    node.style.width = HorizontalLayout.NODE_WIDTH+"px";
+    node.style.height = HorizontalLayout.NODE_HEIGHT+"px";
 
     if (node.firstChild == null) {
-        var width = NODE_WIDTH + SPACING;
+        var width = HorizontalLayout.NODE_WIDTH + HorizontalLayout.SPACING;
         layoutX += width;
         return width;
     }
@@ -19,11 +24,12 @@ HorizontalLayout.prototype.layout = function(node,layoutX,layoutY)
         var width = 0;
 
         for (var child = node.firstChild; child != null; child = child.nextSibling) {
-            width += this.layout(child,layoutX+width,layoutY+NODE_HEIGHT+LEVEL_SPACING);
+            width += this.layout(child,layoutX+width,layoutY+
+                                 HorizontalLayout.NODE_HEIGHT+HorizontalLayout.LEVEL_SPACING);
         }
 
         if (node.firstChild != null) {
-            node.style.left = (layoutX + width/2 - NODE_WIDTH/2)+"px";
+            node.style.left = (layoutX + width/2 - HorizontalLayout.NODE_WIDTH/2)+"px";
         }
         return width;
     }
@@ -69,7 +75,8 @@ HorizontalLayout.prototype.addLines = function(node,offsetX,offsetY)
         horizLineDiv.style.width = lineWidth+"px";
         horizLineDiv.style.height = "0px";
         horizLineDiv.style.left = firstChildX+"px";
-        horizLineDiv.style.top = (nodeY + NODE_HEIGHT + LEVEL_SPACING/2)+"px";
+        horizLineDiv.style.top = (nodeY + HorizontalLayout.NODE_HEIGHT +
+                                  HorizontalLayout.LEVEL_SPACING/2)+"px";
         document.body.appendChild(horizLineDiv);
 
         for (var child = node.firstChild; child != null; child = child.nextSibling) {
@@ -80,8 +87,9 @@ HorizontalLayout.prototype.addLines = function(node,offsetX,offsetY)
             verticalLineDiv.style.position = "absolute";
             verticalLineDiv.style.borderLeft = "1px solid black";
             verticalLineDiv.style.width = "0px";
-            verticalLineDiv.style.height = (LEVEL_SPACING/2)+"px";
-            verticalLineDiv.style.top = (nodeY + NODE_HEIGHT + LEVEL_SPACING/2)+"px";
+            verticalLineDiv.style.height = (HorizontalLayout.LEVEL_SPACING/2)+"px";
+            verticalLineDiv.style.top = (nodeY + HorizontalLayout.NODE_HEIGHT+
+                                         HorizontalLayout.LEVEL_SPACING/2)+"px";
             verticalLineDiv.style.left = (nodeX + childX + childWidth/2)+"px";
             document.body.appendChild(verticalLineDiv);
         }
@@ -90,8 +98,8 @@ HorizontalLayout.prototype.addLines = function(node,offsetX,offsetY)
         topLine.style.position = "absolute";
         topLine.style.borderLeft = "1px solid black";
         topLine.style.width = "0px";
-        topLine.style.height = (LEVEL_SPACING/2)+"px";
-        topLine.style.top = (nodeY + NODE_HEIGHT)+"px";
+        topLine.style.height = (HorizontalLayout.LEVEL_SPACING/2)+"px";
+        topLine.style.top = (nodeY + HorizontalLayout.NODE_HEIGHT)+"px";
         topLine.style.left = (nodeX + parseInt(node.style.width)/2)+"px";
         document.body.appendChild(topLine);
 
