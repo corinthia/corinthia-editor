@@ -53,28 +53,20 @@ Range.prototype.isForwards = function()
     if ((this.end.node.parentNode == null) && (this.end.node != document.documentElement))
         throw new Error("Range.isForwards "+this+": end node has been removed from document");
 
-    if (this.start.node == this.end.node) {
-        return (this.start.offset <= this.end.offset);
+    var start = this.start.toDefinitePosition();
+    var end = this.end.toDefinitePosition();
+
+    if (end == null) // end of document
+        return true;
+
+    if (start == null) // start is at end of document, end isn't
+        return false;
+
+    if (start.node == end.node) {
+        return (start.offset <= end.offset);
     }
     else {
-        var startLocation = this.start.toLocation();
-        var endLocation = this.end.toLocation();
-
-        var startNode = startLocation.child;
-        if (startNode == null)
-            startNode = nextNodeAfter(startLocation.parent);
-
-        var endNode = endLocation.child;
-        if (endNode == null)
-            endNode = nextNodeAfter(endLocation.parent);
-
-        if (endNode == null) // end of document
-            return true;
-
-        if (startNode == null) // start is at end of document, end isn't
-            return false;
-
-        var cmp = startNode.compareDocumentPosition(endNode);
+        var cmp = start.node.compareDocumentPosition(end.node);
         return (cmp & (Node.DOCUMENT_POSITION_FOLLOWING | Node.DOCUMENT_POSITION_CONTAINED_BY));
     }
 }
