@@ -48,6 +48,11 @@ Range.prototype.omitEmptyTextSelection = function()
 
 Range.prototype.isForwards = function()
 {
+    if ((this.start.node.parentNode == null) && (this.start.node != document.documentElement))
+        throw new Error("Range.isForwards "+this+": start node has been removed from document");
+    if ((this.end.node.parentNode == null) && (this.end.node != document.documentElement))
+        throw new Error("Range.isForwards "+this+": end node has been removed from document");
+
     if (this.start.node == this.end.node) {
         return (this.start.offset <= this.end.offset);
     }
