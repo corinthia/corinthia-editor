@@ -22,7 +22,8 @@
 
             // We just have a cursor
 
-            if ((rects != null) && (rects.length == 0)) {
+            if ((rects != null) &&
+                ((rects.length == 0) || (rects[0].width == 0) || (rects[0].height == 0))) {
 
                 // If the cursor is at the end of a paragraph and the last character is a space,
                 // getClientRects() fails to return anything. So instead, we temporarily add a
@@ -30,39 +31,38 @@
                 // and then remove the character. This client rect will be in the same location
                 // as the cursor placed at the end of the space.
 
-                    var node = selectionRange.start.node;
-                    var offset = selectionRange.start.offset;
+                var node = selectionRange.start.node;
+                var offset = selectionRange.start.offset;
 
-                if ((node.nodeType == Node.TEXT_NODE) && (offset == node.nodeValue.length)) {
+                if ((node.nodeType == Node.ELEMENT_NODE) ||
+                    (node.nodeType == Node.TEXT_NODE) && (offset == node.nodeValue.length)) {
                     var tempNode = document.createTextNode("X");
-                    node.parentNode.insertBefore(tempNode,node.nextSibling);
+
+                    if (node.nodeType == Node.TEXT_NODE) {
+                        node.parentNode.insertBefore(tempNode,node.nextSibling);
+                    }
+                    else if (node.nodeType == Node.ELEMENT_NODE) {
+                        if (offset >= node.childNodes.length) {
+                            node.appendChild(tempNode);
+                        }
+                        else {
+                            node.insertBefore(tempNode,node.childNodes[offset]);
+                        }
+                    }
                     var tempRange = new Range(tempNode,0,tempNode,0);
                     rects = tempRange.getClientRects();
-                    node.parentNode.removeChild(tempNode);
+                    tempNode.parentNode.removeChild(tempNode);
                 }
             }
 
-            var left;
-            var top;
-            var width;
-            var height;
-
             if ((rects != null) && (rects.length > 0)) {
-                left = rects[0].left + window.scrollX;
-                top = rects[0].top + window.scrollY;
-                width = rects[0].width;
-                height = rects[0].height;
-            }
-            else {
-                var absolute = getAbsoluteOffset(selectionRange.start.node);
-                left = absolute.offsetLeft;
-                top = absolute.offsetTop;            
-                width = selectionRange.start.node.parentNode.offsetWidth;
-                height = selectionRange.start.node.parentNode.offsetHeight;
-            }
+                var left = rects[0].left + window.scrollX;
+                var top = rects[0].top + window.scrollY;
+                var height = rects[0].height;
 
-            var zoom = getZoom();
-            editor.setCursor(left*zoom,top*zoom,height*zoom);
+                var zoom = getZoom();
+                editor.setCursor(left*zoom,top*zoom,height*zoom);
+            }
             return;
         }
 
