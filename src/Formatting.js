@@ -384,6 +384,126 @@
         return range;
     }
 
+    var PARAGRAPH_PROPERTIES = {
+        "margin-left": true,
+        "margin-right": true,
+        "margin-top": true,
+        "margin-bottom": true,
+
+        "padding-left": true,
+        "padding-right": true,
+        "padding-top": true,
+        "padding-bottom": true,
+
+        "border-left-width": true,
+        "border-right-width": true,
+        "border-top-width": true,
+        "border-bottom-width": true,
+
+        "border-left-style": true,
+        "border-right-style": true,
+        "border-top-style": true,
+        "border-bottom-style": true,
+
+        "border-left-color": true,
+        "border-right-color": true,
+        "border-top-color": true,
+        "border-bottom-color": true,
+
+        "text-align": true,
+        "line-height": true,
+    };
+
+    function getParagraphs(nodes)
+    {
+        var paragraphs = new Array();
+        // FIXME
+        return paragraphs;
+    }
+
+    function removeProperties(node,propertiesToRemove)
+    {
+        for (var name in propertiesToRemove)
+            node.style.removeProperty(name);
+    }
+
+    function removePropertiesRecursive(node,propertiesToRemove)
+    {
+        if (node.nodeType == Node.ELEMENT_NODE) {
+            var next;
+            for (var child = node.firstChild; child != null; child = next) {
+                var next = child.nextSibling;
+                removePropertiesRecursive(node,propertiesToRemove);
+            }
+            removeproperties(node,propertiesToRemove);
+        }
+    }
+
+    function setInlinePropertiesRecursive(node,inlinePropertiesToSet)
+    {
+        if (isInlineNode(node)) {
+            for (var name in inlinePropertiesToSet)
+                node.style.setProperty(name,inlinePropertiesToSet[name],null);
+        }
+        else {
+            for (var child = node.firstChild; child != null; child = next)
+                setInlinePropertiesRecursive(child,inlinePropertiesToSet);
+        }
+    }
+
+    // public
+    function applyFormattingChanges(style,propertiesToSet,propertiesToRemove)
+    {
+        var paragraphPropertiesToSet = new Object();
+        var inlinePropertiesToSet = new Object();
+        var paragraphPropertiesToRemove = new Object();
+        var inlinePropertiesToRemove = new Object();
+
+        for (var name in propertiesToSet) {
+            if (PARAGRAPH_PROPERTIES[name])
+                paragraphPropertiesToSet[name] = propertiesToSet[name];
+            else
+                inlinePropertiesToSet[name] = propertiesToSet[name];
+        }
+
+        for (var name in propertiesToRemove) {
+            if (PARAGRAPH_PROPERTIES[name])
+                paragraphPropertiesToRemove[name] = true;
+            else
+                inlinePropertiesToRemove[name] = true;
+        }
+
+        var selectionRange = getSelectionRange();
+        if (selectionRange == null)
+            return;
+
+        var nodes = selectionRange.getOutermostSelectedNodes();
+        var paragraphs = getParagraphs(nodes);
+
+        // Set properties on inline nodes
+        for (var i = 0; i < nodes.length; i++) {
+            setInlinePropertiesRecursive(nodes[i],inlinePropertiesToSet);
+        }
+
+        // Remove properties from inline nodes
+        for (var i = 0; i < nodes.length; i++) {
+            removePropertiesRecursive(nodes[i],inlinePropertiesToRemove);
+        }
+
+        // Remove properties from paragraph nodes
+        for (var i = 0; i < paragraphs.length; i++) {
+            removeProperties(paragraphs[i],paragraphPropertiesToRemove);
+        }
+
+        // Set properties on paragrph nodes
+        for (var i = 0; i < paragraphs.length; i++) {
+            for (var name in paragraphPropertiesToSet)
+                paragraphs[i].setProperty(name,paragraphPropertiesToSet[name],null);
+        }
+
+        return;
+    }
+
     window.splitTextBefore = splitTextBefore;
     window.splitTextAfter = splitTextAfter;
     window.movePrecedingSiblingsToOtherNode = movePrecedingSiblingsToOtherNode;
@@ -391,4 +511,5 @@
     window.reportSelectionFormatting = reportSelectionFormatting;
     window.selectionWrapElement = selectionWrapElement;
     window.selectionUnwrapElement = selectionUnwrapElement;
+    window.applyFormattingChanges = applyFormattingChanges;
 })();
