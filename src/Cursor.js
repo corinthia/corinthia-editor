@@ -107,26 +107,34 @@
         }
     }
 
+
     function acceptNode(node)
     {
         if (node.nodeType == Node.TEXT_NODE)
             return !isWhitespaceString(node.nodeValue);
+        else if ((node.nodeName == "IMG") || (node.nodeName == "TABLE"))
+            return true;
+        else if (isParagraphNode(node) && !nodeHasContent(node))
+            return true;
         else
-            return ((node.nodeName == "IMG") || (node.nodeName == "TABLE") ||
-                    (isParagraphNode(node) && !nodeHasContent(node)));
+            return false;
     }
 
     function nodeHasContent(node)
     {
-        if ((node.nodeType == Node.TEXT_NODE) && !isWhitespaceString(node.nodeValue))
-            return true;
-        if (node.nodeName == "IMG")
-            return true;
-        for (var child = node.firstChild; child != null; child = child.nextSibling) {
-            if (nodeHasContent(child))
-                return true;
+        if (node.nodeType == Node.TEXT_NODE) {
+            return !isWhitespaceString(node.nodeValue);
         }
-        return false;
+        else if ((node.nodeName == "IMG") || (node.nodeName == "TABLE")) {
+            return true;
+        }
+        else {
+            for (var child = node.firstChild; child != null; child = child.nextSibling) {
+                if (nodeHasContent(child))
+                    return true;
+            }
+            return false;
+        }
     }
 
     // An empty paragraph does not get shown and cannot be edited. We can fix this by adding
@@ -223,8 +231,13 @@
                     }
                     
                     if ((prev != null) && (prev.nodeType == Node.ELEMENT_NODE)) {
-                        while (paragraph.firstChild != null)
-                            prev.appendChild(paragraph.firstChild);
+                        if ((prev.lastChild != null) && (prev.lastChild.nodeName == "BR"))
+                            prev.removeChild(prev.lastChild);
+                        setEmptySelectionAt(prev,prev.childNodes.length);
+                        if (nodeHasContent(paragraph)) {
+                            while (paragraph.firstChild != null)
+                                prev.appendChild(paragraph.firstChild);
+                        }
                         paragraph.parentNode.removeChild(paragraph);
                     }
                     updateSelectionDisplay();
@@ -254,9 +267,12 @@
 
         function isFirstInParagraph(node)
         {
-            while ((node != null) && isInlineNode(node)) {
-                if (node.previousSibling != null)
-                    return false;
+            for (; (node != null) && isInlineNode(node); node = node.parentNode) {
+                for (var prev = node.previousSibling; prev != null; prev = node.previousSibling) {
+                    if (!isWhitespaceTextNode(prev)) {
+                        return false;
+                    }
+                }
                 node = node.parentNode;
             }
             return true;
