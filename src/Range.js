@@ -23,6 +23,11 @@ Range.prototype.toString = function()
     return this.start.toString() + " - " + this.end.toString();
 }
 
+Range.prototype.trackWhileExecuting = function(positions,fun)
+{
+    Position.trackWhileExecuting([this.start,this.end],fun);
+}
+
 Range.prototype.selectWholeWords = function()
 {
     if ((this.start.node.nodeType == Node.TEXT_NODE) &&

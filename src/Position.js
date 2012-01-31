@@ -27,6 +27,67 @@ function Position(node,offset)
     this.node = node;
     this.offset = offset;
     this.origOffset = offset;
+    this.tracking = 0;
+    this.insertionListener = null;
+    this.removalListener = null;
+}
+
+Position.totalPositionsTracking = 0; // for debugging leaks
+
+Position.trackWhileExecuting = function(positions,fun)
+{
+    for (var i = 0; i < positions.length; i++)
+        positions[i].startTracking();
+    fun();
+    for (var i = 0; i < positions.length; i++)
+        positions[i].stopTracking();
+}
+
+Position.prototype.nodeInserted = function(event)
+{
+    var offset = 0;
+    for (var n = this.node.firstChild; n != event.target; n = n.nextSibling)
+        offset++;
+    if (offset < this.offset)
+        this.offset++;
+}
+
+Position.prototype.nodeWillBeRemoved = function(event)
+{
+    var offset = 0;
+    for (var n = this.node.firstChild; n != event.target; n = n.nextSibling)
+        offset++;
+    if (offset < this.offset)
+        this.offset--;
+}
+
+Position.prototype.startTracking = function()
+{
+    if (this.tracking == 0) {
+        if (this.node.nodeType == Node.ELEMENT_NODE) {
+            var position = this;
+            this.insertionListener = function (event) { position.nodeInserted(event); };
+            this.removalListener = function (event) { position.nodeWillBeRemoved(event); };
+            this.node.addEventListener("DOMNodeInserted",this.insertionListener,false);
+            this.node.addEventListener("DOMNodeRemoved",this.removalListener,false);
+            Position.totalPositionsTracking++;
+        }
+    }
+    this.tracking++;
+}
+
+Position.prototype.stopTracking = function()
+{
+    this.tracking--;
+    if (this.tracking == 0) {
+        if (this.node.nodeType == Node.ELEMENT_NODE) {
+            this.node.removeEventListener("DOMNodeInserted",this.insertionListener,false);
+            this.node.removeEventListener("DOMNodeRemoved",this.removalListener,false);
+            this.insertionListener = null;
+            this.removalListener = null;
+            Position.totalPositionsTracking--;
+        }
+    }
 }
 
 Position.prototype.moveToStartOfWord = function()

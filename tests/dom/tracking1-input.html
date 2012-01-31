@@ -1,0 +1,36 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script language="javascript">
+function performTest()
+{
+    var ps = document.getElementsByTagName("P");
+    debug("here");
+
+    var messages = new Array();
+    var nodeCount = document.body.childNodes.length;
+    for (var posOffset = 0; posOffset <= nodeCount; posOffset++) {
+        for (var nodeOffset = 0; nodeOffset <= nodeCount; nodeOffset++) {
+            var position = new Position(document.body,posOffset);
+            var temp = document.createElement("B");
+            Position.trackWhileExecuting([position],function() {
+                var message = "posOffset "+posOffset+", nodeOffset "+nodeOffset+": "+position;
+                document.body.insertBefore(temp,document.body.childNodes[nodeOffset]);
+                message += " "+position;
+                document.body.removeChild(temp);
+                message += " "+position;
+                messages.push(message);
+            });
+        }
+    }
+    messages.push("Position.totalPositionsTracking = "+Position.totalPositionsTracking);
+
+    while (document.body.firstChild != null)
+        document.body.removeChild(document.body.firstChild);
+    document.body.appendChild(document.createTextNode("-\n"+messages.join("\n")+"\n-"));
+}
+</script>
+</head>
+<body><p>One</p><p>Two</p><p>Three</p></body>
+</html>
