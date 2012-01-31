@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2012 UX Productivity. All rights reserved.
+// Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
 var WORD_NAMESPACE = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 

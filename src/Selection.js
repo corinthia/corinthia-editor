@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2012 UX Productivity. All rights reserved.
+// Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
 // FIXME: cursor does not display correctly if it is after a space at the end of the line
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2012 UX Productivity. All rights reserved.
+// Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
 // Represents a tcPr child of a tc element
 function DocxCellProperties(element)

@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2012 UX Productivity. All rights reserved.
+// Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
 // http://msdn.microsoft.com/en-us/library/ee922775.aspx
 
