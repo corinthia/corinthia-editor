@@ -416,9 +416,37 @@
 
     function getParagraphs(nodes)
     {
-        var paragraphs = new Array();
-        // FIXME
-        return paragraphs;
+        var result = new Array();
+        for (var i = 0; i < nodes.length; i++) {
+            var node = nodes[i];
+            getParagraphsRecursive(node);
+            for (var ancestor = node.parentNode; ancestor != null; ancestor = ancestor.parentNode) {
+                // FIXME: this is O(n^2)
+                if (isParagraphNode(ancestor) && !haveNode(ancestor))
+                    result.push(ancestor);
+            }
+        }
+        return result;
+
+        function haveNode(node)
+        {
+            for (var i = 0; i < result.length; i++) {
+                if (result[i] == node)
+                    return true;
+            }
+            return false;
+        }
+
+        function getParagraphsRecursive(node)
+        {
+            if (isParagraphNode(node)) {
+                result.push(node);
+            }
+            else {
+                for (var child = node.firstChild; child != null; child = child.nextSibling)
+                    getParagraphsRecursive(child);
+            }
+        }
     }
 
     function removeProperties(node,propertiesToRemove)
@@ -435,7 +463,7 @@
                 var next = child.nextSibling;
                 removePropertiesRecursive(node,propertiesToRemove);
             }
-            removeproperties(node,propertiesToRemove);
+            removeProperties(node,propertiesToRemove);
         }
     }
 
@@ -446,31 +474,66 @@
                 node.style.setProperty(name,inlinePropertiesToSet[name],null);
         }
         else {
+            var next;
             for (var child = node.firstChild; child != null; child = next)
                 setInlinePropertiesRecursive(child,inlinePropertiesToSet);
         }
     }
 
+    function renameElement(oldElement,newName)
+    {
+        var newElement = document.createElement(newName);
+        for (var i = 0; i < oldElement.attributes.length; i++) {
+            var name = oldElement.attributes[i].nodeName;
+            var value = oldElement.getAttribute(name);
+            newElement.setAttribute(name,value);
+        }
+        while (oldElement.firstChild != null)
+            newElement.appendChild(oldElement.firstChild);
+        oldElement.parentNode.insertBefore(newElement,oldElement);
+        oldElement.parentNode.removeChild(oldElement);
+        return newElement;
+    }
+
+    function setParagraphStyle(paragraph,style)
+    {
+        if ((style == "") || (style == null)) {
+            if (paragraph.nodeName != "P")
+                paragraph = renameElement(paragraph,"P");
+            paragraph.removeAttribute("class");
+        }
+        else if (style.charAt(0) == ".") {
+            if (paragraph.nodeName != "P")
+                paragraph = renameElement(paragraph,"P");
+            paragraph.setAttribute("class",style.slice(1));
+        }
+        else {
+            if (paragraph.nodeName != style)
+                renameElement(paragraph,style);
+        }
+    }
+
     // public
-    function applyFormattingChanges(style,propertiesToSet,propertiesToRemove)
+    function applyFormattingChanges(style,properties)
     {
         var paragraphPropertiesToSet = new Object();
         var inlinePropertiesToSet = new Object();
         var paragraphPropertiesToRemove = new Object();
         var inlinePropertiesToRemove = new Object();
 
-        for (var name in propertiesToSet) {
-            if (PARAGRAPH_PROPERTIES[name])
-                paragraphPropertiesToSet[name] = propertiesToSet[name];
-            else
-                inlinePropertiesToSet[name] = propertiesToSet[name];
-        }
-
-        for (var name in propertiesToRemove) {
-            if (PARAGRAPH_PROPERTIES[name])
-                paragraphPropertiesToRemove[name] = true;
-            else
-                inlinePropertiesToRemove[name] = true;
+        for (var name in properties) {
+            if (PARAGRAPH_PROPERTIES[name]) {
+                if (properties[name] == null)
+                    paragraphPropertiesToRemove[name] = properties[name];
+                else
+                    paragraphPropertiesToSet[name] = properties[name];
+            }
+            else {
+                if (properties[name] == null)
+                    inlinePropertiesToRemove[name] = properties[name];
+                else
+                    inlinePropertiesToSet[name] = properties[name];
+            }
         }
 
         var selectionRange = getSelectionRange();
@@ -478,8 +541,10 @@
             return;
 
         var nodes = selectionRange.getOutermostSelectedNodes();
+        clearSelection(); // FIXME: preserve the selection after applying formatting changes
         var paragraphs = getParagraphs(nodes);
 
+/*
         // Set properties on inline nodes
         for (var i = 0; i < nodes.length; i++) {
             setInlinePropertiesRecursive(nodes[i],inlinePropertiesToSet);
@@ -490,15 +555,21 @@
             removePropertiesRecursive(nodes[i],inlinePropertiesToRemove);
         }
 
+        // Set properties on paragraph nodes
+        for (var i = 0; i < paragraphs.length; i++) {
+            for (var name in paragraphPropertiesToSet)
+                paragraphs[i].setProperty(name,paragraphPropertiesToSet[name],null);
+        }
+
         // Remove properties from paragraph nodes
         for (var i = 0; i < paragraphs.length; i++) {
             removeProperties(paragraphs[i],paragraphPropertiesToRemove);
         }
+*/
 
-        // Set properties on paragrph nodes
+        // Set style on paragraph nodes
         for (var i = 0; i < paragraphs.length; i++) {
-            for (var name in paragraphPropertiesToSet)
-                paragraphs[i].setProperty(name,paragraphPropertiesToSet[name],null);
+            setParagraphStyle(paragraphs[i],style);
         }
 
         return;
