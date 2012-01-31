@@ -15,7 +15,6 @@ function characterDataModified(e)
 {
 //    debug("characterDataModified");
     sectionTitleMaybeChanged(e.target);
-    ensureValidHierarchy(e.target,true);
 }
 
 function isHeadingElement(node)
@@ -63,7 +62,6 @@ function nodeInserted(e)
             e.target.addEventListener("DOMCharacterDataModified",characterDataModified);
 
         sectionTitleMaybeChanged(e.target);
-        ensureValidHierarchy(e.target,true);
     }
 
     function findPreviousHeading(node)
