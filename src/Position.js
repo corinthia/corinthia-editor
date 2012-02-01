@@ -75,6 +75,13 @@ Position.prototype.nodeWillBeRemoved = function(event)
                 this.offset--;
         }
     }
+    else if ((event.target == this.node) && !event.target.hasAttribute("moving")) {
+        var offset = getOffsetOfNodeInParent(event.target);
+        this.actuallyStopTracking();
+        this.node = this.node.parentNode;
+        this.offset = offset;
+        this.actuallyStartTracking();
+    }
 }
 
 Position.prototype.actuallyStartTracking = function()

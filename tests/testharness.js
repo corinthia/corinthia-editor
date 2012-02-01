@@ -154,7 +154,7 @@ function prettyPrintOneLine(builder,node)
     if ((node.nodeType == Node.ELEMENT_NODE) && (node.nodeName != "SCRIPT")) {
         var name = node.nodeName.toLowerCase();
         if (node.firstChild == null) {
-            builder.str += indent + "<" + name + attributeString(node) + "/>\n";
+            builder.str += "<" + name + attributeString(node) + "/>";
         }
         else {
             builder.str += "<" + name + attributeString(node) + ">";
