@@ -115,9 +115,9 @@ function shallowCopyElement(element)
 
 function moveNode(node,parentNode,nextSibling)
 {
-    node.setAttribute("moving","true");
+    Position.nodeBeingMoved = node;
     parentNode.insertBefore(node,nextSibling);
-    node.removeAttribute("moving");
+    Position.nodeBeingMoved = null;
 }
 
 function removeNodeButKeepChildren(node)
