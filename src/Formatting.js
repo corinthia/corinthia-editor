@@ -303,12 +303,10 @@
     // is applied only to the portion of the text that is actually selected.
     function selectionWrapElement(elementName)
     {
-        debug("selectionWrapElement "+elementName);
         var range = selectionUnwrapElement(elementName);
 
         if ((range == null) ||
             ((range.start.node == range.end.node) && (range.start.offset == range.end.offset))) {
-            debug("selectionWrapElement: no range");
             return null;
         }
         splitAroundSelection(range);
@@ -342,7 +340,6 @@
     // (replacing them with their children)
     function selectionUnwrapElement(elementName)
     {
-        debug("selectionUnwrapElement "+elementName);
         var range = getSelectionRange();
         if ((range == null) ||
             ((range.start.node == range.end.node) && (range.start.offset == range.end.offset)))
@@ -362,7 +359,6 @@
         mergeRange(range);
 
         setSelectionRange(range);
-        debug("\n");
 
         function unwrapSingle(node,elementName)
         {

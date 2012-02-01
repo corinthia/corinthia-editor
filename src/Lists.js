@@ -236,7 +236,6 @@
     // public
     function getListOperationNodes(range)
     {
-        debug("getListOperationNodes");
         var dca = null;
         for (var ds = range.start.node; ds != null; ds = ds.parentNode) {
             for (var de = range.end.node; de != null; de = de.parentNode) {
@@ -287,13 +286,9 @@
     // public
     function clearList()
     {
-        debug("clearList()");
-
         var range = getSelectionRange();
-        if (range == null) {
-            debug("no selection");
+        if (range == null)
             return;
-        }
 
         var nodes = getListOperationNodes(range);
 
@@ -307,17 +302,12 @@
                 removeAdjacentWhitespace(li);
 
                 if (li.previousSibling == null) {
-                    debug("setList null: case 1");
-
                     insertionPoint = list;
                 }
                 else if (li.nextSibling == null) {
-                    debug("setList null: case 2");
                     insertionPoint = list.nextSibling;
                 }
                 else {
-                    debug("setList null: case 3");
-
                     var secondList = shallowCopyElement(list);
                     list.parentNode.insertBefore(secondList,list.nextSibling);
                     while (li.nextSibling != null) {
@@ -355,10 +345,8 @@
     function setList(type)
     {
         var range = getSelectionRange();
-        if (range == null) {
-            debug("no selection");
+        if (range == null)
             return;
-        }
 
         var nodes = getListOperationNodes(range);
 
@@ -386,24 +374,17 @@
                 next = list.nextSibling;
 
 
-                debug("setList "+type+" (list item): prev "+prev+" next "+next);
-
                 removeAdjacentWhitespace(li);
 
                 if (li.previousSibling == null) {
-                    debug("setList "+type+" (list item): case 1");
-
                     listInsertionPoint = list;
                     next = null;
                 }
                 else if (li.nextSibling == null) {
-                    debug("setList "+type+" (list item): case 2");
                     listInsertionPoint = list.nextSibling;
                     prev = null;
                 }
                 else {
-                    debug("setList "+type+" (list item): case 3");
-
                     var secondList = shallowCopyElement(list);
                     list.parentNode.insertBefore(secondList,list.nextSibling);
                     while (li.nextSibling != null) {
@@ -432,18 +413,15 @@
 
             if ((prev != null) &&
                 (prev.nodeName == type)) {
-                debug("setList "+type+": case 1");
                 list = prev;
                 itemInsertionPoint = null;
             }
             else if ((next != null) &&
                      (next.nodeName == type)) {
-                debug("setList "+type+": case 2");
                 list = next;
                 itemInsertionPoint = list.firstChild;
             }
             else {
-                debug("setList "+type+": case 3");
                 list = document.createElement(type);
                 node.parentNode.insertBefore(list,listInsertionPoint);
                 itemInsertionPoint = null;
@@ -483,14 +461,12 @@
     // public
     function setUnorderedList()
     {
-        debug("setUnorderedList()");
         setList("UL");
     }
 
     // public
     function setOrderedList()
     {
-        debug("setOrderedList()");
         setList("OL");
     }
 
