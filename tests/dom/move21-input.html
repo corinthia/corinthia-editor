@@ -1,0 +1,30 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script language="javascript">
+
+function insertAtPosition(position,node)
+{
+    if (position.node.nodeType == Node.ELEMENT_NODE) {
+        if (position.offset == position.node.childNodes.length)
+            position.node.appendChild(node);
+        else
+            position.node.insertBefore(node,position.node.childNodes[position.offset]);
+    }
+}
+function performTest()
+{
+    var ps = document.getElementsByTagName("P");
+    var position = new Position(ps[0],0);
+
+    Position.trackWhileExecuting([position],function() {
+        moveNode(ps[0].childNodes[0],ps[0],null);
+    });
+
+    var tt = document.createElement("tt");
+    insertAtPosition(position,tt);
+}
+</script>
+</head>
+<body><p><span>Zero</span><span>One</span></p><p>Two</p><p>Three</p></body></html>
