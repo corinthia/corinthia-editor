@@ -246,6 +246,8 @@ function leftLoaded()
     for (var i = 0; i < javascriptFiles.length; i++)
         left.contentWindow.eval(readJSCode(javascriptFiles[i]));
 
+    left.contentWindow.eval(readJSCode("testlib.js"));
+
     var selStart = left.contentDocument.getElementById("selStart");
     var selEnd = left.contentDocument.getElementById("selEnd");
     var cursor = left.contentDocument.getElementById("cursor");
