@@ -113,6 +113,20 @@ function shallowCopyElement(element)
     return copy;
 }
 
+function moveNode(node,parentNode,nextSibling)
+{
+    node.setAttribute("moving","true");
+    parentNode.insertBefore(node,nextSibling);
+    node.removeAttribute("moving");
+}
+
+function removeNodeButKeepChildren(node)
+{
+    while (node.firstChild != null)
+        moveNode(node.firstChild,node.parentNode,node);
+    node.parentNode.removeChild(node);
+}
+
 function isWhitespaceCharacter(c)
 {
     return ((c == " ") || (c == "\t") || (c == "\r") || (c == "\n"));

@@ -2,7 +2,8 @@
 var tests = [
   { dir: "dom",
     files: ["tracking1",
-            "tracking2"] },
+            "tracking2",
+            "tracking3"] },
   { dir: "formatting",
     files: ["formatting1"] },
   { dir: "inline",

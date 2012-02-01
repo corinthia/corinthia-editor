@@ -45,7 +45,13 @@ Position.trackWhileExecuting = function(positions,fun)
 
 Position.prototype.nodeInserted = function(event)
 {
-    if (event.relatedNode == this.node) {
+    if ((event.target == this.node) && event.target.hasAttribute("moving")) {
+        this.actuallyStopTracking();
+        this.node = event.relatedNode;
+        this.offset = getOffsetOfNodeInParent(event.target);
+        this.actuallyStartTracking();
+    }
+    else if (event.relatedNode == this.node) {
         var offset = getOffsetOfNodeInParent(event.target);
         if (offset < this.offset)
             this.offset++;
@@ -56,21 +62,43 @@ Position.prototype.nodeWillBeRemoved = function(event)
 {
     if (event.relatedNode == this.node) {
         var offset = getOffsetOfNodeInParent(event.target);
-        if (offset < this.offset)
-            this.offset--;
+        if (event.target.hasAttribute("moving") && (offset == this.offset)) {
+            this.actuallyStopTracking();
+            this.node = event.target;
+            this.offset = 0;
+            this.actuallyStartTracking();
+        }
+        else {
+            if (offset < this.offset)
+                this.offset--;
+        }
     }
+}
+
+Position.prototype.actuallyStartTracking = function()
+{
+    var position = this;
+    this.insertionListener = function (event) { position.nodeInserted(event); };
+    this.removalListener = function (event) { position.nodeWillBeRemoved(event); };
+    this.node.addEventListener("DOMNodeInserted",this.insertionListener,false);
+    this.node.addEventListener("DOMNodeRemoved",this.removalListener,false);
+    Position.totalPositionsTracking++;
+}
+
+Position.prototype.actuallyStopTracking = function()
+{
+    this.node.removeEventListener("DOMNodeInserted",this.insertionListener,false);
+    this.node.removeEventListener("DOMNodeRemoved",this.removalListener,false);
+    this.insertionListener = null;
+    this.removalListener = null;
+    Position.totalPositionsTracking--;
 }
 
 Position.prototype.startTracking = function()
 {
     if (this.tracking == 0) {
         if (this.node.nodeType == Node.ELEMENT_NODE) {
-            var position = this;
-            this.insertionListener = function (event) { position.nodeInserted(event); };
-            this.removalListener = function (event) { position.nodeWillBeRemoved(event); };
-            this.node.addEventListener("DOMNodeInserted",this.insertionListener,false);
-            this.node.addEventListener("DOMNodeRemoved",this.removalListener,false);
-            Position.totalPositionsTracking++;
+            this.actuallyStartTracking();
         }
     }
     this.tracking++;
@@ -81,11 +109,7 @@ Position.prototype.stopTracking = function()
     this.tracking--;
     if (this.tracking == 0) {
         if (this.node.nodeType == Node.ELEMENT_NODE) {
-            this.node.removeEventListener("DOMNodeInserted",this.insertionListener,false);
-            this.node.removeEventListener("DOMNodeRemoved",this.removalListener,false);
-            this.insertionListener = null;
-            this.removalListener = null;
-            Position.totalPositionsTracking--;
+            this.actuallyStopTracking();
         }
     }
 }
