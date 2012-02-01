@@ -30,6 +30,7 @@ function Position(node,offset)
     this.tracking = 0;
     this.insertionListener = null;
     this.removalListener = null;
+    this.moving = false;
 }
 
 Position.totalPositionsTracking = 0; // for debugging leaks
@@ -45,7 +46,7 @@ Position.trackWhileExecuting = function(positions,fun)
 
 Position.prototype.nodeInserted = function(event)
 {
-    if ((event.target == this.node) && event.target.hasAttribute("moving")) {
+    if ((event.target == this.node) && this.moving) {
         this.actuallyStopTracking();
         this.node = event.relatedNode;
         this.offset = getOffsetOfNodeInParent(event.target);
@@ -67,6 +68,7 @@ Position.prototype.nodeWillBeRemoved = function(event)
             this.node = event.target;
             this.offset = 0;
             this.actuallyStartTracking();
+            this.moving = true;
         }
         else {
             if (offset < this.offset)
