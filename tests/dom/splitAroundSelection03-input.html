@@ -1,0 +1,15 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script language="javascript">
+function performTest()
+{
+    var b = document.getElementsByTagName("B")[0];
+    var range = new Range(b.firstChild,4,b.firstChild,14);
+    splitAroundSelection(range);
+}
+</script>
+</head>
+<body><p>One <b>Two Three Four</b> Five</p></body>
+</html>

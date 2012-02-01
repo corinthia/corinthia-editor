@@ -72,6 +72,7 @@
         wrapper.appendChild(node);
     }
 
+    // public (for testing purposes only)
     function splitAroundSelection(range)
     {
         range.omitEmptyTextSelection();
@@ -579,6 +580,7 @@
     window.splitTextAfter = splitTextAfter;
     window.movePrecedingSiblingsToOtherNode = movePrecedingSiblingsToOtherNode;
     window.moveFollowingSiblingsToOtherNode = moveFollowingSiblingsToOtherNode;
+    window.splitAroundSelection = splitAroundSelection;
     window.reportSelectionFormatting = reportSelectionFormatting;
     window.selectionWrapElement = selectionWrapElement;
     window.selectionUnwrapElement = selectionUnwrapElement;
