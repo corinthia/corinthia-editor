@@ -95,6 +95,14 @@ function getNodeText(node)
     }
 }
 
+function getOffsetOfNodeInParent(node)
+{
+    var offset = 0;
+    for (var n = node.parentNode.firstChild; n != node; n = n.nextSibling)
+        offset++;
+    return offset;
+}
+
 function shallowCopyElement(element)
 {
     var copy = document.createElement(element.nodeName);

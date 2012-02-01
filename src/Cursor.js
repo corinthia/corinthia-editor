@@ -55,9 +55,7 @@
                 node = prevNode(node);
             if (node != null) {
                 if (node.nodeType == Node.ELEMENT_NODE) {
-                    var offset = 0;
-                    for (var n = node.parentNode.firstChild; n != node; n = n.nextSibling)
-                        offset++;
+                    var offset = getOffsetOfNodeInParent(node);
                     setEmptySelectionAt(node.parentNode,offset);
                 }
                 else {
@@ -95,9 +93,7 @@
                 node = nextNode(node);
             if (node != null) {
                 if (node.nodeType == Node.ELEMENT_NODE) {
-                    var offset = 0;
-                    for (var n = node.parentNode.firstChild; n != node; n = n.nextSibling)
-                        offset++;
+                    var offset = getOffsetOfNodeInParent(node);
                     setEmptySelectionAt(node.parentNode,offset);
                 }
                 else {

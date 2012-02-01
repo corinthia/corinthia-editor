@@ -272,11 +272,11 @@ function leftLoaded()
 /*
         if ((start.node.nodeType == Node.TEXT_NODE) && (start.offset == 0)) {
             start = new left.contentWindow.Position(start.node.parentNode,
-                                                    getNodeOffset(start.node));
+                                    left.contentWindow.getOffsetOfNodeInParent(start.node));
         }
         if ((end.node.nodeType == Node.TEXT_NODE) && (end.offset == end.node.nodeValue.length)) {
             end = new left.contentWindow.Position(end.node.parentNode,
-                                                  getNodeOffset(end.node)+1);
+                                    left.contentWindow.getOffsetOfNodeInParent(end.node)+1);
         }
 */
 
@@ -286,14 +286,6 @@ function leftLoaded()
     continuation();
 
     return;
-
-    function getNodeOffset(node)
-    {
-        var offset = 0;
-        for (var n = node.parentNode.firstChild; n != node; n = n.nextSibling)
-            offset++;
-        return offset;
-    }
 
     function maybeMergeTextNodes(first,second,positions)
     {
