@@ -45,20 +45,20 @@ Position.trackWhileExecuting = function(positions,fun)
 
 Position.prototype.nodeInserted = function(event)
 {
-    var offset = 0;
-    for (var n = this.node.firstChild; n != event.target; n = n.nextSibling)
-        offset++;
-    if (offset < this.offset)
-        this.offset++;
+    if (event.relatedNode == this.node) {
+        var offset = getOffsetOfNodeInParent(event.target);
+        if (offset < this.offset)
+            this.offset++;
+    }
 }
 
 Position.prototype.nodeWillBeRemoved = function(event)
 {
-    var offset = 0;
-    for (var n = this.node.firstChild; n != event.target; n = n.nextSibling)
-        offset++;
-    if (offset < this.offset)
-        this.offset--;
+    if (event.relatedNode == this.node) {
+        var offset = getOffsetOfNodeInParent(event.target);
+        if (offset < this.offset)
+            this.offset--;
+    }
 }
 
 Position.prototype.startTracking = function()

@@ -1,0 +1,32 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script language="javascript">
+function performTest()
+{
+    var messages = new Array();
+
+    var ps = document.getElementsByTagName("P");
+    var position = new Position(document.body,document.body.childNodes.length);
+    messages.push("Before insertion: position = "+position);
+    Position.trackWhileExecuting([position],function() {
+        ps[0].appendChild(document.createTextNode("X"));
+    });
+    messages.push("After insertion: position = "+position);
+
+    var position = new Position(document.body,document.body.childNodes.length);
+    messages.push("Before removal: position = "+position);
+    Position.trackWhileExecuting([position],function() {
+        ps[0].removeChild(ps[0].firstChild);
+    });
+    messages.push("After removal: position = "+position);
+
+    while (document.body.firstChild != null)
+        document.body.removeChild(document.body.firstChild);
+    document.body.appendChild(document.createTextNode("-\n"+messages.join("\n")+"\n-"));
+}
+</script>
+</head>
+<body><p>One</p><p>Two</p><p>Three</p></body>
+</html>
