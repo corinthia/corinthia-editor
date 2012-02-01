@@ -48,10 +48,7 @@ Position.trackWhileExecuting = function(positions,fun)
 Position.prototype.nodeInserted = function(event)
 {
     if ((event.target == this.node) && this.moving) {
-        this.actuallyStopTracking();
-        this.node = event.relatedNode;
-        this.offset = getOffsetOfNodeInParent(event.target);
-        this.actuallyStartTracking();
+        this.setNodeAndOffset(event.relatedNode,getOffsetOfNodeInParent(event.target));
     }
     else if (event.relatedNode == this.node) {
         var offset = getOffsetOfNodeInParent(event.target);
@@ -65,10 +62,7 @@ Position.prototype.nodeWillBeRemoved = function(event)
     if (event.relatedNode == this.node) {
         var offset = getOffsetOfNodeInParent(event.target);
         if ((Position.nodeBeingMoved == event.target) && (offset == this.offset)) {
-            this.actuallyStopTracking();
-            this.node = event.target;
-            this.offset = 0;
-            this.actuallyStartTracking();
+            this.setNodeAndOffset(event.target,0);
             this.moving = true;
         }
         else {
@@ -78,10 +72,7 @@ Position.prototype.nodeWillBeRemoved = function(event)
     }
     else if ((event.target == this.node) && (Position.nodeBeingMoved != event.target)) {
         var offset = getOffsetOfNodeInParent(event.target);
-        this.actuallyStopTracking();
-        this.node = this.node.parentNode;
-        this.offset = offset;
-        this.actuallyStartTracking();
+        this.setNodeAndOffset(this.node.parentNode,offset);
     }
 }
 
@@ -107,6 +98,7 @@ Position.prototype.actuallyStopTracking = function()
 Position.prototype.startTracking = function()
 {
     if (this.tracking == 0) {
+        // FIXME: allow text nodes to be tracked (for responding to when they are removed)
         if (this.node.nodeType == Node.ELEMENT_NODE) {
             this.actuallyStartTracking();
         }
@@ -118,10 +110,23 @@ Position.prototype.stopTracking = function()
 {
     this.tracking--;
     if (this.tracking == 0) {
+        // FIXME: allow text nodes to be tracked (for responding to when they are removed)
         if (this.node.nodeType == Node.ELEMENT_NODE) {
             this.actuallyStopTracking();
         }
     }
+}
+
+Position.prototype.setNodeAndOffset = function(node,offset)
+{
+    if (this.tracking > 0)
+        this.actuallyStopTracking();
+
+    this.node = node;
+    this.offset = offset;
+
+    if (this.tracking > 0)
+        this.actuallyStartTracking();
 }
 
 Position.prototype.moveToStartOfWord = function()
@@ -146,11 +151,8 @@ Position.prototype.moveForwardIfAtEnd = function()
     if ((this.node.nodeType == Node.TEXT_NODE) &&
         (this.offset == this.node.nodeValue.length)) {
         var next = nextTextNode(this.node);
-        if (next != null) {
-            this.node = next;
-            this.offset = 0;
-            // debug("Moved start to "+this.toString()+"\n");
-        }
+        if (next != null)
+            this.setNodeAndOffset(next,0);
     }
 }
 
@@ -159,11 +161,8 @@ Position.prototype.moveBackwardIfAtStart = function()
     if ((this.node.nodeType == Node.TEXT_NODE) &&
         (this.offset == 0)) {
         var prev = prevTextNode(this.node);
-        if (prev != null) {
-            this.node = prev;
-            this.offset = this.node.nodeValue.length;
-            // debug("Moved end to "+this.toString()+"\n");
-        }
+        if (prev != null)
+            this.setNodeAndOffset(prev,this.node.nodeValue.length);
     }
 }
 
