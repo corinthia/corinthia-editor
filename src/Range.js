@@ -23,7 +23,7 @@ Range.prototype.toString = function()
     return this.start.toString() + " - " + this.end.toString();
 }
 
-Range.prototype.trackWhileExecuting = function(positions,fun)
+Range.prototype.trackWhileExecuting = function(fun)
 {
     Position.trackWhileExecuting([this.start,this.end],fun);
 }
