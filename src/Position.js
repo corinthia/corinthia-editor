@@ -118,11 +118,9 @@ Position.prototype.characterDataModified = function(event)
         if (newValue.length < prevValue.length) {
             if ((this.offset > commonStart + newDifferent) &&
                 (this.offset < commonStart + prevDifferent)) {
-                debug("case 1");
                 this.offset = commonStart + newDifferent;
             }
             else if (this.offset >= commonStart + prevDifferent) {
-                debug("case 2");
                 this.offset -= (prevDifferent - newDifferent);
             }
         }
@@ -132,11 +130,6 @@ Position.prototype.characterDataModified = function(event)
                 this.offset = newValue.length - (prevValue.length - this.offset);
             else if (this.offset > commonStart + prevDifferent)
                 this.offset += (newDifferent - prevDifferent);
-        }
-
-        if (oldOffset != this.offset) {
-            debug("text modified: \""+prevValue+"\" -> \""+newValue+"\": offset "+
-                  oldOffset+" -> "+this.offset);
         }
     }
 }
