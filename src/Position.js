@@ -76,13 +76,81 @@ Position.prototype.nodeWillBeRemoved = function(event)
     }
 }
 
+Position.prototype.characterDataModified = function(event)
+{
+    if (event.target == this.node) {
+        var oldOffset = this.offset;
+        var prevValue = event.prevValue;
+        var newValue = event.newValue;
+
+        var commonStart = 0;
+        var commonEnd = 0;
+
+        while ((commonStart < prevValue.length) && (commonStart < newValue.length) &&
+               (prevValue.charCodeAt(commonStart) == newValue.charCodeAt(commonStart)))
+            commonStart++;
+
+        while ((commonEnd < prevValue.length) &&
+               (commonEnd < newValue.length) &&
+               (prevValue.charCodeAt(prevValue.length - commonEnd - 1) ==
+                newValue.charCodeAt(newValue.length - commonEnd - 1)))
+            commonEnd++;
+
+        var realCommonStart = commonStart;
+        var realCommonEnd = commonEnd;
+
+        if (realCommonStart > newValue.length - commonEnd)
+            realCommonStart = newValue.length - commonEnd;
+        if (realCommonStart > prevValue.length - commonEnd)
+            realCommonStart = prevValue.length - commonEnd;
+
+        if (realCommonEnd > newValue.length - commonStart)
+            realCommonEnd = newValue.length - commonStart;
+        if (realCommonEnd > prevValue.length - commonStart)
+            realCommonEnd = prevValue.length - commonStart;
+
+        commonStart = realCommonStart;
+        commendEnd = realCommonEnd;
+
+        var prevDifferent = prevValue.length - commonStart - commonEnd;
+        var newDifferent = newValue.length - commonStart - commonEnd;
+
+        if (newValue.length < prevValue.length) {
+            if ((this.offset > commonStart + newDifferent) &&
+                (this.offset < commonStart + prevDifferent)) {
+                debug("case 1");
+                this.offset = commonStart + newDifferent;
+            }
+            else if (this.offset >= commonStart + prevDifferent) {
+                debug("case 2");
+                this.offset -= (prevDifferent - newDifferent);
+            }
+        }
+        else if (newValue.length > prevValue.length) {
+            if ((newDifferent > 0) && (prevDifferent > 0) &&
+                (this.offset >= prevValue.length - commonEnd))
+                this.offset = newValue.length - (prevValue.length - this.offset);
+            else if (this.offset > commonStart + prevDifferent)
+                this.offset += (newDifferent - prevDifferent);
+        }
+
+        if (oldOffset != this.offset) {
+            debug("text modified: \""+prevValue+"\" -> \""+newValue+"\": offset "+
+                  oldOffset+" -> "+this.offset);
+        }
+    }
+}
+
 Position.prototype.actuallyStartTracking = function()
 {
     var position = this;
     this.insertionListener = function (event) { position.nodeInserted(event); };
     this.removalListener = function (event) { position.nodeWillBeRemoved(event); };
+    this.characterDataListener = function(event) { position.characterDataModified(event); }
     this.node.addEventListener("DOMNodeInserted",this.insertionListener,false);
     this.node.addEventListener("DOMNodeRemoved",this.removalListener,false);
+    if (this.node.nodeType == Node.TEXT_NODE)
+        this.node.addEventListener("DOMCharacterDataModified",this.characterDataListener,false);
     Position.totalPositionsTracking++;
 }
 
@@ -90,31 +158,26 @@ Position.prototype.actuallyStopTracking = function()
 {
     this.node.removeEventListener("DOMNodeInserted",this.insertionListener,false);
     this.node.removeEventListener("DOMNodeRemoved",this.removalListener,false);
+    if (this.node.nodeType == Node.TEXT_NODE)
+        this.node.removeEventListener("DOMCharacterDataModified",this.characterDataListener,false);
     this.insertionListener = null;
     this.removalListener = null;
+    this.characterDataListener = null;
     Position.totalPositionsTracking--;
 }
 
 Position.prototype.startTracking = function()
 {
-    if (this.tracking == 0) {
-        // FIXME: allow text nodes to be tracked (for responding to when they are removed)
-        if (this.node.nodeType == Node.ELEMENT_NODE) {
-            this.actuallyStartTracking();
-        }
-    }
+    if (this.tracking == 0)
+        this.actuallyStartTracking();
     this.tracking++;
 }
 
 Position.prototype.stopTracking = function()
 {
     this.tracking--;
-    if (this.tracking == 0) {
-        // FIXME: allow text nodes to be tracked (for responding to when they are removed)
-        if (this.node.nodeType == Node.ELEMENT_NODE) {
-            this.actuallyStopTracking();
-        }
-    }
+    if (this.tracking == 0)
+        this.actuallyStopTracking();
 }
 
 Position.prototype.setNodeAndOffset = function(node,offset)
@@ -213,5 +276,16 @@ Position.prototype.toDefinitePosition = function()
 
 Position.prototype.toString = function()
 {
-    return "("+nodeString(this.node)+","+this.offset+")";
+    if (this.node.nodeType == Node.TEXT_NODE) {
+        var extra = "";
+        if (this.offset > this.node.nodeValue.length) {
+            for (var i = this.node.nodeValue.length; i < this.offset; i++)
+                extra += "!";
+        }
+        return JSON.stringify(this.node.nodeValue.slice(0,this.offset)+extra+"|"+
+                              this.node.nodeValue.slice(this.offset));
+    }
+    else {
+        return "("+nodeString(this.node)+","+this.offset+")";
+    }
 }
