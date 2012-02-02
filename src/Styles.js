@@ -34,7 +34,7 @@ function ensureValidHierarchy(node,recursive)
             var child = node;
             while (!isContainerNode(child.parentNode))
                 child = child.parentNode;
-            child.parentNode.insertBefore(node,child);
+            moveNode(node,child.parentNode,child);
             child.parentNode.removeChild(child);
         }
     }
@@ -52,15 +52,15 @@ function ensureValidHierarchy(node,recursive)
             while ((before != null) && isInlineNode(before)) {
                 var n = before;
                 before = before.previousSibling;
-                p.insertBefore(n,p.firstChild);
+                moveNode(n,p,p.firstChild);
             }
 
-            p.appendChild(node);
+            moveNode(node,p,null);
 
             while ((after != null) && isInlineNode(after)) {
                 var n = after;
                 after = after.nextSibling;
-                p.appendChild(n);
+                moveNode(n,p,null);
             }
         }
     }
