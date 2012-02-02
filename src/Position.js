@@ -148,22 +148,38 @@ Position.prototype.moveToEndOfWord = function()
 
 Position.prototype.moveForwardIfAtEnd = function()
 {
-    if ((this.node.nodeType == Node.TEXT_NODE) &&
-        (this.offset == this.node.nodeValue.length)) {
-        var next = nextTextNode(this.node);
-        if (next != null)
-            this.setNodeAndOffset(next,0);
+    var node = this.node;
+    var offset = this.offset;
+    var changed = false;
+    while (node != document.body) {
+        if (((node.nodeType == Node.TEXT_NODE) && (offset == node.nodeValue.length)) ||
+            ((node.nodeType == Node.ELEMENT_NODE) && (offset == node.childNodes.length))) {
+            offset = getOffsetOfNodeInParent(node)+1;
+            node = node.parentNode;
+            changed = true;
+        }
+        else {
+            break;
+        }
     }
+    if (changed)
+        this.setNodeAndOffset(node,offset);
+    return changed;
 }
 
 Position.prototype.moveBackwardIfAtStart = function()
 {
-    if ((this.node.nodeType == Node.TEXT_NODE) &&
-        (this.offset == 0)) {
-        var prev = prevTextNode(this.node);
-        if (prev != null)
-            this.setNodeAndOffset(prev,this.node.nodeValue.length);
+    var node = this.node;
+    var offset = this.offset;
+    var changed = false;
+    while ((node != document.body) && (offset == 0)) {
+        offset = getOffsetOfNodeInParent(node);
+        node = node.parentNode;
+        changed = true;
     }
+    if (changed)
+        this.setNodeAndOffset(node,offset);
+    return changed;
 }
 
 Position.prototype.toLocation = function()
@@ -181,8 +197,8 @@ Position.prototype.toLocation = function()
 
 Position.prototype.toDefinitePosition = function()
 {
-    if ((this.node.nodeType == Node.ELEMENT_NODE) && (this.node.firstChild != null)) {
-        if (this.offset < this.node.childNodes.count)
+    if (this.node.nodeType == Node.ELEMENT_NODE) {
+        if (this.offset < this.node.childNodes.length)
             return new Position(this.node.childNodes[this.offset],0);
         var nextNode = nextNodeAfter(this.node);
         if (nextNode != null)
