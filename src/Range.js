@@ -47,8 +47,10 @@ Range.prototype.selectWholeWords = function()
 
 Range.prototype.omitEmptyTextSelection = function()
 {
-    this.start.moveForwardIfAtEnd();
-    this.end.moveBackwardIfAtStart();
+    if (!this.start.moveBackwardIfAtStart())
+        this.start.moveForwardIfAtEnd()
+    if (!this.end.moveBackwardIfAtStart())
+        this.end.moveForwardIfAtEnd()
 }
 
 Range.prototype.isForwards = function()
@@ -76,32 +78,13 @@ Range.prototype.isForwards = function()
     }
 }
 
-Range.prototype.getParagraphNodes = function()
-{
-    var result = new Array();
-    var node = this.start.node;
-    while (!isParagraphNode(node))
-        node = node.parentNode;
-    while (true) {
-        if (isParagraphNode(node))
-            result.push(node);
-        if (node == this.end.node)
-            break;
-        node = nextNode(node);
-    }
-    return result;
-}
-
 Range.prototype.getInlineNodes = function()
 {
+    var all = this.getAllNodes();
     var result = new Array();
-    var node = this.start.node;
-    while (true) {
-        if (isInlineNode(node))
-            result.push(node);
-        if (node == this.end.node)
-            break;
-        node = nextNode(node);
+    for (var i = 0; i < all.length; i++) {
+        if (isInlineNode(all[i]))
+            result.push(all[i]);
     }
     return result;
 }
@@ -109,14 +92,17 @@ Range.prototype.getInlineNodes = function()
 Range.prototype.getAllNodes = function()
 {
     var result = new Array();
-    var node = this.start.node;
-    while (true) {
-        result.push(node);
-        if (node == this.end.node)
-            break;
-        node = nextNode(node);
-    }
+    var outermost = this.getOutermostSelectedNodes();
+    for (var i = 0; i < outermost.length; i++)
+        addRecursive(outermost[i]);
     return result;
+
+    function addRecursive(node)
+    {
+        result.push(node);
+        for (var child = node.firstChild; child != null; child = child.nextSibling)
+            addRecursive(child);
+    }
 }
 
 Range.prototype.ensureRangeValidHierarchy = function()
