@@ -140,17 +140,20 @@
                 (node.nodeType == Node.TEXT_NODE) &&
                 (node.previousSibling.nodeType == Node.TEXT_NODE)) {
 
+                var oldStartOffset = range.start.offset;
+                var oldEndOffset = range.end.offset;
+
                 node.nodeValue = node.previousSibling.nodeValue + node.nodeValue;
 
                 if (range.start.node == node.previousSibling)
                     range.start.setNodeAndOffset(node,range.start.offset);
                 else if (range.start.node == node)
-                    range.start.offset += node.previousSibling.nodeValue.length;
+                    range.start.offset = oldStartOffset + node.previousSibling.nodeValue.length;
 
                 if (range.end.node == node.previousSibling)
                     range.end.setNodeAndOffset(node,range.end.offset);
                 else if (range.end.node == node)
-                    range.end.offset += node.previousSibling.nodeValue.length;
+                    range.end.offset = oldEndOffset + node.previousSibling.nodeValue.length;
 
                 node.parentNode.removeChild(node.previousSibling);
                 checkMerge(range,node); // FIXME: this may interfere with the iteration above
@@ -170,6 +173,8 @@
             }
 
             checkMerge(range,node.parentNode);
+            if (node.parentNode != null)
+                checkMerge(range,node.parentNode.nextSibling);
         }
 
         function elementsMergable(a,b)
@@ -268,10 +273,8 @@
         var parentCopy = shallowCopyElement(parent);
         parent.parentNode.insertBefore(parentCopy,parent);
 
-        while (child.previousSibling != null) {
-            // FIXME: use moveNode here, so that mutation listeners are notified
-            parentCopy.insertBefore(child.previousSibling,parentCopy.firstChild);
-        }
+        while (child.previousSibling != null)
+            moveNode(child.previousSibling,parentCopy,parentCopy.firstChild);
 
         movePrecedingSiblingsToOtherNode(child.parentNode,parentCheckFn)
     }
@@ -289,10 +292,8 @@
         var parentCopy = shallowCopyElement(parent);
         parent.parentNode.insertBefore(parentCopy,parent.nextSibling);
 
-        while (child.nextSibling != null) {
-            // FIXME: use moveNode here, so that mutation listeners are notified
-            parentCopy.appendChild(child.nextSibling);
-        }
+        while (child.nextSibling != null)
+            moveNode(child.nextSibling,parentCopy.appendChild,null);
 
         moveFollowingSiblingsToOtherNode(child.parentNode,parentCheckFn)
     }
