@@ -69,48 +69,68 @@
     {
         var wrapper = document.createElement(elementName);
         node.parentNode.insertBefore(wrapper,node);
-        wrapper.appendChild(node);
+        moveNode(node,wrapper,null);
     }
 
     // public (for testing purposes only)
     function splitAroundSelection(range)
     {
-        range.omitEmptyTextSelection();
-        range.ensureRangeValidHierarchy();
+        range.trackWhileExecuting(function() {
 
-        if ((range.start.node.nodeType == Node.TEXT_NODE) &&
-            (range.start.offset > 0)) {
-            splitTextBefore(range.start.node,range.start.offset);
-            if (range.end.node == range.start.node)
-                range.end.offset -= range.start.offset;
-            range.start.offset = 0;
-        }
-        else {
-            movePrecedingSiblingsToOtherNode(range.start.node,isParagraphNode);
-        }
+//            range.omitEmptyTextSelection(); // FIXME: enable this again?
+            range.ensureRangeValidHierarchy();
 
-        if ((range.end.node.nodeType == Node.TEXT_NODE) &&
-            (range.end.offset < range.end.node.nodeValue.length)) {
-            splitTextAfter(range.end.node,range.end.offset);
-        }
-        else {
-            moveFollowingSiblingsToOtherNode(range.end.node,isParagraphNode);
-        }
+            if ((range.start.node.nodeType == Node.TEXT_NODE) &&
+                (range.start.offset > 0)) {
+                splitTextBefore(range.start.node,range.start.offset);
+                if (range.end.node == range.start.node)
+                    range.end.offset -= range.start.offset;
+                range.start.offset = 0;
+            }
+            else if (range.start.node.nodeType == Node.ELEMENT_NODE) {
+                movePreceding(range.start.node,range.start.offset,isParagraphNode);
+            }
+            else {
+                movePreceding(range.start.node.parentNode,getOffsetOfNodeInParent(range.start.node),
+                              isParagraphNode);
+            }
+
+            // Save the start and end position of the range. The mutation listeners will move it
+            // when the following node is moved, which we don't actually want in this case.
+            var startNode = range.start.node;
+            var startOffset = range.start.offset;
+            var endNode = range.end.node;
+            var endOffset = range.end.offset;
+
+            if ((range.end.node.nodeType == Node.TEXT_NODE) &&
+                (range.end.offset < range.end.node.nodeValue.length)) {
+                splitTextAfter(range.end.node,range.end.offset);
+            }
+            else if (range.end.node.nodeType == Node.ELEMENT_NODE) {
+                moveFollowing(range.end.node,range.end.offset,isParagraphNode);
+            }
+            else {
+                moveFollowing(range.end.node.parentNode,getOffsetOfNodeInParent(range.end.node)+1,
+                              isParagraphNode);
+            }
+
+            range.start.setNodeAndOffset(startNode,startOffset);
+            range.end.setNodeAndOffset(endNode,endOffset);
+        });
     }
 
     function mergeRange(range)
     {
-        var node = range.start.node;
-        var last = nextNode(range.end.node);
-        while (node != null) {
-            checkMerge(range,node);
+        var nodes = range.getAllNodes();
+        for (var i = 0; i < nodes.length; i++)
+            checkMerge(range,nodes[i]);
 
-            if (node == last)
-                break;
-
-            node = nextNode(node);
-        }
-
+        // FIXME: This should be modified to use an appropriate abstraction for merging text nodes
+        // that updates *all* tracked positions, not just the start and end of the current range,
+        // which are manually checked here. The recursive calls might also cause problems with the
+        // iteration performed above, since after merging a node, we may end up encountering it
+        // again in the tree (though I'm not sure about this, since we merge with the previous node,
+        // not the next one).
         function checkMerge(range,node)
         {
             if (node == null)
@@ -120,23 +140,20 @@
                 (node.nodeType == Node.TEXT_NODE) &&
                 (node.previousSibling.nodeType == Node.TEXT_NODE)) {
 
-                //            debug("Merging \""+node.previousSibling.nodeValue+"\" and \""+
-                //                         node.nodeValue+"\"");
-
                 node.nodeValue = node.previousSibling.nodeValue + node.nodeValue;
 
                 if (range.start.node == node.previousSibling)
-                    range.start.node = node;
+                    range.start.setNodeAndOffset(node,range.start.offset);
                 else if (range.start.node == node)
                     range.start.offset += node.previousSibling.nodeValue.length;
 
                 if (range.end.node == node.previousSibling)
-                    range.end.node = node;
+                    range.end.setNodeAndOffset(node,range.end.offset);
                 else if (range.end.node == node)
                     range.end.offset += node.previousSibling.nodeValue.length;
 
                 node.parentNode.removeChild(node.previousSibling);
-                checkMerge(range,node);
+                checkMerge(range,node); // FIXME: this may interfere with the iteration above
                 var next = nextNode(node);
                 if (next != null)
                     checkMerge(range,next);
@@ -145,12 +162,9 @@
                      (node.nodeType == Node.ELEMENT_NODE) &&
                      (node.previousSibling.nodeType == Node.ELEMENT_NODE) &&
                      elementsMergable(node,node.previousSibling)) {
-
-                //            debug("Merging \""+node.previousSibling.nodeName+"\" and \""+
-                //                         node.nodeName+"\"");
                 var origFirst = node.firstChild;
                 while (node.previousSibling.lastChild != null)
-                    node.insertBefore(node.previousSibling.lastChild,node.firstChild);
+                    moveNode(node.previousSibling.lastChild,node,node.firstChild);
                 node.parentNode.removeChild(node.previousSibling);
                 checkMerge(range,origFirst);
             }
@@ -183,7 +197,7 @@
         node.parentNode.insertBefore(before,node);
         node.nodeValue = node.nodeValue.slice(offset);
 
-        movePrecedingSiblingsToOtherNode(node,isParagraphNode);
+        movePreceding(node.parentNode,getOffsetOfNodeInParent(node),isParagraphNode);
     }
 
     // public
@@ -194,10 +208,55 @@
         node.parentNode.insertBefore(after,node.nextSibling);
         node.nodeValue = node.nodeValue.slice(0,offset);
 
-        moveFollowingSiblingsToOtherNode(node,isParagraphNode);
+        moveFollowing(node.parentNode,getOffsetOfNodeInParent(node)+1,isParagraphNode);
+    }
+
+    // FIXME: movePreceding and moveNext could possibly be optimised by passing in a (parent,child)
+    // pair instead of (node,offset), i.e. parent is the same as node, but rather than passing the
+    // index of a child, we pass the child itself (or null if the offset is equal to
+    // childNodes.length)
+    function movePreceding(node,offset,parentCheckFn)
+    {
+        if (parentCheckFn(node) || (node == document.body))
+            return;
+
+        var toMove = new Array();
+        for (var i = 0; i < offset; i++)
+            toMove.push(node.childNodes[i]);
+
+        if (toMove.length > 0) {
+            var copy = shallowCopyElement(node);
+            node.parentNode.insertBefore(copy,node);
+
+            for (var i = 0; i < toMove.length; i++)
+                moveNode(toMove[i],copy,null);
+        }
+
+        movePreceding(node.parentNode,getOffsetOfNodeInParent(node),parentCheckFn);
+    }
+
+    function moveFollowing(node,offset,parentCheckFn)
+    {
+        if (parentCheckFn(node) || (node == document.body))
+            return;
+
+        var toMove = new Array();
+        for (var i = offset; i < node.childNodes.length; i++)
+            toMove.push(node.childNodes[i]);
+
+        if (toMove.length > 0) {
+            var copy = shallowCopyElement(node);
+            node.parentNode.insertBefore(copy,node.nextSibling);
+
+            for (var i = 0; i < toMove.length; i++)
+                moveNode(toMove[i],copy,null);
+        }
+
+        moveFollowing(node.parentNode,getOffsetOfNodeInParent(node)+1,parentCheckFn);
     }
 
     // public (called from styles.js)
+    // FIXME: replace the remaining calls to this with calls to movePreceding
     function movePrecedingSiblingsToOtherNode(child,parentCheckFn)
     {
         var parent = child.parentNode;
@@ -209,13 +268,16 @@
         var parentCopy = shallowCopyElement(parent);
         parent.parentNode.insertBefore(parentCopy,parent);
 
-        while (child.previousSibling != null)
+        while (child.previousSibling != null) {
+            // FIXME: use moveNode here, so that mutation listeners are notified
             parentCopy.insertBefore(child.previousSibling,parentCopy.firstChild);
+        }
 
         movePrecedingSiblingsToOtherNode(child.parentNode,parentCheckFn)
     }
 
     // public (called from styles.js)
+    // FIXME: replace the remaining calls to this with calls to moveFollowing
     function moveFollowingSiblingsToOtherNode(child,parentCheckFn)
     {
         var parent = child.parentNode;
@@ -227,8 +289,10 @@
         var parentCopy = shallowCopyElement(parent);
         parent.parentNode.insertBefore(parentCopy,parent.nextSibling);
 
-        while (child.nextSibling != null)
+        while (child.nextSibling != null) {
+            // FIXME: use moveNode here, so that mutation listeners are notified
             parentCopy.appendChild(child.nextSibling);
+        }
 
         moveFollowingSiblingsToOtherNode(child.parentNode,parentCheckFn)
     }
@@ -309,26 +373,30 @@
             ((range.start.node == range.end.node) && (range.start.offset == range.end.offset))) {
             return null;
         }
-        splitAroundSelection(range);
 
-        var inlineNodes = range.getInlineNodes();
-        for (var i = 0; i < inlineNodes.length; i++) {
-            var node = inlineNodes[i];
-            ensureValidHierarchy(node,true);
+        range.trackWhileExecuting(function() {
+            splitAroundSelection(range);
 
-            // splitAroundSelection() ensured that there is a child element of the current paragraph
-            // that is wholly contained within the selection. It is this element that we will wrap.
-            // Note that this part of the selection might already be wrapped in the requested
-            // element; so we include a check to avoid double-wrapping.
-            for (var p = node; p.parentNode != null; p = p.parentNode) {
-                if ((p.nodeName != elementName) && isParagraphNode(p.parentNode)) {
-                    wrapNode(p,elementName);
-                    break;
+            var inlineNodes = range.getInlineNodes();
+            for (var i = 0; i < inlineNodes.length; i++) {
+                var node = inlineNodes[i];
+                ensureValidHierarchy(node,true);
+
+                // splitAroundSelection() ensured that there is a child element of the current
+                // paragraph that is wholly contained within the selection. It is this element that
+                // we will wrap.
+                // Note that this part of the selection might already be wrapped in the requested
+                // element; so we include a check to avoid double-wrapping.
+                for (var p = node; p.parentNode != null; p = p.parentNode) {
+                    if ((p.nodeName != elementName) && isParagraphNode(p.parentNode)) {
+                        wrapNode(p,elementName);
+                        break;
+                    }
                 }
             }
-        }
 
-        mergeRange(range);
+            mergeRange(range);
+        });
 
         setSelectionRange(range);
         reportSelectionFormatting();
@@ -344,21 +412,22 @@
         if ((range == null) ||
             ((range.start.node == range.end.node) && (range.start.offset == range.end.offset)))
             return null;
-        splitAroundSelection(range);
 
-        var node = range.start.node;
-        while (node != null) {
-            var next = nextNode(node);
-            if (node.nodeType == Node.TEXT_NODE)
-                unwrapSingle(node,elementName);
-            if (node == range.end.node)
-                break;
-            node = next;
-        }
+        range.trackWhileExecuting(function() {
+            splitAroundSelection(range);
 
-        mergeRange(range);
+            var nodes = range.getAllNodes();
+            for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].nodeType == Node.TEXT_NODE)
+                    unwrapSingle(nodes[i],elementName);
+            }
+
+            mergeRange(range);
+        });
 
         setSelectionRange(range);
+        reportSelectionFormatting();
+        return range;
 
         function unwrapSingle(node,elementName)
         {
@@ -369,16 +438,11 @@
             if (node.nodeName == elementName) {
                 // We found the node we're looking for. Move all of its children to its parent
                 // and then remove the node
-                while (node.firstChild != null)
-                    node.parentNode.insertBefore(node.firstChild,node);
-                node.parentNode.removeChild(node);
+                removeNodeButKeepChildren(node);
             }
 
             unwrapSingle(parent,elementName);
         }
-
-        reportSelectionFormatting();
-        return range;
     }
 
     var PARAGRAPH_PROPERTIES = {
