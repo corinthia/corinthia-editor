@@ -5,12 +5,12 @@
 <script language="javascript">
 function performTest()
 {
-    var b = document.getElementsByTagName("B")[0];
-    var range = new Range(b.firstChild,0,b.firstChild,0);
-   splitAroundSelection(range);
+    var u = document.getElementsByTagName("U")[0];
+    var range = new Range(u,0,u,0);
+    splitAroundSelection(range);
     showRangeAsBrackets(range);
 }
 </script>
 </head>
-<body><p>One <b>Two Three Four</b> Five</p></body>
+<body><p>One <b>Two <u>Three<br>Four<br>Five</u> Six</b> Seven</p></body>
 </html>
