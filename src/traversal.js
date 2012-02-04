@@ -148,3 +148,12 @@ function isWhitespaceTextNode(node)
         return false;
     return isWhitespaceString(node.nodeValue);
 }
+
+function printTree(node,indent)
+{
+    if (indent == null)
+        indent = "";
+    debug(indent+nodeString(node));
+    for (var child = node.firstChild; child != null; child = child.nextSibling)
+        printTree(child,indent+"    ");
+}

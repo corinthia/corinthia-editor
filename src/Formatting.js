@@ -260,44 +260,6 @@
         moveFollowing(node.parentNode,getOffsetOfNodeInParent(node)+1,parentCheckFn);
     }
 
-    // public (called from styles.js)
-    // FIXME: replace the remaining calls to this with calls to movePreceding
-    function movePrecedingSiblingsToOtherNode(child,parentCheckFn)
-    {
-        var parent = child.parentNode;
-        if (parentCheckFn(parent) || (parent == document.body))
-            return;
-        if (child.previousSibling == null)
-            return;
-
-        var parentCopy = shallowCopyElement(parent);
-        parent.parentNode.insertBefore(parentCopy,parent);
-
-        while (child.previousSibling != null)
-            moveNode(child.previousSibling,parentCopy,parentCopy.firstChild);
-
-        movePrecedingSiblingsToOtherNode(child.parentNode,parentCheckFn)
-    }
-
-    // public (called from styles.js)
-    // FIXME: replace the remaining calls to this with calls to moveFollowing
-    function moveFollowingSiblingsToOtherNode(child,parentCheckFn)
-    {
-        var parent = child.parentNode;
-        if (parentCheckFn(parent) || (parent == document.body))
-            return;
-        if (child.nextSibling == null)
-            return;
-
-        var parentCopy = shallowCopyElement(parent);
-        parent.parentNode.insertBefore(parentCopy,parent.nextSibling);
-
-        while (child.nextSibling != null)
-            moveNode(child.nextSibling,parentCopy.appendChild,null);
-
-        moveFollowingSiblingsToOtherNode(child.parentNode,parentCheckFn)
-    }
-
     // public
     function reportSelectionFormatting()
     {
@@ -639,8 +601,8 @@
 
     window.splitTextBefore = splitTextBefore;
     window.splitTextAfter = splitTextAfter;
-    window.movePrecedingSiblingsToOtherNode = movePrecedingSiblingsToOtherNode;
-    window.moveFollowingSiblingsToOtherNode = moveFollowingSiblingsToOtherNode;
+    window.movePreceding = movePreceding;
+    window.moveFollowing = moveFollowing;
     window.splitAroundSelection = splitAroundSelection;
     window.reportSelectionFormatting = reportSelectionFormatting;
     window.selectionWrapElement = selectionWrapElement;

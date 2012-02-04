@@ -6,6 +6,64 @@
 //                                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+function wrapInlineChildren(first,last,ancestors)
+{
+    var haveNonWhitespace = false;
+    for (var node = first; node != last.nextSibling; node = node.nextSibling) {
+        if (!isWhitespaceTextNode(node))
+            haveNonWhitespace = true;
+    }
+    if (!haveNonWhitespace)
+        return false;
+
+    var parentNode = first.parentNode;
+    var nextSibling = first;
+    for (var i = ancestors.length-1; i >= 0; i--) {
+        var ancestorCopy = shallowCopyElement(ancestors[i]);
+        parentNode.insertBefore(ancestorCopy,nextSibling);
+        parentNode = ancestorCopy;
+        nextSibling = null;
+
+        var node = first;
+        while (true) {
+            var next = node.nextSibling;
+            moveNode(node,parentNode,null);
+            if (node == last)
+                break;
+            node = next;
+        }
+    }
+}
+
+function wrapInlineChildrenInAncestors(node,ancestors)
+{
+    var firstInline = null;
+    var lastInline = null;
+
+    var child = node.firstChild;
+    while (true) {
+        var next = (child != null) ? child.nextSibling : null;
+        if ((child == null) || !isInlineNode(child)) {
+
+            if ((firstInline != null) && (lastInline != null)) {
+                wrapInlineChildren(firstInline,lastInline,ancestors);
+            }
+            firstInline = null;
+            lastInline = null;
+            if (child != null)
+                wrapInlineChildrenInAncestors(child,ancestors);
+        }
+        else {
+            if (firstInline == null)
+                firstInline = child;
+            lastInline = child;
+        }
+        if (child == null)
+            break;
+        child = next;
+    }
+}
+
 // Enforce the restriction that any path from the root to a given node must be of the form
 //    container+ paragraph inline
 // or container+ paragraph
@@ -18,24 +76,25 @@ function ensureValidHierarchy(node,recursive)
     if (node.parentNode == null)
         throw new Error("Node "+node.nodeName+" \""+node.nodeValue+"\" has been removed");
 
-    if (recursive)
-        ensureValidHierarchy(node.parentNode,true);
-
     if (isContainerNode(node) || isParagraphNode(node)) {
         if (!isContainerNode(node.parentNode)) {
-            debug("ensureValidHierarchy case 1 ("+getNodeText(node)+")"+
-                  " "+node.nodeName+" inside "+node.parentNode.nodeName);
-
             removeAdjacentWhitespace(node);
-            movePrecedingSiblingsToOtherNode(node,isContainerNode);
-            moveFollowingSiblingsToOtherNode(node,isContainerNode);
 
-            var remove = new Array();
+            var offset = getOffsetOfNodeInParent(node);
+            moveFollowing(node.parentNode,offset+1,isContainerNode);
+            movePreceding(node.parentNode,offset,isContainerNode);
+
+            var ancestors = new Array();
             var child = node;
-            while (!isContainerNode(child.parentNode))
+            while (!isContainerNode(child.parentNode)) {
+                if (isInlineNode(child.parentNode))
+                    ancestors.push(child.parentNode);
                 child = child.parentNode;
+            }
             moveNode(node,child.parentNode,child);
             child.parentNode.removeChild(child);
+
+            wrapInlineChildrenInAncestors(node,ancestors);
         }
     }
     else { // inline node
@@ -64,6 +123,9 @@ function ensureValidHierarchy(node,recursive)
             }
         }
     }
+
+    if (recursive)
+        ensureValidHierarchy(node.parentNode,true);
 }
 
 function setStyle(name)

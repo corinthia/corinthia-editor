@@ -1,0 +1,20 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script language="javascript">
+function performTest()
+{
+    var p0 = document.getElementsByTagName("P")[0];
+    var p1 = document.getElementsByTagName("P")[1];
+    ensureValidHierarchy(p0.firstChild,true);
+    ensureValidHierarchy(p1.firstChild,true);
+}
+</script>
+</head>
+<body>
+
+<b><p>Sample text</p><p>More text</p></b>
+
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script language="javascript">
+function performTest()
+{
+    var first = document.getElementById("first");
+    var second = document.getElementById("second");
+    ensureValidHierarchy(first,true);
+    ensureValidHierarchy(second,true);
+}
+</script>
+</head>
+<body>
+
+<br>
+One
+<br id="first">
+Two
+<br>
+
+<p>Explicit paragraph</p>
+
+<br>
+Three
+<br id="second">
+Four
+<br>
+
+</body>
+</html>
