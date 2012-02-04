@@ -334,6 +334,9 @@ function runAllTests()
     var dirname;
     var filename;
 
+    var passes = 0;
+    var failures = 0;
+
     setLeftTitle("Working area");
     setRightTitle("");
 
@@ -342,6 +345,15 @@ function runAllTests()
 
     runNextTest();
     return;
+
+    function updateStatistics()
+    {
+        var statistics = document.getElementById("statistics");
+        while (statistics.firstChild != null)
+            statistics.removeChild(statistics.firstChild);
+        var str = "Passes: "+passes+", Failures: "+failures;
+        statistics.appendChild(document.createTextNode(str));
+    }
 
     function runNextTest()
     {
@@ -372,11 +384,14 @@ function runAllTests()
             if (actual == expected) {
                 resultElement.setAttribute("class","pass");
                 a.appendChild(document.createTextNode("PASS"));
+                passes++;
             }
             else {
                 resultElement.setAttribute("class","fail");
                 a.appendChild(document.createTextNode("FAIL"));
+                failures++;
             }
+            updateStatistics();
         }
         if (dirno < tests.length) {
             var dir = tests[dirno];
