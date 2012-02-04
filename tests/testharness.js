@@ -226,6 +226,7 @@ function leftLoaded()
     // Sync with Editor.m
     var javascriptFiles = ["nulleditor.js", // must be first
                            "../src/Cursor.js",
+                           "../src/dtd.js",
                            "../src/ElementProxy.js",
                            "../src/ElementProxyMap.js",
                            "../src/Formatting.js",
