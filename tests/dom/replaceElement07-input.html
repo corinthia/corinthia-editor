@@ -1,0 +1,25 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script language="javascript">
+function performTest()
+{
+    var p = document.getElementsByTagName("P")[2];
+    var offset = getOffsetOfNodeInParent(p);
+    setSelectionRange(new Range(document.body,offset,document.body,offset+1));
+    replaceElement(p,"DIV");
+    showRangeAsBrackets(getSelectionRange());
+}
+</script>
+</head>
+<body>
+
+<p>One</p>
+<p>Two</p>
+<p>Sample text</p>
+<p>Six</p>
+<p>Seven</p>
+
+</body>
+</html>

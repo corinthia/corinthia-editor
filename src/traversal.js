@@ -127,6 +127,29 @@ function removeNodeButKeepChildren(node)
     node.parentNode.removeChild(node);
 }
 
+function replaceElement(oldElement,newName)
+{
+    var newElement = document.createElement(newName);
+    for (var i = 0; i < oldElement.attributes.length; i++) {
+        var name = oldElement.attributes[i].nodeName;
+        var value = oldElement.getAttribute(name);
+        newElement.setAttribute(name,value);
+    }
+
+    // Temp element is added to ensure that any position located at the end of oldElement
+    // is moved to newElement. Ideally we should be able to do this without having to create
+    // a temporary element.
+    var temp = document.createElement("B");
+    oldElement.appendChild(temp);
+    oldElement.parentNode.insertBefore(newElement,oldElement);
+    while (oldElement.firstChild != null)
+        moveNode(oldElement.firstChild,newElement,null);
+    newElement.removeChild(temp);
+    oldElement.parentNode.removeChild(oldElement);
+
+    return newElement;
+}
+
 function isWhitespaceCharacter(c)
 {
     return ((c == " ") || (c == "\t") || (c == "\r") || (c == "\n"));
