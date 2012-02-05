@@ -564,36 +564,21 @@
         }
     }
 
-    function renameElement(oldElement,newName)
-    {
-        var newElement = document.createElement(newName);
-        for (var i = 0; i < oldElement.attributes.length; i++) {
-            var name = oldElement.attributes[i].nodeName;
-            var value = oldElement.getAttribute(name);
-            newElement.setAttribute(name,value);
-        }
-        while (oldElement.firstChild != null)
-            newElement.appendChild(oldElement.firstChild);
-        oldElement.parentNode.insertBefore(newElement,oldElement);
-        oldElement.parentNode.removeChild(oldElement);
-        return newElement;
-    }
-
     function setParagraphStyle(paragraph,style)
     {
         paragraph.removeAttribute("class");
         if (style == "") {
             if (paragraph.nodeName != "P")
-                paragraph = renameElement(paragraph,"P");
+                paragraph = replaceElement(paragraph,"P");
         }
         else if (style.charAt(0) == ".") {
             if (paragraph.nodeName != "P")
-                paragraph = renameElement(paragraph,"P");
+                paragraph = replaceElement(paragraph,"P");
             paragraph.setAttribute("class",style.slice(1));
         }
         else {
             if (paragraph.nodeName != style)
-                renameElement(paragraph,style);
+                replaceElement(paragraph,style);
         }
     }
 
@@ -627,6 +612,9 @@
         if (selectionRange == null)
             return;
 
+        selectionRange.trackWhileExecuting(function() {
+            selectionRange.ensureRangeValidHierarchy();
+        });
         var nodes = selectionRange.getOutermostSelectedNodes();
         clearSelection(); // FIXME: preserve the selection after applying formatting changes
         var paragraphs = getParagraphs(nodes);
