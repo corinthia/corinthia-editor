@@ -110,7 +110,6 @@ function ensureValidHierarchy(node,recursive)
                 end = end.nextSibling;
 
             var p = document.createElement("P");
-            debug("Creating P node");
 //            p.style.border = "4px dashed red"; // debug
             node.parentNode.insertBefore(p,start);
 
