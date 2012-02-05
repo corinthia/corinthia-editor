@@ -525,9 +525,27 @@
             var next;
             for (var child = node.firstChild; child != null; child = next) {
                 var next = child.nextSibling;
-                removePropertiesRecursive(node,propertiesToRemove);
+                removePropertiesRecursive(child,propertiesToRemove);
             }
             removeProperties(node,propertiesToRemove);
+
+            if (node.nodeName == "SPAN") {
+                var spanValue = node.getAttribute("style");
+                if ((spanValue == null) || (spanValue == ""))
+                    removeNodeButKeepChildren(node);
+            }
+            else if (node.nodeName == "B") {
+                if (propertiesToRemove.hasOwnProperty("font-weight"))
+                    removeNodeButKeepChildren(node);
+            }
+            else if (node.nodeName == "I") {
+                if (propertiesToRemove.hasOwnProperty("font-style"))
+                    removeNodeButKeepChildren(node);
+            }
+            else if (node.nodeName == "U") {
+                if (propertiesToRemove.hasOwnProperty("text-decoration"))
+                    removeNodeButKeepChildren(node);
+            }
         }
     }
 
