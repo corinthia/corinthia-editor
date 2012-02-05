@@ -145,18 +145,14 @@
 
         function removePrecedingWhitespace(node)
         {
-            while ((node.previousSibling != null) && isWhitespaceTextNode(node.previousSibling)) {
-                debug("Removing preceding whitespace");
+            while ((node.previousSibling != null) && isWhitespaceTextNode(node.previousSibling))
                 node.parentNode.removeChild(node.previousSibling);
-            }
         }
 
         function removeFollowingWhitespace(node)
         {
-            while ((node.nextSibling != null) && isWhitespaceTextNode(node.nextSibling)) {
-                debug("Removing following whitespace");
+            while ((node.nextSibling != null) && isWhitespaceTextNode(node.nextSibling))
                 node.parentNode.removeChild(node.nextSibling);
-            }
         }
 
         function mergeWithNextSibling(current)
@@ -164,18 +160,11 @@
             var parent = current.parentNode;
             var next = current.nextSibling;
 
-            debug("merging "+nodeString(current)+" with "+nodeString(next));
-
             var currentLength = maxNodeOffset(current);
             var positions = Position.trackedPositions;
             var nextOffset = getOffsetOfNodeInParent(next);
 
             Position.ignoreEventsWhileExecuting(function() {
-                var oldStrings = new Array();
-                for (var i = 0; i < positions.length; i++) {
-                    oldStrings.push(positions[i].toString());
-                }
-
                 if (current.nodeType == Node.TEXT_NODE) {
                     current.nodeValue += next.nodeValue;
                 }
@@ -189,19 +178,12 @@
                     var node = positions[i].node;
                     var offset = positions[i].offset;
 
-                    var old = oldStrings[i];
-                    if (node == next) {
+                    if (node == next)
                         positions[i].setNodeAndOffset(current,offset+currentLength);
-                        debug("mergeWithNextSibling case 1: "+old+" -> "+positions[i]);
-                    }
-                    else if ((node == parent) && (offset == nextOffset)) {
+                    else if ((node == parent) && (offset == nextOffset))
                         positions[i].setNodeAndOffset(current,currentLength);
-                        debug("mergeWithNextSibling case 2: "+old+" -> "+positions[i]);
-                    }
-                    else if ((node == parent) && (offset > nextOffset)) {
+                    else if ((node == parent) && (offset > nextOffset))
                         positions[i].offset--;
-                        debug("mergeWithNextSibling case 3: "+old+" -> "+positions[i]);
-                    }
                 }
             });
         }
