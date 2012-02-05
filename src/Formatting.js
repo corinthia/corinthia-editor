@@ -561,7 +561,7 @@
 
     function setParagraphStyle(paragraph,style)
     {
-        if ((style == "") || (style == null)) {
+        if (style == "") {
             if (paragraph.nodeName != "P")
                 paragraph = renameElement(paragraph,"P");
             paragraph.removeAttribute("class");
@@ -632,8 +632,10 @@
 */
 
         // Set style on paragraph nodes
-        for (var i = 0; i < paragraphs.length; i++) {
-            setParagraphStyle(paragraphs[i],style);
+        if (style != null) {
+            for (var i = 0; i < paragraphs.length; i++) {
+                setParagraphStyle(paragraphs[i],style);
+            }
         }
 
         return;
