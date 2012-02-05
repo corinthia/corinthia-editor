@@ -1,0 +1,24 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script language="javascript">
+
+function performTest()
+{
+    applyFormattingChanges("h1",null);
+
+    // An unrelated part of the code adds "id" attributes to heading elements to keep track of
+    // sections - we're not testing that functionality here, so we want to ignore them
+    removeIds();
+}
+</script>
+</head>
+<body>
+<p><i>Paragraph <u>one</u></i></p>
+<p><i>Paragraph <u>t[wo</u></i></p>
+<p><i>Paragraph <u>three</u></i></p>
+<p><i>Paragraph <u>fou]r</u></i></p>
+<p><i>Paragraph <u>five</u></i></p>
+</body>
+</html>
