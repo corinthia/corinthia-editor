@@ -552,8 +552,10 @@
     function setInlinePropertiesRecursive(node,inlinePropertiesToSet)
     {
         if (isInlineNode(node)) {
-            for (var name in inlinePropertiesToSet)
-                node.style.setProperty(name,inlinePropertiesToSet[name],null);
+            if (node.nodeType == Node.ELEMENT_NODE) {
+                for (var name in inlinePropertiesToSet)
+                    node.style.setProperty(name,inlinePropertiesToSet[name],null);
+            }
         }
         else {
             var next;
