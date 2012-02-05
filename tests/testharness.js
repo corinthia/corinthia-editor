@@ -213,6 +213,44 @@ function readJSCode(filename)
     return req.responseText;
 }
 
+function extractPositionFromCharacter(c)
+{
+    return recurse(left.contentWindow.document.body);
+
+    function recurse(node)
+    {
+        if (node.nodeType == Node.TEXT_NODE) {
+            var index = node.nodeValue.indexOf(c);
+            if (index >= 0) {
+                var offsetInParent = left.contentWindow.getOffsetOfNodeInParent(node);
+                if (index == 0) {
+                    node.nodeValue = node.nodeValue.substring(1);
+                    return new left.contentWindow.Position(node.parentNode,offsetInParent);
+                }
+                else if (index == node.nodeValue.length - 1) {
+                    node.nodeValue = node.nodeValue.substring(0,node.nodeValue.length-1);
+                    return new left.contentWindow.Position(node.parentNode,offsetInParent+1);
+                }
+                else {
+                    var rest = node.nodeValue.substring(index+1);
+                    node.nodeValue = node.nodeValue.substring(0,index);
+                    var restNode = document.createTextNode(rest);
+                    node.parentNode.insertBefore(restNode,node.nextSibling);
+                    return new left.contentWindow.Position(node.parentNode,offsetInParent+1);
+                }
+            }
+        }
+        else {
+            for (var child = node.firstChild; child != null; child = child.nextSibling) {
+                var result = recurse(child);
+                if (result != null)
+                    return result;
+            }
+        }
+        return null;
+    }
+}
+
 function leftLoaded()
 {
     if (leftLoadedContinuation == null)
@@ -249,28 +287,22 @@ function leftLoaded()
 
     left.contentWindow.eval(readJSCode("testlib.js"));
 
-    var selStart = left.contentDocument.getElementById("selStart");
-    var selEnd = left.contentDocument.getElementById("selEnd");
-    var cursor = left.contentDocument.getElementById("cursor");
+    var start = extractPositionFromCharacter("[");
+    var track = (start == null) ? [] : [start];
+    var end;
+    left.contentWindow.Position.trackWhileExecuting(track,function() {
+        end = extractPositionFromCharacter("]");
+    });
 
-    if ((selStart != null) && (selEnd == null))
-        throw new Error("selStart specified, but not selEnd");
-    if ((selStart == null) && (selEnd != null))
-        throw new Error("selEnd specified, but not selStart");
+    if ((start != null) && (end == null))
+        throw new Error("Start of selection specified, but not end");
+    if ((start == null) && (end != null))
+        throw new Error("End of selection specified, but not start");
 
-    if ((selStart != null) && (selEnd != null)) {
-        var start = getPosition(selStart);
-        var end = getPosition(selEnd);
-        if (start == null)
-            throw new Error("Could not find text node for selStart");
-        if (end == null)
-            throw new Error("Could not find text node for selEnd");
-
+    if ((start != null) && (end != null)) {
         var range = new left.contentWindow.Range(start.node,start.offset,end.node,end.offset);
 
         range.trackWhileExecuting(function() {
-            selStart.parentNode.removeChild(selStart);
-            selEnd.parentNode.removeChild(selEnd);
             positionMergeWithNeighbours(start);
             positionMergeWithNeighbours(end);
         });
