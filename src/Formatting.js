@@ -164,11 +164,14 @@
             var positions = Position.trackedPositions;
             var nextOffset = getOffsetOfNodeInParent(next);
 
+            var lastChild = null;
+
             Position.ignoreEventsWhileExecuting(function() {
                 if (current.nodeType == Node.TEXT_NODE) {
                     current.nodeValue += next.nodeValue;
                 }
                 else if (current.nodeType == Node.ELEMENT_NODE) {
+                    lastChild = next.lastChild;
                     while (next.firstChild != null)
                         moveNode(next.firstChild,current,null);
                 }
@@ -186,6 +189,9 @@
                         positions[i].offset--;
                 }
             });
+
+            if (lastChild != null)
+                mergeWithNeighbours(lastChild);
         }
 
         function nodesMergable(a,b)
