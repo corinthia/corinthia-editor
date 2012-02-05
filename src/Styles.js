@@ -101,26 +101,22 @@ function ensureValidHierarchy(node,recursive)
         if (isContainerNode(node.parentNode)) {
             // Wrap this node in a P element
 
-            var before = node.previousSibling;
-            var after = node.nextSibling;
+            var start = node;
+            var end = node;
+
+            while ((start.previousSibling != null) && isInlineNode(start.previousSibling))
+                start = start.previousSibling;
+            while ((end.nextSibling != null) && isInlineNode(end.nextSibling))
+                end = end.nextSibling;
 
             var p = document.createElement("P");
+            debug("Creating P node");
 //            p.style.border = "4px dashed red"; // debug
-            node.parentNode.insertBefore(p,node);
+            node.parentNode.insertBefore(p,start);
 
-            while ((before != null) && isInlineNode(before)) {
-                var n = before;
-                before = before.previousSibling;
-                moveNode(n,p,p.firstChild);
-            }
-
-            moveNode(node,p,null);
-
-            while ((after != null) && isInlineNode(after)) {
-                var n = after;
-                after = after.nextSibling;
-                moveNode(n,p,null);
-            }
+            var stop = end.nextSibling;
+            while (p.nextSibling != stop)
+                moveNode(p.nextSibling,p,null);
         }
     }
 
