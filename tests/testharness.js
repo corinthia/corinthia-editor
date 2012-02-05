@@ -269,10 +269,10 @@ function leftLoaded()
         var range = new left.contentWindow.Range(start.node,start.offset,end.node,end.offset);
 
         range.trackWhileExecuting(function() {
-            left.contentWindow.mergeWithNeighbours(selStart);
-            left.contentWindow.mergeWithNeighbours(selEnd);
             selStart.parentNode.removeChild(selStart);
             selEnd.parentNode.removeChild(selEnd);
+            positionMergeWithNeighbours(start);
+            positionMergeWithNeighbours(end);
         });
 
 /*
@@ -291,6 +291,18 @@ function leftLoaded()
     continuation();
 
     return;
+
+    function positionMergeWithNeighbours(pos)
+    {
+        var node = pos.node;
+        var offset = pos.offset;
+        if ((node.nodeType == Node.ELEMENT_NODE) && (offset < node.childNodes.length))
+            left.contentWindow.mergeWithNeighbours(node.childNodes[offset]);
+        else if ((node.nodeType == Node.ELEMENT_NODE) && (node.lastChild != null))
+            left.contentWindow.mergeWithNeighbours(node.lastChild);
+        else
+            left.contentWindow.mergeWithNeighbours(node);
+    }
 
     function getPosition(node)
     {
