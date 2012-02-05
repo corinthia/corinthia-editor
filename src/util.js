@@ -16,6 +16,17 @@ function arrayContains(array,value)
     return false;
 }
 
+// Note: you can use slice() to copy a real javascript array, but this function can be used to copy
+// DOM NodeLists (e.g. as returned by document.getElementsByTagName) as well, since they don't
+// support the slice method
+function arrayCopy(array)
+{
+    var copy = new Array();
+    for (var i = 0; i < array.length; i++)
+        copy.push(array[i]);
+    return copy;
+}
+
 function quoteString(str)
 {
     if (str == null)
