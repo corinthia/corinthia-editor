@@ -266,11 +266,14 @@ function leftLoaded()
         if (end == null)
             throw new Error("Could not find text node for selEnd");
 
-        maybeMergeTextNodes(selStart.previousSibling,selStart.nextSibling,[start,end]);
-        selStart.parentNode.removeChild(selStart);
+        var range = new left.contentWindow.Range(start.node,start.offset,end.node,end.offset);
 
-        maybeMergeTextNodes(selEnd.previousSibling,selEnd.nextSibling,[start,end]);
-        selEnd.parentNode.removeChild(selEnd);
+        range.trackWhileExecuting(function() {
+            left.contentWindow.mergeWithNeighbours(selStart);
+            left.contentWindow.mergeWithNeighbours(selEnd);
+            selStart.parentNode.removeChild(selStart);
+            selEnd.parentNode.removeChild(selEnd);
+        });
 
 /*
         if ((start.node.nodeType == Node.TEXT_NODE) && (start.offset == 0)) {
@@ -283,31 +286,11 @@ function leftLoaded()
         }
 */
 
-        var range = new left.contentWindow.Range(start.node,start.offset,end.node,end.offset);
         left.contentWindow.setSelectionRange(range);
     }
     continuation();
 
     return;
-
-    function maybeMergeTextNodes(first,second,positions)
-    {
-        if ((first != null) && (second != null) &&
-            (first.nodeType == Node.TEXT_NODE) && (second.nodeType == Node.TEXT_NODE)) {
-
-            for (var i = 0; i < positions.length; i++) {
-                var pos = positions[i];
-                if (pos.node == second) {
-                    pos.node = first;
-                    pos.offset += first.nodeValue.length;
-                    pos.origOffset = pos.offset;
-                }
-            }
-
-            first.nodeValue += second.nodeValue;
-            second.parentNode.removeChild(second);
-        }
-    }
 
     function getPosition(node)
     {
