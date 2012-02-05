@@ -1,0 +1,28 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script language="javascript">
+function performTest()
+{
+    var text1 = document.createTextNode("One");
+    var text2 = document.createTextNode("Two");
+    var text3 = document.createTextNode("Three");
+    while (document.body.firstChild != null)
+        document.body.removeChild(document.body.firstChild);
+    document.body.appendChild(text1);
+    document.body.appendChild(text2);
+    document.body.appendChild(text3);
+
+    var range = new Range(document.body,0,document.body,3);
+
+    range.trackWhileExecuting(function() {
+        range.ensureRangeValidHierarchy();
+   });
+    showRangeAsBrackets(range);
+}
+</script>
+</head>
+<body>
+</body>
+</html>
