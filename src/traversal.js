@@ -180,3 +180,13 @@ function printTree(node,indent)
     for (var child = node.firstChild; child != null; child = child.nextSibling)
         printTree(child,indent+"    ");
 }
+
+function maxNodeOffset(node)
+{
+    if (node.nodeType == Node.TEXT_NODE)
+        return node.nodeValue.length;
+    else if (node.nodeType == Node.ELEMENT_NODE)
+        return node.childNodes.length;
+    else
+        throw new Error("maxOffset: invalid node type ("+node.nodeType+")");
+}
