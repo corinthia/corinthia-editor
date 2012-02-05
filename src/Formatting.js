@@ -581,10 +581,10 @@
 
     function setParagraphStyle(paragraph,style)
     {
+        paragraph.removeAttribute("class");
         if (style == "") {
             if (paragraph.nodeName != "P")
                 paragraph = renameElement(paragraph,"P");
-            paragraph.removeAttribute("class");
         }
         else if (style.charAt(0) == ".") {
             if (paragraph.nodeName != "P")
@@ -600,6 +600,9 @@
     // public
     function applyFormattingChanges(style,properties)
     {
+        if (properties == null)
+            properties = new Object();
+
         var paragraphPropertiesToSet = new Object();
         var inlinePropertiesToSet = new Object();
         var paragraphPropertiesToRemove = new Object();
