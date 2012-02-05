@@ -203,82 +203,35 @@
             else
                 return false;
         }
+
+        function elementsMergable(a,b)
+        {
+            if (isInlineNode(a) && isInlineNode(b) &&
+                (a.nodeName == b.nodeName) &&
+                (a.attributes.length == b.attributes.length)) {
+                for (var i = 0; i < a.attributes.length; i++) {
+                    var attrName = a.attributes[i].nodeName;
+                    if (a.getAttribute(attrName) != b.getAttribute(attrName))
+                        return false;
+                }
+                return true;
+            }
+
+            return false;
+        }
+
     }
 
     function mergeRange(range)
     {
         var nodes = range.getAllNodes();
-        for (var i = 0; i < nodes.length; i++)
-            checkMerge(range,nodes[i]);
-
-        // FIXME: This should be modified to use an appropriate abstraction for merging text nodes
-        // that updates *all* tracked positions, not just the start and end of the current range,
-        // which are manually checked here. The recursive calls might also cause problems with the
-        // iteration performed above, since after merging a node, we may end up encountering it
-        // again in the tree (though I'm not sure about this, since we merge with the previous node,
-        // not the next one).
-        function checkMerge(range,node)
-        {
-            if (node == null)
-                return;
-
-            if ((node.previousSibling != null) &&
-                (node.nodeType == Node.TEXT_NODE) &&
-                (node.previousSibling.nodeType == Node.TEXT_NODE)) {
-
-                var oldStartOffset = range.start.offset;
-                var oldEndOffset = range.end.offset;
-
-                node.nodeValue = node.previousSibling.nodeValue + node.nodeValue;
-
-                if (range.start.node == node.previousSibling)
-                    range.start.setNodeAndOffset(node,range.start.offset);
-                else if (range.start.node == node)
-                    range.start.offset = oldStartOffset + node.previousSibling.nodeValue.length;
-
-                if (range.end.node == node.previousSibling)
-                    range.end.setNodeAndOffset(node,range.end.offset);
-                else if (range.end.node == node)
-                    range.end.offset = oldEndOffset + node.previousSibling.nodeValue.length;
-
-                node.parentNode.removeChild(node.previousSibling);
-                checkMerge(range,node); // FIXME: this may interfere with the iteration above
-                var next = nextNode(node);
-                if (next != null)
-                    checkMerge(range,next);
+        for (var i = 0; i < nodes.length; i++) {
+            var next;
+            for (var p = nodes[i]; p != null; p = next) {
+                next = p.parentNode;
+                mergeWithNeighbours(p);
             }
-            else if ((node.previousSibling != null) &&
-                     (node.nodeType == Node.ELEMENT_NODE) &&
-                     (node.previousSibling.nodeType == Node.ELEMENT_NODE) &&
-                     elementsMergable(node,node.previousSibling)) {
-                var origFirst = node.firstChild;
-                while (node.previousSibling.lastChild != null)
-                    moveNode(node.previousSibling.lastChild,node,node.firstChild);
-                node.parentNode.removeChild(node.previousSibling);
-                checkMerge(range,origFirst);
-            }
-
-            checkMerge(range,node.parentNode);
-            if (node.parentNode != null)
-                checkMerge(range,node.parentNode.nextSibling);
         }
-
-    }
-
-    function elementsMergable(a,b)
-    {
-        if (isInlineNode(a) && isInlineNode(b) &&
-            (a.nodeName == b.nodeName) &&
-            (a.attributes.length == b.attributes.length)) {
-            for (var i = 0; i < a.attributes.length; i++) {
-                var attrName = a.attributes[i].nodeName;
-                if (a.getAttribute(attrName) != b.getAttribute(attrName))
-                    return false;
-            }
-            return true;
-        }
-
-        return false;
     }
 
     // public (called from cursor.js)
