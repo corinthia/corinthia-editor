@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script language="javascript">
+function performTest()
+{
+    var p = document.createElement("P");
+    var text1 = document.createTextNode("One");
+    var text2 = document.createTextNode("Two");
+    var text3 = document.createTextNode("Three");
+    var text4 = document.createTextNode("Four");
+    var text5 = document.createTextNode("Five");
+    var br1 = document.createElement("BR");
+    var br2 = document.createElement("BR");
+    var br3 = document.createElement("BR");
+    var br4 = document.createElement("BR");
+    p.appendChild(br1);
+    p.appendChild(br2);
+    p.appendChild(text1);
+    p.appendChild(text2);
+    p.appendChild(text3);
+    p.appendChild(text4);
+    p.appendChild(text5);
+    p.appendChild(br3);
+    p.appendChild(br4);
+    document.body.appendChild(p);
+
+    var range = new Range(p,2,p,7);
+    range.trackWhileExecuting(function() {
+        mergeWithNeighbours(text3);
+    });
+    showRangeAsBrackets(range);
+}
+</script>
+</head>
+<body>
+
+</body>
+</html>

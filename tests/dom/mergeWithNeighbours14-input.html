@@ -1,0 +1,26 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script language="javascript">
+function performTest()
+{
+    var p = document.getElementsByTagName("P")[0];
+    var bs = document.getElementsByTagName("B");
+    var is = document.getElementsByTagName("I");
+
+    var range = new Range(p,0,p,7);
+
+    range.trackWhileExecuting(function() {
+       mergeWithNeighbours(bs[1]);
+    });
+    showRangeAsBrackets(range);
+}
+</script>
+</head>
+<body>
+
+<p><br><br><b><i>One</i><i>Two</i><i>Three</i></b><b><i>Four</i><i>Five</i><i>Six</i></b><b><i>Seven</i><i>Eight</i><i>Nine</i></b><br><br></p>
+
+</body>
+</html>

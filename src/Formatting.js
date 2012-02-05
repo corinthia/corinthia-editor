@@ -119,6 +119,104 @@
         });
     }
 
+    // public (for use by tests)
+    function mergeWithNeighbours(node)
+    {
+        var parent = node.parentNode;
+        if (parent == null)
+            return;
+
+        var start = node;
+        var end = node;
+
+        while ((start.previousSibling != null) && nodesMergable(start.previousSibling,start))
+            start = start.previousSibling;
+
+        while ((end.nextSibling != null) && nodesMergable(end,end.nextSibling))
+            end = end.nextSibling;
+
+        if (start != end) {
+            var lastMerge;
+            do {
+                lastMerge = (start.nextSibling == end);
+                mergeWithNextSibling(start);
+            } while (!lastMerge);
+        }
+
+        function removePrecedingWhitespace(node)
+        {
+            while ((node.previousSibling != null) && isWhitespaceTextNode(node.previousSibling)) {
+                debug("Removing preceding whitespace");
+                node.parentNode.removeChild(node.previousSibling);
+            }
+        }
+
+        function removeFollowingWhitespace(node)
+        {
+            while ((node.nextSibling != null) && isWhitespaceTextNode(node.nextSibling)) {
+                debug("Removing following whitespace");
+                node.parentNode.removeChild(node.nextSibling);
+            }
+        }
+
+        function mergeWithNextSibling(current)
+        {
+            var parent = current.parentNode;
+            var next = current.nextSibling;
+
+            debug("merging "+nodeString(current)+" with "+nodeString(next));
+
+            var currentLength = maxNodeOffset(current);
+            var positions = Position.trackedPositions;
+            var nextOffset = getOffsetOfNodeInParent(next);
+
+            Position.ignoreEventsWhileExecuting(function() {
+                var oldStrings = new Array();
+                for (var i = 0; i < positions.length; i++) {
+                    oldStrings.push(positions[i].toString());
+                }
+
+                if (current.nodeType == Node.TEXT_NODE) {
+                    current.nodeValue += next.nodeValue;
+                }
+                else if (current.nodeType == Node.ELEMENT_NODE) {
+                    while (next.firstChild != null)
+                        moveNode(next.firstChild,current,null);
+                }
+                parent.removeChild(next);
+
+                for (var i = 0; i < positions.length; i++) {
+                    var node = positions[i].node;
+                    var offset = positions[i].offset;
+
+                    var old = oldStrings[i];
+                    if (node == next) {
+                        positions[i].setNodeAndOffset(current,offset+currentLength);
+                        debug("mergeWithNextSibling case 1: "+old+" -> "+positions[i]);
+                    }
+                    else if ((node == parent) && (offset == nextOffset)) {
+                        positions[i].setNodeAndOffset(current,currentLength);
+                        debug("mergeWithNextSibling case 2: "+old+" -> "+positions[i]);
+                    }
+                    else if ((node == parent) && (offset > nextOffset)) {
+                        positions[i].offset--;
+                        debug("mergeWithNextSibling case 3: "+old+" -> "+positions[i]);
+                    }
+                }
+            });
+        }
+
+        function nodesMergable(a,b)
+        {
+            if ((a.nodeType == Node.TEXT_NODE) && (b.nodeType == Node.TEXT_NODE))
+                return true;
+            else if ((a.nodeType == Node.ELEMENT_NODE) && (b.nodeType == Node.ELEMENT_NODE))
+                return elementsMergable(a,b);
+            else
+                return false;
+        }
+    }
+
     function mergeRange(range)
     {
         var nodes = range.getAllNodes();
@@ -177,21 +275,22 @@
                 checkMerge(range,node.parentNode.nextSibling);
         }
 
-        function elementsMergable(a,b)
-        {
-            if (isInlineNode(a) && isInlineNode(b) &&
-                (a.nodeName == b.nodeName) &&
-                (a.attributes.length == b.attributes.length)) {
-                for (var i = 0; i < a.attributes.length; i++) {
-                    var attrName = a.attributes[i].nodeName;
-                    if (a.getAttribute(attrName) != b.getAttribute(attrName))
-                        return false;
-                }
-                return true;
-            }
+    }
 
-            return false;
+    function elementsMergable(a,b)
+    {
+        if (isInlineNode(a) && isInlineNode(b) &&
+            (a.nodeName == b.nodeName) &&
+            (a.attributes.length == b.attributes.length)) {
+            for (var i = 0; i < a.attributes.length; i++) {
+                var attrName = a.attributes[i].nodeName;
+                if (a.getAttribute(attrName) != b.getAttribute(attrName))
+                    return false;
+            }
+            return true;
         }
+
+        return false;
     }
 
     // public (called from cursor.js)
@@ -604,6 +703,7 @@
     window.movePreceding = movePreceding;
     window.moveFollowing = moveFollowing;
     window.splitAroundSelection = splitAroundSelection;
+    window.mergeWithNeighbours = mergeWithNeighbours;
     window.reportSelectionFormatting = reportSelectionFormatting;
     window.selectionWrapElement = selectionWrapElement;
     window.selectionUnwrapElement = selectionUnwrapElement;
