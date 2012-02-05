@@ -35,18 +35,54 @@ function Position(node,offset)
 
 Position.totalPositionsTracking = 0; // for debugging leaks
 Position.nodeBeingMoved = null;
+Position.ignoreEvents = 0;
+Position.trackedPositions = new Array();
+
+Position.addTrackedPosition = function(pos)
+{
+    Position.trackedPositions.push(pos);
+}
+
+Position.removeTrackedPosition = function(pos)
+{
+    for (var i = 0; i < Position.trackedPositions.length; i++) {
+        if (Position.trackedPositions[i] == pos) {
+            Position.trackedPositions.splice(i,1);
+            return;
+        }
+    }
+    throw new Error("removeTrackedPosition: position not found");
+}
 
 Position.trackWhileExecuting = function(positions,fun)
 {
     for (var i = 0; i < positions.length; i++)
         positions[i].startTracking();
-    fun();
-    for (var i = 0; i < positions.length; i++)
-        positions[i].stopTracking();
+    try {
+        return fun();
+    }
+    finally {
+        for (var i = 0; i < positions.length; i++)
+            positions[i].stopTracking();
+    }
+}
+
+Position.ignoreEventsWhileExecuting = function(fun)
+{
+    Position.ignoreEvents++;
+    try {
+        return fun();
+    }
+    finally {
+        Position.ignoreEvents--;
+    }
 }
 
 Position.prototype.nodeInserted = function(event)
 {
+    if (Position.ignoreEvents > 0)
+        return;
+
     if ((event.target == this.node) && this.moving) {
         this.setNodeAndOffset(event.relatedNode,getOffsetOfNodeInParent(event.target));
     }
@@ -59,6 +95,9 @@ Position.prototype.nodeInserted = function(event)
 
 Position.prototype.nodeWillBeRemoved = function(event)
 {
+    if (Position.ignoreEvents > 0)
+        return;
+
     if (event.relatedNode == this.node) {
         var offset = getOffsetOfNodeInParent(event.target);
         if ((Position.nodeBeingMoved == event.target) && (offset == this.offset)) {
@@ -78,6 +117,9 @@ Position.prototype.nodeWillBeRemoved = function(event)
 
 Position.prototype.characterDataModified = function(event)
 {
+    if (Position.ignoreEvents > 0)
+        return;
+
     if (event.target == this.node) {
         var oldOffset = this.offset;
         var prevValue = event.prevValue;
@@ -161,16 +203,20 @@ Position.prototype.actuallyStopTracking = function()
 
 Position.prototype.startTracking = function()
 {
-    if (this.tracking == 0)
+    if (this.tracking == 0) {
+        Position.addTrackedPosition(this);
         this.actuallyStartTracking();
+    }
     this.tracking++;
 }
 
 Position.prototype.stopTracking = function()
 {
     this.tracking--;
-    if (this.tracking == 0)
+    if (this.tracking == 0) {
         this.actuallyStopTracking();
+        Position.removeTrackedPosition(this);
+    }
 }
 
 Position.prototype.setNodeAndOffset = function(node,offset)
