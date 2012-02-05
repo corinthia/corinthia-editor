@@ -136,15 +136,10 @@ function replaceElement(oldElement,newName)
         newElement.setAttribute(name,value);
     }
 
-    // Temp element is added to ensure that any position located at the end of oldElement
-    // is moved to newElement. Ideally we should be able to do this without having to create
-    // a temporary element.
-    var temp = document.createElement("B");
-    oldElement.appendChild(temp);
     oldElement.parentNode.insertBefore(newElement,oldElement);
     while (oldElement.firstChild != null)
         moveNode(oldElement.firstChild,newElement,null);
-    newElement.removeChild(temp);
+    moveNode(oldElement,newElement,null);
     oldElement.parentNode.removeChild(oldElement);
 
     return newElement;
