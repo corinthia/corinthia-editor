@@ -83,8 +83,9 @@ Position.prototype.nodeInserted = function(event)
     if (Position.ignoreEvents > 0)
         return;
 
-    if ((event.target == this.node) && this.moving) {
+    if ((event.target == this.node) && this.moving)
         this.setNodeAndOffset(event.relatedNode,getOffsetOfNodeInParent(event.target));
+        this.moving = false;
     }
     else if (event.relatedNode == this.node) {
         var offset = getOffsetOfNodeInParent(event.target);
