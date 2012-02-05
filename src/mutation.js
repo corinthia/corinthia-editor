@@ -39,7 +39,7 @@ function nodeInserted(e)
         var name = e.target.nodeName;
 
         var sectionName = getNodeText(e.target);
-        debug("new Section: "+sectionName);
+//        debug("new Section: "+sectionName);
 
         var level = parseInt(name.slice(1));
 
