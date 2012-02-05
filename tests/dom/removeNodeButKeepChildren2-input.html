@@ -5,17 +5,16 @@
 <script language="javascript">
 function performTest()
 {
-    var ps = document.getElementsByTagName("P");
-    var pos1 = new Position(ps[1],0);
-    var pos2 = new Position(ps[1],1);
-    var pos3 = new Position(ps[1],2);
+    var p = document.getElementsByTagName("P")[1];
+    var positions = new Array();
+    for (var i = 0; i <= p.childNodes.length; i++)
+        positions[i] = new Position(p,i);
 
-    Position.trackWhileExecuting([pos1,pos2,pos3],function() {
-        removeNodeButKeepChildren(ps[1]);
+    Position.trackWhileExecuting(positions,function() {
+        removeNodeButKeepChildren(p);
 
-        insertAtPosition(pos1,document.createElement("b"));
-        insertAtPosition(pos2,document.createElement("i"));
-        insertAtPosition(pos3,document.createElement("u"));
+        for (var i = 0; i < positions.length; i++)
+            insertTextAtPosition(positions[i],"("+i+")");
     });
 }
 </script>

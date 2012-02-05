@@ -5,10 +5,10 @@
 <script language="javascript">
 function performTest()
 {
-    var p = document.getElementsByTagName("P")[0];
     var positions = new Array();
-    for (var i = 0; i <= p.childNodes.length; i++)
-        positions[i] = new Position(p,i);
+    for (var i = 0; i <= document.body.childNodes.length; i++)
+        positions[i] = new Position(document.body,i);
+    var p = document.getElementsByTagName("P")[2];
 
     Position.trackWhileExecuting(positions,function() {
         removeNodeButKeepChildren(p);
@@ -19,4 +19,4 @@ function performTest()
 }
 </script>
 </head>
-<body><p><span>Zero</span><span>One</span></p><p>Two</p><p>Three</p></body></html>
+<body><p>Zero</p><p>One</p><p><span>Two</span><span>Three</span></p></body></html>
