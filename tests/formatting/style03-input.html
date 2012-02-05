@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script language="javascript">
+
+function performTest()
+{
+
+    // Need to make a copy of this array, because it is "live" and the P elements will disappear
+    // from it as we apply formatting changes, changing them into heading elements
+    var ps = arrayCopy(document.getElementsByTagName("P"));
+
+    selectNode(ps[0]);
+    applyFormattingChanges("",null);
+    selectNode(ps[1]);
+    applyFormattingChanges("H1",null);
+    selectNode(ps[2]);
+    applyFormattingChanges("H2",null);
+    selectNode(ps[3]);
+    applyFormattingChanges("H3",null);
+    selectNode(ps[4]);
+    applyFormattingChanges("H4",null);
+    selectNode(ps[5]);
+    applyFormattingChanges("H5",null);
+    selectNode(ps[6]);
+    applyFormattingChanges("H6",null);
+    selectNode(ps[7]);
+    applyFormattingChanges(".hello",null);
+    selectNode(ps[8]);
+    applyFormattingChanges(null,null);
+
+    // An unrelated part of the code adds "id" attributes to heading elements to keep track of
+    // sections - we're not testing that functionality here, so we want to ignore them
+    removeIds();
+}
+</script>
+</head>
+<body>
+<p class="other">Normal</p>
+<p class="other">Heading 1</p>
+<p class="other">Heading 2</p>
+<p class="other">Heading 3</p>
+<p class="other">Heading 4</p>
+<p class="other">Heading 5</p>
+<p class="other">Heading 6</p>
+<p class="other">Class "hello"</p>
+<p class="other">Unchanged (class "other")</p>
+</body>
+</html>

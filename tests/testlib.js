@@ -30,3 +30,23 @@ function showRangeAsBrackets(range)
     insertTextAtPosition(range.end,"]");
     insertTextAtPosition(range.start,"[");
 }
+
+function removeIds()
+{
+    recurse(document.body);
+
+    function recurse(node)
+    {
+        if (node.nodeType == Node.ELEMENT_NODE) {
+            node.removeAttribute("id");
+            for (var child = node.firstChild; child != null; child = child.nextSibling)
+                recurse(child);
+        }
+    }
+}
+
+function selectNode(node)
+{
+    var offset = getOffsetOfNodeInParent(node);
+    setSelectionRange(new Range(node.parentNode,offset,node.parentNode,offset+1));
+}
