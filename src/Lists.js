@@ -34,72 +34,77 @@
     }
 
     // public
+    // FIXME: write testcases for this
     function increaseIndent()
     {
         var range = getSelectionRange();
         if (range == null)
             return null;
 
-        // Determine the set of LI nodes that are part of the selection
-        // Note that these could be spread out all over the place, e.g. in different lists, some in
-        // table cells etc
-        var listItems = findLIElements(range);
+        range.trackWhileExecuting(function() {
 
-        // For each LI node that is not the first in the list, move it to the child list of
-        // its previous sibling (creating the child list if necessary)
+            // Determine the set of LI nodes that are part of the selection
+            // Note that these could be spread out all over the place, e.g. in different lists,
+            // some in table cells etc
+            var listItems = findLIElements(range);
 
-        for (var i = 0; i < listItems.length; i++) {
-            var li = listItems[i];
-            var prevLi = li.previousSibling;
-            while ((prevLi != null) && (prevLi.nodeName != "LI"))
-                prevLi = prevLi.previousSibling;
-            // We can only increase the indentation of the current list item C if there is another
-            // list item P immediately preceding C. In this case, C becomes a child of another list
-            // L, where L is inside P. L may already exist, or we may need to create it.
-            if (prevLi != null) {
-                var prevList = lastDescendentList(prevLi);
-                var childList = firstDescendentList(li);
-                var childListContainer = null;
-                if (childList != null) {
-                    // childList may be contained inside one or more wrapper elements, in which
-                    // case we set childListContainer to point to the wrapper element that is a
-                    // child of li. Otherwise childListContainer will just be childList.
-                    childListContainer = childList;
-                    while (childListContainer.parentNode != li)
-                        childListContainer = childListContainer.parentNode;
-                }
+            // For each LI node that is not the first in the list, move it to the child list of
+            // its previous sibling (creating the child list if necessary)
 
-                if (prevList != null) {
-                    prevList.appendChild(li);
+            for (var i = 0; i < listItems.length; i++) {
+                var li = listItems[i];
+                var prevLi = li.previousSibling;
+                while ((prevLi != null) && (prevLi.nodeName != "LI"))
+                    prevLi = prevLi.previousSibling;
+                // We can only increase the indentation of the current list item C if there is
+                // another list item P immediately preceding C. In this case, C becomes a child of
+                // another list L, where L is inside P. L may already exist, or we may need to
+                // create it.
+                if (prevLi != null) {
+                    var prevList = lastDescendentList(prevLi);
+                    var childList = firstDescendentList(li);
+                    var childListContainer = null;
                     if (childList != null) {
-                        while (childList.firstChild != null)
-                            prevList.appendChild(childList.firstChild);
-                        li.removeChild(childListContainer);
-                        // alert("Case 1: prevList and childList");
+                        // childList may be contained inside one or more wrapper elements, in which
+                        // case we set childListContainer to point to the wrapper element that is a
+                        // child of li. Otherwise childListContainer will just be childList.
+                        childListContainer = childList;
+                        while (childListContainer.parentNode != li)
+                            childListContainer = childListContainer.parentNode;
+                    }
+
+                    if (prevList != null) {
+                        prevList.appendChild(li);
+                        if (childList != null) {
+                            while (childList.firstChild != null)
+                                prevList.appendChild(childList.firstChild);
+                            li.removeChild(childListContainer);
+                            // alert("Case 1: prevList and childList");
+                        }
+                        else {
+                            // alert("Case 2: prevList and no childList");
+                        }
                     }
                     else {
-                        // alert("Case 2: prevList and no childList");
+                        var newList;
+                        if (childList != null) {
+                            // alert("Case 3: no prevList but childList");
+                            newList = childList;
+                            prevLi.appendChild(childListContainer);
+                        }
+                        else {
+                            // alert("Case 4: no prevList and no childList");
+                            if (li.parentNode.nodeName == "UL")
+                                newList = document.createElement("UL");
+                            else
+                                newList = document.createElement("OL");
+                            prevLi.appendChild(newList);
+                        }
+                        newList.insertBefore(li,newList.firstChild);
                     }
-                }
-                else {
-                    var newList;
-                    if (childList != null) {
-                        // alert("Case 3: no prevList but childList");
-                        newList = childList;
-                        prevLi.appendChild(childListContainer);
-                    }
-                    else {
-                        // alert("Case 4: no prevList and no childList");
-                        if (li.parentNode.nodeName == "UL")
-                            newList = document.createElement("UL");
-                        else
-                            newList = document.createElement("OL");
-                        prevLi.appendChild(newList);
-                    }
-                    newList.insertBefore(li,newList.firstChild);
                 }
             }
-        }
+        });
 
         setSelectionRange(range);
 
@@ -127,88 +132,94 @@
     }
 
     // public
+    // FIXME: write testcases for this
     function decreaseIndent()
     {
         var range = getSelectionRange();
         if (range == null)
             return null;
 
-        // Determine the set of LI nodes that are part of the selection
-        // Note that these could be spread out all over the place, e.g. in different lists, some in
-        // table cells etc
-        var listItems = findLIElements(range);
+        range.trackWhileExecuting(function() {
 
-        // Remove from consideration any list items that are not inside a nested list
-        var i = 0;
-        while (i < listItems.length) {
-            var node = listItems[i];
-            var container = findContainingListItem(node.parentNode);
-            if (container == null)
-                listItems.splice(i,1);
-            else
-                i++;
-        }
+            // Determine the set of LI nodes that are part of the selection
+            // Note that these could be spread out all over the place, e.g. in different lists,
+            // some in table cells etc
+            var listItems = findLIElements(range);
 
-        // Remove from consideration any list items that have an ancestor that is going to
-        // be moved
-        var i = 0;
-        var changed;
-        while (i < listItems.length) {
-            var node = listItems[i];
-
-            var ancestorToBeRemoved = false;
-            for (var ancestor = node.parentNode; ancestor != null; ancestor = ancestor.parentNode) {
-                if (arrayContains(listItems,ancestor))
-                    ancestorToBeRemoved = true;
-            }
-
-            if (ancestorToBeRemoved)
-                listItems.splice(i,1);
-            else
-                i++;
-        }
-
-        // For LI nodes that are in a top-level list, change them to regular paragraphs
-        // For LI nodes that are part of a nested list, move them to the parent (this requires
-        // splitting the child list in two)
-        for (var i = 0; i < listItems.length; i++) {
-            var node = listItems[i];
-            var parentList = node.parentNode;
-            var following = node.nextSibling;
-            var container = findContainingListItem(node.parentNode);
-
-            // We can only decrease the indentation of a list node if the list it is in is itself
-            // inside another list
-
-            if (following != null) {
-                var secondHalf;
-                if (parentList.nodeName == "UL")
-                    secondHalf = document.createElement("UL");
+            // Remove from consideration any list items that are not inside a nested list
+            var i = 0;
+            while (i < listItems.length) {
+                var node = listItems[i];
+                var container = findContainingListItem(node.parentNode);
+                if (container == null)
+                    listItems.splice(i,1);
                 else
-                    secondHalf = document.createElement("OL");
-
-                var copy = secondHalf;
-
-                for (var p = parentList.parentNode; p != container; p = p.parentNode) {
-                    var pcopy = shallowCopyElement(p);
-                    pcopy.appendChild(copy);
-                    copy = pcopy;
-                }
-
-                node.appendChild(copy);
-
-                while (following != null) {
-                    var next = following.nextSibling;
-                    secondHalf.appendChild(following);
-                    following = next;
-                }
+                    i++;
             }
 
-            container.parentNode.insertBefore(node,container.nextSibling);
-            if (firstChildElement(parentList) == null) {
-                parentList.parentNode.removeChild(parentList);
+            // Remove from consideration any list items that have an ancestor that is going to
+            // be moved
+            var i = 0;
+            var changed;
+            while (i < listItems.length) {
+                var node = listItems[i];
+
+                var ancestorToBeRemoved = false;
+                for (var ancestor = node.parentNode;
+                     ancestor != null;
+                     ancestor = ancestor.parentNode) {
+                    if (arrayContains(listItems,ancestor))
+                        ancestorToBeRemoved = true;
+                }
+
+                if (ancestorToBeRemoved)
+                    listItems.splice(i,1);
+                else
+                    i++;
             }
-        }
+
+            // For LI nodes that are in a top-level list, change them to regular paragraphs
+            // For LI nodes that are part of a nested list, move them to the parent (this requires
+            // splitting the child list in two)
+            for (var i = 0; i < listItems.length; i++) {
+                var node = listItems[i];
+                var parentList = node.parentNode;
+                var following = node.nextSibling;
+                var container = findContainingListItem(node.parentNode);
+
+                // We can only decrease the indentation of a list node if the list it is in is
+                // itself inside another list
+
+                if (following != null) {
+                    var secondHalf;
+                    if (parentList.nodeName == "UL")
+                        secondHalf = document.createElement("UL");
+                    else
+                        secondHalf = document.createElement("OL");
+
+                    var copy = secondHalf;
+
+                    for (var p = parentList.parentNode; p != container; p = p.parentNode) {
+                        var pcopy = shallowCopyElement(p);
+                        pcopy.appendChild(copy);
+                        copy = pcopy;
+                    }
+
+                    node.appendChild(copy);
+
+                    while (following != null) {
+                        var next = following.nextSibling;
+                        secondHalf.appendChild(following);
+                        following = next;
+                    }
+                }
+
+                container.parentNode.insertBefore(node,container.nextSibling);
+                if (firstChildElement(parentList) == null) {
+                    parentList.parentNode.removeChild(parentList);
+                }
+            }
+        });
 
         setSelectionRange(range);
 
@@ -290,54 +301,57 @@
         if (range == null)
             return;
 
-        var nodes = getListOperationNodes(range);
+        range.trackWhileExecuting(function() {
 
-        for (var i = 0; i < nodes.length; i++) {
-            var node = nodes[i];
-            if (node.nodeName == "LI") {
-                var li = node;
-                var list = li.parentNode;
-                var insertionPoint = null;
+            var nodes = getListOperationNodes(range);
 
-                removeAdjacentWhitespace(li);
+            for (var i = 0; i < nodes.length; i++) {
+                var node = nodes[i];
+                if (node.nodeName == "LI") {
+                    var li = node;
+                    var list = li.parentNode;
+                    var insertionPoint = null;
 
-                if (li.previousSibling == null) {
-                    insertionPoint = list;
-                }
-                else if (li.nextSibling == null) {
-                    insertionPoint = list.nextSibling;
-                }
-                else {
-                    var secondList = shallowCopyElement(list);
-                    list.parentNode.insertBefore(secondList,list.nextSibling);
-                    while (li.nextSibling != null) {
-                        secondList.appendChild(li.nextSibling);
-                        removeAdjacentWhitespace(li);
+                    removeAdjacentWhitespace(li);
+
+                    if (li.previousSibling == null) {
+                        insertionPoint = list;
                     }
-
-                    insertionPoint = secondList;
-                }
-
-                while (li.firstChild != null) {
-                    if (isWhitespaceTextNode(li.firstChild)) {
-                        li.removeChild(li.firstChild);
-                    }
-                    else if (isInlineNode(li.firstChild)) {
-                        var p = document.createElement("p");
-                        p.appendChild(li.firstChild);
-                        list.parentNode.insertBefore(p,insertionPoint);
+                    else if (li.nextSibling == null) {
+                        insertionPoint = list.nextSibling;
                     }
                     else {
-                        list.parentNode.insertBefore(li.firstChild,insertionPoint);
+                        var secondList = shallowCopyElement(list);
+                        list.parentNode.insertBefore(secondList,list.nextSibling);
+                        while (li.nextSibling != null) {
+                            secondList.appendChild(li.nextSibling);
+                            removeAdjacentWhitespace(li);
+                        }
+
+                        insertionPoint = secondList;
                     }
+
+                    while (li.firstChild != null) {
+                        if (isWhitespaceTextNode(li.firstChild)) {
+                            li.removeChild(li.firstChild);
+                        }
+                        else if (isInlineNode(li.firstChild)) {
+                            var p = document.createElement("p");
+                            p.appendChild(li.firstChild);
+                            list.parentNode.insertBefore(p,insertionPoint);
+                        }
+                        else {
+                            list.parentNode.insertBefore(li.firstChild,insertionPoint);
+                        }
+                    }
+
+                    list.removeChild(li);
+
+                    if (list.firstChild == null)
+                        list.parentNode.removeChild(list);
                 }
-
-                list.removeChild(li);
-
-                if (list.firstChild == null)
-                    list.parentNode.removeChild(list);
             }
-        }
+        });
 
         setSelectionRange(range);
     }
@@ -348,111 +362,114 @@
         if (range == null)
             return;
 
-        var nodes = getListOperationNodes(range);
+        range.trackWhileExecuting(function() {
 
-        // Set list to UL or OL
+            var nodes = getListOperationNodes(range);
 
-        for (var i = 0; i < nodes.length; i++) {
-            var node = nodes[i];
-            var next;
-            var prev;
-            var li = null;
-            var oldList = null;
-            var listInsertionPoint;
+            // Set list to UL or OL
 
-            if ((node.nodeName == "LI") && (node.parentNode.nodeName == type)) {
-                // Already in the correct type of list; don't need to do anything
-                continue;
-            }
+            for (var i = 0; i < nodes.length; i++) {
+                var node = nodes[i];
+                var next;
+                var prev;
+                var li = null;
+                var oldList = null;
+                var listInsertionPoint;
 
-            if ((node.nodeName == "LI")) {
-                li = node;
-                var list = li.parentNode;
-
-                removeAdjacentWhitespace(list);
-                prev = list.previousSibling;
-                next = list.nextSibling;
-
-
-                removeAdjacentWhitespace(li);
-
-                if (li.previousSibling == null) {
-                    listInsertionPoint = list;
-                    next = null;
+                if ((node.nodeName == "LI") && (node.parentNode.nodeName == type)) {
+                    // Already in the correct type of list; don't need to do anything
+                    continue;
                 }
-                else if (li.nextSibling == null) {
-                    listInsertionPoint = list.nextSibling;
-                    prev = null;
-                }
-                else {
-                    var secondList = shallowCopyElement(list);
-                    list.parentNode.insertBefore(secondList,list.nextSibling);
-                    while (li.nextSibling != null) {
-                        secondList.appendChild(li.nextSibling);
-                        removeAdjacentWhitespace(li);
+
+                if ((node.nodeName == "LI")) {
+                    li = node;
+                    var list = li.parentNode;
+
+                    removeAdjacentWhitespace(list);
+                    prev = list.previousSibling;
+                    next = list.nextSibling;
+
+
+                    removeAdjacentWhitespace(li);
+
+                    if (li.previousSibling == null) {
+                        listInsertionPoint = list;
+                        next = null;
+                    }
+                    else if (li.nextSibling == null) {
+                        listInsertionPoint = list.nextSibling;
+                        prev = null;
+                    }
+                    else {
+                        var secondList = shallowCopyElement(list);
+                        list.parentNode.insertBefore(secondList,list.nextSibling);
+                        while (li.nextSibling != null) {
+                            secondList.appendChild(li.nextSibling);
+                            removeAdjacentWhitespace(li);
+                        }
+
+                        listInsertionPoint = secondList;
+
+                        prev = null;
+                        next = null;
                     }
 
-                    listInsertionPoint = secondList;
-
-                    prev = null;
-                    next = null;
+                    node = list;
+                    oldList = list;
+                }
+                else {
+                    removeAdjacentWhitespace(node);
+                    prev = node.previousSibling;
+                    next = node.nextSibling;
+                    listInsertionPoint = node;
                 }
 
-                node = list;
-                oldList = list;
-            }
-            else {
-                removeAdjacentWhitespace(node);
-                prev = node.previousSibling;
-                next = node.nextSibling;
-                listInsertionPoint = node;
-            }
+                var list;
+                var itemInsertionPoint;
 
-            var list;
-            var itemInsertionPoint;
-
-            if ((prev != null) &&
-                (prev.nodeName == type)) {
-                list = prev;
-                itemInsertionPoint = null;
-            }
-            else if ((next != null) &&
-                     (next.nodeName == type)) {
-                list = next;
-                itemInsertionPoint = list.firstChild;
-            }
-            else {
-                list = document.createElement(type);
-                node.parentNode.insertBefore(list,listInsertionPoint);
-                itemInsertionPoint = null;
-            }
-
-            if (li != null) {
-                list.insertBefore(li,itemInsertionPoint);
-            }
-            else {
-                var li = document.createElement("LI");
-                list.insertBefore(li,itemInsertionPoint);
-                li.appendChild(node);
-            }
-
-
-            if ((oldList != null) && (oldList.firstChild == null))
-                oldList.parentNode.removeChild(oldList);
-
-            // Merge with adjacent list
-            removeAdjacentWhitespace(list);
-            if ((list.nextSibling != null) && (list.nextSibling.nodeName == type)) {
-                var followingList = list.nextSibling;
-                while (followingList.firstChild != null) {
-                    if (isWhitespaceTextNode(followingList.firstChild))
-                        followingList.removeChild(followingList.firstChild);
-                    else
-                        list.appendChild(followingList.firstChild);
+                if ((prev != null) &&
+                    (prev.nodeName == type)) {
+                    list = prev;
+                    itemInsertionPoint = null;
                 }
-                followingList.parentNode.removeChild(followingList);
+                else if ((next != null) &&
+                         (next.nodeName == type)) {
+                    list = next;
+                    itemInsertionPoint = list.firstChild;
+                }
+                else {
+                    list = document.createElement(type);
+                    node.parentNode.insertBefore(list,listInsertionPoint);
+                    itemInsertionPoint = null;
+                }
+
+                if (li != null) {
+                    list.insertBefore(li,itemInsertionPoint);
+                }
+                else {
+                    var li = document.createElement("LI");
+                    list.insertBefore(li,itemInsertionPoint);
+                    li.appendChild(node);
+                }
+
+
+                if ((oldList != null) && (oldList.firstChild == null))
+                    oldList.parentNode.removeChild(oldList);
+
+                // Merge with adjacent list
+                removeAdjacentWhitespace(list);
+                if ((list.nextSibling != null) && (list.nextSibling.nodeName == type)) {
+                    var followingList = list.nextSibling;
+                    while (followingList.firstChild != null) {
+                        if (isWhitespaceTextNode(followingList.firstChild))
+                            followingList.removeChild(followingList.firstChild);
+                        else
+                            list.appendChild(followingList.firstChild);
+                    }
+                    followingList.parentNode.removeChild(followingList);
+                }
             }
-        }
+        });
 
         setSelectionRange(range);
         return;
