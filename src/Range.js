@@ -45,6 +45,20 @@ Range.prototype.selectWholeWords = function()
     }
 }
 
+Range.prototype.expand = function()
+{
+    var doc = this.start.node.ownerDocument;
+    while ((this.start.offset == 0) && (this.start.node != doc.body)) {
+        var offset = getOffsetOfNodeInParent(this.start.node);
+        this.start.setNodeAndOffset(this.start.node.parentNode,offset);
+    }
+
+    while ((this.end.offset == maxNodeOffset(this.end.node)) && (this.end.node != doc.body)) {
+        var offset = getOffsetOfNodeInParent(this.end.node);
+        this.end.setNodeAndOffset(this.end.node.parentNode,offset+1);
+    }
+}
+
 Range.prototype.omitEmptyTextSelection = function()
 {
     if (!this.start.moveBackwardIfAtStart())
@@ -55,9 +69,10 @@ Range.prototype.omitEmptyTextSelection = function()
 
 Range.prototype.isForwards = function()
 {
-    if ((this.start.node.parentNode == null) && (this.start.node != document.documentElement))
+    var doc = this.start.node.ownerDocument;
+    if ((this.start.node.parentNode == null) && (this.start.node != doc.documentElement))
         throw new Error("Range.isForwards "+this+": start node has been removed from document");
-    if ((this.end.node.parentNode == null) && (this.end.node != document.documentElement))
+    if ((this.end.node.parentNode == null) && (this.end.node != doc.documentElement))
         throw new Error("Range.isForwards "+this+": end node has been removed from document");
 
     var start = this.start.toDefinitePosition();
@@ -289,7 +304,8 @@ Range.prototype.getClientRects = function()
     // that are actually in the range. To get around this problem, we go through each text node
     // individually and collect all the rects.
     var result = new Array();
-    var domRange = document.createRange();
+    var doc = this.start.node.ownerDocument;
+    var domRange = doc.createRange();
     for (var nodeIndex = 0; nodeIndex < nodes.length; nodeIndex++) {
         var node = nodes[nodeIndex];
         if (node.nodeType == Node.TEXT_NODE) {
