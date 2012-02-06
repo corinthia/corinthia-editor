@@ -70,6 +70,7 @@
         var wrapper = document.createElement(elementName);
         node.parentNode.insertBefore(wrapper,node);
         moveNode(node,wrapper,null);
+        return wrapper;
     }
 
     // public (for testing purposes only)
@@ -549,18 +550,51 @@
         }
     }
 
-    function setInlinePropertiesRecursive(node,inlinePropertiesToSet)
+    function wrapChildrenInElement(parent,elementName)
     {
-        if (isInlineNode(node)) {
-            if (node.nodeType == Node.ELEMENT_NODE) {
-                for (var name in inlinePropertiesToSet)
-                    node.style.setProperty(name,inlinePropertiesToSet[name],null);
-            }
+        var element = document.createElement(elementName);
+        parent.insertBefore(element,parent.firstChild);
+        while (element.nextSibling != null)
+            moveNode(element.nextSibling,element,null);
+        return element;
+    }
+
+    function wrapChildrenInElements(parent,elementsToWrap)
+    {
+        var names = Object.getOwnPropertyNames(elementsToWrap).sort();
+        for (var i = names.length-1; i >= 0; i--)
+            wrapChildrenInElement(parent,names[i]);
+    }
+
+    function setInlineProperties(node,inlinePropertiesToSet)
+    {
+        for (var name in inlinePropertiesToSet)
+            node.style.setProperty(name,inlinePropertiesToSet[name],null);
+    }
+
+    function setInlinePropertiesRecursive(node,inlinePropertiesToSet,elementsToWrap)
+    {
+        var propertyCount = Object.getOwnPropertyNames(inlinePropertiesToSet).length;
+        var wrapCount = Object.getOwnPropertyNames(elementsToWrap).length;
+
+        if (isParagraphNode(node) || (node.nodeName == "SPAN")) {
+            wrapChildrenInElements(node,elementsToWrap);
+            setInlineProperties(node,inlinePropertiesToSet);
         }
-        else {
+        else if (isContainerNode(node)) {
             var next;
             for (var child = node.firstChild; child != null; child = next)
-                setInlinePropertiesRecursive(child,inlinePropertiesToSet);
+                setInlinePropertiesRecursive(child,inlinePropertiesToSet,elementsToWrap);
+        }
+        else if (propertyCount > 0) {
+            var span = wrapNode(node,"SPAN");
+            wrapChildrenInElements(span,elementsToWrap);
+            setInlineProperties(span,inlinePropertiesToSet);
+        }
+        else if (wrapCount > 0) {
+            var names = Object.getOwnPropertyNames(elementsToWrap).sort();
+            for (var i = names.length-1; i >= 0; i--)
+                node = wrapNode(node,names[i]);
         }
     }
 
@@ -613,16 +647,37 @@
             return;
 
         range.trackWhileExecuting(function() {
+            splitAroundSelection(range);
             range.ensureRangeValidHierarchy();
+            range.expand();
             var nodes = range.getOutermostSelectedNodes();
             var paragraphs = getParagraphs(nodes);
 
-/*
-            // Set properties on inline nodes
-            for (var i = 0; i < nodes.length; i++) {
-                setInlinePropertiesRecursive(nodes[i],inlinePropertiesToSet);
+            var elementsToWrap = new Object();
+
+            // FIXME: handle the full set of possible values for font-weight, font-style, and
+            // text-decoration
+            if (inlinePropertiesToSet["font-weight"] == "bold") {
+                elementsToWrap["B"] = true;
+                delete inlinePropertiesToSet["font-weight"];
             }
 
+            if (inlinePropertiesToSet["font-style"] == "italic") {
+                elementsToWrap["I"] = true;
+                delete inlinePropertiesToSet["font-style"];
+            }
+
+            if (inlinePropertiesToSet["text-decoration"] == "underline") {
+                elementsToWrap["U"] = true;
+                delete inlinePropertiesToSet["text-decoration"];
+            }
+
+            // Set properties on inline nodes
+            for (var i = 0; i < nodes.length; i++) {
+                setInlinePropertiesRecursive(nodes[i],inlinePropertiesToSet,elementsToWrap);
+            }
+
+/*
             // Remove properties from inline nodes
             for (var i = 0; i < nodes.length; i++) {
                 removePropertiesRecursive(nodes[i],inlinePropertiesToRemove);
@@ -646,6 +701,8 @@
                     setParagraphStyle(paragraphs[i],style);
                 }
             }
+
+            mergeRange(range);
         });
 
         return;

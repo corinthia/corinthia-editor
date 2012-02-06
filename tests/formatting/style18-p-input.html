@@ -6,6 +6,17 @@
 
 function performTest()
 {
+    // Have to set the selection manually here, since putting in [ and ] is invalid HTML and
+    // WebKit's parser will move the selection to cover the whole table if we do that
+    var table = document.getElementsByTagName("TABLE")[0];
+    var trs = document.getElementsByTagName("TR");
+    var tr1Offset = getOffsetOfNodeInParent(trs[1]);
+    var tr2Offset = getOffsetOfNodeInParent(trs[2]);
+
+    // The table is not the parent of the TRs - the parser automatically inserts a TBODY
+    // between them
+    setSelectionRange(new Range(trs[1].parentNode,tr1Offset,trs[2].parentNode,tr2Offset+1));
+
     applyFormattingChanges("h1",null);
 
     // An unrelated part of the code adds "id" attributes to heading elements to keep track of
@@ -20,11 +31,19 @@ function performTest()
 <table border="1">
   <tr>
     <td><p>One</p></td>
-    <td><p>T[wo</p></td>
+    <td><p>Two</p></td>
   </tr>
   <tr>
-    <td><p>Thr]ee</p></td>
+    <td><p>Three</p></td>
     <td><p>Four</p></td>
+  </tr>
+  <tr>
+    <td><p>Five</p></td>
+    <td><p>Six</p></td>
+  </tr>
+  <tr>
+    <td><p>Seven</p></td>
+    <td><p>Eight</p></td>
   </tr>
 </table>
 <p>Paragraph three</p>
