@@ -135,8 +135,19 @@ function singleDescendents(node)
     return true;
 }
 
+function sortCSSProperties(value)
+{
+    // Make sure the CSS properties on the "style" attribute appear in a consistent order
+    var items = value.trim().split(/\s*;\s*/);
+    if ((items.length > 0) && (items[items.length-1] == ""))
+        items.length--;
+    items.sort();
+    return items.join("; ");
+}
+
 function attributeString(node)
 {
+    // Make sure the attributes appear in a consistent order
     var names = new Array();
     for (var i = 0; i < node.attributes.length; i++) {
         names.push(node.attributes[i].nodeName);
@@ -144,7 +155,10 @@ function attributeString(node)
     names.sort();
     var str = "";
     for (var i = 0; i < names.length; i++) {
-        str += " "+names[i]+"=\""+node.getAttribute(names[i])+"\"";
+        var value = node.getAttribute(names[i]);
+        if (names[i] == "style")
+            value = sortCSSProperties(value);
+        str += " "+names[i]+"=\""+value+"\"";
     }
     return str;
 }
