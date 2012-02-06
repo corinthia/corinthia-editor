@@ -216,7 +216,7 @@ Range.prototype.getOutermostSelectedNodes = function()
     var bottomParent = endParent;
     var bottomChild = endChild;
     var includeEnd = ((endChild != null) && (endChild != startChild) &&
-                      (endChild.nodeType == Node.TEXT_NODE));
+                      (this.end.node.nodeType == Node.TEXT_NODE) && (this.end.offset > 0));
     var atEnd = true;
     do {
         if ((bottomChild != null) && (includeEnd || !atEnd))
