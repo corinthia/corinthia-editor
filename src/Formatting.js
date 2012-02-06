@@ -88,11 +88,11 @@
                 range.start.offset = 0;
             }
             else if (range.start.node.nodeType == Node.ELEMENT_NODE) {
-                movePreceding(range.start.node,range.start.offset,isParagraphNode);
+                movePreceding(range.start.node,range.start.offset,isParagraphOrContainerNode);
             }
             else {
                 movePreceding(range.start.node.parentNode,getOffsetOfNodeInParent(range.start.node),
-                              isParagraphNode);
+                              isParagraphOrContainerNode);
             }
 
             // Save the start and end position of the range. The mutation listeners will move it
@@ -107,11 +107,11 @@
                 splitTextAfter(range.end.node,range.end.offset);
             }
             else if (range.end.node.nodeType == Node.ELEMENT_NODE) {
-                moveFollowing(range.end.node,range.end.offset,isParagraphNode);
+                moveFollowing(range.end.node,range.end.offset,isParagraphOrContainerNode);
             }
             else {
                 moveFollowing(range.end.node.parentNode,getOffsetOfNodeInParent(range.end.node)+1,
-                              isParagraphNode);
+                              isParagraphOrContainerNode);
             }
 
             range.start.setNodeAndOffset(startNode,startOffset);
@@ -242,7 +242,7 @@
         node.parentNode.insertBefore(before,node);
         node.nodeValue = node.nodeValue.slice(offset);
 
-        movePreceding(node.parentNode,getOffsetOfNodeInParent(node),isParagraphNode);
+        movePreceding(node.parentNode,getOffsetOfNodeInParent(node),isParagraphOrContainerNode);
     }
 
     // public
@@ -253,7 +253,7 @@
         node.parentNode.insertBefore(after,node.nextSibling);
         node.nodeValue = node.nodeValue.slice(0,offset);
 
-        moveFollowing(node.parentNode,getOffsetOfNodeInParent(node)+1,isParagraphNode);
+        moveFollowing(node.parentNode,getOffsetOfNodeInParent(node)+1,isParagraphOrContainerNode);
     }
 
     // FIXME: movePreceding and moveNext could possibly be optimised by passing in a (parent,child)

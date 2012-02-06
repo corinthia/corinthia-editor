@@ -51,6 +51,11 @@ function isHeadingNode(node)
     return HEADING_ELEMENTS[node.nodeName];
 }
 
+function isParagraphOrContainerNode(node)
+{
+    return (isContainerNode(node) || isParagraphNode(node));
+}
+
 function isInlineNode(node)
 {
     return (!isContainerNode(node) && !isParagraphNode(node));
