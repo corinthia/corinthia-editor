@@ -608,46 +608,45 @@
             }
         }
 
-        var selectionRange = getSelectionRange();
-        if (selectionRange == null)
+        var range = getSelectionRange();
+        if (range == null)
             return;
 
-        selectionRange.trackWhileExecuting(function() {
-            selectionRange.ensureRangeValidHierarchy();
-        });
-        var nodes = selectionRange.getOutermostSelectedNodes();
-        clearSelection(); // FIXME: preserve the selection after applying formatting changes
-        var paragraphs = getParagraphs(nodes);
+        range.trackWhileExecuting(function() {
+            range.ensureRangeValidHierarchy();
+            var nodes = range.getOutermostSelectedNodes();
+            var paragraphs = getParagraphs(nodes);
 
 /*
-        // Set properties on inline nodes
-        for (var i = 0; i < nodes.length; i++) {
-            setInlinePropertiesRecursive(nodes[i],inlinePropertiesToSet);
-        }
+            // Set properties on inline nodes
+            for (var i = 0; i < nodes.length; i++) {
+                setInlinePropertiesRecursive(nodes[i],inlinePropertiesToSet);
+            }
 
-        // Remove properties from inline nodes
-        for (var i = 0; i < nodes.length; i++) {
-            removePropertiesRecursive(nodes[i],inlinePropertiesToRemove);
-        }
+            // Remove properties from inline nodes
+            for (var i = 0; i < nodes.length; i++) {
+                removePropertiesRecursive(nodes[i],inlinePropertiesToRemove);
+            }
 
-        // Set properties on paragraph nodes
-        for (var i = 0; i < paragraphs.length; i++) {
-            for (var name in paragraphPropertiesToSet)
-                paragraphs[i].setProperty(name,paragraphPropertiesToSet[name],null);
-        }
+            // Set properties on paragraph nodes
+            for (var i = 0; i < paragraphs.length; i++) {
+                for (var name in paragraphPropertiesToSet)
+                    paragraphs[i].setProperty(name,paragraphPropertiesToSet[name],null);
+            }
 
-        // Remove properties from paragraph nodes
-        for (var i = 0; i < paragraphs.length; i++) {
-            removeProperties(paragraphs[i],paragraphPropertiesToRemove);
-        }
+            // Remove properties from paragraph nodes
+            for (var i = 0; i < paragraphs.length; i++) {
+                removeProperties(paragraphs[i],paragraphPropertiesToRemove);
+            }
 */
 
-        // Set style on paragraph nodes
-        if (style != null) {
-            for (var i = 0; i < paragraphs.length; i++) {
-                setParagraphStyle(paragraphs[i],style);
+            // Set style on paragraph nodes
+            if (style != null) {
+                for (var i = 0; i < paragraphs.length; i++) {
+                    setParagraphStyle(paragraphs[i],style);
+                }
             }
-        }
+        });
 
         return;
     }
