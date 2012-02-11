@@ -52,7 +52,7 @@
         for (var watchId in PropertyTracker.allTrackedProperties) {
             var watch = PropertyTracker.allTrackedProperties[watchId];
             var value = watch.object[watch.property];
-/*          if ((value != null) && (value instanceof Node)) {
+            if ((value != null) && (value instanceof Node)) {
                 var displayNode = self.displayNodes.get(value);
 
                 var rectWidth = 120;
@@ -100,7 +100,7 @@
                 
                 self.watchGroup.appendChild(marker);
             }
-            else */if ((value != null) && (value instanceof Position)) {
+            else if ((value != null) && (value instanceof Position)) {
                 var node = value.node;
                 var offset = value.offset;
 
