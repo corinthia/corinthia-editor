@@ -12,14 +12,14 @@
         this.treeView = treeView;
 
         this.svgNode = document.createElementNS(SVG_NAMESPACE,"circle");
-        this.svgNode.setAttribute("class","DisplayNode");
+        this.svgNode.setAttribute("class","TreeView-Node");
         this.svgNode.setAttribute("r",Math.floor(DISPLAY_NODE_WIDTH/2));
         this.parentLink = document.createElementNS(SVG_NAMESPACE,"line");
-        this.parentLink.setAttribute("class","DisplayLink");
+        this.parentLink.setAttribute("class","TreeView-Link");
         this.childrenHLine = document.createElementNS(SVG_NAMESPACE,"line");
-        this.childrenHLine.setAttribute("class","DisplayLink");
+        this.childrenHLine.setAttribute("class","TreeView-Link");
         this.childrenVLine = document.createElementNS(SVG_NAMESPACE,"line");
-        this.childrenVLine.setAttribute("class","DisplayLink");
+        this.childrenVLine.setAttribute("class","TreeView-Link");
 
         this.x = null;
         this.y = null;
