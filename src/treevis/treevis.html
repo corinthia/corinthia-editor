@@ -24,7 +24,6 @@ body { -webkit-user-select: none }
 <script type="text/javascript" src="TreeView.js"></script>
 <script type="text/javascript" src="StepController.js"></script>
 <script type="text/javascript" src="Slider.js"></script>
-<script type="text/javascript" src="PropertyTracker.js"></script>
 <script type="text/javascript" src="Position.js"></script>
 <script type="text/javascript" src="NodeSet.js"></script>
 <script type="text/javascript" src="BoundingPolygons.js"></script>
@@ -103,7 +102,7 @@ function preorderTraversal(root)
     var work = { currentNode: null, descendants: null };
     debug("Before tracking properties: "+Object.getOwnPropertyNames(work));
 
-    PropertyTracker.trackAndExecute(work,function() {
+    UndoManager.trackObject(work,function() {
         debug("While tracking properties: "+Object.getOwnPropertyNames(work));
         work.foo = 7;
         recurse(root);
@@ -144,7 +143,7 @@ function preorderTraversal(root)
 function traversePositions(root)
 {
     var work = { pos: null };
-    PropertyTracker.trackAndExecute(work,function() {
+    UndoManager.trackObject(work,function() {
         recurse(root);
     });
 
@@ -226,7 +225,7 @@ function main()
 
 
     var work = { set: null };
-    PropertyTracker.trackAndExecute(work,function() {
+    UndoManager.trackObject(work,function() {
         var set = new NodeSet();
         set.add(map[0x1]);
         set.add(map[0x2]);

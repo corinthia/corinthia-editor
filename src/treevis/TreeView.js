@@ -46,11 +46,8 @@
 
     function updateTrackedProperties(self)
     {
-        //    debug("TreeView: # tracked properties = "+
-        //          Object.getOwnPropertyNames(PropertyTracker.allTrackedProperties));
-
-        for (var watchId in PropertyTracker.allTrackedProperties) {
-            var watch = PropertyTracker.allTrackedProperties[watchId];
+        for (var watchId in UndoManager.allTrackedProperties) {
+            var watch = UndoManager.allTrackedProperties[watchId];
             var value = watch.object[watch.property];
             if ((value != null) && (value instanceof Node)) {
                 var displayNode = self.displayNodes.get(value);
@@ -323,8 +320,8 @@
 
     function displayGroups(self)
     {
-        for (var watchId in PropertyTracker.allTrackedProperties) {
-            var watch = PropertyTracker.allTrackedProperties[watchId];
+        for (var watchId in UndoManager.allTrackedProperties) {
+            var watch = UndoManager.allTrackedProperties[watchId];
             var value = watch.object[watch.property];
             if ((value != null) && (value instanceof NodeSet)) {
                 displayNodeSet(self,value);
