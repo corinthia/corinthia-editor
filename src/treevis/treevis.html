@@ -61,7 +61,7 @@ function preorderTraversal(root)
 {
     var work = { currentNode: null, descendants: null };
 
-    UndoManager.trackObject(work,function() {
+    UndoManager.monitorWhileExecuting(work,function() {
         recurse(root);
     });
 
@@ -92,7 +92,7 @@ function preorderTraversal(root)
 function traversePositions(root)
 {
     var work = { pos: null };
-    UndoManager.trackObject(work,function() {
+    UndoManager.monitorWhileExecuting(work,function() {
         recurse(root);
     });
 
@@ -174,7 +174,7 @@ function main()
 
 
     var work = { set: null };
-    UndoManager.trackObject(work,function() {
+    UndoManager.monitorWhileExecuting(work,function() {
         var set = new NodeSet();
         set.add(map[0x1]);
         set.add(map[0x2]);

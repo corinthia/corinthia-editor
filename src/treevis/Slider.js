@@ -2,13 +2,13 @@
 
 (function() {
 
-    function onMouseDown(self,event)
+    function mouseDown(self,event)
     {
         self.element.viewportElement.addEventListener("mousemove",self.mouseMoveListener,false);
         self.element.viewportElement.addEventListener("mouseup",self.mouseUpListener,false);
     }
 
-    function onMouseMove(self,event)
+    function mouseMove(self,event)
     {
         var proportion = (event.clientX - self.x)/self.width;
 
@@ -24,7 +24,7 @@
 
     }
 
-    function onMouseUp(self,event)
+    function mouseUp(self,event)
     {
         self.element.viewportElement.removeEventListener("mousemove",self.mouseMoveListener,false);
         self.element.viewportElement.removeEventListener("mouseup",self.mouseUpListener,false);
@@ -103,9 +103,9 @@
         self.value = 10;
 
         var slider = self;
-        self.mouseDownListener = function(event) { onMouseDown(self,event); }
-        self.mouseMoveListener = function(event) { onMouseMove(self,event); }
-        self.mouseUpListener = function(event) { onMouseUp(self,event); }
+        self.mouseDownListener = function(event) { mouseDown(self,event); }
+        self.mouseMoveListener = function(event) { mouseMove(self,event); }
+        self.mouseUpListener = function(event) { mouseUp(self,event); }
         self.thumb.onmousedown = self.mouseDownListener;
 
         self.x = null;

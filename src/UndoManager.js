@@ -2,6 +2,8 @@
 
 (function() {
 
+    window.UndoManager = new Object();
+
     function TrackedProperty(id,object,property)
     {
         this.id = id;
@@ -15,9 +17,9 @@
     }
 
     var nextTrackingId = 0;
-    var allTrackedProperties = new Object(); // public
+    var allTrackedProperties = UndoManager.allTrackedProperties = new Object(); // public
 
-    function trackProperty(object,name)
+    function monitorProperty(object,name)
     {
         var _name = "__"+name;
 
@@ -59,7 +61,7 @@
         Object.defineProperty(object,name,descriptor);
     }
 
-    function untrackProperty(object,name)
+    function unmonitorProperty(object,name)
     {
         var _name = "__"+name;
 
@@ -84,28 +86,42 @@
         object[name] = value;
     }
 
-    function trackObject(object)
+    // public
+    UndoManager.monitorObject = function(object)
     {
         var names = Object.getOwnPropertyNames(object);
 
         UndoManager.addAction(function() {
-            untrackObject(object);
+            UndoManager.unmonitorObject(object);
         },"Untrack object");
 
         for (var i = 0; i < names.length; i++)
-            trackProperty(object,names[i]);
+            monitorProperty(object,names[i]);
     }
 
-    function untrackObject(object)
+    // public
+    UndoManager.unmonitorObject = function(object)
     {
         UndoManager.addAction(function() {
-            trackObject(object);
+            UndoManager.monitorObject(object);
         },"Track object");
 
         var names = Object.getOwnPropertyNames(object);
         for (var i = 0; i < names.length; i++) {
             if (names[i].indexOf("__") != 0)
-                untrackProperty(object,names[i]);
+                unmonitorProperty(object,names[i]);
+        }
+    }
+
+    // public
+    UndoManager.monitorWhileExecuting = function(object,fun)
+    {
+        UndoManager.monitorObject(object);
+        try {
+            return fun();
+        }
+        finally {
+            UndoManager.unmonitorObject(object);
         }
     }
 
@@ -210,21 +226,6 @@
     {
         if (currentGroup != null) {
             currentGroup = currentGroup.parentGroup;
-        }
-    }
-
-    window.UndoManager = new Object();
-    window.UndoManager.allTrackedProperties = allTrackedProperties;
-
-    // public
-    UndoManager.trackObject = function(object,fun)
-    {
-        trackObject(object);
-        try {
-            return fun();
-        }
-        finally {
-            untrackObject(object);
         }
     }
 

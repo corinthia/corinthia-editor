@@ -14,6 +14,9 @@
         this.svgNode = document.createElementNS(SVG_NAMESPACE,"circle");
         this.svgNode.setAttribute("class","TreeView-Node");
         this.svgNode.setAttribute("r",Math.floor(DISPLAY_NODE_WIDTH/2));
+        this.overlay = document.createElementNS(SVG_NAMESPACE,"circle");
+        this.overlay.setAttribute("fill-opacity","0");
+        this.overlay.setAttribute("r",Math.floor(DISPLAY_NODE_WIDTH/2));
         this.parentLink = document.createElementNS(SVG_NAMESPACE,"line");
         this.parentLink.setAttribute("class","TreeView-Link");
         this.childrenHLine = document.createElementNS(SVG_NAMESPACE,"line");
@@ -23,6 +26,20 @@
 
         this.x = null;
         this.y = null;
+
+        var disp = this;
+        this.overlay.addEventListener("mousedown",
+                                      function(event) { mouseDown(treeView,disp,event); });
+        this.overlay.addEventListener("mouseup",
+                                      function(event) { mouseUp(treeView,disp,event); });
+        this.overlay.addEventListener("mouseover",
+                                      function(event) { mouseOver(treeView,disp,event); });
+        this.overlay.addEventListener("mousemove",
+                                      function(event) { mouseMove(treeView,disp,event); });
+        this.overlay.addEventListener("mouseout",
+                                      function(event) { mouseOut(treeView,disp,event); });
+        this.overlay.addEventListener("click",
+                                      function(event) { click(treeView,disp,event); });
     }
 
     function displayNodeOf(treeView,otherDomNode)
@@ -43,6 +60,44 @@
         return displayNodeOf(this.treeView,this.domNode.nextSibling); }});
     Object.defineProperty(DisplayNode.prototype,"previousSibling", {get: function() {
         return displayNodeOf(this.treeView,this.domNode.previousSibling); }});
+
+    function mouseDown(self,disp,event)
+    {
+        if (self.this.onMouseDownNode != null)
+            self.this.onMouseDownNode(disp.domNode);
+    }
+
+    function mouseUp(self,disp,event)
+    {
+        if (self.this.onMouseUpNode != null)
+            self.this.onMouseUpNode(disp.domNode);
+    }
+
+    function mouseOver(self,disp,event)
+    {
+        disp.svgNode.setAttribute("class","TreeView-Node-Highlighted");
+        if (self.this.onMouseOverNode != null)
+            self.this.onMouseOverNode(disp.domNode);
+    }
+
+    function mouseMove(self,disp,event)
+    {
+        if (self.this.onMouseMoveNode != null)
+            self.this.onMouseMoveNode(disp.domNode);
+    }
+
+    function mouseOut(self,disp,event)
+    {
+        disp.svgNode.setAttribute("class","TreeView-Node");
+        if (self.this.onMouseOutNode != null)
+            self.this.onMouseOutNode(disp.domNode);
+    }
+
+    function click(self,disp,event)
+    {
+        if (self.this.onClickNode != null)
+            self.this.onClickNode(disp.domNode);
+    }
 
     function updateTrackedProperties(self)
     {
@@ -219,6 +274,8 @@
 
             disp.svgNode.setAttribute("cx",disp.x);
             disp.svgNode.setAttribute("cy",disp.y);
+            disp.overlay.setAttribute("cx",disp.x);
+            disp.overlay.setAttribute("cy",disp.y);
 
             if (disp.depth == 1) {
                 for (var i = 0; i < disp.levels; i++) {
@@ -364,6 +421,7 @@
             self.linkGroup.appendChild(displayNode.parentLink);
             self.linkGroup.appendChild(displayNode.childrenHLine);
             self.linkGroup.appendChild(displayNode.childrenVLine);
+            self.overlayGroup.appendChild(displayNode.overlay);
         }
     }
 
@@ -372,6 +430,7 @@
     {
         Object.defineProperty(this,"self",{value: {}});
         var self = this.self;
+        self.this = this;
 
         self.domRoot = domRoot;
 
@@ -380,16 +439,24 @@
         self.linkGroup = document.createElementNS(SVG_NAMESPACE,"g");
         self.nodeGroup = document.createElementNS(SVG_NAMESPACE,"g");
         self.watchGroup = document.createElementNS(SVG_NAMESPACE,"g");
+        self.overlayGroup = document.createElementNS(SVG_NAMESPACE,"g");
         self.treeGroup.appendChild(self.backgroundGroup);
         self.treeGroup.appendChild(self.linkGroup);
         self.treeGroup.appendChild(self.nodeGroup);
         self.treeGroup.appendChild(self.watchGroup);
+        self.treeGroup.appendChild(self.overlayGroup);
         self.treeWidth = null;
         self.treeHeight = null;
         self.displayNodes = new NodeMap();
 
-        this.element = self.treeGroup;
-        Object.freeze(this);
+        this.onMouseDownNode = null;
+        this.onMouseUpNode = null;
+        this.onMouseOverNode = null;
+        this.onMouseMoveNode = null;
+        this.onMouseOutNode = null;
+        this.onClickNode = null;
+        this.element = self.treeGroup; // FIXME: make read-only
+        Object.preventExtensions(this);
     }
 
 
@@ -412,6 +479,8 @@
             self.nodeGroup.removeChild(self.nodeGroup.firstChild);
         while (self.watchGroup.firstChild != null)
             self.watchGroup.removeChild(self.watchGroup.firstChild);
+        while (self.overlayGroup.firstChild != null)
+            self.overlayGroup.removeChild(self.overlayGroup.firstChild);
         self.displayNodes.clear();
         createDisplayNodes(self);
         layoutDisplayNodes(self);

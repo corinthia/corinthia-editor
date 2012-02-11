@@ -1,6 +1,9 @@
 .TreeView-Node { stroke: black;
                  stroke-width: 1px;
                  fill: #C0E0FF }
+.TreeView-Node-Highlighted { stroke: black;
+                             stroke-width: 1px;
+                             fill: #D0F0FF }
 
 .TreeView-Link { stroke: black;
                  stroke-width: 1px; }
