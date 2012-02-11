@@ -21,44 +21,14 @@ body { -webkit-user-select: none }
 </style>
 <script type="text/javascript" src="DOM.js"></script>
 <script type="text/javascript" src="UndoManager.js"></script>
+<script type="text/javascript" src="NodeSet.js"></script>
+
 <script type="text/javascript" src="TreeView.js"></script>
 <script type="text/javascript" src="StepController.js"></script>
 <script type="text/javascript" src="Slider.js"></script>
 <script type="text/javascript" src="Position.js"></script>
-<script type="text/javascript" src="NodeSet.js"></script>
 <script type="text/javascript" src="BoundingPolygons.js"></script>
 <script type="text/javascript">
-
-
-
-var Algorithm = {
-    _currentNode: null
-};
-
-Algorithm.getCurrentNode = function()
-{
-    return this._currentNode;
-}
-
-Algorithm.setCurrentNode = function(newCurrentNode)
-{
-    debug("Algorithm.setCurrentNode("+newCurrentNode+")");
-    var oldCurrentNode = this._currentNode;
-    UndoManager.addAction(function() {
-        Algorithm.currentNode = oldCurrentNode;
-    },"Change current node to "+oldCurrentNode);
-    this._currentNode = newCurrentNode;
-}
-
-Object.defineProperty(Algorithm,"currentNode",
-                      {get: Algorithm.getCurrentNode,
-                       set: Algorithm.setCurrentNode});
-
-
-
-
-
-
 
 // http://station.woj.com/2010/02/javascript-random-seed.html
 //var randomSeed = new Date().getTime();
@@ -100,21 +70,10 @@ function buildTree(doc,parent,depth,nchildren)
 function preorderTraversal(root)
 {
     var work = { currentNode: null, descendants: null };
-    debug("Before tracking properties: "+Object.getOwnPropertyNames(work));
 
     UndoManager.trackObject(work,function() {
-        debug("While tracking properties: "+Object.getOwnPropertyNames(work));
-        work.foo = 7;
         recurse(root);
     });
-    debug("After tracking properties: "+Object.getOwnPropertyNames(work));
-    debug("work.currentNode = "+work.currentNode);
-    debug("work.foo = "+work.foo);
-    work.currentNode = 2;
-    work.foo = 9;
-    debug("After modification work.currentNode = "+work.currentNode);
-    debug("work.foo = "+work.foo);
-
 
     function recurse(node)
     {
@@ -253,9 +212,6 @@ function main()
     document.body.appendChild(svg);
     svg.appendChild(controller.element);
     controller.update();
-
-    for (var name in controller)
-        debug("StepController."+name);
 }
 
 

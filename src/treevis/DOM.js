@@ -46,15 +46,8 @@
     Node.prototype.cloneNode = function(deep)
     {
         var clone = original.cloneNode.call(this,deep);
-        assignNodeIds(clone);
+        DOM.assignNodeIds(clone);
         return clone;
-    }
-
-    assignNodeIds = function(node)
-    {
-        node._nodeId = prefix+nextNodeId++;
-        for (var child = node.firstChild; child != null; child = child.nextSibling)
-            assignNodeIds(child);
     }
 
     function nodeInserted(event)
@@ -109,7 +102,18 @@
         },"Set text node to \""+prevValue+"\"");
     }
 
-    function addUndoListeners(node)
+    var DOM = new Object();
+
+    // public
+    DOM.assignNodeIds = function(node)
+    {
+        node._nodeId = prefix+nextNodeId++;
+        for (var child = node.firstChild; child != null; child = child.nextSibling)
+            DOM.assignNodeIds(child);
+    }
+
+    // public
+    DOM.addUndoListeners = function(node)
     {
         node.addEventListener("DOMNodeInserted",nodeInserted);
         node.addEventListener("DOMNodeRemoved",nodeRemoved);
@@ -117,7 +121,6 @@
         node.addEventListener("DOMCharacterDataModified",characterDataModified);
     }
 
-    window.DOM = new Object();
-    window.DOM.assignNodeIds = assignNodeIds;
-    window.DOM.addUndoListeners = addUndoListeners;
+    window.DOM = DOM;
+
 })();

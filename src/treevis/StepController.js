@@ -80,11 +80,6 @@
         self.element.appendChild(self.treeView.element);
         self.element.appendChild(self.slider.element);
 
-        for (var name in self.treeView)
-            debug("TreeView."+name);
-        for (var name in self.slider)
-            debug("Slider."+name);
-
         self.slider.onValueChanged = function(value) { valueChanged(self,value) };
         document.onkeydown = function(event) { keypress(self,event); };
         window.onresize = function(event) { resize(self,event); }

@@ -315,7 +315,6 @@
     // public
     UndoManager.group = function(fun)
     {
-        debug("UndoManager.namedGroup: "+name+" "+fun);
         // We enter two levels of grouping here, so that if fun calls newGroup(), it will still
         // remain within the scope of the outer group defined here.
         enterGroup();
