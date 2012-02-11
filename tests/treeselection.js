@@ -85,7 +85,7 @@ function updateSelectionDisplay()
         if (endLocation.child != null)
             endLocation.child.style.border = "1px solid red";
 
-        var nodes = useRange.getOutermostSelectedNodes();
+        var nodes = useRange.getOutermostNodes();
         for (var i = 0; i < nodes.length; i++) {
             if (nodes[i].nodeType == Node.ELEMENT_NODE)
                 nodes[i].style.backgroundColor = "#c0c0c0";

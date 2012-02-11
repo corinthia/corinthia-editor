@@ -317,7 +317,7 @@
             debug("reportSelectionFormatting: no selection");
             return; // FIXME: report that there is no formatting info available
         }
-        var nodes = selectionRange.getOutermostSelectedNodes();
+        var nodes = selectionRange.getOutermostNodes();
         for (var i = 0; i < nodes.length; i++) {
             var node = nodes[i];
             detectFormatting(formatting,node);
@@ -657,7 +657,7 @@
             splitAroundSelection(range);
             range.ensureRangeValidHierarchy();
             range.expand();
-            var nodes = range.getOutermostSelectedNodes();
+            var nodes = range.getOutermostNodes();
             var paragraphs = getParagraphs(nodes);
 
             var elementsToWrap = new Object();
