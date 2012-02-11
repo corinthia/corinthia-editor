@@ -279,8 +279,6 @@ function leftLoaded()
     var javascriptFiles = ["nulleditor.js", // must be first
                            "../src/Cursor.js",
                            "../src/dtd.js",
-                           "../src/ElementProxy.js",
-                           "../src/ElementProxyMap.js",
                            "../src/Formatting.js",
                            "../src/Lists.js",
                            "../src/mutation.js",
