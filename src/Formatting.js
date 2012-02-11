@@ -115,8 +115,10 @@
                               isParagraphOrContainerNode);
             }
 
-            range.start.setNodeAndOffset(startNode,startOffset);
-            range.end.setNodeAndOffset(endNode,endOffset);
+            range.start.node = startNode;
+            range.start.offset = startOffset;
+            range.end.node = endNode;
+            range.end.offset = endOffset;
         });
     }
 
@@ -182,12 +184,17 @@
                     var node = positions[i].node;
                     var offset = positions[i].offset;
 
-                    if (node == next)
-                        positions[i].setNodeAndOffset(current,offset+currentLength);
-                    else if ((node == parent) && (offset == nextOffset))
-                        positions[i].setNodeAndOffset(current,currentLength);
-                    else if ((node == parent) && (offset > nextOffset))
+                    if (node == next) {
+                        positions[i].node = current;
+                        positions[i].offset = offset+currentLength;
+                    }
+                    else if ((node == parent) && (offset == nextOffset)) {
+                        positions[i].node = current;
+                        positions[i].offset = currentLength;
+                    }
+                    else if ((node == parent) && (offset > nextOffset)) {
                         positions[i].offset--;
+                    }
                 }
             });
 

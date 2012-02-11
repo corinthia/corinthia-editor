@@ -50,12 +50,14 @@ Range.prototype.expand = function()
     var doc = this.start.node.ownerDocument;
     while ((this.start.offset == 0) && (this.start.node != doc.body)) {
         var offset = getOffsetOfNodeInParent(this.start.node);
-        this.start.setNodeAndOffset(this.start.node.parentNode,offset);
+        this.start.node = this.start.node.parentNode;
+        this.start.offset = offset;
     }
 
     while ((this.end.offset == maxNodeOffset(this.end.node)) && (this.end.node != doc.body)) {
         var offset = getOffsetOfNodeInParent(this.end.node);
-        this.end.setNodeAndOffset(this.end.node.parentNode,offset+1);
+        this.end.node = this.end.node.parentNode;
+        this.end.offset = offset+1;
     }
 }
 

@@ -1,331 +1,381 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
-function Location(parent,child)
-{
-    this.parent = parent;
-    this.child = child;
-}
+(function() {
 
-Location.prototype.toString = function()
-{
-    return "("+nodeString(this.parent)+","+nodeString(this.child)+")";
-
-    function nodeString(node) {
-        if (node == null)
-            return "null";
-        else if (node.nodeType == Node.TEXT_NODE)
-            return "\""+node.nodeValue+"\"";
-        else if ((node.nodeType == Node.ELEMENT_NODE) && (node.hasAttribute("id")))
-            return "#"+node.getAttribute("id");
-        else
-            return node.nodeName;
+    // public
+    function Location(parent,child)
+    {
+        this.parent = parent;
+        this.child = child;
     }
-}
 
-function Position(node,offset)
-{
-    this.node = node;
-    this.offset = offset;
-    this.origOffset = offset;
-    this.tracking = 0;
-    this.insertionListener = null;
-    this.removalListener = null;
-    this.moving = false;
-}
+    // public
+    Location.prototype.toString = function()
+    {
+        return "("+nodeString(this.parent)+","+nodeString(this.child)+")";
 
-Position.totalPositionsTracking = 0; // for debugging leaks
-Position.nodeBeingMoved = null;
-Position.ignoreEvents = 0;
-Position.trackedPositions = new Array();
+        function nodeString(node) {
+            if (node == null)
+                return "null";
+            else if (node.nodeType == Node.TEXT_NODE)
+                return "\""+node.nodeValue+"\"";
+            else if ((node.nodeType == Node.ELEMENT_NODE) && (node.hasAttribute("id")))
+                return "#"+node.getAttribute("id");
+            else
+                return node.nodeName;
+        }
+    }
 
-Position.addTrackedPosition = function(pos)
-{
-    Position.trackedPositions.push(pos);
-}
+    // public
+    function Position(node,offset)
+    {
+        Object.defineProperty(this,"self",{value: {}});
+        var self = this.self;
+        self.this = this;
+        self.node = node;
+        self.offset = offset;
+        self.origOffset = offset;
+        self.tracking = 0;
+        self.insertionListener = null;
+        self.removalListener = null;
+        self.moving = false;
 
-Position.removeTrackedPosition = function(pos)
-{
-    for (var i = 0; i < Position.trackedPositions.length; i++) {
-        if (Position.trackedPositions[i] == pos) {
-            Position.trackedPositions.splice(i,1);
+        Object.defineProperty(this,"node",{
+            get: function() { return this.self.node },
+            set: setNode,
+            enumerable: true });
+        Object.defineProperty(this,"offset",{
+            get: function() { return this.self.offset },
+            set: function(value) { this.self.offset = value },
+            enumerable: true});
+        Object.defineProperty(this,"origOffset",{
+            get: function() { return this.self.origOffset },
+            set: function(value) { this.self.origOffset = value },
+            enumerable: true});
+
+        Object.preventExtensions(this);
+    }
+
+    Position.nodeBeingMoved = null; // FIXME: make this private
+    var ignoreEvents = 0;
+    Position.trackedPositions = new Array(); // FIXME: make this private
+
+    function addTrackedPosition(self)
+    {
+        Position.trackedPositions.push(self.this);
+    }
+
+    function removeTrackedPosition(self)
+    {
+        for (var i = 0; i < Position.trackedPositions.length; i++) {
+            if (Position.trackedPositions[i] == self.this) {
+                Position.trackedPositions.splice(i,1);
+                return;
+            }
+        }
+        throw new Error("removeTrackedPosition: position not found");
+    }
+
+    function nodeInserted(self,event)
+    {
+        if (ignoreEvents > 0)
             return;
+
+        if ((event.target == self.node) && self.moving) {
+            setNodeAndOffset(self,event.relatedNode,getOffsetOfNodeInParent(event.target));
+            self.moving = false;
+        }
+        else if (event.relatedNode == self.node) {
+            var offset = getOffsetOfNodeInParent(event.target);
+            if (offset < self.offset)
+                self.offset++;
         }
     }
-    throw new Error("removeTrackedPosition: position not found");
-}
 
-Position.trackWhileExecuting = function(positions,fun)
-{
-    for (var i = 0; i < positions.length; i++)
-        positions[i].startTracking();
-    try {
-        return fun();
-    }
-    finally {
-        for (var i = 0; i < positions.length; i++)
-            positions[i].stopTracking();
-    }
-}
+    function nodeWillBeRemoved(self,event)
+    {
+        if (ignoreEvents > 0)
+            return;
 
-Position.ignoreEventsWhileExecuting = function(fun)
-{
-    Position.ignoreEvents++;
-    try {
-        return fun();
-    }
-    finally {
-        Position.ignoreEvents--;
-    }
-}
-
-Position.prototype.nodeInserted = function(event)
-{
-    if (Position.ignoreEvents > 0)
-        return;
-
-    if ((event.target == this.node) && this.moving) {
-        this.setNodeAndOffset(event.relatedNode,getOffsetOfNodeInParent(event.target));
-        this.moving = false;
-    }
-    else if (event.relatedNode == this.node) {
-        var offset = getOffsetOfNodeInParent(event.target);
-        if (offset < this.offset)
-            this.offset++;
-    }
-}
-
-Position.prototype.nodeWillBeRemoved = function(event)
-{
-    if (Position.ignoreEvents > 0)
-        return;
-
-    if (event.relatedNode == this.node) {
-        var offset = getOffsetOfNodeInParent(event.target);
-        if ((Position.nodeBeingMoved == event.target) && (offset == this.offset)) {
-            this.setNodeAndOffset(event.target,0);
-            this.moving = true;
-        }
-        else {
-            if (offset < this.offset)
-                this.offset--;
-        }
-    }
-    else if ((event.target == this.node) && (Position.nodeBeingMoved != event.target)) {
-        var offset = getOffsetOfNodeInParent(event.target);
-        this.setNodeAndOffset(this.node.parentNode,offset);
-    }
-}
-
-Position.prototype.characterDataModified = function(event)
-{
-    if (Position.ignoreEvents > 0)
-        return;
-
-    if (event.target == this.node) {
-        var oldOffset = this.offset;
-        var prevValue = event.prevValue;
-        var newValue = event.newValue;
-
-        var commonStart = 0;
-        var commonEnd = 0;
-
-        while ((commonStart < prevValue.length) && (commonStart < newValue.length) &&
-               (prevValue.charCodeAt(commonStart) == newValue.charCodeAt(commonStart)))
-            commonStart++;
-
-        while ((commonEnd < prevValue.length) &&
-               (commonEnd < newValue.length) &&
-               (prevValue.charCodeAt(prevValue.length - commonEnd - 1) ==
-                newValue.charCodeAt(newValue.length - commonEnd - 1)))
-            commonEnd++;
-
-        var realCommonStart = commonStart;
-        var realCommonEnd = commonEnd;
-
-        if (realCommonStart > newValue.length - commonEnd)
-            realCommonStart = newValue.length - commonEnd;
-        if (realCommonStart > prevValue.length - commonEnd)
-            realCommonStart = prevValue.length - commonEnd;
-
-        if (realCommonEnd > newValue.length - commonStart)
-            realCommonEnd = newValue.length - commonStart;
-        if (realCommonEnd > prevValue.length - commonStart)
-            realCommonEnd = prevValue.length - commonStart;
-
-        commonStart = realCommonStart;
-        commendEnd = realCommonEnd;
-
-        var prevDifferent = prevValue.length - commonStart - commonEnd;
-        var newDifferent = newValue.length - commonStart - commonEnd;
-
-        if (newValue.length < prevValue.length) {
-            if ((this.offset > commonStart + newDifferent) &&
-                (this.offset < commonStart + prevDifferent)) {
-                this.offset = commonStart + newDifferent;
+        if (event.relatedNode == self.node) {
+            var offset = getOffsetOfNodeInParent(event.target);
+            if ((Position.nodeBeingMoved == event.target) && (offset == self.offset)) {
+                setNodeAndOffset(self,event.target,0);
+                self.moving = true;
             }
-            else if (this.offset >= commonStart + prevDifferent) {
-                this.offset -= (prevDifferent - newDifferent);
+            else {
+                if (offset < self.offset)
+                    self.offset--;
             }
         }
-        else if (newValue.length > prevValue.length) {
-            if ((newDifferent > 0) && (prevDifferent > 0) &&
-                (this.offset >= prevValue.length - commonEnd))
-                this.offset = newValue.length - (prevValue.length - this.offset);
-            else if (this.offset > commonStart + prevDifferent)
-                this.offset += (newDifferent - prevDifferent);
+        else if ((event.target == self.node) && (Position.nodeBeingMoved != event.target)) {
+            var offset = getOffsetOfNodeInParent(event.target);
+            setNodeAndOffset(self,self.node.parentNode,offset);
         }
     }
-}
 
-Position.prototype.actuallyStartTracking = function()
-{
-    var position = this;
-    this.insertionListener = function (event) { position.nodeInserted(event); };
-    this.removalListener = function (event) { position.nodeWillBeRemoved(event); };
-    this.characterDataListener = function(event) { position.characterDataModified(event); }
-    this.node.addEventListener("DOMNodeInserted",this.insertionListener,false);
-    this.node.addEventListener("DOMNodeRemoved",this.removalListener,false);
-    if (this.node.nodeType == Node.TEXT_NODE)
-        this.node.addEventListener("DOMCharacterDataModified",this.characterDataListener,false);
-    Position.totalPositionsTracking++;
-}
+    function characterDataModified(self,event)
+    {
+        if (ignoreEvents > 0)
+            return;
 
-Position.prototype.actuallyStopTracking = function()
-{
-    this.node.removeEventListener("DOMNodeInserted",this.insertionListener,false);
-    this.node.removeEventListener("DOMNodeRemoved",this.removalListener,false);
-    if (this.node.nodeType == Node.TEXT_NODE)
-        this.node.removeEventListener("DOMCharacterDataModified",this.characterDataListener,false);
-    this.insertionListener = null;
-    this.removalListener = null;
-    this.characterDataListener = null;
-    Position.totalPositionsTracking--;
-}
+        if (event.target == self.node) {
+            var oldOffset = self.offset;
+            var prevValue = event.prevValue;
+            var newValue = event.newValue;
 
-Position.prototype.startTracking = function()
-{
-    if (this.tracking == 0) {
-        Position.addTrackedPosition(this);
-        this.actuallyStartTracking();
+            var commonStart = 0;
+            var commonEnd = 0;
+
+            while ((commonStart < prevValue.length) && (commonStart < newValue.length) &&
+                   (prevValue.charCodeAt(commonStart) == newValue.charCodeAt(commonStart)))
+                commonStart++;
+
+            while ((commonEnd < prevValue.length) &&
+                   (commonEnd < newValue.length) &&
+                   (prevValue.charCodeAt(prevValue.length - commonEnd - 1) ==
+                    newValue.charCodeAt(newValue.length - commonEnd - 1)))
+                commonEnd++;
+
+            var realCommonStart = commonStart;
+            var realCommonEnd = commonEnd;
+
+            if (realCommonStart > newValue.length - commonEnd)
+                realCommonStart = newValue.length - commonEnd;
+            if (realCommonStart > prevValue.length - commonEnd)
+                realCommonStart = prevValue.length - commonEnd;
+
+            if (realCommonEnd > newValue.length - commonStart)
+                realCommonEnd = newValue.length - commonStart;
+            if (realCommonEnd > prevValue.length - commonStart)
+                realCommonEnd = prevValue.length - commonStart;
+
+            commonStart = realCommonStart;
+            commendEnd = realCommonEnd;
+
+            var prevDifferent = prevValue.length - commonStart - commonEnd;
+            var newDifferent = newValue.length - commonStart - commonEnd;
+
+            if (newValue.length < prevValue.length) {
+                if ((self.offset > commonStart + newDifferent) &&
+                    (self.offset < commonStart + prevDifferent)) {
+                    self.offset = commonStart + newDifferent;
+                }
+                else if (self.offset >= commonStart + prevDifferent) {
+                    self.offset -= (prevDifferent - newDifferent);
+                }
+            }
+            else if (newValue.length > prevValue.length) {
+                if ((newDifferent > 0) && (prevDifferent > 0) &&
+                    (self.offset >= prevValue.length - commonEnd))
+                    self.offset = newValue.length - (prevValue.length - self.offset);
+                else if (self.offset > commonStart + prevDifferent)
+                    self.offset += (newDifferent - prevDifferent);
+            }
+        }
     }
-    this.tracking++;
-}
 
-Position.prototype.stopTracking = function()
-{
-    this.tracking--;
-    if (this.tracking == 0) {
-        this.actuallyStopTracking();
-        Position.removeTrackedPosition(this);
+    function actuallyStartTracking(self)
+    {
+        self.insertionListener = function (event) { nodeInserted(self,event); };
+        self.removalListener = function (event) { nodeWillBeRemoved(self,event); };
+        self.characterDataListener = function(event) { characterDataModified(self,event); }
+        self.node.addEventListener("DOMNodeInserted",self.insertionListener,false);
+        self.node.addEventListener("DOMNodeRemoved",self.removalListener,false);
+        if (self.node.nodeType == Node.TEXT_NODE) {
+            self.node.addEventListener("DOMCharacterDataModified",
+                                       self.characterDataListener,false);
+        }
     }
-}
 
-Position.prototype.setNodeAndOffset = function(node,offset)
-{
-    if (this.tracking > 0)
-        this.actuallyStopTracking();
+    function actuallyStopTracking(self)
+    {
+        self.node.removeEventListener("DOMNodeInserted",self.insertionListener,false);
+        self.node.removeEventListener("DOMNodeRemoved",self.removalListener,false);
+        if (self.node.nodeType == Node.TEXT_NODE) {
+            self.node.removeEventListener("DOMCharacterDataModified",
+                                          self.characterDataListener,false);
+        }
+        self.insertionListener = null;
+        self.removalListener = null;
+        self.characterDataListener = null;
+    }
 
-    this.node = node;
-    this.offset = offset;
+    function startTracking(self)
+    {
+        if (self.tracking == 0) {
+            addTrackedPosition(self);
+            actuallyStartTracking(self);
+        }
+        self.tracking++;
+    }
 
-    if (this.tracking > 0)
-        this.actuallyStartTracking();
-}
+    function stopTracking(self)
+    {
+        self.tracking--;
+        if (self.tracking == 0) {
+            actuallyStopTracking(self);
+            removeTrackedPosition(self);
+        }
+    }
 
-Position.prototype.moveToStartOfWord = function()
-{
-    var text = this.node.nodeValue;
-    this.offset = this.origOffset;
-    while ((this.offset > 0) && isWordChar(text.charAt(this.offset-1)))
-        this.offset--;
-}
+    function setNode(node)
+    {
+        var self = this.self;
+        if (self.tracking > 0)
+            actuallyStopTracking(self);
 
-Position.prototype.moveToEndOfWord = function()
-{
-    var text = this.node.nodeValue;
-    var length = text.length;
-    this.offset = this.origOffset;
-    while ((this.offset < length) && isWordChar(text.charAt(this.offset)))
-        this.offset++;
-}
+        self.node = node;
 
-Position.prototype.moveForwardIfAtEnd = function()
-{
-    var node = this.node;
-    var offset = this.offset;
-    var changed = false;
-    while (node != document.body) {
-        if (((node.nodeType == Node.TEXT_NODE) && (offset == node.nodeValue.length)) ||
-            ((node.nodeType == Node.ELEMENT_NODE) && (offset == node.childNodes.length))) {
-            offset = getOffsetOfNodeInParent(node)+1;
+        if (self.tracking > 0)
+            actuallyStartTracking(self);
+    }
+
+    function setNodeAndOffset(self,node,offset)
+    {
+        self.this.node = node;
+        self.this.offset = offset;
+    }
+
+    // public
+    Position.prototype.moveToStartOfWord = function()
+    {
+        var self = this.self;
+        var text = self.node.nodeValue;
+        self.offset = self.origOffset;
+        while ((self.offset > 0) && isWordChar(text.charAt(self.offset-1)))
+            self.offset--;
+    }
+
+    // public
+    Position.prototype.moveToEndOfWord = function()
+    {
+        var self = this.self;
+        var text = self.node.nodeValue;
+        var length = text.length;
+        self.offset = self.origOffset;
+        while ((self.offset < length) && isWordChar(text.charAt(self.offset)))
+            self.offset++;
+    }
+
+    // public
+    Position.prototype.moveForwardIfAtEnd = function()
+    {
+        var self = this.self;
+        var node = self.node;
+        var offset = self.offset;
+        var changed = false;
+        while (node != document.body) {
+            if (((node.nodeType == Node.TEXT_NODE) && (offset == node.nodeValue.length)) ||
+                ((node.nodeType == Node.ELEMENT_NODE) && (offset == node.childNodes.length))) {
+                offset = getOffsetOfNodeInParent(node)+1;
+                node = node.parentNode;
+                changed = true;
+            }
+            else {
+                break;
+            }
+        }
+        if (changed)
+            setNodeAndOffset(self,node,offset);
+        return changed;
+    }
+
+    // public
+    Position.prototype.moveBackwardIfAtStart = function()
+    {
+        var self = this.self;
+        var node = self.node;
+        var offset = self.offset;
+        var changed = false;
+        while ((node != document.body) && (offset == 0)) {
+            offset = getOffsetOfNodeInParent(node);
             node = node.parentNode;
             changed = true;
         }
+        if (changed)
+            setNodeAndOffset(self,node,offset);
+        return changed;
+    }
+
+    // public
+    Position.prototype.toLocation = function()
+    {
+        var self = this.self;
+        if ((self.node.nodeType == Node.ELEMENT_NODE) && (self.node.firstChild != null)) {
+            if (self.offset >= self.node.childNodes.length)
+                return new Location(self.node,null);
+            else
+                return new Location(self.node,self.node.childNodes[self.offset]);
+        }
         else {
-            break;
+            return new Location(self.node.parentNode,self.node);
         }
     }
-    if (changed)
-        this.setNodeAndOffset(node,offset);
-    return changed;
-}
 
-Position.prototype.moveBackwardIfAtStart = function()
-{
-    var node = this.node;
-    var offset = this.offset;
-    var changed = false;
-    while ((node != document.body) && (offset == 0)) {
-        offset = getOffsetOfNodeInParent(node);
-        node = node.parentNode;
-        changed = true;
-    }
-    if (changed)
-        this.setNodeAndOffset(node,offset);
-    return changed;
-}
-
-Position.prototype.toLocation = function()
-{
-    if ((this.node.nodeType == Node.ELEMENT_NODE) && (this.node.firstChild != null)) {
-        if (this.offset >= this.node.childNodes.length)
-            return new Location(this.node,null);
-        else
-            return new Location(this.node,this.node.childNodes[this.offset]);
-    }
-    else {
-        return new Location(this.node.parentNode,this.node);
-    }
-}
-
-Position.prototype.toDefinitePosition = function()
-{
-    if (this.node.nodeType == Node.ELEMENT_NODE) {
-        if (this.offset < this.node.childNodes.length)
-            return new Position(this.node.childNodes[this.offset],0);
-        var nextNode = nextNodeAfter(this.node);
-        if (nextNode != null)
-            return new Position(nextNode,0);
-        else
-            return null;
-    }
-    else {
-        return new Position(this.node,this.offset);
-    }
-}
-
-Position.prototype.toString = function()
-{
-    if (this.node.nodeType == Node.TEXT_NODE) {
-        var extra = "";
-        if (this.offset > this.node.nodeValue.length) {
-            for (var i = this.node.nodeValue.length; i < this.offset; i++)
-                extra += "!";
+    // public
+    Position.prototype.toDefinitePosition = function()
+    {
+        var self = this.self;
+        if (self.node.nodeType == Node.ELEMENT_NODE) {
+            if (self.offset < self.node.childNodes.length)
+                return new Position(self.node.childNodes[self.offset],0);
+            var nextNode = nextNodeAfter(self.node);
+            if (nextNode != null)
+                return new Position(nextNode,0);
+            else
+                return null;
         }
-        return JSON.stringify(this.node.nodeValue.slice(0,this.offset)+extra+"|"+
-                              this.node.nodeValue.slice(this.offset));
+        else {
+            return new Position(self.node,self.offset);
+        }
     }
-    else {
-        return "("+nodeString(this.node)+","+this.offset+")";
+
+    // public
+    Position.prototype.toString = function()
+    {
+        var self = this.self;
+        if (self.node.nodeType == Node.TEXT_NODE) {
+            var extra = "";
+            if (self.offset > self.node.nodeValue.length) {
+                for (var i = self.node.nodeValue.length; i < self.offset; i++)
+                    extra += "!";
+            }
+            return JSON.stringify(self.node.nodeValue.slice(0,self.offset)+extra+"|"+
+                                  self.node.nodeValue.slice(self.offset));
+        }
+        else {
+            return "("+nodeString(self.node)+","+self.offset+")";
+        }
     }
-}
+
+    // public
+    Position.trackWhileExecuting = function(positions,fun)
+    {
+        for (var i = 0; i < positions.length; i++)
+            startTracking(positions[i].self);
+        try {
+            return fun();
+        }
+        finally {
+            for (var i = 0; i < positions.length; i++)
+                stopTracking(positions[i].self);
+        }
+    }
+
+    // public
+    Position.ignoreEventsWhileExecuting = function(fun)
+    {
+        ignoreEvents++;
+        try {
+            return fun();
+        }
+        finally {
+            ignoreEvents--;
+        }
+    }
+
+    window.Location = Location;
+    window.Position = Position;
+
+})();
