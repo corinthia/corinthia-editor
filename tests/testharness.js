@@ -278,10 +278,12 @@ function leftLoaded()
     // Sync with Editor.m
     var javascriptFiles = ["nulleditor.js", // must be first
                            "../src/Cursor.js",
+                           "../src/DOM.js",
                            "../src/dtd.js",
                            "../src/Formatting.js",
                            "../src/Lists.js",
                            "../src/mutation.js",
+                           "../src/NodeSet.js",
                            "../src/Outline.js",
                            "../src/Position.js",
                            "../src/Range.js",
@@ -290,6 +292,7 @@ function leftLoaded()
                            "../src/Styles.js",
                            "../src/traversal.js",
                            "../src/types.js",
+                           "../src/UndoManager.js",
                            "../src/util.js",
                            "../src/Viewport.js",
                            "../src/Selection.js",
