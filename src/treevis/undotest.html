@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title></title>
+</head>
+
+<body>
+
+
+<script type="text/javascript" src="UndoManager.js"></script>
+<script type="text/javascript">
+function debug(str)
+{
+    console.log(str);
+}
+
+function TestClass()
+{
+    this.value = 0;
+    this.indent = "";
+}
+
+TestClass.prototype.setValue = function(newValue)
+{
+    var oldValue = this.value;
+    var object = this;
+    UndoManager.addAction(function() {
+        object.setValue(oldValue);
+    },"Change value from "+oldValue+" to "+newValue);
+    this.value = newValue;
+    debug(this.indent+"setValue: now value = "+this.value);
+}
+
+TestClass.prototype.increaseBy = function(amount)
+{
+    var object = this;
+    UndoManager.namedGroup("Increase value by "+amount,function() {
+
+        var oldIndent = object.indent;
+        object.indent += "    ";
+        if (amount > 0) {
+            for (var i = 0; i < amount; i++)
+                object.setValue(object.value+1);
+        }
+        else {
+            for (var i = 0; i > amount; i--)
+                object.setValue(object.value-1);
+        }
+        object.indent = oldIndent;
+
+    });
+
+    debug("increaseBy: now value = "+object.value);
+}
+
+TestClass.prototype.multiplyBy = function(amount)
+{
+    var object = this;
+
+    UndoManager.namedGroup("Multiply value by "+amount,function() {
+
+        var oldIndent = object.indent;
+        object.indent += "    ";
+        var base = object.value;
+        if (amount > 0) {
+            for (var i = 0; i < amount-1; i++)
+                object.increaseBy(base);
+        }
+        else {
+            for (var i = 0; i > amount+1; i--)
+                object.increaseBy(base);
+        }
+        object.indent = oldIndent;
+
+    });
+
+    debug("multiplyBy: now value = "+object.value);
+}
+
+var obj = new TestClass();
+/*
+obj.setValue(1);
+UndoManager.closeGroup();
+obj.setValue(2);
+UndoManager.closeGroup();
+obj.setValue(3);
+UndoManager.closeGroup();
+obj.setValue(4);
+UndoManager.closeGroup();
+obj.setValue(5);
+UndoManager.closeGroup();
+UndoManager.print();
+
+debug("");
+UndoManager.undo();
+UndoManager.undo();
+UndoManager.undo();
+UndoManager.redo();
+UndoManager.redo();
+UndoManager.redo();
+UndoManager.redo();
+*/
+
+obj.setValue(3);
+//UndoManager.closeGroup();
+obj.multiplyBy(4);
+obj.increaseBy(2);
+UndoManager.undo();
+UndoManager.undo();
+UndoManager.undo();
+UndoManager.redo();
+UndoManager.redo();
+UndoManager.redo();
+UndoManager.print();
+
+
+</script>
+
+
+</body> </html>

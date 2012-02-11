@@ -1,0 +1,493 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                      "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<style type="text/css">
+
+.treenode { border: 1px solid black;
+            padding: 4px;
+            margin: 8px; }
+
+.DisplayNode { stroke: black;
+              stroke-width: 1px;
+              fill: #C0E0FF }
+
+.DisplayLink { stroke: black;
+              stroke-width: 1px; }
+
+body { -webkit-user-select: none }
+
+</style>
+<script type="text/javascript" src="DOM.js"></script>
+<script type="text/javascript" src="UndoManager.js"></script>
+<script type="text/javascript" src="TreeView.js"></script>
+<script type="text/javascript" src="StepController.js"></script>
+<script type="text/javascript" src="Slider.js"></script>
+<script type="text/javascript" src="PropertyTracker.js"></script>
+<script type="text/javascript" src="Position.js"></script>
+<script type="text/javascript" src="NodeSet.js"></script>
+<script type="text/javascript" src="BoundingPolygons.js"></script>
+<script type="text/javascript">
+
+
+
+var Algorithm = {
+    _currentNode: null
+};
+
+Algorithm.getCurrentNode = function()
+{
+    return this._currentNode;
+}
+
+Algorithm.setCurrentNode = function(newCurrentNode)
+{
+    debug("Algorithm.setCurrentNode("+newCurrentNode+")");
+    var oldCurrentNode = this._currentNode;
+    UndoManager.addAction(function() {
+        Algorithm.currentNode = oldCurrentNode;
+    },"Change current node to "+oldCurrentNode);
+    this._currentNode = newCurrentNode;
+}
+
+Object.defineProperty(Algorithm,"currentNode",
+                      {get: Algorithm.getCurrentNode,
+                       set: Algorithm.setCurrentNode});
+
+
+
+
+
+
+
+// http://station.woj.com/2010/02/javascript-random-seed.html
+//var randomSeed = new Date().getTime();
+//var randomSeed = 1328615295137;
+//var randomSeed = 1328725991396;
+var randomSeed = 1328744506051;
+debug("randomSeed = "+randomSeed);
+function random()
+{
+    randomSeed = (randomSeed*9301+49297) % 233280;
+    return randomSeed/(233280.0);
+}
+
+var SVG_NAMESPACE = "http://www.w3.org/2000/svg";
+var SVG_VERSION = "1.1";
+
+function debug(str)
+{
+    console.log(str);
+}
+
+function buildTree(doc,parent,depth,nchildren)
+{
+    if (depth > 0) {
+        var count = Math.floor(nchildren*random());
+        for (var i = 0; i < count; i++) {
+
+            UndoManager.newGroup();
+            var child = doc.createElement("DIV");
+            child.setAttribute("class","treenode");
+            parent.appendChild(child);
+
+
+            buildTree(doc,child,depth-1,nchildren);
+        }
+    }
+}
+
+function preorderTraversal(root)
+{
+    var work = { currentNode: null, descendants: null };
+    debug("Before tracking properties: "+Object.getOwnPropertyNames(work));
+
+    PropertyTracker.trackAndExecute(work,function() {
+        debug("While tracking properties: "+Object.getOwnPropertyNames(work));
+        work.foo = 7;
+        recurse(root);
+    });
+    debug("After tracking properties: "+Object.getOwnPropertyNames(work));
+    debug("work.currentNode = "+work.currentNode);
+    debug("work.foo = "+work.foo);
+    work.currentNode = 2;
+    work.foo = 9;
+    debug("After modification work.currentNode = "+work.currentNode);
+    debug("work.foo = "+work.foo);
+
+
+    function recurse(node)
+    {
+        // action
+        work.currentNode = node;
+
+        var set = new NodeSet();
+        set.add(node);
+        addDescendants(node,set);
+        work.descendants = set;
+
+        UndoManager.newGroup();
+        for (var child = node.firstChild; child != null; child = child.nextSibling)
+            recurse(child);
+    }
+
+    function addDescendants(node,set)
+    {
+        for (var child = node.firstChild; child != null; child = child.nextSibling) {
+            set.add(child);
+            addDescendants(child,set);
+        }
+    }
+}
+
+function traversePositions(root)
+{
+    var work = { pos: null };
+    PropertyTracker.trackAndExecute(work,function() {
+        recurse(root);
+    });
+
+    function recurse(node)
+    {
+        if (node.nodeType == Node.ELEMENT_NODE) {
+            var offset = 0;
+            for (var child = node.firstChild; child != null; child = child.nextSibling) {
+                work.pos = new Position(node,offset);
+                UndoManager.newGroup();
+                recurse(child);
+                offset++;
+            }
+            if (node.firstChild != null) {
+                work.pos = new Position(node,offset);
+                UndoManager.newGroup();
+            }
+        }
+    }
+}
+
+function removeTextNodes(node)
+{
+    var next;
+    for (var child = node.firstChild; child != null; child = next) {
+        next = child.nextSibling;
+        if (child.nodeType == Node.TEXT_NODE) {
+            node.removeChild(child);
+        }
+        else {
+            removeTextNodes(child);
+        }
+    }
+}
+
+function programmaticTree()
+{
+    var root = document.createElement("DIV");
+    root.style.display = "none";
+    document.body.appendChild(root);
+    DOM.addUndoListeners(root);
+    UndoManager.group(buildTree,document,root,6,4);
+//    buildTree(document,root,5,5);
+    return root;
+}
+
+function declarativeTree()
+{
+    var root = document.getElementById("root");
+    removeTextNodes(root);
+    DOM.assignNodeIds(root);
+    return root;
+}
+
+function getIdToNodeMap(top)
+{
+    var map = new Object();
+    recurse(top);
+    return map;
+
+    function recurse(node)
+    {
+        var simpleId = parseInt(node._nodeId.replace(/^.*:/,""));
+        map[simpleId] = node;
+        for (var child = node.firstChild; child != null; child = child.nextSibling)
+            recurse(child);
+    }
+}
+
+function main()
+{
+    var root = programmaticTree();
+//    var root = declarativeTree();
+
+    preorderTraversal(root);
+//    traversePositions(root);
+
+    var map = getIdToNodeMap(root);
+
+
+    var work = { set: null };
+    PropertyTracker.trackAndExecute(work,function() {
+        var set = new NodeSet();
+        set.add(map[0x1]);
+        set.add(map[0x2]);
+        set.add(map[0x17]);
+        set.add(map[0x2a]);
+        set.add(map[0x2b]);
+        set.add(map[0x39]);
+        set.add(map[0x2c]);
+        set.add(map[0x3a]);
+        set.add(map[0x16]);
+        set.add(map[0x20]);
+        set.add(map[0x21]);
+        set.add(map[0x0]);
+
+        work.set = set;
+        UndoManager.newGroup();
+    });
+
+
+
+    var svg = document.createElementNS(SVG_NAMESPACE,"svg");
+    svg.setAttribute("version","1.1");
+
+    var controller = new StepController(root);
+    document.body.appendChild(svg);
+    svg.appendChild(controller.element);
+    controller.update();
+
+    for (var name in controller)
+        debug("StepController."+name);
+}
+
+
+</script>
+</head>
+
+<body onload="main()" style="margin: 0">
+
+
+<div id="root" style="display: none">
+  <div>
+    <div>
+      <div>
+        <div>
+          <div></div>
+        </div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div>
+           <div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
+          </div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+    </div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div>
+    <div>
+    </div>
+    <div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+     <div></div>
+      <div></div>
+    </div>
+  </div>
+
+  <div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div>
+      <div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div>
+          <div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div>
+              <div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
+            </div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+         </div>
+        </div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div>
+          <div></div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
