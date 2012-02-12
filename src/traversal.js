@@ -78,20 +78,17 @@ function getNodeDepth(node)
 
 function getNodeText(node)
 {
-    var stringBuilder = new StringBuilder();
-    getNodeTextRecursive(stringBuilder,node);
-    stringBuilder.str = stringBuilder.str.replace(/\s+/g," ");
-    return stringBuilder.str;
+    var strings = new Array();
+    recurse(node);
+    return strings.join("").replace(/\s+/g," ");
 
-    function getNodeTextRecursive(stringBuilder,node)
+    function recurse(node)
     {
-        if (node.nodeName == "#text") {
-            stringBuilder.str += node.nodeValue;
-        }
-        else {
-            for (var c = node.firstChild; c != null; c = c.nextSibling)
-                getNodeTextRecursive(stringBuilder,c);
-        }
+        if (node.nodeName == "#text")
+            strings.push(node.nodeValue);
+
+        for (var child = node.firstChild; child != null; child = child.nextSibling)
+            recurse(child);
     }
 }
 
