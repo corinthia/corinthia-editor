@@ -24,9 +24,14 @@
         this.childrenHLine.setAttribute("class","TreeView-Link");
         this.childrenVLine = document.createElementNS(SVG_NAMESPACE,"line");
         this.childrenVLine.setAttribute("class","TreeView-Link");
+        this.text = document.createElementNS(SVG_NAMESPACE,"text");
+        this.text.setAttribute("text-anchor","middle");
+        this.text.setAttribute("font-size","8pt");
+        this.text.setAttribute("font-family","sans-serif");
 
         this.x = null;
         this.y = null;
+        Object.preventExtensions(this);
     }
 
     function displayNodeOf(treeView,otherDomNode)
@@ -474,6 +479,35 @@
             disp.svgNode.setAttribute("cy",disp.y);
             disp.overlay.setAttribute("cx",disp.x);
             disp.overlay.setAttribute("cy",disp.y);
+            disp.text.setAttribute("x",disp.x);
+            disp.text.setAttribute("y",disp.y+4);
+
+            while (disp.text.firstChild != null)
+                disp.text.removeChild(disp.text.firstChild);
+            var label;
+            if (self.this.labelFun != null) {
+                label = self.this.labelFun(disp.domNode);
+            }
+            else {
+                var simpleId = parseInt(disp.domNode._nodeId.replace(/^.*:/,""));
+                label = simpleId.toString(16);
+            }
+            disp.text.appendChild(document.createTextNode(label));
+
+
+            disp.svgNode.removeAttribute("style");
+            disp.text.removeAttribute("style");
+            if (self.this.styleFun != null) {
+                var properties = self.this.styleFun(disp.domNode);
+                if (properties != null) {
+                    for (var name in properties.node)
+                        disp.svgNode.style[name] = properties.node[name];
+                    for (var name in properties.text)
+                        disp.text.style[name] = properties.text[name];
+                }
+            }
+
+
 
             if (disp.depth == 1) {
                 for (var i = 0; i < disp.levels; i++) {
@@ -502,7 +536,6 @@
             disp.childrenVLine.setAttribute("x2",disp.x);
             disp.childrenVLine.setAttribute("y2",disp.y + LEVEL_HEIGHT/2);
 
-
             for (var child = disp.firstChild; child != null; child = child.nextSibling) {
                 child.parentLink.setAttribute("x1",child.x);
                 child.parentLink.setAttribute("y1",child.y);
@@ -510,6 +543,8 @@
                 child.parentLink.setAttribute("y2",disp.y + LEVEL_HEIGHT/2);
                 recurse(child);
             }
+
+
         }
     }
 
@@ -588,27 +623,6 @@
         }
     }
 
-    function displayNodeLabels(self)
-    {
-        recurse(self.displayNodes.get(self.domRoot));
-
-        function recurse(disp)
-        {
-            for (var child = disp.firstChild; child != null; child = child.nextSibling)
-                recurse(child);
-
-            var text = document.createElementNS(SVG_NAMESPACE,"text");
-            text.setAttribute("x",disp.x);
-            text.setAttribute("y",disp.y+4);
-            text.setAttribute("text-anchor","middle");
-            text.setAttribute("font-size","8pt");
-            text.setAttribute("font-family","sans-serif");
-            var simpleId = parseInt(disp.domNode._nodeId.replace(/^.*:/,""));
-            text.appendChild(document.createTextNode(simpleId.toString(16)));
-            self.nodeGroup.appendChild(text);
-        }
-    }
-
     function createDisplayNodes(self)
     {
         recurse(self.domRoot);
@@ -620,6 +634,7 @@
             var displayNode = new DisplayNode(node,self);
             self.displayNodes.put(node,displayNode);
             self.nodeGroup.appendChild(displayNode.svgNode);
+            self.nodeGroup.appendChild(displayNode.text);
             self.linkGroup.appendChild(displayNode.parentLink);
             self.linkGroup.appendChild(displayNode.childrenHLine);
             self.linkGroup.appendChild(displayNode.childrenVLine);
@@ -716,6 +731,8 @@
                                                       set: setSelectionMode,
                                                       enumerable: true });
         this.selectionMode = TreeView.NODE_SELECTION;
+        this.labelFun = null;
+        this.styleFun = null;
         Object.defineProperty(this,"width",{ get: function() { return this.self.treeWidth; }});
         Object.defineProperty(this,"height",{ get: function() { return this.self.treeHeight; }});
         Object.preventExtensions(this);
@@ -747,7 +764,6 @@
         createDisplayNodes(self);
         layoutDisplayNodes(self);
         updateDisplayNodeSVGElements(self);
-        displayNodeLabels(self);
         displayGroups(self);
         updateMonitors(self);
         self.selector.update(self);
