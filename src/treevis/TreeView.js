@@ -711,14 +711,17 @@
                                                       set: setSelectionMode,
                                                       enumerable: true });
         this.selectionMode = TreeView.NODE_SELECTION;
+        Object.defineProperty(this,"width",{ get: function() { return this.self.treeWidth; }});
+        Object.defineProperty(this,"height",{ get: function() { return this.self.treeHeight; }});
         Object.preventExtensions(this);
     }
 
     // public
-    TreeView.prototype.getTreeWidth = function()
+    TreeView.prototype.setCoords = function(x,y)
     {
-        var self = this.self;
-        return self.treeWidth;
+        this.element.setAttribute("transform","translate("+x+","+y+")");
+        this.x = x;
+        this.y = y;
     }
 
     // public
