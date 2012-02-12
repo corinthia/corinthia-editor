@@ -177,6 +177,7 @@
         var closestDistance = null;
 
         recurse(treeView.domRoot);
+        checkRoot(treeView.domRoot);
 
         function recurse(node)
         {
@@ -187,14 +188,33 @@
                 for (var offset = 0; offset <= node.childNodes.length; offset++) {
                     var position = new Position(node,offset)
                     var coords = positionCoords(treeView,new Position(node,offset));
-                    var dx = x - coords.x;
-                    var dy = y - coords.y;
-                    var distance = Math.sqrt(dx*dx + dy*dy);
-                    if ((closestDistance == null) || (closestDistance > distance)) {
-                        closestPosition = position;
-                        closestDistance = distance;
-                    }
+                    checkPosition(position,coords.x,coords.y);
                 }
+            }
+        }
+
+
+        function checkRoot(root)
+        {
+            var rootDisp = treeView.displayNodes.get(treeView.domRoot);
+            var offset = getOffsetOfNodeInParent(root);
+            checkPosition(new Position(root.parentNode,offset),
+                          rootDisp.x - DISPLAY_NODE_WIDTH/2,
+                          rootDisp.y);
+            checkPosition(new Position(root.parentNode,offset+1),
+                          rootDisp.x + DISPLAY_NODE_WIDTH/2,
+                          rootDisp.y);
+        }
+
+
+        function checkPosition(position,posX,posY)
+        {
+            var dx = x - posX;
+            var dy = y - posY;
+            var distance = Math.sqrt(dx*dx + dy*dy);
+            if ((closestDistance == null) || (closestDistance > distance)) {
+                closestPosition = position;
+                closestDistance = distance;
             }
         }
 
@@ -288,6 +308,19 @@
 
         if (node.childNodes.length == 0)
             throw new Error("position.node has 0 children");
+
+        if (position.node == treeView.domRoot.parentNode) {
+            var rootOffset = getOffsetOfNodeInParent(treeView.domRoot);
+            var disp = treeView.displayNodes.get(treeView.domRoot);
+            if (offset == rootOffset) {
+                return { x: disp.x - DISPLAY_NODE_WIDTH/2,
+                         y: disp.y };
+            }
+            else {
+                return { x: disp.x + DISPLAY_NODE_WIDTH/2,
+                         y: disp.y };
+            }
+        }
 
         if (offset == 0) {
             var first = node.firstChild;
