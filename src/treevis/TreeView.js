@@ -51,6 +51,7 @@
     {
         this.currentNode = null;
         this.lastDisplayedNode = null;
+        this.mousePressed = false;
     }
 
     NodeSelector.prototype.findNode = function(treeView,event)
@@ -106,6 +107,7 @@
 
     NodeSelector.prototype.mouseDown = function(treeView,event)
     {
+        this.mousePressed = true;
         this.updateCurrentNode(treeView,event);
         if ((treeView.this.onMouseDownNode != null) && (this.currentNode != null))
             treeView.this.onMouseDownNode(this.currentNode);
@@ -113,9 +115,19 @@
 
     NodeSelector.prototype.mouseUp = function(treeView,event)
     {
+        this.mousePressed = false;
         this.updateCurrentNode(treeView,event);
         if ((treeView.this.onMouseUpNode != null) && (this.currentNode != null))
             treeView.this.onMouseUpNode(this.currentNode);
+    }
+
+    NodeSelector.prototype.globalMouseUp = function(treeView,event)
+    {
+        if (this.mousePressed) {
+            this.mousePressed = false;
+            if ((treeView.this.onMouseUpNode != null) && (this.currentNode != null))
+                treeView.this.onMouseUpNode(this.currentNode);
+        }
     }
 
     NodeSelector.prototype.mouseOver = function(treeView,event)
@@ -147,6 +159,7 @@
         this.currentPosition = null;
         this.theMarker = null;
         this.lastDisplayedPosition = null;
+        this.mousePressed = false;
     }
 
     PositionSelector.prototype.findPosition = function(treeView,event)
@@ -215,6 +228,7 @@
 
     PositionSelector.prototype.mouseDown = function(treeView,event)
     {
+        this.mousePressed = true;
         this.updateCurrentPosition(treeView,event);
         if ((treeView.this.onMouseDownPosition != null) && (this.currentPosition != null))
             treeView.this.onMouseDownPosition(this.currentPosition);
@@ -222,9 +236,19 @@
 
     PositionSelector.prototype.mouseUp = function(treeView,event)
     {
+        this.mousePressed = false;
         this.updateCurrentPosition(treeView,event);
         if ((treeView.this.onMouseUpPosition != null) && (this.currentPosition != null))
             treeView.this.onMouseUpPosition(this.currentPosition);
+    }
+
+    PositionSelector.prototype.globalMouseUp = function(treeView,event)
+    {
+        if (this.mousePressed) {
+            this.mousePressed = false;
+            if (treeView.this.onMouseUpPosition != null)
+                treeView.this.onMouseUpPosition(this.currentPosition);
+        }
     }
 
     PositionSelector.prototype.mouseOver = function(treeView,event)
@@ -600,7 +624,6 @@
 
     function setSelectionMode(mode)
     {
-        debug("setSelectionMode "+mode);
         var self = this.self;
         self.selectionMode = mode;
         if (mode == TreeView.NODE_SELECTION) {
@@ -664,6 +687,8 @@
                                         function(event) { self.selector.mouseOut(self,event); });
         self.backgroundRect.addEventListener("click",
                                         function(event) { self.selector.click(self,event); });
+        document.body.addEventListener("mouseup",
+                                function(event) { self.selector.globalMouseUp(self,event); });
 
         this.onMouseDownNode = null;
         this.onMouseUpNode = null;
