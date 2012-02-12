@@ -47,18 +47,21 @@
     Object.defineProperty(DisplayNode.prototype,"previousSibling", {get: function() {
         return displayNodeOf(this.treeView,this.domNode.previousSibling); }});
 
-    var currentNode = null;
-
-    function findNode(self,event)
+    function NodeSelector()
     {
-        var x = event.clientX - self.this.x;
-        var y = event.clientY - self.this.y;
+        this.currentNode = null;
+    }
+
+    NodeSelector.prototype.findNode = function(treeView,event)
+    {
+        var x = event.clientX - treeView.this.x;
+        var y = event.clientY - treeView.this.y;
         
         var closestNode = null;
         var closestDistance = null;
-        var keys = self.displayNodes.getKeys();
+        var keys = treeView.displayNodes.getKeys();
         for (var i = 0; i < keys.length; i++) {
-            var disp = self.displayNodes.get(keys[i]);
+            var disp = treeView.displayNodes.get(keys[i]);
             var dx = x - disp.x;
             var dy = y - disp.y;
             var distance = Math.sqrt(dx*dx + dy*dy);
@@ -72,51 +75,162 @@
         return closestNode;
     }
 
-    function updateCurrentNode(self,event)
+    NodeSelector.prototype.updateCurrentNode = function(treeView,event)
     {
-        var node = findNode(self,event);
-        if (currentNode != node) {
-            if (currentNode != null) {
-                var disp = self.displayNodes.get(currentNode);
+        var node = this.findNode(treeView,event);
+        if (this.currentNode != node) {
+            if (this.currentNode != null) {
+                var disp = treeView.displayNodes.get(this.currentNode);
                 disp.svgNode.setAttribute("class","TreeView-Node");
-                if (self.this.onMouseOutNode != null)
-                    self.this.onMouseOutNode(currentNode);
+                if (treeView.this.onMouseOutNode != null)
+                    treeView.this.onMouseOutNode(this.currentNode);
             }
-            currentNode = node;
-            if (currentNode != null) {
-                var disp = self.displayNodes.get(currentNode);
+            this.currentNode = node;
+            if (this.currentNode != null) {
+                var disp = treeView.displayNodes.get(this.currentNode);
                 disp.svgNode.setAttribute("class","TreeView-Node-Highlighted");
-                if (self.this.onMouseOverNode != null)
-                    self.this.onMouseOverNode(currentNode);
+                if (treeView.this.onMouseOverNode != null)
+                    treeView.this.onMouseOverNode(this.currentNode);
             }
         }
     }
 
-    function mouseDown(self,event)
+    NodeSelector.prototype.mouseDown = function(treeView,event)
     {
-        updateCurrentNode(self,event);
-        if ((self.this.onMouseDownNode != null) && (currentNode != null))
-            self.this.onMouseDownNode(currentNode);
+        this.updateCurrentNode(treeView,event);
+        if ((treeView.this.onMouseDownNode != null) && (this.currentNode != null))
+            treeView.this.onMouseDownNode(this.currentNode);
     }
 
-    function mouseUp(self,event)
+    NodeSelector.prototype.mouseUp = function(treeView,event)
     {
-        updateCurrentNode(self,event);
-        if ((self.this.onMouseUpNode != null) && (currentNode != null))
-            self.this.onMouseUpNode(currentNode);
+        this.updateCurrentNode(treeView,event);
+        if ((treeView.this.onMouseUpNode != null) && (this.currentNode != null))
+            treeView.this.onMouseUpNode(this.currentNode);
     }
 
-    function mouseMove(self,event)
+    NodeSelector.prototype.mouseMove = function(treeView,event)
     {
-        updateCurrentNode(self,event);
+        this.updateCurrentNode(treeView,event);
     }
 
-    function click(self,event)
+    NodeSelector.prototype.click = function(treeView,event)
     {
-        updateCurrentNode(self,event);
-        if ((self.this.onClickNode != null) && (currentNode != null))
-            self.this.onClickNode(currentNode);
+        this.updateCurrentNode(treeView,event);
+        if ((treeView.this.onClickNode != null) && (this.currentNode != null))
+            treeView.this.onClickNode(this.currentNode);
     }
+
+
+
+    function PositionSelector()
+    {
+        this.currentNode = null;
+    }
+
+    PositionSelector.prototype.findPosition = function(treeView,event)
+    {
+        var x = event.clientX - treeView.this.x;
+        var y = event.clientY - treeView.this.y;
+        
+        var closestPosition = null;
+        var closestDistance = null;
+        var closestX = null;
+        var closestY = null;
+
+        recurse(treeView.domRoot);
+
+        function recurse(node)
+        {
+            for (var child = node.firstChild; child != null; child = child.nextSibling)
+                recurse(child);
+
+            var offset = getOffsetOfNodeInParent(node);
+
+            var disp = treeView.displayNodes.get(node);
+            var beforeX = disp.x - DISPLAY_NODE_WIDTH/2 - DISPLAY_NODE_SPACING/2;
+            var afterX = disp.x + DISPLAY_NODE_WIDTH/2 + DISPLAY_NODE_SPACING/2;
+
+            var beforeDX = x - beforeX;
+            var afterDX = x - afterX;
+            var dy = y - disp.y;
+
+            var beforeDistance = Math.sqrt(beforeDX*beforeDX + dy*dy);
+            var afterDistance = Math.sqrt(afterDX*afterDX + dy*dy);
+
+            if ((closestDistance == null) || (closestDistance > beforeDistance)) {
+                closestDistance = beforeDistance;
+                closestPosition = new Position(node,offset);
+                closestX = beforeX;
+                closestY = disp.y;
+            }
+
+            if ((closestDistance == null) || (closestDistance > afterDistance)) {
+                closestDistance = afterDistance;
+                closestPosition = new Position(node,offset+1);
+                closestX = afterX;
+                closestY = disp.y;
+            }
+        }
+
+        return { position: closestPosition, x: closestX, y: closestY };
+    }
+
+    PositionSelector.prototype.updateCurrentPosition = function(treeView,event)
+    {
+        var found = this.findPosition(treeView,event);
+        var position = found.position;
+        var x = found.x;
+        var y = found.y;
+
+        if (this.currentPosition != position) {
+
+            var ind = treeView.currentPositionIndicator;
+            var width = parseInt(ind.getAttribute("width"));
+            var height = parseInt(ind.getAttribute("height"));
+
+            ind.setAttribute("x",x - width/2);
+            ind.setAttribute("y",y - height/2);
+
+            if (this.currentPosition != null) {
+                if (treeView.this.onMouseOutPosition != null)
+                    treeView.this.onMouseOutPosition(this.currentPosition);
+            }
+            this.currentPosition = position;
+            if (this.currentPosition != null) {
+                if (treeView.this.onMouseOverPosition != null)
+                    treeView.this.onMouseOverPosition(this.currentPosition);
+            }
+        }
+    }
+
+    PositionSelector.prototype.mouseDown = function(treeView,event)
+    {
+        this.updateCurrentPosition(treeView,event);
+        if ((treeView.this.onMouseDownPosition != null) && (this.currentPosition != null))
+            treeView.this.onMouseDownPosition(this.currentPosition);
+    }
+
+    PositionSelector.prototype.mouseUp = function(treeView,event)
+    {
+        this.updateCurrentPosition(treeView,event);
+        if ((treeView.this.onMouseUpPosition != null) && (this.currentPosition != null))
+            treeView.this.onMouseUpPosition(this.currentPosition);
+    }
+
+    PositionSelector.prototype.mouseMove = function(treeView,event)
+    {
+        this.updateCurrentPosition(treeView,event);
+    }
+
+    PositionSelector.prototype.click = function(treeView,event)
+    {
+        this.updateCurrentPosition(treeView,event);
+        if ((treeView.this.onClickPosition != null) && (this.currentPosition != null))
+            treeView.this.onClickPosition(this.currentPosition);
+    }
+
+
 
     function updateTrackedProperties(self)
     {
@@ -442,7 +556,7 @@
             var displayNode = new DisplayNode(node,self);
             self.displayNodes.put(node,displayNode);
 
-            if (displayNode.domNode == currentNode)
+            if (displayNode.domNode == self.selector.currentNode)
                 displayNode.svgNode.setAttribute("class","TreeView-Node-Highlighted");
 
             self.nodeGroup.appendChild(displayNode.svgNode);
@@ -451,6 +565,40 @@
             self.linkGroup.appendChild(displayNode.childrenVLine);
             self.overlayGroup.appendChild(displayNode.overlay);
         }
+    }
+
+    function setSelectionMode(mode)
+    {
+        debug("setSelectionMode "+mode);
+        var self = this.self;
+        self.selectionMode = mode;
+        if (mode == TreeView.NODE_SELECTION) {
+            self.selector = new NodeSelector();
+
+            if (self.currentPositionIndicator != null)
+                this.watchGroup.appendChild(self.currentPositionIndicator);
+            self.currentPositionIndicator = null;
+        }
+        else if (mode == TreeView.POSITION_SELECTION) {
+            self.selector = new PositionSelector();
+
+            var ind = document.createElementNS(SVG_NAMESPACE,"rect");
+            ind.setAttribute("width",4);
+            ind.setAttribute("height",DISPLAY_NODE_WIDTH*1.5);
+            ind.setAttribute("fill","red");
+            ind.setAttribute("stroke","none");
+            self.currentPositionIndicator = ind;
+            self.watchGroup.appendChild(self.currentPositionIndicator);
+        }
+        else {
+            throw new Error("Invalid selection mode "+mode);
+        }
+    }
+
+    function getSelectionMode()
+    {
+        var self = this.self;
+        return self.selectionMode;
     }
 
     // public
@@ -478,19 +626,21 @@
         self.treeWidth = null;
         self.treeHeight = null;
         self.displayNodes = new NodeMap();
+        self.selectionMode = null;
+        self.selector = null;
 
         self.backgroundRect.setAttribute("fill","white");
         self.backgroundRect.setAttribute("fill-opacity","0");
         self.backgroundRect.setAttribute("stroke","none");
 
         self.backgroundRect.addEventListener("mousedown",
-                                        function(event) { mouseDown(self,event); });
+                                        function(event) { self.selector.mouseDown(self,event); });
         self.backgroundRect.addEventListener("mouseup",
-                                        function(event) { mouseUp(self,event); });
+                                        function(event) { self.selector.mouseUp(self,event); });
         self.backgroundRect.addEventListener("mousemove",
-                                        function(event) { mouseMove(self,event); });
+                                        function(event) { self.selector.mouseMove(self,event); });
         self.backgroundRect.addEventListener("click",
-                                        function(event) { click(self,event); });
+                                        function(event) { self.selector.click(self,event); });
 
         this.onMouseDownNode = null;
         this.onMouseUpNode = null;
@@ -498,12 +648,23 @@
         this.onMouseMoveNode = null;
         this.onMouseOutNode = null;
         this.onClickNode = null;
+
+        this.onMouseDownPosition = null;
+        this.onMouseUpPosition = null;
+        this.onMouseOverPosition = null;
+        this.onMouseMovePosition = null;
+        this.onMouseOutPosition = null;
+        this.onClickPosition = null;
+
         this.element = self.treeGroup; // FIXME: make read-only
         this.x = 0;
         this.y = 0;
+        Object.defineProperty(this,"selectionMode", { get: getSelectionMode,
+                                                      set: setSelectionMode,
+                                                      enumerable: true });
+        this.selectionMode = TreeView.NODE_SELECTION;
         Object.preventExtensions(this);
     }
-
 
     // public
     TreeView.prototype.getTreeWidth = function()
@@ -535,6 +696,10 @@
 
         updateTrackedProperties(self);
     }
+
+    // public
+    TreeView.NODE_SELECTION = 1;
+    TreeView.POSITION_SELECTION = 2;
 
     window.TreeView = TreeView;
 
