@@ -90,7 +90,7 @@ var state = { set: null, start: null, end: null };
 var treeView = null;
 var range = null;
 
-function updateSelection(position)
+function updateForPosition(position)
 {
     if (range == null) {
         range = new Range(position.node,position.offset,position.node,position.offset);
@@ -109,11 +109,17 @@ function updateSelection(position)
     treeView.update();
 }
 
+function updateForNode(node)
+{
+    var offset = getOffsetOfNodeInParent(node);
+    updateForPosition(new Position(node.parentNode,offset));
+}
+
 function mouseDownPosition(position)
 {
     dragging = true;
     range = null;
-    updateSelection(position);
+    updateForPosition(position);
 }
 
 function mouseUpPosition(position)
@@ -124,19 +130,25 @@ function mouseUpPosition(position)
 function mouseOverPosition(position)
 {
     if (dragging)
-        updateSelection(position);
+        updateForPosition(position);
 }
 
-function mouseMovePosition(position)
+function mouseDownNode(node)
 {
+    dragging = true;
+    range = null;
+    updateForNode(node);
 }
 
-function mouseOutPosition(position)
+function mouseUpNode(node)
 {
+    dragging = false;
 }
 
-function clickPosition(position)
+function mouseOverNode(node)
 {
+    if (dragging)
+        updateForNode(node);
 }
 
 function main()
@@ -155,13 +167,17 @@ function main()
     svg.appendChild(treeView.element);
     treeView.update();
 
-    treeView.selectionMode = TreeView.POSITION_SELECTION;
-    treeView.onMouseDownPosition = mouseDownPosition;
-    treeView.onMouseUpPosition = mouseUpPosition;
-    treeView.onMouseOverPosition = mouseOverPosition;
-    treeView.onMouseMovePosition = mouseMovePosition;
-    treeView.onMouseOutPosition = mouseOutPosition;
-    treeView.onClickPosition = clickPosition;
+    if (true) {
+        treeView.selectionMode = TreeView.POSITION_SELECTION;
+        treeView.onMouseDownPosition = mouseDownPosition;
+        treeView.onMouseUpPosition = mouseUpPosition;
+        treeView.onMouseOverPosition = mouseOverPosition;
+    }
+    else {
+        treeView.onMouseDownNode = mouseDownNode;
+        treeView.onMouseUpNode = mouseUpNode;
+        treeView.onMouseOverNode = mouseOverNode;
+    }
 
     UndoManager.monitorObject(state);
 }

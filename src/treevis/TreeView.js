@@ -50,6 +50,7 @@
     function NodeSelector()
     {
         this.currentNode = null;
+        this.lastDisplayedNode = null;
     }
 
     NodeSelector.prototype.findNode = function(treeView,event)
@@ -77,21 +78,29 @@
 
     NodeSelector.prototype.updateCurrentNode = function(treeView,event)
     {
-        var node = this.findNode(treeView,event);
-        if (this.currentNode != node) {
-            if (this.currentNode != null) {
-                var disp = treeView.displayNodes.get(this.currentNode);
+        this.currentNode = this.findNode(treeView,event);
+        this.update(treeView);
+    }
+
+    NodeSelector.prototype.update = function(treeView)
+    {
+        if (this.lastDisplayedNode != this.currentNode) {
+            if (this.lastDisplayedNode != null) {
+                var disp = treeView.displayNodes.get(this.lastDisplayedNode);
                 disp.svgNode.setAttribute("class","TreeView-Node");
                 if (treeView.this.onMouseOutNode != null)
-                    treeView.this.onMouseOutNode(this.currentNode);
+                    treeView.this.onMouseOutNode(this.lastDisplayedNode);
             }
-            this.currentNode = node;
-            if (this.currentNode != null) {
-                var disp = treeView.displayNodes.get(this.currentNode);
-                disp.svgNode.setAttribute("class","TreeView-Node-Highlighted");
+            this.lastDisplayedNode = this.currentNode;
+            if (this.lastDisplayedNode != null) {
                 if (treeView.this.onMouseOverNode != null)
-                    treeView.this.onMouseOverNode(this.currentNode);
+                    treeView.this.onMouseOverNode(this.lastDisplayedNode);
             }
+        }
+
+        if (this.lastDisplayedNode != null) {
+            var disp = treeView.displayNodes.get(this.lastDisplayedNode);
+            disp.svgNode.setAttribute("class","TreeView-Node-Highlighted");
         }
     }
 
@@ -126,6 +135,7 @@
     function PositionSelector()
     {
         this.currentPosition = null;
+        this.theMarker = null;
     }
 
     PositionSelector.prototype.findPosition = function(treeView,event)
@@ -135,8 +145,7 @@
         
         var closestPosition = null;
         var closestDistance = null;
-        var closestX = null;
-        var closestY = null;
+        var closestCoords = null;
 
         recurse(treeView.domRoot);
 
@@ -145,35 +154,23 @@
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
 
-            var offset = getOffsetOfNodeInParent(node);
-
-            var disp = treeView.displayNodes.get(node);
-            var beforeX = disp.x - DISPLAY_NODE_WIDTH/2 - DISPLAY_NODE_SPACING/2;
-            var afterX = disp.x + DISPLAY_NODE_WIDTH/2 + DISPLAY_NODE_SPACING/2;
-
-            var beforeDX = x - beforeX;
-            var afterDX = x - afterX;
-            var dy = y - disp.y;
-
-            var beforeDistance = Math.sqrt(beforeDX*beforeDX + dy*dy);
-            var afterDistance = Math.sqrt(afterDX*afterDX + dy*dy);
-
-            if ((closestDistance == null) || (closestDistance > beforeDistance)) {
-                closestDistance = beforeDistance;
-                closestPosition = new Position(node.parentNode,offset);
-                closestX = beforeX;
-                closestY = disp.y;
-            }
-
-            if ((closestDistance == null) || (closestDistance > afterDistance)) {
-                closestDistance = afterDistance;
-                closestPosition = new Position(node.parentNode,offset+1);
-                closestX = afterX;
-                closestY = disp.y;
+            if (node.firstChild != null) {
+                for (var offset = 0; offset <= node.childNodes.length; offset++) {
+                    var position = new Position(node,offset)
+                    var coords = positionCoords(treeView,new Position(node,offset));
+                    var dx = x - coords.x;
+                    var dy = y - coords.y;
+                    var distance = Math.sqrt(dx*dx + dy*dy);
+                    if ((closestDistance == null) || (closestDistance > distance)) {
+                        closestPosition = position;
+                        closestDistance = distance;
+                        closestCoords = coords;
+                    }
+                }
             }
         }
 
-        return { position: closestPosition, x: closestX, y: closestY };
+        return { position: closestPosition, x: closestCoords.x, y: closestCoords.y };
     }
 
     PositionSelector.prototype.updateCurrentPosition = function(treeView,event)
@@ -185,12 +182,6 @@
 
         if (this.currentPosition != position) {
 
-            var ind = treeView.currentPositionIndicator;
-            var width = parseInt(ind.getAttribute("width"));
-            var height = parseInt(ind.getAttribute("height"));
-
-            ind.setAttribute("x",x - width/2);
-            ind.setAttribute("y",y - height/2);
 
             if (this.currentPosition != null) {
                 if (treeView.this.onMouseOutPosition != null)
@@ -201,6 +192,21 @@
                 if (treeView.this.onMouseOverPosition != null)
                     treeView.this.onMouseOverPosition(this.currentPosition);
             }
+        }
+        this.update(treeView);
+    }
+
+    PositionSelector.prototype.update = function(treeView)
+    {
+        if ((this.theMarker != null) && (this.theMarker.parentNode != null))
+            this.theMarker.parentNode.removeChild(this.theMarker);
+
+        if (this.currentPosition != null) {
+            this.theMarker = createPositionMarker(treeView,this.currentPosition,"#808080",
+                                                  4,DISPLAY_NODE_WIDTH*2);
+            this.theMarker.setAttribute("fill-opacity","50%");
+            this.theMarker.setAttribute("stroke","none");
+            treeView.watchGroup.appendChild(this.theMarker);
         }
     }
 
@@ -231,6 +237,53 @@
     }
 
 
+
+    function positionCoords(treeView,position)
+    {
+        var node = position.node;
+        var offset = position.offset;
+
+        if (node.childNodes.length == 0)
+            throw new Error("position.node has 0 children");
+
+        if (offset == 0) {
+            var first = node.firstChild;
+            var firstDisp = treeView.displayNodes.get(first);
+            return { x: firstDisp.x - DISPLAY_NODE_WIDTH/2,
+                     y: firstDisp.y };
+        }
+        else if (offset == node.childNodes.length) {
+            var last = node.lastChild;
+            var lastDisp = treeView.displayNodes.get(last);
+            return { x: lastDisp.x + DISPLAY_NODE_WIDTH/2,
+                     y: lastDisp.y };
+        }
+        else {
+            var cur = node.childNodes[offset];
+            var prev = node.childNodes[offset-1];
+            var curDisp = treeView.displayNodes.get(cur);
+            var prevDisp = treeView.displayNodes.get(prev);
+            return { x: (prevDisp.x + curDisp.x)/2,
+                     y: curDisp.y };
+        }
+    }
+
+    function createPositionMarker(treeView,value,color,markerWidth,markerHeight)
+    {
+        if (markerWidth == null)
+            markerWidth = 2;
+        if (markerHeight == null)
+            markerHeight = DISPLAY_NODE_WIDTH;
+        var coords = positionCoords(treeView,value);
+        var marker = document.createElementNS(SVG_NAMESPACE,"rect");
+        marker.setAttribute("x",coords.x);
+        marker.setAttribute("y",coords.y - markerHeight/2);
+        marker.setAttribute("width",markerWidth);
+        marker.setAttribute("height",markerHeight);
+        marker.setAttribute("stroke",color);
+        marker.setAttribute("fill",color);
+        return marker;
+    }
 
     function updateTrackedProperties(self)
     {
@@ -290,38 +343,7 @@
                 var offset = value.offset;
 
                 if (node.childNodes.length > 0) {
-                    var after = false;
-
-                    var x = null;
-                    var y = null;
-
-                    var markerWidth = 2;
-
-                    if (offset == 0) {
-                        var cur = self.displayNodes.get(node.childNodes[offset]);
-                        x = cur.x - DISPLAY_NODE_WIDTH/2 - markerWidth/2;
-                        y = cur.y;
-                    }
-                    else if (offset == node.childNodes.length) {
-                        var cur = self.displayNodes.get(node.childNodes[offset-1]);
-                        x = cur.x + DISPLAY_NODE_WIDTH/2 + markerWidth/2;
-                        y = cur.y;
-                    }
-                    else {
-                        var prev = self.displayNodes.get(node.childNodes[offset-1]);
-                        var cur = self.displayNodes.get(node.childNodes[offset]);
-                        y = cur.y;
-                        x = prev.x/2 + cur.x/2;
-                    }
-
-                    var marker = document.createElementNS(SVG_NAMESPACE,"rect");
-                    marker.setAttribute("x",x);
-                    marker.setAttribute("y",y - DISPLAY_NODE_WIDTH/2);
-                    marker.setAttribute("width",markerWidth);
-                    marker.setAttribute("height",DISPLAY_NODE_WIDTH);
-                    marker.setAttribute("stroke","blue");
-                    marker.setAttribute("fill","blue");
-                    self.watchGroup.appendChild(marker);
+                    self.watchGroup.appendChild(createPositionMarker(self,value,"blue"));
                 }
             }
 /*            else if ((value != null) && (value instanceof NodeSet)) {
@@ -555,10 +577,6 @@
                 recurse(child);
             var displayNode = new DisplayNode(node,self);
             self.displayNodes.put(node,displayNode);
-
-            if (displayNode.domNode == self.selector.currentNode)
-                displayNode.svgNode.setAttribute("class","TreeView-Node-Highlighted");
-
             self.nodeGroup.appendChild(displayNode.svgNode);
             self.linkGroup.appendChild(displayNode.parentLink);
             self.linkGroup.appendChild(displayNode.childrenHLine);
@@ -574,21 +592,9 @@
         self.selectionMode = mode;
         if (mode == TreeView.NODE_SELECTION) {
             self.selector = new NodeSelector();
-
-            if (self.currentPositionIndicator != null)
-                this.watchGroup.appendChild(self.currentPositionIndicator);
-            self.currentPositionIndicator = null;
         }
         else if (mode == TreeView.POSITION_SELECTION) {
             self.selector = new PositionSelector();
-
-            var ind = document.createElementNS(SVG_NAMESPACE,"rect");
-            ind.setAttribute("width",4);
-            ind.setAttribute("height",DISPLAY_NODE_WIDTH*1.5);
-            ind.setAttribute("fill","red");
-            ind.setAttribute("stroke","none");
-            self.currentPositionIndicator = ind;
-            self.watchGroup.appendChild(self.currentPositionIndicator);
         }
         else {
             throw new Error("Invalid selection mode "+mode);
@@ -628,7 +634,6 @@
         self.displayNodes = new NodeMap();
         self.selectionMode = null;
         self.selector = null;
-        self.currentPositionIndicator = null;
 
         self.backgroundRect.setAttribute("fill","white");
         self.backgroundRect.setAttribute("fill-opacity","0");
@@ -694,11 +699,8 @@
         updateDisplayNodeSVGElements(self);
         displayNodeLabels(self);
         displayGroups(self);
-
         updateTrackedProperties(self);
-
-        if (self.currentPositionIndicator != null)
-            self.watchGroup.appendChild(self.currentPositionIndicator);
+        self.selector.update(self);
     }
 
     // public
