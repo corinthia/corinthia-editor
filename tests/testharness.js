@@ -302,6 +302,8 @@ function leftLoaded()
 
     left.contentWindow.eval(readJSCode("testlib.js"));
 
+    left.contentWindow.DOM.assignNodeIds(left.contentWindow.document);
+
     var start = extractPositionFromCharacter("[");
     var track = (start == null) ? [] : [start];
     var end;
