@@ -63,7 +63,10 @@
     function placeToplevelGroups(self)
     {
         var xOffset = self.width/2 - self.treeView.getTreeWidth()/2;
-        self.treeView.element.setAttribute("transform","translate("+xOffset+",40)");
+        var yOffset = 40;
+        self.treeView.element.setAttribute("transform","translate("+xOffset+","+yOffset+")");
+        self.treeView.x = xOffset;
+        self.treeView.y = yOffset;
         self.slider.setPosition(self.width*0.1,self.height - 80,self.width*0.8,40);
     }
 

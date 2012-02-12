@@ -26,20 +26,6 @@
 
         this.x = null;
         this.y = null;
-
-        var disp = this;
-        this.overlay.addEventListener("mousedown",
-                                      function(event) { mouseDown(treeView,disp,event); });
-        this.overlay.addEventListener("mouseup",
-                                      function(event) { mouseUp(treeView,disp,event); });
-        this.overlay.addEventListener("mouseover",
-                                      function(event) { mouseOver(treeView,disp,event); });
-        this.overlay.addEventListener("mousemove",
-                                      function(event) { mouseMove(treeView,disp,event); });
-        this.overlay.addEventListener("mouseout",
-                                      function(event) { mouseOut(treeView,disp,event); });
-        this.overlay.addEventListener("click",
-                                      function(event) { click(treeView,disp,event); });
     }
 
     function displayNodeOf(treeView,otherDomNode)
@@ -61,42 +47,75 @@
     Object.defineProperty(DisplayNode.prototype,"previousSibling", {get: function() {
         return displayNodeOf(this.treeView,this.domNode.previousSibling); }});
 
-    function mouseDown(self,disp,event)
+    var currentNode = null;
+
+    function findNode(self,event)
     {
-        if (self.this.onMouseDownNode != null)
-            self.this.onMouseDownNode(disp.domNode);
+        var x = event.clientX - self.this.x;
+        var y = event.clientY - self.this.y;
+        
+        var closestNode = null;
+        var closestDistance = null;
+        var keys = self.displayNodes.getKeys();
+        for (var i = 0; i < keys.length; i++) {
+            var disp = self.displayNodes.get(keys[i]);
+            var dx = x - disp.x;
+            var dy = y - disp.y;
+            var distance = Math.sqrt(dx*dx + dy*dy);
+            if ((closestDistance == null) ||
+                (closestDistance > distance)) {
+                closestDistance = distance;
+                closestNode = disp.domNode;
+            }
+        }
+
+        return closestNode;
     }
 
-    function mouseUp(self,disp,event)
+    function updateCurrentNode(self,event)
     {
-        if (self.this.onMouseUpNode != null)
-            self.this.onMouseUpNode(disp.domNode);
+        var node = findNode(self,event);
+        if (currentNode != node) {
+            if (currentNode != null) {
+                var disp = self.displayNodes.get(currentNode);
+                disp.svgNode.setAttribute("class","TreeView-Node");
+                if (self.this.onMouseOutNode != null)
+                    self.this.onMouseOutNode(currentNode);
+            }
+            currentNode = node;
+            if (currentNode != null) {
+                var disp = self.displayNodes.get(currentNode);
+                disp.svgNode.setAttribute("class","TreeView-Node-Highlighted");
+                if (self.this.onMouseOverNode != null)
+                    self.this.onMouseOverNode(currentNode);
+            }
+        }
     }
 
-    function mouseOver(self,disp,event)
+    function mouseDown(self,event)
     {
-        disp.svgNode.setAttribute("class","TreeView-Node-Highlighted");
-        if (self.this.onMouseOverNode != null)
-            self.this.onMouseOverNode(disp.domNode);
+        updateCurrentNode(self,event);
+        if ((self.this.onMouseDownNode != null) && (currentNode != null))
+            self.this.onMouseDownNode(currentNode);
     }
 
-    function mouseMove(self,disp,event)
+    function mouseUp(self,event)
     {
-        if (self.this.onMouseMoveNode != null)
-            self.this.onMouseMoveNode(disp.domNode);
+        updateCurrentNode(self,event);
+        if ((self.this.onMouseUpNode != null) && (currentNode != null))
+            self.this.onMouseUpNode(currentNode);
     }
 
-    function mouseOut(self,disp,event)
+    function mouseMove(self,event)
     {
-        disp.svgNode.setAttribute("class","TreeView-Node");
-        if (self.this.onMouseOutNode != null)
-            self.this.onMouseOutNode(disp.domNode);
+        updateCurrentNode(self,event);
     }
 
-    function click(self,disp,event)
+    function click(self,event)
     {
-        if (self.this.onClickNode != null)
-            self.this.onClickNode(disp.domNode);
+        updateCurrentNode(self,event);
+        if ((self.this.onClickNode != null) && (currentNode != null))
+            self.this.onClickNode(currentNode);
     }
 
     function updateTrackedProperties(self)
@@ -226,6 +245,11 @@
         for (var i = 0; i < max.length; i++)
             self.treeWidth = Math.max(self.treeWidth,max[i]+sep);
         self.treeHeight = max.length * LEVEL_HEIGHT;
+
+        self.backgroundRect.setAttribute("x",0);
+        self.backgroundRect.setAttribute("y",0);
+        self.backgroundRect.setAttribute("width",self.treeWidth);
+        self.backgroundRect.setAttribute("height",self.treeHeight);
 
         function recurse(disp,level)
         {
@@ -417,6 +441,10 @@
                 recurse(child);
             var displayNode = new DisplayNode(node,self);
             self.displayNodes.put(node,displayNode);
+
+            if (displayNode.domNode == currentNode)
+                displayNode.svgNode.setAttribute("class","TreeView-Node-Highlighted");
+
             self.nodeGroup.appendChild(displayNode.svgNode);
             self.linkGroup.appendChild(displayNode.parentLink);
             self.linkGroup.appendChild(displayNode.childrenHLine);
@@ -435,6 +463,7 @@
         self.domRoot = domRoot;
 
         self.treeGroup = document.createElementNS(SVG_NAMESPACE,"g");
+        self.backgroundRect = document.createElementNS(SVG_NAMESPACE,"rect");
         self.backgroundGroup = document.createElementNS(SVG_NAMESPACE,"g");
         self.linkGroup = document.createElementNS(SVG_NAMESPACE,"g");
         self.nodeGroup = document.createElementNS(SVG_NAMESPACE,"g");
@@ -445,9 +474,23 @@
         self.treeGroup.appendChild(self.nodeGroup);
         self.treeGroup.appendChild(self.watchGroup);
         self.treeGroup.appendChild(self.overlayGroup);
+        self.treeGroup.appendChild(self.backgroundRect);
         self.treeWidth = null;
         self.treeHeight = null;
         self.displayNodes = new NodeMap();
+
+        self.backgroundRect.setAttribute("fill","white");
+        self.backgroundRect.setAttribute("fill-opacity","0");
+        self.backgroundRect.setAttribute("stroke","none");
+
+        self.backgroundRect.addEventListener("mousedown",
+                                        function(event) { mouseDown(self,event); });
+        self.backgroundRect.addEventListener("mouseup",
+                                        function(event) { mouseUp(self,event); });
+        self.backgroundRect.addEventListener("mousemove",
+                                        function(event) { mouseMove(self,event); });
+        self.backgroundRect.addEventListener("click",
+                                        function(event) { click(self,event); });
 
         this.onMouseDownNode = null;
         this.onMouseUpNode = null;
@@ -456,6 +499,8 @@
         this.onMouseOutNode = null;
         this.onClickNode = null;
         this.element = self.treeGroup; // FIXME: make read-only
+        this.x = 0;
+        this.y = 0;
         Object.preventExtensions(this);
     }
 
