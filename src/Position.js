@@ -13,17 +13,6 @@
     Location.prototype.toString = function()
     {
         return "("+nodeString(this.parent)+","+nodeString(this.child)+")";
-
-        function nodeString(node) {
-            if (node == null)
-                return "null";
-            else if (node.nodeType == Node.TEXT_NODE)
-                return "\""+node.nodeValue+"\"";
-            else if ((node.nodeType == Node.ELEMENT_NODE) && (node.hasAttribute("id")))
-                return "#"+node.getAttribute("id");
-            else
-                return node.nodeName;
-        }
     }
 
     // public
