@@ -206,7 +206,7 @@
                                                   4,DISPLAY_NODE_WIDTH*2);
             this.theMarker.setAttribute("fill-opacity","50%");
             this.theMarker.setAttribute("stroke","none");
-            treeView.watchGroup.appendChild(this.theMarker);
+            treeView.monitorGroup.appendChild(this.theMarker);
         }
     }
 
@@ -285,11 +285,11 @@
         return marker;
     }
 
-    function updateTrackedProperties(self)
+    function updateMonitors(self)
     {
-        for (var watchId in UndoManager.allTrackedProperties) {
-            var watch = UndoManager.allTrackedProperties[watchId];
-            var value = watch.object[watch.property];
+        for (var monitorId in UndoManager.monitors) {
+            var monitor = UndoManager.monitors[monitorId];
+            var value = monitor.object[monitor.property];
             if ((value != null) && (value instanceof Node)) {
                 var displayNode = self.displayNodes.get(value);
 
@@ -298,8 +298,8 @@
                 var rectSpacing = 20;
 
                 var label = document.createElementNS(SVG_NAMESPACE,"text");
-                self.watchGroup.appendChild(label);
-                label.appendChild(document.createTextNode(watch.property));
+                self.monitorGroup.appendChild(label);
+                label.appendChild(document.createTextNode(monitor.property));
 
                 var ascent = -label.getBBox().y;
 
@@ -318,7 +318,7 @@
                 bounds.setAttribute("y",bbox.y-border);
                 bounds.setAttribute("width",bbox.width+2*border);
                 bounds.setAttribute("height",bbox.height+2*border);
-                self.watchGroup.insertBefore(bounds,label);
+                self.monitorGroup.insertBefore(bounds,label);
 
                 var arrow = document.createElementNS(SVG_NAMESPACE,"line");
                 arrow.setAttribute("stroke","red");
@@ -327,7 +327,7 @@
                 arrow.setAttribute("y1",displayNode.y + rectSpacing);
                 arrow.setAttribute("x2",displayNode.x);
                 arrow.setAttribute("y2",displayNode.y);
-                self.watchGroup.appendChild(arrow);
+                self.monitorGroup.appendChild(arrow);
 
                 var marker = document.createElementNS(SVG_NAMESPACE,"path");
                 marker.setAttribute("stroke","red");
@@ -336,14 +336,14 @@
                 marker.setAttribute("d","M 0 0 L 5 10 L -5 10");
                 marker.setAttribute("transform","translate("+displayNode.x+","+displayNode.y+")");
                 
-                self.watchGroup.appendChild(marker);
+                self.monitorGroup.appendChild(marker);
             }
             else if ((value != null) && (value instanceof Position)) {
                 var node = value.node;
                 var offset = value.offset;
 
                 if (node.childNodes.length > 0) {
-                    self.watchGroup.appendChild(createPositionMarker(self,value,"blue"));
+                    self.monitorGroup.appendChild(createPositionMarker(self,value,"blue"));
                 }
             }
 /*            else if ((value != null) && (value instanceof NodeSet)) {
@@ -359,7 +359,7 @@
                     rect.setAttribute("stroke","none");
                     rect.setAttribute("fill","blue");
                     rect.setAttribute("fill-opacity","0.1");
-                    self.watchGroup.appendChild(rect);
+                    self.monitorGroup.appendChild(rect);
                 }
             }
 */
@@ -537,9 +537,9 @@
 
     function displayGroups(self)
     {
-        for (var watchId in UndoManager.allTrackedProperties) {
-            var watch = UndoManager.allTrackedProperties[watchId];
-            var value = watch.object[watch.property];
+        for (var monitorId in UndoManager.monitors) {
+            var monitor = UndoManager.monitors[monitorId];
+            var value = monitor.object[monitor.property];
             if ((value != null) && (value instanceof NodeSet)) {
                 displayNodeSet(self,value);
             }
@@ -621,12 +621,12 @@
         self.backgroundGroup = document.createElementNS(SVG_NAMESPACE,"g");
         self.linkGroup = document.createElementNS(SVG_NAMESPACE,"g");
         self.nodeGroup = document.createElementNS(SVG_NAMESPACE,"g");
-        self.watchGroup = document.createElementNS(SVG_NAMESPACE,"g");
+        self.monitorGroup = document.createElementNS(SVG_NAMESPACE,"g");
         self.overlayGroup = document.createElementNS(SVG_NAMESPACE,"g");
         self.treeGroup.appendChild(self.backgroundGroup);
         self.treeGroup.appendChild(self.linkGroup);
         self.treeGroup.appendChild(self.nodeGroup);
-        self.treeGroup.appendChild(self.watchGroup);
+        self.treeGroup.appendChild(self.monitorGroup);
         self.treeGroup.appendChild(self.overlayGroup);
         self.treeGroup.appendChild(self.backgroundRect);
         self.treeWidth = null;
@@ -689,8 +689,8 @@
             self.linkGroup.removeChild(self.linkGroup.firstChild);
         while (self.nodeGroup.firstChild != null)
             self.nodeGroup.removeChild(self.nodeGroup.firstChild);
-        while (self.watchGroup.firstChild != null)
-            self.watchGroup.removeChild(self.watchGroup.firstChild);
+        while (self.monitorGroup.firstChild != null)
+            self.monitorGroup.removeChild(self.monitorGroup.firstChild);
         while (self.overlayGroup.firstChild != null)
             self.overlayGroup.removeChild(self.overlayGroup.firstChild);
         self.displayNodes.clear();
@@ -699,7 +699,7 @@
         updateDisplayNodeSVGElements(self);
         displayNodeLabels(self);
         displayGroups(self);
-        updateTrackedProperties(self);
+        updateMonitors(self);
         self.selector.update(self);
     }
 

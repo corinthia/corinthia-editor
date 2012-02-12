@@ -4,20 +4,20 @@
 
     window.UndoManager = new Object();
 
-    function TrackedProperty(id,object,property)
+    function Monitor(id,object,property)
     {
         this.id = id;
         this.object = object;
         this.property = property;
     }
 
-    TrackedProperty.prototype.toString = function()
+    Monitor.prototype.toString = function()
     {
-        return "[TrackedProperty "+this.property+"]";
+        return "[Monitor "+this.property+"]";
     }
 
     var nextTrackingId = 0;
-    var allTrackedProperties = UndoManager.allTrackedProperties = new Object(); // public
+    var monitors = UndoManager.monitors = new Object(); // public
 
     function monitorProperty(object,name)
     {
@@ -31,9 +31,9 @@
         object[_name+"_oldDescriptor"] = Object.getOwnPropertyDescriptor(object,name);
 
         // Record property as tracked
-        var trackedProperty = new TrackedProperty(nextTrackingId++,object,name);
-        allTrackedProperties[trackedProperty.id] = trackedProperty;
-        object[_name+"_trackedProperty"] = trackedProperty;
+        var monitoredProperty = new Monitor(nextTrackingId++,object,name);
+        monitors[monitoredProperty.id] = monitoredProperty;
+        object[_name+"_monitoredProperty"] = monitoredProperty;
 
         // Move value to hidden property
         object[_name] = object[name];
@@ -76,9 +76,9 @@
         Object.defineProperty(object,name,oldDescriptor);
 
         // Remove record of tracked property
-        var trackedProperty = object[_name+"_trackedProperty"];
-        delete object[_name+"_trackedProperty"];
-        delete allTrackedProperties[trackedProperty.id];
+        var monitoredProperty = object[_name+"_monitoredProperty"];
+        delete object[_name+"_monitoredProperty"];
+        delete monitors[monitoredProperty.id];
 
         // Restore original value
         var value = object[_name];
