@@ -34,6 +34,13 @@ NodeSet.prototype.toArray = function()
     return id;
 }
 
+NodeSet.prototype.forEach = function(fun)
+{
+    var ids = Object.getOwnPropertyNames(this.members);
+    var set = this;
+    ids.forEach(function(id) { fun(set.members[id]); });
+}
+
 
 
 function NodeMap()
@@ -80,9 +87,16 @@ NodeMap.prototype.containsKey = function(key)
 
 NodeMap.prototype.getKeys = function()
 {
-    var names = Object.getOwnPropertyNames(this.values);
-    var result = new Array(names.length);
-    for (var i = 0; i < names.length; i++)
-        result[i] = this.keys[names[i]];
+    var ids = Object.getOwnPropertyNames(this.values);
+    var result = new Array(ids.length);
+    for (var i = 0; i < ids.length; i++)
+        result[i] = this.keys[ids[i]];
     return result;
+}
+
+NodeMap.prototype.forEach = function(fun)
+{
+    var ids = Object.getOwnPropertyNames(this.values);
+    var map = this;
+    ids.forEach(function(id) { fun(map.keys[id],map.values[id]); });
 }
