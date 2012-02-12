@@ -118,9 +118,19 @@
             treeView.this.onMouseUpNode(this.currentNode);
     }
 
+    NodeSelector.prototype.mouseOver = function(treeView,event)
+    {
+    }
+
     NodeSelector.prototype.mouseMove = function(treeView,event)
     {
         this.updateCurrentNode(treeView,event);
+    }
+
+    NodeSelector.prototype.mouseOut = function(treeView,event)
+    {
+        this.currentNode = null;
+        this.update(treeView);
     }
 
     NodeSelector.prototype.click = function(treeView,event)
@@ -136,6 +146,7 @@
     {
         this.currentPosition = null;
         this.theMarker = null;
+        this.lastDisplayedPosition = null;
     }
 
     PositionSelector.prototype.findPosition = function(treeView,event)
@@ -145,7 +156,6 @@
         
         var closestPosition = null;
         var closestDistance = null;
-        var closestCoords = null;
 
         recurse(treeView.domRoot);
 
@@ -164,40 +174,33 @@
                     if ((closestDistance == null) || (closestDistance > distance)) {
                         closestPosition = position;
                         closestDistance = distance;
-                        closestCoords = coords;
                     }
                 }
             }
         }
 
-        return { position: closestPosition, x: closestCoords.x, y: closestCoords.y };
+        return closestPosition;
     }
 
     PositionSelector.prototype.updateCurrentPosition = function(treeView,event)
     {
-        var found = this.findPosition(treeView,event);
-        var position = found.position;
-        var x = found.x;
-        var y = found.y;
-
-        if (this.currentPosition != position) {
-
-
-            if (this.currentPosition != null) {
-                if (treeView.this.onMouseOutPosition != null)
-                    treeView.this.onMouseOutPosition(this.currentPosition);
-            }
-            this.currentPosition = position;
-            if (this.currentPosition != null) {
-                if (treeView.this.onMouseOverPosition != null)
-                    treeView.this.onMouseOverPosition(this.currentPosition);
-            }
-        }
+        this.currentPosition = this.findPosition(treeView,event);
         this.update(treeView);
     }
 
     PositionSelector.prototype.update = function(treeView)
     {
+        if (this.lastDisplayedPosition != this.currentPosition) {
+            if (this.lastDisplayedPosition != null) {
+                if (treeView.this.onMouseOutPosition != null)
+                    treeView.this.onMouseOutPosition(this.lastDisplayedPosition);
+            }
+            this.lastDisplayedPosition = this.currentPosition;
+            if (this.lastDisplayedPosition != null) {
+                if (treeView.this.onMouseOverPosition != null)
+                    treeView.this.onMouseOverPosition(this.lastDisplayedPosition);
+            }
+        }
         if ((this.theMarker != null) && (this.theMarker.parentNode != null))
             this.theMarker.parentNode.removeChild(this.theMarker);
 
@@ -224,9 +227,19 @@
             treeView.this.onMouseUpPosition(this.currentPosition);
     }
 
+    PositionSelector.prototype.mouseOver = function(treeView,event)
+    {
+    }
+
     PositionSelector.prototype.mouseMove = function(treeView,event)
     {
         this.updateCurrentPosition(treeView,event);
+    }
+
+    PositionSelector.prototype.mouseOut = function(treeView,event)
+    {
+        this.currentPosition = null;
+        this.update(treeView);
     }
 
     PositionSelector.prototype.click = function(treeView,event)
@@ -643,8 +656,12 @@
                                         function(event) { self.selector.mouseDown(self,event); });
         self.backgroundRect.addEventListener("mouseup",
                                         function(event) { self.selector.mouseUp(self,event); });
+        self.backgroundRect.addEventListener("mouseover",
+                                        function(event) { self.selector.mouseOver(self,event); });
         self.backgroundRect.addEventListener("mousemove",
                                         function(event) { self.selector.mouseMove(self,event); });
+        self.backgroundRect.addEventListener("mouseout",
+                                        function(event) { self.selector.mouseOut(self,event); });
         self.backgroundRect.addEventListener("click",
                                         function(event) { self.selector.click(self,event); });
 
