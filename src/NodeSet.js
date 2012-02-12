@@ -38,43 +38,51 @@ NodeSet.prototype.toArray = function()
 
 function NodeMap()
 {
-    this.members = new Object();
+    this.keys = new Object();
+    this.values = new Object();
 }
 
 NodeMap.prototype.clear = function()
 {
-    this.members = new Object();
+    this.keys = new Object();
+    this.values = new Object();
 }
 
 NodeMap.prototype.get = function(key)
 {
     if (key._nodeId == null)
         throw new Error("NodeMap.get: key "+key.keyName+" has no _nodeId property");
-    return this.members[key._nodeId];
+    return this.values[key._nodeId];
 }
 
 NodeMap.prototype.put = function(key,value)
 {
     if (key._nodeId == null)
         throw new Error("NodeMap.add: key "+key.keyName+" has no _nodeId property");
-    this.members[key._nodeId] = value;
+    this.keys[key._nodeId] = key;
+    this.values[key._nodeId] = value;
 }
 
 NodeMap.prototype.remove = function(key)
 {
     if (key._nodeId == null)
         throw new Error("NodeMap.remove: key "+key.keyName+" has no _nodeId property");
-    delete this.members[key._nodeId];
+    delete this.keys[key._nodeId];
+    delete this.values[key._nodeId];
 }
 
 NodeMap.prototype.containsKey = function(key)
 {
     if (key._nodeId == null)
         throw new Error("NodeMap.contains: key "+key.keyName+" has no _nodeId property");
-    return (this.members[key._nodeId] != null);
+    return (this.values[key._nodeId] != null);
 }
 
 NodeMap.prototype.getKeys = function()
 {
-    return Object.getOwnPropertyNames(this.members);
+    var names = Object.getOwnPropertyNames(this.values);
+    var result = new Array(names.length);
+    for (var i = 0; i < names.length; i++)
+        result[i] = this.keys[names[i]];
+    return result;
 }
