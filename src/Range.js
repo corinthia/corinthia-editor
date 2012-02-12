@@ -152,20 +152,23 @@ Range.prototype.ensureRangeValidHierarchy = function()
     }
 }
 
-Range.prototype.getOutermostNodes = function()
+Range.prototype.getOutermostNodes = function(info)
 {
     if (!this.isForwards()) {
         var reverse = new Range(this.end.node,this.end.offset,this.start.node,this.start.offset);
         if (!reverse.isForwards())
             throw new Error("Both range "+this+" and its reverse are not forwards");
-        return reverse.getOutermostNodes();
+        return reverse.getOutermostNodes(info);
     }
 
-    var result = new Array();
     var startContainer = this.start.node;
     var startOffset = this.start.offset;
     var endContainer = this.end.node;
     var endOffset = this.end.offset;
+
+    var beginning = new Array();
+    var middle = new Array();
+    var end = new Array();
 
     // Note: start and end are *points* - they are always *in between* nodes or characters, never
     // *at* a node or character.
@@ -198,7 +201,7 @@ Range.prototype.getOutermostNodes = function()
 
     var ancestors = ancestorsWithCommonParent(startParent,startChild,endParent,endChild);
     if (ancestors == null)
-        return result;
+        return new Array();
     var commonParent = ancestors.commonParent;
     var startAncestorChild = ancestors.startChild;
     var endAncestorChild = ancestors.endChild;
@@ -208,7 +211,7 @@ Range.prototype.getOutermostNodes = function()
     var topChild = startChild;
     do {
         if (topChild != null)
-            result.push(topChild);
+            beginning.push(topChild);
 
         while (((topChild == null) || (topChild.nextSibling == null)) &&
                (topParent != commonParent)) {
@@ -225,7 +228,7 @@ Range.prototype.getOutermostNodes = function()
         if (c != null)
             c = c.nextSibling;
         for (; c != endAncestorChild; c = c.nextSibling)
-            result.push(c);
+            middle.push(c);
     }
 
     // Add end nodes
@@ -249,7 +252,19 @@ Range.prototype.getOutermostNodes = function()
             bottomChild = getPreviousSibling(bottomParent,bottomChild);
     } while (bottomParent != commonParent);
     for (var i = endNodes.length-1; i >= 0; i--)
-        result.push(endNodes[i]);
+        end.push(endNodes[i]);
+
+    var result = new Array();
+
+    Array.prototype.push.apply(result,beginning);
+    Array.prototype.push.apply(result,middle);
+    Array.prototype.push.apply(result,end);
+
+    if (info != null) {
+        info.beginning = beginning;
+        info.middle = middle;
+        info.end = end;
+    }
 
     return result;
 

@@ -5,6 +5,7 @@
     var DISPLAY_NODE_WIDTH = 16;
     var DISPLAY_NODE_SPACING = 6;
     var LEVEL_HEIGHT = 60;
+    var SET_COLORS = ["blue","lime","red","yellow","cyan","fuchsia","orange","silver"];
 
     function DisplayNode(domNode,treeView)
     {
@@ -512,7 +513,7 @@
         }
     }
 
-    function displayNodeSet(self,set)
+    function displayNodeSet(self,set,color)
     {
         var radius = DISPLAY_NODE_WIDTH/2;
         var dispRoot = self.displayNodes.get(self.domRoot);
@@ -525,7 +526,7 @@
 
         //    bp.showXYValues(self.nodeGroup);
         //    bp.showStates(self.nodeGroup);
-        bp.showPolygons(self.backgroundGroup);
+        bp.showPolygons(self.backgroundGroup,color,0.1);
         return;
 
         function buildIncludeExclude(disp)
@@ -574,11 +575,15 @@
 
     function displayGroups(self)
     {
-        for (var monitorId in UndoManager.monitors) {
-            var monitor = UndoManager.monitors[monitorId];
+        var monitorIds = Object.getOwnPropertyNames(UndoManager.monitors).sort();
+        var setno = 0;
+        for (var i = 0; i < monitorIds.length; i++) {
+            var monitor = UndoManager.monitors[monitorIds[i]];
             var value = monitor.object[monitor.property];
             if ((value != null) && (value instanceof NodeSet)) {
-                displayNodeSet(self,value);
+                var color = SET_COLORS[setno] ? SET_COLORS[setno] : "gray";
+                displayNodeSet(self,value,color);
+                setno++;
             }
         }
     }

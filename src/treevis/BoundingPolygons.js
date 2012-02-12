@@ -484,8 +484,13 @@
     }
 
     // public
-    BoundingPolygons.prototype.showPolygons = function(svgParent)
+    BoundingPolygons.prototype.showPolygons = function(svgParent,color,opacity)
     {
+        if (color == null)
+            color = "#E8F0F0";
+        if (opacity == null)
+            opacity = "1.0";
+
         var self = this.self;
         for (var i = 0; i < self.polygons.length; i++) {
             var polygon = self.polygons[i];
@@ -498,7 +503,8 @@
             steps.push("Z");
             path.setAttribute("d",steps.join(" "));
             path.setAttribute("stroke","none");
-            path.setAttribute("fill","#E8F0F0");
+            path.setAttribute("fill",color);
+            path.setAttribute("fill-opacity",opacity);
             svgParent.appendChild(path);
         }
     }
