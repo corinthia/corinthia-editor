@@ -86,20 +86,22 @@ function programmaticTree()
 }
 
 var dragging = false;
-var state = { range: null, set: null };
+var state = { set: null, start: null, end: null };
 var treeView = null;
+var range = null;
 
-function updateSelection(node)
+function updateSelection(position)
 {
-    var offset = getOffsetOfNodeInParent(node);
-    if (state.range == null) {
-        state.range = new Range(node.parentNode,offset,node.parentNode,offset);
+    if (range == null) {
+        range = new Range(position.node,position.offset,position.node,position.offset);
     }
     else {
-        state.range = new Range(state.range.start.node,state.range.start.offset,
-                                node.parentNode,offset);
+        range = new Range(range.start.node,range.start.offset,
+                                position.node,position.offset);
     }
-    var nodes = state.range.getAllNodes();
+    state.start = range.start;
+    state.end = range.end;
+    var nodes = range.getAllNodes();
     var set = new NodeSet();
     for (var i = 0; i < nodes.length; i++)
         set.add(nodes[i]);
@@ -107,46 +109,34 @@ function updateSelection(node)
     treeView.update();
 }
 
-function mouseDownNode(node)
+function mouseDownPosition(position)
 {
-    var simpleId = parseInt(node._nodeId.replace(/^.*:/,""));
-//    debug("mouseDownNode "+simpleId.toString(16));
     dragging = true;
     range = null;
-    updateSelection(node);
+    updateSelection(position);
 }
 
-function mouseUpNode(node)
+function mouseUpPosition(position)
 {
-    var simpleId = parseInt(node._nodeId.replace(/^.*:/,""));
-//    debug("mouseUpNode "+simpleId.toString(16));
     dragging = false;
 }
 
-function mouseOverNode(node)
+function mouseOverPosition(position)
 {
-    var simpleId = parseInt(node._nodeId.replace(/^.*:/,""));
-//    debug("mouseOverNode "+simpleId.toString(16));
     if (dragging)
-        updateSelection(node);
+        updateSelection(position);
 }
 
-function mouseMoveNode(node)
+function mouseMovePosition(position)
 {
-    var simpleId = parseInt(node._nodeId.replace(/^.*:/,""));
-//    debug("mouseMoveNode "+simpleId.toString(16));
 }
 
-function mouseOutNode(node)
+function mouseOutPosition(position)
 {
-    var simpleId = parseInt(node._nodeId.replace(/^.*:/,""));
-//    debug("mouseOutNode "+simpleId.toString(16));
 }
 
-function clickNode(node)
+function clickPosition(position)
 {
-    var simpleId = parseInt(node._nodeId.replace(/^.*:/,""));
-//    debug("clickNode "+simpleId.toString(16));
 }
 
 function main()
@@ -165,13 +155,13 @@ function main()
     svg.appendChild(treeView.element);
     treeView.update();
 
-//    treeView.selectionMode = TreeView.POSITION_SELECTION;
-    treeView.onMouseDownNode = mouseDownNode;
-    treeView.onMouseUpNode = mouseUpNode;
-    treeView.onMouseOverNode = mouseOverNode;
-    treeView.onMouseMoveNode = mouseMoveNode;
-    treeView.onMouseOutNode = mouseOutNode;
-    treeView.onClickNode = clickNode;
+    treeView.selectionMode = TreeView.POSITION_SELECTION;
+    treeView.onMouseDownPosition = mouseDownPosition;
+    treeView.onMouseUpPosition = mouseUpPosition;
+    treeView.onMouseOverPosition = mouseOverPosition;
+    treeView.onMouseMovePosition = mouseMovePosition;
+    treeView.onMouseOutPosition = mouseOutPosition;
+    treeView.onClickPosition = clickPosition;
 
     UndoManager.monitorObject(state);
 }

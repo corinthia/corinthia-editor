@@ -125,7 +125,7 @@
 
     function PositionSelector()
     {
-        this.currentNode = null;
+        this.currentPosition = null;
     }
 
     PositionSelector.prototype.findPosition = function(treeView,event)
@@ -160,14 +160,14 @@
 
             if ((closestDistance == null) || (closestDistance > beforeDistance)) {
                 closestDistance = beforeDistance;
-                closestPosition = new Position(node,offset);
+                closestPosition = new Position(node.parentNode,offset);
                 closestX = beforeX;
                 closestY = disp.y;
             }
 
             if ((closestDistance == null) || (closestDistance > afterDistance)) {
                 closestDistance = afterDistance;
-                closestPosition = new Position(node,offset+1);
+                closestPosition = new Position(node.parentNode,offset+1);
                 closestX = afterX;
                 closestY = disp.y;
             }
@@ -628,6 +628,7 @@
         self.displayNodes = new NodeMap();
         self.selectionMode = null;
         self.selector = null;
+        self.currentPositionIndicator = null;
 
         self.backgroundRect.setAttribute("fill","white");
         self.backgroundRect.setAttribute("fill-opacity","0");
@@ -695,6 +696,9 @@
         displayGroups(self);
 
         updateTrackedProperties(self);
+
+        if (self.currentPositionIndicator != null)
+            self.watchGroup.appendChild(self.currentPositionIndicator);
     }
 
     // public
