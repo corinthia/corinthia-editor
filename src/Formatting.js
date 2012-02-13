@@ -65,14 +65,6 @@
         }
     }
 
-    function wrapNode(node,elementName)
-    {
-        var wrapper = document.createElement(elementName);
-        node.parentNode.insertBefore(wrapper,node);
-        moveNode(node,wrapper,null);
-        return wrapper;
-    }
-
     // public (for testing purposes only)
     function splitAroundSelection(range)
     {

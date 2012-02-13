@@ -142,6 +142,14 @@ function replaceElement(oldElement,newName)
     return newElement;
 }
 
+function wrapNode(node,elementName)
+{
+    var wrapper = document.createElement(elementName);
+    node.parentNode.insertBefore(wrapper,node);
+    moveNode(node,wrapper,null);
+    return wrapper;
+}
+
 function isWhitespaceCharacter(c)
 {
     return ((c == " ") || (c == "\t") || (c == "\r") || (c == "\n"));
