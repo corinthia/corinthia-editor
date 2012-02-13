@@ -1,0 +1,268 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                      "http://www.w3.org/TR/html4/loose.dtd">
+<!-- Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved. -->
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="TreeView.css" />
+<style type="text/css">
+
+body { -webkit-user-select: none }
+
+</style>
+<script type="text/javascript" src="../DOM.js"></script>
+<script type="text/javascript" src="../UndoManager.js"></script>
+<script type="text/javascript" src="../NodeSet.js"></script>
+<script type="text/javascript" src="../Position.js"></script>
+<script type="text/javascript" src="../Range.js"></script>
+<script type="text/javascript" src="../traversal.js"></script>
+<script type="text/javascript" src="../util.js"></script>
+<script type="text/javascript" src="../types.js"></script>
+
+<script type="text/javascript" src="TreeView.js"></script>
+<script type="text/javascript" src="StepController.js"></script>
+<script type="text/javascript" src="Slider.js"></script>
+<script type="text/javascript" src="BoundingPolygons.js"></script>
+<script type="text/javascript">
+
+var SVG_NAMESPACE = "http://www.w3.org/2000/svg";
+var SVG_VERSION = "1.1";
+
+function debug(str)
+{
+    console.log(str);
+}
+
+function pushDownInlinePropertiesSimple(range)
+{
+    var outermost = range.getOutermostNodes();
+    outermost.forEach(function (node) { wrapNode(node,"B"); });
+    treeView.update();
+}
+
+var dragging = false;
+var state = { startPosition: null, endPosition: null, selected: null };
+var treeView = null;
+var range = null;
+
+function addNodesToSetRecursive(set,node)
+{
+    set.add(node);
+    for (var child = node.firstChild; child != null; child = child.nextSibling)
+        addNodesToSetRecursive(set,child);
+}
+
+function updateForPosition(position)
+{
+    if (range == null) {
+        range = new Range(position.node,position.offset,position.node,position.offset);
+    }
+    else {
+        range = new Range(range.start.node,range.start.offset,
+                                position.node,position.offset);
+    }
+    state.startPosition = range.start;
+    state.endPosition = range.end;
+    var outermost = range.getOutermostNodes();
+
+    var selected = new NodeSet();
+    outermost.forEach(function (node) { addNodesToSetRecursive(selected,node); });
+    state.selected = selected;
+
+    treeView.update();
+}
+
+function updateForNode(node)
+{
+    var offset = getOffsetOfNodeInParent(node);
+    updateForPosition(new Position(node.parentNode,offset));
+}
+
+function mouseDownPosition(position)
+{
+    dragging = true;
+    range = null;
+    updateForPosition(position);
+}
+
+function mouseUpPosition(position)
+{
+    dragging = false;
+    pushDownInlinePropertiesSimple(range);
+}
+
+function mouseOverPosition(position)
+{
+    if (dragging)
+        updateForPosition(position);
+}
+
+function mouseDownNode(node)
+{
+    dragging = true;
+    range = null;
+    updateForNode(node);
+}
+
+function mouseUpNode(node)
+{
+    dragging = false;
+}
+
+function mouseOverNode(node)
+{
+    if (dragging)
+        updateForNode(node);
+}
+
+function layout()
+{
+    var xOffset = window.innerWidth/2 - treeView.width/2;
+    var yOffset = window.innerHeight/2 - treeView.height/2;
+    treeView.setCoords(xOffset,yOffset);
+}
+
+function resize(event)
+{
+    layout();
+}
+
+
+
+
+function removeWhitespaceTextNodes(parent)
+{
+    var next;
+    for (var child = parent.firstChild; child != null; child = next) {
+        next = child.nextSibling;
+        if (isWhitespaceTextNode(child) || (child.nodeType == Node.COMMENT_NODE))
+            parent.removeChild(child);
+        else
+            removeWhitespaceTextNodes(child);
+    }
+}
+
+function main()
+{
+    window.showIds = true;
+
+    var root = document.getElementById("root");
+    removeWhitespaceTextNodes(root);
+    DOM.assignNodeIds(root);
+
+
+    var svg = document.createElementNS(SVG_NAMESPACE,"svg");
+    svg.setAttribute("version","1.1");
+    document.body.appendChild(svg);
+
+    treeView = new TreeView(root);
+    treeView.labelFun = function(node) {
+        if (node.nodeType == Node.TEXT_NODE)
+            return "#";
+        else
+            return node.nodeName;
+    };
+    treeView.styleFun = function(node) {
+        var fill;
+        var style = { node: {}, text: {} };
+        if (isParagraphNode(node)) {
+            style.node.fill = "blue";
+            style.text.fill = "white";
+        }
+        else if (node.nodeType == Node.TEXT_NODE) {
+            style.node.fill = "white";
+        }
+        else if (node.nodeName == "B") {
+            style.node.fill = "fuchsia";
+            style.text.fill = "white";
+        }
+        else if (node.nodeName == "I") {
+            style.node.fill = "lime";
+        }
+        else if (node.nodeName == "U") {
+            style.node.fill = "yellow";
+        }
+        else if (node.nodeName == "SPAN") {
+            style.node.fill = "#FFA000";
+        }
+
+        if ((node.nodeType == Node.ELEMENT_NODE) &&
+            (node.style.color == "red")) {
+            style.node.stroke = "red";
+            style.node.strokeWidth = "4";
+        }
+
+        return style;
+    };
+
+    svg.appendChild(treeView.element);
+    treeView.update();
+
+    treeView.selectionMode = TreeView.POSITION_SELECTION;
+    treeView.onMouseDownPosition = mouseDownPosition;
+    treeView.onMouseUpPosition = mouseUpPosition;
+    treeView.onMouseOverPosition = mouseOverPosition;
+
+    UndoManager.monitorObject(state);
+    window.onresize = resize;
+    layout();
+
+}
+
+
+</script>
+</head>
+
+<body onload="main()" style="margin: 0">
+
+<div id="root" style="display: none">
+  <p style="color: red">
+    <s>
+      <s>Text</s>
+      <s>Text</s>
+      <s>Text</s>
+    </s>
+    <s>
+      <s>Text</s>
+      <s>Text</s>
+      <s>Text</s>
+    </s>
+    <s>
+      <s>Text</s>
+      <s>Text</s>
+      <s>Text</s>
+    </s>
+  </p>
+  <p style="color: red">
+    <s>
+      <s>Text</s>
+      <s>Text</s>
+      <s>Text</s>
+    </s>
+    <s>
+      <s>Text</s>
+      <s>Text</s>
+      <s>Text</s>
+    </s>
+  </p>
+  <div style="color: red">
+    <p>
+      <s>
+        <s>Text</s>
+        <s>Text</s>
+      </s>
+    </p>
+    <p>
+      <s>
+        <s>Text</s>
+        <s>Text</s>
+      </s>
+      <s>
+        <s>Text</s>
+        <s>Text</s>
+      </s>
+    </p>
+ </p>
+</div>
+
+</body>
+</html>
