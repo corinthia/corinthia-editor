@@ -655,10 +655,27 @@
 
         range.trackWhileExecuting(function() {
             splitAroundSelection(range);
+            range.expand();
             range.ensureRangeValidHierarchy();
             range.expand();
             var nodes = range.getOutermostNodes();
-            var paragraphs = getParagraphs(nodes);
+            var target = null;
+
+            var paragraphs;
+            if (nodes.length > 0) {
+                paragraphs = getParagraphs(nodes);
+            }
+            else {
+                if ((range.start.node.nodeType == Node.ELEMENT_NODE) &&
+                    (range.start.node.childNodes[range.start.offset] != null)) {
+                    target = range.start.node.childNodes[range.start.offset];
+                }
+                else {
+                    target = range.start.node;
+                }
+                ensureValidHierarchy(target);
+                paragraphs = getParagraphs([target]);
+            }
 
             var elementsToWrap = new Object();
 
@@ -710,6 +727,13 @@
             }
 
             mergeRange(range);
+
+            if (target != null) {
+                for (var p = target; p != null; p = next) {
+                    next = p.parentNode;
+                    mergeWithNeighbours(p);
+                }
+            }
         });
 
         return;

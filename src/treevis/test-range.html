@@ -85,7 +85,7 @@ function programmaticTree()
 }
 
 var dragging = false;
-var state = { set: null, beginning: null, middle: null, end: null };
+var state = { startPosition: null, endPosition: null, beginning: null, middle: null, end: null };
 var treeView = null;
 var range = null;
 
@@ -105,8 +105,8 @@ function updateForPosition(position)
         range = new Range(range.start.node,range.start.offset,
                                 position.node,position.offset);
     }
-    state.start = range.start;
-    state.end = range.end;
+    state.startPosition = range.start;
+    state.endPosition = range.end;
     var info = new Object();
     var nodes = range.getOutermostNodes(info);
 

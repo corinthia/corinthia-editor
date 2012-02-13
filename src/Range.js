@@ -77,22 +77,66 @@ Range.prototype.isForwards = function()
     if ((this.end.node.parentNode == null) && (this.end.node != doc.documentElement))
         throw new Error("Range.isForwards "+this+": end node has been removed from document");
 
-    var start = this.start.toDefinitePosition();
-    var end = this.end.toDefinitePosition();
+    var start = this.start;
+    var end = this.end;
 
-    if (end == null) // end of document
-        return true;
+    if ((start.node == end.node) && (start.node.nodeType == Node.TEXT_NODE))
+        return (end.offset >= start.offset);
 
-    if (start == null) // start is at end of document, end isn't
-        return false;
+    var startParent = null;
+    var startChild = null;
+    var endParent = null;
+    var endChild = null;
 
-    if (start.node == end.node) {
-        return (start.offset <= end.offset);
+    if (end.node.nodeType == Node.ELEMENT_NODE) {
+        endParent = end.node;
+        endChild = end.node.childNodes[end.offset];
     }
     else {
-        var cmp = start.node.compareDocumentPosition(end.node);
-        return (cmp & (Node.DOCUMENT_POSITION_FOLLOWING | Node.DOCUMENT_POSITION_CONTAINED_BY));
+        endParent = end.node.parentNode;
+        endChild = end.node;
     }
+
+    if (start.node.nodeType == Node.ELEMENT_NODE) {
+        startParent = start.node;
+        startChild = start.node.childNodes[start.offset];
+    }
+    else {
+        startParent = start.node.parentNode;
+        startChild = start.node;
+        if (startChild == endChild)
+            return false;
+    }
+
+    var startC = startChild;
+    var startP = startParent;
+    while (startP != null) {
+
+        var endC = endChild;
+        var endP = endParent;
+        while (endP != null) {
+
+            if (startP == endC)
+                return false;
+
+            if (startP == endP) {
+                if (endC == null) // endC is last child, so startC must be endC or come before it
+                    return true;
+                for (var n = startC; n != null; n = n.nextSibling) {
+                    if (n == endC)
+                        return true;
+                }
+                return false;
+            }
+
+            endC = endP;
+            endP = endP.parentNode;
+        }
+
+        startC = startP;
+        startP = startP.parentNode;
+    }
+    throw new Error("Could not find common ancestor");
 }
 
 Range.prototype.getInlineNodes = function()
@@ -161,14 +205,21 @@ Range.prototype.getOutermostNodes = function(info)
         return reverse.getOutermostNodes(info);
     }
 
-    var startContainer = this.start.node;
-    var startOffset = this.start.offset;
-    var endContainer = this.end.node;
-    var endOffset = this.end.offset;
+    var start = this.start;
+    var end = this.end;
 
-    var beginning = new Array();
-    var middle = new Array();
-    var end = new Array();
+    var beforeNodes = new Array();
+    var middleNodes = new Array();
+    var afterNodes = new Array();
+
+    if (info != null) {
+        info.beginning = beforeNodes;
+        info.middle = middleNodes;
+        info.end = afterNodes;
+    }
+
+    if ((start.node == end.node) && (start.offset == end.offset))
+        return [];
 
     // Note: start and end are *points* - they are always *in between* nodes or characters, never
     // *at* a node or character.
@@ -179,29 +230,40 @@ Range.prototype.getOutermostNodes = function(info)
     // the child nodes in a container - in which case the child is null. The parent, however, is
     // always non-null;
 
-    var startLocation = this.start.toLocation();
-    var endLocation = this.end.toLocation();
+    var startParent = null;
+    var startChild = null;
+    var endParent = null;
+    var endChild = null;
 
-    // If the end node is contained within the start node, change the start node to the first
-    // node in document order that is not an ancestor of the end node
+    if (start.node.nodeType == Node.ELEMENT_NODE) {
+        startParent = start.node;
+        startChild = start.node.childNodes[start.offset];
+    }
+    else if ((start.node.nodeValue.length > 0) && (start.offset == start.node.nodeValue.length)) {
+        startParent = start.node.parentNode;
+        startChild = start.node.nextSibling;
+    }
+    else {
+        startParent = start.node.parentNode;
+        startChild = start.node;
+    }
 
-    var startParent = startLocation.parent;
-    var startChild = startLocation.child;
-
-    var endParent = endLocation.parent;
-    var endChild = endLocation.child;
-
-    while (isAncestorLocation(startParent,startChild,endParent,endChild) &&
-           ((startParent != endParent) || (startChild != endChild)) &&
-           (startChild != null) &&
-           (startChild.firstChild != null)) {
-        startParent = startChild;
-        startChild = startChild.firstChild;
+    if (end.node.nodeType == Node.ELEMENT_NODE) {
+        endParent = end.node;
+        endChild = end.node.childNodes[end.offset];
+    }
+    else if (end.offset == 0) {
+        endParent = end.node.parentNode;
+        endChild = end.node;
+    }
+    else {
+        endParent = end.node.parentNode;
+        endChild = end.node.nextSibling;
     }
 
     var ancestors = ancestorsWithCommonParent(startParent,startChild,endParent,endChild);
     if (ancestors == null)
-        return new Array();
+        return [];
     var commonParent = ancestors.commonParent;
     var startAncestorChild = ancestors.startChild;
     var endAncestorChild = ancestors.endChild;
@@ -209,9 +271,9 @@ Range.prototype.getOutermostNodes = function(info)
     // Add start nodes
     var topParent = startParent;
     var topChild = startChild;
-    do {
+    while (topParent != commonParent) {
         if (topChild != null)
-            beginning.push(topChild);
+            beforeNodes.push(topChild);
 
         while (((topChild == null) || (topChild.nextSibling == null)) &&
                (topParent != commonParent)) {
@@ -220,28 +282,21 @@ Range.prototype.getOutermostNodes = function(info)
         }
         if (topParent != commonParent)
             topChild = topChild.nextSibling;
-    } while (topParent != commonParent);
+    }
 
     // Add middle nodes
     if (startAncestorChild != endAncestorChild) {
         var c = startAncestorChild;
-        if (c != null)
+        if ((c != null) && (c != startChild))
             c = c.nextSibling;
         for (; c != endAncestorChild; c = c.nextSibling)
-            middle.push(c);
+            middleNodes.push(c);
     }
 
     // Add end nodes
-    var endNodes = new Array();
     var bottomParent = endParent;
     var bottomChild = endChild;
-    var includeEnd = ((endChild != null) && (endChild != startChild) &&
-                      (this.end.node.nodeType == Node.TEXT_NODE) && (this.end.offset > 0));
-    var atEnd = true;
-    do {
-        if ((bottomChild != null) && (includeEnd || !atEnd))
-            endNodes.push(bottomChild);
-        atEnd = false;
+    while (true) {
 
         while ((getPreviousSibling(bottomParent,bottomChild) == null) &&
                (bottomParent != commonParent)) {
@@ -250,21 +305,19 @@ Range.prototype.getOutermostNodes = function(info)
         }
         if (bottomParent != commonParent)
             bottomChild = getPreviousSibling(bottomParent,bottomChild);
-    } while (bottomParent != commonParent);
-    for (var i = endNodes.length-1; i >= 0; i--)
-        end.push(endNodes[i]);
+
+        if (bottomParent == commonParent)
+            break;
+
+        afterNodes.push(bottomChild);
+    }
+    afterNodes = afterNodes.reverse();
 
     var result = new Array();
 
-    Array.prototype.push.apply(result,beginning);
-    Array.prototype.push.apply(result,middle);
-    Array.prototype.push.apply(result,end);
-
-    if (info != null) {
-        info.beginning = beginning;
-        info.middle = middle;
-        info.end = end;
-    }
+    Array.prototype.push.apply(result,beforeNodes);
+    Array.prototype.push.apply(result,middleNodes);
+    Array.prototype.push.apply(result,afterNodes);
 
     return result;
 
