@@ -50,3 +50,17 @@ function selectNode(node)
     var offset = getOffsetOfNodeInParent(node);
     setSelectionRange(new Range(node.parentNode,offset,node.parentNode,offset+1));
 }
+
+function removeWhitespaceAndCommentNodes(node)
+{
+    if (isWhitespaceTextNode(node) || (node.nodeType == Node.COMMENT_NODE)) {
+        node.parentNode.removeChild(node);
+    }
+    else {
+        var next;
+        for (var child = node.firstChild; child != null; child = next) {
+            next = child.nextSibling;
+            removeWhitespaceAndCommentNodes(child);
+        }
+    }
+}
