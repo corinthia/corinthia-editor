@@ -41,6 +41,74 @@ NodeSet.prototype.forEach = function(fun)
     ids.forEach(function(id) { fun(set.members[id]); });
 }
 
+NodeSet.prototype.ancestor = function()
+{
+    var result = new NodeSet();
+    this.forEach(function (node) {
+        for (var p = node.parentNode; p != null; p = p.parentNode)
+            result.add(p);
+    });
+    return result;
+}
+
+NodeSet.prototype.ancestorOrSelf = function()
+{
+    var result = new NodeSet();
+    this.forEach(function (node) {
+        for (var p = node; p != null; p = p.parentNode)
+            result.add(p);
+    });
+    return result;
+}
+
+NodeSet.prototype.descendant = function()
+{
+    var result = new NodeSet();
+    this.forEach(function (node) {
+        recurse(node);
+    });
+    return result;
+
+    function recurse(node)
+    {
+        for (var child = node.firstChild; child != null; child = child.nextSibling) {
+            result.add(child);
+            recurse(child);
+        }
+    }
+}
+
+NodeSet.prototype.descendantOrSelf = function()
+{
+    var result = new NodeSet();
+    this.forEach(function (node) {
+        recurse(node);
+    });
+    return result;
+
+    function recurse(node)
+    {
+        result.add(node);
+        for (var child = node.firstChild; child != null; child = child.nextSibling)
+            recurse(child);
+    }
+}
+
+NodeSet.prototype.union = function(other)
+{
+    var result = new NodeSet();
+    this.forEach(function (node) { result.add(node); });
+    other.forEach(function (node) { result.add(node); });
+    return result;
+}
+
+NodeSet.prototype.intersection = function(other)
+{
+    var result = new NodeSet();
+    this.forEach(function (node) { if (other.contains(node)) { result.add(node); } });
+    return result;
+}
+
 NodeSet.fromArray = function(array)
 {
     var set = new NodeSet();
