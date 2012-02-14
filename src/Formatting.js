@@ -564,54 +564,6 @@
         }
     }
 
-    function wrapChildrenInElement(parent,elementName)
-    {
-        var element = document.createElement(elementName);
-        parent.insertBefore(element,parent.firstChild);
-        while (element.nextSibling != null)
-            moveNode(element.nextSibling,element,null);
-        return element;
-    }
-
-    function wrapChildrenInElements(parent,elementsToWrap)
-    {
-        var names = Object.getOwnPropertyNames(elementsToWrap).sort();
-        for (var i = names.length-1; i >= 0; i--)
-            wrapChildrenInElement(parent,names[i]);
-    }
-
-    function setInlineProperties(node,inlinePropertiesToSet)
-    {
-        for (var name in inlinePropertiesToSet)
-            node.style.setProperty(name,inlinePropertiesToSet[name],null);
-    }
-
-    function setInlinePropertiesRecursive(node,inlinePropertiesToSet,elementsToWrap)
-    {
-        var propertyCount = Object.getOwnPropertyNames(inlinePropertiesToSet).length;
-        var wrapCount = Object.getOwnPropertyNames(elementsToWrap).length;
-
-        if (isParagraphNode(node) || (node.nodeName == "SPAN")) {
-            wrapChildrenInElements(node,elementsToWrap);
-            setInlineProperties(node,inlinePropertiesToSet);
-        }
-        else if (isContainerNode(node)) {
-            var next;
-            for (var child = node.firstChild; child != null; child = next)
-                setInlinePropertiesRecursive(child,inlinePropertiesToSet,elementsToWrap);
-        }
-        else if (propertyCount > 0) {
-            var span = wrapNode(node,"SPAN");
-            wrapChildrenInElements(span,elementsToWrap);
-            setInlineProperties(span,inlinePropertiesToSet);
-        }
-        else if (wrapCount > 0) {
-            var names = Object.getOwnPropertyNames(elementsToWrap).sort();
-            for (var i = names.length-1; i >= 0; i--)
-                node = wrapNode(node,names[i]);
-        }
-    }
-
     function setParagraphStyle(paragraph,style)
     {
         paragraph.removeAttribute("class");
@@ -680,25 +632,7 @@
 
                     var target = child;
 
-                    if (special.underline)
-                        target = wrapInline(target,"U");
-                    if (special.italic)
-                        target = wrapInline(target,"I");
-                    if (special.bold)
-                        target = wrapInline(target,"B");
-
-                    if ((count > 0) &&
-                        ((target.nodeType != Node.ELEMENT_NODE) ||
-                         (target.nodeName == "B") ||
-                         (target.nodeName == "I") ||
-                         (target.nodeName == "U"))) {
-                        target = wrapInline(target,"SPAN");
-                    }
-
-                    for (var name in inlineProperties) {
-                        if (target.style.getPropertyValue(name) == null)
-                            target.style.setProperty(name,inlineProperties[name]);
-                    }
+                    applyInlineFormatting(target,inlineProperties,special);
                 }
             }
 
@@ -708,20 +642,45 @@
             if ((node.nodeName == "B") || (node.nodeName == "I") || (node.nodeName == "U"))
                 removeNodeButKeepChildren(node);
         }
+    }
 
-        function wrapInline(node,elementName)
-        {
-            if (!isInlineNode(node)) {
-                var next;
-                for (var child = node.firstChild; child != null; child = next) {
-                    next = child.nextSibling;
-                    wrapInline(child,elementName);
-                }
-                return node;
+    function wrapInline(node,elementName)
+    {
+        if (!isInlineNode(node)) {
+            var next;
+            for (var child = node.firstChild; child != null; child = next) {
+                next = child.nextSibling;
+                wrapInline(child,elementName);
             }
-            else {
-                return wrapNode(node,elementName);
-            }
+            return node;
+        }
+        else {
+            return wrapNode(node,elementName);
+        }
+    }
+
+    function applyInlineFormatting(target,inlineProperties,special)
+    {
+        if (special.underline)
+            target = wrapInline(target,"U");
+        if (special.italic)
+            target = wrapInline(target,"I");
+        if (special.bold)
+            target = wrapInline(target,"B");
+
+        if ((Object.getOwnPropertyNames(inlineProperties).length > 0) &&
+            ((target.nodeType != Node.ELEMENT_NODE) ||
+             (target.nodeName == "B") ||
+             (target.nodeName == "I") ||
+             (target.nodeName == "U"))) {
+            target = wrapInline(target,"SPAN");
+        }
+
+        var checked = false;
+
+        for (var name in inlineProperties) {
+            if (target.style.getPropertyValue(name) == null)
+                target.style.setProperty(name,inlineProperties[name]);
         }
     }
 
@@ -807,28 +766,11 @@
                 paragraphs = getParagraphs([target]);
             }
 
-            var elementsToWrap = new Object();
-
-            // FIXME: handle the full set of possible values for font-weight, font-style, and
-            // text-decoration
-            if (inlinePropertiesToSet["font-weight"] == "bold") {
-                elementsToWrap["B"] = true;
-                delete inlinePropertiesToSet["font-weight"];
-            }
-
-            if (inlinePropertiesToSet["font-style"] == "italic") {
-                elementsToWrap["I"] = true;
-                delete inlinePropertiesToSet["font-style"];
-            }
-
-            if (inlinePropertiesToSet["text-decoration"] == "underline") {
-                elementsToWrap["U"] = true;
-                delete inlinePropertiesToSet["text-decoration"];
-            }
+            var special = extractSpecial(inlinePropertiesToSet);
 
             // Set properties on inline nodes
             for (var i = 0; i < nodes.length; i++) {
-                setInlinePropertiesRecursive(nodes[i],inlinePropertiesToSet,elementsToWrap);
+                applyInlineFormatting(nodes[i],inlinePropertiesToSet,special);
             }
 
 /*
