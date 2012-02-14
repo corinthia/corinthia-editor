@@ -1,0 +1,27 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script language="javascript">
+function performTest()
+{
+    var range = getSelectionRange();
+    range.ensureRangeValidHierarchy();
+    splitAroundSelection(range);
+    var outermost = range.getOutermostNodes();
+    pushDownInlineProperties(outermost);
+}
+</script>
+</head>
+<body>
+<div style="font-size: 18pt">
+  <p style="color: red">First line</p>
+  [<p style="color: green">Second line</p>
+  <p style="color: blue">Third line</p>
+</div>
+<div style="font-size: 24pt">
+  <p style="color: yellow">Fourth line</p>]
+  <p style="color: fuchsia">Fifth line</p>
+</div>
+</body>
+</html>

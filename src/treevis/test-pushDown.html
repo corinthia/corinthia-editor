@@ -17,6 +17,7 @@ body { -webkit-user-select: none }
 <script type="text/javascript" src="../traversal.js"></script>
 <script type="text/javascript" src="../util.js"></script>
 <script type="text/javascript" src="../types.js"></script>
+<script type="text/javascript" src="../formatting.js"></script>
 
 <script type="text/javascript" src="TreeView.js"></script>
 <script type="text/javascript" src="StepController.js"></script>
@@ -27,20 +28,14 @@ body { -webkit-user-select: none }
 var SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 var SVG_VERSION = "1.1";
 
+
 function debug(str)
 {
     console.log(str);
 }
 
-function pushDownInlinePropertiesSimple(range)
-{
-    var outermost = range.getOutermostNodes();
-    outermost.forEach(function (node) { wrapNode(node,"B"); });
-    treeView.update();
-}
-
 var dragging = false;
-var state = { startPosition: null, endPosition: null, selected: null };
+var state = { startPosition: null, endPosition: null, selected: null, paragraphs: null };
 var treeView = null;
 var range = null;
 
@@ -64,9 +59,17 @@ function updateForPosition(position)
     state.endPosition = range.end;
     var outermost = range.getOutermostNodes();
 
-    var selected = new NodeSet();
-    outermost.forEach(function (node) { addNodesToSetRecursive(selected,node); });
-    state.selected = selected;
+//    state.selected = NodeSet.fromArray(outermost).descendantOrSelf();
+
+
+
+    var outermostArray = range.getOutermostNodes();
+    var outermostSet = NodeSet.fromArray(outermostArray);
+
+    var allArray = range.getAllNodes();
+    var allSet = NodeSet.fromArray(allArray);
+
+    state.selected = outermostSet.ancestorOrSelf().union(allSet);
 
     treeView.update();
 }
@@ -87,7 +90,10 @@ function mouseDownPosition(position)
 function mouseUpPosition(position)
 {
     dragging = false;
-    pushDownInlinePropertiesSimple(range);
+    range = new Range(range.start.node,range.start.offset,range.end.node,range.end.offset);
+    range.expand();
+    pushDownInlineProperties(range.getOutermostNodes());
+    treeView.update();
 }
 
 function mouseOverPosition(position)
@@ -147,7 +153,7 @@ function main()
 
     var root = document.getElementById("root");
     removeWhitespaceTextNodes(root);
-    DOM.assignNodeIds(root);
+    DOM.assignNodeIds(document);
 
 
     var svg = document.createElementNS(SVG_NAMESPACE,"svg");
@@ -164,7 +170,10 @@ function main()
     treeView.styleFun = function(node) {
         var fill;
         var style = { node: {}, text: {} };
-        if (isParagraphNode(node)) {
+        if (isContainerNode(node)) {
+            style.node.fill = "silver";
+        }
+        else if (isParagraphNode(node)) {
             style.node.fill = "blue";
             style.text.fill = "white";
         }
@@ -214,8 +223,11 @@ function main()
 
 <body onload="main()" style="margin: 0">
 
-<div id="root" style="display: none">
-  <p style="color: red">
+<table id="root" style="display: none">
+<tr>
+<td>
+<div>
+  <p style="font-weight: bold">
     <s>
       <s>Text</s>
       <s>Text</s>
@@ -234,9 +246,7 @@ function main()
   </p>
   <p style="color: red">
     <s>
-      <s>Text</s>
-      <s>Text</s>
-      <s>Text</s>
+      <s>Text<br>Text<br>Text</s>
     </s>
     <s>
       <s>Text</s>
@@ -263,6 +273,23 @@ function main()
     </p>
  </p>
 </div>
+</td>
+<td>
+<p>
+  <s>
+    <s>Text</s>
+    <s>Text</s>
+    <s>Text</s>
+  </s>
+  <s>
+    <s>Text</s>
+    <s>Text</s>
+    <s>Text</s>
+  </s>
+</p>
+</td>
+</tr>
+</table>
 
 </body>
 </html>

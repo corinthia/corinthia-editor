@@ -1,0 +1,20 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script language="javascript">
+function performTest()
+{
+    var range = getSelectionRange();
+    splitAroundSelection(range);
+    var outermost = range.getOutermostNodes();
+    pushDownInlineProperties(outermost);
+}
+</script>
+</head>
+<body>
+<p style="color: red">First [line</p>
+<p style="color: green">Second] line</p>
+<p style="color: blue">Third line</p>
+</body>
+</html>

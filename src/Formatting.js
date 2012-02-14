@@ -476,40 +476,55 @@
 
         "text-align": true,
         "line-height": true,
+        "display": true,
     };
+
+    function isParagraphProperty(name)
+    {
+        return PARAGRAPH_PROPERTIES[name];
+    }
+
+    function isInlineProperty(name)
+    {
+        return !PARAGRAPH_PROPERTIES[name];
+    }
 
     function getParagraphs(nodes)
     {
-        var result = new Array();
+        var array = new Array();
+        var set = new NodeSet();
         for (var i = 0; i < nodes.length; i++) {
             var node = nodes[i];
-            getParagraphsRecursive(node);
-            for (var ancestor = node.parentNode; ancestor != null; ancestor = ancestor.parentNode) {
-                // FIXME: this is O(n^2)
-                if (isParagraphNode(ancestor) && !haveNode(ancestor))
-                    result.push(ancestor);
-            }
-        }
-        return result;
 
-        function haveNode(node)
-        {
-            for (var i = 0; i < result.length; i++) {
-                if (result[i] == node)
-                    return true;
+            var haveParagraph = false;
+            for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {   
+                if (isParagraphNode(ancestor)) {
+                    add(ancestor);
+                    haveParagraph = true;
+                    break;
+                }
             }
-            return false;
-        }
 
-        function getParagraphsRecursive(node)
+            if (!haveParagraph)
+                recurse(node);
+        }
+        return array;
+
+        function recurse(node)
         {
             if (isParagraphNode(node)) {
-                result.push(node);
+                add(node);
             }
             else {
                 for (var child = node.firstChild; child != null; child = child.nextSibling)
-                    getParagraphsRecursive(child);
+                    recurse(child);
             }
+        }
+
+        function add(node)
+        {
+            array.push(node);
+            set.add(node);
         }
     }
 
@@ -613,6 +628,129 @@
             if (paragraph.nodeName != style)
                 replaceElement(paragraph,style);
         }
+    }
+
+    function pushDownInlineProperties(outermost)
+    {
+        for (var i = 0; i < outermost.length; i++)
+            recurse(outermost[i].parentNode);
+
+        return;
+
+        function recurse(node)
+        {
+            if (node.nodeType == Node.DOCUMENT_NODE)
+                return;
+
+            if (node.parentNode != null)
+                recurse(node.parentNode);
+
+            var inlineProperties = new Object();
+            for (var i = 0; i < node.style.length; i++) {
+                if (isInlineProperty(node.style[i]))
+                    inlineProperties[node.style[i]] = node.style.getPropertyValue(node.style[i]);
+            }
+
+            for (var name in inlineProperties)
+                node.style.removeProperty(name);
+
+            if (node.nodeName == "B")
+                inlineProperties["font-weight"] = "bold";
+            if (node.nodeName == "I")
+                inlineProperties["font-style"] = "italic";
+            if (node.nodeName == "U") {
+                if (inlineProperties["text-decoration"] != null)
+                    inlineProperties["text-decoration"] += " underline";
+                else
+                    inlineProperties["text-decoration"] = "underline";
+            }
+
+
+            var special = extractSpecial(inlineProperties);
+            var count = Object.getOwnPropertyNames(inlineProperties).length;
+
+            if ((count > 0) || special.bold || special.italic || special.underline) {
+
+                var next;
+                for (var child = node.firstChild; child != null; child = next) {
+                    next = child.nextSibling;
+
+                    if (isWhitespaceTextNode(child))
+                        continue;
+
+                    var target = child;
+
+                    if (special.underline)
+                        target = wrapInline(target,"U");
+                    if (special.italic)
+                        target = wrapInline(target,"I");
+                    if (special.bold)
+                        target = wrapInline(target,"B");
+
+                    if ((count > 0) &&
+                        ((target.nodeType != Node.ELEMENT_NODE) ||
+                         (target.nodeName == "B") ||
+                         (target.nodeName == "I") ||
+                         (target.nodeName == "U"))) {
+                        target = wrapInline(target,"SPAN");
+                    }
+
+                    for (var name in inlineProperties) {
+                        if (target.style.getPropertyValue(name) == null)
+                            target.style.setProperty(name,inlineProperties[name]);
+                    }
+                }
+            }
+
+            if (node.hasAttribute("style") && (node.style.length == 0))
+                node.removeAttribute("style");
+
+            if ((node.nodeName == "B") || (node.nodeName == "I") || (node.nodeName == "U"))
+                removeNodeButKeepChildren(node);
+        }
+
+        function wrapInline(node,elementName)
+        {
+            if (!isInlineNode(node)) {
+                var next;
+                for (var child = node.firstChild; child != null; child = next) {
+                    next = child.nextSibling;
+                    wrapInline(child,elementName);
+                }
+                return node;
+            }
+            else {
+                return wrapNode(node,elementName);
+            }
+        }
+    }
+
+    function extractSpecial(properties)
+    {
+        var special = { bold: false, italic: false, underline: false };
+        if ((properties["font-weight"] != null) &&
+            (properties["font-weight"].toLowerCase() == "bold")) {
+            special.bold = true;
+            delete properties["font-weight"];
+        }
+        if ((properties["font-style"] != null) &&
+            (properties["font-style"].toLowerCase() == "italic")) {
+            special.italic = true;
+            delete properties["font-style"];
+        }
+        if (properties["text-decoration"] != null) {
+            var values = properties["text-decoration"].toLowerCase().split(/\s+/);
+            var index;
+            while ((index = values.indexOf("underline")) >= 0) {
+                values.splice(index,1);
+                special.underline = true;
+            }
+            if (values.length == 0)
+                delete properties["text-decoration"];
+            else
+                properties["text-decoration"] = values.join(" ");
+        }
+        return special;
     }
 
     // public
@@ -740,5 +878,9 @@
     window.reportSelectionFormatting = reportSelectionFormatting;
     window.selectionWrapElement = selectionWrapElement;
     window.selectionUnwrapElement = selectionUnwrapElement;
+    window.isParagraphProperty = isParagraphProperty;
+    window.isInlineProperty = isInlineProperty;
+    window.getParagraphs = getParagraphs;
+    window.pushDownInlineProperties = pushDownInlineProperties;
     window.applyFormattingChanges = applyFormattingChanges;
 })();
