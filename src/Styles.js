@@ -77,7 +77,7 @@ function ensureValidHierarchy(node,recursive)
         throw new Error("Node "+node.nodeName+" \""+node.nodeValue+"\" has been removed");
 
     if (isContainerNode(node) || isParagraphNode(node)) {
-        if (!isContainerNode(node.parentNode)) {
+        if (!isContainerNode(node.parentNode) && !isParagraphNode(node.parentNode)) {
             removeAdjacentWhitespace(node);
 
             var offset = getOffsetOfNodeInParent(node);
