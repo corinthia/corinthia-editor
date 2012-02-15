@@ -98,7 +98,7 @@ function ensureValidHierarchy(node,recursive)
         }
     }
     else { // inline node
-        if (isContainerNode(node.parentNode)) {
+        if (isContainerNode(node.parentNode) && !isWhitespaceTextNode(node)) {
             // Wrap this node in a P element
 
             var start = node;

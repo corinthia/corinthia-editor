@@ -166,8 +166,34 @@ Range.prototype.getAllNodes = function()
     }
 }
 
+Range.prototype.singleNode = function()
+{
+    if ((this.start.node == this.end.node) && (this.start.offset == this.end.offset)) {
+        var target;
+        if (this.start.node.nodeType == Node.ELEMENT_NODE) {
+            if (this.start.node.firstChild == null)
+                return this.start.node;
+            else
+                return this.start.node.childNodes[this.start.offset];
+        }
+        else {
+            return this.start.node;
+        }
+    }
+    else {
+        return null; // Not a single node
+    }
+}
+
 Range.prototype.ensureRangeValidHierarchy = function()
 {
+    if ((this.start.node == this.end.node) && (this.start.offset == this.end.offset)) {
+        var target = this.singleNode();
+        if (target != null)
+            ensureValidHierarchy(target);
+        return;
+    }
+
     var nodes = this.getAllNodes();
     
     var depths = new Array();
@@ -184,12 +210,7 @@ Range.prototype.ensureRangeValidHierarchy = function()
         if (depths[depth] != null) {
             for (var i = 0; i < depths[depth].length; i++) {
                 var node = depths[depth][i];
-                if (!isInlineNode(node.parentNode) && isWhitespaceTextNode(node)) {
-                    node.parentNode.removeChild(node);
-                }
-                else {
-                    ensureValidHierarchy(node,firstDepth);
-                }
+                ensureValidHierarchy(node,firstDepth);
             }
             firstDepth = false;
         }
