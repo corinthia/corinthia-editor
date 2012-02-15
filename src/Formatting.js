@@ -509,7 +509,6 @@
                 if (isParagraphNode(ancestor)) {
                     add(ancestor);
                     haveParagraph = true;
-                    break;
                 }
             }
 
@@ -709,9 +708,31 @@
     function removeProperties(outermost,properties,special)
     {
         var remaining = new Array();
-        for (var i = 0; i < outermost.length; i++)
-            outermost[i] = removePropertiesSingle(outermost[i],properties,special,remaining);
+        for (var i = 0; i < outermost.length; i++) {
+            removePropertiesSingle(outermost[i],properties,special,remaining);
+        }
         return remaining;
+    }
+
+    function getOutermostParagraphs(paragraphs)
+    {
+        var all = new NodeSet();
+        for (var i = 0; i < paragraphs.length; i++)
+            all.add(paragraphs[i]);
+
+        var result = new Array();
+        for (var i = 0; i < paragraphs.length; i++) {
+            var haveAncestor = false;
+            for (var p = paragraphs[i].parentNode; p != null; p = p.parentNode) {
+                if (all.contains(p)) {
+                    haveAncestor = true;
+                    break;
+                }
+            }
+            if (!haveAncestor)
+                result.push(paragraphs[i]);
+        }
+        return result;
     }
 
     function removePropertiesSingle(node,properties,special,remaining)
@@ -748,20 +769,14 @@
         if (properties == null)
             properties = new Object();
 
-        var paragraphPropertiesToSet = new Object();
-        var paragraphPropertiesToRemove = new Object();
+        var paragraphProperties = new Object();
         var inlineProperties = new Object();
 
         for (var name in properties) {
-            if (isParagraphProperty(name)) {
-                if (properties[name] == null)
-                    paragraphPropertiesToRemove[name] = properties[name];
-                else
-                    paragraphPropertiesToSet[name] = properties[name];
-            }
-            else if (isInlineProperty(name)) {
+            if (isParagraphProperty(name))
+                paragraphProperties[name] = properties[name];
+            else if (isInlineProperty(name))
                 inlineProperties[name] = properties[name];
-            }
         }
 
         var range = getSelectionRange();
@@ -810,18 +825,24 @@
                 applyInlineFormatting(outermost[i],inlinePropertiesToSet,special);
             }
 
-/*
-            // Set properties on paragraph nodes
-            for (var i = 0; i < paragraphs.length; i++) {
-                for (var name in paragraphPropertiesToSet)
-                    paragraphs[i].setProperty(name,paragraphPropertiesToSet[name],null);
-            }
 
             // Remove properties from paragraph nodes
-            for (var i = 0; i < paragraphs.length; i++) {
-                removeProperties(paragraphs[i],paragraphPropertiesToRemove);
+            paragraphs = removeProperties(paragraphs,paragraphProperties,{});
+
+            // Set properties on paragraph nodes
+            var paragraphPropertiesToSet = new Object();
+            for (var name in paragraphProperties) {
+                if (paragraphProperties[name] != null)
+                    paragraphPropertiesToSet[name] = paragraphProperties[name];
             }
-*/
+
+            var outermostParagraphs = getOutermostParagraphs(paragraphs);
+            for (var i = 0; i < outermostParagraphs.length; i++) {
+                for (var name in paragraphPropertiesToSet) {
+                    var p = outermostParagraphs[i];
+                    p.style.setProperty(name,paragraphPropertiesToSet[name],null);
+                }
+            }
 
             // Set style on paragraph nodes
             if (style != null) {
