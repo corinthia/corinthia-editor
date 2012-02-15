@@ -20,6 +20,16 @@
 
         if ((selectionRange != null) && selectionRange.isEmpty()) {
 
+            var pos = selectionRange.start;
+            if ((pos.node.nodeType == Node.ELEMENT_NODE) &&
+                (pos.offset > 0) &&
+                (pos.node.childNodes[pos.offset-1].nodeName == "TABLE")) {
+                rects = [pos.node.childNodes[pos.offset-1].getBoundingClientRect()];
+                rects[0] = { left: rects[0].left + rects[0].width,
+                             top: rects[0].top,
+                             height: rects[0].height };
+            }
+
             // We just have a cursor
 
             if ((rects != null) &&
@@ -202,6 +212,10 @@
     // public
     function setSelectionRange(range)
     {
+        var oldRange = selectionRange;
+        UndoManager.addAction(function() {
+            setSelectionRange(oldRange);
+        },"Set selection to "+oldRange);
         selectionRange = range;
         updateSelectionDisplay();
     }
