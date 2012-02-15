@@ -342,6 +342,65 @@
     }
 
     // public
+    Position.prototype.prev = function()
+    {
+        if (this.node.nodeType == Node.ELEMENT_NODE) {
+            if (this.offset == 0) {
+                return upAndBack(this);
+            }
+            else {
+                var child = this.node.childNodes[this.offset-1];
+                return new Position(child,maxNodeOffset(child));
+            }
+        }
+        else if (this.node.nodeType == Node.TEXT_NODE) {
+            if (this.offset > 0)
+                return new Position(this.node,this.offset-1);
+            else
+                return upAndBack(this);
+        }
+        else {
+            return null;
+        }
+
+        function upAndBack(pos)
+        {
+            if (pos.node == pos.node.ownerDocument.body)
+                return null;
+            else
+                return new Position(pos.node.parentNode,getOffsetOfNodeInParent(pos.node));
+        }
+    }
+
+    // public
+    Position.prototype.next = function()
+    {
+        if (this.node.nodeType == Node.ELEMENT_NODE) {
+            if (this.offset == this.node.childNodes.length)
+                return upAndForwards(this);
+            else
+                return new Position(this.node.childNodes[this.offset],0);
+        }
+        else if (this.node.nodeType == Node.TEXT_NODE) {
+            if (this.offset < this.node.nodeValue.length)
+                return new Position(this.node,this.offset+1);
+            else
+                return upAndForwards(this);
+        }
+        else {
+            return null;
+        }
+
+        function upAndForwards(pos)
+        {
+            if (pos.node == pos.node.ownerDocument.body)
+                return null;
+            else
+                return new Position(pos.node.parentNode,getOffsetOfNodeInParent(pos.node)+1);
+        }
+    }
+
+    // public
     Position.trackWhileExecuting = function(positions,fun)
     {
         for (var i = 0; i < positions.length; i++)
