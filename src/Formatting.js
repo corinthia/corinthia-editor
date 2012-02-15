@@ -266,15 +266,25 @@
             return;
 
         var toMove = new Array();
-        for (var i = 0; i < offset; i++)
+        var justWhitespace = true;
+        for (var i = 0; i < offset; i++) {
+            if (!isWhitespaceTextNode(node.childNodes[i]))
+                justWhitespace = false;
             toMove.push(node.childNodes[i]);
+        }
 
         if (toMove.length > 0) {
-            var copy = shallowCopyElement(node);
-            node.parentNode.insertBefore(copy,node);
+            if (justWhitespace) {
+                for (var i = 0; i < toMove.length; i++)
+                    moveNode(toMove[i],node.parentNode,node);
+            }
+            else {
+                var copy = shallowCopyElement(node);
+                node.parentNode.insertBefore(copy,node);
 
-            for (var i = 0; i < toMove.length; i++)
-                moveNode(toMove[i],copy,null);
+                for (var i = 0; i < toMove.length; i++)
+                    moveNode(toMove[i],copy,null);
+            }
         }
 
         movePreceding(node.parentNode,getOffsetOfNodeInParent(node),parentCheckFn);
@@ -286,15 +296,25 @@
             return;
 
         var toMove = new Array();
-        for (var i = offset; i < node.childNodes.length; i++)
+        var justWhitespace = true;
+        for (var i = offset; i < node.childNodes.length; i++) {
+            if (!isWhitespaceTextNode(node.childNodes[i]))
+                justWhitespace = false;
             toMove.push(node.childNodes[i]);
+        }
 
         if (toMove.length > 0) {
-            var copy = shallowCopyElement(node);
-            node.parentNode.insertBefore(copy,node.nextSibling);
+            if (justWhitespace) {
+                for (var i = 0; i < toMove.length; i++)
+                    moveNode(toMove[i],node.parentNode,node.nextSibling);
+            }
+            else {
+                var copy = shallowCopyElement(node);
+                node.parentNode.insertBefore(copy,node.nextSibling);
 
-            for (var i = 0; i < toMove.length; i++)
-                moveNode(toMove[i],copy,null);
+                for (var i = 0; i < toMove.length; i++)
+                    moveNode(toMove[i],copy,null);
+            }
         }
 
         moveFollowing(node.parentNode,getOffsetOfNodeInParent(node)+1,parentCheckFn);
@@ -528,42 +548,6 @@
         }
     }
 
-    function removeProperties(node,propertiesToRemove)
-    {
-        for (var name in propertiesToRemove)
-            node.style.removeProperty(name);
-    }
-
-    function removePropertiesRecursive(node,propertiesToRemove)
-    {
-        if (node.nodeType == Node.ELEMENT_NODE) {
-            var next;
-            for (var child = node.firstChild; child != null; child = next) {
-                var next = child.nextSibling;
-                removePropertiesRecursive(child,propertiesToRemove);
-            }
-            removeProperties(node,propertiesToRemove);
-
-            if (node.nodeName == "SPAN") {
-                var spanValue = node.getAttribute("style");
-                if ((spanValue == null) || (spanValue == ""))
-                    removeNodeButKeepChildren(node);
-            }
-            else if (node.nodeName == "B") {
-                if (propertiesToRemove.hasOwnProperty("font-weight"))
-                    removeNodeButKeepChildren(node);
-            }
-            else if (node.nodeName == "I") {
-                if (propertiesToRemove.hasOwnProperty("font-style"))
-                    removeNodeButKeepChildren(node);
-            }
-            else if (node.nodeName == "U") {
-                if (propertiesToRemove.hasOwnProperty("text-decoration"))
-                    removeNodeButKeepChildren(node);
-            }
-        }
-    }
-
     function setParagraphStyle(paragraph,style)
     {
         paragraph.removeAttribute("class");
@@ -585,9 +569,13 @@
     function pushDownInlineProperties(outermost)
     {
         for (var i = 0; i < outermost.length; i++)
-            recurse(outermost[i].parentNode);
+            outermost[i] = pushDownInlinePropertiesSingle(outermost[i]);
+    }
 
-        return;
+    function pushDownInlinePropertiesSingle(target)
+    {
+        recurse(target.parentNode);
+        return target;
 
         function recurse(node)
         {
@@ -630,9 +618,9 @@
                     if (isWhitespaceTextNode(child))
                         continue;
 
-                    var target = child;
-
-                    applyInlineFormatting(target,inlineProperties,special);
+                    var replacement = applyInlineFormatting(child,inlineProperties,special);
+                    if (target == child)
+                        target = replacement;
                 }
             }
 
@@ -676,40 +664,93 @@
             target = wrapInline(target,"SPAN");
         }
 
-        var checked = false;
-
         for (var name in inlineProperties) {
             if (target.style.getPropertyValue(name) == null)
                 target.style.setProperty(name,inlineProperties[name]);
         }
+
+        return target;
     }
 
     function extractSpecial(properties)
     {
-        var special = { bold: false, italic: false, underline: false };
-        if ((properties["font-weight"] != null) &&
-            (properties["font-weight"].toLowerCase() == "bold")) {
-            special.bold = true;
-            delete properties["font-weight"];
-        }
-        if ((properties["font-style"] != null) &&
-            (properties["font-style"].toLowerCase() == "italic")) {
-            special.italic = true;
-            delete properties["font-style"];
-        }
-        if (properties["text-decoration"] != null) {
-            var values = properties["text-decoration"].toLowerCase().split(/\s+/);
-            var index;
-            while ((index = values.indexOf("underline")) >= 0) {
-                values.splice(index,1);
-                special.underline = true;
+        var special = { bold: null, italic: null, underline: null };
+        var fontWeight = properties["font-weight"];
+        var fontStyle = properties["font-style"];
+        var textDecoration = properties["text-decoration"];
+
+        if (typeof(fontWeight) != "undefined") {
+            special.bold = false;
+            if ((fontWeight != null) &&
+                (fontWeight.toLowerCase() == "bold")) {
+                special.bold = true;
+                delete properties["font-weight"];
             }
-            if (values.length == 0)
-                delete properties["text-decoration"];
-            else
-                properties["text-decoration"] = values.join(" ");
+        }
+
+        if (typeof(fontStyle) != "undefined") {
+            special.italic = false;
+            if ((fontStyle != null) &&
+                (fontStyle.toLowerCase() == "italic")) {
+                special.italic = true;
+                delete properties["font-style"];
+            }
+        }
+
+        if (typeof(textDecoration) != "undefined") {
+            special.underline = false;
+            if (textDecoration != null) {
+                var values = textDecoration.toLowerCase().split(/\s+/);
+                var index;
+                while ((index = values.indexOf("underline")) >= 0) {
+                    values.splice(index,1);
+                    special.underline = true;
+                }
+                if (values.length == 0)
+                    delete properties["text-decoration"];
+                else
+                    properties["text-decoration"] = values.join(" ");
+            }
         }
         return special;
+    }
+
+    function removeProperties(outermost,properties,special)
+    {
+        var remaining = new Array();
+        for (var i = 0; i < outermost.length; i++)
+            outermost[i] = removePropertiesSingle(outermost[i],properties,special,remaining);
+        return remaining;
+    }
+
+    function removePropertiesSingle(node,properties,special,remaining)
+    {
+        debug("removePropertiesSingle "+node+": special = "+JSON.stringify(special));
+
+        if ((node.nodeType == Node.ELEMENT_NODE) && (node.hasAttribute("style"))) {
+            for (var name in properties)
+                node.style.removeProperty(name);
+            if (node.style.length == 0)
+                node.removeAttribute("style");
+        }
+
+        var willRemove = ((node.nodeName == "B") && (special.bold == false)) ||
+                         ((node.nodeName == "I") && (special.italic == false)) ||
+                         ((node.nodeName == "U") && (special.underline == false)) ||
+                         ((node.nodeName == "SPAN") && !node.hasAttribute("style"));
+
+        var childRemaining = willRemove ? remaining : null;
+
+        var next;
+        for (var child = node.firstChild; child != null; child = next) {
+            next = child.nextSibling;
+            removePropertiesSingle(child,properties,special,childRemaining);
+        }
+
+        if (willRemove)
+            removeNodeButKeepChildren(node);
+        else if (remaining != null)
+            remaining.push(node);
     }
 
     // public
@@ -722,15 +763,17 @@
         var inlinePropertiesToSet = new Object();
         var paragraphPropertiesToRemove = new Object();
         var inlinePropertiesToRemove = new Object();
+        var inlineProperties = new Object();
 
         for (var name in properties) {
-            if (PARAGRAPH_PROPERTIES[name]) {
+            if (isParagraphProperty(name)) {
                 if (properties[name] == null)
                     paragraphPropertiesToRemove[name] = properties[name];
                 else
                     paragraphPropertiesToSet[name] = properties[name];
             }
-            else {
+            else if (isInlineProperty(name)) {
+                inlineProperties[name] = properties[name];
                 if (properties[name] == null)
                     inlinePropertiesToRemove[name] = properties[name];
                 else
@@ -747,12 +790,12 @@
             range.expand();
             range.ensureRangeValidHierarchy();
             range.expand();
-            var nodes = range.getOutermostNodes();
+            var outermost = range.getOutermostNodes();
             var target = null;
 
             var paragraphs;
-            if (nodes.length > 0) {
-                paragraphs = getParagraphs(nodes);
+            if (outermost.length > 0) {
+                paragraphs = getParagraphs(outermost);
             }
             else {
                 if ((range.start.node.nodeType == Node.ELEMENT_NODE) &&
@@ -766,19 +809,20 @@
                 paragraphs = getParagraphs([target]);
             }
 
-            var special = extractSpecial(inlinePropertiesToSet);
+            var special = extractSpecial(inlineProperties);
+
+            // Push down inline properties
+            pushDownInlineProperties(outermost);
+
+            outermost = removeProperties(outermost,inlineProperties,special);
 
             // Set properties on inline nodes
-            for (var i = 0; i < nodes.length; i++) {
-                applyInlineFormatting(nodes[i],inlinePropertiesToSet,special);
+            var special = extractSpecial(inlinePropertiesToSet);
+            for (var i = 0; i < outermost.length; i++) {
+                applyInlineFormatting(outermost[i],inlinePropertiesToSet,special);
             }
 
 /*
-            // Remove properties from inline nodes
-            for (var i = 0; i < nodes.length; i++) {
-                removePropertiesRecursive(nodes[i],inlinePropertiesToRemove);
-            }
-
             // Set properties on paragraph nodes
             for (var i = 0; i < paragraphs.length; i++) {
                 for (var name in paragraphPropertiesToSet)
@@ -824,5 +868,6 @@
     window.isInlineProperty = isInlineProperty;
     window.getParagraphs = getParagraphs;
     window.pushDownInlineProperties = pushDownInlineProperties;
+    window.removeProperties = removeProperties;
     window.applyFormattingChanges = applyFormattingChanges;
 })();
