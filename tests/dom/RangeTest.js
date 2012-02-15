@@ -1,5 +1,4 @@
 var allPositions;
-var allPositionsSignificant;
 var allPositionsIndexMap;
 
 function positionKey(pos)
@@ -33,44 +32,32 @@ function setup(root)
 
 function getAllPositions(root)
 {
-    allPositionsSignificant = new Array();
-
     var includeEmptyElements = true;
 
     var positions = new Array();
     var rootOffset = getOffsetOfNodeInParent(root);
     var sig = 0;
-//    printTree(document.body);
-//    debug("rootOffset = "+rootOffset);
     positions.push(new Position(root.parentNode,rootOffset));
-    allPositionsSignificant.push(sig++);
     recurse(root);
     positions.push(new Position(root.parentNode,rootOffset+1));
-    allPositionsSignificant.push(sig++);
-    debug("positions.length = "+positions.length+
-          ", allPositionsSignificant.length = "+allPositionsSignificant.length);
     return positions;
 
     function recurse(node)
     {
         if (node.nodeType == Node.TEXT_NODE) {
-            for (var offset = 0; offset <= node.nodeValue.length; offset++) {
+            for (var offset = 0; offset <= node.nodeValue.length; offset++)
                 positions.push(new Position(node,offset));
-                allPositionsSignificant.push(sig++);
-            }
         }
         else if ((node.nodeType == Node.ELEMENT_NODE) &&
                  (node.firstChild != null) || includeEmptyElements) {
             var offset = 0;
             for (var child = node.firstChild; child != null; child = child.nextSibling) {
                 positions.push(new Position(node,offset));
-                allPositionsSignificant.push(sig);
                 recurse(child);
                 offset++;
                 sig++;
             }
             positions.push(new Position(node,offset));
-            allPositionsSignificant.push(sig++);
         }
     }
 }
