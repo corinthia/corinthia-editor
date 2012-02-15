@@ -86,6 +86,7 @@
         window.onresize = function(event) { resize(self,event); }
 
         this.element = self.element;
+        this.treeView = self.treeView;
         Object.freeze(this);
     }
 
