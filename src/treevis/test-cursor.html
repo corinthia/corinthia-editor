@@ -23,6 +23,7 @@ window.debugIds = true;
 <script type="text/javascript" src="../util.js"></script>
 <script type="text/javascript" src="../viewport.js"></script>
 <script type="text/javascript" src="../types.js"></script>
+<script type="text/javascript" src="../cursor.js"></script>
 <script type="text/javascript" src="../tests/dom/RangeTest.js"></script>
 
 <script type="text/javascript" src="TreeView.js"></script>
@@ -91,67 +92,8 @@ function traversePositions(root)
         for (var i = 0; i < allPositions.length; i++) {
             var pos = allPositions[i];
 
-            var isStopPosition = false;
-
-/*
-            var spaces = 0;
-            for (var b = i-1; b >= 0; b--) {
-                var before = allPositions[b];
-                if ((before.node.nodeType == Node.TEXT_NODE) &&
-                    (before.offset < before.node.nodeValue.length)) {
-                    var ch = before.node.nodeValue.charAt(before.offset);
-                    if (isWhitespaceCharacter(ch)) {
-                        spaces++;
-                    }
-                    else {
-                        isStopPosition = (spaces <= 1);
-                        break;
-                    }
-                }
-            }
-*/
-
-            var node = pos.node;
-            var offset = pos.offset;
-
-            if (node.nodeType == Node.TEXT_NODE) {
-                var value = node.nodeValue;
-                var prev = node.previousSibling;
-                var next = node.nextSibling;
-
-                if ((offset > 0) && !isWhitespaceCharacter(value.charAt(offset-1)))
-                    isStopPosition = true;
-
-                if ((offset < value.length) && !isWhitespaceCharacter(value.charAt(offset)))
-                    isStopPosition = true;
-
-                if ((offset == value.length) &&
-                    !isInlineNode(node.parentNode) &&
-                    isWhitespaceTextNode(node) &&
-                    (prev == null) &&
-                    ((next == null) || (next.nodeName == "BR")))
-                    isStopPosition = true;
-            }
-            else if (node.nodeType == Node.ELEMENT_NODE) {
-                var prev = (offset == 0) ? null : node.childNodes[offset-1];
-                var next = (offset >= node.childNodes.length) ? null : node.childNodes[offset];
-
-                if ((prev != null) &&
-                    ((prev.nodeName == "IMG") ||
-                     (prev.nodeName == "TABLE")))
-                    isStopPosition = true;
-
-                if ((next != null) &&
-                    ((next.nodeName == "IMG") ||
-                     (next.nodeName == "TABLE")))
-                    isStopPosition = true;
-
-                if ((prev == null) && (next != null) && (next.nodeName == "BR"))
-                    isStopPosition = true;
-            }
-
-            if (isStopPosition) {
-                var range = new Range(node,offset,node,offset);
+            if (isValidCursorPosition(pos)) {
+                var range = new Range(pos.node,pos.offset,pos.node,pos.offset);
                 setSelectionRange(range);
                 work.pos = pos;
                 UndoManager.newGroup();

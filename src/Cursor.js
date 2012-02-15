@@ -4,6 +4,82 @@
 (function() {
 
     // public
+    function isValidCursorPosition(pos)
+    {
+        var result = false;
+
+        var node = pos.node;
+        var offset = pos.offset;
+
+        if (node.nodeType == Node.TEXT_NODE) {
+            var value = node.nodeValue;
+            var prev = node.previousSibling;
+            var next = node.nextSibling;
+
+            // Immediately after a non-whitespace character -> YES
+            if ((offset > 0) && !isWhitespaceCharacter(value.charAt(offset-1)))
+                result = true;
+
+            // Immediately before a non-whitespace character -> YES
+            if ((offset < value.length) && !isWhitespaceCharacter(value.charAt(offset)))
+                result = true;
+
+            // Right at the end of a whitespace node which is the first child in a paragraph,
+            // and has no next sibling, or is followed by a BR -> YES
+            if ((offset == value.length) &&
+                !isInlineNode(node.parentNode) &&
+                isWhitespaceTextNode(node) &&
+                (prev == null) &&
+                ((next == null) || (next.nodeName == "BR")))
+                result = true;
+        }
+        else if (node.nodeType == Node.ELEMENT_NODE) {
+            var prev = (offset == 0) ? null : node.childNodes[offset-1];
+            var next = (offset >= node.childNodes.length) ? null : node.childNodes[offset];
+
+            // Directly after an IMG or TABLE -> YES
+            if ((prev != null) &&
+                ((prev.nodeName == "IMG") ||
+                 (prev.nodeName == "TABLE")))
+                result = true;
+
+            // Directly before an IMG or TABLE -> YES
+            if ((next != null) &&
+                ((next.nodeName == "IMG") ||
+                 (next.nodeName == "TABLE")))
+                result = true;
+
+            // In an empty paragraph or one that only contains a BR
+            if ((prev == null) && (next != null) && (next.nodeName == "BR"))
+                result = true;
+
+            // Special case for an IMG that directly follows some text that ends in a
+            // non-whitespace character. The cursor will be allowed at the end of the text
+            // node, so we don't want to allow it before the image (which corresponds to the
+            // same location on screen)
+            if ((next != null) && (prev != null) &&
+                (next.nodeName == "IMG") &&
+                (prev.nodeType == Node.TEXT_NODE) &&
+                (prev.nodeValue.length > 0) &&
+                !isWhitespaceCharacter(prev.nodeValue.charAt(prev.nodeValue.length-1))) {
+                result = false;
+                debug("not allowing directly before image");
+            }
+
+            // As above, but for an IMG that directly precedes some text
+            if ((prev != null) && (next != null) &&
+                (prev.nodeName == "IMG") &&
+                (next.nodeType == Node.TEXT_NODE) &&
+                (next.nodeValue.length > 0) &&
+                !isWhitespaceCharacter(next.nodeValue.charAt(0))) {
+                result = false;
+            }
+        }
+
+        return result;
+    }
+
+    // public
     function positionCursor(x,y)
     {
         var zoom = getZoom();
@@ -377,6 +453,7 @@
         }
     }
 
+    window.isValidCursorPosition = isValidCursorPosition;
     window.positionCursor = positionCursor;
     window.moveLeft = moveLeft;
     window.moveRight = moveRight;
