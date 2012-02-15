@@ -138,18 +138,6 @@
             } while (!lastMerge);
         }
 
-        function removePrecedingWhitespace(node)
-        {
-            while ((node.previousSibling != null) && isWhitespaceTextNode(node.previousSibling))
-                node.parentNode.removeChild(node.previousSibling);
-        }
-
-        function removeFollowingWhitespace(node)
-        {
-            while ((node.nextSibling != null) && isWhitespaceTextNode(node.nextSibling))
-                node.parentNode.removeChild(node.nextSibling);
-        }
-
         function mergeWithNextSibling(current)
         {
             var parent = current.parentNode;
@@ -649,6 +637,9 @@
 
     function applyInlineFormatting(target,inlineProperties,special)
     {
+        if (isWhitespaceTextNode(target))
+            return;
+
         if (special.underline)
             target = wrapInline(target,"U");
         if (special.italic)
@@ -725,8 +716,6 @@
 
     function removePropertiesSingle(node,properties,special,remaining)
     {
-        debug("removePropertiesSingle "+node+": special = "+JSON.stringify(special));
-
         if ((node.nodeType == Node.ELEMENT_NODE) && (node.hasAttribute("style"))) {
             for (var name in properties)
                 node.style.removeProperty(name);
@@ -760,9 +749,7 @@
             properties = new Object();
 
         var paragraphPropertiesToSet = new Object();
-        var inlinePropertiesToSet = new Object();
         var paragraphPropertiesToRemove = new Object();
-        var inlinePropertiesToRemove = new Object();
         var inlineProperties = new Object();
 
         for (var name in properties) {
@@ -774,10 +761,6 @@
             }
             else if (isInlineProperty(name)) {
                 inlineProperties[name] = properties[name];
-                if (properties[name] == null)
-                    inlinePropertiesToRemove[name] = properties[name];
-                else
-                    inlinePropertiesToSet[name] = properties[name];
             }
         }
 
@@ -817,7 +800,12 @@
             outermost = removeProperties(outermost,inlineProperties,special);
 
             // Set properties on inline nodes
-            var special = extractSpecial(inlinePropertiesToSet);
+            var inlinePropertiesToSet = new Object();
+            for (var name in inlineProperties) {
+                if (inlineProperties[name] != null)
+                    inlinePropertiesToSet[name] = inlineProperties[name];
+            }
+
             for (var i = 0; i < outermost.length; i++) {
                 applyInlineFormatting(outermost[i],inlinePropertiesToSet,special);
             }

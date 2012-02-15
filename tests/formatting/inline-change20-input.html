@@ -5,15 +5,17 @@
 <script language="javascript">
 function performTest()
 {
-    applyFormattingChanges(null,{"font-weight": null,
-                                 "font-style": null,
-                                 "text-decoration": null});
+    applyFormattingChanges(null,{"color": null});
 }
 </script>
 </head>
 <body>
 <p>
-  [<s><b><i><u><s>Text</s></u></i></b></s>]
+  <span style="color: blue">
+    <s>One</s>
+    [<s>Two</s>]
+    <s>Three</s>
+  </span>
 </p>
 </body>
 </html>
