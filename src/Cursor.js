@@ -63,7 +63,6 @@
                 (prev.nodeValue.length > 0) &&
                 !isWhitespaceCharacter(prev.nodeValue.charAt(prev.nodeValue.length-1))) {
                 result = false;
-                debug("not allowing directly before image");
             }
 
             // As above, but for an IMG that directly precedes some text
@@ -113,32 +112,16 @@
         if (selectionRange == null)
             return;
 
-        var node = selectionRange.end.node;
-        var offset = selectionRange.end.offset;
+        var pos = selectionRange.start;
 
-        if ((node.nodeType == Node.ELEMENT_NODE) && (offset < node.childNodes.length)) {
-            node = node.childNodes[offset];
-            offset = 0;
-        }
+        var count = 0;
+        do {
+            pos = pos.prev();
+            count++;
+        } while ((pos != null) && !isValidCursorPosition(pos));
 
-        if ((node.nodeType == Node.TEXT_NODE) && (offset > 0)) {
-            setEmptySelectionAt(node,offset-1);
-        }
-        else {
-            node = prevNode(node);
-
-            while ((node != null) && !acceptNode(node))
-                node = prevNode(node);
-            if (node != null) {
-                if (node.nodeType == Node.ELEMENT_NODE) {
-                    var offset = getOffsetOfNodeInParent(node);
-                    setEmptySelectionAt(node.parentNode,offset);
-                }
-                else {
-                    setEmptySelectionAt(node,node.nodeValue.length);
-                }
-            }
-        }
+        if (pos != null)
+            setEmptySelectionAt(pos.node,pos.offset);
     }
 
     // public
@@ -148,48 +131,16 @@
         if (selectionRange == null)
             return;
 
-        var node = selectionRange.end.node;
-        var offset = selectionRange.end.offset;
+        var pos = selectionRange.start;
 
-        if ((node.nodeType == Node.ELEMENT_NODE) && (offset < node.childNodes.length)) {
-            node = node.childNodes[offset];
-            offset = 0;
-        }
+        var count = 0;
+        do {
+            pos = pos.next();
+            count++;
+        } while ((pos != null) && !isValidCursorPosition(pos));
 
-        if ((node.nodeType == Node.TEXT_NODE) && (offset < node.nodeValue.length)) {
-            setEmptySelectionAt(node,offset+1);
-        }
-        else {
-            if ((node.nodeType == Node.ELEMENT_NODE) && (offset == node.childNodes.length))
-                node = nextNodeAfter(node);
-            else
-                node = nextNode(node);
-
-            while ((node != null) && !acceptNode(node))
-                node = nextNode(node);
-            if (node != null) {
-                if (node.nodeType == Node.ELEMENT_NODE) {
-                    var offset = getOffsetOfNodeInParent(node);
-                    setEmptySelectionAt(node.parentNode,offset);
-                }
-                else {
-                    setEmptySelectionAt(node,0);
-                }
-            }
-        }
-    }
-
-
-    function acceptNode(node)
-    {
-        if (node.nodeType == Node.TEXT_NODE)
-            return !isWhitespaceString(node.nodeValue);
-        else if ((node.nodeName == "IMG") || (node.nodeName == "TABLE"))
-            return true;
-        else if (isParagraphNode(node) && !nodeHasContent(node))
-            return true;
-        else
-            return false;
+        if (pos != null)
+            setEmptySelectionAt(pos.node,pos.offset);
     }
 
     function nodeHasContent(node)
