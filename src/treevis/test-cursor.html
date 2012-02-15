@@ -1,0 +1,293 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                      "http://www.w3.org/TR/html4/loose.dtd">
+<!-- Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved. -->
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="TreeView.css" />
+<style type="text/css">
+
+body { -webkit-user-select: none }
+
+</style>
+<script type="text/javascript">
+window.debugIds = true;
+</script>
+<script type="text/javascript" src="../tests/nulleditor.js"></script>
+<script type="text/javascript" src="../DOM.js"></script>
+<script type="text/javascript" src="../UndoManager.js"></script>
+<script type="text/javascript" src="../NodeSet.js"></script>
+<script type="text/javascript" src="../Position.js"></script>
+<script type="text/javascript" src="../Range.js"></script>
+<script type="text/javascript" src="../traversal.js"></script>
+<script type="text/javascript" src="../selection.js"></script>
+<script type="text/javascript" src="../util.js"></script>
+<script type="text/javascript" src="../viewport.js"></script>
+<script type="text/javascript" src="../types.js"></script>
+<script type="text/javascript" src="../tests/dom/RangeTest.js"></script>
+
+<script type="text/javascript" src="TreeView.js"></script>
+<script type="text/javascript" src="StepController.js"></script>
+<script type="text/javascript" src="Slider.js"></script>
+<script type="text/javascript" src="BoundingPolygons.js"></script>
+<script type="text/javascript">
+
+// http://station.woj.com/2010/02/javascript-random-seed.html
+//var randomSeed = new Date().getTime();
+//var randomSeed = 1328615295137;
+//var randomSeed = 1328725991396;
+var randomSeed = 1328744506051;
+debug("randomSeed = "+randomSeed);
+function random()
+{
+    randomSeed = (randomSeed*9301+49297) % 233280;
+    return randomSeed/(233280.0);
+}
+
+var SVG_NAMESPACE = "http://www.w3.org/2000/svg";
+var SVG_VERSION = "1.1";
+
+function debug(str)
+{
+    console.log(str);
+}
+
+function preorderTraversal(root)
+{
+    var work = { currentNode: null, descendants: null };
+
+    UndoManager.monitorWhileExecuting(work,function() {
+        recurse(root);
+    });
+
+    function recurse(node)
+    {
+        // action
+        work.currentNode = node;
+
+        var set = new NodeSet();
+        set.add(node);
+        addDescendants(node,set);
+        work.descendants = set;
+
+        UndoManager.newGroup();
+        for (var child = node.firstChild; child != null; child = child.nextSibling)
+            recurse(child);
+    }
+
+    function addDescendants(node,set)
+    {
+        for (var child = node.firstChild; child != null; child = child.nextSibling) {
+            set.add(child);
+            addDescendants(child,set);
+        }
+    }
+}
+
+function traversePositions(root)
+{
+    var work = { pos: null };
+    UndoManager.monitorWhileExecuting(work,function() {
+        var spaces = 0;
+        for (var i = 0; i < allPositions.length; i++) {
+            var pos = allPositions[i];
+
+            var isStopPosition = false;
+
+/*
+            var spaces = 0;
+            for (var b = i-1; b >= 0; b--) {
+                var before = allPositions[b];
+                if ((before.node.nodeType == Node.TEXT_NODE) &&
+                    (before.offset < before.node.nodeValue.length)) {
+                    var ch = before.node.nodeValue.charAt(before.offset);
+                    if (isWhitespaceCharacter(ch)) {
+                        spaces++;
+                    }
+                    else {
+                        isStopPosition = (spaces <= 1);
+                        break;
+                    }
+                }
+            }
+*/
+
+            var node = pos.node;
+            var offset = pos.offset;
+
+            if (node.nodeType == Node.TEXT_NODE) {
+                var value = node.nodeValue;
+                var prev = node.previousSibling;
+                var next = node.nextSibling;
+
+                if ((offset > 0) && !isWhitespaceCharacter(value.charAt(offset-1)))
+                    isStopPosition = true;
+
+                if ((offset < value.length) && !isWhitespaceCharacter(value.charAt(offset)))
+                    isStopPosition = true;
+
+                if ((offset == value.length) &&
+                    !isInlineNode(node.parentNode) &&
+                    isWhitespaceTextNode(node) &&
+                    (prev == null) &&
+                    ((next == null) || (next.nodeName == "BR")))
+                    isStopPosition = true;
+            }
+            else if (node.nodeType == Node.ELEMENT_NODE) {
+                var prev = (offset == 0) ? null : node.childNodes[offset-1];
+                var next = (offset >= node.childNodes.length) ? null : node.childNodes[offset];
+
+                if ((prev != null) &&
+                    ((prev.nodeName == "IMG") ||
+                     (prev.nodeName == "TABLE")))
+                    isStopPosition = true;
+
+                if ((next != null) &&
+                    ((next.nodeName == "IMG") ||
+                     (next.nodeName == "TABLE")))
+                    isStopPosition = true;
+
+                if ((prev == null) && (next != null) && (next.nodeName == "BR"))
+                    isStopPosition = true;
+            }
+
+            if (isStopPosition) {
+                var range = new Range(node,offset,node,offset);
+                setSelectionRange(range);
+                work.pos = pos;
+                UndoManager.newGroup();
+            }
+        }
+    });
+}
+
+function traversePositionsAll(root)
+{
+    var work = { pos: null };
+    UndoManager.monitorWhileExecuting(work,function() {
+        for (var i = 0; i < allPositions.length; i++) {
+            var pos = allPositions[i];
+            var range = new Range(pos.node,pos.offset,pos.node,pos.offset);
+            setSelectionRange(range);
+            work.pos = pos;
+            UndoManager.newGroup();
+        }
+    });
+}
+
+function getIdToNodeMap(top)
+{
+    var map = new Object();
+    recurse(top);
+    return map;
+
+    function recurse(node)
+    {
+        var simpleId = parseInt(node._nodeId.replace(/^.*:/,""));
+        map[simpleId] = node;
+        for (var child = node.firstChild; child != null; child = child.nextSibling)
+            recurse(child);
+    }
+}
+
+var cursorDiv = null;
+
+editor.setCursor = function(x,y,height)
+{
+    if (cursorDiv == null)
+        cursorDiv = document.createElement("DIV");
+    cursorDiv.style.position = "absolute";
+    cursorDiv.style.left = x+"px";
+    cursorDiv.style.top = y+"px";
+    cursorDiv.style.width = "2px";
+    cursorDiv.style.height = height+"px";
+    cursorDiv.style.backgroundColor = "blue";
+    document.body.appendChild(cursorDiv);
+}
+    
+editor.setSelectionHandles = function(x1,y1,height1,x2,y2,height2)
+{
+}
+    
+editor.clearSelectionHandlesAndCursor = function()
+{
+    if (cursorDiv != null) {
+        cursorDiv.parentNode.removeChild(cursorDiv);
+        cursorDiv = null;
+    }
+}
+
+function main()
+{
+    var root = document.getElementById("root");
+    setup(root);
+    printTree(root);
+//    DOM.assignNodeIds(document);
+
+//    preorderTraversal(root);
+    traversePositions(root);
+
+    var map = getIdToNodeMap(root);
+
+
+//    var work = { set: null };
+//    UndoManager.monitorWhileExecuting(work,function() {
+//        UndoManager.newGroup();
+//    });
+
+
+
+    var svg = document.createElementNS(SVG_NAMESPACE,"svg");
+    svg.setAttribute("version","1.1");
+    document.body.appendChild(svg);
+
+    var controller = new StepController(root);
+    controller.treeView.labelFun = function(node) {
+        if (node.nodeType == Node.TEXT_NODE)
+            return "#";
+        else
+            return node.nodeName;
+    };
+    svg.appendChild(controller.element);
+    controller.update();
+}
+
+
+</script>
+</head>
+
+<body onload="main()" style="margin: 0">
+
+<div id="root" style="position: absolute; left: 20px; top: 400px">
+
+<p id="p1">  Beginning    text    </p>
+
+<p>im<img id="img1" src="a.png" width="100" height="100" style="border: 1px solid black">age</p>
+
+<p id="p2">
+<img id="img1" src="a.png" width="100" height="100" style="border: 1px solid black">
+<img id="img2" src="a.png" width="100" height="100" style="border: 1px solid black">
+<img id="img3" src="a.png" width="100" height="100" style="border: 1px solid black"><img id="img3" src="a.png" width="100" height="100" style="border: 1px solid black"><img id="img3" src="a.png" width="100" height="100" style="border: 1px solid black">
+</p>
+    
+<p id="p3">Middle</p>
+
+<table width="100%" border="1">
+  <tr id="tr1">
+    <td id="td1" width="50%">One</td>
+    <td id="td2" width="50%">Two</td>
+  </tr>
+  <tr id="tr2">
+    <td id="td3" width="50%">   </td>
+    <td id="td4" width="50%">Four</td>
+  </tr>
+</table>
+
+<p>    <br></p>
+<p><br></p>
+
+<p id="p4">End</p>
+
+</div>
+
+</body>
+</html>
