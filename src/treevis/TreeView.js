@@ -306,9 +306,6 @@
         var node = position.node;
         var offset = position.offset;
 
-        if (node.childNodes.length == 0)
-            throw new Error("position.node has 0 children");
-
         if (position.node == treeView.domRoot.parentNode) {
             var rootOffset = getOffsetOfNodeInParent(treeView.domRoot);
             var disp = treeView.displayNodes.get(treeView.domRoot);
@@ -320,6 +317,11 @@
                 return { x: disp.x + DISPLAY_NODE_WIDTH/2,
                          y: disp.y };
             }
+        }
+
+        if ((node.nodeType == Node.TEXT_NODE) || (node.firstChild == null)) {
+            var disp = treeView.displayNodes.get(node);
+            return { x: disp.x, y: disp.y };
         }
 
         if (offset == 0) {
@@ -415,12 +417,11 @@
                 self.monitorGroup.appendChild(marker);
             }
             else if ((value != null) && (value instanceof Position)) {
+                debug("position: "+value);
                 var node = value.node;
                 var offset = value.offset;
 
-                if (node.childNodes.length > 0) {
-                    self.monitorGroup.appendChild(createPositionMarker(self,value,"blue"));
-                }
+                self.monitorGroup.appendChild(createPositionMarker(self,value,"blue"));
             }
 /*            else if ((value != null) && (value instanceof NodeSet)) {
                 for (var id in value.members) {
