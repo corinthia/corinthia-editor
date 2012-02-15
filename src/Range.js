@@ -388,7 +388,12 @@ Range.prototype.getOutermostNodes = function(info)
 
 Range.prototype.getClientRects = function()
 {
-    var nodes = this.getOutermostNodes();
+    var nodes;
+    var single = this.singleNode();
+    if (single != null)
+        nodes = [single];
+    else
+        nodes = this.getOutermostNodes();
 
     // WebKit in iOS 5.0 has a bug where if the selection spans multiple paragraphs, the complete
     // rect for paragraphs other than the first is returned, instead of just the portions of it
