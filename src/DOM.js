@@ -12,7 +12,7 @@
 
     // Assign a unique prefix to the ids, to ensure namespaces don't clash when multiple instances
     // of this are used in different browser windows
-    var prefix = Math.random()+":";
+    var prefix = window.debugIds ? "" : (Math.random()+":");
     var nextNodeId = 0;
 
     Document.prototype.createElement = function(elementName)
@@ -48,6 +48,11 @@
         var clone = original.cloneNode.call(this,deep);
         DOM.assignNodeIds(clone);
         return clone;
+    }
+
+    Node.prototype.toString = function(deep)
+    {
+        return nodeString(this);
     }
 
     function nodeInserted(event)

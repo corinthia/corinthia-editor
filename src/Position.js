@@ -330,8 +330,11 @@
                 for (var i = self.node.nodeValue.length; i < self.offset; i++)
                     extra += "!";
             }
-            return JSON.stringify(self.node.nodeValue.slice(0,self.offset)+extra+"|"+
-                                  self.node.nodeValue.slice(self.offset));
+            var id = "";
+            if (window.debugIds)
+                id = self.node._nodeId+":";
+            return id+JSON.stringify(self.node.nodeValue.slice(0,self.offset)+extra+"|"+
+                                     self.node.nodeValue.slice(self.offset));
         }
         else {
             return "("+nodeString(self.node)+","+self.offset+")";

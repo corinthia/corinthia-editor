@@ -49,12 +49,15 @@ function nodeString(node)
 {
     if (node == null)
         return "null";
-    else if (node.nodeType == Node.TEXT_NODE)
-        return JSON.stringify(node.nodeValue);
+    var id = "";
+    if (window.debugIds)
+        id = node._nodeId+":";
+    if (node.nodeType == Node.TEXT_NODE)
+        return id+JSON.stringify(node.nodeValue);
     else if ((node.nodeType == Node.ELEMENT_NODE) && (node.hasAttribute("id")))
-        return node.nodeName+"#"+node.getAttribute("id");
+        return id+node.nodeName+"#"+node.getAttribute("id");
     else
-        return node.nodeName;
+        return id+node.nodeName;
 }
 
 // This function works around a bug in WebKit where caretRangeFromPoint sometimes returns an
