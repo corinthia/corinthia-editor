@@ -143,31 +143,24 @@ function keydown(e)
     }
 }
 
-// Remove the temporary <script> element that was added to the document to execute this file
-// so it's not saved with the document
-var initscript = document.getElementById("initscript");
-if (initscript != null) {
-    initscript.parentNode.removeChild(initscript);
-}
+function init()
+{
+    var jsInitOk = false;
+    try {
+        DOM.assignNodeIds(document);
+        document.body.style.textAlign = "justify";
+        window.onkeydown = keydown;
 
-var jsInitOk = false;
-try {
-    DOM.assignNodeIds(document);
-//    document.body.contentEditable = true;
-//    document.body.style.padding = "15%";
-//    document.body.style.padding = "5%";
-    document.body.style.textAlign = "justify";
-    window.onkeydown = keydown;
+        setupMutation();
+        getOutline();
+        getStyles();
+        structure.examineDocument();
+        jsInitOk = true;
+    }
+    catch (e) {
+        editor.jsInterfaceInitError(e.stack);
+    }
 
-    setupMutation();
-    getOutline();
-    getStyles();
-    structure.examineDocument();
-    jsInitOk = true;
+    if (jsInitOk)
+        editor.jsInterfaceInitFinished();
 }
-catch (e) {
-    editor.jsInterfaceInitError(e.stack);
-}
-
-if (jsInitOk)
-    editor.jsInterfaceInitFinished();
