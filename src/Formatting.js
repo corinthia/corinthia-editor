@@ -309,6 +309,114 @@
     }
 
     // public
+    function getFormatting()
+    {
+        // FIXME: implement a more efficient version of this algorithm which avoids duplicate checks
+
+        var range = getSelectionRange();
+        var outermost = range.getOutermostNodes();
+        var leafNodes = new Array();
+        for (var i = 0; i < outermost.length; i++) {
+            findLeafNodes(outermost[i],leafNodes);
+        }
+
+        var commonProperties = null;
+        for (var i = 0; i < leafNodes.length; i++) {
+            if (!isWhitespaceTextNode(leafNodes[i])) {
+                var leafNodeProperties = getAllProperties(leafNodes[i]);
+                if (commonProperties == null)
+                    commonProperties = leafNodeProperties;
+                else
+                    commonProperties = intersection(commonProperties,leafNodeProperties);
+            }
+        }
+
+        return commonProperties;
+
+        function intersection(a,b)
+        {
+            var result = new Object();
+            for (var name in a) {
+                if (a[name] == b[name])
+                    result[name] = a[name];
+            }
+            return result;
+        }
+
+        function findLeafNodes(node,result)
+        {
+            if (node.firstChild == null) {
+                result.push(node);
+            }
+            else {
+                for (var child = node.firstChild; child != null; child = child.nextSibling)
+                    findLeafNodes(child,result);
+            }
+        }
+
+        function getAllProperties(node)
+        {
+            if (node == node.ownerDocument.body)
+                return new Object();
+
+            var properties = getAllProperties(node.parentNode);
+
+            if (node.nodeType == Node.ELEMENT_NODE) {
+                if (node.hasAttribute("STYLE")) {
+                    for (var i = 0; i < node.style.length; i++) {
+                        var name = node.style[i];
+                        var value = node.style.getPropertyValue(name);
+                        properties[name] = value;
+                    }
+                }
+                if (node.nodeName == "B") {
+                    properties["font-weight"] = "bold";
+                }
+                else if (node.nodeName == "I") {
+                    properties["font-style"] = "italic";
+                }
+                else if (node.nodeName == "U") {
+                    var components = [];
+                    if (properties["text-decoration"] != null) {
+                        var components = properties["text-decoration"].toLowerCase().split(/\s+/);
+                        if (components.indexOf("underline") == -1)
+                            properties["text-decoration"] += " underline";
+                    }
+                    else {
+                        properties["text-decoration"] = "underline";
+                    }
+                }
+                else if (node.nodeName == "H1") {
+                    properties["uxwrite-style"] = "H1";
+                }
+                else if (node.nodeName == "H2") {
+                    properties["uxwrite-style"] = "H2";
+                }
+                else if (node.nodeName == "H3") {
+                    properties["uxwrite-style"] = "H3";
+                }
+                else if (node.nodeName == "H4") {
+                    properties["uxwrite-style"] = "H4";
+                }
+                else if (node.nodeName == "H5") {
+                    properties["uxwrite-style"] = "H5";
+                }
+                else if (node.nodeName == "H6") {
+                    properties["uxwrite-style"] = "H6";
+                }
+                else if (isParagraphNode(node)) {
+                    if (node.hasAttribute("class"))
+                        properties["uxwrite-style"] = "."+node.getAttribute("class");
+                    else
+                        properties["uxwrite-style"] = "";
+                }
+            }
+
+            return properties;
+        }
+    }
+
+    // public
     function reportSelectionFormatting()
     {
         var formatting = new SelectionFormatting();
@@ -872,6 +980,7 @@
     window.splitAroundSelection = splitAroundSelection;
     window.mergeWithNeighbours = mergeWithNeighbours;
     window.reportSelectionFormatting = reportSelectionFormatting;
+    window.getFormatting = getFormatting;
     window.selectionWrapElement = selectionWrapElement;
     window.selectionUnwrapElement = selectionUnwrapElement;
     window.isParagraphProperty = isParagraphProperty;
