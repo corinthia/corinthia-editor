@@ -153,7 +153,6 @@ if (initscript != null) {
 var jsInitOk = false;
 try {
     DOM.assignNodeIds(document);
-    document.onclick = reportSelectionFormatting;
 //    document.body.contentEditable = true;
 //    document.body.style.padding = "15%";
 //    document.body.style.padding = "5%";
