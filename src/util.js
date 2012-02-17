@@ -60,6 +60,14 @@ function nodeString(node)
         return id+node.nodeName;
 }
 
+function clone(object)
+{
+    var result = new Object();
+    for (var name in object)
+        result[name] = object[name];
+    return result;
+}
+
 // This function works around a bug in WebKit where caretRangeFromPoint sometimes returns an
 // incorrect node (the last text node in the document). In a previous attempt to fix this bug,
 // we first checked if the point was in the elements bounding rect, but this meant that it wasn't
