@@ -19,14 +19,6 @@ var editor = {
     {
     },
     
-    reportStyle: function(style)
-    {
-    },
-    
-    reportFormatting: function(str)
-    {
-    },
-    
     sectionAdded: function(name,id,level,prevId)
     {
     },

@@ -4,8 +4,6 @@ var editor = {
     getHTMLResponse: function(html) {},
     jsInterfaceInitError: function(error) {alert("js init error: "+error);},
     jsInterfaceInitFinished: function() {},
-    reportStyle: function(style) {},
-    reportFormatting: function(str) {},
     sectionAdded: function(name,id,level,prevId) {},
     sectionRemoved: function(id) {},
     updateSectionName: function(id,name) {},
