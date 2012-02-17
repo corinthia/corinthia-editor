@@ -64,3 +64,26 @@ function removeWhitespaceAndCommentNodes(node)
         }
     }
 }
+
+// selectionWrapElement() and selectionUnwrapElement() used to be in formatting.js but have
+// now been made obselete by the addition of applyFormattingChanges(). However there are still
+// a few tests which use them.
+function selectionWrapElement(elementName)
+{
+    if (elementName == "B")
+        applyFormattingChanges(null,{"font-weight": "bold"});
+    else if (elementName == "I")
+        applyFormattingChanges(null,{"font-style": "italic"});
+    else if (elementName == "U")
+        applyFormattingChanges(null,{"text-decoration": "underline"});
+}
+
+function selectionUnwrapElement(elementName)
+{
+    if (elementName == "B")
+        applyFormattingChanges(null,{"font-weight": null});
+    else if (elementName == "I")
+        applyFormattingChanges(null,{"font-style": null});
+    else if (elementName == "U")
+        applyFormattingChanges(null,{"text-decoration": null});
+}

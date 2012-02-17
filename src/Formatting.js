@@ -30,6 +30,7 @@
         }
     }
 
+    // FIXME: call this from getFormatting()
     function checkBracketsAndQuotes(node,offset,formatting)
     {
         var haveClosingBracket = false;
@@ -355,215 +356,67 @@
                     findLeafNodes(child,result);
             }
         }
-
-        function getAllProperties(node)
-        {
-            if (node == node.ownerDocument.body)
-                return new Object();
-
-            var properties = getAllProperties(node.parentNode);
-
-            if (node.nodeType == Node.ELEMENT_NODE) {
-                if (node.hasAttribute("STYLE")) {
-                    for (var i = 0; i < node.style.length; i++) {
-                        var name = node.style[i];
-                        var value = node.style.getPropertyValue(name);
-                        properties[name] = value;
-                    }
-                }
-                if (node.nodeName == "B") {
-                    properties["font-weight"] = "bold";
-                }
-                else if (node.nodeName == "I") {
-                    properties["font-style"] = "italic";
-                }
-                else if (node.nodeName == "U") {
-                    var components = [];
-                    if (properties["text-decoration"] != null) {
-                        var components = properties["text-decoration"].toLowerCase().split(/\s+/);
-                        if (components.indexOf("underline") == -1)
-                            properties["text-decoration"] += " underline";
-                    }
-                    else {
-                        properties["text-decoration"] = "underline";
-                    }
-                }
-                else if (node.nodeName == "H1") {
-                    properties["uxwrite-style"] = "H1";
-                }
-                else if (node.nodeName == "H2") {
-                    properties["uxwrite-style"] = "H2";
-                }
-                else if (node.nodeName == "H3") {
-                    properties["uxwrite-style"] = "H3";
-                }
-                else if (node.nodeName == "H4") {
-                    properties["uxwrite-style"] = "H4";
-                }
-                else if (node.nodeName == "H5") {
-                    properties["uxwrite-style"] = "H5";
-                }
-                else if (node.nodeName == "H6") {
-                    properties["uxwrite-style"] = "H6";
-                }
-                else if (isParagraphNode(node)) {
-                    if (node.hasAttribute("class"))
-                        properties["uxwrite-style"] = "."+node.getAttribute("class");
-                    else
-                        properties["uxwrite-style"] = "";
-                }
-            }
-
-            return properties;
-        }
     }
 
-    // public
-    function reportSelectionFormatting()
+    function getAllProperties(node)
     {
-        var formatting = new SelectionFormatting();
-        var selectionRange = getSelectionRange();
-        if (selectionRange == null) {
-            debug("reportSelectionFormatting: no selection");
-            return; // FIXME: report that there is no formatting info available
-        }
-        var nodes = selectionRange.getOutermostNodes();
-        for (var i = 0; i < nodes.length; i++) {
-            var node = nodes[i];
-            detectFormatting(formatting,node);
-        }
-        if (selectionRange != null) {
-            checkBracketsAndQuotes(selectionRange.start.node,
-                                   selectionRange.start.offset,
-                                   formatting);
-        }
-        editor.reportFormatting(formatting);
-        return;
+        if (node == node.ownerDocument.body)
+            return new Object();
 
-        function detectFormatting(formatting,node)
-        {
-            if (node == null)
-                return;
+        var properties = getAllProperties(node.parentNode);
 
-            if (node.nodeName == "B")
-                formatting.bold = true;
-            if (node.nodeName == "I")
-                formatting.italic = true;
-            if (node.nodeName == "U")
-                formatting.underline = true;
-            if (node.nodeName == "TT")
-                formatting.typewriter = true;
-            if (node.nodeName == "UL")
-                formatting.ul = true;
-            if (node.nodeName == "OL")
-                formatting.ol = true;
-
-            // In the case where a heading or PRE element has the class attribute set, we ignore
-            // the class attribute and just go with the element name - otherwise it would really
-            // complicate things (we don't support multiple styles for a single paragraph).
-            if ((node.nodeName == "H1") ||
-                (node.nodeName == "H2") ||
-                (node.nodeName == "H3") ||
-                (node.nodeName == "H4") ||
-                (node.nodeName == "H5") ||
-                (node.nodeName == "H6") ||
-                (node.nodeName == "PRE")) {
-                formatting.setStyle(node.nodeName);
-            }
-            else if ((node.nodeType == Node.ELEMENT_NODE) && node.hasAttribute("class")) {
-                formatting.setStyle("."+node.getAttribute("class"));
-            }
-            else if (node.nodeName == "P") {
-                formatting.setStyle(node.nodeName);
-            }
-
-            detectFormatting(formatting,node.parentNode);
-        }
-    }
-
-    // public
-    // "Wraps" a selection in a given element, i.e. ensures that all inline nodes that are part of
-    // the selection have an ancestor of the given element type, e.g. B or UL. If the selection
-    // starts or ends part-way through a text node, the text node(s) are split and the operation
-    // is applied only to the portion of the text that is actually selected.
-    function selectionWrapElement(elementName)
-    {
-        var range = selectionUnwrapElement(elementName);
-
-        if ((range == null) ||
-            ((range.start.node == range.end.node) && (range.start.offset == range.end.offset))) {
-            return null;
-        }
-
-        range.trackWhileExecuting(function() {
-            splitAroundSelection(range);
-
-            var inlineNodes = range.getInlineNodes();
-            for (var i = 0; i < inlineNodes.length; i++) {
-                var node = inlineNodes[i];
-                ensureValidHierarchy(node,true);
-
-                // splitAroundSelection() ensured that there is a child element of the current
-                // paragraph that is wholly contained within the selection. It is this element that
-                // we will wrap.
-                // Note that this part of the selection might already be wrapped in the requested
-                // element; so we include a check to avoid double-wrapping.
-                for (var p = node; p.parentNode != null; p = p.parentNode) {
-                    if ((p.nodeName != elementName) && isParagraphNode(p.parentNode)) {
-                        wrapNode(p,elementName);
-                        break;
-                    }
+        if (node.nodeType == Node.ELEMENT_NODE) {
+            if (node.hasAttribute("STYLE")) {
+                for (var i = 0; i < node.style.length; i++) {
+                    var name = node.style[i];
+                    var value = node.style.getPropertyValue(name);
+                    properties[name] = value;
                 }
             }
-
-            mergeRange(range);
-        });
-
-        setSelectionRange(range);
-        reportSelectionFormatting();
-        return range;
-    }
-
-    // public
-    // For all nodes in the selection, remove any ancestor nodes with the given name from the tree
-    // (replacing them with their children)
-    function selectionUnwrapElement(elementName)
-    {
-        var range = getSelectionRange();
-        if ((range == null) ||
-            ((range.start.node == range.end.node) && (range.start.offset == range.end.offset)))
-            return null;
-
-        range.trackWhileExecuting(function() {
-            splitAroundSelection(range);
-
-            var nodes = range.getAllNodes();
-            for (var i = 0; i < nodes.length; i++) {
-                if (nodes[i].nodeType == Node.TEXT_NODE)
-                    unwrapSingle(nodes[i],elementName);
+            if (node.nodeName == "B") {
+                properties["font-weight"] = "bold";
             }
-
-            mergeRange(range);
-        });
-
-        setSelectionRange(range);
-        reportSelectionFormatting();
-        return range;
-
-        function unwrapSingle(node,elementName)
-        {
-            if (node == null)
-                return;
-
-            var parent = node.parentNode;
-            if (node.nodeName == elementName) {
-                // We found the node we're looking for. Move all of its children to its parent
-                // and then remove the node
-                removeNodeButKeepChildren(node);
+            else if (node.nodeName == "I") {
+                properties["font-style"] = "italic";
             }
-
-            unwrapSingle(parent,elementName);
+            else if (node.nodeName == "U") {
+                var components = [];
+                if (properties["text-decoration"] != null) {
+                    var components = properties["text-decoration"].toLowerCase().split(/\s+/);
+                    if (components.indexOf("underline") == -1)
+                        properties["text-decoration"] += " underline";
+                }
+                else {
+                    properties["text-decoration"] = "underline";
+                }
+            }
+            else if (node.nodeName == "H1") {
+                properties["uxwrite-style"] = "H1";
+            }
+            else if (node.nodeName == "H2") {
+                properties["uxwrite-style"] = "H2";
+            }
+            else if (node.nodeName == "H3") {
+                properties["uxwrite-style"] = "H3";
+            }
+            else if (node.nodeName == "H4") {
+                properties["uxwrite-style"] = "H4";
+            }
+            else if (node.nodeName == "H5") {
+                properties["uxwrite-style"] = "H5";
+            }
+            else if (node.nodeName == "H6") {
+                properties["uxwrite-style"] = "H6";
+            }
+            else if (isParagraphNode(node)) {
+                if (node.hasAttribute("class"))
+                    properties["uxwrite-style"] = "."+node.getAttribute("class");
+                else
+                    properties["uxwrite-style"] = "";
+            }
         }
+
+        return properties;
     }
 
     var PARAGRAPH_PROPERTIES = {
@@ -815,8 +668,10 @@
         return special;
     }
 
-    function removeProperties(outermost,properties,special)
+    function removeProperties(outermost,properties)
     {
+        properties = clone(properties);
+        var special = extractSpecial(properties);
         var remaining = new Array();
         for (var i = 0; i < outermost.length; i++) {
             removePropertiesSingle(outermost[i],properties,special,remaining);
@@ -854,9 +709,9 @@
                 node.removeAttribute("style");
         }
 
-        var willRemove = ((node.nodeName == "B") && (special.bold == false)) ||
-                         ((node.nodeName == "I") && (special.italic == false)) ||
-                         ((node.nodeName == "U") && (special.underline == false)) ||
+        var willRemove = ((node.nodeName == "B") && (special.bold != null)) ||
+                         ((node.nodeName == "I") && (special.italic != null)) ||
+                         ((node.nodeName == "U") && (special.underline != null)) ||
                          ((node.nodeName == "SPAN") && !node.hasAttribute("style"));
 
         var childRemaining = willRemove ? remaining : null;
@@ -917,24 +772,26 @@
                 paragraphs = getParagraphs([target]);
             }
 
-            var special = extractSpecial(inlineProperties);
 
             // Push down inline properties
             pushDownInlineProperties(outermost);
 
-            outermost = removeProperties(outermost,inlineProperties,special);
+            outermost = removeProperties(outermost,inlineProperties);
 
             // Set properties on inline nodes
-            var inlinePropertiesToSet = new Object();
-            for (var name in inlineProperties) {
-                if (inlineProperties[name] != null)
-                    inlinePropertiesToSet[name] = inlineProperties[name];
-            }
-
             for (var i = 0; i < outermost.length; i++) {
-                applyInlineFormatting(outermost[i],inlinePropertiesToSet,special);
-            }
+                var existing = getAllProperties(outermost[i]);
+                var toSet = new Object();
+                for (var name in inlineProperties) {
+                    if ((inlineProperties[name] != null) &&
+                        (existing[name] != inlineProperties[name])) {
+                        toSet[name] = inlineProperties[name];
+                    }
+                }
 
+                var special = extractSpecial(toSet);
+                applyInlineFormatting(outermost[i],toSet,special);
+            }
 
             // Remove properties from paragraph nodes
             paragraphs = removeProperties(paragraphs,paragraphProperties,{});
@@ -981,10 +838,7 @@
     window.moveFollowing = moveFollowing;
     window.splitAroundSelection = splitAroundSelection;
     window.mergeWithNeighbours = mergeWithNeighbours;
-    window.reportSelectionFormatting = reportSelectionFormatting;
     window.getFormatting = getFormatting;
-    window.selectionWrapElement = selectionWrapElement;
-    window.selectionUnwrapElement = selectionUnwrapElement;
     window.isParagraphProperty = isParagraphProperty;
     window.isInlineProperty = isInlineProperty;
     window.getParagraphs = getParagraphs;
