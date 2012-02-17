@@ -135,22 +135,11 @@ function getHTML()
     }
 }
 
-function keydown(e)
-{
-    if (e.keyCode == '\r'.charCodeAt(0)) {
-        e.preventDefault();
-        enterPressed();
-    }
-}
-
 function init()
 {
     var jsInitOk = false;
     try {
         DOM.assignNodeIds(document);
-        document.body.style.textAlign = "justify";
-        window.onkeydown = keydown;
-
         setupMutation();
         getOutline();
         getStyles();
