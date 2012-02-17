@@ -331,6 +331,8 @@
             }
         }
 
+        if (commonProperties == null)
+            commonProperties = {};
         return commonProperties;
 
         function intersection(a,b)
