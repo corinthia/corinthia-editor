@@ -108,7 +108,7 @@ function updateForPosition(position)
     state.startPosition = range.start;
     state.endPosition = range.end;
     var info = new Object();
-    var nodes = range.getOutermostNodes(info);
+    var nodes = range.getOutermostNodes(false,info);
 
     var beginning = new NodeSet();
     var middle = new NodeSet();

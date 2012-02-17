@@ -139,9 +139,9 @@ Range.prototype.isForwards = function()
     throw new Error("Could not find common ancestor");
 }
 
-Range.prototype.getInlineNodes = function()
+Range.prototype.getInlineNodes = function(atLeastOne)
 {
-    var all = this.getAllNodes();
+    var all = this.getAllNodes(atLeastOne);
     var result = new Array();
     for (var i = 0; i < all.length; i++) {
         if (isInlineNode(all[i]))
@@ -150,10 +150,10 @@ Range.prototype.getInlineNodes = function()
     return result;
 }
 
-Range.prototype.getAllNodes = function()
+Range.prototype.getAllNodes = function(atLeastOne)
 {
     var result = new Array();
-    var outermost = this.getOutermostNodes();
+    var outermost = this.getOutermostNodes(atLeastOne);
     for (var i = 0; i < outermost.length; i++)
         addRecursive(outermost[i]);
     return result;
@@ -168,33 +168,19 @@ Range.prototype.getAllNodes = function()
 
 Range.prototype.singleNode = function()
 {
-    if ((this.start.node == this.end.node) && (this.start.offset == this.end.offset)) {
-        var target;
-        if (this.start.node.nodeType == Node.ELEMENT_NODE) {
-            if (this.start.node.firstChild == null)
-                return this.start.node;
-            else
-                return this.start.node.childNodes[this.start.offset];
-        }
-        else {
-            return this.start.node;
-        }
-    }
-    else {
-        return null; // Not a single node
-    }
+    var node = this.start.node;
+    var offset = this.start.offset;
+    if ((node.nodeType != Node.ELEMENT_NODE) || (node.firstChild == null))
+        return node;
+    else if (offset >= node.childNodes.length)
+        return node.lastChild;
+    else
+        return node.childNodes[offset];
 }
 
 Range.prototype.ensureRangeValidHierarchy = function()
 {
-    if ((this.start.node == this.end.node) && (this.start.offset == this.end.offset)) {
-        var target = this.singleNode();
-        if (target != null)
-            ensureValidHierarchy(target);
-        return;
-    }
-
-    var nodes = this.getAllNodes();
+    var nodes = this.getAllNodes(true);
     
     var depths = new Array();
     for (var i = 0; i < nodes.length; i++) {
@@ -217,13 +203,13 @@ Range.prototype.ensureRangeValidHierarchy = function()
     }
 }
 
-Range.prototype.getOutermostNodes = function(info)
+Range.prototype.getOutermostNodes = function(atLeastOne,info)
 {
     if (!this.isForwards()) {
         var reverse = new Range(this.end.node,this.end.offset,this.start.node,this.start.offset);
         if (!reverse.isForwards())
             throw new Error("Both range "+this+" and its reverse are not forwards");
-        return reverse.getOutermostNodes(info);
+        return reverse.getOutermostNodes(atLeastOne,info);
     }
 
     var start = this.start;
@@ -239,8 +225,8 @@ Range.prototype.getOutermostNodes = function(info)
         info.end = afterNodes;
     }
 
-    if ((start.node == end.node) && (start.offset == end.offset))
-        return [];
+    if (this.isEmpty())
+        return atLeastOne ? [this.singleNode()] : [];
 
     // Note: start and end are *points* - they are always *in between* nodes or characters, never
     // *at* a node or character.
@@ -284,7 +270,7 @@ Range.prototype.getOutermostNodes = function(info)
 
     var ancestors = ancestorsWithCommonParent(startParent,startChild,endParent,endChild);
     if (ancestors == null)
-        return [];
+        return atLeastOne ? [this.singleNode()] : [];
     var commonParent = ancestors.commonParent;
     var startAncestorChild = ancestors.startChild;
     var endAncestorChild = ancestors.endChild;
@@ -340,7 +326,10 @@ Range.prototype.getOutermostNodes = function(info)
     Array.prototype.push.apply(result,middleNodes);
     Array.prototype.push.apply(result,afterNodes);
 
-    return result;
+    if (result.length == 0)
+        return atLeastOne ? [this.singleNode()] : [];
+    else
+        return result;
 
     function ancestorsWithCommonParent(startParent,startChild,endParent,endChild)
     {
@@ -388,12 +377,7 @@ Range.prototype.getOutermostNodes = function(info)
 
 Range.prototype.getClientRects = function()
 {
-    var nodes;
-    var single = this.singleNode();
-    if (single != null)
-        nodes = [single];
-    else
-        nodes = this.getOutermostNodes();
+    var nodes = this.getOutermostNodes(true);
 
     // WebKit in iOS 5.0 has a bug where if the selection spans multiple paragraphs, the complete
     // rect for paragraphs other than the first is returned, instead of just the portions of it

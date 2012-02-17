@@ -69,7 +69,7 @@ function updateForPosition(position)
     state.startPosition = range.start;
     state.endPosition = range.end;
     var info = new Object();
-//    var nodes = range.getOutermostNodes(info);
+//    var nodes = range.getOutermostNodes(false,info);
     var nodes = getOutermostNodesSimple(range,info);
 
     if (info.beginning == null) {
@@ -253,7 +253,7 @@ function testGetOutermostNodes()
             total++;
 
             var info = new Object();
-            var actual = range.getOutermostNodes(info);
+            var actual = range.getOutermostNodes(false,info);
             var expected = getOutermostNodesSimple(range);
             if (arraysEqual(actual,expected)) {
                 pass++;
@@ -327,7 +327,7 @@ function main()
 /*
     var range = new Range(getNodeById(document,41),0,getNodeById(document,45),0);
 
-    var actual = range.getOutermostNodes();
+    var actual = range.getOutermostNodes(false);
     var expected = getOutermostNodesSimple(range);
 
     debug("actual.length = "+actual.length);

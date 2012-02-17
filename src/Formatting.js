@@ -315,7 +315,11 @@
         // FIXME: implement a more efficient version of this algorithm which avoids duplicate checks
 
         var range = getSelectionRange();
-        var outermost = range.getOutermostNodes();
+        if (range == null)
+            return {};
+
+        var outermost = range.getOutermostNodes(true);
+
         var leafNodes = new Array();
         for (var i = 0; i < outermost.length; i++) {
             findLeafNodes(outermost[i],leafNodes);
@@ -757,21 +761,10 @@
             var target = null;
 
             var paragraphs;
-            if (outermost.length > 0) {
+            if (outermost.length > 0)
                 paragraphs = getParagraphs(outermost);
-            }
-            else {
-                if ((range.start.node.nodeType == Node.ELEMENT_NODE) &&
-                    (range.start.node.childNodes[range.start.offset] != null)) {
-                    target = range.start.node.childNodes[range.start.offset];
-                }
-                else {
-                    target = range.start.node;
-                }
-                ensureValidHierarchy(target);
-                paragraphs = getParagraphs([target]);
-            }
-
+            else
+                paragraphs = getParagraphs([range.singleNode()]);
 
             // Push down inline properties
             pushDownInlineProperties(outermost);
