@@ -861,6 +861,7 @@
             }
         });
 
+        updateSelectionDisplay();
         return;
     }
 
