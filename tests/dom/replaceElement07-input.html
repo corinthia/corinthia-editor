@@ -8,7 +8,7 @@ function performTest()
     var p = document.getElementsByTagName("P")[2];
     var offset = getOffsetOfNodeInParent(p);
     setSelectionRange(new Range(document.body,offset,document.body,offset+1));
-    replaceElement(p,"DIV");
+    DOM.replaceElement(p,"DIV");
     showRangeAsBrackets(getSelectionRange());
 }
 </script>

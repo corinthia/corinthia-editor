@@ -19,7 +19,7 @@ function wrapInlineChildren(first,last,ancestors)
     var parentNode = first.parentNode;
     var nextSibling = first;
     for (var i = ancestors.length-1; i >= 0; i--) {
-        var ancestorCopy = shallowCopyElement(ancestors[i]);
+        var ancestorCopy = DOM.shallowCopyElement(ancestors[i]);
         DOM.insertBefore(parentNode,ancestorCopy,nextSibling);
         parentNode = ancestorCopy;
         nextSibling = null;
@@ -27,7 +27,7 @@ function wrapInlineChildren(first,last,ancestors)
         var node = first;
         while (true) {
             var next = node.nextSibling;
-            moveNode(node,parentNode,null);
+            DOM.moveNode(node,parentNode,null);
             if (node == last)
                 break;
             node = next;
@@ -91,7 +91,7 @@ function ensureValidHierarchy(node,recursive)
                     ancestors.push(child.parentNode);
                 child = child.parentNode;
             }
-            moveNode(node,child.parentNode,child);
+            DOM.moveNode(node,child.parentNode,child);
             DOM.deleteNode(child);
 
             wrapInlineChildrenInAncestors(node,ancestors);
@@ -115,7 +115,7 @@ function ensureValidHierarchy(node,recursive)
 
             var stop = end.nextSibling;
             while (p.nextSibling != stop)
-                moveNode(p.nextSibling,p,null);
+                DOM.moveNode(p.nextSibling,p,null);
         }
     }
 

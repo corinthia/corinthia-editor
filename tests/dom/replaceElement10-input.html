@@ -9,7 +9,7 @@ function performTest()
     var offset = getOffsetOfNodeInParent(p);
     var range = new Range(document.body,offset,document.body,offset+1);
     range.trackWhileExecuting(function() {
-        replaceElement(p,"DIV");
+        DOM.replaceElement(p,"DIV");
     });
     showRangeAsBrackets(range);
 }

@@ -366,7 +366,7 @@
 
         function makeNew(paragraph,child)
         {
-            var copy = shallowCopyElement(paragraph);
+            var copy = DOM.shallowCopyElement(paragraph);
             
             removeAdjacentWhitespace(paragraph);
             
@@ -374,7 +374,7 @@
             // add another list item rather than another paragraph
             if (paragraph.parentNode.nodeName == "LI") {
                 var li = paragraph.parentNode;
-                var liCopy = shallowCopyElement(li);
+                var liCopy = DOM.shallowCopyElement(li);
                 DOM.insertBefore(li.parentNode,liCopy,li.nextSibling);
                 DOM.appendChild(liCopy,copy);
                 

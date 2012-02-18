@@ -11,8 +11,8 @@ function performTest()
     Position.trackWhileExecuting([position],function() {
         var p2 = ps[2];
         var p1 = ps[1];
-        moveNode(p2,ps[0],ps[0].childNodes[0]);
-        moveNode(p1,ps[0],ps[0].childNodes[0]);
+        DOM.moveNode(p2,ps[0],ps[0].childNodes[0]);
+        DOM.moveNode(p1,ps[0],ps[0].childNodes[0]);
    });
 
     var tt = DOM.createElement(document,"tt");

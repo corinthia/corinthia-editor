@@ -100,56 +100,6 @@ function getOffsetOfNodeInParent(node)
     return offset;
 }
 
-function shallowCopyElement(element)
-{
-    var copy = DOM.createElement(document,element.nodeName);
-    for (var i = 0; i < element.attributes.length; i++) {
-        if (element.attributes[i].nodeName != "id")
-            copy.setAttribute(element.attributes[i].nodeName,element.attributes[i].nodeValue);
-    }
-    return copy;
-}
-
-function moveNode(node,parentNode,nextSibling)
-{
-    Position.nodeBeingMoved = node;
-    DOM.insertBefore(parentNode,node,nextSibling);
-    Position.nodeBeingMoved = null;
-}
-
-function removeNodeButKeepChildren(node)
-{
-    while (node.firstChild != null)
-        moveNode(node.firstChild,node.parentNode,node);
-    DOM.removeChild(node.parentNode,node);
-}
-
-function replaceElement(oldElement,newName)
-{
-    var newElement = DOM.createElement(document,newName);
-    for (var i = 0; i < oldElement.attributes.length; i++) {
-        var name = oldElement.attributes[i].nodeName;
-        var value = oldElement.getAttribute(name);
-        newElement.setAttribute(name,value);
-    }
-
-    DOM.insertBefore(oldElement.parentNode,newElement,oldElement);
-    while (oldElement.firstChild != null)
-        moveNode(oldElement.firstChild,newElement,null);
-    moveNode(oldElement,newElement,null);
-    DOM.removeChild(oldElement.parentNode,oldElement);
-
-    return newElement;
-}
-
-function wrapNode(node,elementName)
-{
-    var wrapper = DOM.createElement(document,elementName);
-    DOM.insertBefore(node.parentNode,wrapper,node);
-    moveNode(node,wrapper,null);
-    return wrapper;
-}
-
 function isWhitespaceCharacter(c)
 {
     return ((c == " ") || (c == "\t") || (c == "\r") || (c == "\n"));

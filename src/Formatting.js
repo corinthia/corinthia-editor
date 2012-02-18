@@ -232,7 +232,7 @@
                 else if (current.nodeType == Node.ELEMENT_NODE) {
                     lastChild = next.lastChild;
                     while (next.firstChild != null)
-                        moveNode(next.firstChild,current,null);
+                        DOM.moveNode(next.firstChild,current,null);
                 }
                 DOM.deleteNode(next);
 
@@ -340,14 +340,14 @@
         if (toMove.length > 0) {
             if (justWhitespace) {
                 for (var i = 0; i < toMove.length; i++)
-                    moveNode(toMove[i],node.parentNode,node);
+                    DOM.moveNode(toMove[i],node.parentNode,node);
             }
             else {
-                var copy = shallowCopyElement(node);
+                var copy = DOM.shallowCopyElement(node);
                 DOM.insertBefore(node.parentNode,copy,node);
 
                 for (var i = 0; i < toMove.length; i++)
-                    moveNode(toMove[i],copy,null);
+                    DOM.moveNode(toMove[i],copy,null);
             }
         }
 
@@ -370,14 +370,14 @@
         if (toMove.length > 0) {
             if (justWhitespace) {
                 for (var i = 0; i < toMove.length; i++)
-                    moveNode(toMove[i],node.parentNode,node.nextSibling);
+                    DOM.moveNode(toMove[i],node.parentNode,node.nextSibling);
             }
             else {
-                var copy = shallowCopyElement(node);
+                var copy = DOM.shallowCopyElement(node);
                 DOM.insertBefore(node.parentNode,copy,node.nextSibling);
 
                 for (var i = 0; i < toMove.length; i++)
-                    moveNode(toMove[i],copy,null);
+                    DOM.moveNode(toMove[i],copy,null);
             }
         }
 
@@ -580,16 +580,16 @@
         paragraph.removeAttribute("class");
         if (style == "") {
             if (paragraph.nodeName != "P")
-                paragraph = replaceElement(paragraph,"P");
+                paragraph = DOM.replaceElement(paragraph,"P");
         }
         else if (style.charAt(0) == ".") {
             if (paragraph.nodeName != "P")
-                paragraph = replaceElement(paragraph,"P");
+                paragraph = DOM.replaceElement(paragraph,"P");
             paragraph.setAttribute("class",style.slice(1));
         }
         else {
             if (paragraph.nodeName != style)
-                replaceElement(paragraph,style);
+                DOM.replaceElement(paragraph,style);
         }
     }
 
@@ -657,7 +657,7 @@
                 node.removeAttribute("style");
 
             if ((node.nodeName == "B") || (node.nodeName == "I") || (node.nodeName == "U"))
-                removeNodeButKeepChildren(node);
+                DOM.removeNodeButKeepChildren(node);
         }
     }
 
@@ -672,7 +672,7 @@
             return node;
         }
         else {
-            return wrapNode(node,elementName);
+            return DOM.wrapNode(node,elementName);
         }
     }
 
@@ -803,7 +803,7 @@
         }
 
         if (willRemove)
-            removeNodeButKeepChildren(node);
+            DOM.removeNodeButKeepChildren(node);
         else if (remaining != null)
             remaining.push(node);
     }

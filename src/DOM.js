@@ -67,7 +67,7 @@
 
     var DOM = new Object();
 
-    // public
+    // public methods
     DOM.assignNodeIds = function(node)
     {
         node._nodeId = prefix+nextNodeId++;
@@ -75,7 +75,6 @@
             DOM.assignNodeIds(child);
     }
 
-    // public
     DOM.addUndoListeners = function(node)
     {
         node.addEventListener("DOMNodeInserted",nodeInserted);
@@ -84,31 +83,26 @@
         node.addEventListener("DOMCharacterDataModified",characterDataModified);
     }
 
-    // public
     DOM.createElement = function(document,elementName)
     {
         return assignNodeId(document.createElement(elementName));
     }
 
-    // public
     DOM.createElementNS = function(document,namespaceURI,qualifiedName)
     {
         return assignNodeId(document.createElementNS(namespaceURI,qualifiedName));
     }
 
-    // public
     DOM.createTextNode = function(document,data)
     {
         return assignNodeId(document.createTextNode(data));
     }
 
-    // public
     DOM.createComment = function(document,data)
     {
         return assignNodeId(document.createComment(data));
     }
 
-    // public
     DOM.cloneNode = function(original,deep)
     {
         var clone = original.cloneNode(deep);
@@ -116,35 +110,80 @@
         return clone;
     }
 
-    // public
     DOM.appendChild = function(node,child)
     {
         return node.appendChild(child);
     }
 
-    // public
     DOM.insertBefore = function(node,child,before)
     {
         return node.insertBefore(child,before);
     }
 
-    // public
     DOM.removeChild = function(node,child)
     {
         return node.removeChild(child);
     }
 
-    // public
     DOM.deleteNode = function(node)
     {
         DOM.removeChild(node.parentNode,node);
     }
 
-    // public
     DOM.deleteAllChildren = function(parent)
     {
         while (parent.firstChild != null)
             DOM.deleteNode(parent.firstChild);
+    }
+
+    DOM.shallowCopyElement = function(element)
+    {
+        var copy = DOM.createElement(document,element.nodeName);
+        for (var i = 0; i < element.attributes.length; i++) {
+            if (element.attributes[i].nodeName != "id")
+                copy.setAttribute(element.attributes[i].nodeName,element.attributes[i].nodeValue);
+        }
+        return copy;
+    }
+
+    DOM.moveNode = function(node,parentNode,nextSibling)
+    {
+        Position.nodeBeingMoved = node;
+        DOM.insertBefore(parentNode,node,nextSibling);
+        Position.nodeBeingMoved = null;
+    }
+
+    DOM.removeNodeButKeepChildren = function(node)
+    {
+        while (node.firstChild != null)
+            DOM.moveNode(node.firstChild,node.parentNode,node);
+        DOM.removeChild(node.parentNode,node);
+    }
+
+    DOM.replaceElement = function(oldElement,newName)
+    {
+        var newElement = DOM.createElement(document,newName);
+        for (var i = 0; i < oldElement.attributes.length; i++) {
+            var name = oldElement.attributes[i].nodeName;
+            var value = oldElement.getAttribute(name);
+            newElement.setAttribute(name,value);
+        }
+
+        DOM.insertBefore(oldElement.parentNode,newElement,oldElement);
+        while (oldElement.firstChild != null)
+            DOM.moveNode(oldElement.firstChild,newElement,null);
+        DOM.moveNode(oldElement,newElement,null);
+        DOM.removeChild(oldElement.parentNode,oldElement);
+
+        return newElement;
+    }
+
+    DOM.wrapNode = function(node,elementName)
+    {
+        var wrapper = DOM.createElement(document,elementName);
+        DOM.insertBefore(node.parentNode,wrapper,node);
+        DOM.moveNode(node,wrapper,null);
+        return wrapper;
     }
 
     window.DOM = DOM;

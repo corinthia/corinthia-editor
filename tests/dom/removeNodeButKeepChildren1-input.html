@@ -11,7 +11,7 @@ function performTest()
         positions[i] = new Position(p,i);
 
     Position.trackWhileExecuting(positions,function() {
-        removeNodeButKeepChildren(p);
+        DOM.removeNodeButKeepChildren(p);
 
         for (var i = 0; i < positions.length; i++)
             insertTextAtPosition(positions[i],"("+i+")");

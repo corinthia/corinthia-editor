@@ -134,7 +134,7 @@ function getHTML()
     {
         if ((node.nodeName == "SPAN") &&
             (node.getAttribute("class") == "-uxwrite-heading-number")) {
-            removeNodeButKeepChildren(node);
+            DOM.removeNodeButKeepChildren(node);
         }
         else {
             for (var child = node.firstChild; child != null; child = child.nextSibling)

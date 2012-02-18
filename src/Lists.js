@@ -200,7 +200,7 @@
                     var copy = secondHalf;
 
                     for (var p = parentList.parentNode; p != container; p = p.parentNode) {
-                        var pcopy = shallowCopyElement(p);
+                        var pcopy = DOM.shallowCopyElement(p);
                         DOM.appendChild(pcopy,copy);
                         copy = pcopy;
                     }
@@ -321,7 +321,7 @@
                         insertionPoint = list.nextSibling;
                     }
                     else {
-                        var secondList = shallowCopyElement(list);
+                        var secondList = DOM.shallowCopyElement(list);
                         DOM.insertBefore(list.parentNode,secondList,list.nextSibling);
                         while (li.nextSibling != null) {
                             DOM.appendChild(secondList,li.nextSibling);
@@ -401,7 +401,7 @@
                         prev = null;
                     }
                     else {
-                        var secondList = shallowCopyElement(list);
+                        var secondList = DOM.shallowCopyElement(list);
                         DOM.insertBefore(list.parentNode,secondList,list.nextSibling);
                         while (li.nextSibling != null) {
                             DOM.appendChild(secondList,li.nextSibling);
