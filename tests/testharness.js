@@ -16,6 +16,7 @@ var left;
 var right;
 var leftLoadedContinuation = null;
 var results = new Object();
+var allCode = null;
 
 function Result(actual,expected)
 {
@@ -29,6 +30,37 @@ function readFile(filename)
     req.open("GET",filename,false);
     req.send();
     return req.responseText;
+}
+
+function loadCode()
+{
+    // Sync with Editor.m
+    var javascriptFiles = ["nulleditor.js", // must be first
+                           "../src/cursor.js",
+                           "../src/DOM.js",
+//                           "../src/dtd.js",
+                           "../src/formatting.js",
+                           "../src/init.js",
+                           "../src/lists.js",
+                           "../src/mutation.js",
+                           "../src/NodeSet.js",
+                           "../src/outline.js",
+                           "../src/Position.js",
+                           "../src/Range.js",
+                           "../src/StringBuilder.js",
+                           "../src/Structure.js",
+                           "../src/styles.js",
+                           "../src/traversal.js",
+                           "../src/types.js",
+                           "../src/UndoManager.js",
+                           "../src/util.js",
+                           "../src/viewport.js",
+                           "../src/selection.js",
+                           "testlib.js"]; // must be last
+    var allCodeArray = new Array();
+    for (var i = 0; i < javascriptFiles.length; i++)
+        allCodeArray.push(readJSCode(javascriptFiles[i]));
+    allCode = allCodeArray.join("\n");
 }
 
 function loadTestIndex()
@@ -306,6 +338,7 @@ function loaded()
     var top = document.getElementById("topInner");
     left = document.getElementById("leftInner");
     right = document.getElementById("rightInner");
+    loadCode();
     loadTestIndex();
 
     var table = document.createElement("table");
