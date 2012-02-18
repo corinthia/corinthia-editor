@@ -12,7 +12,7 @@ function removeWhitespaceTextNodes(parent)
     for (var child = parent.firstChild; child != null; child = next) {
         next = child.nextSibling;
         if (isWhitespaceTextNode(child) || (child.nodeType == Node.COMMENT_NODE))
-            DOM.removeChild(parent,child);
+            DOM.deleteNode(child);
         else
             removeWhitespaceTextNodes(child);
     }

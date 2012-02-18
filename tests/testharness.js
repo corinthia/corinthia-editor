@@ -244,8 +244,7 @@ function runAllTests()
     function updateStatistics()
     {
         var statistics = document.getElementById("statistics");
-        while (statistics.firstChild != null)
-            DOM.removeChild(statistics,statistics.firstChild);
+        DOM.deleteAllChildren(statistics);
         var str = "Passes: "+passes+", Failures: "+failures;
         DOM.appendChild(statistics,DOM.createTextNode(document,str));
     }
@@ -270,8 +269,7 @@ function runAllTests()
 
             var fullname = dirname+"-"+filename;
             var resultElement = document.getElementById("result-"+fullname);
-            while (resultElement.firstChild != null)
-                DOM.removeChild(resultElement,resultElement.firstChild);
+            DOM.deleteAllChildren(resultElement);
             var a = DOM.createElement(document,"a");
             a.href = "javascript:showResult('"+dirname+"','"+filename+"')";
             DOM.appendChild(resultElement,a);

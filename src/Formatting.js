@@ -234,7 +234,7 @@
                     while (next.firstChild != null)
                         moveNode(next.firstChild,current,null);
                 }
-                DOM.removeChild(parent,next);
+                DOM.deleteNode(next);
 
                 for (var i = 0; i < positions.length; i++) {
                     var node = positions[i].node;

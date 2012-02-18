@@ -17,16 +17,15 @@ function performTest()
                 var message = "posOffset "+posOffset+", nodeOffset "+nodeOffset+": "+position;
                 DOM.insertBefore(document.body,temp,document.body.childNodes[nodeOffset]);
                 message += " "+position;
-                DOM.removeChild(document.body,temp);
+                DOM.deleteNode(temp);
                 message += " "+position;
                 messages.push(message);
             });
         }
     }
 
-    while (document.body.firstChild != null)
-        DOM.removeChild(document.body,document.body.firstChild);
-   DOM.appendChild(document.body,DOM.createTextNode(document,"-\n"+messages.join("\n")+"\n-"));
+    DOM.deleteAllChildren(document.body);
+    DOM.appendChild(document.body,DOM.createTextNode(document,"-\n"+messages.join("\n")+"\n-"));
 }
 </script>
 </head>

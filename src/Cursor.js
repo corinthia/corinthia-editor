@@ -179,7 +179,7 @@
                 // Paragraph has content: don't want BR at end
                 if (br != null) {
                     debug("Removing BR at end of paragraph");
-                    DOM.removeChild(br.parentNode,br);
+                    DOM.deleteNode(br);
                 }
             }
             else {
@@ -249,19 +249,19 @@
                     
                     while ((prev != null) && isWhitespaceTextNode(prev)) {
                         var prev2 = prev.previousSibling;
-                        DOM.removeChild(prev.parentNode,prev);
+                        DOM.deleteNode(prev);
                         prev = prev2;
                     }
                     
                     if ((prev != null) && (prev.nodeType == Node.ELEMENT_NODE)) {
                         if ((prev.lastChild != null) && (prev.lastChild.nodeName == "BR"))
-                            DOM.removeChild(prev,prev.lastChild);
+                            DOM.deleteNode(lastChild);
                         setEmptySelectionAt(prev,prev.childNodes.length);
                         if (nodeHasContent(paragraph)) {
                             while (paragraph.firstChild != null)
                                 DOM.appendChild(prev,paragraph.firstChild);
                         }
-                        DOM.removeChild(paragraph.parentNode,paragraph);
+                        DOM.deleteNode(paragraph);
                     }
                     updateSelectionDisplay();
                 }
@@ -308,7 +308,7 @@
             var parent = node.parentNode;
             if (node.nodeType == Node.TEXT_NODE) {
                 if (node.nodeValue.length == 0) {
-                    DOM.removeChild(parent,node);
+                    DOM.deleteNode(node);
                     removeIfEmpty(parent);
                 }
             }
@@ -321,7 +321,7 @@
                     }
                 }
                 if (!haveContent) {
-                    DOM.removeChild(parent,node);
+                    DOM.deleteNode(node);
                     removeIfEmpty(parent);
                 }
             }

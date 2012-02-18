@@ -241,7 +241,7 @@
             }
         }
         if ((this.theMarker != null) && (this.theMarker.parentNode != null))
-            DOM.removeChild(this.theMarker.parentNode,this.theMarker);
+            DOM.deleteNode(this.theMarker);
 
         if (this.currentPosition != null) {
             this.theMarker = createPositionMarker(treeView,this.currentPosition,"#808080",
@@ -516,8 +516,7 @@
             disp.text.setAttribute("x",disp.x);
             disp.text.setAttribute("y",disp.y+4);
 
-            while (disp.text.firstChild != null)
-                DOM.removeChild(disp.text,disp.text.firstChild);
+            DOM.deleteAllChildren(disp.text);
             var label;
             if (self.this.labelFun != null) {
                 label = self.this.labelFun(disp.domNode);
@@ -784,16 +783,11 @@
     TreeView.prototype.update = function()
     {
         var self = this.self;
-        while (self.backgroundGroup.firstChild != null)
-            DOM.removeChild(self.backgroundGroup,self.backgroundGroup.firstChild);
-        while (self.linkGroup.firstChild != null)
-            DOM.removeChild(self.linkGroup,self.linkGroup.firstChild);
-        while (self.nodeGroup.firstChild != null)
-            DOM.removeChild(self.nodeGroup,self.nodeGroup.firstChild);
-        while (self.monitorGroup.firstChild != null)
-            DOM.removeChild(self.monitorGroup,self.monitorGroup.firstChild);
-        while (self.overlayGroup.firstChild != null)
-            DOM.removeChild(self.overlayGroup,self.overlayGroup.firstChild);
+        DOM.deleteAllChildren(self.backgroundGroup);
+        DOM.deleteAllChildren(self.linkGroup);
+        DOM.deleteAllChildren(self.nodeGroup);
+        DOM.deleteAllChildren(self.monitorGroup);
+        DOM.deleteAllChildren(self.overlayGroup);
         self.displayNodes.clear();
         createDisplayNodes(self);
         layoutDisplayNodes(self);

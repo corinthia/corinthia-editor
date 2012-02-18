@@ -120,7 +120,7 @@ function removeTextNodes(node)
     for (var child = node.firstChild; child != null; child = next) {
         next = child.nextSibling;
         if (child.nodeType == Node.TEXT_NODE) {
-            DOM.removeChild(node,child);
+            DOM.deleteNode(child);
         }
         else {
             removeTextNodes(child);

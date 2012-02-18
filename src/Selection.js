@@ -11,7 +11,7 @@
     function updateSelectionDisplay()
     {
         for (var i = 0; i < selectionDivs.length; i++)
-            DOM.removeChild(selectionDivs[i].parentNode,selectionDivs[i]);
+            DOM.deleteNode(selectionDivs[i]);
         selectionDivs = new Array();
 
         var rects = null;
@@ -61,7 +61,7 @@
                     }
                     var tempRange = new Range(tempNode,0,tempNode,0);
                     rects = tempRange.getClientRects();
-                    DOM.removeChild(tempNode.parentNode,tempNode);
+                    DOM.deleteNode(tempNode);
                 }
             }
 
@@ -297,7 +297,7 @@
                     finalNode = node.parentNode;
                     finalOffset = 0;
                 }
-                DOM.removeChild(node.parentNode,node);
+                DOM.deleteNode(node);
             }
         }
 

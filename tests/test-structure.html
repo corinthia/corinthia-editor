@@ -54,8 +54,7 @@ function main()
 
 /*
     var pretty = PrettyPrinter.getHTML(document.documentElement);
-    while (document.body.firstChild != null)
-        DOM.removeChild(document.body,document.body.firstChild);
+    DOM.deleteAllChildren(document.body);
     var pre = DOM.createElement(document,"PRE");
     var text = DOM.createTextNode(document,pretty);
     DOM.appendChild(pre,text);

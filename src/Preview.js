@@ -15,10 +15,8 @@ function getStyleElement()
 function clearDocument()
 {
     var style = getStyleElement();
-    while (style.firstChild != null)
-        DOM.removeChild(style,style.firstChild);
-    while (document.body.firstChild != null)
-        DOM.removeChild(document.body,document.body.firstChild);
+    DOM.deleteAllChildren(style);
+    DOM.deleteAllChildren(document.body);
 }
 
 function setStyleSheet(selector,cssText)

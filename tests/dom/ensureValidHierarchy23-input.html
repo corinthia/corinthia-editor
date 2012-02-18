@@ -8,8 +8,7 @@ function performTest()
     var text1 = DOM.createTextNode(document,"One");
     var text2 = DOM.createTextNode(document,"Two");
     var text3 = DOM.createTextNode(document,"Three");
-    while (document.body.firstChild != null)
-        DOM.removeChild(document.body,document.body.firstChild);
+    DOM.deleteAllChildren(document.body);
     DOM.appendChild(document.body,text1);
     DOM.appendChild(document.body,text2);
     DOM.appendChild(document.body,text3);

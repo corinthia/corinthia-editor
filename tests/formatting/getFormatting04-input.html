@@ -9,8 +9,7 @@ function performTest()
     var properties = getFormatting(range);
     clearSelection();
 
-    while (document.body.firstChild != null)
-        DOM.removeChild(document.body,document.body.firstChild);
+    DOM.deleteAllChildren(document.body);
 
     var names = Object.getOwnPropertyNames(properties).sort();
     for (var i = 0; i < names.length; i++) {

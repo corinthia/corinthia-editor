@@ -21,7 +21,7 @@ function prettyPrintDocument()
             for (var child = node.firstChild; child != null; child = next) {
                 next = child.nextSibling;
                 if (isWhitespaceTextNode(child)) {
-                    DOM.removeChild(node,child);
+                    DOM.deleteNode(child);
                 }
                 else {
                     removeRedundantWhitespace(child,indent+"    ");

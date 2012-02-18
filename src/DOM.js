@@ -134,6 +134,19 @@
         return node.removeChild(child);
     }
 
+    // public
+    DOM.deleteNode = function(node)
+    {
+        DOM.removeChild(node.parentNode,node);
+    }
+
+    // public
+    DOM.deleteAllChildren = function(parent)
+    {
+        while (parent.firstChild != null)
+            DOM.deleteNode(parent.firstChild);
+    }
+
     window.DOM = DOM;
 
 })();

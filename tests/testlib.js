@@ -54,7 +54,7 @@ function selectNode(node)
 function removeWhitespaceAndCommentNodes(node)
 {
     if (isWhitespaceTextNode(node) || (node.nodeType == Node.COMMENT_NODE)) {
-        DOM.removeChild(node.parentNode,node);
+        DOM.deleteNode(node);
     }
     else {
         var next;

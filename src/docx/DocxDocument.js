@@ -218,7 +218,7 @@ DocxDocument.prototype.recurseP = function(node,htmlParent,containingBlockWidth)
 
     // Remove empty paragraphs
     if (paragraph.firstChild == null)
-        DOM.removeChild(paragraph.parentNode,paragraph);
+        DOM.deleteNode(paragraph);
 }
 
 DocxDocument.prototype.recurseR = function(node,htmlParent,containingBlockWidth)

@@ -18,12 +18,11 @@ function performTest()
     var position = new Position(document.body,document.body.childNodes.length);
     messages.push("Before removal: position = "+position);
     Position.trackWhileExecuting([position],function() {
-        DOM.removeChild(ps[0],ps[0].firstChild);
+        DOM.deleteNode(ps[0].firstChild);
     });
     messages.push("After removal: position = "+position);
 
-    while (document.body.firstChild != null)
-        DOM.removeChild(document.body,document.body.firstChild);
+    DOM.deleteAllChildren(document.body);
     DOM.appendChild(document.body,DOM.createTextNode(document,"-\n"+messages.join("\n")+"\n-"));
 }
 </script>

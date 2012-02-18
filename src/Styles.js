@@ -92,7 +92,7 @@ function ensureValidHierarchy(node,recursive)
                 child = child.parentNode;
             }
             moveNode(node,child.parentNode,child);
-            DOM.removeChild(child.parentNode,child);
+            DOM.deleteNode(child);
 
             wrapInlineChildrenInAncestors(node,ancestors);
         }
@@ -181,7 +181,7 @@ function setStyleElement(cssText)
     for (var child = head.firstChild; child; child = next) {
         var next = child.nextSibling;
         if (child.nodeName == "STYLE") {
-            DOM.removeChild(head,child);
+            DOM.deleteNode(child);
             removed++;
         }
     }

@@ -130,7 +130,7 @@
             if ((lastCharWhitespace) && (lastRun != null)) {
                 var str = lastRun.lastChild.lastChild.nodeValue;
                 if (str.length == 1) {
-                    DOM.removeChild(p,lastRun);
+                    DOM.deleteNode(lastRun);
                 }
                 else {
                     str = str.substring(0,str.length-1);

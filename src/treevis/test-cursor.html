@@ -153,7 +153,7 @@ editor.setSelectionHandles = function(x1,y1,height1,x2,y2,height2)
 editor.clearSelectionHandlesAndCursor = function()
 {
     if (cursorDiv != null) {
-        DOM.removeChild(cursorDiv.parentNode,cursorDiv);
+        DOM.deleteNode(cursorDiv);
         cursorDiv = null;
     }
 }
