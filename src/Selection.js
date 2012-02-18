@@ -116,7 +116,6 @@
                 div.style.width = width+"px";
                 div.style.height = height+"px";
                 div.style.backgroundColor = "rgb(201,221,238)";
-                div.style.opacity = "30%";
                 div.style.zIndex = -1;
                 document.body.appendChild(div);
                 selectionDivs.push(div);
