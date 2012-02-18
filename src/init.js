@@ -125,13 +125,21 @@ function jumpToSection(sectionId)
 
 function getHTML()
 {
-    try {
-        var serializer = new XMLSerializer();
-        var xml = serializer.serializeToString(document);
-        editor.getHTMLResponse(xml);
-    }
-    catch (e) {
-        editor.getHTMLError(e.toString());
+    var clone = document.documentElement.cloneNode(true);
+    removeSpecial(clone);
+
+    return clone.outerHTML;
+
+    function removeSpecial(node)
+    {
+        if ((node.nodeName == "SPAN") &&
+            (node.getAttribute("class") == "-uxwrite-heading-number")) {
+            removeNodeButKeepChildren(node);
+        }
+        else {
+            for (var child = node.firstChild; child != null; child = child.nextSibling)
+                removeSpecial(child);
+        }
     }
 }
 
@@ -143,7 +151,7 @@ function init()
         setupMutation();
         getOutline();
         getStyles();
-        structure.examineDocument();
+        Structure.examineDocument(document);
         jsInitOk = true;
     }
     catch (e) {
