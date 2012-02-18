@@ -4,10 +4,10 @@ function getStyleElement()
 {
     var style = document.getElementById("style");
     if (style == null) {
-        style = document.createElement("STYLE");
+        style = DOM.createElement(document,"STYLE");
         style.setAttribute("id","style");
         var head = document.getElementsByTagName("HEAD")[0];
-        head.appendChild(style);
+        DOM.appendChild(head,style);
     }
     return style;
 }
@@ -16,9 +16,9 @@ function clearDocument()
 {
     var style = getStyleElement();
     while (style.firstChild != null)
-        style.removeChild(style.firstChild);
+        DOM.removeChild(style,style.firstChild);
     while (document.body.firstChild != null)
-        document.body.removeChild(document.body.firstChild);
+        DOM.removeChild(document.body,document.body.firstChild);
 }
 
 function setStyleSheet(selector,cssText)
@@ -42,17 +42,17 @@ function setStyleSheet(selector,cssText)
     clearDocument();
     
     var style = getStyleElement();
-    style.appendChild(document.createTextNode(cssText));
+    DOM.appendChild(style,DOM.createTextNode(document,cssText));
     
     var element;
     if (selector.charAt(0) == ".") {
-        element = document.createElement("DIV");
+        element = DOM.createElement(document,"DIV");
         element.setAttribute("class",selector.slice(1));
     }
     else {
-        element = document.createElement(selector);
+        element = DOM.createElement(document,selector);
     }
     
-    document.body.appendChild(element);
-    element.appendChild(document.createTextNode(previewText));
+    DOM.appendChild(document.body,element);
+    DOM.appendChild(element,DOM.createTextNode(document,previewText));
 }

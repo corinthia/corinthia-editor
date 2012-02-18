@@ -10,13 +10,13 @@ function performTest()
     clearSelection();
 
     while (document.body.firstChild != null)
-        document.body.removeChild(document.body.firstChild);
+        DOM.removeChild(document.body,document.body.firstChild);
 
     var names = Object.getOwnPropertyNames(properties).sort();
     for (var i = 0; i < names.length; i++) {
-        var p = document.createElement("P");
-        document.body.appendChild(p);
-        p.appendChild(document.createTextNode(names[i]+" = "+properties[names[i]]));
+        var p = DOM.createElement(document,"P");
+        DOM.appendChild(document.body,p);
+        DOM.appendChild(p,DOM.createTextNode(document,names[i]+" = "+properties[names[i]]));
     }
 }
 </script>

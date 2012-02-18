@@ -62,16 +62,16 @@ DocxDocument.prototype.addStyleSheet = function()
     while ((head != null) && (head.nodeName != "HEAD"))
         head = head.nextSibling;
     if (head == null) {
-        head = document.createElement("HEAD");
-        document.documentElement.insertBefore(head,document.documentElement.firstChild);
+        head = DOM.createElement(document,"HEAD");
+        DOM.insertBefore(document.documentElement,head,document.documentElement.firstChild);
     }
 
-    var style = document.createElement("STYLE");
+    var style = DOM.createElement(document,"STYLE");
     style.setAttribute("type","text/css");
-    head.appendChild(style);
+    DOM.appendChild(head,style);
 
-    var text = document.createTextNode(DocxDocument.instance.styles.toCSSStyleSheet());
-    style.appendChild(text);
+    var text = DOM.createTextNode(document,DocxDocument.instance.styles.toCSSStyleSheet());
+    DOM.appendChild(style,text);
 }
 
 DocxDocument.prototype.getDocSectionProperties = function(doc)
@@ -144,7 +144,7 @@ DocxDocument.prototype.recurseP = function(node,htmlParent,containingBlockWidth)
                         var n = topList.nextSibling;
                         while (n != null) {
                             var next = n.nextSibling;
-                            lastList.lastChild.appendChild(n);
+                            DOM.appendChild(lastList.lastChild,n);
                             n = next;
                         }
                     }
@@ -218,7 +218,7 @@ DocxDocument.prototype.recurseP = function(node,htmlParent,containingBlockWidth)
 
     // Remove empty paragraphs
     if (paragraph.firstChild == null)
-        paragraph.parentNode.removeChild(paragraph);
+        DOM.removeChild(paragraph.parentNode,paragraph);
 }
 
 DocxDocument.prototype.recurseR = function(node,htmlParent,containingBlockWidth)
@@ -419,11 +419,11 @@ DocxDocument.prototype.recurseTbl = function(node,htmlParent,containingBlockWidt
             total += table.grid.cols[i];
         if (total != 0) {
             for (var i = 0; i < table.grid.cols.length; i++) {
-                var col = document.createElement("COL");
+                var col = DOM.createElement(document,"COL");
                 var pct = 100*table.grid.cols[i]/total;
                 pct = Math.round(pct*10)/10;
                 col.setAttribute("width",pct+"%");
-                htmlTable.appendChild(col);
+                DOM.appendChild(htmlTable,col);
             }
         }
     }
@@ -465,8 +465,8 @@ DocxDocument.prototype.recurseTbl = function(node,htmlParent,containingBlockWidt
             }
 
             if (cell == null) {
-                //htmlTD.appendChild(document.createTextNode("\u00a0"));
-                htmlTD.appendChild(document.createTextNode("(none)")); // FIXME
+                //DOM.appendChild(htmlTD,DOM.createTextNode(document,"\u00a0"));
+                DOM.appendChild(htmlTD,DOM.createTextNode(document,"(none)")); // FIXME
             }
             else if (!cell.translated) {
                 if (colspan != 1)
@@ -484,7 +484,7 @@ DocxDocument.prototype.recurseTbl = function(node,htmlParent,containingBlockWidt
                 this.recurseChildren(cell.element,htmlTD,childWidth);
 
                 if (htmlTD.firstChild == null)
-                    htmlTD.appendChild(document.createTextNode("\u00a0"));
+                    DOM.appendChild(htmlTD,DOM.createTextNode(document,"\u00a0"));
 
                 cell.translated = true;
             }
@@ -513,7 +513,7 @@ DocxDocument.prototype.recurseTbl = function(node,htmlParent,containingBlockWidt
 DocxDocument.prototype.recurse = function(node,htmlParent,containingBlockWidth)
 {
     if (node.nodeType == Node.TEXT_NODE)
-        htmlParent.appendChild(document.createTextNode(node.nodeValue));
+        DOM.appendChild(htmlParent,DOM.createTextNode(document,node.nodeValue));
     else if (node.namespaceURI != WORD_NAMESPACE)
         return;
     else if (node.localName == "p")
@@ -528,8 +528,8 @@ DocxDocument.prototype.recurse = function(node,htmlParent,containingBlockWidth)
 
 DocxDocument.prototype.addChild = function(parent,name)
 {
-    var child = document.createElement(name);
-    parent.appendChild(child);
+    var child = DOM.createElement(document,name);
+    DOM.appendChild(parent,child);
     return child;
 }
 

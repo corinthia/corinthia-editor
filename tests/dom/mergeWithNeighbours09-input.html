@@ -5,26 +5,26 @@
 <script language="javascript">
 function performTest()
 {
-    var p = document.createElement("P");
-    var text1 = document.createTextNode("One");
-    var text2 = document.createTextNode("Two");
-    var text3 = document.createTextNode("Three");
-    var text4 = document.createTextNode("Four");
-    var text5 = document.createTextNode("Five");
-    var br1 = document.createElement("BR");
-    var br2 = document.createElement("BR");
-    var br3 = document.createElement("BR");
-    var br4 = document.createElement("BR");
-    p.appendChild(br1);
-    p.appendChild(br2);
-    p.appendChild(text1);
-    p.appendChild(text2);
-    p.appendChild(text3);
-    p.appendChild(text4);
-    p.appendChild(text5);
-    p.appendChild(br3);
-    p.appendChild(br4);
-    document.body.appendChild(p);
+    var p = DOM.createElement(document,"P");
+    var text1 = DOM.createTextNode(document,"One");
+    var text2 = DOM.createTextNode(document,"Two");
+    var text3 = DOM.createTextNode(document,"Three");
+    var text4 = DOM.createTextNode(document,"Four");
+    var text5 = DOM.createTextNode(document,"Five");
+    var br1 = DOM.createElement(document,"BR");
+    var br2 = DOM.createElement(document,"BR");
+    var br3 = DOM.createElement(document,"BR");
+    var br4 = DOM.createElement(document,"BR");
+    DOM.appendChild(p,br1);
+    DOM.appendChild(p,br2);
+    DOM.appendChild(p,text1);
+    DOM.appendChild(p,text2);
+    DOM.appendChild(p,text3);
+    DOM.appendChild(p,text4);
+    DOM.appendChild(p,text5);
+    DOM.appendChild(p,br3);
+    DOM.appendChild(p,br4);
+    DOM.appendChild(document.body,p);
 
     var range = new Range(p,1,p,8);
     range.trackWhileExecuting(function() {

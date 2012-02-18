@@ -12,12 +12,12 @@ function performTest()
     for (var posOffset = 0; posOffset <= nodeCount; posOffset++) {
         for (var nodeOffset = 0; nodeOffset <= nodeCount; nodeOffset++) {
             var position = new Position(document.body,posOffset);
-            var temp = document.createElement("B");
+            var temp = DOM.createElement(document,"B");
             Position.trackWhileExecuting([position],function() {
                 var message = "posOffset "+posOffset+", nodeOffset "+nodeOffset+": "+position;
-                document.body.insertBefore(temp,document.body.childNodes[nodeOffset]);
+                DOM.insertBefore(document.body,temp,document.body.childNodes[nodeOffset]);
                 message += " "+position;
-                document.body.removeChild(temp);
+                DOM.removeChild(document.body,temp);
                 message += " "+position;
                 messages.push(message);
             });
@@ -25,8 +25,8 @@ function performTest()
     }
 
     while (document.body.firstChild != null)
-        document.body.removeChild(document.body.firstChild);
-    document.body.appendChild(document.createTextNode("-\n"+messages.join("\n")+"\n-"));
+        DOM.removeChild(document.body,document.body.firstChild);
+   DOM.appendChild(document.body,DOM.createTextNode(document,"-\n"+messages.join("\n")+"\n-"));
 }
 </script>
 </head>

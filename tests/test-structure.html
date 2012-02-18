@@ -26,10 +26,10 @@ var topLevelSections = new Array();
 
 function buildTree(level,maxLevel,nchildren,parent)
 {
-    var heading = document.createElement("H"+level);
-    var text = document.createTextNode("Heading "+level);
-    heading.appendChild(text);
-    document.body.appendChild(heading);
+    var heading = DOM.createElement(document,"H"+level);
+    var text = DOM.createTextNode(document,"Heading "+level);
+    DOM.appendChild(heading,text);
+    DOM.appendChild(document.body,heading);
 
     var id = "section"+(nextSectionId++);
     var section = new Section(id,heading,level);
@@ -55,11 +55,11 @@ function main()
 /*
     var pretty = PrettyPrinter.getHTML(document.documentElement);
     while (document.body.firstChild != null)
-        document.body.removeChild(document.body.firstChild);
-    var pre = document.createElement("PRE");
-    var text = document.createTextNode(pretty);
-    pre.appendChild(text);
-    document.body.appendChild(pre);
+        DOM.removeChild(document.body,document.body.firstChild);
+    var pre = DOM.createElement(document,"PRE");
+    var text = DOM.createTextNode(document,pretty);
+    DOM.appendChild(pre,text);
+    DOM.appendChild(document.body,pre);
 */
 }
 </script>

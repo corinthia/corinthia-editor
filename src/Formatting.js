@@ -234,7 +234,7 @@
                     while (next.firstChild != null)
                         moveNode(next.firstChild,current,null);
                 }
-                parent.removeChild(next);
+                DOM.removeChild(parent,next);
 
                 for (var i = 0; i < positions.length; i++) {
                     var node = positions[i].node;
@@ -301,9 +301,9 @@
     // public (called from cursor.js)
     function splitTextBefore(node,offset)
     {
-        var before = document.createTextNode(node.nodeValue.slice(0,offset));
+        var before = DOM.createTextNode(document,node.nodeValue.slice(0,offset));
 
-        node.parentNode.insertBefore(before,node);
+        DOM.insertBefore(node.parentNode,before,node);
         node.nodeValue = node.nodeValue.slice(offset);
 
         movePreceding(node.parentNode,getOffsetOfNodeInParent(node),isParagraphOrContainerNode);
@@ -312,9 +312,9 @@
     // public
     function splitTextAfter(node,offset)
     {
-        var after = document.createTextNode(node.nodeValue.slice(offset));
+        var after = DOM.createTextNode(document,node.nodeValue.slice(offset));
 
-        node.parentNode.insertBefore(after,node.nextSibling);
+        DOM.insertBefore(node.parentNode,after,node.nextSibling);
         node.nodeValue = node.nodeValue.slice(0,offset);
 
         moveFollowing(node.parentNode,getOffsetOfNodeInParent(node)+1,isParagraphOrContainerNode);
@@ -344,7 +344,7 @@
             }
             else {
                 var copy = shallowCopyElement(node);
-                node.parentNode.insertBefore(copy,node);
+                DOM.insertBefore(node.parentNode,copy,node);
 
                 for (var i = 0; i < toMove.length; i++)
                     moveNode(toMove[i],copy,null);
@@ -374,7 +374,7 @@
             }
             else {
                 var copy = shallowCopyElement(node);
-                node.parentNode.insertBefore(copy,node.nextSibling);
+                DOM.insertBefore(node.parentNode,copy,node.nextSibling);
 
                 for (var i = 0; i < toMove.length; i++)
                     moveNode(toMove[i],copy,null);

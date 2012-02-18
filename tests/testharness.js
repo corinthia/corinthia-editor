@@ -109,9 +109,9 @@ function clearPanel(panel)
 function setPanelText(panel,text)
 {
     clearPanel(panel);
-    var pre = panel.contentDocument.createElement("PRE");
-    panel.contentDocument.body.appendChild(pre);
-    pre.appendChild(rightArea.contentDocument.createTextNode(text));
+    var pre = DOM.createElement(panel.contentDocument,"PRE");
+    DOM.appendChild(panel.contentDocument.body,pre);
+    DOM.appendChild(pre,DOM.createTextNode(rightArea.contentDocument,text));
 }
 
 
@@ -145,8 +145,8 @@ function extractPositionFromCharacter(c)
                 else {
                     var rest = node.nodeValue.substring(index+1);
                     node.nodeValue = node.nodeValue.substring(0,index);
-                    var restNode = document.createTextNode(rest);
-                    node.parentNode.insertBefore(restNode,node.nextSibling);
+                    var restNode = DOM.createTextNode(document,rest);
+                    DOM.insertBefore(node.parentNode,restNode,node.nextSibling);
                     return new leftArea.contentWindow.Position(node.parentNode,offsetInParent+1);
                 }
             }
@@ -245,9 +245,9 @@ function runAllTests()
     {
         var statistics = document.getElementById("statistics");
         while (statistics.firstChild != null)
-            statistics.removeChild(statistics.firstChild);
+            DOM.removeChild(statistics,statistics.firstChild);
         var str = "Passes: "+passes+", Failures: "+failures;
-        statistics.appendChild(document.createTextNode(str));
+        DOM.appendChild(statistics,DOM.createTextNode(document,str));
     }
 
     function runNextTest()
@@ -271,19 +271,19 @@ function runAllTests()
             var fullname = dirname+"-"+filename;
             var resultElement = document.getElementById("result-"+fullname);
             while (resultElement.firstChild != null)
-                resultElement.removeChild(resultElement.firstChild);
-            var a = document.createElement("a");
+                DOM.removeChild(resultElement,resultElement.firstChild);
+            var a = DOM.createElement(document,"a");
             a.href = "javascript:showResult('"+dirname+"','"+filename+"')";
-            resultElement.appendChild(a);
+            DOM.appendChild(resultElement,a);
             results[fullname] = new Result(actual,expected);
             if (actual == expected) {
                 resultElement.setAttribute("class","pass");
-                a.appendChild(document.createTextNode("PASS"));
+                DOM.appendChild(a,DOM.createTextNode(document,"PASS"));
                 passes++;
             }
             else {
                 resultElement.setAttribute("class","fail");
-                a.appendChild(document.createTextNode("FAIL"));
+                DOM.appendChild(a,DOM.createTextNode(document,"FAIL"));
                 failures++;
             }
             updateStatistics();
@@ -317,48 +317,40 @@ function loaded()
     loadCode();
     loadTestIndex();
 
-    console.log("topArea = "+topArea);
-    console.log("leftArea = "+leftArea);
-    console.log("rightArea = "+rightArea);
-
-    console.log("leftArea.contentDocument = "+leftArea.contentDocument);
-    console.log("rightArea.contentDocument = "+rightArea.contentDocument);
-
-
-    var table = document.createElement("table");
-    topArea.appendChild(table);
+    var table = DOM.createElement(document,"table");
+    DOM.appendChild(topArea,table);
 
     for (var dirno = 0; dirno < tests.length; dirno++) {
         var dir = tests[dirno];
 
-        var tr = document.createElement("tr");
-        table.appendChild(tr);
+        var tr = DOM.createElement(document,"tr");
+        DOM.appendChild(table,tr);
         tr.setAttribute("class","dirrow");
         table.setAttribute("width","100%");
 
-        var td = document.createElement("td");
-        tr.appendChild(td);
+        var td = DOM.createElement(document,"td");
+        DOM.appendChild(tr,td);
         td.setAttribute("colspan","2");
-        td.appendChild(document.createTextNode(dir.dir));
+        DOM.appendChild(td,DOM.createTextNode(document,dir.dir));
 
         for (var fileno = 0; fileno < dir.files.length; fileno++) {
             var filename = dir.files[fileno];
 
-            tr = document.createElement("tr");
-            table.appendChild(tr);
+            tr = DOM.createElement(document,"tr");
+            DOM.appendChild(table,tr);
             tr.setAttribute("class","testrow");
 
-            td = document.createElement("td");
-            tr.appendChild(td);
+            td = DOM.createElement(document,"td");
+            DOM.appendChild(tr,td);
             td.setAttribute("width","50%");
 
-            var a = document.createElement("a");
-            td.appendChild(a);
+            var a = DOM.createElement(document,"a");
+            DOM.appendChild(td,a);
             a.href = "javascript:showTest('"+dir.dir+"','"+filename+"')";
-            a.appendChild(document.createTextNode(filename));
+            DOM.appendChild(a,DOM.createTextNode(document,filename));
 
-            td = document.createElement("td");
-            tr.appendChild(td);
+            td = DOM.createElement(document,"td");
+            DOM.appendChild(tr,td);
             td.setAttribute("width","50%");
             td.id = "result-"+dir.dir+"-"+filename;
         }

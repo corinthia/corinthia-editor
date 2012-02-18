@@ -11,20 +11,20 @@ function performTest()
     var position = new Position(document.body,document.body.childNodes.length);
     messages.push("Before insertion: position = "+position);
     Position.trackWhileExecuting([position],function() {
-        ps[0].appendChild(document.createTextNode("X"));
+        DOM.appendChild(ps[0],DOM.createTextNode(document,"X"));
     });
     messages.push("After insertion: position = "+position);
 
     var position = new Position(document.body,document.body.childNodes.length);
     messages.push("Before removal: position = "+position);
     Position.trackWhileExecuting([position],function() {
-        ps[0].removeChild(ps[0].firstChild);
+        DOM.removeChild(ps[0],ps[0].firstChild);
     });
     messages.push("After removal: position = "+position);
 
     while (document.body.firstChild != null)
-        document.body.removeChild(document.body.firstChild);
-    document.body.appendChild(document.createTextNode("-\n"+messages.join("\n")+"\n-"));
+        DOM.removeChild(document.body,document.body.firstChild);
+    DOM.appendChild(document.body,DOM.createTextNode(document,"-\n"+messages.join("\n")+"\n-"));
 }
 </script>
 </head>

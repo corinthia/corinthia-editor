@@ -73,13 +73,13 @@
         Object.defineProperty(this,"self",{value: {}});
         var self = this.self;
 
-        self.element = document.createElementNS(SVG_NAMESPACE,"g");
+        self.element = DOM.createElementNS(document,SVG_NAMESPACE,"g");
         self.treeView = new TreeView(domRoot);
         self.slider = new Slider();
         self.width = window.innerWidth;
         self.height = window.innerHeight;
-        self.element.appendChild(self.treeView.element);
-        self.element.appendChild(self.slider.element);
+        DOM.appendChild(self.element,self.treeView.element);
+        DOM.appendChild(self.element,self.slider.element);
 
         self.slider.onValueChanged = function(value) { valueChanged(self,value) };
         document.onkeydown = function(event) { keypress(self,event); };

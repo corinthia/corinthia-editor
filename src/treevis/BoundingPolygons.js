@@ -424,33 +424,35 @@
         var lastX = self.xvalues[self.xvalues.length-1];
         var lastY = self.yvalues[self.yvalues.length-1];
         for (var row = 0; row < self.nrows; row++) {
-            svgParent.appendChild(makeLine(firstX,self.yvalues[row],lastX,self.yvalues[row],"red"));
+            DOM.appendChild(svgParent,makeLine(firstX,self.yvalues[row],
+                                               lastX,self.yvalues[row],"red"));
 
-            var text = document.createElementNS(SVG_NAMESPACE,"text");
+            var text = DOM.createElementNS(document,SVG_NAMESPACE,"text");
             text.setAttribute("text-anchor","end");
             text.setAttribute("font-family","sans-serif");
             text.setAttribute("font-size","10");
             text.setAttribute("x",firstX-6);
             text.setAttribute("y",self.yvalues[row]+3);
-            text.appendChild(document.createTextNode(row));
-            svgParent.appendChild(text);
+            DOM.appendChild(text,DOM.createTextNode(document,row));
+            DOM.appendChild(svgParent,text);
         }
         for (var col = 0; col < self.ncols; col++) {
-            svgParent.appendChild(makeLine(self.xvalues[col],firstY,self.xvalues[col],lastY,"red"));
+            DOM.appendChild(svgParent,makeLine(self.xvalues[col],firstY,
+                                               self.xvalues[col],lastY,"red"));
 
-            var text = document.createElementNS(SVG_NAMESPACE,"text");
+            var text = DOM.createElementNS(document,SVG_NAMESPACE,"text");
             text.setAttribute("text-anchor","middle");
             text.setAttribute("font-family","sans-serif");
             text.setAttribute("font-size","10");
             text.setAttribute("x",self.xvalues[col]);
             text.setAttribute("y",firstY-6);
-            text.appendChild(document.createTextNode(col));
-            svgParent.appendChild(text);
+            DOM.appendChild(text,DOM.createTextNode(document,col));
+            DOM.appendChild(svgParent,text);
         }
 
         function makeLine(x1,y1,x2,y2,color)
         {
-            var line = document.createElementNS(SVG_NAMESPACE,"line");
+            var line = DOM.createElementNS(document,SVG_NAMESPACE,"line");
             line.setAttribute("x1",x1);
             line.setAttribute("y1",y1);
             line.setAttribute("x2",x2);
@@ -469,7 +471,7 @@
                 var state = self.grid.get(row,col);
                 if (state != null) {
 
-                    var rect = document.createElementNS(SVG_NAMESPACE,"rect");
+                    var rect = DOM.createElementNS(document,SVG_NAMESPACE,"rect");
                     rect.setAttribute("x",self.xvalues[col]);
                     rect.setAttribute("y",self.yvalues[row]);
                     rect.setAttribute("width",self.xvalues[col+1] - self.xvalues[col]);
@@ -477,7 +479,7 @@
                     rect.setAttribute("stroke","black");
                     rect.setAttribute("fill",state);
                     rect.setAttribute("fill-opacity","0.5");
-                    svgParent.appendChild(rect);
+                    DOM.appendChild(svgParent,rect);
                 }
             }
         }
@@ -494,7 +496,7 @@
         var self = this.self;
         for (var i = 0; i < self.polygons.length; i++) {
             var polygon = self.polygons[i];
-            var path = document.createElementNS(SVG_NAMESPACE,"path");
+            var path = DOM.createElementNS(document,SVG_NAMESPACE,"path");
             var steps = new Array();
             steps.push("M "+polygon.points[0].x+" "+polygon.points[0].y);
             for (var p = 1; p < polygon.points.length; p++) {
@@ -505,7 +507,7 @@
             path.setAttribute("stroke","none");
             path.setAttribute("fill",color);
             path.setAttribute("fill-opacity",opacity);
-            svgParent.appendChild(path);
+            DOM.appendChild(svgParent,path);
         }
     }
 

@@ -2,7 +2,7 @@
 
     function getHTML(root)
     {
-        var copy = root.cloneNode(true);
+        var copy = DOM.cloneNode(root,true);
         for (var body = copy.firstChild; body != null; body = body.nextSibling) {
             if (body.nodeName == "BODY") {
                 body.removeAttribute("style");

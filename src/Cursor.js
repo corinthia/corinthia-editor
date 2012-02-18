@@ -179,15 +179,15 @@
                 // Paragraph has content: don't want BR at end
                 if (br != null) {
                     debug("Removing BR at end of paragraph");
-                    br.parentNode.removeChild(br);
+                    DOM.removeChild(br.parentNode,br);
                 }
             }
             else {
                 // Paragraph consists only of whitespace: must have BR at end
                 if (br == null) {
                     debug("Adding BR at end of paragraph");
-                    br = document.createElement("BR");
-                    paragraph.appendChild(br);
+                    br = DOM.createElement(document,"BR");
+                    DOM.appendChild(paragraph,br);
                 }
             }
         }
@@ -207,11 +207,11 @@
         var offset = selectionRange.start.offset;
 
         if (node.nodeType == Node.ELEMENT_NODE) {
-            var emptyTextNode = document.createTextNode("");
+            var emptyTextNode = DOM.createTextNode(document,"");
             if (offset >= node.childNodes.length)
-                node.appendChild(emptyTextNode);
+                DOM.appendChild(node,emptyTextNode);
             else
-                node.insertBefore(emptyTextNode,node.childNodes[offset]);
+                DOM.insertBefore(node,emptyTextNode,node.childNodes[offset]);
             node = emptyTextNode;
             offset = 0;
         }
@@ -249,19 +249,19 @@
                     
                     while ((prev != null) && isWhitespaceTextNode(prev)) {
                         var prev2 = prev.previousSibling;
-                        prev.parentNode.removeChild(prev);
+                        DOM.removeChild(prev.parentNode,prev);
                         prev = prev2;
                     }
                     
                     if ((prev != null) && (prev.nodeType == Node.ELEMENT_NODE)) {
                         if ((prev.lastChild != null) && (prev.lastChild.nodeName == "BR"))
-                            prev.removeChild(prev.lastChild);
+                            DOM.removeChild(prev,prev.lastChild);
                         setEmptySelectionAt(prev,prev.childNodes.length);
                         if (nodeHasContent(paragraph)) {
                             while (paragraph.firstChild != null)
-                                prev.appendChild(paragraph.firstChild);
+                                DOM.appendChild(prev,paragraph.firstChild);
                         }
-                        paragraph.parentNode.removeChild(paragraph);
+                        DOM.removeChild(paragraph.parentNode,paragraph);
                     }
                     updateSelectionDisplay();
                 }
@@ -308,7 +308,7 @@
             var parent = node.parentNode;
             if (node.nodeType == Node.TEXT_NODE) {
                 if (node.nodeValue.length == 0) {
-                    parent.removeChild(node);
+                    DOM.removeChild(parent,node);
                     removeIfEmpty(parent);
                 }
             }
@@ -321,7 +321,7 @@
                     }
                 }
                 if (!haveContent) {
-                    parent.removeChild(node);
+                    DOM.removeChild(parent,node);
                     removeIfEmpty(parent);
                 }
             }
@@ -375,25 +375,25 @@
             if (paragraph.parentNode.nodeName == "LI") {
                 var li = paragraph.parentNode;
                 var liCopy = shallowCopyElement(li);
-                li.parentNode.insertBefore(liCopy,li.nextSibling);
-                liCopy.appendChild(copy);
+                DOM.insertBefore(li.parentNode,liCopy,li.nextSibling);
+                DOM.appendChild(liCopy,copy);
                 
                 // For list items, we want to put all futher paragraphs inside the old list item
                 // inside the new one as well
                 var follow = paragraph.nextSibling;
                 while (follow != null) {
                     var next = follow.nextSibling;
-                    liCopy.appendChild(follow);
+                    DOM.appendChild(liCopy,follow);
                     follow = next;
                 }
             }
             else {
-                paragraph.parentNode.insertBefore(copy,paragraph.nextSibling);
+                DOM.insertBefore(paragraph.parentNode,copy,paragraph.nextSibling);
             }
             
             while (child != null) {
                 var next = child.nextSibling;
-                copy.appendChild(child);
+                DOM.appendChild(copy,child);
                 child = next;
             }
 

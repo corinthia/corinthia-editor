@@ -47,10 +47,10 @@ function performTest()
     var message1 = "allPositions.length = "+allPositions.length;
     var message2 = "Test results: total "+total+", pass "+pass+", fail "+fail;
     while (document.body.firstChild != null)
-        document.body.removeChild(document.body.firstChild);
-    document.body.appendChild(document.createTextNode(message1));
-    document.body.appendChild(document.createElement("BR"));
-    document.body.appendChild(document.createTextNode(message2));
+        DOM.removeChild(document.body,document.body.firstChild);
+    DOM.appendChild(document.body,DOM.createTextNode(document,message1));
+    DOM.appendChild(document.body,DOM.createElement(document,"BR"));
+    DOM.appendChild(document.body,DOM.createTextNode(document,message2));
 }
 </script>
 </head>

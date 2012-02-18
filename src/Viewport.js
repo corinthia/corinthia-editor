@@ -12,8 +12,8 @@ function getOrCreateHead()
         if (child.nodeName == "HEAD")
             return child;
     }
-    var head = document.createElement("HEAD");
-    html.insertBefore(head,html.firstChild);
+    var head = DOM.createElement(document,"HEAD");
+    DOM.insertBefore(html,head,html.firstChild);
     return head;
 }
 
@@ -30,9 +30,9 @@ function setViewportWidth(width)
             }
         }
         if (viewportMetaElement == null) {
-            viewportMetaElement = document.createElement("META");
+            viewportMetaElement = DOM.createElement(document,"META");
             viewportMetaElement.setAttribute("name","viewport");
-            head.appendChild(viewportMetaElement);
+            DOM.appendChild(head,viewportMetaElement);
         }
     }
     viewportMetaElement.setAttribute("content","width = "+width);

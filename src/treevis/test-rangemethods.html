@@ -293,14 +293,14 @@ function main()
     setup(root);
 
 
-    var svg = document.createElementNS(SVG_NAMESPACE,"svg");
+    var svg = DOM.createElementNS(document,SVG_NAMESPACE,"svg");
     svg.setAttribute("version","1.1");
-    document.body.appendChild(svg);
+    DOM.appendChild(document.body,svg);
 
     treeView = new TreeView(root);
 //    treeView.labelFun = function(node) { return node._nodeId; }
 
-    svg.appendChild(treeView.element);
+    DOM.appendChild(svg,treeView.element);
     treeView.update();
 
     if (true) {

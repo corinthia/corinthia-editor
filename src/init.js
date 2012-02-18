@@ -2,7 +2,7 @@
 
 function prettyPrintDocument()
 {
-    var clone = document.documentElement.cloneNode(true);
+    var clone = DOM.cloneNode(document.documentElement,true);
     removeRedundantWhitespace(clone,"");
     addIndentation(clone,"");
     return clone.outerHTML;
@@ -21,7 +21,7 @@ function prettyPrintDocument()
             for (var child = node.firstChild; child != null; child = next) {
                 next = child.nextSibling;
                 if (isWhitespaceTextNode(child)) {
-                    node.removeChild(child);
+                    DOM.removeChild(node,child);
                 }
                 else {
                     removeRedundantWhitespace(child,indent+"    ");
@@ -46,12 +46,12 @@ function prettyPrintDocument()
             var next;
             for (var child = node.firstChild; child != null; child = next) {
                 next = child.nextSibling;
-                var text = document.createTextNode("\n"+indent+"    ");
-                node.insertBefore(text,child);
+                var text = DOM.createTextNode(document,"\n"+indent+"    ");
+                DOM.insertBefore(node,text,child);
                 addIndentation(child,indent+"    ");
             }
-            var text = document.createTextNode("\n"+indent);
-            node.appendChild(text);
+            var text = DOM.createTextNode(document,"\n"+indent);
+            DOM.appendChild(node,text);
         }
     }
 }
@@ -125,7 +125,7 @@ function jumpToSection(sectionId)
 
 function getHTML()
 {
-    var clone = document.documentElement.cloneNode(true);
+    var clone = DOM.cloneNode(document.documentElement,true);
     removeSpecial(clone);
 
     return clone.outerHTML;

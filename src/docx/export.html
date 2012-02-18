@@ -11,10 +11,10 @@ p { page-break-inside: avoid }
 function save()
 {
     var win = window.open();
-    var text = win.document.createTextNode(document.documentElement.outerHTML);
-    var pre = win.document.createElement("PRE");
-    pre.appendChild(text);
-    win.document.body.appendChild(pre);
+    var text = DOM.createTextNode(win.document,document.documentElement.outerHTML);
+    var pre = DOM.createElement(win.document,"PRE");
+    DOM.appendChild(pre,text);
+    DOM.appendChild(win.document.body,pre);
 }
 </script>
 
@@ -293,6 +293,7 @@ allowing both aspects of a workflow to be expressed in the one language.</p>
 <script language="javascript" src="htmltable.js"></script>
 <script language="javascript" src="DocxDocument.js"></script>
 <script language="javascript" src="html2docx.js"></script>
+<script language="javascript" src="../DOM.js"></script>
 
 <script language="javascript">
 html2docx("saved/saved1");

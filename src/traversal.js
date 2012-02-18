@@ -102,7 +102,7 @@ function getOffsetOfNodeInParent(node)
 
 function shallowCopyElement(element)
 {
-    var copy = document.createElement(element.nodeName);
+    var copy = DOM.createElement(document,element.nodeName);
     for (var i = 0; i < element.attributes.length; i++) {
         if (element.attributes[i].nodeName != "id")
             copy.setAttribute(element.attributes[i].nodeName,element.attributes[i].nodeValue);
@@ -113,7 +113,7 @@ function shallowCopyElement(element)
 function moveNode(node,parentNode,nextSibling)
 {
     Position.nodeBeingMoved = node;
-    parentNode.insertBefore(node,nextSibling);
+    DOM.insertBefore(parentNode,node,nextSibling);
     Position.nodeBeingMoved = null;
 }
 
@@ -121,31 +121,31 @@ function removeNodeButKeepChildren(node)
 {
     while (node.firstChild != null)
         moveNode(node.firstChild,node.parentNode,node);
-    node.parentNode.removeChild(node);
+    DOM.removeChild(node.parentNode,node);
 }
 
 function replaceElement(oldElement,newName)
 {
-    var newElement = document.createElement(newName);
+    var newElement = DOM.createElement(document,newName);
     for (var i = 0; i < oldElement.attributes.length; i++) {
         var name = oldElement.attributes[i].nodeName;
         var value = oldElement.getAttribute(name);
         newElement.setAttribute(name,value);
     }
 
-    oldElement.parentNode.insertBefore(newElement,oldElement);
+    DOM.insertBefore(oldElement.parentNode,newElement,oldElement);
     while (oldElement.firstChild != null)
         moveNode(oldElement.firstChild,newElement,null);
     moveNode(oldElement,newElement,null);
-    oldElement.parentNode.removeChild(oldElement);
+    DOM.removeChild(oldElement.parentNode,oldElement);
 
     return newElement;
 }
 
 function wrapNode(node,elementName)
 {
-    var wrapper = document.createElement(elementName);
-    node.parentNode.insertBefore(wrapper,node);
+    var wrapper = DOM.createElement(document,elementName);
+    DOM.insertBefore(node.parentNode,wrapper,node);
     moveNode(node,wrapper,null);
     return wrapper;
 }

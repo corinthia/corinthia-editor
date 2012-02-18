@@ -5,18 +5,18 @@
 <script language="javascript">
 function performTest()
 {
-    var p = document.createElement("P");
-    var text1 = document.createTextNode("One");
-    var text2 = document.createTextNode("Two");
-    var text3 = document.createTextNode("Three");
-    var text4 = document.createTextNode("Four");
-    var text5 = document.createTextNode("Five");
-    p.appendChild(text1);
-    p.appendChild(text2);
-    p.appendChild(text3);
-    p.appendChild(text4);
-    p.appendChild(text5);
-    document.body.appendChild(p);
+    var p = DOM.createElement(document,"P");
+    var text1 = DOM.createTextNode(document,"One");
+    var text2 = DOM.createTextNode(document,"Two");
+    var text3 = DOM.createTextNode(document,"Three");
+    var text4 = DOM.createTextNode(document,"Four");
+    var text5 = DOM.createTextNode(document,"Five");
+    DOM.appendChild(p,text1);
+    DOM.appendChild(p,text2);
+    DOM.appendChild(p,text3);
+    DOM.appendChild(p,text4);
+    DOM.appendChild(p,text5);
+    DOM.appendChild(document.body,p);
 
     var range = new Range(text1,1,text5,3);
     range.trackWhileExecuting(function() {

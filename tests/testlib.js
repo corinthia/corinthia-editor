@@ -2,22 +2,22 @@ function insertAtPosition(position,node)
 {
     if (position.node.nodeType == Node.ELEMENT_NODE) {
         if (position.offset == position.node.childNodes.length)
-            position.node.appendChild(node);
+            DOM.appendChild(position.node,node);
         else
-            position.node.insertBefore(node,position.node.childNodes[position.offset]);
+            DOM.insertBefore(position.node,node,position.node.childNodes[position.offset]);
     }
     else if (position.node.nodeType == Node.TEXT_NODE) {
-        var newText = document.createTextNode(position.node.nodeValue.slice(position.offset));
+        var newText = DOM.createTextNode(document,position.node.nodeValue.slice(position.offset));
         position.node.nodeValue = position.node.nodeValue.slice(0,position.offset);
-        position.node.parentNode.insertBefore(newText,position.node.nextSibling);
-        position.node.parentNode.insertBefore(node,position.node.nextSibling);
+        DOM.insertBefore(position.node.parentNode,newText,position.node.nextSibling);
+        DOM.insertBefore(position.node.parentNode,node,position.node.nextSibling);
     }
 }
 
 function insertTextAtPosition(position,str)
 {
     if (position.node.nodeType == Node.ELEMENT_NODE) {
-        insertAtPosition(position,document.createTextNode(str));
+        insertAtPosition(position,DOM.createTextNode(document,str));
     }
     else if (position.node.nodeType == Node.TEXT_NODE) {
         position.node.nodeValue = position.node.nodeValue.slice(0,position.offset) + str +
@@ -54,7 +54,7 @@ function selectNode(node)
 function removeWhitespaceAndCommentNodes(node)
 {
     if (isWhitespaceTextNode(node) || (node.nodeType == Node.COMMENT_NODE)) {
-        node.parentNode.removeChild(node);
+        DOM.removeChild(node.parentNode,node);
     }
     else {
         var next;

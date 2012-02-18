@@ -71,14 +71,14 @@
     {
         Object.defineProperty(this,"self",{value: {}});
         var self = this.self;
-        self.element = document.createElementNS(SVG_NAMESPACE,"g");
-        self.bar = document.createElementNS(SVG_NAMESPACE,"rect");
-        self.thumb = document.createElementNS(SVG_NAMESPACE,"rect");
-        self.text = document.createElementNS(SVG_NAMESPACE,"text");
-        self.text.appendChild(document.createTextNode(""));
-        self.element.appendChild(self.bar);
-        self.element.appendChild(self.thumb);
-        self.element.appendChild(self.text);
+        self.element = DOM.createElementNS(document,SVG_NAMESPACE,"g");
+        self.bar = DOM.createElementNS(document,SVG_NAMESPACE,"rect");
+        self.thumb = DOM.createElementNS(document,SVG_NAMESPACE,"rect");
+        self.text = DOM.createElementNS(document,SVG_NAMESPACE,"text");
+        DOM.appendChild(self.text,DOM.createTextNode(document,""));
+        DOM.appendChild(self.element,self.bar);
+        DOM.appendChild(self.element,self.thumb);
+        DOM.appendChild(self.element,self.text);
 
         self.barHeight = 6;
         self.thumbWidth = 20;

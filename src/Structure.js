@@ -61,12 +61,12 @@
             this.fullNumber = number;
 
             if (this.span == null) {
-                this.span = document.createElement("SPAN");
+                this.span = DOM.createElement(document,"SPAN");
                 this.span.setAttribute("class","-uxwrite-heading-number");
                 this.span.setAttribute("style","color: red");
-                this.node.insertBefore(this.span,this.node.firstChild);
-                var text = document.createTextNode("");
-                this.span.appendChild(text);
+                DOM.insertBefore(this.node,this.span,this.node.firstChild);
+                var text = DOM.createTextNode(document,"");
+                DOM.appendChild(this.span,text);
             }
 
             this.span.firstChild.nodeValue = this.fullNumber+" ";

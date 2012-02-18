@@ -5,14 +5,14 @@
 <script language="javascript">
 function performTest()
 {
-    var text1 = document.createTextNode("One");
-    var text2 = document.createTextNode("Two");
-    var text3 = document.createTextNode("Three");
+    var text1 = DOM.createTextNode(document,"One");
+    var text2 = DOM.createTextNode(document,"Two");
+    var text3 = DOM.createTextNode(document,"Three");
     while (document.body.firstChild != null)
-        document.body.removeChild(document.body.firstChild);
-    document.body.appendChild(text1);
-    document.body.appendChild(text2);
-    document.body.appendChild(text3);
+        DOM.removeChild(document.body,document.body.firstChild);
+    DOM.appendChild(document.body,text1);
+    DOM.appendChild(document.body,text2);
+    DOM.appendChild(document.body,text3);
 
     var range = new Range(document.body,0,document.body,3);
 

@@ -25,8 +25,8 @@ function performTest()
         messages.push("positions["+i+"] = "+positions[i]);
 
     while (document.body.firstChild != null)
-        document.body.removeChild(document.body.firstChild);
-    document.body.appendChild(document.createTextNode("-\n"+messages.join("\n")+"\n-"));
+        DOM.removeChild(document.body,document.body.firstChild);
+    DOM.appendChild(document.body,DOM.createTextNode(document,"-\n"+messages.join("\n")+"\n-"));
 }
 </script>
 </head>

@@ -2,57 +2,15 @@
 
 (function() {
 
-    var original = {
-        createElement: Document.prototype.createElement,
-        createElementNS: Document.prototype.createElementNS,
-        createTextNode: Document.prototype.createTextNode,
-        createComment: Document.prototype.createComment,
-        cloneNode: Node.prototype.cloneNode
-    };
-
     // Assign a unique prefix to the ids, to ensure namespaces don't clash when multiple instances
     // of this are used in different browser windows
     var prefix = Math.random()+":";
     var nextNodeId = 0;
 
-    Document.prototype.createElement = function(elementName)
+    function assignNodeId(node)
     {
-        var node = original.createElement.call(this,elementName);
         node._nodeId = prefix+nextNodeId++;
         return node;
-    }
-
-    Document.prototype.createElementNS = function(namespaceURI,qualifiedName)
-    {
-        var node = original.createElementNS.call(this,namespaceURI,qualifiedName);
-        node._nodeId = prefix+nextNodeId++;
-        return node;
-    }
-
-    Document.prototype.createTextNode = function(data)
-    {
-        var node = original.createTextNode.call(this,data);
-        node._nodeId = prefix+nextNodeId++;
-        return node;
-    }
-
-    Document.prototype.createComment = function(data)
-    {
-        var node = original.createComment.call(this,data);
-        node._nodeId = prefix+nextNodeId++;
-        return node;
-    }
-
-    Node.prototype.cloneNode = function(deep)
-    {
-        var clone = original.cloneNode.call(this,deep);
-        DOM.assignNodeIds(clone);
-        return clone;
-    }
-
-    Node.prototype.toString = function(deep)
-    {
-        return nodeString(this);
     }
 
     function nodeInserted(event)
@@ -124,6 +82,56 @@
         node.addEventListener("DOMNodeRemoved",nodeRemoved);
         node.addEventListener("DOMAttrModified",attrModified);
         node.addEventListener("DOMCharacterDataModified",characterDataModified);
+    }
+
+    // public
+    DOM.createElement = function(document,elementName)
+    {
+        return assignNodeId(document.createElement(elementName));
+    }
+
+    // public
+    DOM.createElementNS = function(document,namespaceURI,qualifiedName)
+    {
+        return assignNodeId(document.createElementNS(namespaceURI,qualifiedName));
+    }
+
+    // public
+    DOM.createTextNode = function(document,data)
+    {
+        return assignNodeId(document.createTextNode(data));
+    }
+
+    // public
+    DOM.createComment = function(document,data)
+    {
+        return assignNodeId(document.createComment(data));
+    }
+
+    // public
+    DOM.cloneNode = function(original,deep)
+    {
+        var clone = original.cloneNode(deep);
+        DOM.assignNodeIds(clone);
+        return clone;
+    }
+
+    // public
+    DOM.appendChild = function(node,child)
+    {
+        return node.appendChild(child);
+    }
+
+    // public
+    DOM.insertBefore = function(node,child,before)
+    {
+        return node.insertBefore(child,before);
+    }
+
+    // public
+    DOM.removeChild = function(node,child)
+    {
+        return node.removeChild(child);
     }
 
     window.DOM = DOM;

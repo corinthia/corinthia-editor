@@ -38,7 +38,7 @@ function LatexNode()
     this.nextSibling = null;
 }
 
-LatexNode.prototype.appendChild = function(child)
+LatexNode.prototype.addChild = function(child)
 {
     if (this.firstChild == null) {
         this.firstChild = child;
@@ -101,7 +101,7 @@ function LatexArgument(type,children)
 {
     this.type = type;
     for (var i = 0; i < children.length; i++)
-        this.appendChild(children[i]);
+        this.addChild(children[i]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -129,7 +129,7 @@ function LatexMacro(name,args)
 {
     this.name = name;
     for (var i = 0; i < args.length; i++)
-        this.appendChild(args[i]);
+        this.addChild(args[i]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -143,7 +143,7 @@ LatexMath.prototype = extend(LatexNode);
 function LatexMath(children)
 {
     for (var i = 0; i < children.length; i++)
-        this.appendChild(children[i]);
+        this.addChild(children[i]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -416,7 +416,7 @@ LatexSource.prototype.parseDocument = function()
     var root = new LatexElement();
     var element;
     while ((element = this.parseSingle("")) != null)
-        root.appendChild(element);
+        root.addChild(element);
     return root;
 }
 
@@ -451,10 +451,10 @@ LatexSource.prototype.parse = function()
 function main()
 {
     var texCode = load();
-//    var pre = document.createElement("PRE");
-//    var text = document.createTextNode(texCode);
-//    pre.appendChild(text);
-//    document.body.appendChild(pre);
+//    var pre = DOM.createElement(document,"PRE");
+//    var text = DOM.createTextNode(document.texCode);
+//    DOM.appendChild(pre,text);
+//    DOM.appendChild(document.body,pre);
     
     var source = new LatexSource(texCode);
     source.parse();

@@ -345,8 +345,8 @@ function convert()
     var latex = translateHTML2Latex(document);
 
     var win = window.open();
-    var text = win.document.createTextNode(latex);
-    var pre = win.document.createElement("PRE");
-    pre.appendChild(text);
-    win.document.body.appendChild(pre);
+    var text = DOM.createTextNode(win.document,latex);
+    var pre = DOM.createElement(win.document,"PRE");
+    DOM.appendChild(pre,text);
+    DOM.appendChild(win.document.body,pre);
 }

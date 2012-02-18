@@ -1,6 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <html> <head>
 <title></title>
+<script language="javascript" src="../DOM.js"></script>
 <script language="javascript">
 
 function ElementDeclaration(name)
@@ -49,9 +50,9 @@ function debug(str)
 
 function println(str)
 {
-    var text = document.createTextNode(str+"\n");
+    var text = DOM.createTextNode(document,str+"\n");
     var output = document.getElementById("output");
-    output.appendChild(text);
+    DOM.appendChild(output,text);
 }
 
 function readFile(filename)

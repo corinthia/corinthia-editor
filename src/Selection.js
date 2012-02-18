@@ -11,7 +11,7 @@
     function updateSelectionDisplay()
     {
         for (var i = 0; i < selectionDivs.length; i++)
-            selectionDivs[i].parentNode.removeChild(selectionDivs[i]);
+            DOM.removeChild(selectionDivs[i].parentNode,selectionDivs[i]);
         selectionDivs = new Array();
 
         var rects = null;
@@ -46,22 +46,22 @@
 
                 if ((node.nodeType == Node.ELEMENT_NODE) ||
                     (node.nodeType == Node.TEXT_NODE) && (offset == node.nodeValue.length)) {
-                    var tempNode = document.createTextNode("X");
+                    var tempNode = DOM.createTextNode(document,"X");
 
                     if (node.nodeType == Node.TEXT_NODE) {
-                        node.parentNode.insertBefore(tempNode,node.nextSibling);
+                        DOM.insertBefore(node.parentNode,tempNode,node.nextSibling);
                     }
                     else if (node.nodeType == Node.ELEMENT_NODE) {
                         if (offset >= node.childNodes.length) {
-                            node.appendChild(tempNode);
+                            DOM.appendChild(node,tempNode);
                         }
                         else {
-                            node.insertBefore(tempNode,node.childNodes[offset]);
+                            DOM.insertBefore(node,tempNode,node.childNodes[offset]);
                         }
                     }
                     var tempRange = new Range(tempNode,0,tempNode,0);
                     rects = tempRange.getClientRects();
-                    tempNode.parentNode.removeChild(tempNode);
+                    DOM.removeChild(tempNode.parentNode,tempNode);
                 }
             }
 
@@ -84,7 +84,7 @@
             var boundsBottom = null
 
             for (var i = 0; i < rects.length; i++) {
-                var div = document.createElement("DIV");
+                var div = DOM.createElement(document,"DIV");
                 div.style.position = "absolute";
 
                 var left = rects[i].left + window.scrollX;
@@ -117,7 +117,7 @@
                 div.style.height = height+"px";
                 div.style.backgroundColor = "rgb(201,221,238)";
                 div.style.zIndex = -1;
-                document.body.appendChild(div);
+                DOM.appendChild(document.body,div);
                 selectionDivs.push(div);
             }
 
@@ -297,7 +297,7 @@
                     finalNode = node.parentNode;
                     finalOffset = 0;
                 }
-                node.parentNode.removeChild(node);
+                DOM.removeChild(node.parentNode,node);
             }
         }
 

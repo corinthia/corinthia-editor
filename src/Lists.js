@@ -74,11 +74,11 @@
                     }
 
                     if (prevList != null) {
-                        prevList.appendChild(li);
+                        DOM.appendChild(prevList,li);
                         if (childList != null) {
                             while (childList.firstChild != null)
-                                prevList.appendChild(childList.firstChild);
-                            li.removeChild(childListContainer);
+                                DOM.appendChild(prevList,childList.firstChild);
+                            DOM.removeChild(li,childListContainer);
                             // alert("Case 1: prevList and childList");
                         }
                         else {
@@ -90,17 +90,17 @@
                         if (childList != null) {
                             // alert("Case 3: no prevList but childList");
                             newList = childList;
-                            prevLi.appendChild(childListContainer);
+                            DOM.appendChild(prevLi,childListContainer);
                         }
                         else {
                             // alert("Case 4: no prevList and no childList");
                             if (li.parentNode.nodeName == "UL")
-                                newList = document.createElement("UL");
+                                newList = DOM.createElement(document,"UL");
                             else
-                                newList = document.createElement("OL");
-                            prevLi.appendChild(newList);
+                                newList = DOM.createElement(document,"OL");
+                            DOM.appendChild(prevLi,newList);
                         }
-                        newList.insertBefore(li,newList.firstChild);
+                        DOM.insertBefore(newList,li,newList.firstChild);
                     }
                 }
             }
@@ -193,30 +193,30 @@
                 if (following != null) {
                     var secondHalf;
                     if (parentList.nodeName == "UL")
-                        secondHalf = document.createElement("UL");
+                        secondHalf = DOM.createElement(document,"UL");
                     else
-                        secondHalf = document.createElement("OL");
+                        secondHalf = DOM.createElement(document,"OL");
 
                     var copy = secondHalf;
 
                     for (var p = parentList.parentNode; p != container; p = p.parentNode) {
                         var pcopy = shallowCopyElement(p);
-                        pcopy.appendChild(copy);
+                        DOM.appendChild(pcopy,copy);
                         copy = pcopy;
                     }
 
-                    node.appendChild(copy);
+                    DOM.appendChild(node,copy);
 
                     while (following != null) {
                         var next = following.nextSibling;
-                        secondHalf.appendChild(following);
+                        DOM.appendChild(secondHalf,following);
                         following = next;
                     }
                 }
 
-                container.parentNode.insertBefore(node,container.nextSibling);
+                DOM.insertBefore(container.parentNode,node,container.nextSibling);
                 if (firstChildElement(parentList) == null) {
-                    parentList.parentNode.removeChild(parentList);
+                    DOM.removeChild(parentList.parentNode,parentList);
                 }
             }
         });
@@ -239,9 +239,9 @@
     function removeAdjacentWhitespace(node)
     {
         while ((node.previousSibling != null) && (isWhitespaceTextNode(node.previousSibling)))
-            node.parentNode.removeChild(node.previousSibling);
+            DOM.removeChild(node.parentNode,node.previousSibling);
         while ((node.nextSibling != null) && (isWhitespaceTextNode(node.nextSibling)))
-            node.parentNode.removeChild(node.nextSibling);
+            DOM.removeChild(node.parentNode,node.nextSibling);
     }
 
     // public
@@ -322,9 +322,9 @@
                     }
                     else {
                         var secondList = shallowCopyElement(list);
-                        list.parentNode.insertBefore(secondList,list.nextSibling);
+                        DOM.insertBefore(list.parentNode,secondList,list.nextSibling);
                         while (li.nextSibling != null) {
-                            secondList.appendChild(li.nextSibling);
+                            DOM.appendChild(secondList,li.nextSibling);
                             removeAdjacentWhitespace(li);
                         }
 
@@ -333,22 +333,22 @@
 
                     while (li.firstChild != null) {
                         if (isWhitespaceTextNode(li.firstChild)) {
-                            li.removeChild(li.firstChild);
+                            DOM.removeChild(li,li.firstChild);
                         }
                         else if (isInlineNode(li.firstChild)) {
-                            var p = document.createElement("p");
-                            p.appendChild(li.firstChild);
-                            list.parentNode.insertBefore(p,insertionPoint);
+                            var p = DOM.createElement(document,"p");
+                            DOM.appendChild(p,li.firstChild);
+                            DOM.insertBefore(list.parentNode,p,insertionPoint);
                         }
                         else {
-                            list.parentNode.insertBefore(li.firstChild,insertionPoint);
+                            DOM.insertBefore(list.parentNode,li.firstChild,insertionPoint);
                         }
                     }
 
-                    list.removeChild(li);
+                    DOM.removeChild(list,li);
 
                     if (list.firstChild == null)
-                        list.parentNode.removeChild(list);
+                        DOM.removeChild(list.parentNode,list);
                 }
             }
         });
@@ -402,9 +402,9 @@
                     }
                     else {
                         var secondList = shallowCopyElement(list);
-                        list.parentNode.insertBefore(secondList,list.nextSibling);
+                        DOM.insertBefore(list.parentNode,secondList,list.nextSibling);
                         while (li.nextSibling != null) {
-                            secondList.appendChild(li.nextSibling);
+                            DOM.appendChild(secondList,li.nextSibling);
                             removeAdjacentWhitespace(li);
                         }
 
@@ -438,23 +438,23 @@
                     itemInsertionPoint = list.firstChild;
                 }
                 else {
-                    list = document.createElement(type);
-                    node.parentNode.insertBefore(list,listInsertionPoint);
+                    list = DOM.createElement(document,type);
+                    DOM.insertBefore(node.parentNode,list,listInsertionPoint);
                     itemInsertionPoint = null;
                 }
 
                 if (li != null) {
-                    list.insertBefore(li,itemInsertionPoint);
+                    DOM.insertBefore(list,li,itemInsertionPoint);
                 }
                 else {
-                    var li = document.createElement("LI");
-                    list.insertBefore(li,itemInsertionPoint);
-                    li.appendChild(node);
+                    var li = DOM.createElement(document,"LI");
+                    DOM.insertBefore(list,li,itemInsertionPoint);
+                    DOM.appendChild(li,node);
                 }
 
 
                 if ((oldList != null) && (oldList.firstChild == null))
-                    oldList.parentNode.removeChild(oldList);
+                    DOM.removeChild(oldList.parentNode,oldList);
 
                 // Merge with adjacent list
                 removeAdjacentWhitespace(list);
@@ -462,11 +462,11 @@
                     var followingList = list.nextSibling;
                     while (followingList.firstChild != null) {
                         if (isWhitespaceTextNode(followingList.firstChild))
-                            followingList.removeChild(followingList.firstChild);
+                            DOM.removeChild(followingList,followingList.firstChild);
                         else
-                            list.appendChild(followingList.firstChild);
+                            DOM.appendChild(list,followingList.firstChild);
                     }
-                    followingList.parentNode.removeChild(followingList);
+                    DOM.removeChild(followingList.parentNode,followingList);
                 }
             }
         });
