@@ -12,7 +12,7 @@
 
     // Assign a unique prefix to the ids, to ensure namespaces don't clash when multiple instances
     // of this are used in different browser windows
-    var prefix = window.debugIds ? "" : (Math.random()+":");
+    var prefix = Math.random()+":";
     var nextNodeId = 0;
 
     Document.prototype.createElement = function(elementName)

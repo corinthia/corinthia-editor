@@ -332,7 +332,7 @@
             }
             var id = "";
             if (window.debugIds)
-                id = self.node._nodeId+":";
+                id = self.node._nodeId.replace(/^.*:/,"")+":";
             return id+JSON.stringify(self.node.nodeValue.slice(0,self.offset)+extra+"|"+
                                      self.node.nodeValue.slice(self.offset));
         }
