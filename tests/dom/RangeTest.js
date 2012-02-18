@@ -29,13 +29,39 @@ function setup(root)
     }
 }
 
+function comparePositionsBeforeAndAfter(fun)
+{
+    var messages = new Array();
+    var positions = getAllPositions(document.body);
+    var positionStrings = new Array();
+    for (var i = 0; i < positions.length; i++) {
+        messages.push("Before: positions["+i+"] = "+positions[i]);
+        positionStrings[i] = positions[i].toString();
+    }
+
+    Position.trackWhileExecuting(positions,function() {
+        fun();
+
+    });
+
+    messages.push("");
+    for (var i = 0; i < positions.length; i++) {
+        if (positionStrings[i] != positions[i].toString())
+            messages.push("After: positions["+i+"] = "+positions[i]+" - changed from "+
+                          positionStrings[i]);
+        else
+            messages.push("After: positions["+i+"] = "+positions[i]);
+    }
+
+    return messages.join("\n");
+}
+
 function getAllPositions(root)
 {
     var includeEmptyElements = true;
 
     var positions = new Array();
     var rootOffset = getOffsetOfNodeInParent(root);
-    var sig = 0;
     positions.push(new Position(root.parentNode,rootOffset));
     recurse(root);
     positions.push(new Position(root.parentNode,rootOffset+1));
@@ -54,7 +80,6 @@ function getAllPositions(root)
                 positions.push(new Position(node,offset));
                 recurse(child);
                 offset++;
-                sig++;
             }
             positions.push(new Position(node,offset));
         }

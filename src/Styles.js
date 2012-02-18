@@ -123,43 +123,6 @@ function ensureValidHierarchy(node,recursive)
         ensureValidHierarchy(node.parentNode,true);
 }
 
-function setStyle(name)
-{
-    // FIXME: handle the case where there are multiple paragraphs selected.
-    // We need to update the style of each of them
-
-    var range = getSelectionRange();
-    var cursorNode = range.start.node;
-    var cursorOffset = range.start.offset;
-
-    ensureValidHierarchy(cursorNode,true);
-    var styleElement = getParagraphNode(cursorNode);
-
-    if (styleElement != null) {
-        debug("replacing with "+name);
-        var newElement = DOM.createElement(document,name);
-        DOM.insertBefore(styleElement.parentNode,newElement,styleElement);
-        DOM.removeChild(styleElement.parentNode,styleElement);
-        while (styleElement.firstChild != null)
-            DOM.appendChild(newElement,styleElement.firstChild);
-        setEmptySelectionAt(cursorNode,cursorOffset);
-    }
-    else {
-        alert("No style element!");
-    }
-
-    return;
-
-    function getParagraphNode(node)
-    {
-        for (var p = node; p != null; p = p.parentNode) {
-            if (isParagraphNode(p))
-                return p;
-        }
-        return null;
-    }
-}
-
 function setStyleElement(cssText)
 {
 //    alert(cssText);

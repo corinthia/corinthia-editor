@@ -1,0 +1,23 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script type="text/javascript" src="RangeTest.js"></script>
+<script language="javascript">
+
+function performTest()
+{
+    // DOM.wrapNode() should not affect any positions, because the node itself remains in the
+    // tree unmodified.
+
+    var result = comparePositionsBeforeAndAfter(function() {
+        DOM.replaceElement(document.getElementById("p2"),"DIV");
+    });
+
+    DOM.deleteAllChildren(document.body);
+    DOM.appendChild(document.body,DOM.createTextNode(document,"-\n"+result+"\n-"));
+}
+</script>
+</head>
+<body><p id="p1">ab<br></p><p id="p2">cd<b>ef<br></b>gh</b></p><p id="p3">ij<br></p></body>
+</html>

@@ -27,7 +27,6 @@
         self.tracking = 0;
         self.insertionListener = null;
         self.removalListener = null;
-        self.moving = false;
 
         Object.defineProperty(this,"node",{
             get: function() { return this.self.node },
@@ -45,7 +44,6 @@
         Object.preventExtensions(this);
     }
 
-    Position.nodeBeingMoved = null; // FIXME: make this private
     var ignoreEvents = 0;
     Position.trackedPositions = new Array(); // FIXME: make this private
 
@@ -70,14 +68,11 @@
         if (ignoreEvents > 0)
             return;
 
-        if ((event.target == self.node) && self.moving) {
-            setNodeAndOffset(self,event.relatedNode,getOffsetOfNodeInParent(event.target));
-            self.moving = false;
-        }
-        else if (event.relatedNode == self.node) {
+        if (event.relatedNode == self.node) {
             var offset = getOffsetOfNodeInParent(event.target);
-            if (offset < self.offset)
+            if (offset < self.offset) {
                 self.offset++;
+            }
         }
     }
 
@@ -88,16 +83,11 @@
 
         if (event.relatedNode == self.node) {
             var offset = getOffsetOfNodeInParent(event.target);
-            if ((Position.nodeBeingMoved == event.target) && (offset == self.offset)) {
-                setNodeAndOffset(self,event.target,0);
-                self.moving = true;
-            }
-            else {
-                if (offset < self.offset)
-                    self.offset--;
+            if (offset < self.offset) {
+                self.offset--;
             }
         }
-        else if ((event.target == self.node) && (Position.nodeBeingMoved != event.target)) {
+        else if (event.target == self.node) {
             var offset = getOffsetOfNodeInParent(event.target);
             setNodeAndOffset(self,self.node.parentNode,offset);
         }
@@ -175,10 +165,12 @@
             self.node.addEventListener("DOMCharacterDataModified",
                                        self.characterDataListener,false);
         }
+        DOM.addTrackedPosition(self.this);
     }
 
     function actuallyStopTracking(self)
     {
+        DOM.removeTrackedPosition(self.this);
         self.node.removeEventListener("DOMNodeInserted",self.insertionListener,false);
         self.node.removeEventListener("DOMNodeRemoved",self.removalListener,false);
         if (self.node.nodeType == Node.TEXT_NODE) {

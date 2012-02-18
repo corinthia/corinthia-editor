@@ -21,6 +21,8 @@ function arrayContains(array,value)
 // support the slice method
 function arrayCopy(array)
 {
+    if (array == null)
+        return null;
     var copy = new Array();
     for (var i = 0; i < array.length; i++)
         copy.push(array[i]);

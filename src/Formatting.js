@@ -226,16 +226,6 @@
             var lastChild = null;
 
             Position.ignoreEventsWhileExecuting(function() {
-                if (current.nodeType == Node.TEXT_NODE) {
-                    current.nodeValue += next.nodeValue;
-                }
-                else if (current.nodeType == Node.ELEMENT_NODE) {
-                    lastChild = next.lastChild;
-                    while (next.firstChild != null)
-                        DOM.moveNode(next.firstChild,current,null);
-                }
-                DOM.deleteNode(next);
-
                 for (var i = 0; i < positions.length; i++) {
                     var node = positions[i].node;
                     var offset = positions[i].offset;
@@ -252,6 +242,20 @@
                         positions[i].offset--;
                     }
                 }
+
+                if (current.nodeType == Node.TEXT_NODE) {
+                    current.nodeValue += next.nodeValue;
+                }
+                else if (current.nodeType == Node.ELEMENT_NODE) {
+                    lastChild = next.lastChild;
+                    while (next.firstChild != null) {
+                        // FIXME: this breaks undo, since the move action is not recordedxx
+                        current.appendChild(next.firstChild);
+//                        DOM.moveNode(next.firstChild,current,null);
+                    }
+                }
+
+                DOM.deleteNode(next);
             });
 
             if (lastChild != null)
