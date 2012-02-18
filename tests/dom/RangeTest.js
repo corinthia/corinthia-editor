@@ -20,7 +20,6 @@ function removeWhitespaceTextNodes(parent)
 
 function setup(root)
 {
-    DOM.assignNodeIds(document);
     allPositions = getAllPositions(root);
 
     allPositionsIndexMap = new Object();

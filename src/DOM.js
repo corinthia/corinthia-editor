@@ -6,9 +6,12 @@
     // of this are used in different browser windows
     var prefix = Math.random()+":";
     var nextNodeId = 0;
+    var nodeData = new Object();
 
     function assignNodeId(node)
     {
+        if (node._nodeId != null)
+            throw new Error(nodeString(node)+" already has id");
         node._nodeId = prefix+nextNodeId++;
         return node;
     }
@@ -70,6 +73,8 @@
     // public methods
     DOM.assignNodeIds = function(node)
     {
+        if (node._nodeId != null)
+            throw new Error(nodeString(node)+" already has id");
         node._nodeId = prefix+nextNodeId++;
         for (var child = node.firstChild; child != null; child = child.nextSibling)
             DOM.assignNodeIds(child);
@@ -82,6 +87,8 @@
         node.addEventListener("DOMAttrModified",attrModified);
         node.addEventListener("DOMCharacterDataModified",characterDataModified);
     }
+
+    // Low-level methods
 
     DOM.createElement = function(document,elementName)
     {
@@ -127,8 +134,13 @@
 
     DOM.deleteNode = function(node)
     {
+        if (node._nodeId == null)
+            throw new Error("NodeSet.contains: node "+node.nodeName+" has no _nodeId property");
         DOM.removeChild(node.parentNode,node);
+        delete nodeData[node._nodeId];
     }
+
+    // High-level methods
 
     DOM.deleteAllChildren = function(parent)
     {

@@ -161,6 +161,7 @@ editor.clearSelectionHandlesAndCursor = function()
 function main()
 {
     var root = document.getElementById("root");
+    DOM.assignNodeIds(document);
     setup(root);
     printTree(root);
 //    DOM.assignNodeIds(document);

@@ -309,6 +309,7 @@ function runAllTests()
 
 function loaded()
 {
+    DOM.assignNodeIds(document);
     topArea = document.getElementById("topInner");
     leftArea = document.getElementById("leftInner");
     rightArea = document.getElementById("rightInner");
