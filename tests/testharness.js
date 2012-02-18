@@ -12,8 +12,9 @@ var editor = {
     setStyles: function(jsonStyles) {}
 }
 
-var left;
-var right;
+var topArea;
+var leftArea;
+var rightArea;
 var leftLoadedContinuation = null;
 var results = new Object();
 var allCode = null;
@@ -73,11 +74,11 @@ function showTest(dir,name)
     leftLoadedContinuation = function() {
         setLeftTitle("Working area");
         setRightTitle("Result");
-        left.contentWindow.performTest();
-        left.contentWindow.clearSelection();
-        setPanelText(right,PrettyPrinter.getHTML(left.contentDocument.documentElement));
+        leftArea.contentWindow.performTest();
+        leftArea.contentWindow.clearSelection();
+        setPanelText(rightArea,PrettyPrinter.getHTML(leftArea.contentDocument.documentElement));
     }
-    left.src = dir+"/"+name+"-input.html";
+    leftArea.src = dir+"/"+name+"-input.html";
 }
 
 function showResult(dirname,filename)
@@ -85,8 +86,8 @@ function showResult(dirname,filename)
     var fullname = dirname+"-"+filename;
     setLeftTitle("Actual result for "+dirname+"/"+filename);
     setRightTitle("Expected result for "+dirname+"/"+filename);
-    setPanelText(left,results[fullname].actual);
-    setPanelText(right,results[fullname].expected);
+    setPanelText(leftArea,results[fullname].actual);
+    setPanelText(rightArea,results[fullname].expected);
 }
 
 function setLeftTitle(title)
@@ -110,7 +111,7 @@ function setPanelText(panel,text)
     clearPanel(panel);
     var pre = panel.contentDocument.createElement("PRE");
     panel.contentDocument.body.appendChild(pre);
-    pre.appendChild(right.contentDocument.createTextNode(text));
+    pre.appendChild(rightArea.contentDocument.createTextNode(text));
 }
 
 
@@ -125,28 +126,28 @@ function readJSCode(filename)
 
 function extractPositionFromCharacter(c)
 {
-    return recurse(left.contentWindow.document.body);
+    return recurse(leftArea.contentWindow.document.body);
 
     function recurse(node)
     {
         if (node.nodeType == Node.TEXT_NODE) {
             var index = node.nodeValue.indexOf(c);
             if (index >= 0) {
-                var offsetInParent = left.contentWindow.getOffsetOfNodeInParent(node);
+                var offsetInParent = leftArea.contentWindow.getOffsetOfNodeInParent(node);
                 if (index == 0) {
                     node.nodeValue = node.nodeValue.substring(1);
-                    return new left.contentWindow.Position(node.parentNode,offsetInParent);
+                    return new leftArea.contentWindow.Position(node.parentNode,offsetInParent);
                 }
                 else if (index == node.nodeValue.length - 1) {
                     node.nodeValue = node.nodeValue.substring(0,node.nodeValue.length-1);
-                    return new left.contentWindow.Position(node.parentNode,offsetInParent+1);
+                    return new leftArea.contentWindow.Position(node.parentNode,offsetInParent+1);
                 }
                 else {
                     var rest = node.nodeValue.substring(index+1);
                     node.nodeValue = node.nodeValue.substring(0,index);
                     var restNode = document.createTextNode(rest);
                     node.parentNode.insertBefore(restNode,node.nextSibling);
-                    return new left.contentWindow.Position(node.parentNode,offsetInParent+1);
+                    return new leftArea.contentWindow.Position(node.parentNode,offsetInParent+1);
                 }
             }
         }
@@ -168,42 +169,17 @@ function leftLoaded()
     var continuation = leftLoadedContinuation;
     leftLoadedContinuation = null;
 
-    left.contentWindow.editor = editor;
-    left.contentWindow.debug = editor.debug;
+    leftArea.contentWindow.editor = editor;
+    leftArea.contentWindow.debug = editor.debug;
 
-    // Sync with Editor.m
-    var javascriptFiles = ["nulleditor.js", // must be first
-                           "../src/Cursor.js",
-                           "../src/DOM.js",
-                           "../src/dtd.js",
-                           "../src/Formatting.js",
-                           "../src/Lists.js",
-                           "../src/mutation.js",
-                           "../src/NodeSet.js",
-                           "../src/Outline.js",
-                           "../src/Position.js",
-                           "../src/Range.js",
-                           "../src/StringBuilder.js",
-                           "../src/Structure.js",
-                           "../src/Styles.js",
-                           "../src/traversal.js",
-                           "../src/types.js",
-                           "../src/UndoManager.js",
-                           "../src/util.js",
-                           "../src/Viewport.js",
-                           "../src/Selection.js",
-                           "../src/init.js"]; // must be last
-    for (var i = 0; i < javascriptFiles.length; i++)
-        left.contentWindow.eval(readJSCode(javascriptFiles[i]));
+    leftArea.contentWindow.eval(allCode);
 
-    left.contentWindow.eval(readJSCode("testlib.js"));
-
-    left.contentWindow.DOM.assignNodeIds(left.contentWindow.document);
+    leftArea.contentWindow.DOM.assignNodeIds(leftArea.contentWindow.document);
 
     var start = extractPositionFromCharacter("[");
     var track = (start == null) ? [] : [start];
     var end;
-    left.contentWindow.Position.trackWhileExecuting(track,function() {
+    leftArea.contentWindow.Position.trackWhileExecuting(track,function() {
         end = extractPositionFromCharacter("]");
     });
 
@@ -213,14 +189,14 @@ function leftLoaded()
         throw new Error("End of selection specified, but not start");
 
     if ((start != null) && (end != null)) {
-        var range = new left.contentWindow.Range(start.node,start.offset,end.node,end.offset);
+        var range = new leftArea.contentWindow.Range(start.node,start.offset,end.node,end.offset);
 
         range.trackWhileExecuting(function() {
             positionMergeWithNeighbours(start);
             positionMergeWithNeighbours(end);
         });
 
-        left.contentWindow.setSelectionRange(range);
+        leftArea.contentWindow.setSelectionRange(range);
     }
     continuation();
 
@@ -231,17 +207,17 @@ function leftLoaded()
         var node = pos.node;
         var offset = pos.offset;
         if ((node.nodeType == Node.ELEMENT_NODE) && (offset < node.childNodes.length))
-            left.contentWindow.mergeWithNeighbours(node.childNodes[offset]);
+            leftArea.contentWindow.mergeWithNeighbours(node.childNodes[offset]);
         else if ((node.nodeType == Node.ELEMENT_NODE) && (node.lastChild != null))
-            left.contentWindow.mergeWithNeighbours(node.lastChild);
+            leftArea.contentWindow.mergeWithNeighbours(node.lastChild);
         else
-            left.contentWindow.mergeWithNeighbours(node);
+            leftArea.contentWindow.mergeWithNeighbours(node);
     }
 
     function getPosition(node)
     {
-        var offset = left.contentWindow.getOffsetOfNodeInParent(node);
-        return new left.contentWindow.Position(node.parentNode,offset);
+        var offset = leftArea.contentWindow.getOffsetOfNodeInParent(node);
+        return new leftArea.contentWindow.Position(node.parentNode,offset);
     }
 }
 
@@ -259,7 +235,7 @@ function runAllTests()
     setLeftTitle("Working area");
     setRightTitle("");
 
-    clearPanel(right);
+    clearPanel(rightArea);
     results = new Object();
 
     runNextTest();
@@ -281,9 +257,9 @@ function runAllTests()
 
             var actual;
             try {
-                left.contentWindow.performTest();
-                left.contentWindow.clearSelection();
-                actual = PrettyPrinter.getHTML(left.contentDocument.documentElement);
+                leftArea.contentWindow.performTest();
+                leftArea.contentWindow.clearSelection();
+                actual = PrettyPrinter.getHTML(leftArea.contentDocument.documentElement);
             }
             catch (e) {
                 actual = e.toString();
@@ -319,7 +295,7 @@ function runAllTests()
             incrementPosition();
             leftLoadedContinuation = runNextTest;
             haveTest = true;
-            left.src = dirname+"/"+filename+"-input.html";
+            leftArea.src = dirname+"/"+filename+"-input.html";
         }
     }
 
@@ -335,14 +311,22 @@ function runAllTests()
 
 function loaded()
 {
-    var top = document.getElementById("topInner");
-    left = document.getElementById("leftInner");
-    right = document.getElementById("rightInner");
+    topArea = document.getElementById("topInner");
+    leftArea = document.getElementById("leftInner");
+    rightArea = document.getElementById("rightInner");
     loadCode();
     loadTestIndex();
 
+    console.log("topArea = "+topArea);
+    console.log("leftArea = "+leftArea);
+    console.log("rightArea = "+rightArea);
+
+    console.log("leftArea.contentDocument = "+leftArea.contentDocument);
+    console.log("rightArea.contentDocument = "+rightArea.contentDocument);
+
+
     var table = document.createElement("table");
-    top.appendChild(table);
+    topArea.appendChild(table);
 
     for (var dirno = 0; dirno < tests.length; dirno++) {
         var dir = tests[dirno];
