@@ -1,6 +1,81 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
 (function() {
+
+    // Some properties in CSS, such as 'margin', 'border', and 'padding', are shorthands which
+    // set multiple, more fine-grained properties. The CSS spec outlines what these are - e.g.
+    // an assignment to the 'margin' property is considered a simultaneous assignment to
+    // 'margin-left', 'margin-right', 'margin-top', and 'margin-bottom' properties.
+
+    // However, Firefox contains a bug (https://bugzilla.mozilla.org/show_bug.cgi?id=241234),
+    // which has gone unfixed for more than six years, whereby it actually sets different
+    // properties for *-left and *-right, which are reflected when examining the style property
+    // of an element. Additionally, it also gives an error if you try to set these, so if you simply
+    // get all the style properties and try to set them again it won't work.
+
+    // To get around this problem, we record the following set of replacements. When getting the
+    // style properties of an element, we replace any properties with the names given below with
+    // their corresponding spec name. A null entry means that property should be ignored altogether.
+
+    // You should always use getStyleProperties() instead of accessing element.style directly.
+
+    var CSS_PROPERTY_REPLACEMENTS = {
+        "margin-left-value": "margin-left",
+        "margin-left-ltr-source": null,
+        "margin-left-rtl-source": null,
+        "margin-right-value": "margin-right",
+        "margin-right-ltr-source": null,
+        "margin-right-rtl-source": null,
+        "padding-left-value": "padding-left",
+        "padding-left-ltr-source": null,
+        "padding-left-rtl-source": null,
+        "padding-right-value": "padding-right",
+        "padding-right-ltr-source": null,
+        "padding-right-rtl-source": null,
+        "border-right-width-value": "border-right-width",
+        "border-right-width-ltr-source": null,
+        "border-right-width-rtl-source": null,
+        "border-left-width-value": "border-left-width",
+        "border-left-width-ltr-source": null,
+        "border-left-width-rtl-source": null,
+        "border-right-color-value": "border-right-color",
+        "border-right-color-ltr-source": null,
+        "border-right-color-rtl-source": null,
+        "border-left-color-value": "border-left-color",
+        "border-left-color-ltr-source": null,
+        "border-left-color-rtl-source": null,
+        "border-right-style-value": "border-right-style",
+        "border-right-style-ltr-source": null,
+        "border-right-style-rtl-source": null,
+        "border-left-style-value": "border-left-style",
+        "border-left-style-ltr-source": null,
+        "border-left-style-rtl-source": null,
+    };
+
+    function getStyleProperties(element,dontReplace)
+    {
+        var properties = new Object();
+
+        for (var i = 0; i < element.style.length; i++) {
+            var name = element.style[i];
+            var value = element.style.getPropertyValue(name);
+
+            var replacement;
+            if (dontReplace) {
+                replacement = name;
+            }
+            else {
+                replacement = CSS_PROPERTY_REPLACEMENTS[name];
+                if (typeof(replacement) == "undefined")
+                    replacement = name;
+            }
+
+            if (replacement != null)
+                properties[replacement] = value;
+        }
+        return properties;
+    }
+
     function SelectionFormatting()
     {
         this.style = null;
@@ -371,11 +446,9 @@
 
         if (node.nodeType == Node.ELEMENT_NODE) {
             if (node.hasAttribute("STYLE")) {
-                for (var i = 0; i < node.style.length; i++) {
-                    var name = node.style[i];
-                    var value = node.style.getPropertyValue(name);
-                    properties[name] = value;
-                }
+                var nodeProperties = getStyleProperties(node);
+                for (var name in nodeProperties)
+                    properties[name] = nodeProperties[name];
             }
             if (node.nodeName == "B") {
                 properties["font-weight"] = "bold";
@@ -540,9 +613,11 @@
                 recurse(node.parentNode);
 
             var inlineProperties = new Object();
-            for (var i = 0; i < node.style.length; i++) {
-                if (isInlineProperty(node.style[i]))
-                    inlineProperties[node.style[i]] = node.style.getPropertyValue(node.style[i]);
+            var nodeProperties = getStyleProperties(node);
+            for (var name in nodeProperties) {
+                if (isInlineProperty(name)) {
+                    inlineProperties[name] = nodeProperties[name];
+                }
             }
 
             for (var name in inlineProperties)
@@ -622,8 +697,9 @@
         }
 
         for (var name in inlineProperties) {
-            if (target.style.getPropertyValue(name) == null)
-                target.style.setProperty(name,inlineProperties[name]);
+            var existing = target.style.getPropertyValue(name);
+            if ((existing == null) || (existing == ""))
+                target.style.setProperty(name,inlineProperties[name],null);
         }
 
         return target;

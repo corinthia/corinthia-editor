@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title></title>
+</head>
+
+<body style="font-size: 10pt">
+<p style="margin: 1px; padding: 1px; border: 1px solid black">
+</p>
+
+<script>
+
+var CSS_PROPERTY_REPLACEMENTS = {
+    "margin-left-value": "margin-left",
+    "margin-left-ltr-source": null,
+    "margin-left-rtl-source": null,
+    "margin-right-value": "margin-right",
+    "margin-right-ltr-source": null,
+    "margin-right-rtl-source": null,
+    "padding-left-value": "padding-left",
+    "padding-left-ltr-source": null,
+    "padding-left-rtl-source": null,
+    "padding-right-value": "padding-right",
+    "padding-right-ltr-source": null,
+    "padding-right-rtl-source": null,
+    "border-right-width-value": "border-right-width",
+    "border-right-width-ltr-source": null,
+    "border-right-width-rtl-source": null,
+    "border-left-width-value": "border-left-width",
+    "border-left-width-ltr-source": null,
+    "border-left-width-rtl-source": null,
+    "border-right-color-value": "border-right-color",
+    "border-right-color-ltr-source": null,
+    "border-right-color-rtl-source": null,
+    "border-left-color-value": "border-left-color",
+    "border-left-color-ltr-source": null,
+    "border-left-color-rtl-source": null,
+    "border-right-style-value": "border-right-style",
+    "border-right-style-ltr-source": null,
+    "border-right-style-rtl-source": null,
+    "border-left-style-value": "border-left-style",
+    "border-left-style-ltr-source": null,
+    "border-left-style-rtl-source": null,
+};
+
+function debug(str)
+{
+    console.log(str);
+}
+
+function getStyleProperties(element,dontReplace)
+{
+    var properties = new Object();
+
+    for (var i = 0; i < element.style.length; i++) {
+        var name = element.style[i];
+        var value = element.style.getPropertyValue(name);
+
+        var replacement;
+        if (dontReplace) {
+            replacement = name;
+        }
+        else {
+            replacement = CSS_PROPERTY_REPLACEMENTS[name];
+            if (typeof(replacement) == "undefined")
+                replacement = name;
+        }
+
+        if (replacement != null)
+            properties[replacement] = value;
+    }
+    return properties;
+}
+
+var element = document.getElementsByTagName("P")[0];
+var props = getStyleProperties(element,true);
+for (var name in props) {
+    var text = document.createTextNode(name+" = "+props[name]);
+    var p = document.createElement("P");
+    document.body.appendChild(p);
+    p.appendChild(text);
+}
+
+
+</script>
+
+</body> </html>
