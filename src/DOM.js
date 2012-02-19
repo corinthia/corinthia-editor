@@ -175,11 +175,8 @@
 
     DOM.shallowCopyElement = function(element)
     {
-        var copy = DOM.createElement(document,element.nodeName);
-        for (var i = 0; i < element.attributes.length; i++) {
-            if (element.attributes[i].nodeName != "id")
-                copy.setAttribute(element.attributes[i].nodeName,element.attributes[i].nodeValue);
-        }
+        var copy = DOM.cloneNode(element,false);
+        copy.removeAttribute("id");
         return copy;
     }
 
