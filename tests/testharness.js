@@ -4,10 +4,8 @@ var editor = {
     getHTMLResponse: function(html) {},
     jsInterfaceInitError: function(error) {alert("js init error: "+error);},
     jsInterfaceInitFinished: function() {},
-    sectionAdded: function(name,id,level,prevId) {},
-    sectionRemoved: function(id) {},
-    updateSectionName: function(id,name) {},
     setOutline: function(jsonOutline) {},
+    setSections: function(jsonSections) {},
     setStyles2: function(jsonStyles) {},
     setStyles: function(jsonStyles) {}
 }
@@ -47,6 +45,7 @@ function loadCode()
                            "../src/NodeSet.js",
                            "../src/outline.js",
                            "../src/Position.js",
+                           "../src/PostponedActions.js",
                            "../src/Range.js",
                            "../src/StringBuilder.js",
                            "../src/Structure.js",

@@ -149,9 +149,9 @@ function init()
     try {
         DOM.assignNodeIds(document);
         setupMutation();
-        getOutline();
+//        getOutline();
         getStyles();
-        Structure.examineDocument(document);
+        Structure.init();
         jsInitOk = true;
     }
     catch (e) {

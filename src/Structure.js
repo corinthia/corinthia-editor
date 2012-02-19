@@ -1,16 +1,24 @@
 (function() {
 
-    function Section(structure,node)
+    var sectionIdMap = new Object();
+    var nextSectionId = 0;
+    var outlineDirty = false;
+    var ignoreHeadingModifications = 0;
+    var rootSection = null;
+
+    function Section(node)
     {
+        var section = this;
         if ((node != null) && (node.hasAttribute("id"))) {
             this.id = node.getAttribute("id");
         }
         else {
-            this.id = "section"+(structure.nextSectionId++);
+            this.id = "section"+(nextSectionId++);
             if (node != null)
                 node.setAttribute("id",this.id);
         }
         this.node = node;
+        this.title = node ? getNodeText(node) : null;
         this.level = node ? parseInt(node.nodeName.substring(1)) : 0;
         this.index = null;
         this.parent = null;
@@ -22,8 +30,9 @@
         this.prev = null;
         this.next = null;
         this.references = new NodeSet();
+        this.modificationListener = function(event) { headingModified(section); }
 
-        structure.sectionIdMap[this.id] = this;
+        sectionIdMap[this.id] = this;
 
         Object.seal(this);
     }
@@ -77,14 +86,21 @@
         }
     }
 
-    function headingModified(self,event)
+    function headingModified(section)
     {
+        if (ignoreHeadingModifications > 0)
+            return;
+        var newTitle = getNodeText(section.node);
+        if (newTitle != section.title) {
+            section.title = newTitle;
+            markOutlineDirty();
+        }
     }
 
-    function headingInserted(self,node)
+    function headingInserted(node)
     {
-        var prevSection = findPrevSection(self,node);
-        var section = new Section(self,node);
+        var prevSection = findPrevSection(node);
+        var section = new Section(node);
 
         // Remove any existing numbering
         var firstText = findFirstTextDescendant(node);
@@ -98,11 +114,15 @@
         section.prev = prevSection;
         section.prev.next = section;
 
-        function findPrevSection(self,node)
+        node.addEventListener("DOMSubtreeModified",section.modificationListener);
+        markOutlineDirty();
+        return;
+
+        function findPrevSection(node)
         {
             do node = prevNode(node);
             while ((node != null) && !isHeadingNode(node));
-            return (node == null) ? self.rootSection : self.sectionIdMap[node.getAttribute("id")];
+            return (node == null) ? rootSection : sectionIdMap[node.getAttribute("id")];
         }
 
         function findFirstTextDescendant(node)
@@ -120,15 +140,19 @@
         }
     }
 
-    function headingRemoved(self,node)
+    function headingRemoved(node)
     {
-        var section = self.sectionIdMap[node.getAttribute("id")];
+        var section = sectionIdMap[node.getAttribute("id")];
         if (section.prev != null)
             section.prev.next = section.next;
         if (section.next != null)
             section.next.prev = section.prev;
         if (section.span != null)
             DOM.deleteNode(section.span);
+
+        node.removeEventListener("DOMSubtreeModified",section.modificationListener);
+        markOutlineDirty();
+        return;
     }
 
     function acceptNode(node)
@@ -142,50 +166,61 @@
         return true;
     }
 
-    function docNodeInserted(self,event)
+    function docNodeInserted(event)
     {
         if (!acceptNode(event.target))
             return;
         recurse(event.target);
-        updateSectionStructure(self.rootSection);
+        updateSectionStructure();
 
         function recurse(node)
         {
             if (isHeadingNode(node))
-                headingInserted(self,node);
+                headingInserted(node);
 
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
         }
     }
 
-    function docNodeRemoved(self,event)
+    function docNodeRemoved(event)
     {
         if (!acceptNode(event.target))
             return;
         recurse(event.target);
-        updateSectionStructure(self.rootSection);
+        updateSectionStructure();
 
         function recurse(node)
         {
             if (isHeadingNode(node))
-                headingRemoved(self,node);
+                headingRemoved(node);
 
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
         }
     }
 
-    function updateSectionStructure(topSection)
+    function markOutlineDirty()
     {
-        var current = topSection;
+        if (!outlineDirty) {
+            outlineDirty = true;
+            PostponedActions.add(function() {
+                outlineDirty = false;
+                updateSectionStructure();
+            });
+        }
+    }
 
-        for (var section = topSection; section != null; section = section.next) {
+    function updateSectionStructure()
+    {
+        var current = rootSection;
+
+        for (var section = rootSection; section != null; section = section.next) {
             section.parent = null;
             section.children = [];
         }
 
-        for (var section = topSection.next; section != null; section = section.next) {
+        for (var section = rootSection.next; section != null; section = section.next) {
            
             while (section.level < current.level+1)
                 current = current.parent;
@@ -198,44 +233,42 @@
 
         }
 
-        for (var i = 0; i < topSection.children.length; i++)
-            topSection.children[i].updateFullNumberRecursive("");
+        ignoreHeadingModifications++;
+        for (var i = 0; i < rootSection.children.length; i++)
+            rootSection.children[i].updateFullNumberRecursive("");
+        ignoreHeadingModifications--;
+
+        editor.setSections(encodeSectionRecursive(rootSection));
     }
 
-    function Structure()
+    function encodeSectionRecursive(section)
     {
-        var self = this.self = {};
-        self.sectionIdMap = new Object();
-        self.nextSectionId = 0;
-        self.rootSection = new Section(self);
+        var childObjects = new Array();
+        for (var i = 0; i < section.children.length; i++)
+            childObjects.push(encodeSectionRecursive(section.children[i]));
+
+        return { id: section.id,
+                 parent: section.parent ? section.parent.id : null,
+                 title: section.node ? getNodeText(section.node) : null,
+                 children: childObjects };
     }
 
-    Structure.prototype.examineDocument = function(root)
+    function examineDocument()
     {
-        var self = this.self;
 
-        document.addEventListener("DOMNodeInserted",
-                                  function(event) { docNodeInserted(self,event); });
-        document.addEventListener("DOMNodeRemoved",
-                                  function(event) { docNodeRemoved(self,event); });
+        document.addEventListener("DOMNodeInserted",docNodeInserted);
+        document.addEventListener("DOMNodeRemoved",docNodeRemoved);
 
-        var topSection = self.rootSection;
-
-        docNodeInserted(self,{target:document});
-
-
-        topSection.print();
+        docNodeInserted({target:document});
+//        rootSection.print();
     }
 
-    var instance = null;
+    window.Structure = new Object();
 
-    Structure.examineDocument = function(root)
+    Structure.init = function(root)
     {
-        if (instance == null)
-            instance = new Structure();
-        instance.examineDocument(root);
+        rootSection = new Section();
+        examineDocument(root);
     }
-
-    window.Structure = Structure;
 
 })();

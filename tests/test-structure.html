@@ -9,6 +9,9 @@
 <script type="text/javascript" src="../traversal.js"></script>
 <script type="text/javascript" src="../types.js"></script>
 <script type="text/javascript" src="../NodeSet.js"></script>
+<script type="text/javascript" src="../init.js"></script>
+<script type="text/javascript" src="../PostponedActions.js"></script>
+<script type="text/javascript" src="nulleditor.js"></script>
 <script type="text/javascript" src="PrettyPrinter.js"></script>
 
 <script type="text/javascript">
@@ -50,7 +53,7 @@ function main()
 {
 //    buildTree(1,3,3,null);
 
-    Structure.examineDocument(document.body);
+    Structure.init();
 
 /*
     var pretty = PrettyPrinter.getHTML(document.documentElement);

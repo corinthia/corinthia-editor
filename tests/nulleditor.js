@@ -19,19 +19,11 @@ var editor = {
     {
     },
     
-    sectionAdded: function(name,id,level,prevId)
-    {
-    },
-    
-    sectionRemoved: function(id)
-    {
-    },
-    
-    updateSectionName: function(id,name)
-    {
-    },
-    
     setOutline: function(outline)
+    {
+    },
+
+    setSections: function(sections)
     {
     },
     
