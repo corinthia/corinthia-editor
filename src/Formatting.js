@@ -274,8 +274,17 @@
 
         function elementsMergable(a,b)
         {
+            var MERGEABLE_ELEMENTS = {
+                "B": true,
+                "I": true,
+                "U": true,
+                "SPAN": true,
+                "A": true,
+                "S": true
+            };
             if (isInlineNode(a) && isInlineNode(b) &&
                 (a.nodeName == b.nodeName) &&
+                MERGEABLE_ELEMENTS[a.nodeName] &&
                 (a.attributes.length == b.attributes.length)) {
                 for (var i = 0; i < a.attributes.length; i++) {
                     var attrName = a.attributes[i].nodeName;
