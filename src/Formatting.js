@@ -225,38 +225,37 @@
 
             var lastChild = null;
 
-            Position.ignoreEventsWhileExecuting(function() {
-                for (var i = 0; i < positions.length; i++) {
-                    var node = positions[i].node;
-                    var offset = positions[i].offset;
+            if (current.nodeType == Node.ELEMENT_NODE) {
+                lastChild = next.lastChild;
+                DOM.moveNode(next,current,null);
+                DOM.removeNodeButKeepChildren(next);
+            }
+            else {
+                Position.ignoreEventsWhileExecuting(function() {
+                    for (var i = 0; i < positions.length; i++) {
+                        var node = positions[i].node;
+                        var offset = positions[i].offset;
 
-                    if (node == next) {
-                        positions[i].node = current;
-                        positions[i].offset = offset+currentLength;
+                        if (node == next) {
+                            positions[i].node = current;
+                            positions[i].offset = offset+currentLength;
+                        }
+                        else if ((node == parent) && (offset == nextOffset)) {
+                            positions[i].node = current;
+                            positions[i].offset = currentLength;
+                        }
+                        else if ((node == parent) && (offset > nextOffset)) {
+                            positions[i].offset--;
+                        }
                     }
-                    else if ((node == parent) && (offset == nextOffset)) {
-                        positions[i].node = current;
-                        positions[i].offset = currentLength;
-                    }
-                    else if ((node == parent) && (offset > nextOffset)) {
-                        positions[i].offset--;
-                    }
-                }
 
-                if (current.nodeType == Node.TEXT_NODE) {
-                    current.nodeValue += next.nodeValue;
-                }
-                else if (current.nodeType == Node.ELEMENT_NODE) {
-                    lastChild = next.lastChild;
-                    while (next.firstChild != null) {
-                        // FIXME: this breaks undo, since the move action is not recordedxx
-                        current.appendChild(next.firstChild);
-//                        DOM.moveNode(next.firstChild,current,null);
+                    if (current.nodeType == Node.TEXT_NODE) {
+                        current.nodeValue += next.nodeValue;
                     }
-                }
 
-                DOM.deleteNode(next);
-            });
+                    DOM.deleteNode(next);
+                });
+            }
 
             if (lastChild != null)
                 mergeWithNeighbours(lastChild);
