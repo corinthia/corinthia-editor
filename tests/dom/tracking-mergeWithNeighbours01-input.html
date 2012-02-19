@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script type="text/javascript" src="RangeTest.js"></script>
+<script language="javascript">
+
+function performTest()
+{
+    // DOM.wrapNode() should not affect any positions, because the node itself remains in the
+    // tree unmodified.
+
+    DOM.deleteAllChildren(document.body);
+    var p = DOM.createElement(document,"P");
+    var br1 = DOM.createElement(document,"BR");
+    var br2 = DOM.createElement(document,"BR");
+    br1.setAttribute("id","br1");
+    br2.setAttribute("id","br2");
+    var text1 = DOM.createTextNode(document,"One");
+    var text2 = DOM.createTextNode(document,"Two");
+    var text3 = DOM.createTextNode(document,"Three");
+    DOM.appendChild(p,br1);
+    DOM.appendChild(p,text1);
+    DOM.appendChild(p,text2);
+    DOM.appendChild(p,text3);
+    DOM.appendChild(p,br2);
+    DOM.appendChild(document.body,p);
+
+    var result = comparePositionsBeforeAndAfter(function() {
+        mergeWithNeighbours(text2);
+    });
+
+    DOM.deleteAllChildren(document.body);
+    DOM.appendChild(document.body,DOM.createTextNode(document,"-\n"+result+"\n-"));
+}
+</script>
+</head>
+<body>
+</body>
+</html>

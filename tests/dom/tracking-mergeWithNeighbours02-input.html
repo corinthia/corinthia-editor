@@ -1,0 +1,76 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script type="text/javascript" src="RangeTest.js"></script>
+<script language="javascript">
+
+function createElementWithId(elementName,id)
+{
+    var element = DOM.createElement(document,elementName);
+    element.setAttribute("id",id);
+    return element;
+}
+
+function performTest()
+{
+    // DOM.wrapNode() should not affect any positions, because the node itself remains in the
+    // tree unmodified.
+
+    DOM.deleteAllChildren(document.body);
+
+    var p = DOM.createElement(document,"P");
+
+    var span1 = createElementWithId("SPAN","span1");
+    var span2 = createElementWithId("SPAN","span2");
+    var span3 = createElementWithId("SPAN","span3");
+    var span4 = createElementWithId("SPAN","span4");
+    var span5 = createElementWithId("SPAN","span5");
+    span1.setAttribute("style","color: blue");
+    span5.setAttribute("style","color: blue");
+
+    DOM.appendChild(document.body,p);
+    DOM.appendChild(p,span1);
+    DOM.appendChild(p,span2);
+    DOM.appendChild(p,span3);
+    DOM.appendChild(p,span4);
+    DOM.appendChild(p,span5);
+
+    DOM.appendChild(span2,createElementWithId("BR","br1"));
+    DOM.appendChild(span2,createElementWithId("BR","br2"));
+    DOM.appendChild(span2,createElementWithId("BR","br3"));
+    DOM.appendChild(span3,createElementWithId("BR","br4"));
+    DOM.appendChild(span3,createElementWithId("BR","br5"));
+    DOM.appendChild(span3,createElementWithId("BR","br6"));
+    DOM.appendChild(span4,createElementWithId("BR","br7"));
+    DOM.appendChild(span4,createElementWithId("BR","br8"));
+    DOM.appendChild(span4,createElementWithId("BR","br9"));
+
+    var result = comparePositionsBeforeAndAfter(function() {
+
+        // Temporarily remove id attributes so that elements will be considered mergeable
+        span1.removeAttribute("id");
+        span2.removeAttribute("id");
+        span3.removeAttribute("id");
+        span4.removeAttribute("id");
+        span5.removeAttribute("id");
+
+        mergeWithNeighbours(span3);
+
+        span1.setAttribute("id","span1");
+        span2.setAttribute("id","span2");
+        span3.setAttribute("id","span3");
+        span4.setAttribute("id","span4");
+        span5.setAttribute("id","span5");
+
+    });
+
+
+    DOM.deleteAllChildren(document.body);
+    DOM.appendChild(document.body,DOM.createTextNode(document,"-\n"+result+"\n-"));
+}
+</script>
+</head>
+<body>
+</body>
+</html>
