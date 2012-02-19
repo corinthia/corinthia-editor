@@ -335,15 +335,18 @@
         if (selectionRange == null)
             return;
 
-        if (!selectionRange.isEmpty())
-            deleteSelectionContents();
+        selectionRange.trackWhileExecuting(function() {
+            selectionRange.ensureRangeValidHierarchy();
+            if (!selectionRange.isEmpty())
+                deleteSelectionContents();
 
-        var node = selectionRange.start.node;
-        var offset = selectionRange.start.offset;
+            var pos = selectionRange.start;
 
-        ensureValidHierarchy(node);
-        if (node.nodeType == Node.TEXT_NODE)
-            splitTextBefore(node,offset);
+            if (pos.node.nodeType == Node.TEXT_NODE)
+                splitTextBefore(pos.node,pos.offset);
+        });
+
+        var node = selectionRange.singleNode();
         
         if (isParagraphNode(node)) {
             // Special case for when the cursor is in an empty paragraph (one that simply
@@ -353,7 +356,7 @@
             setEmptySelectionAt(copy,0,copy,0);
             return;
         }
-        
+
         for (var child = node; child.parentNode != null; child = child.parentNode) {
             if (isParagraphNode(child.parentNode)) {
                 makeNew(child.parentNode,child);
@@ -364,9 +367,26 @@
 
         return;
 
+        function isAtEndOfParagraph(position,paragraph)
+        {
+            var nextPosition = position;
+            do {
+                nextPosition = nextPosition.next();
+            } while ((nextPosition != null) && !isValidCursorPosition(nextPosition));
+            for (var n = nextPosition.node; n != null; n = n.parentNode) {
+                if (n == paragraph)
+                    return false;
+            }
+            return true;
+        }
+
         function makeNew(paragraph,child)
         {
-            var copy = DOM.shallowCopyElement(paragraph);
+            var copy;
+            if (isHeadingNode(paragraph) && isAtEndOfParagraph(selectionRange.start,paragraph))
+                copy = DOM.createElement(document,"P");
+            else
+                copy = DOM.shallowCopyElement(paragraph);
             
             removeAdjacentWhitespace(paragraph);
             
