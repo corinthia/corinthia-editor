@@ -183,4 +183,4 @@ NodeMap.fromArray = function(array,fun)
     else
         array.forEach(function(node) { map.put(node,null); });
     return map;
-}
+};

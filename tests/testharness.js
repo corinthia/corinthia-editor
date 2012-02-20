@@ -4,8 +4,7 @@ var editor = {
     getHTMLResponse: function(html) {},
     jsInterfaceInitError: function(error) {alert("js init error: "+error);},
     jsInterfaceInitFinished: function() {},
-    setOutline: function(jsonOutline) {},
-    setSections: function(jsonSections) {},
+    setOutline: function(outline) {},
     setStyles2: function(jsonStyles) {},
     setStyles: function(jsonStyles) {}
 }
@@ -41,9 +40,7 @@ function loadCode()
                            "../src/formatting.js",
                            "../src/init.js",
                            "../src/lists.js",
-                           "../src/mutation.js",
                            "../src/NodeSet.js",
-                           "../src/outline.js",
                            "../src/Position.js",
                            "../src/PostponedActions.js",
                            "../src/Range.js",

@@ -148,8 +148,6 @@ function init()
     var jsInitOk = false;
     try {
         DOM.assignNodeIds(document);
-        setupMutation();
-//        getOutline();
         getStyles();
         Structure.init();
         jsInitOk = true;

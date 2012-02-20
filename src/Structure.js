@@ -18,7 +18,7 @@
                 node.setAttribute("id",this.id);
         }
         this.node = node;
-        this.title = node ? getNodeText(node) : null;
+        this.title = node ? getNodeText(node) : "Contents";
         this.level = node ? parseInt(node.nodeName.substring(1)) : 0;
         this.index = null;
         this.parent = null;
@@ -79,6 +79,7 @@
             }
 
             this.span.firstChild.nodeValue = this.fullNumber+" ";
+            this.title = getNodeText(this.node);
         }
 
         for (var i = 0; i < this.children.length; i++) {
@@ -171,7 +172,6 @@
         if (!acceptNode(event.target))
             return;
         recurse(event.target);
-        updateSectionStructure();
 
         function recurse(node)
         {
@@ -188,7 +188,6 @@
         if (!acceptNode(event.target))
             return;
         recurse(event.target);
-        updateSectionStructure();
 
         function recurse(node)
         {
@@ -238,7 +237,23 @@
             rootSection.children[i].updateFullNumberRecursive("");
         ignoreHeadingModifications--;
 
-        editor.setSections(encodeSectionRecursive(rootSection));
+        var sections = new Array();
+        encodeSection(rootSection,sections);
+        editor.setOutline(sections);
+    }
+
+    function encodeSection(section,result)
+    {
+        var childIds = new Array();
+        for (var i = 0; i < section.children.length; i++)
+            childIds.push(section.children[i].id);
+
+        var obj = { id: section.id,
+                    title: section.title,
+                    childIds: childIds };
+        result.push(obj);
+        for (var i = 0; i < section.children.length; i++)
+            encodeSection(section.children[i],result);
     }
 
     function encodeSectionRecursive(section)
@@ -253,22 +268,16 @@
                  children: childObjects };
     }
 
-    function examineDocument()
-    {
+    window.Structure = new Object();
 
+    Structure.init = function()
+    {
+        rootSection = new Section();
         document.addEventListener("DOMNodeInserted",docNodeInserted);
         document.addEventListener("DOMNodeRemoved",docNodeRemoved);
 
         docNodeInserted({target:document});
 //        rootSection.print();
-    }
-
-    window.Structure = new Object();
-
-    Structure.init = function(root)
-    {
-        rootSection = new Section();
-        examineDocument(root);
     }
 
 })();

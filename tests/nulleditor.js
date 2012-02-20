@@ -22,10 +22,6 @@ var editor = {
     setOutline: function(outline)
     {
     },
-
-    setSections: function(sections)
-    {
-    },
     
     setStyles: function(styles)
     {

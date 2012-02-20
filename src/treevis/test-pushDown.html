@@ -150,10 +150,10 @@ function removeWhitespaceTextNodes(parent)
 function main()
 {
     window.showIds = true;
+    DOM.assignNodeIds(document);
 
     var root = document.getElementById("root");
     removeWhitespaceTextNodes(root);
-    DOM.assignNodeIds(document);
 
 
     var svg = DOM.createElementNS(document,SVG_NAMESPACE,"svg");
