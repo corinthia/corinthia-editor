@@ -111,7 +111,7 @@
         var newTitle = getNodeText(section.node);
         if (newTitle != section.title) {
             section.title = newTitle;
-            markOutlineDirty();
+            scheduleUpdateSectionStructure();
         }
     }
 
@@ -133,7 +133,7 @@
         section.prev.next = section;
 
         node.addEventListener("DOMSubtreeModified",section.modificationListener);
-        markOutlineDirty();
+        scheduleUpdateSectionStructure();
         return;
 
         function findPrevSection(node)
@@ -169,7 +169,7 @@
             DOM.deleteNode(section.span);
 
         node.removeEventListener("DOMSubtreeModified",section.modificationListener);
-        markOutlineDirty();
+        scheduleUpdateSectionStructure();
         return;
     }
 
@@ -216,19 +216,19 @@
         }
     }
 
-    function markOutlineDirty()
+    function scheduleUpdateSectionStructure()
     {
         if (!outlineDirty) {
             outlineDirty = true;
-            PostponedActions.add(function() {
-                outlineDirty = false;
-                updateSectionStructure();
-            });
+            PostponedActions.add(updateSectionStructure);
         }
     }
 
     function updateSectionStructure()
     {
+        if (!outlineDirty)
+            return;
+        outlineDirty = false;
         var current = rootSection;
 
         for (var section = rootSection; section != null; section = section.next) {
@@ -318,6 +318,8 @@
 
     Outline.moveSection = function(sectionId,parentId,nextId)
     {
+        updateSectionStructure(); // make sure pointers are valid
+
         var section = sectionIdMap[sectionId];
         var parent = sectionIdMap[parentId];
         var next = nextId ? sectionIdMap[nextId] : null;
@@ -325,6 +327,9 @@
 
         if (parent.level != section.level-1)
             throw new Error("Moving section to a different level is not yet supported");
+
+        if (section == next)
+            throw new Error("Attempt to place a section directly before itself");
 
         var nextNode;
         if (next != null)
@@ -342,8 +347,7 @@
                 DOM.insertBefore(next.node.parentNode,sectionNodes[i],nextNode);
         }
 
-        // Force an immediate update to ensure the prev/next pointers are valid
-        updateSectionStructure();
+        scheduleUpdateSectionStructure();
     }
 
     Outline.deleteSection = function(sectionId)

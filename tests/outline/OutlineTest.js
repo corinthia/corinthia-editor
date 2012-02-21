@@ -67,5 +67,6 @@ function removeOutlineHTML(node)
 
 function cleanupOutline()
 {
+    PostponedActions.perform();
     removeOutlineHTML(document.body);
 }
