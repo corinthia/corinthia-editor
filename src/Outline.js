@@ -331,6 +331,9 @@
         if (section == next)
             throw new Error("Attempt to place a section directly before itself");
 
+        if (next == null)
+            next = parent.last().next;
+
         var nextNode;
         if (next != null)
             nextNode = next.node;
