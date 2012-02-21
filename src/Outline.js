@@ -37,6 +37,23 @@
         Object.seal(this);
     }
 
+    Section.prototype.last = function()
+    {
+        if (this.children.length == 0)
+            return this;
+        else
+            return this.children[this.children.length-1].last();
+    }
+
+    Section.prototype.outerNext = function()
+    {
+        var last = this.last();
+        if (last == null)
+            return null;
+        else
+            return last.next;
+    }
+
     Section.prototype.toString = function()
     {
         if (this.isRoot)
@@ -272,12 +289,73 @@
 
     Outline.init = function()
     {
-        rootSection = new Section();
+        Outline.root = rootSection = new Section();
         document.addEventListener("DOMNodeInserted",docNodeInserted);
         document.addEventListener("DOMNodeRemoved",docNodeRemoved);
 
         docNodeInserted({target:document});
 //        rootSection.print();
+    }
+
+    Outline.addSection = function(title,parentId,nextId)
+    {
+    }
+
+    function getSectionNodes(section,result)
+    {
+        var endSection = section.outerNext();
+        var endNode = endSection ? endSection.node : null;
+        for (var n = section.node; (n != null) && (n != endNode); n = n.nextSibling)
+            result.push(n);
+    }
+
+    function getSectionNodesRecursive(section,result)
+    {
+        getSectionNodes(section,result);
+        for (var i = 0; i < section.children.length; i++)
+            getSectionNodesRecursive(section.children[i],result);
+    }
+
+    Outline.moveSection = function(sectionId,parentId,nextId)
+    {
+        var section = sectionIdMap[sectionId];
+        var parent = sectionIdMap[parentId];
+        var next = nextId ? sectionIdMap[nextId] : null;
+        debug("JS moveSection section "+section+", parent "+parent+", next "+next);
+
+        if (parent.level != section.level-1)
+            throw new Error("Moving section to a different level is not yet supported");
+
+        var nextNode;
+        if (next != null)
+            nextNode = next.node;
+
+        var sectionNodes = new Array();
+        getSectionNodes(section,sectionNodes);
+
+        if (next == null) {
+            for (var i = 0; i < sectionNodes.length; i++)
+                DOM.appendChild(document.body,sectionNodes[i]);
+        }
+        else {
+            for (var i = 0; i < sectionNodes.length; i++)
+                DOM.insertBefore(next.node.parentNode,sectionNodes[i],nextNode);
+        }
+
+        // Force an immediate update to ensure the prev/next pointers are valid
+        updateSectionStructure();
+    }
+
+    Outline.deleteSection = function(sectionId)
+    {
+    }
+
+    Outline.jumpToSection = function(sectionId)
+    {
+        var section = document.getElementById(sectionId);
+        var location = webkitConvertPointFromNodeToPage(section,
+                                                        new WebKitPoint(0,0));
+        window.scrollTo(0,location.y);
     }
 
     window.test1 = function()

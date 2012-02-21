@@ -925,5 +925,6 @@
     window.getParagraphs = getParagraphs;
     window.pushDownInlineProperties = pushDownInlineProperties;
     window.removeProperties = removeProperties;
+    window.mergeWithNeighbours = mergeWithNeighbours;
     window.applyFormattingChanges = applyFormattingChanges;
 })();

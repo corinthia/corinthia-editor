@@ -115,14 +115,6 @@ function getStyles()
     editor.setStyles(list);
 }
 
-function jumpToSection(sectionId)
-{
-    var section = document.getElementById(sectionId);
-    var location = webkitConvertPointFromNodeToPage(section,
-                                                    new WebKitPoint(0,0));
-    window.scrollTo(0,location.y);
-}
-
 function getHTML()
 {
     var clone = DOM.cloneNode(document.documentElement,true);
