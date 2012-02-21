@@ -286,8 +286,23 @@
 //        rootSection.print();
     }
 
-    Outline.addSection = function(title,parentId,nextId)
+    Outline.addSection = function(title,parentId)
     {
+        updateSectionStructure(); // make sure pointers are valid
+
+        var parent = sectionIdMap[parentId];
+        if (parent.level == 6) // H6 is max depth in HTML
+            parent = parent.parent;
+
+        var outerNext = parent.outerNext();
+        var parentNode = outerNext ? outerNext.node.parentNode : document.body;
+        var nextSibling = outerNext ? outerNext.node : null;
+
+        var heading = DOM.createElement(document,"H"+(parent.level+1));
+        DOM.appendChild(heading,DOM.createTextNode(document,title));
+        DOM.insertBefore(parentNode,heading,nextSibling);
+
+        Outline.jumpToSection(heading.getAttribute("id"));
     }
 
     function getSectionNodes(section,result)
@@ -320,7 +335,7 @@
             throw new Error("Attempt to place a section directly before itself");
 
         if (next == null)
-            next = parent.last().next;
+            next = parent.outerNext();
 
         var nextNode;
         if (next != null)

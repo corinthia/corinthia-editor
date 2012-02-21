@@ -2,6 +2,13 @@
 var tests = [
   { dir: "outline",
     files: [
+        "addSection01",
+        "addSection02",
+        "addSection03",
+        "addSection04",
+        "addSection05",
+        "addSection06",
+
         "deleteSection-inner01",
         "deleteSection-inner02",
         "deleteSection-inner03",
