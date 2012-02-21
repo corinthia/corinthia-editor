@@ -323,7 +323,6 @@
         var section = sectionIdMap[sectionId];
         var parent = sectionIdMap[parentId];
         var next = nextId ? sectionIdMap[nextId] : null;
-//        debug("JS moveSection section "+section+", parent "+parent+", next "+next);
 
         if (parent.level != section.level-1)
             throw new Error("Moving section to a different level is not yet supported");
@@ -355,6 +354,13 @@
 
     Outline.deleteSection = function(sectionId)
     {
+        var section = sectionIdMap[sectionId];
+        var sectionNodes = new Array();
+        getSectionNodes(section,sectionNodes);
+        for (var i = 0; i < sectionNodes.length; i++)
+            DOM.deleteNode(sectionNodes[i]);
+
+        scheduleUpdateSectionStructure();
     }
 
     Outline.jumpToSection = function(sectionId)

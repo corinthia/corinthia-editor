@@ -2,6 +2,19 @@
 var tests = [
   { dir: "outline",
     files: [
+        "deleteSection-inner01",
+        "deleteSection-inner02",
+        "deleteSection-inner03",
+
+        "deleteSection-nested01",
+        "deleteSection-nested02",
+        "deleteSection-nested03",
+
+        "deleteSection01",
+        "deleteSection02",
+        "deleteSection03",
+
+
         "moveSection-inner01",
         "moveSection-inner02",
         "moveSection-inner03",
