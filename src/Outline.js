@@ -302,7 +302,7 @@
         DOM.appendChild(heading,DOM.createTextNode(document,title));
         DOM.insertBefore(parentNode,heading,nextSibling);
 
-        Outline.jumpToSection(heading.getAttribute("id"));
+        Outline.goToSection(heading.getAttribute("id"));
     }
 
     function getSectionNodes(section,result)
@@ -367,7 +367,7 @@
         scheduleUpdateSectionStructure();
     }
 
-    Outline.jumpToSection = function(sectionId)
+    Outline.goToSection = function(sectionId)
     {
         var section = document.getElementById(sectionId);
         var location = webkitConvertPointFromNodeToPage(section,
