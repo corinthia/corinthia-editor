@@ -11,20 +11,13 @@ function setupOutline(topChildren)
 
     function processChildren(level,children)
     {
-//        debug(index+": "+JSON.stringify(children));
         if (typeof children == "number") {
-            for (var i = 0; i < children; i++) {
-//                debug("number: before recursive call: children = "+JSON.stringify(children));
+            for (var i = 0; i < children; i++)
                 recurse(level,null);
-//                debug("number: after recursive call: children = "+JSON.stringify(children));
-            }
         }
         else if (children instanceof Array) {
-            for (var i = 0; i < children.length; i++) {
-//                debug("array: before recursive call: children = "+JSON.stringify(children));
+            for (var i = 0; i < children.length; i++)
                 recurse(level,children[i]);
-//                debug("array: after recursive call: children = "+JSON.stringify(children));
-            }
         }
     }
 
@@ -48,7 +41,6 @@ function setupOutline(topChildren)
 
         processChildren(level+1,children);
     }
-
 }
 
 function removeOutlineHTML(node)
