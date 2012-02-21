@@ -266,23 +266,12 @@
             childIds.push(section.children[i].id);
 
         var obj = { id: section.id,
+                    index: (section.index == null) ? -1 : section.index,
                     title: section.title,
                     childIds: childIds };
         result.push(obj);
         for (var i = 0; i < section.children.length; i++)
             encodeSection(section.children[i],result);
-    }
-
-    function encodeSectionRecursive(section)
-    {
-        var childObjects = new Array();
-        for (var i = 0; i < section.children.length; i++)
-            childObjects.push(encodeSectionRecursive(section.children[i]));
-
-        return { id: section.id,
-                 parent: section.parent ? section.parent.id : null,
-                 title: section.node ? getNodeText(section.node) : null,
-                 children: childObjects };
     }
 
     window.Outline = new Object();
