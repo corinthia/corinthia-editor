@@ -149,7 +149,7 @@ function init()
     try {
         DOM.assignNodeIds(document);
         getStyles();
-        Structure.init();
+        Outline.init();
         jsInitOk = true;
     }
     catch (e) {

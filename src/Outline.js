@@ -268,9 +268,9 @@
                  children: childObjects };
     }
 
-    window.Structure = new Object();
+    window.Outline = new Object();
 
-    Structure.init = function()
+    Outline.init = function()
     {
         rootSection = new Section();
         document.addEventListener("DOMNodeInserted",docNodeInserted);
