@@ -280,4 +280,26 @@
 //        rootSection.print();
     }
 
+    window.test1 = function()
+    {
+        var first3c = document.getElementById("first3c");
+        var second3c = document.getElementById("second3c");
+        var next;
+        for (var node = first3c; node != second3c; node = next) {
+            next = node.nextSibling;
+            DOM.deleteNode(node);
+        }
+    }
+
+    window.test2 = function()
+    {
+        var first6c = document.getElementById("first6c");
+        var second6c = document.getElementById("second6c");
+        var next;
+        for (var node = first6c; node != second6c; node = next) {
+            next = node.nextSibling;
+            DOM.deleteNode(node);
+        }
+    }
+
 })();
