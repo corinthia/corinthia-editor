@@ -255,7 +255,7 @@
                     
                     if ((prev != null) && (prev.nodeType == Node.ELEMENT_NODE)) {
                         if ((prev.lastChild != null) && (prev.lastChild.nodeName == "BR"))
-                            DOM.deleteNode(lastChild);
+                            DOM.deleteNode(prev.lastChild);
                         setEmptySelectionAt(prev,prev.childNodes.length);
                         if (nodeHasContent(paragraph)) {
                             while (paragraph.firstChild != null)
