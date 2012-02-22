@@ -913,6 +913,38 @@
         return;
     }
 
+    // public
+    function setStyleElement(cssText)
+    {
+        // Get the head element, or create it if it doesn't already exist
+        var heads = document.getElementsByTagName("HEAD");
+        var head;
+        if (heads.length == 0) {
+            head = DOM.createElement(document,"HEAD");
+            DOM.insertBefore(document.documentElement,head,document.documentElement.firstChild);
+        }
+        else {
+            head = heads[0];
+        }
+
+        // Remove all existing style elements
+        var removed = 0;
+        var next;
+        for (var child = head.firstChild; child; child = next) {
+            var next = child.nextSibling;
+            if (child.nodeName == "STYLE") {
+                DOM.deleteNode(child);
+                removed++;
+            }
+        }
+
+        // Add the new style element
+        var style = DOM.createElement(document,"STYLE");
+        style.setAttribute("type","text/css");
+        DOM.appendChild(style,DOM.createTextNode(document,cssText));
+        DOM.appendChild(head,style);
+    }
+
     window.Formatting = new Object();
     Formatting.splitTextBefore = splitTextBefore;
     Formatting.splitTextAfter = splitTextAfter;
@@ -923,4 +955,5 @@
     Formatting.getFormatting = getFormatting;
     Formatting.pushDownInlineProperties = pushDownInlineProperties;
     Formatting.applyFormattingChanges = applyFormattingChanges;
+    Formatting.setStyleElement = setStyleElement;
 })();

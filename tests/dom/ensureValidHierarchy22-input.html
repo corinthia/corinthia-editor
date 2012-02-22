@@ -16,7 +16,7 @@ function performTest()
     var range = new Range(document.body,1,document.body,2);
 
     range.trackWhileExecuting(function() {
-        ensureValidHierarchy(text2);
+        Hierarchy.ensureValidHierarchy(text2);
     });
     showRangeAsBrackets(range);
 }
