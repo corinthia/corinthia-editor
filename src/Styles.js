@@ -78,7 +78,7 @@ function ensureValidHierarchy(node,recursive)
 
     if (isContainerNode(node) || isParagraphNode(node)) {
         if (!isContainerNode(node.parentNode) && !isParagraphNode(node.parentNode)) {
-            removeAdjacentWhitespace(node);
+            DOM.removeAdjacentWhitespace(node);
 
             var offset = getOffsetOfNodeInParent(node);
             Formatting.moveFollowing(node.parentNode,offset+1,isContainerNode);

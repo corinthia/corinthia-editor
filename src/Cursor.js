@@ -388,7 +388,7 @@
             else
                 copy = DOM.shallowCopyElement(paragraph);
             
-            removeAdjacentWhitespace(paragraph);
+            DOM.removeAdjacentWhitespace(paragraph);
             
             // If the cursor is in the last paragraph of a list item, we need to
             // add another list item rather than another paragraph

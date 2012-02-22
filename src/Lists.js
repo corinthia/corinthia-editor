@@ -236,15 +236,6 @@
     }
 
     // public
-    function removeAdjacentWhitespace(node)
-    {
-        while ((node.previousSibling != null) && (isWhitespaceTextNode(node.previousSibling)))
-            DOM.deleteNode(node.previousSibling);
-        while ((node.nextSibling != null) && (isWhitespaceTextNode(node.nextSibling)))
-            DOM.deleteNode(node.nextSibling);
-    }
-
-    // public
     function getListOperationNodes(range)
     {
         var dca = null;
@@ -312,7 +303,7 @@
                     var list = li.parentNode;
                     var insertionPoint = null;
 
-                    removeAdjacentWhitespace(li);
+                    DOM.removeAdjacentWhitespace(li);
 
                     if (li.previousSibling == null) {
                         insertionPoint = list;
@@ -325,7 +316,7 @@
                         DOM.insertBefore(list.parentNode,secondList,list.nextSibling);
                         while (li.nextSibling != null) {
                             DOM.appendChild(secondList,li.nextSibling);
-                            removeAdjacentWhitespace(li);
+                            DOM.removeAdjacentWhitespace(li);
                         }
 
                         insertionPoint = secondList;
@@ -385,12 +376,12 @@
                     li = node;
                     var list = li.parentNode;
 
-                    removeAdjacentWhitespace(list);
+                    DOM.removeAdjacentWhitespace(list);
                     prev = list.previousSibling;
                     next = list.nextSibling;
 
 
-                    removeAdjacentWhitespace(li);
+                    DOM.removeAdjacentWhitespace(li);
 
                     if (li.previousSibling == null) {
                         listInsertionPoint = list;
@@ -405,7 +396,7 @@
                         DOM.insertBefore(list.parentNode,secondList,list.nextSibling);
                         while (li.nextSibling != null) {
                             DOM.appendChild(secondList,li.nextSibling);
-                            removeAdjacentWhitespace(li);
+                            DOM.removeAdjacentWhitespace(li);
                         }
 
                         listInsertionPoint = secondList;
@@ -418,7 +409,7 @@
                     oldList = list;
                 }
                 else {
-                    removeAdjacentWhitespace(node);
+                    DOM.removeAdjacentWhitespace(node);
                     prev = node.previousSibling;
                     next = node.nextSibling;
                     listInsertionPoint = node;
@@ -457,7 +448,7 @@
                     DOM.deleteNode(oldList);
 
                 // Merge with adjacent list
-                removeAdjacentWhitespace(list);
+                DOM.removeAdjacentWhitespace(list);
                 if ((list.nextSibling != null) && (list.nextSibling.nodeName == type)) {
                     var followingList = list.nextSibling;
                     while (followingList.firstChild != null) {
@@ -487,11 +478,10 @@
         setList("OL");
     }
 
-    window.increaseIndent = increaseIndent;
-    window.decreaseIndent = decreaseIndent;
-    window.clearList = clearList;
-    window.setUnorderedList = setUnorderedList;
-    window.setOrderedList = setOrderedList;
-    window.removeAdjacentWhitespace = removeAdjacentWhitespace;
-    window.getListOperationNodes = getListOperationNodes;
+    window.Lists = new Object();
+    Lists.increaseIndent = increaseIndent;
+    Lists.decreaseIndent = decreaseIndent;
+    Lists.clearList = clearList;
+    Lists.setUnorderedList = setUnorderedList;
+    Lists.setOrderedList = setOrderedList;
 })();

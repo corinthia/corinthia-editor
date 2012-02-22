@@ -348,6 +348,14 @@
                         data.trackedPositions.length+" others)");
     }
 
+    DOM.removeAdjacentWhitespace = function(node)
+    {
+        while ((node.previousSibling != null) && (isWhitespaceTextNode(node.previousSibling)))
+            DOM.deleteNode(node.previousSibling);
+        while ((node.nextSibling != null) && (isWhitespaceTextNode(node.nextSibling)))
+            DOM.deleteNode(node.nextSibling);
+    }
+
     window.DOM = DOM;
 
 })();
