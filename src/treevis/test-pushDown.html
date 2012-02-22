@@ -92,7 +92,7 @@ function mouseUpPosition(position)
     dragging = false;
     range = new Range(range.start.node,range.start.offset,range.end.node,range.end.offset);
     range.expand();
-    pushDownInlineProperties(range.getOutermostNodes());
+    Formatting.pushDownInlineProperties(range.getOutermostNodes());
     treeView.update();
 }
 

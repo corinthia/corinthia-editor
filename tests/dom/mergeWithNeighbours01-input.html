@@ -20,7 +20,7 @@ function performTest()
 
     var range = new Range(text2,1,text4,3);
     range.trackWhileExecuting(function() {
-        mergeWithNeighbours(text3);
+        Formatting.mergeWithNeighbours(text3);
     });
     showRangeAsBrackets(range);
 }

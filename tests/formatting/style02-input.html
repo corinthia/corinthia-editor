@@ -12,23 +12,23 @@ function performTest()
     var h1s = arrayCopy(document.getElementsByTagName("H1"));
 
     selectNode(h1s[0]);
-    applyFormattingChanges("",null);
+    Formatting.applyFormattingChanges("",null);
     selectNode(h1s[1]);
-    applyFormattingChanges("H1",null);
+    Formatting.applyFormattingChanges("H1",null);
     selectNode(h1s[2]);
-    applyFormattingChanges("H2",null);
+    Formatting.applyFormattingChanges("H2",null);
     selectNode(h1s[3]);
-    applyFormattingChanges("H3",null);
+    Formatting.applyFormattingChanges("H3",null);
     selectNode(h1s[4]);
-    applyFormattingChanges("H4",null);
+    Formatting.applyFormattingChanges("H4",null);
     selectNode(h1s[5]);
-    applyFormattingChanges("H5",null);
+    Formatting.applyFormattingChanges("H5",null);
     selectNode(h1s[6]);
-    applyFormattingChanges("H6",null);
+    Formatting.applyFormattingChanges("H6",null);
     selectNode(h1s[7]);
-    applyFormattingChanges(".hello",null);
+    Formatting.applyFormattingChanges(".hello",null);
     selectNode(h1s[8]);
-    applyFormattingChanges(null,null);
+    Formatting.applyFormattingChanges(null,null);
 
     // An unrelated part of the code adds "id" attributes to heading elements to keep track of
     // sections - we're not testing that functionality here, so we want to ignore them

@@ -6,7 +6,7 @@
 function performTest()
 {
     var range = getSelectionRange();
-    var properties = getFormatting(range);
+    var properties = Formatting.getFormatting(range);
     clearSelection();
 
     DOM.deleteAllChildren(document.body);

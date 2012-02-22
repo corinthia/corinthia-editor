@@ -7,7 +7,7 @@ function performTest()
 {
     var u = document.getElementsByTagName("U")[0];
     var range = new Range(u.firstChild,1,u.firstChild,1);
-    splitAroundSelection(range);
+    Formatting.splitAroundSelection(range);
     showRangeAsBrackets(range);
 }
 </script>

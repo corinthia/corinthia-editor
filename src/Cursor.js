@@ -343,7 +343,7 @@
             var pos = selectionRange.start;
 
             if (pos.node.nodeType == Node.TEXT_NODE)
-                splitTextBefore(pos.node,pos.offset);
+                Formatting.splitTextBefore(pos.node,pos.offset);
         });
 
         var node = selectionRange.singleNode();
@@ -424,12 +424,13 @@
         }
     }
 
-    window.isValidCursorPosition = isValidCursorPosition;
-    window.positionCursor = positionCursor;
-    window.moveLeft = moveLeft;
-    window.moveRight = moveRight;
-    window.insertCharacter = insertCharacter;
-    window.deleteCharacter = deleteCharacter;
-    window.enterPressed = enterPressed;
+    window.Cursor = new Object();
+    Cursor.isValidCursorPosition = isValidCursorPosition;
+    Cursor.positionCursor = positionCursor;
+    Cursor.moveLeft = moveLeft;
+    Cursor.moveRight = moveRight;
+    Cursor.insertCharacter = insertCharacter;
+    Cursor.deleteCharacter = deleteCharacter;
+    Cursor.enterPressed = enterPressed;
 
 })();

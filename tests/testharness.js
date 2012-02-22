@@ -203,11 +203,11 @@ function leftLoaded()
         var node = pos.node;
         var offset = pos.offset;
         if ((node.nodeType == Node.ELEMENT_NODE) && (offset < node.childNodes.length))
-            leftArea.contentWindow.mergeWithNeighbours(node.childNodes[offset]);
+            leftArea.contentWindow.Formatting.mergeWithNeighbours(node.childNodes[offset]);
         else if ((node.nodeType == Node.ELEMENT_NODE) && (node.lastChild != null))
-            leftArea.contentWindow.mergeWithNeighbours(node.lastChild);
+            leftArea.contentWindow.Formatting.mergeWithNeighbours(node.lastChild);
         else
-            leftArea.contentWindow.mergeWithNeighbours(node);
+            leftArea.contentWindow.Formatting.mergeWithNeighbours(node);
     }
 
     function getPosition(node)

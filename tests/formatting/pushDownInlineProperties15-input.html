@@ -10,7 +10,7 @@ function performTest()
         removeWhitespaceAndCommentNodes(document.body);
     });
     var outermost = range.getOutermostNodes();
-    pushDownInlineProperties(outermost);
+    Formatting.pushDownInlineProperties(outermost);
 }
 </script>
 </head>

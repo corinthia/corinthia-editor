@@ -71,19 +71,19 @@ function removeWhitespaceAndCommentNodes(node)
 function selectionWrapElement(elementName)
 {
     if (elementName == "B")
-        applyFormattingChanges(null,{"font-weight": "bold"});
+        Formatting.applyFormattingChanges(null,{"font-weight": "bold"});
     else if (elementName == "I")
-        applyFormattingChanges(null,{"font-style": "italic"});
+        Formatting.applyFormattingChanges(null,{"font-style": "italic"});
     else if (elementName == "U")
-        applyFormattingChanges(null,{"text-decoration": "underline"});
+        Formatting.applyFormattingChanges(null,{"text-decoration": "underline"});
 }
 
 function selectionUnwrapElement(elementName)
 {
     if (elementName == "B")
-        applyFormattingChanges(null,{"font-weight": null});
+        Formatting.applyFormattingChanges(null,{"font-weight": null});
     else if (elementName == "I")
-        applyFormattingChanges(null,{"font-style": null});
+        Formatting.applyFormattingChanges(null,{"font-style": null});
     else if (elementName == "U")
-        applyFormattingChanges(null,{"text-decoration": null});
+        Formatting.applyFormattingChanges(null,{"text-decoration": null});
 }

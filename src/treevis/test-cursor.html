@@ -92,7 +92,7 @@ function traversePositions(root)
         for (var i = 0; i < allPositions.length; i++) {
             var pos = allPositions[i];
 
-            if (isValidCursorPosition(pos)) {
+            if (Cursor.isValidCursorPosition(pos)) {
                 var range = new Range(pos.node,pos.offset,pos.node,pos.offset);
                 setSelectionRange(range);
                 work.pos = pos;

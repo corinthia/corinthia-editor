@@ -81,8 +81,8 @@ function ensureValidHierarchy(node,recursive)
             removeAdjacentWhitespace(node);
 
             var offset = getOffsetOfNodeInParent(node);
-            moveFollowing(node.parentNode,offset+1,isContainerNode);
-            movePreceding(node.parentNode,offset,isContainerNode);
+            Formatting.moveFollowing(node.parentNode,offset+1,isContainerNode);
+            Formatting.movePreceding(node.parentNode,offset,isContainerNode);
 
             var ancestors = new Array();
             var child = node;

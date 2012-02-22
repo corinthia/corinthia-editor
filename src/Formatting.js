@@ -913,18 +913,14 @@
         return;
     }
 
-    window.splitTextBefore = splitTextBefore;
-    window.splitTextAfter = splitTextAfter;
-    window.movePreceding = movePreceding;
-    window.moveFollowing = moveFollowing;
-    window.splitAroundSelection = splitAroundSelection;
-    window.mergeWithNeighbours = mergeWithNeighbours;
-    window.getFormatting = getFormatting;
-    window.isParagraphProperty = isParagraphProperty;
-    window.isInlineProperty = isInlineProperty;
-    window.getParagraphs = getParagraphs;
-    window.pushDownInlineProperties = pushDownInlineProperties;
-    window.removeProperties = removeProperties;
-    window.mergeWithNeighbours = mergeWithNeighbours;
-    window.applyFormattingChanges = applyFormattingChanges;
+    window.Formatting = new Object();
+    Formatting.splitTextBefore = splitTextBefore;
+    Formatting.splitTextAfter = splitTextAfter;
+    Formatting.movePreceding = movePreceding;
+    Formatting.moveFollowing = moveFollowing;
+    Formatting.splitAroundSelection = splitAroundSelection;
+    Formatting.mergeWithNeighbours = mergeWithNeighbours;
+    Formatting.getFormatting = getFormatting;
+    Formatting.pushDownInlineProperties = pushDownInlineProperties;
+    Formatting.applyFormattingChanges = applyFormattingChanges;
 })();

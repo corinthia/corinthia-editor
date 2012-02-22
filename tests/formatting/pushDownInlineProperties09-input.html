@@ -6,9 +6,9 @@
 function performTest()
 {
     var range = getSelectionRange();
-    splitAroundSelection(range);
+    Formatting.splitAroundSelection(range);
     var outermost = range.getOutermostNodes();
-    pushDownInlineProperties(outermost);
+    Formatting.pushDownInlineProperties(outermost);
 }
 </script>
 </head>

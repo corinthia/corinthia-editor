@@ -17,7 +17,7 @@ function performTest()
     // between them
     setSelectionRange(new Range(trs[1].parentNode,tr1Offset,trs[2].parentNode,tr2Offset+1));
 
-    applyFormattingChanges("h1",null);
+    Formatting.applyFormattingChanges("h1",null);
 
     // An unrelated part of the code adds "id" attributes to heading elements to keep track of
     // sections - we're not testing that functionality here, so we want to ignore them
