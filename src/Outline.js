@@ -369,10 +369,15 @@
 
     Outline.goToSection = function(sectionId)
     {
-        var section = document.getElementById(sectionId);
-        var location = webkitConvertPointFromNodeToPage(section,
-                                                        new WebKitPoint(0,0));
-        window.scrollTo(0,location.y);
+        if (sectionId == rootSection.id) {
+            window.scrollTo(0);
+        }
+        else {
+            var section = document.getElementById(sectionId);
+            var location = webkitConvertPointFromNodeToPage(section,
+                                                            new WebKitPoint(0,0));
+            window.scrollTo(0,location.y);
+        }
     }
 
     window.test1 = function()
