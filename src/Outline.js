@@ -380,7 +380,7 @@
         }
     }
 
-    window.test1 = function()
+    Outline.test1 = function()
     {
         var first3c = document.getElementById("first3c");
         var second3c = document.getElementById("second3c");
@@ -391,7 +391,7 @@
         }
     }
 
-    window.test2 = function()
+    Outline.test2 = function()
     {
         var first6c = document.getElementById("first6c");
         var second6c = document.getElementById("second6c");
