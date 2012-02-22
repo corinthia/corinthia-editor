@@ -34,12 +34,12 @@ function loadCode()
 {
     // Sync with Editor.m
     var javascriptFiles = ["nulleditor.js", // must be first
-                           "../src/cursor.js",
+                           "../src/Cursor.js",
                            "../src/DOM.js",
 //                           "../src/dtd.js",
-                           "../src/formatting.js",
+                           "../src/Formatting.js",
                            "../src/init.js",
-                           "../src/lists.js",
+                           "../src/Lists.js",
                            "../src/NodeSet.js",
                            "../src/Outline.js",
                            "../src/Position.js",
@@ -51,8 +51,8 @@ function loadCode()
                            "../src/types.js",
                            "../src/UndoManager.js",
                            "../src/util.js",
-                           "../src/viewport.js",
-                           "../src/selection.js",
+                           "../src/Viewport.js",
+                           "../src/Selection.js",
                            "testlib.js"]; // must be last
     var allCodeArray = new Array();
     for (var i = 0; i < javascriptFiles.length; i++)
