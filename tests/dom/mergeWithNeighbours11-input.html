@@ -12,7 +12,7 @@ function performTest()
     var range = new Range(p,1,p,2);
 
     range.trackWhileExecuting(function() {
-        Formatting.mergeWithNeighbours(bs[1]);
+        Formatting.mergeWithNeighbours(bs[1],Formatting.MERGEABLE_INLINE);
     });
     showRangeAsBrackets(range);
 }

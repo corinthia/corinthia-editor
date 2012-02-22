@@ -53,7 +53,7 @@ function removeOutlineHTML(node)
         for (var child = node.firstChild; child != null; child = child.nextSibling)
             removeOutlineHTML(child);
         for (var child = node.firstChild; child != null; child = child.nextSibling)
-            Formatting.mergeWithNeighbours(child);
+            Formatting.mergeWithNeighbours(child,Formatting.MERGEABLE_INLINE);
     }
 }
 

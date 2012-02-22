@@ -191,7 +191,7 @@
     }
 
     // public (for use by tests)
-    function mergeWithNeighbours(node)
+    function mergeWithNeighbours(node,whiteList)
     {
         var parent = node.parentNode;
         if (parent == null)
@@ -258,7 +258,7 @@
             }
 
             if (lastChild != null)
-                mergeWithNeighbours(lastChild);
+                mergeWithNeighbours(lastChild,whiteList);
         }
 
         function nodesMergable(a,b)
@@ -273,17 +273,9 @@
 
         function elementsMergable(a,b)
         {
-            var MERGEABLE_ELEMENTS = {
-                "B": true,
-                "I": true,
-                "U": true,
-                "SPAN": true,
-                "A": true,
-                "S": true
-            };
             if (isInlineNode(a) && isInlineNode(b) &&
                 (a.nodeName == b.nodeName) &&
-                MERGEABLE_ELEMENTS[a.nodeName] &&
+                whiteList[a.nodeName] &&
                 (a.attributes.length == b.attributes.length)) {
                 for (var i = 0; i < a.attributes.length; i++) {
                     var attrName = a.attributes[i].nodeName;
@@ -298,14 +290,14 @@
 
     }
 
-    function mergeRange(range)
+    function mergeRange(range,whiteList)
     {
         var nodes = range.getAllNodes();
         for (var i = 0; i < nodes.length; i++) {
             var next;
             for (var p = nodes[i]; p != null; p = next) {
                 next = p.parentNode;
-                mergeWithNeighbours(p);
+                mergeWithNeighbours(p,whiteList);
             }
         }
     }
@@ -899,12 +891,12 @@
                 }
             }
 
-            mergeRange(range);
+            mergeRange(range,Formatting.MERGEABLE_INLINE);
 
             if (target != null) {
                 for (var p = target; p != null; p = next) {
                     next = p.parentNode;
-                    mergeWithNeighbours(p);
+                    mergeWithNeighbours(p,Formatting.MERGEABLE_INLINE);
                 }
             }
         });
@@ -952,8 +944,42 @@
     Formatting.moveFollowing = moveFollowing;
     Formatting.splitAroundSelection = splitAroundSelection;
     Formatting.mergeWithNeighbours = mergeWithNeighbours;
+    Formatting.mergeRange = mergeRange;
     Formatting.getFormatting = getFormatting;
     Formatting.pushDownInlineProperties = pushDownInlineProperties;
     Formatting.applyFormattingChanges = applyFormattingChanges;
     Formatting.setStyleElement = setStyleElement;
+
+    Formatting.MERGEABLE_INLINE = {
+        "B": true,
+        "I": true,
+        "U": true,
+        "SPAN": true,
+        "A": true,
+        "S": true
+    };
+
+    Formatting.MERGEABLE_BLOCK_AND_INLINE = {
+        "B": true,
+        "I": true,
+        "U": true,
+        "SPAN": true,
+        "A": true,
+        "S": true,
+
+        "P": true,
+        "H1": true,
+        "H2": true,
+        "H3": true,
+        "H4": true,
+        "H5": true,
+        "H6": true,
+        "DIV": true,
+        "PRE": true,
+
+        "UL": true,
+        "OL":  true,
+        "LI": true,
+    };
+
 })();

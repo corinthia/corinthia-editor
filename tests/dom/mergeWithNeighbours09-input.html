@@ -28,7 +28,7 @@ function performTest()
 
     var range = new Range(p,1,p,8);
     range.trackWhileExecuting(function() {
-        Formatting.mergeWithNeighbours(text3);
+        Formatting.mergeWithNeighbours(text3,Formatting.MERGEABLE_INLINE);
     });
     showRangeAsBrackets(range);
 }

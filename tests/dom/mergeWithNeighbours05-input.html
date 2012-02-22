@@ -12,7 +12,7 @@ function performTest()
                           bs[2],getOffsetOfNodeInParent(is[8]));
 
     range.trackWhileExecuting(function() {
-        Formatting.mergeWithNeighbours(bs[1]);
+        Formatting.mergeWithNeighbours(bs[1],Formatting.MERGEABLE_INLINE);
     });
     showRangeAsBrackets(range);
 }

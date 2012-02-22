@@ -202,12 +202,13 @@ function leftLoaded()
     {
         var node = pos.node;
         var offset = pos.offset;
+        var w = leftArea.contentWindow;
         if ((node.nodeType == Node.ELEMENT_NODE) && (offset < node.childNodes.length))
-            leftArea.contentWindow.Formatting.mergeWithNeighbours(node.childNodes[offset]);
+            w.Formatting.mergeWithNeighbours(node.childNodes[offset],w.Formatting.MERGEABLE_INLINE);
         else if ((node.nodeType == Node.ELEMENT_NODE) && (node.lastChild != null))
-            leftArea.contentWindow.Formatting.mergeWithNeighbours(node.lastChild);
+            w.Formatting.mergeWithNeighbours(node.lastChild,w.Formatting.MERGEABLE_INLINE);
         else
-            leftArea.contentWindow.Formatting.mergeWithNeighbours(node);
+            w.Formatting.mergeWithNeighbours(node,w.Formatting.MERGEABLE_INLINE);
     }
 
     function getPosition(node)

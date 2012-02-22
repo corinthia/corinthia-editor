@@ -27,7 +27,7 @@ function performTest()
     DOM.appendChild(document.body,p);
 
     var result = comparePositionsBeforeAndAfter(function() {
-        Formatting.mergeWithNeighbours(text2);
+        Formatting.mergeWithNeighbours(text2,Formatting.MERGEABLE_INLINE);
     });
 
     DOM.deleteAllChildren(document.body);
