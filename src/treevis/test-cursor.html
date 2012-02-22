@@ -94,7 +94,7 @@ function traversePositions(root)
 
             if (Cursor.isValidCursorPosition(pos)) {
                 var range = new Range(pos.node,pos.offset,pos.node,pos.offset);
-                setSelectionRange(range);
+                Selection.setSelectionRange(range);
                 work.pos = pos;
                 UndoManager.newGroup();
             }
@@ -109,7 +109,7 @@ function traversePositionsAll(root)
         for (var i = 0; i < allPositions.length; i++) {
             var pos = allPositions[i];
             var range = new Range(pos.node,pos.offset,pos.node,pos.offset);
-            setSelectionRange(range);
+            Selection.setSelectionRange(range);
             work.pos = pos;
             UndoManager.newGroup();
         }

@@ -86,7 +86,7 @@
         if (position == null)
             return;
 
-        var selectionRange = getSelectionRange();
+        var selectionRange = Selection.getSelectionRange();
         if ((selectionRange != null) && selectionRange.isEmpty() &&
             (position.node == selectionRange.start.node) &&
             (position.offset == selectionRange.start.offset)) {
@@ -102,13 +102,13 @@
                 editor.showCursorMenu(left,top,height);
             }
         }
-        setEmptySelectionAt(position.node,position.offset);
+        Selection.setEmptySelectionAt(position.node,position.offset);
     }
 
     // public
     function moveLeft()
     {
-        var selectionRange = getSelectionRange();
+        var selectionRange = Selection.getSelectionRange();
         if (selectionRange == null)
             return;
 
@@ -121,13 +121,13 @@
         } while ((pos != null) && !isValidCursorPosition(pos));
 
         if (pos != null)
-            setEmptySelectionAt(pos.node,pos.offset);
+            Selection.setEmptySelectionAt(pos.node,pos.offset);
     }
 
     // public
     function moveRight()
     {
-        var selectionRange = getSelectionRange();
+        var selectionRange = Selection.getSelectionRange();
         if (selectionRange == null)
             return;
 
@@ -140,7 +140,7 @@
         } while ((pos != null) && !isValidCursorPosition(pos));
 
         if (pos != null)
-            setEmptySelectionAt(pos.node,pos.offset);
+            Selection.setEmptySelectionAt(pos.node,pos.offset);
     }
 
     function nodeHasContent(node)
@@ -196,12 +196,12 @@
     // public
     function insertCharacter(character)
     {
-        var selectionRange = getSelectionRange();
+        var selectionRange = Selection.getSelectionRange();
         if (selectionRange == null)
             return;
 
         if (!selectionRange.isEmpty())
-            deleteSelectionContents();
+            Selection.deleteSelectionContents();
 
         var node = selectionRange.start.node;
         var offset = selectionRange.start.offset;
@@ -217,19 +217,19 @@
         }
 
         node.insertData(offset,character);
-        setEmptySelectionAt(node,offset+1,node,offset+1);
+        Selection.setEmptySelectionAt(node,offset+1,node,offset+1);
         updateBRAtEndOfParagraph(node);
     }
 
     // public
     function deleteCharacter()
     {
-        var selectionRange = getSelectionRange();
+        var selectionRange = Selection.getSelectionRange();
         if (selectionRange == null)
             return;
 
         if (!selectionRange.isEmpty()) {
-            deleteSelectionContents();
+            Selection.deleteSelectionContents();
             return;
         }
 
@@ -239,7 +239,7 @@
         if ((node.nodeType == Node.TEXT_NODE) && (offset > 0)) {
             node.nodeValue = node.nodeValue.slice(0,offset-1) +
                              node.nodeValue.slice(offset);
-            setEmptySelectionAt(node,offset-1);
+            Selection.setEmptySelectionAt(node,offset-1);
         }
         else {
             if (isFirstInParagraph(node)) {
@@ -256,14 +256,14 @@
                     if ((prev != null) && (prev.nodeType == Node.ELEMENT_NODE)) {
                         if ((prev.lastChild != null) && (prev.lastChild.nodeName == "BR"))
                             DOM.deleteNode(prev.lastChild);
-                        setEmptySelectionAt(prev,prev.childNodes.length);
+                        Selection.setEmptySelectionAt(prev,prev.childNodes.length);
                         if (nodeHasContent(paragraph)) {
                             while (paragraph.firstChild != null)
                                 DOM.appendChild(prev,paragraph.firstChild);
                         }
                         DOM.deleteNode(paragraph);
                     }
-                    updateSelectionDisplay();
+                    Selection.updateSelectionDisplay();
                 }
             }
             else {
@@ -272,7 +272,7 @@
                 } while ((node != null) && isWhitespaceTextNode(node));
                 if (node != null) {
                     node.nodeValue = node.nodeValue.slice(0,node.nodeValue.length-1);
-                    setEmptySelectionAt(node,node.nodeValue.length);
+                    Selection.setEmptySelectionAt(node,node.nodeValue.length);
                 }
                 removeIfEmpty(node);
             }
@@ -331,14 +331,14 @@
     // public
     function enterPressed()
     {
-        var selectionRange = getSelectionRange();
+        var selectionRange = Selection.getSelectionRange();
         if (selectionRange == null)
             return;
 
         selectionRange.trackWhileExecuting(function() {
             selectionRange.ensureRangeValidHierarchy();
             if (!selectionRange.isEmpty())
-                deleteSelectionContents();
+                Selection.deleteSelectionContents();
 
             var pos = selectionRange.start;
 
@@ -353,14 +353,14 @@
             // contains a BR element); in this case the focus node is the paragraph element
             // itself, because there is no text node.
             var copy = makeNew(node,null);
-            setEmptySelectionAt(copy,0,copy,0);
+            Selection.setEmptySelectionAt(copy,0,copy,0);
             return;
         }
 
         for (var child = node; child.parentNode != null; child = child.parentNode) {
             if (isParagraphNode(child.parentNode)) {
                 makeNew(child.parentNode,child);
-                setEmptySelectionAt(node,0,node,0);
+                Selection.setEmptySelectionAt(node,0,node,0);
                 return;
             }
         }

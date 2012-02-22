@@ -37,7 +37,7 @@
     // FIXME: write testcases for this
     function increaseIndent()
     {
-        var range = getSelectionRange();
+        var range = Selection.getSelectionRange();
         if (range == null)
             return null;
 
@@ -106,7 +106,7 @@
             }
         });
 
-        setSelectionRange(range);
+        Selection.setSelectionRange(range);
 
         function firstDescendentList(node)
         {
@@ -135,7 +135,7 @@
     // FIXME: write testcases for this
     function decreaseIndent()
     {
-        var range = getSelectionRange();
+        var range = Selection.getSelectionRange();
         if (range == null)
             return null;
 
@@ -221,7 +221,7 @@
             }
         });
 
-        setSelectionRange(range);
+        Selection.setSelectionRange(range);
 
         function findContainingListItem(node)
         {
@@ -288,7 +288,7 @@
     // public
     function clearList()
     {
-        var range = getSelectionRange();
+        var range = Selection.getSelectionRange();
         if (range == null)
             return;
 
@@ -344,12 +344,12 @@
             }
         });
 
-        setSelectionRange(range);
+        Selection.setSelectionRange(range);
     }
 
     function setList(type)
     {
-        var range = getSelectionRange();
+        var range = Selection.getSelectionRange();
         if (range == null)
             return;
 
@@ -462,7 +462,7 @@
             }
         });
 
-        setSelectionRange(range);
+        Selection.setSelectionRange(range);
         return;
     }
 

@@ -48,7 +48,7 @@ function removeIds()
 function selectNode(node)
 {
     var offset = getOffsetOfNodeInParent(node);
-    setSelectionRange(new Range(node.parentNode,offset,node.parentNode,offset+1));
+    Selection.setSelectionRange(new Range(node.parentNode,offset,node.parentNode,offset+1));
 }
 
 function removeWhitespaceAndCommentNodes(node)

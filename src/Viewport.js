@@ -36,5 +36,5 @@ function setViewportWidth(width)
         }
     }
     viewportMetaElement.setAttribute("content","width = "+width);
-    updateSelectionDisplay();
+    Selection.updateSelectionDisplay();
 }

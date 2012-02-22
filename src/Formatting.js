@@ -401,7 +401,7 @@
     {
         // FIXME: implement a more efficient version of this algorithm which avoids duplicate checks
 
-        var range = getSelectionRange();
+        var range = Selection.getSelectionRange();
         if (range == null)
             return {};
 
@@ -836,7 +836,7 @@
                 inlineProperties[name] = properties[name];
         }
 
-        var range = getSelectionRange();
+        var range = Selection.getSelectionRange();
         if (range == null)
             return;
 
@@ -909,7 +909,7 @@
             }
         });
 
-        updateSelectionDisplay();
+        Selection.updateSelectionDisplay();
         return;
     }
 

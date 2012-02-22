@@ -311,15 +311,16 @@
         updateSelectionDisplay();
     }
 
-    window.updateSelectionDisplay = updateSelectionDisplay;
-    window.selectAll = selectAll;
-    window.beginSelectionAtCoords = beginSelectionAtCoords;
-    window.setSelectionStartAtCoords = setSelectionStartAtCoords;
-    window.setSelectionEndAtCoords = setSelectionEndAtCoords;
-    window.getSelectionRange = getSelectionRange;
-    window.setSelectionRange = setSelectionRange;
-    window.setEmptySelectionAt = setEmptySelectionAt;
-    window.deleteSelectionContents = deleteSelectionContents;
-    window.clearSelection = clearSelection;
+    window.Selection = new Object();
+    Selection.updateSelectionDisplay = updateSelectionDisplay;
+    Selection.selectAll = selectAll;
+    Selection.beginSelectionAtCoords = beginSelectionAtCoords;
+    Selection.setSelectionStartAtCoords = setSelectionStartAtCoords;
+    Selection.setSelectionEndAtCoords = setSelectionEndAtCoords;
+    Selection.getSelectionRange = getSelectionRange;
+    Selection.setSelectionRange = setSelectionRange;
+    Selection.setEmptySelectionAt = setEmptySelectionAt;
+    Selection.deleteSelectionContents = deleteSelectionContents;
+    Selection.clearSelection = clearSelection;
 
 })();

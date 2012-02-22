@@ -71,7 +71,7 @@ function showTest(dir,name)
         setLeftTitle("Working area");
         setRightTitle("Result");
         leftArea.contentWindow.performTest();
-        leftArea.contentWindow.clearSelection();
+        leftArea.contentWindow.Selection.clearSelection();
         setPanelText(rightArea,PrettyPrinter.getHTML(leftArea.contentDocument.documentElement));
     }
     leftArea.src = dir+"/"+name+"-input.html";
@@ -192,7 +192,7 @@ function leftLoaded()
             positionMergeWithNeighbours(end);
         });
 
-        leftArea.contentWindow.setSelectionRange(range);
+        leftArea.contentWindow.Selection.setSelectionRange(range);
     }
     continuation();
 
@@ -253,7 +253,7 @@ function runAllTests()
             var actual;
             try {
                 leftArea.contentWindow.performTest();
-                leftArea.contentWindow.clearSelection();
+                leftArea.contentWindow.Selection.clearSelection();
                 actual = PrettyPrinter.getHTML(leftArea.contentDocument.documentElement);
             }
             catch (e) {

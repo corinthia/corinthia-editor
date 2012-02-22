@@ -7,9 +7,9 @@ function performTest()
 {
     var p = document.getElementsByTagName("P")[2];
     var offset = getOffsetOfNodeInParent(p);
-    setSelectionRange(new Range(document.body,offset,document.body,offset+1));
+    Selection.setSelectionRange(new Range(document.body,offset,document.body,offset+1));
     DOM.replaceElement(p,"DIV");
-    showRangeAsBrackets(getSelectionRange());
+    showRangeAsBrackets(Selection.getSelectionRange());
 }
 </script>
 </head>

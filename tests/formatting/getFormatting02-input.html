@@ -5,9 +5,9 @@
 <script language="javascript">
 function performTest()
 {
-    var range = getSelectionRange();
+    var range = Selection.getSelectionRange();
     var properties = Formatting.getFormatting(range);
-    clearSelection();
+    Selection.clearSelection();
 
     DOM.deleteAllChildren(document.body);
 

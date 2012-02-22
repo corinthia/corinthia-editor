@@ -13,7 +13,8 @@ function performTest()
     var td1Offset = getOffsetOfNodeInParent(tds[1]);
     var td2Offset = getOffsetOfNodeInParent(tds[2]);
 
-    setSelectionRange(new Range(tds[1].parentNode,td1Offset,tds[2].parentNode,td2Offset+1));
+    Selection.setSelectionRange(new Range(tds[1].parentNode,td1Offset,
+                                          tds[2].parentNode,td2Offset+1));
 
     Formatting.applyFormattingChanges("h1",null);
 
