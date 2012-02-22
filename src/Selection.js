@@ -70,7 +70,7 @@
                 var top = rects[0].top + window.scrollY;
                 var height = rects[0].height;
 
-                var zoom = getZoom();
+                var zoom = Viewport.getZoom();
                 editor.setCursor(left*zoom,top*zoom,height*zoom);
             }
             return;
@@ -124,7 +124,7 @@
             var firstRect = rects[0];
             var lastRect = rects[rects.length-1];
 
-            var zoom = getZoom();
+            var zoom = Viewport.getZoom();
             var x1 = (firstRect.left+window.scrollX)*zoom;
             var y1 = (firstRect.top+window.scrollY)*zoom;
             var height1 = firstRect.height*zoom;
@@ -167,7 +167,7 @@
     {
         selectionRange = null;
 
-        var zoom = getZoom();
+        var zoom = Viewport.getZoom();
         var pos = positionAtPoint(x/zoom,y/zoom);
         if (pos != null) {
             if (pos.node.nodeType == Node.TEXT_NODE) {
@@ -183,7 +183,7 @@
     // public
     function setSelectionStartAtCoords(x,y)
     {
-        var zoom = getZoom();
+        var zoom = Viewport.getZoom();
         var position = positionAtPoint(x/zoom,y/zoom);
         if (position != null) {
             selectionRange.start = position;
@@ -194,7 +194,7 @@
     // public
     function setSelectionEndAtCoords(x,y)
     {
-        var zoom = getZoom();
+        var zoom = Viewport.getZoom();
         var position = positionAtPoint(x/zoom,y/zoom);
         if (position != null) {
             selectionRange.end = position;

@@ -81,7 +81,7 @@
     // public
     function positionCursor(x,y)
     {
-        var zoom = getZoom();
+        var zoom = Viewport.getZoom();
         var position = positionAtPoint(x/zoom,y/zoom);
         if (position == null)
             return;
@@ -95,7 +95,7 @@
             domRange.setEnd(position.node,position.offset);
             var rects = domRange.getClientRects();
             if (rects.length > 0) {
-                var zoom = getZoom();
+                var zoom = Viewport.getZoom();
                 var left = (rects[0].left + window.scrollX) * zoom;
                 var top = (rects[0].top + window.scrollY) * zoom;
                 var height = rects[0].height * zoom;
