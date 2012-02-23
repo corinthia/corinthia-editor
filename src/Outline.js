@@ -165,8 +165,6 @@
             section.prev.next = section.next;
         if (section.next != null)
             section.next.prev = section.prev;
-        if (section.span != null)
-            DOM.deleteNode(section.span);
 
         node.removeEventListener("DOMSubtreeModified",section.modificationListener);
         scheduleUpdateSectionStructure();
