@@ -82,6 +82,7 @@ function showResult(dirname,filename)
     var fullname = dirname+"-"+filename;
     setLeftTitle("Actual result for "+dirname+"/"+filename);
     setRightTitle("Expected result for "+dirname+"/"+filename);
+    leftLoadedContinuation = null;
     setPanelText(leftArea,results[fullname].actual);
     setPanelText(rightArea,results[fullname].expected);
 }
@@ -100,6 +101,7 @@ function clearPanel(panel)
 {
     panel.contentDocument.open();
     panel.contentDocument.close();
+    DOM.assignNodeIds(panel.contentDocument.body);
 }
 
 function setPanelText(panel,text)
@@ -107,7 +109,7 @@ function setPanelText(panel,text)
     clearPanel(panel);
     var pre = DOM.createElement(panel.contentDocument,"PRE");
     DOM.appendChild(panel.contentDocument.body,pre);
-    DOM.appendChild(pre,DOM.createTextNode(rightArea.contentDocument,text));
+    DOM.appendChild(pre,DOM.createTextNode(panel.contentDocument,text));
 }
 
 
