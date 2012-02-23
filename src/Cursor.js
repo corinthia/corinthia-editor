@@ -182,14 +182,12 @@
             if (nodeHasContent(paragraph)) {
                 // Paragraph has content: don't want BR at end
                 if (br != null) {
-                    debug("Removing BR at end of paragraph");
                     DOM.deleteNode(br);
                 }
             }
             else {
                 // Paragraph consists only of whitespace: must have BR at end
                 if (br == null) {
-                    debug("Adding BR at end of paragraph");
                     br = DOM.createElement(document,"BR");
                     DOM.appendChild(paragraph,br);
                 }
