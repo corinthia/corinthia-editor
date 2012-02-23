@@ -285,8 +285,9 @@
 
         function elementsMergable(a,b)
         {
-            var force = whiteList["force"] && isParagraphNode(a) && isParagraphNode(b);
-            if (((a.nodeName == b.nodeName) || force) &&
+            if (whiteList["force"] && isParagraphNode(a) && isParagraphNode(b))
+                return true;
+            if ((a.nodeName == b.nodeName) &&
                 whiteList[a.nodeName] &&
                 (a.attributes.length == b.attributes.length)) {
                 for (var i = 0; i < a.attributes.length; i++) {

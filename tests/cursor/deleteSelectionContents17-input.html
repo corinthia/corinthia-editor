@@ -1,0 +1,17 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script language="javascript">
+function performTest()
+{
+    Selection.deleteSelectionContents();
+    showRangeAsBrackets(Selection.getSelectionRange());
+}
+</script>
+</head>
+<body>
+<p style="color: blue">First [one</p>
+<p style="color: red">Second ]two</p>
+</body>
+</html>
