@@ -429,6 +429,7 @@
     Cursor.positionCursor = positionCursor;
     Cursor.moveLeft = moveLeft;
     Cursor.moveRight = moveRight;
+    Cursor.updateBRAtEndOfParagraph = updateBRAtEndOfParagraph;
     Cursor.insertCharacter = insertCharacter;
     Cursor.deleteCharacter = deleteCharacter;
     Cursor.enterPressed = enterPressed;

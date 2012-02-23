@@ -248,60 +248,75 @@
         if (selectionRange == null)
             return;
 
-        var finalNode = selectionRange.start.node;
-        var finalOffset = selectionRange.start.offset;
+        selectionRange = selectionRange.forwards();
 
-        var nodes = selectionRange.getOutermostNodes();
-        for (var i = 0; i < nodes.length; i++) {
-            var node = nodes[i];
+        selectionRange.trackWhileExecuting(function() {
+            var nodes = selectionRange.getOutermostNodes();
+            for (var i = 0; i < nodes.length; i++) {
+                var node = nodes[i];
 
-            var removeWholeNode = false;
+                var removeWholeNode = false;
 
-            if ((node == selectionRange.start.node) &&
-                (node == selectionRange.end.node)) {
-                var startOffset = selectionRange.start.offset;
-                var endOffset = selectionRange.end.offset;
-                if ((node.nodeType == Node.TEXT_NODE) &&
-                    ((startOffset > 0) || (endOffset < node.nodeValue.length))) {
-                    node.nodeValue = node.nodeValue.slice(0,startOffset) +
-                                     node.nodeValue.slice(endOffset);
+                if ((node == selectionRange.start.node) &&
+                    (node == selectionRange.end.node)) {
+                    var startOffset = selectionRange.start.offset;
+                    var endOffset = selectionRange.end.offset;
+                    if ((node.nodeType == Node.TEXT_NODE) &&
+                        ((startOffset > 0) || (endOffset < node.nodeValue.length))) {
+                        node.nodeValue = node.nodeValue.slice(0,startOffset) +
+                            node.nodeValue.slice(endOffset);
+                    }
+                    else {
+                        removeWholeNode = true;
+                    }
+                }
+                else if (node == selectionRange.start.node) {
+                    var offset = selectionRange.start.offset;
+                    if ((node.nodeType == Node.TEXT_NODE) && (offset > 0)) {
+                        node.nodeValue = node.nodeValue.slice(0,offset);
+                    }
+                    else {
+                        removeWholeNode = true;
+                    }
+                }
+                else if (node == selectionRange.end.node) {
+                    var offset = selectionRange.end.offset;
+                    if ((node.nodeType == Node.TEXT_NODE) && (offset < node.nodeValue.length)) {
+                        node.nodeValue = node.nodeValue.slice(offset);
+                    }
+                    else {
+                        removeWholeNode = true;
+                    }
                 }
                 else {
                     removeWholeNode = true;
                 }
-            }
-            else if (node == selectionRange.start.node) {
-                var offset = selectionRange.start.offset;
-                if ((node.nodeType == Node.TEXT_NODE) && (offset > 0)) {
-                    node.nodeValue = node.nodeValue.slice(0,offset);
+
+                if (removeWholeNode) {
+                    if ((node.nodeName == "TD") || (node.nodeName == "TH"))
+                        DOM.deleteAllChildren(node);
+                    else
+                        DOM.deleteNode(node);
                 }
-                else {
-                    removeWholeNode = true;
-                }
-            }
-            else if (node == selectionRange.end.node) {
-                var offset = selectionRange.end.offset;
-                if ((node.nodeType == Node.TEXT_NODE) && (offset < node.nodeValue.length)) {
-                    node.nodeValue = node.nodeValue.slice(offset);
-                }
-                else {
-                    removeWholeNode = true;
-                }
-            }
-            else {
-                removeWholeNode = true;
             }
 
-            if (removeWholeNode) {
-                if (finalNode == node) {
-                    finalNode = node.parentNode;
-                    finalOffset = 0;
-                }
-                DOM.deleteNode(node);
-            }
-        }
+            var detail = selectionRange.detail();
 
-        setEmptySelectionAt(finalNode,finalOffset);
+            if ((detail.startAncestor != null) && (detail.endAncestor != null) &&
+                (detail.startAncestor.nextSibling == detail.endAncestor) &&
+                Formatting.nodesMergable(detail.startAncestor,detail.endAncestor,
+                                         Formatting.MERGEABLE_BLOCK_AND_INLINE)) {
+
+                var startString = nodeString(detail.startAncestor);
+                var endString = nodeString(detail.endAncestor);
+                Formatting.mergeWithNextSibling(detail.startAncestor,
+                                                Formatting.MERGEABLE_BLOCK_AND_INLINE);
+            }
+
+            Cursor.updateBRAtEndOfParagraph(selectionRange.singleNode());
+        });
+
+        setEmptySelectionAt(selectionRange.start.node,selectionRange.start.offset);
     }
 
     // public
