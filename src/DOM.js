@@ -49,6 +49,7 @@
         }
 
         node.parentNode.removeChild(node);
+        // FIXME: need to delete nodeData for all descendants
         delete nodeData[node._nodeId];
     }
 
