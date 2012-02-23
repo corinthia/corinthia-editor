@@ -201,11 +201,11 @@
         var end = node;
 
         while ((start.previousSibling != null) &&
-               nodesMergable(start.previousSibling,start,whiteList))
+               DOM.nodesMergeable(start.previousSibling,start,whiteList))
             start = start.previousSibling;
 
         while ((end.nextSibling != null) &&
-               nodesMergable(end,end.nextSibling,whiteList))
+               DOM.nodesMergeable(end,end.nextSibling,whiteList))
             end = end.nextSibling;
 
         if (start != end) {
@@ -217,88 +217,11 @@
                 if (start.nodeType == Node.ELEMENT_NODE)
                     lastChild = start.lastChild;
 
-                mergeWithNextSibling(start,whiteList);
+                DOM.mergeWithNextSibling(start,whiteList);
 
                 if (lastChild != null)
                     mergeWithNeighbours(lastChild,whiteList);
             } while (!lastMerge);
-        }
-    }
-
-    function mergeWithNextSibling(current,whiteList)
-    {
-        var parent = current.parentNode;
-        var next = current.nextSibling;
-
-        var currentLength = maxNodeOffset(current);
-        var positions = Position.trackedPositions;
-        var nextOffset = getOffsetOfNodeInParent(next);
-
-        var lastChild = null;
-
-        if (current.nodeType == Node.ELEMENT_NODE) {
-            lastChild = current.lastChild;
-            DOM.moveNode(next,current,null);
-            DOM.removeNodeButKeepChildren(next);
-        }
-        else {
-            Position.ignoreEventsWhileExecuting(function() {
-                for (var i = 0; i < positions.length; i++) {
-                    var node = positions[i].node;
-                    var offset = positions[i].offset;
-
-                    if (node == next) {
-                        positions[i].node = current;
-                        positions[i].offset = offset+currentLength;
-                    }
-                    else if ((node == parent) && (offset == nextOffset)) {
-                        positions[i].node = current;
-                        positions[i].offset = currentLength;
-                    }
-                    else if ((node == parent) && (offset > nextOffset)) {
-                        positions[i].offset--;
-                    }
-                }
-
-                if (current.nodeType == Node.TEXT_NODE) {
-                    current.nodeValue += next.nodeValue;
-                }
-
-                DOM.deleteNode(next);
-            });
-        }
-
-        if ((lastChild != null) && (lastChild.nextSibling != null) &&
-            nodesMergable(lastChild,lastChild.nextSibling,whiteList)) {
-            mergeWithNextSibling(lastChild,whiteList);
-        }
-    }
-
-    function nodesMergable(a,b,whiteList)
-    {
-        if ((a.nodeType == Node.TEXT_NODE) && (b.nodeType == Node.TEXT_NODE))
-            return true;
-        else if ((a.nodeType == Node.ELEMENT_NODE) && (b.nodeType == Node.ELEMENT_NODE))
-            return elementsMergable(a,b);
-        else
-            return false;
-
-        function elementsMergable(a,b)
-        {
-            if (whiteList["force"] && isParagraphNode(a) && isParagraphNode(b))
-                return true;
-            if ((a.nodeName == b.nodeName) &&
-                whiteList[a.nodeName] &&
-                (a.attributes.length == b.attributes.length)) {
-                for (var i = 0; i < a.attributes.length; i++) {
-                    var attrName = a.attributes[i].nodeName;
-                    if (a.getAttribute(attrName) != b.getAttribute(attrName))
-                        return false;
-                }
-                return true;
-            }
-
-            return false;
         }
     }
 
@@ -956,8 +879,6 @@
     Formatting.moveFollowing = moveFollowing;
     Formatting.splitAroundSelection = splitAroundSelection;
     Formatting.mergeWithNeighbours = mergeWithNeighbours;
-    Formatting.mergeWithNextSibling = mergeWithNextSibling;
-    Formatting.nodesMergable = nodesMergable;
     Formatting.mergeRange = mergeRange;
     Formatting.getFormatting = getFormatting;
     Formatting.pushDownInlineProperties = pushDownInlineProperties;

@@ -303,14 +303,9 @@
             var detail = selectionRange.detail();
 
             if ((detail.startAncestor != null) && (detail.endAncestor != null) &&
-                (detail.startAncestor.nextSibling == detail.endAncestor) &&
-                Formatting.nodesMergable(detail.startAncestor,detail.endAncestor,
-                                         Formatting.MERGEABLE_BLOCK_AND_INLINE)) {
-
-                var startString = nodeString(detail.startAncestor);
-                var endString = nodeString(detail.endAncestor);
-                Formatting.mergeWithNextSibling(detail.startAncestor,
-                                                Formatting.MERGEABLE_BLOCK_AND_INLINE);
+                (detail.startAncestor.nextSibling == detail.endAncestor)) {
+                DOM.mergeWithNextSibling(detail.startAncestor,
+                                         Formatting.MERGEABLE_BLOCK_AND_INLINE);
             }
 
             Cursor.updateBRAtEndOfParagraph(selectionRange.singleNode());

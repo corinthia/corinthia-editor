@@ -25,8 +25,6 @@
         self.offset = offset;
         self.origOffset = offset;
         self.tracking = 0;
-        self.insertionListener = null;
-        self.removalListener = null;
 
         Object.defineProperty(this,"node",{
             get: function() { return this.self.node },
@@ -44,60 +42,8 @@
         Object.preventExtensions(this);
     }
 
-    var ignoreEvents = 0;
-    Position.trackedPositions = new Array(); // FIXME: make this private
-
-    function addTrackedPosition(self)
-    {
-        Position.trackedPositions.push(self.this);
-    }
-
-    function removeTrackedPosition(self)
-    {
-        for (var i = 0; i < Position.trackedPositions.length; i++) {
-            if (Position.trackedPositions[i] == self.this) {
-                Position.trackedPositions.splice(i,1);
-                return;
-            }
-        }
-        throw new Error("removeTrackedPosition: position not found");
-    }
-
-    function nodeInserted(self,event)
-    {
-        if (ignoreEvents > 0)
-            return;
-
-        if (event.relatedNode == self.node) {
-            var offset = getOffsetOfNodeInParent(event.target);
-            if (offset < self.offset) {
-                self.offset++;
-            }
-        }
-    }
-
-    function nodeWillBeRemoved(self,event)
-    {
-        if (ignoreEvents > 0)
-            return;
-
-        if (event.relatedNode == self.node) {
-            var offset = getOffsetOfNodeInParent(event.target);
-            if (offset < self.offset) {
-                self.offset--;
-            }
-        }
-        else if (event.target == self.node) {
-            var offset = getOffsetOfNodeInParent(event.target);
-            setNodeAndOffset(self,self.node.parentNode,offset);
-        }
-    }
-
     function characterDataModified(self,event)
     {
-        if (ignoreEvents > 0)
-            return;
-
         if (event.target == self.node) {
             var oldOffset = self.offset;
             var prevValue = event.prevValue;
@@ -156,11 +102,7 @@
 
     function actuallyStartTracking(self)
     {
-        self.insertionListener = function (event) { nodeInserted(self,event); };
-        self.removalListener = function (event) { nodeWillBeRemoved(self,event); };
         self.characterDataListener = function(event) { characterDataModified(self,event); }
-        self.node.addEventListener("DOMNodeInserted",self.insertionListener,false);
-        self.node.addEventListener("DOMNodeRemoved",self.removalListener,false);
         if (self.node.nodeType == Node.TEXT_NODE) {
             self.node.addEventListener("DOMCharacterDataModified",
                                        self.characterDataListener,false);
@@ -171,33 +113,25 @@
     function actuallyStopTracking(self)
     {
         DOM.removeTrackedPosition(self.this);
-        self.node.removeEventListener("DOMNodeInserted",self.insertionListener,false);
-        self.node.removeEventListener("DOMNodeRemoved",self.removalListener,false);
         if (self.node.nodeType == Node.TEXT_NODE) {
             self.node.removeEventListener("DOMCharacterDataModified",
                                           self.characterDataListener,false);
         }
-        self.insertionListener = null;
-        self.removalListener = null;
         self.characterDataListener = null;
     }
 
     function startTracking(self)
     {
-        if (self.tracking == 0) {
-            addTrackedPosition(self);
+        if (self.tracking == 0)
             actuallyStartTracking(self);
-        }
         self.tracking++;
     }
 
     function stopTracking(self)
     {
         self.tracking--;
-        if (self.tracking == 0) {
+        if (self.tracking == 0)
             actuallyStopTracking(self);
-            removeTrackedPosition(self);
-        }
     }
 
     function setNode(node)
@@ -403,18 +337,6 @@
         finally {
             for (var i = 0; i < positions.length; i++)
                 stopTracking(positions[i].self);
-        }
-    }
-
-    // public
-    Position.ignoreEventsWhileExecuting = function(fun)
-    {
-        ignoreEvents++;
-        try {
-            return fun();
-        }
-        finally {
-            ignoreEvents--;
         }
     }
 

@@ -175,16 +175,34 @@
 
     DOM.appendChild = function(node,child)
     {
-        return appendChildInternal(node,child);
+        return DOM.insertBefore(node,child,null);
     }
 
     DOM.insertBefore = function(node,child,before)
     {
-        return insertBeforeInternal(node,child,before);
+        var result = insertBeforeInternal(node,child,before);
+        trackedPositionsForNode(child.parentNode).forEach(function (position) {
+            var offset = getOffsetOfNodeInParent(child);
+            if (offset < position.offset) {
+                position.offset++;
+            }
+        });
+        return result;
     }
 
     DOM.deleteNode = function(node)
     {
+        trackedPositionsForNode(node.parentNode).forEach(function (position) {
+            var offset = getOffsetOfNodeInParent(node);
+            if (offset < position.offset) {
+                position.offset--;
+            }
+        });
+        trackedPositionsForNode(node).forEach(function (position) {
+            var offset = getOffsetOfNodeInParent(node);
+            position.node = node.parentNode;
+            position.offset = offset;
+        });
         deleteNodeInternal(node,true);
     }
 
@@ -205,120 +223,201 @@
 
     DOM.moveNode = function(node,parentNode,nextSibling)
     {
-        Position.ignoreEventsWhileExecuting(function() {
-            fireNodeWillBeRemoved(node);
+        fireNodeWillBeRemoved(node);
 
-            var offset = getOffsetOfNodeInParent(node);
-            var newOffset;
-            if (nextSibling != null)
-                newOffset = getOffsetOfNodeInParent(nextSibling);
-            else
-                newOffset = parentNode.childNodes.length;
+        var offset = getOffsetOfNodeInParent(node);
+        var newOffset;
+        if (nextSibling != null)
+            newOffset = getOffsetOfNodeInParent(nextSibling);
+        else
+            newOffset = parentNode.childNodes.length;
 
-            if ((node.parentNode == parentNode) && (newOffset > offset))
-                newOffset--;
+        if ((node.parentNode == parentNode) && (newOffset > offset))
+            newOffset--;
 
-            trackedPositionsForNode(node.parentNode).forEach(function (position) {
-                var old = position.toString();
-                if (position.offset > offset) {
-                    position.offset--;
-                }
-                else if (position.offset == offset) {
-                    position.node = parentNode;
-                    position.offset = newOffset;
-                }
-            });
-
-            insertBeforeInternal(parentNode,node,nextSibling);
-
-            trackedPositionsForNode(node.parentNode).forEach(function (position) {
-                var old = position.toString();
-                if (position.offset > newOffset) {
-                    position.offset++;
-                }
-            });
-
-
-            fireNodeWasInserted(node);
+        trackedPositionsForNode(node.parentNode).forEach(function (position) {
+            var old = position.toString();
+            if (position.offset > offset) {
+                position.offset--;
+            }
+            else if (position.offset == offset) {
+                position.node = parentNode;
+                position.offset = newOffset;
+            }
         });
+
+        insertBeforeInternal(parentNode,node,nextSibling);
+
+        trackedPositionsForNode(node.parentNode).forEach(function (position) {
+            var old = position.toString();
+            if (position.offset > newOffset) {
+                position.offset++;
+            }
+        });
+
+
+        fireNodeWasInserted(node);
     }
 
     DOM.removeNodeButKeepChildren = function(node)
     {
-        Position.ignoreEventsWhileExecuting(function() {
-            fireNodeWillBeRemoved(node);
+        fireNodeWillBeRemoved(node);
 
-            var offset = getOffsetOfNodeInParent(node);
-            var childCount = node.childNodes.length;
+        var offset = getOffsetOfNodeInParent(node);
+        var childCount = node.childNodes.length;
 
-            trackedPositionsForNode(node.parentNode).forEach(function (position) {
-                if (position.offset > offset)
-                    position.offset += childCount-1;
-            });
-
-            trackedPositionsForNode(node).forEach(function (position) {
-                position.node = node.parentNode;
-                position.offset += offset;
-            });
-
-            var parent = node.parentNode;
-            var nextSibling = node.nextSibling;
-            deleteNodeInternal(node,false);
-
-            while (node.firstChild != null) {
-                var child = node.firstChild;
-                insertBeforeInternal(parent,child,nextSibling);
-                fireNodeWasInserted(child);
-            }
+        trackedPositionsForNode(node.parentNode).forEach(function (position) {
+            if (position.offset > offset)
+                position.offset += childCount-1;
         });
+
+        trackedPositionsForNode(node).forEach(function (position) {
+            position.node = node.parentNode;
+            position.offset += offset;
+        });
+
+        var parent = node.parentNode;
+        var nextSibling = node.nextSibling;
+        deleteNodeInternal(node,false);
+
+        while (node.firstChild != null) {
+            var child = node.firstChild;
+            insertBeforeInternal(parent,child,nextSibling);
+            fireNodeWasInserted(child);
+        }
     }
 
     DOM.replaceElement = function(oldElement,newName)
     {
         var newElement = DOM.createElement(document,newName);
-        Position.ignoreEventsWhileExecuting(function() {
-            for (var i = 0; i < oldElement.attributes.length; i++) {
-                var name = oldElement.attributes[i].nodeName;
-                var value = oldElement.getAttribute(name);
-                newElement.setAttribute(name,value);
+        for (var i = 0; i < oldElement.attributes.length; i++) {
+            var name = oldElement.attributes[i].nodeName;
+            var value = oldElement.getAttribute(name);
+            newElement.setAttribute(name,value);
+        }
+
+        fireNodeWillBeRemoved(oldElement);
+
+        var positions = arrayCopy(trackedPositionsForNode(oldElement));
+        if (positions != null) {
+            for (var i = 0; i < positions.length; i++) {
+                if (positions[i].node != oldElement)
+                    throw new Error("replaceElement: position with wrong node");
+                positions[i].node = newElement;
             }
+        }
 
-            fireNodeWillBeRemoved(oldElement);
+        var parent = oldElement.parentNode;
+        var nextSibling = oldElement.nextSibling;
+        deleteNodeInternal(oldElement,false);
+        while (oldElement.firstChild != null)
+            appendChildInternal(newElement,oldElement.firstChild);
+        insertBeforeInternal(parent,newElement,nextSibling);
 
-            var positions = arrayCopy(trackedPositionsForNode(oldElement));
-            if (positions != null) {
-                for (var i = 0; i < positions.length; i++) {
-                    if (positions[i].node != oldElement)
-                        throw new Error("replaceElement: position with wrong node");
-                    positions[i].node = newElement;
-                }
-            }
+        fireNodeWasInserted(newElement);
 
-            var parent = oldElement.parentNode;
-            var nextSibling = oldElement.nextSibling;
-            deleteNodeInternal(oldElement,false);
-            while (oldElement.firstChild != null)
-                appendChildInternal(newElement,oldElement.firstChild);
-            insertBeforeInternal(parent,newElement,nextSibling);
-
-            fireNodeWasInserted(newElement);
-
-        });
         return newElement;
     }
 
     DOM.wrapNode = function(node,elementName)
     {
         var wrapper = DOM.createElement(document,elementName);
-        Position.ignoreEventsWhileExecuting(function() {
-            fireNodeWillBeRemoved(node);
+        fireNodeWillBeRemoved(node);
 
-            insertBeforeInternal(node.parentNode,wrapper,node);
-            appendChildInternal(wrapper,node);
+        insertBeforeInternal(node.parentNode,wrapper,node);
+        appendChildInternal(wrapper,node);
 
-            fireNodeWasInserted(wrapper);
-        });
+        fireNodeWasInserted(wrapper);
         return wrapper;
+    }
+
+    DOM.mergeWithNextSibling = function(current,whiteList)
+    {
+        var parent = current.parentNode;
+        var next = current.nextSibling;
+
+        if ((next == null) || !DOM.nodesMergeable(current,next,whiteList))
+            return;
+
+        var currentLength = maxNodeOffset(current);
+        var nextOffset = getOffsetOfNodeInParent(next);
+
+        var lastChild = null;
+
+        if (current.nodeType == Node.ELEMENT_NODE) {
+            lastChild = current.lastChild;
+            DOM.moveNode(next,current,null);
+            DOM.removeNodeButKeepChildren(next);
+        }
+        else {
+            trackedPositionsForNode(next).forEach(function (position) {
+                position.node = current;
+                position.offset = position.offset+currentLength;
+            });
+
+            trackedPositionsForNode(current.parentNode).forEach(function (position) {
+                if (position.offset == nextOffset) {
+                    position.node = current;
+                    position.offset = currentLength;
+                }
+            });
+
+            // The line "current.nodeValue += next.nodeValue" below will cause a
+            // DOMCharacterDataModified mutation event to be sent to any positions associated with
+            // the node, which will adjust their offsets based on the insertion of the new text.
+            // Because we've done the adjustment above, we don't want this to occur, so we save
+            // a backup copy of all the offsets and use these to restore the positions to their
+            // original values afterwards.
+
+            // This admittedly isn't a pretty thing to have to do. I previously addressed the issue
+            // by preventing the position objects from responding to the mutation events entirely
+            // (via a global ignoreEvents flag in the Position class) but I wanted to get rid of
+            // this mechanism because it is also ugly. At least now the ugliness is localised to
+            // this one location and we can keep the Position class clean.
+
+            var positions = trackedPositionsForNode(current);
+            var backupOffsets = new Array();
+            for (var i = 0; i < positions.length; i++)
+                backupOffsets[i] = positions[i].offset;
+
+            current.nodeValue += next.nodeValue;
+
+            for (var i = 0; i < positions.length; i++)
+                positions[i].offset = backupOffsets[i];
+
+            DOM.deleteNode(next);
+        }
+
+        if (lastChild != null)
+            DOM.mergeWithNextSibling(lastChild,whiteList);
+    }
+
+    DOM.nodesMergeable = function(a,b,whiteList)
+    {
+        if ((a.nodeType == Node.TEXT_NODE) && (b.nodeType == Node.TEXT_NODE))
+            return true;
+        else if ((a.nodeType == Node.ELEMENT_NODE) && (b.nodeType == Node.ELEMENT_NODE))
+            return elementsMergable(a,b);
+        else
+            return false;
+
+        function elementsMergable(a,b)
+        {
+            if (whiteList["force"] && isParagraphNode(a) && isParagraphNode(b))
+                return true;
+            if ((a.nodeName == b.nodeName) &&
+                whiteList[a.nodeName] &&
+                (a.attributes.length == b.attributes.length)) {
+                for (var i = 0; i < a.attributes.length; i++) {
+                    var attrName = a.attributes[i].nodeName;
+                    if (a.getAttribute(attrName) != b.getAttribute(attrName))
+                        return false;
+                }
+                return true;
+            }
+
+            return false;
+        }
     }
 
     function getDataForNode(node,create)
