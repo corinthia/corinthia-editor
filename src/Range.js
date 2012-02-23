@@ -203,18 +203,85 @@ Range.prototype.ensureRangeValidHierarchy = function()
     }
 }
 
-Range.prototype.getOutermostNodes = function(atLeastOne,info)
+Range.prototype.forwards = function()
+{
+    if (this.isForwards()) {
+        return this;
+    }
+    else {
+        var reverse = new Range(this.end.node,this.end.offset,this.start.node,this.start.offset);
+        if (!reverse.isForwards())
+            throw new Error("Both range "+this+" and its reverse are not forwards");
+        return reverse;
+    }
+}
+
+Range.prototype.detail = function()
 {
     if (!this.isForwards()) {
         var reverse = new Range(this.end.node,this.end.offset,this.start.node,this.start.offset);
         if (!reverse.isForwards())
             throw new Error("Both range "+this+" and its reverse are not forwards");
-        return reverse.getOutermostNodes(atLeastOne,info);
+        return reverse.detail();
     }
 
+    var detail = new Object();
     var start = this.start;
     var end = this.end;
 
+    // Start location
+    if (start.node.nodeType == Node.ELEMENT_NODE) {
+        detail.startParent = start.node;
+        detail.startChild = start.node.childNodes[start.offset];
+    }
+    else if ((start.node.nodeValue.length > 0) && (start.offset == start.node.nodeValue.length)) {
+        detail.startParent = start.node.parentNode;
+        detail.startChild = start.node.nextSibling;
+    }
+    else {
+        detail.startParent = start.node.parentNode;
+        detail.startChild = start.node;
+    }
+
+    // End location
+    if (end.node.nodeType == Node.ELEMENT_NODE) {
+        detail.endParent = end.node;
+        detail.endChild = end.node.childNodes[end.offset];
+    }
+    else if (end.offset == 0) {
+        detail.endParent = end.node.parentNode;
+        detail.endChild = end.node;
+    }
+    else {
+        detail.endParent = end.node.parentNode;
+        detail.endChild = end.node.nextSibling;
+    }
+
+    // Common ancestor
+    var startP = detail.startParent;
+    var startC = detail.startChild;
+    while (startP != null) {
+        var endP = detail.endParent;
+        var endC = detail.endChild
+        while (endP != null) {
+            if (startP == endP) {
+                detail.commonAncestor = startP;
+                detail.startAncestor = startC;
+                detail.endAncestor = endC;
+                // Found it
+                return detail;
+            }
+            endC = endP;
+            endP = endP.parentNode;
+        }
+        startC = startP;
+        startP = startP.parentNode;
+    }
+    throw new Error("Start and end of range have no common ancestor");
+}
+
+Range.prototype.getOutermostNodes = function(atLeastOne,info)
+{
     var beforeNodes = new Array();
     var middleNodes = new Array();
     var afterNodes = new Array();
@@ -237,43 +304,16 @@ Range.prototype.getOutermostNodes = function(atLeastOne,info)
     // the child nodes in a container - in which case the child is null. The parent, however, is
     // always non-null;
 
-    var startParent = null;
-    var startChild = null;
-    var endParent = null;
-    var endChild = null;
-
-    if (start.node.nodeType == Node.ELEMENT_NODE) {
-        startParent = start.node;
-        startChild = start.node.childNodes[start.offset];
-    }
-    else if ((start.node.nodeValue.length > 0) && (start.offset == start.node.nodeValue.length)) {
-        startParent = start.node.parentNode;
-        startChild = start.node.nextSibling;
-    }
-    else {
-        startParent = start.node.parentNode;
-        startChild = start.node;
-    }
-
-    if (end.node.nodeType == Node.ELEMENT_NODE) {
-        endParent = end.node;
-        endChild = end.node.childNodes[end.offset];
-    }
-    else if (end.offset == 0) {
-        endParent = end.node.parentNode;
-        endChild = end.node;
-    }
-    else {
-        endParent = end.node.parentNode;
-        endChild = end.node.nextSibling;
-    }
-
-    var ancestors = ancestorsWithCommonParent(startParent,startChild,endParent,endChild);
-    if (ancestors == null)
+    var detail = this.detail();
+    if (detail.commonAncestor == null)
         return atLeastOne ? [this.singleNode()] : [];
-    var commonParent = ancestors.commonParent;
-    var startAncestorChild = ancestors.startChild;
-    var endAncestorChild = ancestors.endChild;
+    var startParent = detail.startParent;
+    var startChild = detail.startChild;
+    var endParent = detail.endParent;
+    var endChild = detail.endChild;
+    var commonParent = detail.commonAncestor;
+    var startAncestor = detail.startAncestor;
+    var endAncestor = detail.endAncestor;
 
     // Add start nodes
     var topParent = startParent;
@@ -292,11 +332,11 @@ Range.prototype.getOutermostNodes = function(atLeastOne,info)
     }
 
     // Add middle nodes
-    if (startAncestorChild != endAncestorChild) {
-        var c = startAncestorChild;
+    if (startAncestor != endAncestor) {
+        var c = startAncestor;
         if ((c != null) && (c != startChild))
             c = c.nextSibling;
-        for (; c != endAncestorChild; c = c.nextSibling)
+        for (; c != endAncestor; c = c.nextSibling)
             middleNodes.push(c);
     }
 
@@ -330,26 +370,6 @@ Range.prototype.getOutermostNodes = function(atLeastOne,info)
         return atLeastOne ? [this.singleNode()] : [];
     else
         return result;
-
-    function ancestorsWithCommonParent(startParent,startChild,endParent,endChild)
-    {
-        var startP = startParent;
-        var startC = startChild;
-        while (startP != null) {
-            var endP = endParent;
-            var endC = endChild
-            while (endP != null) {
-                if (startP == endP) {
-                    return { commonParent: startP, startChild: startC, endChild: endC };
-                }
-                endC = endP;
-                endP = endP.parentNode;
-            }
-            startC = startP;
-            startP = startP.parentNode;
-        }
-        return null;
-    }
 
     function getPreviousSibling(parent,child)
     {
