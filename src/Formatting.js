@@ -270,7 +270,7 @@
 
         if ((lastChild != null) && (lastChild.nextSibling != null) &&
             nodesMergable(lastChild,lastChild.nextSibling,whiteList)) {
-            mergeWithNextSibling(lastChild);
+            mergeWithNextSibling(lastChild,whiteList);
         }
     }
 
