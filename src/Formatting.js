@@ -285,7 +285,8 @@
 
         function elementsMergable(a,b)
         {
-            if ((a.nodeName == b.nodeName) &&
+            var force = whiteList["force"] && isParagraphNode(a) && isParagraphNode(b);
+            if (((a.nodeName == b.nodeName) || force) &&
                 whiteList[a.nodeName] &&
                 (a.attributes.length == b.attributes.length)) {
                 for (var i = 0; i < a.attributes.length; i++) {
@@ -992,6 +993,8 @@
         "UL": true,
         "OL":  true,
         "LI": true,
+
+        "force": true,
     };
 
 })();
