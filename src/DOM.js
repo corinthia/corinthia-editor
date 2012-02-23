@@ -32,7 +32,7 @@
         insertBeforeInternal(parent,newChild,null);
     }
 
-    function deleteNodeInternal(node)
+    function deleteNodeInternal(node,deleteDescendantData)
     {
         if (node._nodeId == null)
             throw new Error("deleteNodeInternal: node "+node.nodeName+" has no _nodeId property");
@@ -44,13 +44,35 @@
         if (window.UndoManager != null) {
             UndoManager.addAction(function() {
                 insertBeforeInternal(parent,node,nextSibling);
-                nodeData[node._nodeId] = data;
             },"Insert "+node.nodeName+" into parent "+parent.nodeName+" before "+nextName);
         }
 
         node.parentNode.removeChild(node);
-        // FIXME: need to delete nodeData for all descendants
-        delete nodeData[node._nodeId];
+
+        if (deleteDescendantData)
+            deleteNodeDataRecursive(node);
+        else
+            deleteNodeData(node);
+
+        return;
+
+        function deleteNodeData(current)
+        {
+            if (window.UndoManager != null) {
+                var data = nodeData[current._nodeId];
+                UndoManager.addAction(function() {
+                    nodeData[current._nodeId] = data;
+                },"Set node data for "+current.nodeName);
+            }
+            delete nodeData[current._nodeId];
+        }
+
+        function deleteNodeDataRecursive(current)
+        {
+            deleteNodeData(current);
+            for (var child = current.firstChild; child != null; child = child.nextSibling)
+                deleteNodeDataRecursive(child);
+        }
     }
 
     function attrModified(event)
@@ -163,7 +185,7 @@
 
     DOM.deleteNode = function(node)
     {
-        deleteNodeInternal(node);
+        deleteNodeInternal(node,true);
     }
 
     // High-level methods
@@ -241,7 +263,7 @@
 
             var parent = node.parentNode;
             var nextSibling = node.nextSibling;
-            deleteNodeInternal(node);
+            deleteNodeInternal(node,false);
 
             while (node.firstChild != null) {
                 var child = node.firstChild;
@@ -274,7 +296,7 @@
 
             var parent = oldElement.parentNode;
             var nextSibling = oldElement.nextSibling;
-            deleteNodeInternal(oldElement);
+            deleteNodeInternal(oldElement,false);
             while (oldElement.firstChild != null)
                 appendChildInternal(newElement,oldElement.firstChild);
             insertBeforeInternal(parent,newElement,nextSibling);
