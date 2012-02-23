@@ -516,6 +516,7 @@
 
     function setParagraphStyle(paragraph,style)
     {
+        var wasHeading = isHeadingNode(paragraph);
         paragraph.removeAttribute("class");
         if (style == "") {
             if (paragraph.nodeName != "P")
@@ -528,8 +529,11 @@
         }
         else {
             if (paragraph.nodeName != style)
-                DOM.replaceElement(paragraph,style);
+                paragraph = DOM.replaceElement(paragraph,style);
         }
+        var isHeading = isHeadingNode(paragraph);
+        if (wasHeading && !isHeading)
+            paragraph.removeAttribute("id");
     }
 
     function pushDownInlineProperties(outermost)

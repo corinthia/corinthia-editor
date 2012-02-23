@@ -87,21 +87,12 @@
             this.fullNumber = number;
 
             if (this.span == null) {
-                // Check if we already have a suitable SPAN element... there may be one there
-                // already if the heading element is being moved
-                if ((this.node.firstChild != null) &&
-                    (this.node.firstChild.nodeName == "SPAN") &&
-                    (this.node.firstChild.getAttribute("class") == "-uxwrite-heading-number")) {
-                    this.span = this.node.firstChild;
-                }
-                else {
-                    this.span = DOM.createElement(document,"SPAN");
-                    this.span.setAttribute("class","-uxwrite-heading-number");
-                    this.span.setAttribute("style","color: red");
-                    DOM.insertBefore(this.node,this.span,this.node.firstChild);
-                    var text = DOM.createTextNode(document,"");
-                    DOM.appendChild(this.span,text);
-                }
+                this.span = DOM.createElement(document,"SPAN");
+                this.span.setAttribute("class","-uxwrite-heading-number");
+                this.span.setAttribute("style","color: red");
+                DOM.insertBefore(this.node,this.span,this.node.firstChild);
+                var text = DOM.createTextNode(document,"");
+                DOM.appendChild(this.span,text);
             }
 
             this.span.firstChild.nodeValue = this.fullNumber+" ";
@@ -174,6 +165,8 @@
             section.prev.next = section.next;
         if (section.next != null)
             section.next.prev = section.prev;
+        if (section.span != null)
+            DOM.deleteNode(section.span);
 
         node.removeEventListener("DOMSubtreeModified",section.modificationListener);
         scheduleUpdateSectionStructure();
