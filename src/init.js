@@ -121,19 +121,19 @@ function getHTML()
     removeSpecial(clone);
 
     return clone.outerHTML;
+}
 
-    function removeSpecial(node)
-    {
-        if ((node.nodeName == "SPAN") &&
-            ((node.getAttribute("class") == Keys.HEADING_NUMBER) ||
-             (node.getAttribute("class") == Keys.FIGURE_NUMBER) ||
-             (node.getAttribute("class") == Keys.TABLE_NUMBER))) {
-            DOM.removeNodeButKeepChildren(node);
-        }
-        else {
-            for (var child = node.firstChild; child != null; child = child.nextSibling)
-                removeSpecial(child);
-        }
+function removeSpecial(node)
+{
+    if ((node.nodeName == "SPAN") &&
+        ((node.getAttribute("class") == Keys.HEADING_NUMBER) ||
+         (node.getAttribute("class") == Keys.FIGURE_NUMBER) ||
+         (node.getAttribute("class") == Keys.TABLE_NUMBER))) {
+        DOM.removeNodeButKeepChildren(node);
+    }
+    else {
+        for (var child = node.firstChild; child != null; child = child.nextSibling)
+            removeSpecial(child);
     }
 }
 

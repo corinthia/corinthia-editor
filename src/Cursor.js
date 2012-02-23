@@ -261,88 +261,76 @@
             selectionRange.ensureRangeValidHierarchy();
             if (!selectionRange.isEmpty())
                 Selection.deleteSelectionContents();
-
-            var pos = selectionRange.start;
-
-            if (pos.node.nodeType == Node.TEXT_NODE)
-                Formatting.splitTextBefore(pos.node,pos.offset);
         });
 
-        var node = selectionRange.singleNode();
-        
-        if (isParagraphNode(node)) {
-            // Special case for when the cursor is in an empty paragraph (one that simply
-            // contains a BR element); in this case the focus node is the paragraph element
-            // itself, because there is no text node.
-            var copy = makeNew(node,null);
-            Selection.setEmptySelectionAt(copy,0,copy,0);
+        var pos = selectionRange.start;
+
+        var detail = selectionRange.detail();
+        if ((detail.startParent.nodeName == "OL") || (detail.startParent.nodeName == "UL")) {
+            var li = DOM.createElement(document,"LI");
+            DOM.insertBefore(detail.startParent,li,detail.startChild);
+            
+            selectionRange.start.node = li;
+            selectionRange.start.offset = 0;
+            selectionRange.end.node = li;
+            selectionRange.end.offset = 0;
             return;
         }
 
-        for (var child = node; child.parentNode != null; child = child.parentNode) {
-            if (isParagraphNode(child.parentNode)) {
-                makeNew(child.parentNode,child);
-                Selection.setEmptySelectionAt(node,0,node,0);
-                return;
-            }
-        }
+        selectionRange.trackWhileExecuting(function() {
 
-        return;
-
-        function isAtEndOfParagraph(position,paragraph)
-        {
-            var nextPosition = position;
-            do {
-                nextPosition = nextPosition.next();
-            } while ((nextPosition != null) && !isValidCursorPosition(nextPosition));
-            for (var n = nextPosition.node; n != null; n = n.parentNode) {
-                if (n == paragraph)
-                    return false;
-            }
-            return true;
-        }
-
-        function makeNew(paragraph,child)
-        {
-            var copy;
-            if (isHeadingNode(paragraph) && isAtEndOfParagraph(selectionRange.start,paragraph))
-                copy = DOM.createElement(document,"P");
+            if (pos.node.nodeType == Node.TEXT_NODE)
+                pos = Formatting.splitTextAfter(pos.node,pos.offset,enterPressedFilter,true);
             else
-                copy = DOM.shallowCopyElement(paragraph);
-            
-            DOM.removeAdjacentWhitespace(paragraph);
-            
-            // If the cursor is in the last paragraph of a list item, we need to
-            // add another list item rather than another paragraph
-            if (paragraph.parentNode.nodeName == "LI") {
-                var li = paragraph.parentNode;
-                var liCopy = DOM.shallowCopyElement(li);
-                DOM.insertBefore(li.parentNode,liCopy,li.nextSibling);
-                DOM.appendChild(liCopy,copy);
-                
-                // For list items, we want to put all futher paragraphs inside the old list item
-                // inside the new one as well
-                var follow = paragraph.nextSibling;
-                while (follow != null) {
-                    var next = follow.nextSibling;
-                    DOM.appendChild(liCopy,follow);
-                    follow = next;
+                pos = Formatting.moveFollowing(pos.node,pos.offset,enterPressedFilter,true);
+
+            selectionRange.start.node = pos.node;
+            selectionRange.start.offset = pos.offset;
+            selectionRange.end.node = pos.node;
+            selectionRange.end.offset = pos.offset;
+
+            if ((pos.node.nodeType == Node.TEXT_NODE) && (pos.node.nodeValue.length == 0)) {
+                DOM.deleteNode(pos.node);
+            }
+
+            var detail = selectionRange.detail();
+
+            var start = detail.startChild ? detail.startChild : detail.startParent;
+            for (var ancestor = start; ancestor != null; ancestor = ancestor.parentNode) {
+                var prev = ancestor.previousSibling;
+                if ((prev != null) && isParagraphNode(prev) && !nodeHasContent(prev)) {
+                    DOM.deleteAllChildren(prev);
+                    var br = DOM.createElement(document,"BR");
+                    prev.appendChild(br);
+                    break;
+                }
+                else if ((prev != null) && (prev.nodeName == "LI") && !nodeHasContent(prev)) {
+                    DOM.deleteAllChildren(prev);
+                    break;
                 }
             }
-            else {
-                DOM.insertBefore(paragraph.parentNode,copy,paragraph.nextSibling);
-            }
-            
-            while (child != null) {
-                var next = child.nextSibling;
-                DOM.appendChild(copy,child);
-                child = next;
-            }
 
-            updateBRAtEndOfParagraph(copy);
-            updateBRAtEndOfParagraph(paragraph);
-            
-            return copy;
+            for (var ancestor = start; ancestor != null; ancestor = ancestor.parentNode) {
+                if (isParagraphNode(ancestor) && isHeadingNode(ancestor)) {
+                    ancestor = DOM.replaceElement(ancestor,"P");
+                    ancestor.removeAttribute("id");
+                }
+
+                if (isParagraphNode(ancestor) && !nodeHasContent(ancestor)) {
+                    var br = DOM.createElement(document,"BR");
+                    ancestor.appendChild(br);
+                    break;
+                }
+                else if ((ancestor.nodeName == "LI") && !nodeHasContent(ancestor)) {
+                    DOM.deleteAllChildren(ancestor);
+                    break;
+                }
+            }
+        });
+
+        function enterPressedFilter(node)
+        {
+            return (isContainerNode(node) && (node.nodeName != "LI"));
         }
     }
 

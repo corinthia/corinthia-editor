@@ -1,0 +1,25 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script language="javascript">
+function performTest()
+{
+    Cursor.enterPressed();
+    var range = Selection.getSelectionRange();
+    range.trackWhileExecuting(showEmptyTextNodes);
+    showRangeAsBrackets(range)
+}
+</script>
+</head>
+<body>
+<ol>
+  <li><p>One</p></li>
+  <li>
+    <p>Two - first</p>
+    <p>Two - s[]econd</p>
+  </li>
+  <li><p>Three</p></li>
+</ol>
+</body>
+</html>

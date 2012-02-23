@@ -238,46 +238,53 @@
     }
 
     // public (called from cursor.js)
-    function splitTextBefore(node,offset)
+    function splitTextBefore(node,offset,parentCheckFn,force)
     {
+        if (parentCheckFn == null)
+            parentCheckFn = isParagraphOrContainerNode;
         var before = DOM.createTextNode(document,node.nodeValue.slice(0,offset));
 
         DOM.insertBefore(node.parentNode,before,node);
         node.nodeValue = node.nodeValue.slice(offset);
 
-        movePreceding(node.parentNode,getOffsetOfNodeInParent(node),isParagraphOrContainerNode);
+        movePreceding(node.parentNode,getOffsetOfNodeInParent(node),parentCheckFn,force);
+        return new Position(before,before.nodeValue.length);
     }
 
     // public
-    function splitTextAfter(node,offset)
+    function splitTextAfter(node,offset,parentCheckFn,force)
     {
+        if (parentCheckFn == null)
+            parentCheckFn = isParagraphOrContainerNode;
         var after = DOM.createTextNode(document,node.nodeValue.slice(offset));
 
         DOM.insertBefore(node.parentNode,after,node.nextSibling);
         node.nodeValue = node.nodeValue.slice(0,offset);
 
-        moveFollowing(node.parentNode,getOffsetOfNodeInParent(node)+1,isParagraphOrContainerNode);
+        moveFollowing(node.parentNode,getOffsetOfNodeInParent(node)+1,parentCheckFn,force);
+        return new Position(after,0);
     }
 
     // FIXME: movePreceding and moveNext could possibly be optimised by passing in a (parent,child)
     // pair instead of (node,offset), i.e. parent is the same as node, but rather than passing the
     // index of a child, we pass the child itself (or null if the offset is equal to
     // childNodes.length)
-    function movePreceding(node,offset,parentCheckFn)
+    function movePreceding(node,offset,parentCheckFn,force)
     {
         if (parentCheckFn(node) || (node == document.body))
-            return;
+            return new Position(node,offset);
 
         var toMove = new Array();
         var justWhitespace = true;
+        var result = new Position(node,offset);
         for (var i = 0; i < offset; i++) {
             if (!isWhitespaceTextNode(node.childNodes[i]))
                 justWhitespace = false;
             toMove.push(node.childNodes[i]);
         }
 
-        if (toMove.length > 0) {
-            if (justWhitespace) {
+        if ((toMove.length > 0) || force) {
+            if (justWhitespace && !force) {
                 for (var i = 0; i < toMove.length; i++)
                     DOM.moveNode(toMove[i],node.parentNode,node);
             }
@@ -287,27 +294,30 @@
 
                 for (var i = 0; i < toMove.length; i++)
                     DOM.moveNode(toMove[i],copy,null);
+                result = new Position(copy,copy.childNodes.length);
             }
         }
 
-        movePreceding(node.parentNode,getOffsetOfNodeInParent(node),parentCheckFn);
+        movePreceding(node.parentNode,getOffsetOfNodeInParent(node),parentCheckFn,force);
+        return result;
     }
 
-    function moveFollowing(node,offset,parentCheckFn)
+    function moveFollowing(node,offset,parentCheckFn,force)
     {
         if (parentCheckFn(node) || (node == document.body))
-            return;
+            return new Position(node,offset);
 
         var toMove = new Array();
         var justWhitespace = true;
+        var result =  new Position(node,offset);
         for (var i = offset; i < node.childNodes.length; i++) {
             if (!isWhitespaceTextNode(node.childNodes[i]))
                 justWhitespace = false;
             toMove.push(node.childNodes[i]);
         }
 
-        if (toMove.length > 0) {
-            if (justWhitespace) {
+        if ((toMove.length > 0) || force) {
+            if (justWhitespace && !force) {
                 for (var i = 0; i < toMove.length; i++)
                     DOM.moveNode(toMove[i],node.parentNode,node.nextSibling);
             }
@@ -317,10 +327,12 @@
 
                 for (var i = 0; i < toMove.length; i++)
                     DOM.moveNode(toMove[i],copy,null);
+                result = new Position(copy,0);
             }
         }
 
-        moveFollowing(node.parentNode,getOffsetOfNodeInParent(node)+1,parentCheckFn);
+        moveFollowing(node.parentNode,getOffsetOfNodeInParent(node)+1,parentCheckFn,force);
+        return result;
     }
 
     // public

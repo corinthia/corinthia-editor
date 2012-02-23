@@ -87,3 +87,16 @@ function selectionUnwrapElement(elementName)
     else if (elementName == "U")
         Formatting.applyFormattingChanges(null,{"text-decoration": null});
 }
+
+function showEmptyTextNodes()
+{
+    recurse(document);
+
+    function recurse(node)
+    {
+        if ((node.nodeType == Node.TEXT_NODE) && (node.nodeValue.length == 0))
+            node.nodeValue = "*";
+        for (var child = node.firstChild; child != null; child = child.nextSibling)
+            recurse(child);
+    }
+}
