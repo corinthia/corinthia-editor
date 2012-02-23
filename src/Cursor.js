@@ -105,6 +105,22 @@
         Selection.setEmptySelectionAt(position.node,position.offset);
     }
 
+    function prevCursorPosition(pos)
+    {
+        do {
+            pos = pos.prev();
+        } while ((pos != null) && !isValidCursorPosition(pos));
+        return pos;
+    }
+
+    function nextCursorPosition(pos)
+    {
+        do {
+            pos = pos.next();
+        } while ((pos != null) && !isValidCursorPosition(pos));
+        return pos;
+    }
+
     // public
     function moveLeft()
     {
@@ -112,13 +128,7 @@
         if (selectionRange == null)
             return;
 
-        var pos = selectionRange.start;
-
-        var count = 0;
-        do {
-            pos = pos.prev();
-            count++;
-        } while ((pos != null) && !isValidCursorPosition(pos));
+        var pos = prevCursorPosition(selectionRange.start);
 
         if (pos != null)
             Selection.setEmptySelectionAt(pos.node,pos.offset);
@@ -131,13 +141,7 @@
         if (selectionRange == null)
             return;
 
-        var pos = selectionRange.start;
-
-        var count = 0;
-        do {
-            pos = pos.next();
-            count++;
-        } while ((pos != null) && !isValidCursorPosition(pos));
+        var pos = nextCursorPosition(selectionRange.start);
 
         if (pos != null)
             Selection.setEmptySelectionAt(pos.node,pos.offset);
@@ -232,98 +236,13 @@
             Selection.deleteSelectionContents();
             return;
         }
-
-        var node = selectionRange.start.node;
-        var offset = selectionRange.start.offset;
-
-        if ((node.nodeType == Node.TEXT_NODE) && (offset > 0)) {
-            node.nodeValue = node.nodeValue.slice(0,offset-1) +
-                             node.nodeValue.slice(offset);
-            Selection.setEmptySelectionAt(node,offset-1);
-        }
         else {
-            if (isFirstInParagraph(node)) {
-                var paragraph = getParagraph(node);
-                if ((paragraph != null) && (paragraph.previousSibling != null)) {
-                    var prev = paragraph.previousSibling;
-                    
-                    while ((prev != null) && isWhitespaceTextNode(prev)) {
-                        var prev2 = prev.previousSibling;
-                        DOM.deleteNode(prev);
-                        prev = prev2;
-                    }
-                    
-                    if ((prev != null) && (prev.nodeType == Node.ELEMENT_NODE)) {
-                        if ((prev.lastChild != null) && (prev.lastChild.nodeName == "BR"))
-                            DOM.deleteNode(prev.lastChild);
-                        Selection.setEmptySelectionAt(prev,prev.childNodes.length);
-                        if (nodeHasContent(paragraph)) {
-                            while (paragraph.firstChild != null)
-                                DOM.appendChild(prev,paragraph.firstChild);
-                        }
-                        DOM.deleteNode(paragraph);
-                    }
-                    Selection.updateSelectionDisplay();
-                }
-            }
-            else {
-                do {
-                    node = prevTextNode(node);
-                } while ((node != null) && isWhitespaceTextNode(node));
-                if (node != null) {
-                    node.nodeValue = node.nodeValue.slice(0,node.nodeValue.length-1);
-                    Selection.setEmptySelectionAt(node,node.nodeValue.length);
-                }
-                removeIfEmpty(node);
-            }
-        }
-        updateBRAtEndOfParagraph(node);
-        return;
-
-        function getParagraph(node)
-        {
-            while ((node != null) && isInlineNode(node)) {
-                node = node.parentNode;
-            }
-            return node;
-        }
-
-        function isFirstInParagraph(node)
-        {
-            for (; (node != null) && isInlineNode(node); node = node.parentNode) {
-                for (var prev = node.previousSibling; prev != null; prev = node.previousSibling) {
-                    if (!isWhitespaceTextNode(prev)) {
-                        return false;
-                    }
-                }
-                node = node.parentNode;
-            }
-            return true;
-        }
-
-        function removeIfEmpty(node)
-        {
-            if (node == null)
-                return;
-            var parent = node.parentNode;
-            if (node.nodeType == Node.TEXT_NODE) {
-                if (node.nodeValue.length == 0) {
-                    DOM.deleteNode(node);
-                    removeIfEmpty(parent);
-                }
-            }
-            else if (node.nodeType == Node.ELEMENT_NODE) {
-                var haveContent = false;
-                for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                    if (!isWhitespaceTextNode(child)) {
-                        haveContent = true;
-                        break;
-                    }
-                }
-                if (!haveContent) {
-                    DOM.deleteNode(node);
-                    removeIfEmpty(parent);
-                }
+            var currentPos = selectionRange.start;
+            var prevPos = prevCursorPosition(currentPos);
+            if (prevPos != null) {
+                Selection.setSelectionRange(new Range(prevPos.node,prevPos.offset,
+                                                      currentPos.node,currentPos.offset));
+                Selection.deleteSelectionContents();
             }
         }
     }
