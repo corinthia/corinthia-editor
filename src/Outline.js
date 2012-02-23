@@ -88,7 +88,7 @@
 
             if (this.span == null) {
                 this.span = DOM.createElement(document,"SPAN");
-                this.span.setAttribute("class","-uxwrite-heading-number");
+                this.span.setAttribute("class",Keys.HEADING_NUMBER);
                 this.span.setAttribute("style","color: red");
                 DOM.insertBefore(this.node,this.span,this.node.firstChild);
                 var text = DOM.createTextNode(document,"");
@@ -178,7 +178,7 @@
         for (var p = node; p != null; p = p.parentNode) {
             if ((p.nodeType == Node.ELEMENT_NODE) &&
                 (p.nodeName == "SPAN") &&
-                (p.getAttribute("class") == "-uxwrite-heading-number"))
+                (p.getAttribute("class") == Keys.HEADING_NUMBER))
                 return false;
         }
         return true;

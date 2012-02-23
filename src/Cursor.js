@@ -11,6 +11,9 @@
         var node = pos.node;
         var offset = pos.offset;
 
+        if (isOpaqueNode(node))
+            return false;
+
         if (node.nodeType == Node.TEXT_NODE) {
             var value = node.nodeValue;
             var prev = node.previousSibling;
@@ -83,6 +86,8 @@
     {
         var zoom = Viewport.getZoom();
         var position = positionAtPoint(x/zoom,y/zoom);
+        if ((position != null) && isOpaqueNode(position.node))
+            position = nextCursorPosition(position);
         if (position == null)
             return;
 

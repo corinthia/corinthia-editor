@@ -125,7 +125,9 @@ function getHTML()
     function removeSpecial(node)
     {
         if ((node.nodeName == "SPAN") &&
-            (node.getAttribute("class") == "-uxwrite-heading-number")) {
+            ((node.getAttribute("class") == Keys.HEADING_NUMBER) ||
+             (node.getAttribute("class") == Keys.FIGURE_NUMBER) ||
+             (node.getAttribute("class") == Keys.TABLE_NUMBER))) {
             DOM.removeNodeButKeepChildren(node);
         }
         else {
