@@ -190,11 +190,11 @@
             for (var last = paragraph; last != null; last = last.lastChild) {
 
                 var child = last;
-                while ((last != null) && isWhitespaceTextNode(last))
-                    last = last.previousSibling;
+                while ((child != null) && isWhitespaceTextNode(child))
+                    child = child.previousSibling;
 
-                if ((last != null) && (last.nodeName == "BR"))
-                    br = last;
+                if ((child != null) && (child.nodeName == "BR"))
+                    br = child;
             }
 
             if (nodeHasContent(paragraph)) {
@@ -332,8 +332,7 @@
                 var prev = ancestor.previousSibling;
                 if ((prev != null) && isParagraphNode(prev) && !nodeHasContent(prev)) {
                     DOM.deleteAllChildren(prev);
-                    var br = DOM.createElement(document,"BR");
-                    prev.appendChild(br);
+                    updateBRAtEndOfParagraph(prev);
                     break;
                 }
                 else if ((prev != null) && (prev.nodeName == "LI") && !nodeHasContent(prev)) {
@@ -349,8 +348,7 @@
                 }
 
                 if (isParagraphNode(ancestor) && !nodeHasContent(ancestor)) {
-                    var br = DOM.createElement(document,"BR");
-                    ancestor.appendChild(br);
+                    updateBRAtEndOfParagraph(prev);
                     break;
                 }
                 else if ((ancestor.nodeName == "LI") && !nodeHasContent(ancestor)) {
@@ -358,6 +356,8 @@
                     break;
                 }
             }
+
+            updateBRAtEndOfParagraph(selectionRange.singleNode());
         });
 
         Selection.setSelectionRange(selectionRange);
