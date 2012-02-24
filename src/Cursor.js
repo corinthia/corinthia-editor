@@ -360,6 +360,8 @@
             }
         });
 
+        Selection.setSelectionRange(selectionRange);
+
         function enterPressedFilter(node)
         {
             return (isContainerNode(node) && (node.nodeName != "LI"));
