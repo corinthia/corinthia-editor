@@ -275,8 +275,8 @@
             var currentPos = selectionRange.start;
             var prevPos = prevCursorPosition(currentPos);
             if (prevPos != null) {
-                Selection.setSelectionRange(new Range(prevPos.node,prevPos.offset,
-                                                      currentPos.node,currentPos.offset));
+                selectionRange.start.node = prevPos.node;
+                selectionRange.start.offset = prevPos.offset;
                 Selection.deleteSelectionContents();
             }
         }
