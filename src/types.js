@@ -36,6 +36,14 @@ var HEADING_ELEMENTS = {
     "H6": true
 }
 
+var INLINE_ELEMENTS_THAT_CAN_HAVE_CHILDREN = {
+    "A": true,
+    "B": true,
+    "I": true,
+    "U": true,
+    "SPAN": true,
+};
+
 var Keys = {
     HEADING_NUMBER: "-uxwrite-heading-number",
     FIGURE_NUMBER: "-uxwrite-figure-number",

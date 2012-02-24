@@ -5,16 +5,14 @@
 <script language="javascript">
 function performTest()
 {
-    Cursor.enterPressed();
+    var br = document.getElementsByTagName("BR")[0];
+    Selection.setEmptySelectionAt(br,0);
     Cursor.insertCharacter("X");
-//    Cursor.moveLeft();
-    var range = Selection.getSelectionRange();
-    range.trackWhileExecuting(showEmptyTextNodes);
-    showRangeAsBrackets(range)
+    showRangeAsBrackets(Selection.getSelectionRange());
 }
 </script>
 </head>
 <body>
-<p><a href="http://test">Sample text[]</a></p>
+<p><br></p>
 </body>
 </html>

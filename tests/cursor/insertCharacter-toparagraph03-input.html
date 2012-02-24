@@ -1,0 +1,33 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script language="javascript">
+function deleteNeighbours(node)
+{
+    while (node.previousSibling != null)
+        DOM.deleteNode(node.previousSibling);
+    while (node.nextSibling != null)
+        DOM.deleteNode(node.nextSibling);
+}
+
+function performTest()
+{
+    var p = document.getElementsByTagName("P")[0];
+    deleteNeighbours(p);
+
+    DOM.insertBefore(document.body,DOM.createTextNode(document,"  "),p);
+    DOM.insertBefore(document.body,DOM.createTextNode(document,"  "),p);
+    DOM.insertBefore(document.body,DOM.createTextNode(document,"  "),p);
+
+    Selection.setEmptySelectionAt(document.body,0);
+
+    Cursor.insertCharacter("X");
+    showRangeAsBrackets(Selection.getSelectionRange());
+}
+</script>
+</head>
+<body>
+<p>Sample text</p>
+</body>
+</html>

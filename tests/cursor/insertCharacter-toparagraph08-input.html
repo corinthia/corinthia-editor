@@ -1,0 +1,32 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script language="javascript">
+function performTest()
+{
+    DOM.deleteAllChildren(document.body);
+
+
+    var p1 = DOM.createElement(document,"P");
+    var p2 = DOM.createElement(document,"P");
+    DOM.appendChild(p1,DOM.createTextNode(document,"First"));
+    DOM.appendChild(p2,DOM.createTextNode(document,"Second"));
+
+    DOM.appendChild(document.body,p1);
+    DOM.appendChild(document.body,DOM.createTextNode(document,"  "));
+    DOM.appendChild(document.body,DOM.createTextNode(document,"  "));
+    DOM.appendChild(document.body,DOM.createTextNode(document,"  "));
+    DOM.appendChild(document.body,DOM.createTextNode(document,"  "));
+    DOM.appendChild(document.body,p2);
+
+    Selection.setEmptySelectionAt(document.body.childNodes[3],0);
+
+    Cursor.insertCharacter("X");
+    showRangeAsBrackets(Selection.getSelectionRange());
+}
+</script>
+</head>
+<body>
+</body>
+</html>

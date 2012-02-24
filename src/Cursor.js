@@ -40,20 +40,28 @@
             var prev = (offset == 0) ? null : node.childNodes[offset-1];
             var next = (offset >= node.childNodes.length) ? null : node.childNodes[offset];
 
-            // Directly after an IMG or TABLE -> YES
+            // Directly after an IMG, TABLE, UL, or OL -> YES
             if ((prev != null) &&
                 ((prev.nodeName == "IMG") ||
-                 (prev.nodeName == "TABLE")))
+                 (prev.nodeName == "TABLE") ||
+                 (prev.nodeName == "UL") ||
+                 (prev.nodeName == "OL")))
                 result = true;
 
-            // Directly before an IMG or TABLE -> YES
+            // Directly before an IMG, TABLE, UL, or OL -> YES
             if ((next != null) &&
                 ((next.nodeName == "IMG") ||
-                 (next.nodeName == "TABLE")))
+                 (next.nodeName == "TABLE") ||
+                 (next.nodeName == "UL") ||
+                 (next.nodeName == "OL")))
                 result = true;
 
             // In an empty paragraph or one that only contains a BR
             if ((prev == null) && (next != null) && (next.nodeName == "BR"))
+                result = true;
+
+            if ((prev == null) && (next == null) &&
+                (isParagraphNode(node) || INLINE_ELEMENTS_THAT_CAN_HAVE_CHILDREN[node.nodeName]))
                 result = true;
 
             // Special case for an IMG that directly follows some text that ends in a
@@ -180,7 +188,12 @@
 
             var br = null;
             for (var last = paragraph; last != null; last = last.lastChild) {
-                if (last.nodeName == "BR")
+
+                var child = last;
+                while ((last != null) && isWhitespaceTextNode(last))
+                    last = last.previousSibling;
+
+                if ((last != null) && (last.nodeName == "BR"))
                     br = last;
             }
 
@@ -200,6 +213,22 @@
         }
     }
 
+    function closestPositionForwards(pos)
+    {
+        if (isValidCursorPosition(pos))
+            return pos;
+
+        var next = nextCursorPosition(pos);
+        if (next != null)
+            return next;
+
+        var prev = prevCursorPosition(pos);
+        if (prev != null)
+            return prev;
+
+        return new Position(document.body,document.body.childNodes.length);
+    }
+
     // public
     function insertCharacter(character)
     {
@@ -210,8 +239,9 @@
         if (!selectionRange.isEmpty())
             Selection.deleteSelectionContents();
 
-        var node = selectionRange.start.node;
-        var offset = selectionRange.start.offset;
+        var pos = closestPositionForwards(selectionRange.start);
+        var node = pos.node;
+        var offset = pos.offset;
 
         if (node.nodeType == Node.ELEMENT_NODE) {
             var emptyTextNode = DOM.createTextNode(document,"");
@@ -225,7 +255,9 @@
 
         node.insertData(offset,character);
         Selection.setEmptySelectionAt(node,offset+1,node,offset+1);
-        updateBRAtEndOfParagraph(node);
+        Selection.getSelectionRange().trackWhileExecuting(function() {
+            updateBRAtEndOfParagraph(node);
+        });
     }
 
     // public

@@ -1,0 +1,36 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script language="javascript">
+function performTest()
+{
+    var trs = document.getElementsByTagName("TR");
+    var tds = document.getElementsByTagName("TD");
+    var tbody = document.getElementsByTagName("TBODY")[0];
+    Selection.setEmptySelectionAt(tds[8].parentNode,getOffsetOfNodeInParent(tds[8]));
+    Cursor.insertCharacter("X");
+    showRangeAsBrackets(Selection.getSelectionRange());
+}
+</script>
+</head>
+<body>
+<table border="1">
+  <tr>
+    <td>One</td>
+    <td>Two</td>
+    <td>Three</td>
+  </tr>
+  <tr>
+    <td>Four</td>
+    <td>Five</td>
+    <td>Six</td>
+  </tr>
+  <tr>
+    <td>Seven</td>
+    <td>Eight</td>
+    <td>Nine</td>
+  </tr>
+</table>
+</body>
+</html>

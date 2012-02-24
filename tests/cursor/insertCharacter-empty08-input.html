@@ -1,0 +1,20 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script language="javascript">
+function performTest()
+{
+    var p = document.getElementsByTagName("P")[0];
+    var text = DOM.createTextNode(document,"");
+    DOM.insertBefore(p,text,p.firstChild);
+    Selection.setEmptySelectionAt(text,0);
+    Cursor.insertCharacter("X");
+    showRangeAsBrackets(Selection.getSelectionRange());
+}
+</script>
+</head>
+<body>
+<p><br></p>
+</body>
+</html>
