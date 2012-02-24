@@ -179,6 +179,7 @@
 
     // An empty paragraph does not get shown and cannot be edited. We can fix this by adding
     // a BR element as a child
+    // public
     function updateBRAtEndOfParagraph(node)
     {
         var paragraph = node;
@@ -213,6 +214,7 @@
         }
     }
 
+    // public
     function closestPositionForwards(pos)
     {
         if (isValidCursorPosition(pos))
@@ -225,6 +227,23 @@
         var prev = prevCursorPosition(pos);
         if (prev != null)
             return prev;
+
+        return new Position(document.body,document.body.childNodes.length);
+    }
+
+    // public
+    function closestPositionBackwards(pos)
+    {
+        if (isValidCursorPosition(pos))
+            return pos;
+
+        var prev = prevCursorPosition(pos);
+        if (prev != null)
+            return prev;
+
+        var next = nextCursorPosition(pos);
+        if (next != null)
+            return next;
 
         return new Position(document.body,document.body.childNodes.length);
     }
@@ -374,6 +393,8 @@
     Cursor.moveLeft = moveLeft;
     Cursor.moveRight = moveRight;
     Cursor.updateBRAtEndOfParagraph = updateBRAtEndOfParagraph;
+    Cursor.closestPositionForwards = closestPositionForwards;
+    Cursor.closestPositionBackwards = closestPositionBackwards;
     Cursor.insertCharacter = insertCharacter;
     Cursor.deleteCharacter = deleteCharacter;
     Cursor.enterPressed = enterPressed;
