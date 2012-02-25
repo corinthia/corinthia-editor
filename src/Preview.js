@@ -54,3 +54,5 @@ function setStyleSheet(selector,cssText)
     DOM.appendChild(document.body,element);
     DOM.appendChild(element,DOM.createTextNode(document,previewText));
 }
+
+DOM.assignNodeIds(document);
