@@ -19,6 +19,7 @@
             rects = selectionRange.getClientRects();
 
         if ((selectionRange != null) && selectionRange.isEmpty()) {
+            // We just have a cursor
 
             var pos = selectionRange.start;
             if ((pos.node.nodeType == Node.ELEMENT_NODE) &&
@@ -29,12 +30,12 @@
                              top: rects[0].top,
                              height: rects[0].height };
             }
-
-            // We just have a cursor
-
-            if ((rects != null) &&
-                ((rects.length == 0) || (rects[0].width == 0) || (rects[0].height == 0))) {
-
+            else if ((pos.node.nodeType == Node.ELEMENT_NODE) &&
+                     (pos.offset < pos.node.childNodes.length) &&
+                     (pos.node.childNodes[pos.offset].nodeName == "TABLE")) {
+                rects = [pos.node.childNodes[pos.offset].getBoundingClientRect()];
+            }
+            else {
                 // If the cursor is at the end of a paragraph and the last character is a space,
                 // getClientRects() fails to return anything. So instead, we temporarily add a
                 // single character to the end of the paragraph, get the client rect for that,
