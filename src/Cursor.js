@@ -181,21 +181,20 @@
         }
     }
 
-    function nodeHasContent(node)
+    function moveToStartOfDocument()
     {
-        if (node.nodeType == Node.TEXT_NODE) {
-            return !isWhitespaceString(node.nodeValue);
-        }
-        else if ((node.nodeName == "IMG") || (node.nodeName == "TABLE")) {
-            return true;
-        }
-        else {
-            for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                if (nodeHasContent(child))
-                    return true;
-            }
-            return false;
-        }
+        var pos = new Position(document.body,0);
+        pos = closestPositionBackwards(pos);
+        Selection.setEmptySelectionAt(pos.node,pos.offset);
+        ensureCursorVisible();
+    }
+
+    function moveToEndOfDocument()
+    {
+        var pos = new Position(document.body,document.body.childNodes.length);
+        pos = closestPositionForwards(pos);
+        Selection.setEmptySelectionAt(pos.node,pos.offset);
+        ensureCursorVisible();
     }
 
     // An empty paragraph does not get shown and cannot be edited. We can fix this by adding
@@ -266,7 +265,7 @@
         if (next != null)
             return next;
 
-        return new Position(document.body,document.body.childNodes.length);
+        return new Position(document.body,0);
     }
 
     // public
@@ -415,6 +414,8 @@
     Cursor.positionCursor = positionCursor;
     Cursor.moveLeft = moveLeft;
     Cursor.moveRight = moveRight;
+    Cursor.moveToStartOfDocument = moveToStartOfDocument;
+    Cursor.moveToEndOfDocument = moveToEndOfDocument;
     Cursor.updateBRAtEndOfParagraph = updateBRAtEndOfParagraph;
     Cursor.closestPositionForwards = closestPositionForwards;
     Cursor.closestPositionBackwards = closestPositionBackwards;

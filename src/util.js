@@ -108,3 +108,20 @@ function positionAtPoint(x,y)
                 (y >= rect.top) && (y <= rect.bottom));
     }
 }
+
+function nodeHasContent(node)
+{
+    if (node.nodeType == Node.TEXT_NODE) {
+        return !isWhitespaceString(node.nodeValue);
+    }
+    else if ((node.nodeName == "IMG") || (node.nodeName == "TABLE")) {
+        return true;
+    }
+    else {
+        for (var child = node.firstChild; child != null; child = child.nextSibling) {
+            if (nodeHasContent(child))
+                return true;
+        }
+        return false;
+    }
+}

@@ -137,6 +137,11 @@ function removeSpecial(node)
     }
 }
 
+function isEmptyDocument()
+{
+    return !nodeHasContent(document.body);
+}
+
 function init()
 {
     var jsInitOk = false;
