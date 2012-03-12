@@ -13,7 +13,6 @@
         if (rects.length > 0) {
             var lastRect = rects[rects.length-1];
             var cursorY = lastRect.top + window.scrollY + lastRect.height/2;
-            debug("ensureCursorVisible: cursorY = "+cursorY);
             if ((cursorY < window.scrollY) ||
                 (cursorY > window.scrollY + window.innerHeight)) {
                 var newScrollY = cursorY - window.innerHeight/2;
