@@ -3,6 +3,8 @@
 (function() {
 
     var viewportMetaElement = null;
+    var viewportWidth = null;
+    var viewportHeight = null;
 
     function getOrCreateHead()
     {
@@ -17,25 +19,43 @@
     }
 
     // public
-    function setViewportWidth(width)
+    function setViewportSize(width,height)
     {
-        if (viewportMetaElement == null) {
-            var head = getOrCreateHead();
-            for (var child = head.firstChild; child != null; child = child.nextSibling) {
-                if ((child.nodeName == "META") && (child.getAttribute("name") == "viewport")) {
-                    viewportMetaElement = child;
-                    break;
+        if (viewportWidth != width) {
+            if (viewportMetaElement == null) {
+                var head = getOrCreateHead();
+                for (var child = head.firstChild; child != null; child = child.nextSibling) {
+                    if ((child.nodeName == "META") && (child.getAttribute("name") == "viewport")) {
+                        viewportMetaElement = child;
+                        break;
+                    }
+                }
+                if (viewportMetaElement == null) {
+                    viewportMetaElement = DOM.createElement(document,"META");
+                    viewportMetaElement.setAttribute("name","viewport");
+                    DOM.appendChild(head,viewportMetaElement);
                 }
             }
-            if (viewportMetaElement == null) {
-                viewportMetaElement = DOM.createElement(document,"META");
-                viewportMetaElement.setAttribute("name","viewport");
-                DOM.appendChild(head,viewportMetaElement);
-            }
+            viewportMetaElement.setAttribute("content","width = "+width);
         }
-        viewportMetaElement.setAttribute("content","width = "+width);
+
+        viewportWidth = width;
+        viewportHeight = height;
+
         Selection.updateSelectionDisplay();
         Cursor.ensureCursorVisible();
+    }
+
+    // public
+    function getViewportWidth()
+    {
+        return viewportWidth;
+    }
+
+    // public
+    function getViewportHeight()
+    {
+        return viewportHeight;
     }
 
     // public
@@ -45,7 +65,9 @@
     }
 
     window.Viewport = new Object();
-    Viewport.setViewportWidth = setViewportWidth;
+    Viewport.setViewportSize = setViewportSize;
+    Viewport.getViewportWidth = getViewportWidth;
+    Viewport.getViewportHeight = getViewportHeight;
     Viewport.getZoom = getZoom;
 
 })();
