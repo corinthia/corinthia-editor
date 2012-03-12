@@ -35,6 +35,7 @@
         }
         viewportMetaElement.setAttribute("content","width = "+width);
         Selection.updateSelectionDisplay();
+        Cursor.ensureCursorVisible();
     }
 
     // public

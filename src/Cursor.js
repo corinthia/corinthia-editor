@@ -4,6 +4,27 @@
 (function() {
 
     // public
+    function ensureCursorVisible()
+    {
+        var selectionRange = Selection.getSelectionRange();
+        if (selectionRange == null)
+            return;
+        var rects = selectionRange.getClientRects();
+        if (rects.length > 0) {
+            var lastRect = rects[rects.length-1];
+            var cursorY = lastRect.top + window.scrollY + lastRect.height/2;
+            debug("ensureCursorVisible: cursorY = "+cursorY);
+            if ((cursorY < window.scrollY) ||
+                (cursorY > window.scrollY + window.innerHeight)) {
+                var newScrollY = cursorY - window.innerHeight/2;
+                if (newScrollY < 0)
+                    newScrollY = 0;
+                window.scrollTo(window.scrollX,newScrollY);
+            }
+        }
+    }
+
+    // public
     function isValidCursorPosition(pos)
     {
         var result = false;
@@ -116,6 +137,7 @@
             }
         }
         Selection.setEmptySelectionAt(position.node,position.offset);
+        ensureCursorVisible();
     }
 
     function prevCursorPosition(pos)
@@ -143,8 +165,10 @@
 
         var pos = prevCursorPosition(selectionRange.start);
 
-        if (pos != null)
+        if (pos != null) {
             Selection.setEmptySelectionAt(pos.node,pos.offset);
+            ensureCursorVisible();
+        }
     }
 
     // public
@@ -156,8 +180,10 @@
 
         var pos = nextCursorPosition(selectionRange.start);
 
-        if (pos != null)
+        if (pos != null) {
             Selection.setEmptySelectionAt(pos.node,pos.offset);
+            ensureCursorVisible();
+        }
     }
 
     function nodeHasContent(node)
@@ -277,6 +303,7 @@
         Selection.getSelectionRange().trackWhileExecuting(function() {
             updateBRAtEndOfParagraph(node);
         });
+        ensureCursorVisible();
     }
 
     // public
@@ -388,6 +415,7 @@
     }
 
     window.Cursor = new Object();
+    Cursor.ensureCursorVisible = ensureCursorVisible;
     Cursor.isValidCursorPosition = isValidCursorPosition;
     Cursor.positionCursor = positionCursor;
     Cursor.moveLeft = moveLeft;
