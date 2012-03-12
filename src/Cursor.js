@@ -6,13 +6,9 @@
     // public
     function ensureCursorVisible()
     {
-        var selectionRange = Selection.getSelectionRange();
-        if (selectionRange == null)
-            return;
-        var rects = selectionRange.getClientRects();
-        if (rects.length > 0) {
-            var lastRect = rects[rects.length-1];
-            var cursorY = lastRect.top + window.scrollY + lastRect.height/2;
+        var rect = Selection.getCursorRect();
+        if (rect != null) {
+            var cursorY = rect.top + window.scrollY + rect.height/2;
             if ((cursorY < window.scrollY) ||
                 (cursorY > window.scrollY + window.innerHeight)) {
                 var newScrollY = cursorY - window.innerHeight/2;
@@ -406,6 +402,7 @@
         });
 
         Selection.setSelectionRange(selectionRange);
+        ensureCursorVisible();
 
         function enterPressedFilter(node)
         {
