@@ -42,82 +42,14 @@
         Object.preventExtensions(this);
     }
 
-    function characterDataModified(self,event)
-    {
-        if (event.target == self.node) {
-            var oldOffset = self.offset;
-            var prevValue = event.prevValue;
-            var newValue = event.newValue;
-
-            var commonStart = 0;
-            var commonEnd = 0;
-
-            while ((commonStart < prevValue.length) && (commonStart < newValue.length) &&
-                   (prevValue.charCodeAt(commonStart) == newValue.charCodeAt(commonStart)))
-                commonStart++;
-
-            while ((commonEnd < prevValue.length) &&
-                   (commonEnd < newValue.length) &&
-                   (prevValue.charCodeAt(prevValue.length - commonEnd - 1) ==
-                    newValue.charCodeAt(newValue.length - commonEnd - 1)))
-                commonEnd++;
-
-            var realCommonStart = commonStart;
-            var realCommonEnd = commonEnd;
-
-            if (realCommonStart > newValue.length - commonEnd)
-                realCommonStart = newValue.length - commonEnd;
-            if (realCommonStart > prevValue.length - commonEnd)
-                realCommonStart = prevValue.length - commonEnd;
-
-            if (realCommonEnd > newValue.length - commonStart)
-                realCommonEnd = newValue.length - commonStart;
-            if (realCommonEnd > prevValue.length - commonStart)
-                realCommonEnd = prevValue.length - commonStart;
-
-            commonStart = realCommonStart;
-            commendEnd = realCommonEnd;
-
-            var prevDifferent = prevValue.length - commonStart - commonEnd;
-            var newDifferent = newValue.length - commonStart - commonEnd;
-
-            if (newValue.length < prevValue.length) {
-                if ((self.offset > commonStart + newDifferent) &&
-                    (self.offset < commonStart + prevDifferent)) {
-                    self.offset = commonStart + newDifferent;
-                }
-                else if (self.offset >= commonStart + prevDifferent) {
-                    self.offset -= (prevDifferent - newDifferent);
-                }
-            }
-            else if (newValue.length > prevValue.length) {
-                if ((newDifferent > 0) && (prevDifferent > 0) &&
-                    (self.offset >= prevValue.length - commonEnd))
-                    self.offset = newValue.length - (prevValue.length - self.offset);
-                else if (self.offset > commonStart + prevDifferent)
-                    self.offset += (newDifferent - prevDifferent);
-            }
-        }
-    }
-
     function actuallyStartTracking(self)
     {
-        self.characterDataListener = function(event) { characterDataModified(self,event); }
-        if (self.node.nodeType == Node.TEXT_NODE) {
-            self.node.addEventListener("DOMCharacterDataModified",
-                                       self.characterDataListener,false);
-        }
         DOM.addTrackedPosition(self.this);
     }
 
     function actuallyStopTracking(self)
     {
         DOM.removeTrackedPosition(self.this);
-        if (self.node.nodeType == Node.TEXT_NODE) {
-            self.node.removeEventListener("DOMCharacterDataModified",
-                                          self.characterDataListener,false);
-        }
-        self.characterDataListener = null;
     }
 
     function startTracking(self)

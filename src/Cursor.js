@@ -301,7 +301,7 @@
             offset = 0;
         }
 
-        node.insertData(offset,character);
+        DOM.insertCharacters(node,offset,character);
         Selection.setEmptySelectionAt(node,offset+1,node,offset+1);
         Selection.getSelectionRange().trackWhileExecuting(function() {
             updateBRAtEndOfParagraph(node);

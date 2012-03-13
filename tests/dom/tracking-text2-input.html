@@ -17,7 +17,7 @@ function performTest()
         messages.push("positions["+i+"] = "+positions[i]);
 
     Position.trackWhileExecuting(positions,function() {
-        text.nodeValue = text.nodeValue.slice(5);
+        DOM.deleteCharacters(text,0,5);
     });
 
     messages.push("After text change:");

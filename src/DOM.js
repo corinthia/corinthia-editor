@@ -98,10 +98,8 @@
         }
     }
 
-    function characterDataModified(event)
+    function characterDataModified(node,prevValue)
     {
-        var node = event.target;
-        var prevValue = event.prevValue;
         UndoManager.addAction(function() {
             node.nodeValue = prevValue;
         },"Set text node to \""+prevValue+"\"");
@@ -141,7 +139,6 @@
 //        node.addEventListener("DOMNodeInserted",nodeInserted);
 //        node.addEventListener("DOMNodeRemoved",nodeRemoved);
         node.addEventListener("DOMAttrModified",attrModified);
-        node.addEventListener("DOMCharacterDataModified",characterDataModified);
     }
 
     // Low-level methods
@@ -350,6 +347,8 @@
             DOM.removeNodeButKeepChildren(next);
         }
         else {
+            DOM.insertCharacters(current,current.nodeValue.length,next.nodeValue);
+
             trackedPositionsForNode(next).forEach(function (position) {
                 position.node = current;
                 position.offset = position.offset+currentLength;
@@ -361,29 +360,6 @@
                     position.offset = currentLength;
                 }
             });
-
-            // The line "current.nodeValue += next.nodeValue" below will cause a
-            // DOMCharacterDataModified mutation event to be sent to any positions associated with
-            // the node, which will adjust their offsets based on the insertion of the new text.
-            // Because we've done the adjustment above, we don't want this to occur, so we save
-            // a backup copy of all the offsets and use these to restore the positions to their
-            // original values afterwards.
-
-            // This admittedly isn't a pretty thing to have to do. I previously addressed the issue
-            // by preventing the position objects from responding to the mutation events entirely
-            // (via a global ignoreEvents flag in the Position class) but I wanted to get rid of
-            // this mechanism because it is also ugly. At least now the ugliness is localised to
-            // this one location and we can keep the Position class clean.
-
-            var positions = trackedPositionsForNode(current);
-            var backupOffsets = new Array();
-            for (var i = 0; i < positions.length; i++)
-                backupOffsets[i] = positions[i].offset;
-
-            current.nodeValue += next.nodeValue;
-
-            for (var i = 0; i < positions.length; i++)
-                positions[i].offset = backupOffsets[i];
 
             DOM.deleteNode(next);
         }
@@ -476,6 +452,51 @@
             DOM.deleteNode(node.previousSibling);
         while ((node.nextSibling != null) && (isWhitespaceTextNode(node.nextSibling)))
             DOM.deleteNode(node.nextSibling);
+    }
+
+    DOM.insertCharacters = function(textNode,offset,characters)
+    {
+        if (textNode.nodeType != Node.TEXT_NODE)
+            throw new Error("DOM.insertCharacters called on non-text node");
+        trackedPositionsForNode(textNode).forEach(function (position) {
+            if (position.offset > offset)
+                position.offset += characters.length;
+        });
+        characterDataModified(textNode,textNode.nodeValue);
+        textNode.nodeValue = textNode.nodeValue.slice(0,offset) +
+                             characters +
+                             textNode.nodeValue.slice(offset);
+    }
+
+    DOM.deleteCharacters = function(textNode,startOffset,endOffset)
+    {
+        if (textNode.nodeType != Node.TEXT_NODE)
+            throw new Error("DOM.deleteCharacters called on non-text node "+nodeString(textNode));
+        if (endOffset == null)
+            endOffset = textNode.nodeValue.length;
+        if (endOffset < startOffset)
+            throw new Error("DOM.deleteCharacters called with invalid start/end offset");
+        trackedPositionsForNode(textNode).forEach(function (position) {
+            var deleteCount = endOffset - startOffset;
+            if ((position.offset > startOffset) && (position.offset < endOffset))
+                position.offset = startOffset;
+            else if (position.offset >= endOffset)
+                position.offset -= deleteCount;
+        });
+        characterDataModified(textNode,textNode.nodeValue);
+        textNode.nodeValue = textNode.nodeValue.slice(0,startOffset) +
+                             textNode.nodeValue.slice(endOffset);
+    }
+
+    DOM.setNodeValue = function(textNode,value)
+    {
+        if (textNode.nodeType != Node.TEXT_NODE)
+            throw new Error("DOM.setNodeValue called on non-text node");
+        trackedPositionsForNode(textNode).forEach(function (position) {
+            position.offset = 0;
+        });
+        characterDataModified(textNode,textNode.nodeValue);
+        textNode.nodeValue = value;
     }
 
     window.DOM = DOM;

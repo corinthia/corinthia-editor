@@ -245,7 +245,7 @@
         var before = DOM.createTextNode(document,node.nodeValue.slice(0,offset));
 
         DOM.insertBefore(node.parentNode,before,node);
-        node.nodeValue = node.nodeValue.slice(offset);
+        DOM.deleteCharacters(node,0,offset);
 
         movePreceding(node.parentNode,getOffsetOfNodeInParent(node),parentCheckFn,force);
         return new Position(before,before.nodeValue.length);
@@ -259,7 +259,7 @@
         var after = DOM.createTextNode(document,node.nodeValue.slice(offset));
 
         DOM.insertBefore(node.parentNode,after,node.nextSibling);
-        node.nodeValue = node.nodeValue.slice(0,offset);
+        DOM.deleteCharacters(node,offset);
 
         moveFollowing(node.parentNode,getOffsetOfNodeInParent(node)+1,parentCheckFn,force);
         return new Position(after,0);

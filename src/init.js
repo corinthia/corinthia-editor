@@ -36,7 +36,8 @@ function prettyPrintDocument()
                 start++;
             while ((end > start) && isWhitespaceChar(str.charAt(end-1)))
                 end--;
-            node.nodeValue = str.slice(start,end);
+            DOM.deleteCharacters(node,end);
+            DOM.deleteCharacters(node,0,start);
         }
     }
 

@@ -95,7 +95,7 @@
                 DOM.appendChild(this.span,text);
             }
 
-            this.span.firstChild.nodeValue = this.fullNumber+" ";
+            DOM.setNodeValue(this.span.firstChild,this.fullNumber+" ");
             this.title = getNodeText(this.node);
         }
 
@@ -123,7 +123,7 @@
         // Remove any existing numbering
         var firstText = findFirstTextDescendant(node);
         if (firstText != null)
-            firstText.nodeValue = firstText.nodeValue.replace(/^(\d+\.)*\d*\s+/,"");
+            DOM.setNodeValue(firstText,firstText.nodeValue.replace(/^(\d+\.)*\d*\s+/,""));
 
         section.next = prevSection.next;
         if (section.next != null)

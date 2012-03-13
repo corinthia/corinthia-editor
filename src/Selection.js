@@ -257,8 +257,7 @@
                     var endOffset = selectionRange.end.offset;
                     if ((node.nodeType == Node.TEXT_NODE) &&
                         ((startOffset > 0) || (endOffset < node.nodeValue.length))) {
-                        node.nodeValue = node.nodeValue.slice(0,startOffset) +
-                            node.nodeValue.slice(endOffset);
+                        DOM.deleteCharacters(node,startOffset,endOffset);
                     }
                     else {
                         removeWholeNode = true;
@@ -267,7 +266,7 @@
                 else if (node == selectionRange.start.node) {
                     var offset = selectionRange.start.offset;
                     if ((node.nodeType == Node.TEXT_NODE) && (offset > 0)) {
-                        node.nodeValue = node.nodeValue.slice(0,offset);
+                        DOM.deleteCharacters(node,offset);
                     }
                     else {
                         removeWholeNode = true;
@@ -276,7 +275,7 @@
                 else if (node == selectionRange.end.node) {
                     var offset = selectionRange.end.offset;
                     if ((node.nodeType == Node.TEXT_NODE) && (offset < node.nodeValue.length)) {
-                        node.nodeValue = node.nodeValue.slice(offset);
+                        DOM.deleteCharacters(node,0,offset);
                     }
                     else {
                         removeWholeNode = true;
