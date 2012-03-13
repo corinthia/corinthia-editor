@@ -1,0 +1,18 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script language="javascript">
+function performTest()
+{
+    var str = " one two three";
+    for (var i = 0; i < str.length; i++)
+        Cursor.insertCharacter(str.charAt(i));
+    showRangeAsBrackets(Selection.getSelectionRange());
+}
+</script>
+</head>
+<body>
+<p>Sample text[]</p>
+</body>
+</html>

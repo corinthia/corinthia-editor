@@ -39,6 +39,16 @@
             if ((offset > 0) && !isWhitespaceCharacter(value.charAt(offset-1)))
                 result = true;
 
+            // At the end of a text node (with no next sibling), and the preceding character
+            // is a whitespace character, but there is a non-whitespace character before it -> YES
+            if ((offset == node.nodeValue.length) &&
+                (offset > 1) &&
+                isWhitespaceCharacter(value.charAt(offset-1)) &&
+                !isWhitespaceCharacter(value.charAt(offset-2)) &&
+                (node.nextSibling == null)) {
+                result = true;
+            }
+
             // Immediately before a non-whitespace character -> YES
             if ((offset < value.length) && !isWhitespaceCharacter(value.charAt(offset)))
                 result = true;
@@ -277,7 +287,7 @@
 
         if (!selectionRange.isEmpty())
             Selection.deleteSelectionContents();
-        var pos = selectionRange.start;
+        var pos = closestPositionForwards(selectionRange.start);
         var node = pos.node;
         var offset = pos.offset;
 
