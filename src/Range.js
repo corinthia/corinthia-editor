@@ -423,3 +423,57 @@ Range.prototype.getClientRects = function()
     }
     return result;
 }
+
+Range.prototype.cloneContents = function()
+{
+    var cloneMap = new NodeMap();
+    var detail = this.detail();
+    var cloneRoot = DOM.cloneNode(detail.commonAncestor,false);
+    cloneMap.put(detail.commonAncestor,cloneRoot);
+    var outermost = this.getOutermostNodes();
+    for (var i = 0; i < outermost.length; i++) {
+
+        var node = outermost[i];
+        if (node.nodeType == Node.TEXT_NODE) {
+            // FIXME: do this without modifying nodeValue
+            var saved = node.nodeValue;
+            if ((node == this.start.node) && (node == this.end.node)) {
+                node.nodeValue = node.nodeValue.slice(this.start.offset,this.end.offset);
+            }
+            else if (node == this.start.node) {
+                node.nodeValue = node.nodeValue.slice(this.start.offset);
+            }
+            else if (node == this.end.node) {
+                node.nodeValue = node.nodeValue.slice(0,this.end.offset);
+            }
+            add(outermost[i],true);
+            node.nodeValue = saved;
+        }
+        else {
+            add(outermost[i],true);
+        }
+    }
+
+    var result = new Array();
+    for (var child = cloneRoot.firstChild; child != null; child = child.nextSibling)
+        result.push(child);
+
+    return result;
+
+    function add(node,deep)
+    {
+        if (cloneMap.containsKey(node))
+            return cloneMap.get(node);
+
+        var clone = DOM.cloneNode(node,deep);
+        cloneMap.put(node,clone);
+        if (node.parentNode == detail.commonAncestor) {
+            cloneRoot.appendChild(clone);
+        }
+        else {
+            var parentClone = add(node.parentNode,false);
+            parentClone.appendChild(clone);
+        }
+        return clone;
+    }
+}
