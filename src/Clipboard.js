@@ -1,136 +1,141 @@
 (function() {
 
-    var nextParagraphPrefix = null;
-
-    function blockToText(node,array,indent,listType,listNo)
+    function blockToText(md,node,indent,nextIndent,listType,listNo)
     {
-        var anonymousParagraph = null;
-        var prefix = "";
-        var suffix = "";
-        var addNewline = true;
-
+        var linesBetweenChildren = 1;
+        var childIndent = indent;
         if (node.nodeName == "LI") {
-            if (listNo.value > 1)
-                addNewline = false;
             if (listType == "OL") {
                 var listMarker;
                 if (listNo.value < 10)
                     listMarker = listNo.value+".  ";
                 else
                     listMarker = listNo.value+". ";
-                nextParagraphPrefix = indent+listMarker;
-                indent += "    ";
+                beginParagraph(md,0,indent,listMarker);
+                nextIndent += "    ";
             }
             else {
-                nextParagraphPrefix = indent+"  - ";
-                indent += "    ";
+                beginParagraph(md,0,indent,"  - ");
+                nextIndent += "    ";
             }
             listNo.value++;
         }
         else if (node.nodeName == "UL") {
             listType = "UL";
             listNo = { value: 1 };
+            beginParagraph(md,1,indent);
+            linesBetweenChildren = 0;
         }
         else if (node.nodeName == "OL") {
             listType = "OL";
             listNo = { value: 1 };
+            beginParagraph(md,1,indent);
+            linesBetweenChildren = 0;
         }
         else if (node.nodeName == "H1") {
-            prefix = "# ";
-            suffix = " #";
+            beginParagraph(md,1,indent,"# "," #");
         }
         else if (node.nodeName == "H2") {
-            prefix = "## ";
-            suffix = " ##";
+            beginParagraph(md,1,indent,"## "," ##");
         }
         else if (node.nodeName == "H3") {
-            prefix = "### ";
-            suffix = " ###";
+            beginParagraph(md,1,indent,"### "," ###");
         }
         else if (node.nodeName == "H4") {
-            prefix = "#### ";
-            suffix = " ####";
+            beginParagraph(md,1,indent,"#### "," ####");
         }
         else if (node.nodeName == "H5") {
-            prefix = "##### ";
-            suffix = " #####";
+            beginParagraph(md,1,indent,"##### "," #####");
         }
         else if (node.nodeName == "H6") {
-            prefix = "###### ";
-            suffix = " ######";
+            beginParagraph(md,1,indent,"###### "," ######");
         }
         else if (node.nodeName == "BLOCKQUOTE") {
-            indent += "> ";
+            beginParagraph(md,1,indent,"> ");
+            nextIndent += "> ";
         }
 
+        var foundNonWhitespaceChild = false;
         for (var child = node.firstChild; child != null; child = child.nextSibling) {
             if (isContainerNode(child) || isParagraphNode(child)) {
-                closeAnonymousParagraph();
-                blockToText(child,array,indent,listType,listNo);
+                beginParagraph(md,linesBetweenChildren,indent);
+                blockToText(md,child,indent,nextIndent,listType,listNo);
+                beginParagraph(md,linesBetweenChildren);
+                indent = nextIndent;
+                foundNonWhitespaceChild = false;
             }
             else {
-                if ((anonymousParagraph == null) && isWhitespaceTextNode(child))
-                    continue;
-                openAnonymousParagraph();
-                inlineToText(child,anonymousParagraph);
-            }
-        }
-        closeAnonymousParagraph();
+                if (!foundNonWhitespaceChild) {
+                    if (isWhitespaceTextNode(child))
+                        continue;
+                    beginParagraph(md,0,indent);
+                    indent = nextIndent;
+                    foundNonWhitespaceChild = true;
+                }
 
-        function openAnonymousParagraph()
-        {
-            if (anonymousParagraph != null)
-                return;
-            anonymousParagraph = new Array();
-        }
-
-        function closeAnonymousParagraph()
-        {
-            if (anonymousParagraph == null)
-                return;
-            var paragraphText = normalizeWhitespace(anonymousParagraph.join(""));
-            startNewParagraph();
-            array.push(prefix+paragraphText+suffix);
-            anonymousParagraph = null;
-        }
-
-        function startNewParagraph()
-        {
-            if (array.length > 0) {
-                if (addNewline)
-                    array.push("\n\n");
-                else
-                    array.push("\n");
-            }
-            if (nextParagraphPrefix != null) {
-                array.push(nextParagraphPrefix);
-                nextParagraphPrefix = null;
-            }
-            else {
-                array.push(indent);
+                inlineToText(md,child);
             }
         }
     }
 
-    function inlineToText(node,array)
+    function shipOutParagraph(md)
+    {
+        var text = normalizeWhitespace(md.buildParagraph.join(""));
+        if (md.allText.length > 0) {
+            for (var i = 0; i < md.buildLines; i++)
+                md.allText.push("\n");
+        }
+        md.allText.push(md.indent+md.buildPrefix+text+md.buildSuffix+"\n");
+        resetBuild(md);
+    }
+
+    function beginParagraph(md,blankLines,indent,paraPrefix,paraSuffix)
+    {
+        if (blankLines == null)
+            blankLines = 1;
+        if (indent == null)
+            indent = "";
+        if (paraPrefix == null)
+            paraPrefix = "";
+        if (paraSuffix == null)
+            paraSuffix = "";
+
+        if (md == null)
+            throw new Error("beginParagraph: md is null");
+        if (md.buildParagraph == null)
+            throw new Error("beginParagraph: md.buildParagraph is null");
+
+        if (md.buildParagraph.length > 0) {
+            shipOutParagraph(md);
+        }
+
+        if (md.buildLines < blankLines)
+            md.buildLines = blankLines;
+        if (md.indent.length < indent.length)
+            md.indent = indent;
+        md.buildPrefix += paraPrefix;
+        md.buildSuffix = paraSuffix + md.buildSuffix;
+    }
+
+    function inlineToText(md,node)
     {
         if (node.nodeType == Node.TEXT_NODE) {
-            array.push(node.nodeValue);
+            md.buildParagraph.push(node.nodeValue);
         }
         else if ((node.nodeName == "I") || (node.nodeName == "EM")) {
-            array.push("*");
+            md.buildParagraph.push("*");
             processChildren();
-            array.push("*");
+            md.buildParagraph.push("*");
         }
         else if ((node.nodeName == "B") || (node.nodeName == "STRONG")) {
-            array.push("**");
+            md.buildParagraph.push("**");
             processChildren();
-            array.push("**");
+            md.buildParagraph.push("**");
         }
         else if (node.nodeName == "A") {
-            array.push("[");
+            md.buildParagraph.push("[");
             processChildren();
-            array.push("]("+node.getAttribute("href")+")");
+            md.buildParagraph.push("]("+node.getAttribute("href")+")");
         }
         else {
             processChildren();
@@ -139,23 +144,52 @@
         function processChildren()
         {
             for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                inlineToText(child,array);
+                inlineToText(md,child);
             }
         }
     }
 
+    function resetBuild(md)
+    {
+        md.buildParagraph = new Array();
+        md.buildLines = 0;
+        md.buildPrefix = "";
+        md.buildSuffix = "";
+        md.indent = "";
+    }
+
+    function MarkdownBuilder()
+    {
+    }
+
+    function htmlToMarkdown(node)
+    {
+        var md = new MarkdownBuilder();
+        md.allText = new Array();
+        resetBuild(md);
+
+        if (isContainerNode(node) || isParagraphNode(node)) {
+            blockToText(md,node,"","");
+            beginParagraph(md);
+            return md.allText.join("");
+        }
+        else {
+            inlineToText(md,node);
+            return normalizeWhitespace(md.buildParagraph.join(""));
+        }
+    }
+
+    window.Markdown = new Object();
+    Markdown.htmlToMarkdown = htmlToMarkdown;
+
+})();
+
+(function() {
+
     // public (FIXME: temp: for testing)
     function htmlToText(node)
     {
-        var array = new Array();
-        if (isContainerNode(node) || isParagraphNode(node)) {
-            blockToText(node,array,"");
-            return array.join("");
-        }
-        else {
-            inlineToText(node,array);
-            return normalizeWhitespace(array.join(""));
-        }
+        return Markdown.htmlToMarkdown(node);
     }
 
     // public

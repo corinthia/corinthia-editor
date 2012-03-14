@@ -24,6 +24,11 @@
 <script language="javascript" src="../Selection.js"></script>
 <script language="javascript" src="../tests/testlib.js"></script>
 <script language="javascript">
+function debug(str)
+{
+    console.log(str);
+}
+
 function loaded()
 {
     DOM.assignNodeIds(document);
@@ -106,7 +111,7 @@ Here is a link to the <a href="http://daringfireball.net/projects/markdown/synta
   <li>Item</li>
   <li>Item</li>
   <li>Item</li>
-  <li>Item</li>
+  <li>Item<h1>Heading 1</h1><h2>Heading 2</h2>Rest of item</li>
   <li>Item</li>
   <li>Item</li>
   <li>Item</li>
