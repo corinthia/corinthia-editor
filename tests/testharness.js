@@ -34,6 +34,7 @@ function loadCode()
 {
     // Sync with Editor.m
     var javascriptFiles = ["nulleditor.js", // must be first
+                           "../src/Clipboard.js",
                            "../src/Cursor.js",
                            "../src/DOM.js",
 //                           "../src/dtd.js",
