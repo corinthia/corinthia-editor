@@ -71,9 +71,12 @@ function showTest(dir,name)
     leftLoadedContinuation = function() {
         setLeftTitle("Working area");
         setRightTitle("Result");
-        leftArea.contentWindow.performTest();
+        var resultText = leftArea.contentWindow.performTest();
         leftArea.contentWindow.Selection.clearSelection();
-        setPanelText(rightArea,PrettyPrinter.getHTML(leftArea.contentDocument.documentElement));
+        if (resultText != null)
+            setPanelText(rightArea,resultText);
+        else
+            setPanelText(rightArea,PrettyPrinter.getHTML(leftArea.contentDocument.documentElement));
     }
     leftArea.src = dir+"/"+name+"-input.html";
 }
@@ -256,9 +259,12 @@ function runAllTests()
 
             var actual;
             try {
-                leftArea.contentWindow.performTest();
+                var resultText = leftArea.contentWindow.performTest();
                 leftArea.contentWindow.Selection.clearSelection();
-                actual = PrettyPrinter.getHTML(leftArea.contentDocument.documentElement);
+                if (resultText != null)
+                    actual = resultText;
+                else
+                    actual = PrettyPrinter.getHTML(leftArea.contentDocument.documentElement);
             }
             catch (e) {
                 actual = e.toString();
