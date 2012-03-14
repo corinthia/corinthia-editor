@@ -158,13 +158,6 @@
         }
     }
 
-
-
-
-
-
-
-
     // public
     function cut()
     {
