@@ -100,3 +100,24 @@ function showEmptyTextNodes()
             recurse(child);
     }
 }
+
+function showClipboard(clipboard)
+{
+    var html = clipboard["text/html"];
+    var text = clipboard["text/plain"];
+
+    if ((html.length == 0) || (html.charAt(html.length-1) != "\n"))
+        html += "\n";
+    if ((text.length == 0) || (text.charAt(text.length-1) != "\n"))
+        text += "\n";
+
+    return "text/html\n"+
+           "---------\n"+
+           "\n"+
+           html+
+           "\n"+
+           "text/plain\n"+
+           "----------\n"+
+           "\n"+
+           text;
+}

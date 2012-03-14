@@ -24,7 +24,8 @@ var PARAGRAPH_ELEMENTS = {
     "H5": true,
     "H6": true,
     "DIV": true,
-    "PRE": true
+    "PRE": true,
+    "BLOCKQUOTE": true
 };
 
 var HEADING_ELEMENTS = {

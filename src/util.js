@@ -125,3 +125,11 @@ function nodeHasContent(node)
         return false;
     }
 }
+
+function normalizeWhitespace(str)
+{
+    str = str.replace(/^\s+/,"");
+    str = str.replace(/\s+$/,"");
+    str = str.replace(/\s+/g," ");
+    return str;
+}
