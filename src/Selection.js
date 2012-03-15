@@ -17,46 +17,83 @@
         var node = selectionRange.end.node;
         var offset = selectionRange.end.offset;
 
-        if ((pos.node.nodeType == Node.ELEMENT_NODE) &&
-            (pos.offset > 0) &&
-            (pos.node.childNodes[pos.offset-1].nodeName == "TABLE")) {
-            var rect = pos.node.childNodes[pos.offset-1].getBoundingClientRect();
-            return { left: rect.left + rect.width,
-                     top: rect.top,
-                     height: rect.height };
-        }
-        else if ((pos.node.nodeType == Node.ELEMENT_NODE) &&
-                 (pos.offset < pos.node.childNodes.length) &&
-                 (pos.node.childNodes[pos.offset].nodeName == "TABLE")) {
-            return pos.node.childNodes[pos.offset].getBoundingClientRect();
-        }
-        // If the cursor is at the end of a paragraph and the last character is a space,
-        // getClientRects() fails to return anything. So instead, we temporarily add a
-        // single character to the end of the paragraph, get the client rect for that,
-        // and then remove the character. This client rect will be in the same location
-        // as the cursor placed at the end of the space.
-        else if ((node.nodeType == Node.ELEMENT_NODE) ||
-                 (node.nodeType == Node.TEXT_NODE) && (offset == node.nodeValue.length)) {
-            var tempNode = DOM.createTextNode(document,"X");
+        if (node.nodeType == Node.ELEMENT_NODE) {
+            // Cursor is immediately before table -> return table rect
+            if ((offset > 0) && (node.childNodes[offset-1].nodeName == "TABLE")) {
+                var rect = node.childNodes[offset-1].getBoundingClientRect();
+                return { left: rect.left + rect.width,
+                         top: rect.top,
+                         width: 0,
+                         height: rect.height };
+            }
+            // Cursor is immediately after table -> return table rect
+            else if ((offset < node.childNodes.length) &&
+                     (node.childNodes[offset].nodeName == "TABLE")) {
+                var rect = node.childNodes[offset].getBoundingClientRect();
+                return { left: rect.left,
+                         top: rect.top,
+                         width: 0,
+                         height: rect.height };
+            }
 
-            if (node.nodeType == Node.TEXT_NODE) {
-                DOM.insertBefore(node.parentNode,tempNode,node.nextSibling);
-            }
-            else if (node.nodeType == Node.ELEMENT_NODE) {
-                if (offset >= node.childNodes.length) {
-                    DOM.appendChild(node,tempNode);
-                }
-                else {
-                    DOM.insertBefore(node,tempNode,node.childNodes[offset]);
-                }
-            }
-            var tempRange = new Range(tempNode,0,tempNode,0);
-            var rect = tempRange.getClientRects()[0];
+            // Cursor is between two elements. We don't want to use the rect of either element,
+            // since its height may not reflect that of the current text size. Temporarily add a
+            /// new character, and set the cursor's location and height based on this.
+            var tempNode = DOM.createTextNode(document,"X");
+            DOM.insertBefore(node,tempNode,node.childNodes[offset]);
+            var result = rectAtLeftOfRange(new Range(tempNode,0,tempNode,0));
             DOM.deleteNode(tempNode);
-            return rect;
+            return result;
+        }
+        else if (node.nodeType == Node.TEXT_NODE) {
+            // First see if the client rects returned by the range gives us a valid value. This
+            // won't be the case if the cursor is surrounded by both sides on whitespace.
+            var result = rectAtRightOfRange(selectionRange);
+            if (result != null)
+                return result;
+
+            if (offset > 0) {
+                // Try and get the rect of the previous character; the cursor goes after that
+                var result = rectAtRightOfRange(new Range(node,offset-1,node,offset));
+                if (result != null)
+                    return result;
+            }
+
+            // Temporarily add a new character, and set the cursor's location to the place
+            // that would go.
+            var oldNodeValue = node.nodeValue;
+            node.nodeValue = node.nodeValue.slice(0,offset) + "X" + node.nodeValue.slice(offset);
+            var result = rectAtLeftOfRange(new Range(node,offset,node,offset));
+            node.nodeValue = oldNodeValue;
+            return result;
         }
         else {
-            return selectionRange.getClientRects()[0];
+            return null;
+        }
+
+        function rectAtRightOfRange(range)
+        {
+            var rects = range.getClientRects();
+            if ((rects == null) || (rects.length == 0) || (rects[rects.length-1].width == 0))
+                return null;
+            var rect = rects[rects.length-1];
+            return { left: rect.left + rect.width,
+                     top: rect.top,
+                     width: 0,
+                     height: rect.height };
+
+        }
+
+        function rectAtLeftOfRange(range)
+        {
+            var rects = range.getClientRects();
+            if ((rects == null) || (rects.length == 0))
+                return null;
+            var rect = rects[0];
+            return { left: rect.left,
+                     top: rect.top,
+                     width: 0,
+                     height: rect.height };
         }
     }
 
@@ -77,12 +114,15 @@
             var rect = getCursorRect();
 
             if (rect != null) {
+                var zoom = Viewport.getZoom();
                 var left = rect.left + window.scrollX;
                 var top = rect.top + window.scrollY;
                 var height = rect.height;
-
-                var zoom = Viewport.getZoom();
-                editor.setCursor(left*zoom,top*zoom,0,height*zoom);
+                var width = rect.width ? (rect.width * zoom) : 2;
+                editor.setCursor(left*zoom,top*zoom,width,height*zoom);
+            }
+            else {
+                editor.setCursor(0,0,300,300);
             }
             return;
         }
