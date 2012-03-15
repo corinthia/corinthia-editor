@@ -11,11 +11,11 @@
                     listMarker = listNo.value+".  ";
                 else
                     listMarker = listNo.value+". ";
-                beginParagraph(md,0,indent,listMarker);
+                beginParagraph(md,0,indent,nextIndent,listMarker);
                 nextIndent += "    ";
             }
             else {
-                beginParagraph(md,0,indent,"  - ");
+                beginParagraph(md,0,indent,nextIndent,"  - ");
                 nextIndent += "    ";
             }
             listNo.value++;
@@ -23,42 +23,45 @@
         else if (node.nodeName == "UL") {
             listType = "UL";
             listNo = { value: 1 };
-            beginParagraph(md,1,indent);
+            beginParagraph(md,1,indent,nextIndent);
             linesBetweenChildren = 0;
         }
         else if (node.nodeName == "OL") {
             listType = "OL";
             listNo = { value: 1 };
-            beginParagraph(md,1,indent);
+            beginParagraph(md,1,indent,nextIndent);
             linesBetweenChildren = 0;
         }
         else if (node.nodeName == "H1") {
-            beginParagraph(md,1,indent,"# "," #");
+            beginParagraph(md,1,indent,nextIndent,"# "," #");
         }
         else if (node.nodeName == "H2") {
-            beginParagraph(md,1,indent,"## "," ##");
+            beginParagraph(md,1,indent,nextIndent,"## "," ##");
         }
         else if (node.nodeName == "H3") {
-            beginParagraph(md,1,indent,"### "," ###");
+            beginParagraph(md,1,indent,nextIndent,"### "," ###");
         }
         else if (node.nodeName == "H4") {
-            beginParagraph(md,1,indent,"#### "," ####");
+            beginParagraph(md,1,indent,nextIndent,"#### "," ####");
         }
         else if (node.nodeName == "H5") {
-            beginParagraph(md,1,indent,"##### "," #####");
+            beginParagraph(md,1,indent,nextIndent,"##### "," #####");
         }
         else if (node.nodeName == "H6") {
-            beginParagraph(md,1,indent,"###### "," ######");
+            beginParagraph(md,1,indent,nextIndent,"###### "," ######");
         }
         else if (node.nodeName == "BLOCKQUOTE") {
-            beginParagraph(md,1,indent,"> ");
+            beginParagraph(md,1,indent,nextIndent,"> ");
             nextIndent += "> ";
+        }
+        else if (node.nodeName == "PRE") {
+            md.preDepth++;
         }
 
         var foundNonWhitespaceChild = false;
         for (var child = node.firstChild; child != null; child = child.nextSibling) {
             if (isContainerNode(child) || isParagraphNode(child)) {
-                beginParagraph(md,linesBetweenChildren,indent);
+                beginParagraph(md,linesBetweenChildren,indent,nextIndent);
                 blockToText(md,child,indent,nextIndent,listType,listNo);
                 beginParagraph(md,linesBetweenChildren);
                 indent = nextIndent;
@@ -68,7 +71,7 @@
                 if (!foundNonWhitespaceChild) {
                     if (isWhitespaceTextNode(child))
                         continue;
-                    beginParagraph(md,0,indent);
+                    beginParagraph(md,0,indent,nextIndent);
                     indent = nextIndent;
                     foundNonWhitespaceChild = true;
                 }
@@ -76,11 +79,22 @@
                 inlineToText(md,child);
             }
         }
+
+        if (node.nodeName == "PRE") {
+            md.preDepth--;
+        }
     }
 
     function shipOutParagraph(md)
     {
-        var text = normalizeWhitespace(md.buildParagraph.join(""));
+        var text = md.buildParagraph.join("");
+        if (md.buildPre) {
+            text = text.replace(/\n$/,"");
+            text = "    "+text.replace(/\n/g,"\n"+md.nextIndent+"    ");
+        }
+        else {
+            text = normalizeWhitespace(text);
+        }
         if (md.allText.length > 0) {
             for (var i = 0; i < md.buildLines; i++)
                 md.allText.push("\n");
@@ -89,12 +103,14 @@
         resetBuild(md);
     }
 
-    function beginParagraph(md,blankLines,indent,paraPrefix,paraSuffix)
+    function beginParagraph(md,blankLines,indent,nextIndent,paraPrefix,paraSuffix)
     {
         if (blankLines == null)
             blankLines = 1;
         if (indent == null)
             indent = "";
+        if (nextIndent == null)
+            nextIndent = "";
         if (paraPrefix == null)
             paraPrefix = "";
         if (paraSuffix == null)
@@ -113,14 +129,25 @@
             md.buildLines = blankLines;
         if (md.indent.length < indent.length)
             md.indent = indent;
+        if (md.nextIndent.length < nextIndent.length)
+            md.nextIndent = nextIndent;
         md.buildPrefix += paraPrefix;
         md.buildSuffix = paraSuffix + md.buildSuffix;
+        if (md.preDepth > 0)
+            md.buildPre = true;
     }
 
     function inlineToText(md,node)
     {
         if (node.nodeType == Node.TEXT_NODE) {
-            md.buildParagraph.push(node.nodeValue);
+            var text = node.nodeValue;
+            if (md.preDepth == 0) {
+                text = text.replace(/\\/g,"\\\\");
+                text = text.replace(/\*/g,"\\*");
+                text = text.replace(/\[/g,"\\[");
+                text = text.replace(/\]/g,"\\]");
+            }
+            md.buildParagraph.push(text);
         }
         else if ((node.nodeName == "I") || (node.nodeName == "EM")) {
             md.buildParagraph.push("*");
@@ -155,7 +182,9 @@
         md.buildLines = 0;
         md.buildPrefix = "";
         md.buildSuffix = "";
+        md.buildPre = false;
         md.indent = "";
+        md.nextIndent = "";
     }
 
     function MarkdownBuilder()
@@ -166,6 +195,7 @@
     {
         var md = new MarkdownBuilder();
         md.allText = new Array();
+        md.preDepth = 0;
         resetBuild(md);
 
         if (isContainerNode(node) || isParagraphNode(node)) {
