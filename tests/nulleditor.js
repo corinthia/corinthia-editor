@@ -27,7 +27,7 @@ var editor = {
     {
     },
     
-    setCursor: function(x,y,height)
+    setCursor: function(x,y,width,height)
     {
     },
     

@@ -82,7 +82,7 @@
                 var height = rect.height;
 
                 var zoom = Viewport.getZoom();
-                editor.setCursor(left*zoom,top*zoom,height*zoom);
+                editor.setCursor(left*zoom,top*zoom,0,height*zoom);
             }
             return;
         }
