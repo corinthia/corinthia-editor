@@ -41,8 +41,8 @@
 
             // At the end of a text node (with no next sibling), and the preceding character
             // is a whitespace character, but there is a non-whitespace character before it -> YES
-            if ((offset == node.nodeValue.length) &&
-                (offset > 1) &&
+            if (isWhitespaceString(value.slice(offset)) &&
+                (offset >= 2) &&
                 isWhitespaceCharacter(value.charAt(offset-1)) &&
                 !isWhitespaceCharacter(value.charAt(offset-2)) &&
                 (node.nextSibling == null)) {
