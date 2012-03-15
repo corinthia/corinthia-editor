@@ -199,7 +199,7 @@
         resetBuild(md);
 
         if (isContainerNode(node) || isParagraphNode(node)) {
-            blockToText(md,node,"","");
+            blockToText(md,node,"","","UL",{value: 1});
             beginParagraph(md);
             return md.allText.join("");
         }
@@ -263,8 +263,25 @@
     // public
     function pasteHTML(html)
     {
+        if (html.match(/^\s*<thead/i))
+            html = "<table>" + html + "</table>";
+        else if (html.match(/^\s*<tbody/i))
+            html = "<table>" + html + "</table>";
+        else if (html.match(/^\s*<tfoot/i))
+            html = "<table>" + html + "</table>";
+        else if (html.match(/^\s*<tr/i))
+            html = "<table>" + html + "</table>";
+        else if (html.match(/^\s*<td/i))
+            html = "<table><tr>" + html + "</tr></table>";
+        else if (html.match(/^\s*<th/i))
+            html = "<table><tr>" + html + "</tr></table>";
+        else if (html.match(/^\s*<li/i))
+            html = "<ul>" + html + "</ul>";
+
         var div = DOM.createElement(document,"DIV");
         div.innerHTML = html;
+        for (var child = div.firstChild; child != null; child = child.nextSibling)
+            DOM.assignNodeIds(child);
 
         var nodes = new Array();
         for (var child = div.firstChild; child != null; child = child.nextSibling)
@@ -276,23 +293,67 @@
     function pasteNodes(nodes)
     {
         Selection.deleteSelectionContents();
-        var pos = selection.start;
+        var selectionRange = Selection.getSelectionRange();
+        if (selectionRange == null)
+            return;
+        var pos = selectionRange.start;
         var node = pos.node;
         var offset = pos.offset;
 
         var parent;
-        var before;
+        var previousSibling;
+        var nextSibling;
         if (node.nodeType == Node.ELEMENT_NODE) {
             parent = node;
-            before = node.childNodes[offset];
+            nextSibling = node.childNodes[offset];
+            previousSibling = node.childNodes[offset-1];
         }
         else {
-            splitTextBefore(node,offset);
+            Formatting.splitTextBefore(node,offset);
             parent = node.parentNode;
-            before = node;
+            nextSibling = node;
+            previousSibling = node.previousSibling;
         }
-        for (var i = 0; i < nodes.length; i++)
-            DOM.insertBefore(parent,nodes[i],before);
+
+        if ((parent.nodeName == "UL") || (parent.nodeName == "OL")) {
+            for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].nodeName == "LI") {
+                    DOM.insertBefore(parent,nodes[i],nextSibling);
+                }
+                else if (nodes[i].nodeName == parent.nodeName) {
+                    while (nodes[i].firstChild != null)
+                        DOM.insertBefore(parent,nodes[i].firstChild,nextSibling);
+                }
+                else if (!isWhitespaceTextNode(nodes[i])) {
+                    var li = DOM.createElement(document,"LI");
+                    DOM.insertBefore(parent,li,nextSibling);
+                    DOM.appendChild(li,nodes[i]);
+                }
+            }
+        }
+        else {
+            for (var i = 0; i < nodes.length; i++) {
+                DOM.insertBefore(parent,nodes[i],nextSibling);
+            }
+        }
+
+        if (nodes.length > 0) {
+            var offset;
+            if (nextSibling != null)
+                offset = getOffsetOfNodeInParent(nextSibling);
+            else
+                offset = parent.childNodes.length;
+            selectionRange = new Range(parent,offset,parent,offset);
+            Selection.setSelectionRange(selectionRange);
+        }
+        selectionRange.trackWhileExecuting(function() {
+            if (previousSibling != null)
+                Formatting.mergeWithNeighbours(previousSibling,Formatting.MERGEABLE_INLINE);
+            if (nextSibling != null)
+                Formatting.mergeWithNeighbours(nextSibling,Formatting.MERGEABLE_INLINE);
+
+            Cursor.updateBRAtEndOfParagraph(parent);
+        });
     }
 
     function pasteImage(href)
