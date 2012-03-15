@@ -48,6 +48,7 @@ function loadCode()
                            "../src/PostponedActions.js",
                            "../src/Range.js",
                            "../src/StringBuilder.js",
+                           "../src/Tables.js",
                            "../src/traversal.js",
                            "../src/types.js",
                            "../src/UndoManager.js",
