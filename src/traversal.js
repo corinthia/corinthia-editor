@@ -100,21 +100,6 @@ function getOffsetOfNodeInParent(node)
     return offset;
 }
 
-function isWhitespaceCharacter(c)
-{
-    return ((c == " ") || (c == "\t") || (c == "\r") || (c == "\n"));
-}
-
-function isWhitespaceString(str)
-{
-    for (var i = 0; i < str.length; i++) {
-        var c = str.charAt(i);
-        if ((c != " ") && (c != "\t") && (c != "\r") && (c != "\n"))
-            return false;
-    }
-    return true;
-}
-
 function isWhitespaceTextNode(node)
 {
     if (node.nodeType != Node.TEXT_NODE)

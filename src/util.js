@@ -126,6 +126,13 @@ function nodeHasContent(node)
     }
 }
 
+function isWhitespaceString(str)
+{
+    return (str.match(isWhitespaceString.regexp) != null);
+}
+
+isWhitespaceString.regexp = /^\s*$/;
+
 function normalizeWhitespace(str)
 {
     str = str.replace(/^\s+/,"");

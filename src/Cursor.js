@@ -36,21 +36,21 @@
             var next = node.nextSibling;
 
             // Immediately after a non-whitespace character -> YES
-            if ((offset > 0) && !isWhitespaceCharacter(value.charAt(offset-1)))
+            if ((offset > 0) && !isWhitespaceString(value.charAt(offset-1)))
                 result = true;
 
             // At the end of a text node (with no next sibling), and the preceding character
             // is a whitespace character, but there is a non-whitespace character before it -> YES
             if (isWhitespaceString(value.slice(offset)) &&
                 (offset >= 2) &&
-                isWhitespaceCharacter(value.charAt(offset-1)) &&
-                !isWhitespaceCharacter(value.charAt(offset-2)) &&
+                isWhitespaceString(value.charAt(offset-1)) &&
+                !isWhitespaceString(value.charAt(offset-2)) &&
                 (node.nextSibling == null)) {
                 result = true;
             }
 
             // Immediately before a non-whitespace character -> YES
-            if ((offset < value.length) && !isWhitespaceCharacter(value.charAt(offset)))
+            if ((offset < value.length) && !isWhitespaceString(value.charAt(offset)))
                 result = true;
 
             // Right at the end of a whitespace node which is the first child in a paragraph,
@@ -98,7 +98,7 @@
                 (next.nodeName == "IMG") &&
                 (prev.nodeType == Node.TEXT_NODE) &&
                 (prev.nodeValue.length > 0) &&
-                !isWhitespaceCharacter(prev.nodeValue.charAt(prev.nodeValue.length-1))) {
+                !isWhitespaceString(prev.nodeValue.charAt(prev.nodeValue.length-1))) {
                 result = false;
             }
 
@@ -107,7 +107,7 @@
                 (prev.nodeName == "IMG") &&
                 (next.nodeType == Node.TEXT_NODE) &&
                 (next.nodeValue.length > 0) &&
-                !isWhitespaceCharacter(next.nodeValue.charAt(0))) {
+                !isWhitespaceString(next.nodeValue.charAt(0))) {
                 result = false;
             }
         }
