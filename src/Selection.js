@@ -214,6 +214,38 @@
     }
 
     // public
+    function selectWordAtCursor()
+    {
+        var selectionRange = Selection.getSelectionRange();
+        if (selectionRange == null)
+            return;
+        var pos = Cursor.closestPositionBackwards(selectionRange.end);
+        var node = pos.node;
+        var offset = pos.offset;
+        if (node.nodeType == Node.TEXT_NODE) {
+            selectionRange.start.moveToStartOfWord();
+            selectionRange.end.moveToEndOfWord();
+            Selection.setSelectionRange(selectionRange);
+        }
+        else if (node.nodeType == Node.ELEMENT_NODE) {
+            var nodeBefore = null;
+            var nodeAfter = null;
+
+            if (offset > 0)
+                nodeBefore = node.childNodes[offset-1];
+            if (offset+1 < node.childNodes.length)
+                nodeAfter = node.childNodes[offset];
+
+            if ((nodeBefore != null) && !isWhitespaceTextNode(nodeBefore)) {
+                Selection.setSelectionRange(new Range(node,offset-1,node,offset));
+            }
+            else if ((nodeAfter != null) && !isWhitespaceTextNode(nodeAfter)) {
+                Selection.setSelectionRange(new Range(node,offset,node,offset+1));
+            }
+        }
+    }
+
+    // public
     function beginSelectionAtCoords(x,y)
     {
         selectionRange = null;
@@ -358,6 +390,7 @@
     Selection.getCursorRect = getCursorRect;
     Selection.updateSelectionDisplay = updateSelectionDisplay;
     Selection.selectAll = selectAll;
+    Selection.selectWordAtCursor = selectWordAtCursor;
     Selection.beginSelectionAtCoords = beginSelectionAtCoords;
     Selection.setSelectionStartAtCoords = setSelectionStartAtCoords;
     Selection.setSelectionEndAtCoords = setSelectionEndAtCoords;
