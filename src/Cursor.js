@@ -123,23 +123,29 @@
         if ((position != null) && isOpaqueNode(position.node))
             position = nextCursorPosition(position);
         if (position == null)
-            return;
+            return false;
 
         var selectionRange = Selection.getSelectionRange();
-        if ((selectionRange != null) && selectionRange.isEmpty() &&
-            (position.node == selectionRange.start.node) &&
-            (position.offset == selectionRange.start.offset)) {
-            var rect = Selection.getCursorRect();
-            if (rect != null) {
-                var zoom = Viewport.getZoom();
-                var left = (rect.left + window.scrollX) * zoom;
-                var top = (rect.top + window.scrollY) * zoom;
-                var height = rect.height * zoom;
-                editor.showCursorMenu(left,top,height);
-            }
-        }
+        var samePosition = ((selectionRange != null) && selectionRange.isEmpty() &&
+                            (position.node == selectionRange.start.node) &&
+                            (position.offset == selectionRange.start.offset));
         Selection.setEmptySelectionAt(position.node,position.offset);
         ensureCursorVisible();
+        return samePosition;
+    }
+
+    // public
+    function getCursorPosition()
+    {
+        var rect = Selection.getCursorRect();
+        if (rect == null)
+            return null;
+
+        var zoom = Viewport.getZoom();
+        var left = (rect.left + window.scrollX) * zoom;
+        var top = (rect.top + window.scrollY) * zoom;
+        var height = rect.height * zoom;
+        return { x: left, y: top, width: 0, height: height };
     }
 
     function prevCursorPosition(pos)
@@ -419,6 +425,7 @@
     Cursor.ensureCursorVisible = ensureCursorVisible;
     Cursor.isValidCursorPosition = isValidCursorPosition;
     Cursor.positionCursor = positionCursor;
+    Cursor.getCursorPosition = getCursorPosition;
     Cursor.moveLeft = moveLeft;
     Cursor.moveRight = moveRight;
     Cursor.moveToStartOfDocument = moveToStartOfDocument;

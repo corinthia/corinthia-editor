@@ -43,10 +43,6 @@ var editor = {
     {
     },
     
-    showCursorMenu: function(x,y,height)
-    {
-    },
-    
     sayHello: function(name)
     {
     }
