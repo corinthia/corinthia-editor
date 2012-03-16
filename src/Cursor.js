@@ -247,9 +247,29 @@
         }
     }
 
+    function tryAndFindEquivalentValidPosition(pos)
+    {
+        if (isValidCursorPosition(pos))
+            return pos;
+
+        if ((pos.node.nodeType == Node.TEXT_NODE) &&
+            isWhitespaceString(pos.node.nodeValue.slice(pos.offset))) {
+            var str = pos.node.nodeValue;
+            var whitespace = str.match(/\s+$/);
+            if (whitespace) {
+                var adjusted = new Position(pos.node,
+                                            str.length - whitespace[0].length + 1);
+                return adjusted;
+            }
+        }
+        return pos;
+    }
+
     // public
     function closestPositionForwards(pos)
     {
+        pos = tryAndFindEquivalentValidPosition(pos);
+
         if (isValidCursorPosition(pos))
             return pos;
 
@@ -267,6 +287,8 @@
     // public
     function closestPositionBackwards(pos)
     {
+        pos = tryAndFindEquivalentValidPosition(pos);
+
         if (isValidCursorPosition(pos))
             return pos;
 
@@ -290,7 +312,7 @@
 
         if (!selectionRange.isEmpty())
             Selection.deleteSelectionContents();
-        var pos = closestPositionBackwards(selectionRange.start);
+        var pos = closestPositionForwards(selectionRange.start);
         var node = pos.node;
         var offset = pos.offset;
 
