@@ -257,7 +257,7 @@
     {
         var textNode = DOM.createTextNode(document,text);
         var nodes = [textNode];
-        pastNodes(nodes);
+        pasteNodes(nodes);
     }
 
     // public
