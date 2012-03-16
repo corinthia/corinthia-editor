@@ -129,15 +129,12 @@
         if ((selectionRange != null) && selectionRange.isEmpty() &&
             (position.node == selectionRange.start.node) &&
             (position.offset == selectionRange.start.offset)) {
-            var domRange = document.createRange();
-            domRange.setStart(position.node,position.offset);
-            domRange.setEnd(position.node,position.offset);
-            var rects = domRange.getClientRects();
-            if (rects.length > 0) {
+            var rect = Selection.getCursorRect();
+            if (rect != null) {
                 var zoom = Viewport.getZoom();
-                var left = (rects[0].left + window.scrollX) * zoom;
-                var top = (rects[0].top + window.scrollY) * zoom;
-                var height = rects[0].height * zoom;
+                var left = (rect.left + window.scrollX) * zoom;
+                var top = (rect.top + window.scrollY) * zoom;
+                var height = rect.height * zoom;
                 editor.showCursorMenu(left,top,height);
             }
         }
