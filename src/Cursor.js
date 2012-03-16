@@ -290,7 +290,7 @@
 
         if (!selectionRange.isEmpty())
             Selection.deleteSelectionContents();
-        var pos = closestPositionForwards(selectionRange.start);
+        var pos = closestPositionBackwards(selectionRange.start);
         var node = pos.node;
         var offset = pos.offset;
 
