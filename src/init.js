@@ -124,6 +124,95 @@ function getHTML()
     return clone.outerHTML;
 }
 
+function getErrorReportingInfo()
+{
+    try {
+        var html = htmlWithSelection();
+        cleanse(html);
+        return html.outerHTML;
+    }
+    catch (e) {
+        try {
+            var html = DOM.cloneNode(document.documentElement,true);
+            cleanse(html);
+            return html.outerHTML+"\n[Error getting selection: "+e+"]";
+        }
+        catch (e2) {
+            return "[Error getting HTML: "+e2+"]";
+        }
+    }
+
+    function cleanse(node)
+    {
+        if ((node.nodeType == Node.TEXT_NODE) || (node.nodeType == Node.COMMENT_NODE)) {
+            node.nodeValue = node.nodeValue.replace(/[^\s\.\@\^]/g,"X");
+        }
+        else if (node.nodeType == Node.ELEMENT_NODE) {
+            for (var child = node.firstChild; child != null; child = child.nextSibling)
+                cleanse(child);
+        }
+    }
+
+    function htmlWithSelection()
+    {
+        var selectionRange = Selection.getSelectionRange();
+        if (selectionRange != null) {
+            selectionRange = selectionRange.forwards();
+            var startSave = new Object();
+            var endSave = new Object();
+
+            var html = null;
+
+            selectionRange.trackWhileExecuting(function() {
+                // We use the strings @@^^ and ^^@@ to represent the selection
+                // start and end, respectively. The reason for this is that after we have
+                // cloned the tree, all text will be removed. We keeping the @ and ^ characters
+                // so we have some way to identifiy the selection markers; leaving these in
+                // is not going to reveal any confidential information.
+
+                addPositionMarker(selectionRange.start,"@@^^",startSave);
+                addPositionMarker(selectionRange.end,"^^@@",endSave);
+
+                html = DOM.cloneNode(document.documentElement,true);
+
+                removePositionMarker(selectionRange.end,endSave);
+                removePositionMarker(selectionRange.start,startSave);
+            });
+
+            return html;
+        }
+        else {
+            return DOM.cloneNode(document.documentElement,true);
+        }
+    }
+
+    function addPositionMarker(pos,name,save)
+    {
+        var node = pos.node;
+        var offset = pos.offset;
+        if (node.nodeType == Node.ELEMENT_NODE) {
+            save.tempNode = DOM.createTextNode(document,name);
+            DOM.insertBefore(node,save.tempNode,node.childNodes[offset]);
+        }
+        else if (node.nodeType == Node.TEXT_NODE) {
+            save.originalNodeValue = node.nodeValue;
+            node.nodeValue = node.nodeValue.slice(0,offset) + name + node.nodeValue.slice(offset);
+        }
+    }
+
+    function removePositionMarker(pos,save)
+    {
+        var node = pos.node;
+        var offset = pos.offset;
+        if (pos.node.nodeType == Node.ELEMENT_NODE) {
+            DOM.deleteNode(save.tempNode);
+        }
+        else if (pos.node.nodeType == Node.TEXT_NODE) {
+            node.nodeValue = save.originalNodeValue;
+        }
+    }
+}
+
 function removeSpecial(node)
 {
     if ((node.nodeName == "SPAN") &&
@@ -141,6 +230,18 @@ function removeSpecial(node)
 function isEmptyDocument()
 {
     return !nodeHasContent(document.body);
+}
+
+function execute(fun)
+{
+    try {
+        var res = fun();
+        PostponedActions.perform();
+        return res;
+    }
+    catch (e) {
+        editor.reportJSError(e);
+    }
 }
 
 function init()
