@@ -170,13 +170,13 @@ function getErrorReportingInfo()
                 // so we have some way to identifiy the selection markers; leaving these in
                 // is not going to reveal any confidential information.
 
-                addPositionMarker(selectionRange.start,"@@^^",startSave);
                 addPositionMarker(selectionRange.end,"^^@@",endSave);
+                addPositionMarker(selectionRange.start,"@@^^",startSave);
 
                 html = DOM.cloneNode(document.documentElement,true);
 
-                removePositionMarker(selectionRange.end,endSave);
                 removePositionMarker(selectionRange.start,startSave);
+                removePositionMarker(selectionRange.end,endSave);
             });
 
             return html;
