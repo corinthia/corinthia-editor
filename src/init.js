@@ -244,17 +244,37 @@ function execute(fun)
     }
 }
 
+function addContentType()
+{
+    var head = document.getElementsByTagName("HEAD")[0];
+    var haveContentType = false;
+    for (var child = head.firstChild; child != null; child = child.nextSibling) {
+        if ((child.nodeName == "META") &&
+            (child.getAttribute("http-equiv").toLowerCase() == "content-type")) {
+            haveContentType = true;
+            break;
+        }
+    }
+    if (!haveContentType) {
+        var meta = DOM.createElement(document,"META");
+        meta.setAttribute("http-equiv","Content-Type");
+        meta.setAttribute("content","text/html; charset=utf-8");
+        DOM.insertBefore(head,meta,head.firstChild);
+    }
+}
+
 function init()
 {
     var jsInitOk = false;
     try {
         DOM.assignNodeIds(document);
+        addContentType();
         getStyles();
         Outline.init();
         jsInitOk = true;
     }
     catch (e) {
-        editor.jsInterfaceInitError(e.stack);
+        editor.jsInterfaceInitError(e);
     }
 
     if (jsInitOk)
