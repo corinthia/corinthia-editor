@@ -168,14 +168,7 @@ Range.prototype.getAllNodes = function(atLeastOne)
 
 Range.prototype.singleNode = function()
 {
-    var node = this.start.node;
-    var offset = this.start.offset;
-    if ((node.nodeType != Node.ELEMENT_NODE) || (node.firstChild == null))
-        return node;
-    else if (offset >= node.childNodes.length)
-        return node.lastChild;
-    else
-        return node.childNodes[offset];
+    return this.start.closestActualNode();
 }
 
 Range.prototype.ensureRangeValidHierarchy = function()

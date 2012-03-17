@@ -272,6 +272,19 @@
         }
     }
 
+    // public
+    Position.prototype.closestActualNode = function()
+    {
+        var node = this.node;
+        var offset = this.offset;
+        if ((node.nodeType != Node.ELEMENT_NODE) || (node.firstChild == null))
+            return node;
+        else if (offset >= node.childNodes.length)
+            return node.lastChild;
+        else
+            return node.childNodes[offset];
+    }
+
     window.Location = Location;
     window.Position = Position;
 

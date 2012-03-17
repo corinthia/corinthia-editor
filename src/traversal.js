@@ -68,6 +68,20 @@ function lastChildElement(node)
     return last;
 }
 
+function firstDescendant(node)
+{
+    while (node.firstChild != null)
+        node = node.firstChild;
+    return node;
+}
+
+function lastDescendant(node)
+{
+    while (node.lastChild != null)
+        node = node.lastChild;
+    return node;
+}
+
 function getNodeDepth(node)
 {
     var depth = 0;

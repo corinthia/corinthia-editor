@@ -336,6 +336,42 @@
     }
 
     // public
+    function paragraphTextUpToPosition(pos)
+    {
+        if (pos.node.nodeType == Node.TEXT_NODE) {
+            return stringToStartOfParagraph(pos.node,pos.offset);
+        }
+        else {
+            return stringToStartOfParagraph(pos.closestActualNode(),0);
+        }
+
+        function stringToStartOfParagraph(node,offset)
+        {
+            var start = node;
+            var components = new Array();
+            while (isInlineNode(node)) {
+                if (node.nodeType == Node.TEXT_NODE) {
+                    if (node == start)
+                        components.push(node.nodeValue.slice(0,offset));
+                    else
+                        components.push(node.nodeValue);
+                }
+
+                if (node.previousSibling != null) {
+                    node = node.previousSibling;
+                    while (isInlineNode(node) && (node.lastChild != null))
+                        node = node.lastChild;
+                }
+                else {
+                    node = node.parentNode;
+                }
+            }
+            return components.reverse().join("");
+        }
+    }
+
+
+    // public
     function getFormatting()
     {
         // FIXME: implement a more efficient version of this algorithm which avoids duplicate checks
@@ -364,7 +400,31 @@
 
         if (commonProperties == null)
             commonProperties = {};
+
+        getFlags(range.start,commonProperties);
+
         return commonProperties;
+
+        function getFlags(pos,commonProperties)
+        {
+            var strBeforeCursor = paragraphTextUpToPosition(pos);
+
+            if (isWhitespaceString(strBeforeCursor)) {
+                var firstInParagraph = true;
+                for (var p = pos.node; isInlineNode(p); p = p.parentNode) {
+                    if (p.previousSibling != null)
+                        firstInParagraph = false;
+                }
+                if (firstInParagraph)
+                    commonProperties["uxwrite-shift"] = "true";
+            }
+            if (strBeforeCursor.match(/\.\s+$/))
+                commonProperties["uxwrite-shift"] = "true";
+            if (strBeforeCursor.match(/\([^\)]*$/))
+                commonProperties["uxwrite-inbrackets"] = "true";
+            if (strBeforeCursor.match(/\u201c[^\u201d]*$/))
+                commonProperties["uxwrite-inquotes"] = "true";
+        }
 
         function intersection(a,b)
         {
@@ -896,6 +956,7 @@
     Formatting.splitAroundSelection = splitAroundSelection;
     Formatting.mergeWithNeighbours = mergeWithNeighbours;
     Formatting.mergeRange = mergeRange;
+    Formatting.paragraphTextUpToPosition = paragraphTextUpToPosition;
     Formatting.getFormatting = getFormatting;
     Formatting.pushDownInlineProperties = pushDownInlineProperties;
     Formatting.applyFormattingChanges = applyFormattingChanges;

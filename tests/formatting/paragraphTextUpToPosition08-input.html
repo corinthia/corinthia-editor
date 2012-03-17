@@ -1,0 +1,17 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script language="javascript">
+
+function performTest()
+{
+    var selectionRange = Selection.getSelectionRange();
+    return Formatting.paragraphTextUpToPosition(selectionRange.start);
+}
+</script>
+</head>
+<body>
+<p>The <b>quick</b> brown <b>fox <i>jumps <u>over</u></i> the</b> <b>lazy</b> dog[].</p>
+</body>
+</html>
