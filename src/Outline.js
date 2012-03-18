@@ -89,7 +89,6 @@
             if (this.span == null) {
                 this.span = DOM.createElement(document,"SPAN");
                 this.span.setAttribute("class",Keys.HEADING_NUMBER);
-                this.span.setAttribute("style","color: red");
                 DOM.insertBefore(this.node,this.span,this.node.firstChild);
                 var text = DOM.createTextNode(document,"");
                 DOM.appendChild(this.span,text);
