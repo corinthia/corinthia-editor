@@ -3,20 +3,11 @@ var editor = {
     {
     },
 
-    getHTMLError: function(message)
-    {
-    },
-    
-    getHTMLResponse: function(html)
-    {
-    },
-    
     jsInterfaceInitError: function(error)
     {
     },
     
-    jsInterfaceInitFinished: function()
-    {
+    jsInterfaceInitFinished: function() {
     },
     
     setOutline: function(outline)
@@ -43,7 +34,8 @@ var editor = {
     {
     },
     
-    sayHello: function(name)
+    reportJSError: function(error)
     {
-    }
+    },    
+    
 };
