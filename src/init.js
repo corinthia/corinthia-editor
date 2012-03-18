@@ -258,55 +258,35 @@ function execute(fun)
 
 function addContentType()
 {
-    debug("addContentType 1");
     var head = DOM.documentHead(document);
-    debug("addContentType 2");
-    debug("addContentType 2: head = "+head);
-    debug("document.documentElement = "+document.documentElement.nodeName);
-    for (var c = document.documentElement.firstChild; c != null; c = c.nextSibling) {
-        debug("c = "+c.nodeName);
-    }
     var haveContentType = false;
     for (var child = head.firstChild; child != null; child = child.nextSibling) {
-        debug("addContentType 3: child = "+nodeString(child));
         if (DOM.upperName(child) == "META") {
-            debug("addContentType 4");
             var httpEquiv = child.getAttribute("http-equiv");
-            debug("addContentType 5");
             if ((httpEquiv != null) && (httpEquiv.toLowerCase() == "content-type")) {
-                debug("addContentType 6");
                 haveContentType = true;
                 break;
             }
         }
     }
-    debug("addContentType 7");
     if (!haveContentType) {
-        debug("addContentType 8");
         var meta = DOM.createElement(document,"META");
         meta.setAttribute("http-equiv","Content-Type");
         meta.setAttribute("content","text/html; charset=utf-8");
         DOM.insertBefore(head,meta,head.firstChild);
-        debug("addContentType 9");
     }
 }
 
 function init()
 {
     try {
-        debug("init 1");
         DOM.assignNodeIds(document);
-        debug("init 2");
         addContentType();
-        debug("init 3");
         getStyles();
-        debug("init 4");
         Outline.init();
-        debug("init 5");
         return true;
     }
     catch (e) {
-        debug("init error: "+e);
         return e.toString();
     }
 }
