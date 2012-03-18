@@ -461,11 +461,11 @@ Range.prototype.cloneContents = function()
         var clone = DOM.cloneNode(node,deep);
         cloneMap.put(node,clone);
         if (node.parentNode == detail.commonAncestor) {
-            cloneRoot.appendChild(clone);
+            DOM.appendChild(cloneRoot,clone);
         }
         else {
             var parentClone = add(node.parentNode,false);
-            parentClone.appendChild(clone);
+            DOM.appendChild(parentClone,clone);
         }
         return clone;
     }
