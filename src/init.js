@@ -221,9 +221,21 @@ function removeSpecial(node)
          (node.getAttribute("class") == Keys.TABLE_NUMBER))) {
         DOM.removeNodeButKeepChildren(node);
     }
+    else if ((DOM.upperName(node) == "DIV") &&
+             (node.getAttribute("class") == Keys.SELECTION_HIGHLIGHT)) {
+        DOM.removeNodeButKeepChildren(node);
+    }
+    else if ((DOM.upperName(node) == "META") &&
+             node.hasAttribute("name") &&
+             (node.getAttribute("name").toLowerCase() == "viewport")) {
+        DOM.deleteNode(node);
+    }
     else {
-        for (var child = node.firstChild; child != null; child = child.nextSibling)
+        var next;
+        for (var child = node.firstChild; child != null; child = next) {
+            next = child.nextSibling;
             removeSpecial(child);
+        }
     }
 }
 

@@ -136,6 +136,7 @@
 
             for (var i = 0; i < rects.length; i++) {
                 var div = DOM.createElement(document,"DIV");
+                div.setAttribute("class",Keys.SELECTION_HIGHLIGHT);
                 div.style.position = "absolute";
 
                 var left = rects[i].left + window.scrollX;

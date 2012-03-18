@@ -49,6 +49,7 @@ var Keys = {
     HEADING_NUMBER: "-uxwrite-heading-number",
     FIGURE_NUMBER: "-uxwrite-figure-number",
     TABLE_NUMBER: "-uxwrite-table-number",
+    SELECTION_HIGHLIGHT: "-uxwrite-selection-highlight",
 };
 
 var OPAQUE_NODE_CLASSES = {
