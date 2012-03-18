@@ -98,7 +98,7 @@ function getNodeText(node)
 
     function recurse(node)
     {
-        if (node.nodeName == "#text")
+        if (node.nodeType == Node.TEXT_NODE)
             strings.push(node.nodeValue);
 
         for (var child = node.firstChild; child != null; child = child.nextSibling)

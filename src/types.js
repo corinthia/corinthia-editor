@@ -59,17 +59,17 @@ var OPAQUE_NODE_CLASSES = {
 
 function isContainerNode(node)
 {
-    return CONTAINER_ELEMENTS[node.nodeName];
+    return CONTAINER_ELEMENTS[DOM.upperName(node)];
 }
 
 function isParagraphNode(node)
 {
-    return PARAGRAPH_ELEMENTS[node.nodeName];
+    return PARAGRAPH_ELEMENTS[DOM.upperName(node)];
 }
 
 function isHeadingNode(node)
 {
-    return HEADING_ELEMENTS[node.nodeName];
+    return HEADING_ELEMENTS[DOM.upperName(node)];
 }
 
 function isParagraphOrContainerNode(node)
@@ -88,10 +88,10 @@ function isOpaqueNode(node)
         return isOpaqueNode(node.parentNode);
     }
     else if (node.nodeType == Node.ELEMENT_NODE) {
-        if ((node.nodeName == "SPAN") && node.hasAttribute("class")) {
+        if ((DOM.upperName(node) == "SPAN") && node.hasAttribute("class")) {
             return OPAQUE_NODE_CLASSES[node.getAttribute("class")];
         }
-        else if ((node.nodeName == "A") && node.hasAttribute("href")) {
+        else if ((DOM.upperName(node) == "A") && node.hasAttribute("href")) {
             var href = node.getAttribute("href");
             return ((href.indexOf("#section") == 0) ||
                     (href.indexOf("#figure") == 0) ||

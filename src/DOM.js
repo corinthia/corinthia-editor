@@ -21,7 +21,7 @@
         if (window.UndoManager != null) {
             UndoManager.addAction(function() {
                 deleteNodeInternal(newChild);
-            },"Remove "+newChild.nodeName+" from parent "+parent.nodeName);
+            },"Remove "+DOM.upperName(newChild)+" from parent "+DOM.upperName(parent));
         }
 
         parent.insertBefore(newChild,refChild);
@@ -35,16 +35,16 @@
     function deleteNodeInternal(node,deleteDescendantData)
     {
         if (node._nodeId == null)
-            throw new Error("deleteNodeInternal: node "+node.nodeName+" has no _nodeId property");
+            throw new Error("deleteNodeInternal: node "+DOM.upperName(node)+" has no _nodeId property");
 
         var parent = node.parentNode;
         var nextSibling = node.nextSibling;
-        var nextName = (nextSibling == null) ? null : nextSibling.nodeName;
+        var nextName = (nextSibling == null) ? null : DOM.upperName(nextSibling);
         var data = nodeData[node._nodeId];
         if (window.UndoManager != null) {
             UndoManager.addAction(function() {
                 insertBeforeInternal(parent,node,nextSibling);
-            },"Insert "+node.nodeName+" into parent "+parent.nodeName+" before "+nextName);
+            },"Insert "+DOM.upperName(node)+" into parent "+DOM.upperName(parent)+" before "+nextName);
         }
 
         node.parentNode.removeChild(node);
@@ -62,7 +62,7 @@
                 var data = nodeData[current._nodeId];
                 UndoManager.addAction(function() {
                     nodeData[current._nodeId] = data;
-                },"Set node data for "+current.nodeName);
+                },"Set node data for "+DOM.upperName(current));
             }
             delete nodeData[current._nodeId];
         }
@@ -84,17 +84,17 @@
         if (event.attrChange == MutationEvent.ADDITION) {
             UndoManager.addAction(function() {
                 element.removeAttribute(attrName);
-            },"Remove "+attrName+" attribute from "+element.nodeName);
+            },"Remove "+attrName+" attribute from "+DOM.upperName(element));
         }
         else if (event.attrChange == MutationEvent.REMOVAL) {
             UndoManager.addAction(function() {
                 element.setAttribute(attrName,prevValue);
-            },"Add "+attrName+" attribute to "+element.nodeName+" with value \""+prevValue+"\"");
+            },"Add "+attrName+" attribute to "+DOM.upperName(element)+" with value \""+prevValue+"\"");
         }
         else if (event.attrChange == MutationEvent.MODIFICATION) {
             UndoManager.addAction(function() {
                 element.setAttribute(attrName,prevValue);
-            },"Change "+attrName+" attribute of "+element.nodeName+" to value \""+prevValue+"\"");
+            },"Change "+attrName+" attribute of "+DOM.upperName(element)+" to value \""+prevValue+"\"");
         }
     }
 
@@ -381,8 +381,8 @@
         {
             if (whiteList["force"] && isParagraphNode(a) && isParagraphNode(b))
                 return true;
-            if ((a.nodeName == b.nodeName) &&
-                whiteList[a.nodeName] &&
+            if ((DOM.upperName(a) == DOM.upperName(b)) &&
+                whiteList[DOM.upperName(a)] &&
                 (a.attributes.length == b.attributes.length)) {
                 for (var i = 0; i < a.attributes.length; i++) {
                     var attrName = a.attributes[i].nodeName;
@@ -399,7 +399,7 @@
     function getDataForNode(node,create)
     {
         if (node._nodeId == null)
-            throw new Error("getDataForNode: node "+node.nodeName+" has no _nodeId property");
+            throw new Error("getDataForNode: node "+DOM.upperName(node)+" has no _nodeId property");
         if ((nodeData[node._nodeId] == null) && create)
             nodeData[node._nodeId] = new Object();
         return nodeData[node._nodeId];
@@ -435,7 +435,7 @@
         var data = getDataForNode(position.node,false);
         if ((data == null) || (data.trackedPositions == null))
             throw new Error("DOM.removeTrackedPosition: no registered positions for this node "+
-                            "("+position.node.nodeName+")");
+                            "("+position.DOM.upperName(node)+")");
         for (var i = 0; i < data.trackedPositions.length; i++) {
             if (data.trackedPositions[i] == position) {
                 data.trackedPositions.splice(i,1);
@@ -497,6 +497,29 @@
         });
         characterDataModified(textNode,textNode.nodeValue);
         textNode.nodeValue = value;
+    }
+
+    DOM.lowerName = function(node)
+    {
+        return node.nodeName.toLowerCase();
+    }
+
+    DOM.upperName = function(node)
+    {
+        if (node.nodeType == Node.ELEMENT_NODE)
+            return node.nodeName.toUpperCase();
+        else
+            return node.nodeName;
+    }
+
+    DOM.documentHead = function(document)
+    {
+        var html = document.documentElement;
+        for (var child = html.firstChild; child != null; child = child.nextSibling) {
+            if (DOM.upperName(child) == "HEAD")
+                return child;
+        }
+        throw new Error("Document contains no HEAD element");
     }
 
     window.DOM = DOM;

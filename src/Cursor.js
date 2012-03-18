@@ -59,7 +59,7 @@
                 !isInlineNode(node.parentNode) &&
                 isWhitespaceTextNode(node) &&
                 (prev == null) &&
-                ((next == null) || (next.nodeName == "BR")))
+                ((next == null) || (DOM.upperName(next) == "BR")))
                 result = true;
         }
         else if (node.nodeType == Node.ELEMENT_NODE) {
@@ -68,26 +68,27 @@
 
             // Directly after an IMG, TABLE, UL, or OL -> YES
             if ((prev != null) &&
-                ((prev.nodeName == "IMG") ||
-                 (prev.nodeName == "TABLE") ||
-                 (prev.nodeName == "UL") ||
-                 (prev.nodeName == "OL")))
+                ((DOM.upperName(prev) == "IMG") ||
+                 (DOM.upperName(prev) == "TABLE") ||
+                 (DOM.upperName(prev) == "UL") ||
+                 (DOM.upperName(prev) == "OL")))
                 result = true;
 
             // Directly before an IMG, TABLE, UL, or OL -> YES
             if ((next != null) &&
-                ((next.nodeName == "IMG") ||
-                 (next.nodeName == "TABLE") ||
-                 (next.nodeName == "UL") ||
-                 (next.nodeName == "OL")))
+                ((DOM.upperName(next) == "IMG") ||
+                 (DOM.upperName(next) == "TABLE") ||
+                 (DOM.upperName(next) == "UL") ||
+                 (DOM.upperName(next) == "OL")))
                 result = true;
 
             // In an empty paragraph or one that only contains a BR
-            if ((prev == null) && (next != null) && (next.nodeName == "BR"))
+            if ((prev == null) && (next != null) && (DOM.upperName(next) == "BR"))
                 result = true;
 
             if ((prev == null) && (next == null) &&
-                (isParagraphNode(node) || INLINE_ELEMENTS_THAT_CAN_HAVE_CHILDREN[node.nodeName]))
+                (isParagraphNode(node) ||
+                 INLINE_ELEMENTS_THAT_CAN_HAVE_CHILDREN[DOM.upperName(node)]))
                 result = true;
 
             // Special case for an IMG that directly follows some text that ends in a
@@ -95,7 +96,7 @@
             // node, so we don't want to allow it before the image (which corresponds to the
             // same location on screen)
             if ((next != null) && (prev != null) &&
-                (next.nodeName == "IMG") &&
+                (DOM.upperName(next) == "IMG") &&
                 (prev.nodeType == Node.TEXT_NODE) &&
                 (prev.nodeValue.length > 0) &&
                 !isWhitespaceString(prev.nodeValue.charAt(prev.nodeValue.length-1))) {
@@ -104,7 +105,7 @@
 
             // As above, but for an IMG that directly precedes some text
             if ((prev != null) && (next != null) &&
-                (prev.nodeName == "IMG") &&
+                (DOM.upperName(prev) == "IMG") &&
                 (next.nodeType == Node.TEXT_NODE) &&
                 (next.nodeValue.length > 0) &&
                 !isWhitespaceString(next.nodeValue.charAt(0))) {
@@ -227,7 +228,7 @@
                 while ((child != null) && isWhitespaceTextNode(child))
                     child = child.previousSibling;
 
-                if ((child != null) && (child.nodeName == "BR"))
+                if ((child != null) && (DOM.upperName(child) == "BR"))
                     br = child;
             }
 
@@ -372,7 +373,8 @@
         var pos = selectionRange.start;
 
         var detail = selectionRange.detail();
-        if ((detail.startParent.nodeName == "OL") || (detail.startParent.nodeName == "UL")) {
+        if ((DOM.upperName(detail.startParent) == "OL") ||
+            (DOM.upperName(detail.startParent) == "UL")) {
             var li = DOM.createElement(document,"LI");
             DOM.insertBefore(detail.startParent,li,detail.startChild);
             
@@ -409,7 +411,7 @@
                     updateBRAtEndOfParagraph(prev);
                     break;
                 }
-                else if ((prev != null) && (prev.nodeName == "LI") && !nodeHasContent(prev)) {
+                else if ((prev != null) && (DOM.upperName(prev) == "LI") && !nodeHasContent(prev)) {
                     DOM.deleteAllChildren(prev);
                     break;
                 }
@@ -425,7 +427,7 @@
                     updateBRAtEndOfParagraph(prev);
                     break;
                 }
-                else if ((ancestor.nodeName == "LI") && !nodeHasContent(ancestor)) {
+                else if ((DOM.upperName(ancestor) == "LI") && !nodeHasContent(ancestor)) {
                     DOM.deleteAllChildren(ancestor);
                     break;
                 }
@@ -439,7 +441,7 @@
 
         function enterPressedFilter(node)
         {
-            return (isContainerNode(node) && (node.nodeName != "LI"));
+            return (isContainerNode(node) && (DOM.upperName(node) != "LI"));
         }
     }
 

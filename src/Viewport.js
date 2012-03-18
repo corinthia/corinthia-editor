@@ -6,11 +6,12 @@
     var viewportWidth = null;
     var viewportHeight = null;
 
+    // FIXME: don't need this; there is always a head
     function getOrCreateHead()
     {
         var html = document.documentElement;
         for (var child = html.firstChild; child != null; child = child.nextSibling) {
-            if (child.nodeName == "HEAD")
+            if (DOM.upperName(child) == "HEAD")
                 return child;
         }
         var head = DOM.createElement(document,"HEAD");
@@ -25,7 +26,8 @@
             if (viewportMetaElement == null) {
                 var head = getOrCreateHead();
                 for (var child = head.firstChild; child != null; child = child.nextSibling) {
-                    if ((child.nodeName == "META") && (child.getAttribute("name") == "viewport")) {
+                    if ((DOM.upperName(child) == "META") &&
+                        (child.getAttribute("name") == "viewport")) {
                         viewportMetaElement = child;
                         break;
                     }

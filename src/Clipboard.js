@@ -4,7 +4,7 @@
     {
         var linesBetweenChildren = 1;
         var childIndent = indent;
-        if (node.nodeName == "LI") {
+        if (DOM.upperName(node) == "LI") {
             if (listType == "OL") {
                 var listMarker;
                 if (listNo.value < 10)
@@ -20,41 +20,41 @@
             }
             listNo.value++;
         }
-        else if (node.nodeName == "UL") {
+        else if (DOM.upperName(node) == "UL") {
             listType = "UL";
             listNo = { value: 1 };
             beginParagraph(md,1,indent,nextIndent);
             linesBetweenChildren = 0;
         }
-        else if (node.nodeName == "OL") {
+        else if (DOM.upperName(node) == "OL") {
             listType = "OL";
             listNo = { value: 1 };
             beginParagraph(md,1,indent,nextIndent);
             linesBetweenChildren = 0;
         }
-        else if (node.nodeName == "H1") {
+        else if (DOM.upperName(node) == "H1") {
             beginParagraph(md,1,indent,nextIndent,"# "," #");
         }
-        else if (node.nodeName == "H2") {
+        else if (DOM.upperName(node) == "H2") {
             beginParagraph(md,1,indent,nextIndent,"## "," ##");
         }
-        else if (node.nodeName == "H3") {
+        else if (DOM.upperName(node) == "H3") {
             beginParagraph(md,1,indent,nextIndent,"### "," ###");
         }
-        else if (node.nodeName == "H4") {
+        else if (DOM.upperName(node) == "H4") {
             beginParagraph(md,1,indent,nextIndent,"#### "," ####");
         }
-        else if (node.nodeName == "H5") {
+        else if (DOM.upperName(node) == "H5") {
             beginParagraph(md,1,indent,nextIndent,"##### "," #####");
         }
-        else if (node.nodeName == "H6") {
+        else if (DOM.upperName(node) == "H6") {
             beginParagraph(md,1,indent,nextIndent,"###### "," ######");
         }
-        else if (node.nodeName == "BLOCKQUOTE") {
+        else if (DOM.upperName(node) == "BLOCKQUOTE") {
             beginParagraph(md,1,indent,nextIndent,"> ");
             nextIndent += "> ";
         }
-        else if (node.nodeName == "PRE") {
+        else if (DOM.upperName(node) == "PRE") {
             md.preDepth++;
         }
 
@@ -80,7 +80,7 @@
             }
         }
 
-        if (node.nodeName == "PRE") {
+        if (DOM.upperName(node) == "PRE") {
             md.preDepth--;
         }
     }
@@ -149,17 +149,17 @@
             }
             md.buildParagraph.push(text);
         }
-        else if ((node.nodeName == "I") || (node.nodeName == "EM")) {
+        else if ((DOM.upperName(node) == "I") || (DOM.upperName(node) == "EM")) {
             md.buildParagraph.push("*");
             processChildren();
             md.buildParagraph.push("*");
         }
-        else if ((node.nodeName == "B") || (node.nodeName == "STRONG")) {
+        else if ((DOM.upperName(node) == "B") || (DOM.upperName(node) == "STRONG")) {
             md.buildParagraph.push("**");
             processChildren();
             md.buildParagraph.push("**");
         }
-        else if (node.nodeName == "A") {
+        else if (DOM.upperName(node) == "A") {
             md.buildParagraph.push("[");
             processChildren();
             md.buildParagraph.push("]("+node.getAttribute("href")+")");
@@ -315,12 +315,12 @@
             previousSibling = node.previousSibling;
         }
 
-        if ((parent.nodeName == "UL") || (parent.nodeName == "OL")) {
+        if ((DOM.upperName(parent) == "UL") || (DOM.upperName(parent) == "OL")) {
             for (var i = 0; i < nodes.length; i++) {
-                if (nodes[i].nodeName == "LI") {
+                if (DOM.upperName(nodes[i]) == "LI") {
                     DOM.insertBefore(parent,nodes[i],nextSibling);
                 }
-                else if (nodes[i].nodeName == parent.nodeName) {
+                else if (DOM.upperName(nodes[i]) == DOM.upperName(parent)) {
                     while (nodes[i].firstChild != null)
                         DOM.insertBefore(parent,nodes[i].firstChild,nextSibling);
                 }

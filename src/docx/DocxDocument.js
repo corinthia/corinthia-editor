@@ -59,7 +59,7 @@ DocxDocument.prototype.serializeDocumentXML = function()
 DocxDocument.prototype.addStyleSheet = function()
 {
     var head = document.documentElement.firstChild;
-    while ((head != null) && (head.nodeName != "HEAD"))
+    while ((head != null) && (DOM.upperName(head) != "HEAD"))
         head = head.nextSibling;
     if (head == null) {
         head = DOM.createElement(document,"HEAD");
@@ -155,11 +155,11 @@ DocxDocument.prototype.recurseP = function(node,htmlParent,containingBlockWidth)
 
             for (var i = 0; i <= properties.numPr.ilvl-1; i++) {
                 if ((htmlParent.lastChild != null) &&
-                    ((htmlParent.lastChild.nodeName == "OL") ||
-                     (htmlParent.lastChild.nodeName == "UL")) &&
+                    ((DOM.upperName(htmlParent.lastChild) == "OL") ||
+                     (DOM.upperName(htmlParent.lastChild) == "UL")) &&
                     (htmlParent.lastChild.getAttribute("word-ilvl") == i) &&
                     (htmlParent.lastChild.lastChild != null) &&
-                    (htmlParent.lastChild.lastChild.nodeName == "LI")) {
+                    (DOM.upperName(htmlParent.lastChild.lastChild) == "LI")) {
                     htmlParent = htmlParent.lastChild.lastChild;
                 }
             }
@@ -167,7 +167,7 @@ DocxDocument.prototype.recurseP = function(node,htmlParent,containingBlockWidth)
 
             var parentList = null;
             if ((htmlParent.lastChild != null) &&
-                (htmlParent.lastChild.nodeName == listType)) {
+                (DOM.upperName(htmlParent.lastChild) == listType)) {
                 parentList = htmlParent.lastChild;
             }
             else {
@@ -435,7 +435,7 @@ DocxDocument.prototype.recurseTbl = function(node,htmlParent,containingBlockWidt
             section = this.addChild(htmlTable,"THEAD");
         else if ((row == table.numRows-1) && (footer || styleHasSWCell || styleHasSECell))
             section = this.addChild(htmlTable,"TFOOT");
-        else if ((section == null) || (section.nodeName != "TBODY"))
+        else if ((section == null) || (DOM.upperName(section) != "TBODY"))
             section = this.addChild(htmlTable,"TBODY");
 
         var htmlTR = this.addChild(section,"TR");
@@ -631,7 +631,7 @@ TranslationTable.prototype.set = function(row,col,cell)
 
         function getNodeTextRecursive(stringBuilder,node)
         {
-            if (node.nodeName == "#text") {
+            if (node.nodeType == Node.TEXT_NODE) {
                 stringBuilder.str += node.nodeValue;
             }
             else {

@@ -6,7 +6,7 @@ function getStyleElement()
     if (style == null) {
         style = DOM.createElement(document,"STYLE");
         style.setAttribute("id","style");
-        var head = document.getElementsByTagName("HEAD")[0];
+        var head = DOM.documentHead(document);
         DOM.appendChild(head,style);
     }
     return style;

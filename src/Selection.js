@@ -19,7 +19,7 @@
 
         if (node.nodeType == Node.ELEMENT_NODE) {
             // Cursor is immediately before table -> return table rect
-            if ((offset > 0) && (node.childNodes[offset-1].nodeName == "TABLE")) {
+            if ((offset > 0) && (DOM.upperName(node.childNodes[offset-1]) == "TABLE")) {
                 var rect = node.childNodes[offset-1].getBoundingClientRect();
                 return { left: rect.left + rect.width,
                          top: rect.top,
@@ -28,7 +28,7 @@
             }
             // Cursor is immediately after table -> return table rect
             else if ((offset < node.childNodes.length) &&
-                     (node.childNodes[offset].nodeName == "TABLE")) {
+                     (DOM.upperName(node.childNodes[offset]) == "TABLE")) {
                 var rect = node.childNodes[offset].getBoundingClientRect();
                 return { left: rect.left,
                          top: rect.top,
@@ -358,7 +358,7 @@
                 }
 
                 if (removeWholeNode) {
-                    if ((node.nodeName == "TD") || (node.nodeName == "TH"))
+                    if ((DOM.upperName(node) == "TD") || (DOM.upperName(node) == "TH"))
                         DOM.deleteAllChildren(node);
                     else
                         DOM.deleteNode(node);

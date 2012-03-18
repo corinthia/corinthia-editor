@@ -19,7 +19,7 @@
         }
         this.node = node;
         this.title = node ? getNodeText(node) : "Contents";
-        this.level = node ? parseInt(node.nodeName.substring(1)) : 0;
+        this.level = node ? parseInt(DOM.upperName(node).substring(1)) : 0;
         this.index = null;
         this.parent = null;
         this.children = new Array();
@@ -177,7 +177,7 @@
     {
         for (var p = node; p != null; p = p.parentNode) {
             if ((p.nodeType == Node.ELEMENT_NODE) &&
-                (p.nodeName == "SPAN") &&
+                (DOM.upperName(p) == "SPAN") &&
                 (p.getAttribute("class") == Keys.HEADING_NUMBER))
                 return false;
         }

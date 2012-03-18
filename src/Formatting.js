@@ -461,13 +461,13 @@
                 for (var name in nodeProperties)
                     properties[name] = nodeProperties[name];
             }
-            if (node.nodeName == "B") {
+            if (DOM.upperName(node) == "B") {
                 properties["font-weight"] = "bold";
             }
-            else if (node.nodeName == "I") {
+            else if (DOM.upperName(node) == "I") {
                 properties["font-style"] = "italic";
             }
-            else if (node.nodeName == "U") {
+            else if (DOM.upperName(node) == "U") {
                 var components = [];
                 if (properties["text-decoration"] != null) {
                     var components = properties["text-decoration"].toLowerCase().split(/\s+/);
@@ -478,22 +478,22 @@
                     properties["text-decoration"] = "underline";
                 }
             }
-            else if (node.nodeName == "H1") {
+            else if (DOM.upperName(node) == "H1") {
                 properties["uxwrite-style"] = "H1";
             }
-            else if (node.nodeName == "H2") {
+            else if (DOM.upperName(node) == "H2") {
                 properties["uxwrite-style"] = "H2";
             }
-            else if (node.nodeName == "H3") {
+            else if (DOM.upperName(node) == "H3") {
                 properties["uxwrite-style"] = "H3";
             }
-            else if (node.nodeName == "H4") {
+            else if (DOM.upperName(node) == "H4") {
                 properties["uxwrite-style"] = "H4";
             }
-            else if (node.nodeName == "H5") {
+            else if (DOM.upperName(node) == "H5") {
                 properties["uxwrite-style"] = "H5";
             }
-            else if (node.nodeName == "H6") {
+            else if (DOM.upperName(node) == "H6") {
                 properties["uxwrite-style"] = "H6";
             }
             else if (isParagraphNode(node)) {
@@ -591,16 +591,16 @@
         var wasHeading = isHeadingNode(paragraph);
         paragraph.removeAttribute("class");
         if (style == "") {
-            if (paragraph.nodeName != "P")
+            if (DOM.upperName(paragraph) != "P")
                 paragraph = DOM.replaceElement(paragraph,"P");
         }
         else if (style.charAt(0) == ".") {
-            if (paragraph.nodeName != "P")
+            if (DOM.upperName(paragraph) != "P")
                 paragraph = DOM.replaceElement(paragraph,"P");
             paragraph.setAttribute("class",style.slice(1));
         }
         else {
-            if (paragraph.nodeName != style)
+            if (DOM.upperName(paragraph) != style)
                 paragraph = DOM.replaceElement(paragraph,style);
         }
         var isHeading = isHeadingNode(paragraph);
@@ -638,11 +638,11 @@
             for (var name in inlineProperties)
                 node.style.removeProperty(name);
 
-            if (node.nodeName == "B")
+            if (DOM.upperName(node) == "B")
                 inlineProperties["font-weight"] = "bold";
-            if (node.nodeName == "I")
+            if (DOM.upperName(node) == "I")
                 inlineProperties["font-style"] = "italic";
-            if (node.nodeName == "U") {
+            if (DOM.upperName(node) == "U") {
                 if (inlineProperties["text-decoration"] != null)
                     inlineProperties["text-decoration"] += " underline";
                 else
@@ -671,7 +671,9 @@
             if (node.hasAttribute("style") && (node.style.length == 0))
                 node.removeAttribute("style");
 
-            if ((node.nodeName == "B") || (node.nodeName == "I") || (node.nodeName == "U"))
+            if ((DOM.upperName(node) == "B") ||
+                (DOM.upperName(node) == "I") ||
+                (DOM.upperName(node) == "U"))
                 DOM.removeNodeButKeepChildren(node);
         }
     }
@@ -705,9 +707,9 @@
 
         if ((Object.getOwnPropertyNames(inlineProperties).length > 0) &&
             ((target.nodeType != Node.ELEMENT_NODE) ||
-             (target.nodeName == "B") ||
-             (target.nodeName == "I") ||
-             (target.nodeName == "U"))) {
+             (DOM.upperName(target) == "B") ||
+             (DOM.upperName(target) == "I") ||
+             (DOM.upperName(target) == "U"))) {
             target = wrapInline(target,"SPAN");
         }
 
@@ -804,10 +806,10 @@
                 node.removeAttribute("style");
         }
 
-        var willRemove = ((node.nodeName == "B") && (special.bold != null)) ||
-                         ((node.nodeName == "I") && (special.italic != null)) ||
-                         ((node.nodeName == "U") && (special.underline != null)) ||
-                         ((node.nodeName == "SPAN") && !node.hasAttribute("style"));
+        var willRemove = ((DOM.upperName(node) == "B") && (special.bold != null)) ||
+                         ((DOM.upperName(node) == "I") && (special.italic != null)) ||
+                         ((DOM.upperName(node) == "U") && (special.underline != null)) ||
+                         ((DOM.upperName(node) == "SPAN") && !node.hasAttribute("style"));
 
         var childRemaining = willRemove ? remaining : null;
 
@@ -920,22 +922,14 @@
     function setStyleElement(cssText)
     {
         // Get the head element, or create it if it doesn't already exist
-        var heads = document.getElementsByTagName("HEAD");
-        var head;
-        if (heads.length == 0) {
-            head = DOM.createElement(document,"HEAD");
-            DOM.insertBefore(document.documentElement,head,document.documentElement.firstChild);
-        }
-        else {
-            head = heads[0];
-        }
+        var head = DOM.documentHead(document);
 
         // Remove all existing style elements
         var removed = 0;
         var next;
         for (var child = head.firstChild; child; child = next) {
             var next = child.nextSibling;
-            if (child.nodeName == "STYLE") {
+            if (DOM.upperName(child) == "STYLE") {
                 DOM.deleteNode(child);
                 removed++;
             }

@@ -274,38 +274,38 @@ DocxRunProperties.prototype.fromHTML = function(node)
             this.fromCSSStyleDeclaration(node.style,node);
         }
 
-        if ((node.nodeName == "B") || (node.nodeName == "STRONG")) {
+        if ((DOM.upperName(node) == "B") || (DOM.upperName(node) == "STRONG")) {
             this.b = true;
         }
-        else if ((node.nodeName == "I") || (node.nodeName == "EM")) {
+        else if ((DOM.upperName(node) == "I") || (DOM.upperName(node) == "EM")) {
             this.i = true;
         }
-        else if (node.nodeName == "U") {
+        else if (DOM.upperName(node) == "U") {
             this.u = true;
         }
         // FIXME: need to add style definitions for the following when they are present
-        else if (node.nodeName == "TT") {
+        else if (DOM.upperName(node) == "TT") {
             this.rStyle = "HTMLTypewriter";
         }
-        else if (node.nodeName == "CITE") {
+        else if (DOM.upperName(node) == "CITE") {
             this.rStyle = "HTMLCite";
         }
-        else if (node.nodeName == "DFN") {
+        else if (DOM.upperName(node) == "DFN") {
             this.rStyle = "HTMLDefinition";
         }
-        else if (node.nodeName == "CODE") {
+        else if (DOM.upperName(node) == "CODE") {
             this.rStyle = "HTMLCode";
         }
-        else if (node.nodeName == "SAMP") {
+        else if (DOM.upperName(node) == "SAMP") {
             this.rStyle = "HTMLSample";
         }
-        else if (node.nodeName == "KBD") {
+        else if (DOM.upperName(node) == "KBD") {
             this.rStyle = "HTMLKeyboard";
         }
-        else if (node.nodeName == "VAR") {
+        else if (DOM.upperName(node) == "VAR") {
             this.rStyle = "HTMLVariable";
         }
-        else if (node.nodeName == "ACRONYM") {
+        else if (DOM.upperName(node) == "ACRONYM") {
             this.rStyle = "HTMLAcronym";
         }
     }

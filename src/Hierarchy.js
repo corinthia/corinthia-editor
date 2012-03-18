@@ -70,7 +70,7 @@
             return;
 
         if (node.parentNode == null)
-            throw new Error("Node "+node.nodeName+" \""+node.nodeValue+"\" has been removed");
+            throw new Error("Node "+DOM.upperName(node)+" \""+node.nodeValue+"\" has been removed");
 
         if (isContainerNode(node) || isParagraphNode(node)) {
             if (!isContainerNode(node.parentNode) && !isParagraphNode(node.parentNode)) {

@@ -57,9 +57,9 @@ function nodeString(node)
     if (node.nodeType == Node.TEXT_NODE)
         return id+JSON.stringify(node.nodeValue);
     else if ((node.nodeType == Node.ELEMENT_NODE) && (node.hasAttribute("id")))
-        return id+node.nodeName+"#"+node.getAttribute("id");
+        return id+DOM.upperName(node)+"#"+node.getAttribute("id");
     else
-        return id+node.nodeName;
+        return id+DOM.upperName(node);
 }
 
 function clone(object)
@@ -114,7 +114,7 @@ function nodeHasContent(node)
     if (node.nodeType == Node.TEXT_NODE) {
         return !isWhitespaceString(node.nodeValue);
     }
-    else if ((node.nodeName == "IMG") || (node.nodeName == "TABLE")) {
+    else if ((DOM.upperName(node) == "IMG") || (DOM.upperName(node) == "TABLE")) {
         return true;
     }
     else {

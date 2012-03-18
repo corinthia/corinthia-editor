@@ -241,10 +241,10 @@
             for (var child = node.firstChild; child != null; child = child.nextSibling) {
                 if ((child.nodeType == Node.TEXT_NODE) && isWhitespace(child.nodeValue))
                     continue;
-                if (child.nodeName == "SCRIPT")
+                if (DOM.upperName(child) == "SCRIPT")
                     continue;
 
-                if (child.nodeName == "TABLE") {
+                if (DOM.upperName(child) == "TABLE") {
                     var tbl = DOM.createElementNS(wordDoc,WORD_NAMESPACE,"w:tbl");
                     DOM.appendChild(body,tbl);
                     buildTable(child,tbl);
@@ -254,7 +254,7 @@
                 DOM.appendChild(body,p);
                 buildParagraph(child,p);
 
-                if (child.nodeName == "P")
+                if (DOM.upperName(child) == "P")
                     p = null;
             }
         }

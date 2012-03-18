@@ -106,30 +106,30 @@ function translateHTML2Latex(document)
         else if (node.nodeType == Node.ELEMENT_NODE) {
             var prefix = "";
             var suffix = "";
-            if (node.nodeName == "H1") {
+            if (DOM.upperName(node) == "H1") {
                 prefix = "\n\\section{";
                 suffix = "}\n";
             }
-            else if (node.nodeName == "H2") {
+            else if (DOM.upperName(node) == "H2") {
                 prefix = "\n\\subsection{";
                 suffix = "}\n";
             }
 
-            else if (node.nodeName == "H3") {
+            else if (DOM.upperName(node) == "H3") {
                 prefix = "\n\\subsubsection{";
                 suffix = "}\n";
             }
 
-            else if (node.nodeName == "H4") {
+            else if (DOM.upperName(node) == "H4") {
                 prefix = "\n\\paragraph{";
                 suffix = "}\n";
             }
 
-            else if ((node.nodeName == "H5") || (node.nodeName == "H6")) {
+            else if ((DOM.upperName(node) == "H5") || (DOM.upperName(node) == "H6")) {
                 prefix = "\n\\subparagraph{";
                 suffix = "}\n";
             }
-            else if (node.nodeName == "P") {
+            else if (DOM.upperName(node) == "P") {
 
                 var prefix = "\n";
                 var suffix = "\n";
@@ -150,39 +150,39 @@ function translateHTML2Latex(document)
                     }
                 }
             }
-            else if (node.nodeName == "SCRIPT") {
+            else if (DOM.upperName(node) == "SCRIPT") {
                 return; // Dont want to display contents of this
             }
-            else if (node.nodeName == "UL") {
+            else if (DOM.upperName(node) == "UL") {
                 prefix = "\n\\begin{itemize}\n";
                 suffix = "\n\\end{itemize}\n";
             }
-            else if (node.nodeName == "OL") {
+            else if (DOM.upperName(node) == "OL") {
                 prefix = "\n\\begin{enumerate}\n";
                 suffix = "\n\\end{enumerate}\n";
             }
-            else if (node.nodeName == "LI") {
+            else if (DOM.upperName(node) == "LI") {
                 prefix = "\\item ";
                 suffix = "\n";
             }
-            else if (node.nodeName == "B") {
+            else if (DOM.upperName(node) == "B") {
                 prefix = "\\textbf{";
                 suffix = "}";
             }
-            else if (node.nodeName == "I") {
+            else if (DOM.upperName(node) == "I") {
                 prefix = "\\emph{";
                 suffix = "}";
             }
-            else if (node.nodeName == "U") {
+            else if (DOM.upperName(node) == "U") {
                 preamble.addRequiredPackage("ulem");
                 prefix = "\\uline{";
                 suffix = "}";
             }
-            else if (node.nodeName == "TT") {
+            else if (DOM.upperName(node) == "TT") {
                 prefix = "\\texttt{";
                 suffix = "}";
             }
-            else if (node.nodeName == "A") {
+            else if (DOM.upperName(node) == "A") {
                 var href = node.getAttribute("href");
                 if ((href != null) && (href.charAt(0) == "#")) {
                     var id = href.slice(1);
@@ -196,7 +196,7 @@ function translateHTML2Latex(document)
                     }
                 }
             }
-            else if (node.nodeName == "TABLE") {
+            else if (DOM.upperName(node) == "TABLE") {
                 var table = new htmltable.Table(node);
                 preamble.addRequiredPackage("tabularx");
                 builder.append("\n\\begin{tabularx}{\\textwidth}{|");
@@ -323,7 +323,9 @@ function translateHTML2Latex(document)
     function nodeLabel(node)
     {
         var id = node.getAttribute("id"); // FIXME: substitute special characters
-        if ((node.nodeName == "H1") || (node.nodeName == "H2") || (node.nodeName == "H3"))
+        if ((DOM.upperName(node) == "H1") ||
+            (DOM.upperName(node) == "H2") ||
+            (DOM.upperName(node) == "H3"))
             return "sec:"+id;
         else if (node.getAttribute("class") == "figure")
             return "fig:"+id;

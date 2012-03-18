@@ -22,7 +22,7 @@
             if (node == null)
                 return;
 
-            if (node.nodeName == "LI") {
+            if (DOM.upperName(node) == "LI") {
                 if (!arrayContains(array,node))
                     array.push(node);
                 return;
@@ -54,7 +54,7 @@
             for (var i = 0; i < listItems.length; i++) {
                 var li = listItems[i];
                 var prevLi = li.previousSibling;
-                while ((prevLi != null) && (prevLi.nodeName != "LI"))
+                while ((prevLi != null) && (DOM.upperName(prevLi) != "LI"))
                     prevLi = prevLi.previousSibling;
                 // We can only increase the indentation of the current list item C if there is
                 // another list item P immediately preceding C. In this case, C becomes a child of
@@ -94,7 +94,7 @@
                         }
                         else {
                             // alert("Case 4: no prevList and no childList");
-                            if (li.parentNode.nodeName == "UL")
+                            if (DOM.upperName(li.parentNode) == "UL")
                                 newList = DOM.createElement(document,"UL");
                             else
                                 newList = DOM.createElement(document,"OL");
@@ -114,7 +114,7 @@
                 var node = firstChildElement(node);
                 if (node == null)
                     return null;
-                if ((node.nodeName == "UL") || (node.nodeName == "OL"))
+                if ((DOM.upperName(node) == "UL") || (DOM.upperName(node) == "OL"))
                     return node;
             }
         }
@@ -125,7 +125,7 @@
                 var node = lastChildElement(node);
                 if (node == null)
                     return null;
-                if ((node.nodeName == "UL") || (node.nodeName == "OL"))
+                if ((DOM.upperName(node) == "UL") || (DOM.upperName(node) == "OL"))
                     return node;
             }
         }
@@ -192,7 +192,7 @@
 
                 if (following != null) {
                     var secondHalf;
-                    if (parentList.nodeName == "UL")
+                    if (DOM.upperName(parentList) == "UL")
                         secondHalf = DOM.createElement(document,"UL");
                     else
                         secondHalf = DOM.createElement(document,"OL");
@@ -228,7 +228,7 @@
             if (node == null)
                 return null;
 
-            if (node.nodeName == "LI")
+            if (DOM.upperName(node) == "LI")
                 return node;
 
             return findContainingListItem(node.parentNode);
@@ -263,7 +263,7 @@
         // list item.
         if (ds == de) {
             for (var ancestor = dca; ancestor != null; ancestor = ancestor.parentNode) {
-                if (ancestor.nodeName == "LI") {
+                if (DOM.upperName(ancestor) == "LI") {
                     nodes.push(ancestor);
                     return nodes;
                 }
@@ -271,7 +271,7 @@
         }
 
         for (var child = ds; child != de.nextSibling; child = child.nextSibling) {
-            if ((child.nodeName == "UL") || (child.nodeName == "OL")) {
+            if ((DOM.upperName(child) == "UL") || (DOM.upperName(child) == "OL")) {
                 for (var gc = child.firstChild; gc != null; gc = gc.nextSibling) {
                     if (!isWhitespaceTextNode(gc))
                         nodes.push(gc);
@@ -298,7 +298,7 @@
 
             for (var i = 0; i < nodes.length; i++) {
                 var node = nodes[i];
-                if (node.nodeName == "LI") {
+                if (DOM.upperName(node) == "LI") {
                     var li = node;
                     var list = li.parentNode;
                     var insertionPoint = null;
@@ -367,12 +367,12 @@
                 var oldList = null;
                 var listInsertionPoint;
 
-                if ((node.nodeName == "LI") && (node.parentNode.nodeName == type)) {
+                if ((DOM.upperName(node) == "LI") && (DOM.upperName(node.parentNode) == type)) {
                     // Already in the correct type of list; don't need to do anything
                     continue;
                 }
 
-                if ((node.nodeName == "LI")) {
+                if ((DOM.upperName(node) == "LI")) {
                     li = node;
                     var list = li.parentNode;
 
@@ -419,12 +419,12 @@
                 var itemInsertionPoint;
 
                 if ((prev != null) &&
-                    (prev.nodeName == type)) {
+                    (DOM.upperName(prev) == type)) {
                     list = prev;
                     itemInsertionPoint = null;
                 }
                 else if ((next != null) &&
-                         (next.nodeName == type)) {
+                         (DOM.upperName(next) == type)) {
                     list = next;
                     itemInsertionPoint = list.firstChild;
                 }
@@ -449,7 +449,7 @@
 
                 // Merge with adjacent list
                 DOM.removeAdjacentWhitespace(list);
-                if ((list.nextSibling != null) && (list.nextSibling.nodeName == type)) {
+                if ((list.nextSibling != null) && (DOM.upperName(list.nextSibling) == type)) {
                     var followingList = list.nextSibling;
                     while (followingList.firstChild != null) {
                         if (isWhitespaceTextNode(followingList.firstChild))
