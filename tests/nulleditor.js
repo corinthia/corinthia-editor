@@ -3,13 +3,6 @@ var editor = {
     {
     },
 
-    jsInterfaceInitError: function(error)
-    {
-    },
-    
-    jsInterfaceInitFinished: function() {
-    },
-    
     setOutline: function(outline)
     {
     },

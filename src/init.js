@@ -267,18 +267,14 @@ function addContentType()
 
 function init()
 {
-    var jsInitOk = false;
     try {
         DOM.assignNodeIds(document);
         addContentType();
         getStyles();
         Outline.init();
-        jsInitOk = true;
+        return true;
     }
     catch (e) {
-        editor.jsInterfaceInitError(e);
+        return e.toString();
     }
-
-    if (jsInitOk)
-        editor.jsInterfaceInitFinished();
 }
