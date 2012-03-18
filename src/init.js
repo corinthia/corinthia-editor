@@ -249,10 +249,12 @@ function addContentType()
     var head = document.getElementsByTagName("HEAD")[0];
     var haveContentType = false;
     for (var child = head.firstChild; child != null; child = child.nextSibling) {
-        if ((child.nodeName == "META") &&
-            (child.getAttribute("http-equiv").toLowerCase() == "content-type")) {
-            haveContentType = true;
-            break;
+        if (child.nodeName == "META") {
+            var httpEquiv = child.getAttribute("http-equiv");
+            if ((httpEquiv != null) && (httpEquiv.toLowerCase() == "content-type")) {
+                haveContentType = true;
+                break;
+            }
         }
     }
     if (!haveContentType) {
