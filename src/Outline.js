@@ -1,12 +1,12 @@
 (function() {
 
-    var sectionIdMap = new Object();
+    var itemIdMap = new Object();
     var nextSectionId = 0;
     var outlineDirty = false;
     var ignoreHeadingModifications = 0;
     var rootSection = null;
 
-    function Section(node)
+    function OutlineItem(node)
     {
         var section = this;
         if ((node != null) && (node.hasAttribute("id"))) {
@@ -32,12 +32,12 @@
         this.references = new NodeSet();
         this.modificationListener = function(event) { headingModified(section); }
 
-        sectionIdMap[this.id] = this;
+        itemIdMap[this.id] = this;
 
         Object.seal(this);
     }
 
-    Section.prototype.last = function()
+    OutlineItem.prototype.last = function()
     {
         if (this.children.length == 0)
             return this;
@@ -45,7 +45,7 @@
             return this.children[this.children.length-1].last();
     }
 
-    Section.prototype.outerNext = function()
+    OutlineItem.prototype.outerNext = function()
     {
         var last = this.last();
         if (last == null)
@@ -54,7 +54,7 @@
             return last.next;
     }
 
-    Section.prototype.toString = function()
+    OutlineItem.prototype.toString = function()
     {
         if (this.isRoot)
             return "(root)";
@@ -66,7 +66,7 @@
         return str;
     }
 
-    Section.prototype.print = function(indent)
+    OutlineItem.prototype.print = function(indent)
     {
         if (indent == null)
             indent = "";
@@ -75,7 +75,7 @@
             this.children[i].print(indent+"    ");
     }
 
-    Section.prototype.updateFullNumberRecursive = function(prefix)
+    OutlineItem.prototype.updateFullNumberRecursive = function(prefix)
     {
         var number;
         if (prefix == "")
@@ -110,36 +110,36 @@
         var newTitle = getNodeText(section.node);
         if (newTitle != section.title) {
             section.title = newTitle;
-            scheduleUpdateSectionStructure();
+            scheduleUpdateOutlineItemStructure();
         }
     }
 
     function headingInserted(node)
     {
-        var prevSection = findPrevSection(node);
-        var section = new Section(node);
+        var prevOutlineItem = findPrevOutlineItem(node);
+        var section = new OutlineItem(node);
 
         // Remove any existing numbering
         var firstText = findFirstTextDescendant(node);
         if (firstText != null)
             DOM.setNodeValue(firstText,firstText.nodeValue.replace(/^(\d+\.)*\d*\s+/,""));
 
-        section.next = prevSection.next;
+        section.next = prevOutlineItem.next;
         if (section.next != null)
             section.next.prev = section;
 
-        section.prev = prevSection;
+        section.prev = prevOutlineItem;
         section.prev.next = section;
 
         node.addEventListener("DOMSubtreeModified",section.modificationListener);
-        scheduleUpdateSectionStructure();
+        scheduleUpdateOutlineItemStructure();
         return;
 
-        function findPrevSection(node)
+        function findPrevOutlineItem(node)
         {
             do node = prevNode(node);
             while ((node != null) && !isHeadingNode(node));
-            return (node == null) ? rootSection : sectionIdMap[node.getAttribute("id")];
+            return (node == null) ? rootSection : itemIdMap[node.getAttribute("id")];
         }
 
         function findFirstTextDescendant(node)
@@ -159,7 +159,7 @@
 
     function headingRemoved(node)
     {
-        var section = sectionIdMap[node.getAttribute("id")];
+        var section = itemIdMap[node.getAttribute("id")];
         if (section.prev != null)
             section.prev.next = section.next;
         if (section.next != null)
@@ -168,7 +168,7 @@
             DOM.deleteNode(section.span);
 
         node.removeEventListener("DOMSubtreeModified",section.modificationListener);
-        scheduleUpdateSectionStructure();
+        scheduleUpdateOutlineItemStructure();
         return;
     }
 
@@ -215,15 +215,15 @@
         }
     }
 
-    function scheduleUpdateSectionStructure()
+    function scheduleUpdateOutlineItemStructure()
     {
         if (!outlineDirty) {
             outlineDirty = true;
-            PostponedActions.add(updateSectionStructure);
+            PostponedActions.add(updateOutlineItemStructure);
         }
     }
 
-    function updateSectionStructure()
+    function updateOutlineItemStructure()
     {
         if (!outlineDirty)
             return;
@@ -253,14 +253,14 @@
             rootSection.children[i].updateFullNumberRecursive("");
         ignoreHeadingModifications--;
 
-        var encSections = new Array();
+        var encOutlineItems = new Array();
         var encFigures = new Array();
         var encTables = new Array();
 
         for (var i = 0; i < rootSection.children.length; i++)
-            encodeItem(rootSection.children[i],encSections);
+            encodeItem(rootSection.children[i],encOutlineItems);
 
-        editor.setOutline({ sections: encSections,
+        editor.setOutline({ sections: encOutlineItems,
                             figures: encFigures,
                             tables: encTables });
     }
@@ -283,7 +283,7 @@
     Outline.init = function()
     {
         DOM.ensureUniqueIds(document.documentElement);
-        Outline.root = rootSection = new Section();
+        Outline.root = rootSection = new OutlineItem();
         document.addEventListener("DOMNodeInserted",docNodeInserted);
         document.addEventListener("DOMNodeRemoved",docNodeRemoved);
 
@@ -291,10 +291,10 @@
 //        rootSection.print();
     }
 
-    function getSectionNodes(section,result)
+    function getOutlineItemNodes(section,result)
     {
-        var endSection = section.outerNext();
-        var endNode = endSection ? endSection.node : null;
+        var endOutlineItem = section.outerNext();
+        var endNode = endOutlineItem ? endOutlineItem.node : null;
         for (var n = section.node; (n != null) && (n != endNode); n = n.nextSibling)
             result.push(n);
     }
@@ -302,14 +302,14 @@
     Outline.moveSection = function(sectionId,parentId,nextId)
     {
         Selection.trackWhileExecuting(function() {
-            updateSectionStructure(); // make sure pointers are valid
+            updateOutlineItemStructure(); // make sure pointers are valid
 
-            var section = sectionIdMap[sectionId];
-            var parent = parentId ? sectionIdMap[parentId] : null;
-            var next = nextId ? sectionIdMap[nextId] : null;
+            var section = itemIdMap[sectionId];
+            var parent = parentId ? itemIdMap[parentId] : null;
+            var next = nextId ? itemIdMap[nextId] : null;
 
             var sectionNodes = new Array();
-            getSectionNodes(section,sectionNodes);
+            getOutlineItemNodes(section,sectionNodes);
 
             if ((next == null) && (parent != null))
                 next = parent.outerNext();
@@ -324,29 +324,29 @@
             }
         });
 
-        scheduleUpdateSectionStructure();
+        scheduleUpdateOutlineItemStructure();
     }
 
-    Outline.deleteSection = function(sectionId)
+    Outline.deleteItem = function(itempId)
     {
         Selection.trackWhileExecuting(function() {
-            var section = sectionIdMap[sectionId];
+            var section = itemIdMap[itempId];
             var sectionNodes = new Array();
-            getSectionNodes(section,sectionNodes);
+            getOutlineItemNodes(section,sectionNodes);
             for (var i = 0; i < sectionNodes.length; i++)
                 DOM.deleteNode(sectionNodes[i]);
         });
 
-        scheduleUpdateSectionStructure();
+        scheduleUpdateOutlineItemStructure();
     }
 
-    Outline.goToSection = function(sectionId)
+    Outline.goToItem = function(itemId)
     {
-        if (sectionId == rootSection.id) {
+        if (itemId == rootSection.id) {
             window.scrollTo(0);
         }
         else {
-            var section = document.getElementById(sectionId);
+            var section = document.getElementById(itemId);
             var location = webkitConvertPointFromNodeToPage(section,
                                                             new WebKitPoint(0,0));
             window.scrollTo(0,location.y);
