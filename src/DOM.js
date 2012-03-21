@@ -189,18 +189,26 @@
 
     DOM.deleteNode = function(node)
     {
-        trackedPositionsForNode(node.parentNode).forEach(function (position) {
-            var offset = getOffsetOfNodeInParent(node);
-            if (offset < position.offset) {
-                position.offset--;
-            }
-        });
-        trackedPositionsForNode(node).forEach(function (position) {
-            var offset = getOffsetOfNodeInParent(node);
-            position.node = node.parentNode;
-            position.offset = offset;
-        });
+        adjustPositionsRecursive(node);
         deleteNodeInternal(node,true);
+
+        function adjustPositionsRecursive(current)
+        {
+            for (var child = current.firstChild; child != null; child = child.nextSibling)
+                adjustPositionsRecursive(child);
+
+            trackedPositionsForNode(current.parentNode).forEach(function (position) {
+                var offset = getOffsetOfNodeInParent(current);
+                if (offset < position.offset) {
+                    position.offset--;
+                }
+            });
+            trackedPositionsForNode(current).forEach(function (position) {
+                var offset = getOffsetOfNodeInParent(current);
+                position.node = current.parentNode;
+                position.offset = offset;
+            });
+        }
     }
 
     // High-level methods
