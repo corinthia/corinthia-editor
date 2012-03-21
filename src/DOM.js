@@ -530,6 +530,53 @@
         throw new Error("Document contains no HEAD element");
     }
 
+    DOM.ensureUniqueIds = function(root)
+    {
+        var ids = new Object();
+        var duplicates = new Array();
+
+        discoverDuplicates(root);
+        renameDuplicates();
+
+        return;
+
+        function discoverDuplicates(node)
+        {
+            if (node.nodeType != Node.ELEMENT_NODE)
+                return;
+
+            var id = node.getAttribute("id");
+            if ((id != null) && (id != "")) {
+                if (ids[id])
+                    duplicates.push(node);
+                else
+                    ids[id] = true;
+            }
+            for (var child = node.firstChild; child != null; child = child.nextSibling)
+                discoverDuplicates(child);
+        }
+
+        function renameDuplicates()
+        {
+            var nextNumberForPrefix = new Object();
+            for (var i = 0; i < duplicates.length; i++) {
+                var id = duplicates[i].getAttribute("id");
+                var prefix = id.replace(/[0-9]+$/,"");
+                var num = nextNumberForPrefix[prefix] ? nextNumberForPrefix[prefix] : 1;
+
+                var candidate;
+                do {
+                    candidate = prefix + num;
+                    num++;
+                } while (ids[candidate]);
+
+                duplicates[i].setAttribute("id",candidate);
+                ids[candidate] = true;
+                nextNumberForPrefix[prefix] = num;
+            }
+        }
+    }
+
     window.DOM = DOM;
 
 })();

@@ -282,6 +282,7 @@
 
     Outline.init = function()
     {
+        DOM.ensureUniqueIds(document.documentElement);
         Outline.root = rootSection = new Section();
         document.addEventListener("DOMNodeInserted",docNodeInserted);
         document.addEventListener("DOMNodeRemoved",docNodeRemoved);
