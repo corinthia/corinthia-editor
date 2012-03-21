@@ -253,24 +253,29 @@
             rootSection.children[i].updateFullNumberRecursive("");
         ignoreHeadingModifications--;
 
-        var sections = new Array();
-        encodeSection(rootSection,sections);
-        editor.setOutline(sections);
+        var encSections = new Array();
+        var encFigures = new Array();
+        var encTables = new Array();
+
+        for (var i = 0; i < rootSection.children.length; i++)
+            encodeItem(rootSection.children[i],encSections);
+
+        editor.setOutline({ sections: encSections,
+                            figures: encFigures,
+                            tables: encTables });
     }
 
-    function encodeSection(section,result)
+    function encodeItem(item,result)
     {
-        var childIds = new Array();
-        for (var i = 0; i < section.children.length; i++)
-            childIds.push(section.children[i].id);
+        var encChildren = new Array();
+        for (var i = 0; i < item.children.length; i++)
+            encodeItem(item.children[i],encChildren);
 
-        var obj = { id: section.id,
-                    index: (section.index == null) ? -1 : section.index,
-                    title: section.title,
-                    childIds: childIds };
+        var obj = { id: item.id,
+                    index: (item.index == null) ? -1 : item.index,
+                    title: item.title,
+                    children: encChildren };
         result.push(obj);
-        for (var i = 0; i < section.children.length; i++)
-            encodeSection(section.children[i],result);
     }
 
     window.Outline = new Object();
@@ -285,25 +290,6 @@
 //        rootSection.print();
     }
 
-    Outline.addSection = function(title,parentId)
-    {
-        updateSectionStructure(); // make sure pointers are valid
-
-        var parent = sectionIdMap[parentId];
-        if (parent.level == 6) // H6 is max depth in HTML
-            parent = parent.parent;
-
-        var outerNext = parent.outerNext();
-        var parentNode = outerNext ? outerNext.node.parentNode : document.body;
-        var nextSibling = outerNext ? outerNext.node : null;
-
-        var heading = DOM.createElement(document,"H"+(parent.level+1));
-        DOM.appendChild(heading,DOM.createTextNode(document,title));
-        DOM.insertBefore(parentNode,heading,nextSibling);
-
-        Outline.goToSection(heading.getAttribute("id"));
-    }
-
     function getSectionNodes(section,result)
     {
         var endSection = section.outerNext();
@@ -312,56 +298,43 @@
             result.push(n);
     }
 
-    function getSectionNodesRecursive(section,result)
-    {
-        getSectionNodes(section,result);
-        for (var i = 0; i < section.children.length; i++)
-            getSectionNodesRecursive(section.children[i],result);
-    }
-
     Outline.moveSection = function(sectionId,parentId,nextId)
     {
-        updateSectionStructure(); // make sure pointers are valid
+        Selection.trackWhileExecuting(function() {
+            updateSectionStructure(); // make sure pointers are valid
 
-        var section = sectionIdMap[sectionId];
-        var parent = sectionIdMap[parentId];
-        var next = nextId ? sectionIdMap[nextId] : null;
+            var section = sectionIdMap[sectionId];
+            var parent = parentId ? sectionIdMap[parentId] : null;
+            var next = nextId ? sectionIdMap[nextId] : null;
 
-        if (parent.level != section.level-1)
-            throw new Error("Moving section to a different level is not yet supported");
+            var sectionNodes = new Array();
+            getSectionNodes(section,sectionNodes);
 
-        if (section == next)
-            throw new Error("Attempt to place a section directly before itself");
+            if ((next == null) && (parent != null))
+                next = parent.outerNext();
 
-        if (next == null)
-            next = parent.outerNext();
-
-        var nextNode;
-        if (next != null)
-            nextNode = next.node;
-
-        var sectionNodes = new Array();
-        getSectionNodes(section,sectionNodes);
-
-        if (next == null) {
-            for (var i = 0; i < sectionNodes.length; i++)
-                DOM.appendChild(document.body,sectionNodes[i]);
-        }
-        else {
-            for (var i = 0; i < sectionNodes.length; i++)
-                DOM.insertBefore(next.node.parentNode,sectionNodes[i],nextNode);
-        }
+            if (next == null) {
+                for (var i = 0; i < sectionNodes.length; i++)
+                    DOM.appendChild(document.body,sectionNodes[i]);
+            }
+            else {
+                for (var i = 0; i < sectionNodes.length; i++)
+                    DOM.insertBefore(next.node.parentNode,sectionNodes[i],next.node);
+            }
+        });
 
         scheduleUpdateSectionStructure();
     }
 
     Outline.deleteSection = function(sectionId)
     {
-        var section = sectionIdMap[sectionId];
-        var sectionNodes = new Array();
-        getSectionNodes(section,sectionNodes);
-        for (var i = 0; i < sectionNodes.length; i++)
-            DOM.deleteNode(sectionNodes[i]);
+        Selection.trackWhileExecuting(function() {
+            var section = sectionIdMap[sectionId];
+            var sectionNodes = new Array();
+            getSectionNodes(section,sectionNodes);
+            for (var i = 0; i < sectionNodes.length; i++)
+                DOM.deleteNode(sectionNodes[i]);
+        });
 
         scheduleUpdateSectionStructure();
     }
@@ -376,28 +349,6 @@
             var location = webkitConvertPointFromNodeToPage(section,
                                                             new WebKitPoint(0,0));
             window.scrollTo(0,location.y);
-        }
-    }
-
-    Outline.test1 = function()
-    {
-        var first3c = document.getElementById("first3c");
-        var second3c = document.getElementById("second3c");
-        var next;
-        for (var node = first3c; node != second3c; node = next) {
-            next = node.nextSibling;
-            DOM.deleteNode(node);
-        }
-    }
-
-    Outline.test2 = function()
-    {
-        var first6c = document.getElementById("first6c");
-        var second6c = document.getElementById("second6c");
-        var next;
-        for (var node = first6c; node != second6c; node = next) {
-            next = node.nextSibling;
-            DOM.deleteNode(node);
         }
     }
 
