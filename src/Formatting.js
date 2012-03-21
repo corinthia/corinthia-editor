@@ -809,7 +809,8 @@
         var willRemove = ((DOM.upperName(node) == "B") && (special.bold != null)) ||
                          ((DOM.upperName(node) == "I") && (special.italic != null)) ||
                          ((DOM.upperName(node) == "U") && (special.underline != null)) ||
-                         ((DOM.upperName(node) == "SPAN") && !node.hasAttribute("style"));
+                         ((DOM.upperName(node) == "SPAN") && !node.hasAttribute("style")
+                                                          && !isSpecialSpan(node));
 
         var childRemaining = willRemove ? remaining : null;
 
@@ -823,6 +824,12 @@
             DOM.removeNodeButKeepChildren(node);
         else if (remaining != null)
             remaining.push(node);
+
+        function isSpecialSpan(span)
+        {
+            return (span.hasAttribute("class") &&
+                    (span.getAttribute("class").indexOf(Keys.UXWRITE_PREFIX) == 0));
+        }
     }
 
     // public
