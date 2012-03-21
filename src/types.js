@@ -50,6 +50,7 @@ var Keys = {
     FIGURE_NUMBER: "-uxwrite-figure-number",
     TABLE_NUMBER: "-uxwrite-table-number",
     SELECTION_HIGHLIGHT: "-uxwrite-selection-highlight",
+    UXWRITE_PREFIX: "-uxwrite-",
 };
 
 var OPAQUE_NODE_CLASSES = {
