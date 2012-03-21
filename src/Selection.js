@@ -387,6 +387,15 @@
         updateSelectionDisplay();
     }
 
+    // public
+    function trackWhileExecuting(fun)
+    {
+        if (selectionRange == null)
+            return fun();
+        else
+            return selectionRange.trackWhileExecuting(fun);
+    }
+
     window.Selection = new Object();
     Selection.getCursorRect = getCursorRect;
     Selection.updateSelectionDisplay = updateSelectionDisplay;
@@ -400,5 +409,6 @@
     Selection.setEmptySelectionAt = setEmptySelectionAt;
     Selection.deleteSelectionContents = deleteSelectionContents;
     Selection.clearSelection = clearSelection;
+    Selection.trackWhileExecuting = trackWhileExecuting;
 
 })();
