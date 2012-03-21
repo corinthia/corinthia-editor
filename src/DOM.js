@@ -435,7 +435,7 @@
         var data = getDataForNode(position.node,false);
         if ((data == null) || (data.trackedPositions == null))
             throw new Error("DOM.removeTrackedPosition: no registered positions for this node "+
-                            "("+position.DOM.upperName(node)+")");
+                            "("+DOM.upperName(position.node)+")");
         for (var i = 0; i < data.trackedPositions.length; i++) {
             if (data.trackedPositions[i] == position) {
                 data.trackedPositions.splice(i,1);
