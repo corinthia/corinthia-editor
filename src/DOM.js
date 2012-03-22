@@ -314,10 +314,10 @@
 
         var parent = oldElement.parentNode;
         var nextSibling = oldElement.nextSibling;
-        deleteNodeInternal(oldElement,false);
         while (oldElement.firstChild != null)
             appendChildInternal(newElement,oldElement.firstChild);
         insertBeforeInternal(parent,newElement,nextSibling);
+        deleteNodeInternal(oldElement,false);
 
         fireNodeWasInserted(newElement);
 
