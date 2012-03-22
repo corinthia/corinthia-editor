@@ -1,11 +1,12 @@
 (function() {
 
     var itemIdMap = new Object();
-    var nextSectionId = 0;
+    var nextSectionId = 1;
     var outlineDirty = false;
     var ignoreHeadingModifications = 0;
-
-    var rootSection;
+    var figureList = new DoublyLinkedList();
+    var tableList = new DoublyLinkedList();
+    var sectionList = new DoublyLinkedList();
 
     function DoublyLinkedList()
     {
@@ -36,10 +37,6 @@
         item.prev = null;
         item.next = null;
     }
-
-    var figureList = new DoublyLinkedList();
-    var tableList = new DoublyLinkedList();
-    var sectionList = new DoublyLinkedList();
 
     function OutlineItem(node)
     {
@@ -293,10 +290,12 @@
             return;
         outlineDirty = false;
 
+        var toplevelSections = new Array();
+        var wrapper = new Object();
 
-        var current = rootSection;
-        rootSection.parent = null;
-        rootSection.children = [];
+        var current = null;
+        wrapper.parent = null;
+        wrapper.children = [];
 
         var countA = 0;
         for (var section = sectionList.sentinel.next;
@@ -312,28 +311,34 @@
              section != sectionList.sentinel;
              section = section.next) {
            
-            while (section.level < current.level+1)
+            while ((current != null) && (section.level < current.level+1))
                 current = current.parent;
 
             section.parent = current;
-            section.index = current.children.length;
-            current.children.push(section);
+            if (current == null) {
+                section.index = toplevelSections.length;
+                toplevelSections.push(section);
+            }
+            else {
+                section.index = current.children.length;
+                current.children.push(section);
+            }
 
             current = section;
             countB++;
         }
 
         ignoreHeadingModifications++;
-        for (var i = 0; i < rootSection.children.length; i++)
-            rootSection.children[i].updateFullNumberRecursive("");
+        for (var i = 0; i < toplevelSections.length; i++)
+            toplevelSections[i].updateFullNumberRecursive("");
         ignoreHeadingModifications--;
 
         var encOutlineItems = new Array();
         var encFigures = new Array();
         var encTables = new Array();
 
-        for (var i = 0; i < rootSection.children.length; i++)
-            encodeItem(rootSection.children[i],encOutlineItems);
+        for (var i = 0; i < toplevelSections.length; i++)
+            encodeItem(toplevelSections[i],encOutlineItems);
 
         editor.setOutline({ sections: encOutlineItems,
                             figures: encFigures,
@@ -358,7 +363,6 @@
     Outline.init = function()
     {
         DOM.ensureUniqueIds(document.documentElement);
-        rootSection = new OutlineItem();
         document.addEventListener("DOMNodeInserted",docNodeInserted);
         document.addEventListener("DOMNodeRemoved",docNodeRemoved);
 
