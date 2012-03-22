@@ -1,6 +1,6 @@
 (function() {
 
-    var itemIdMap = new Object();
+    var itemsById = new Object();
     var nextSectionId = 1;
     var outlineDirty = false;
     var ignoreModifications = 0;
@@ -65,7 +65,7 @@
         this.references = new NodeSet();
         this.modificationListener = function(event) { headingModified(section); }
 
-        itemIdMap[this.id] = this;
+        itemsById[this.id] = this;
 
         var spanClass = null;
         if (type == "section") {
@@ -233,7 +233,7 @@
 
     function headingRemoved(node)
     {
-        var section = itemIdMap[node.getAttribute("id")];
+        var section = itemsById[node.getAttribute("id")];
 
         sectionList.removeItem(section);
 
@@ -249,7 +249,7 @@
     {
         do node = prevNode(node);
         while ((node != null) && !typeFun(node));
-        return (node == null) ? null : itemIdMap[node.getAttribute("id")];
+        return (node == null) ? null : itemsById[node.getAttribute("id")];
     }
 
     function figureInserted(node)
@@ -264,7 +264,7 @@
 
     function figureRemoved(node)
     {
-        var table = itemIdMap[node.getAttribute("id")];
+        var table = itemsById[node.getAttribute("id")];
         figureList.removeItem(table);
     }
 
@@ -280,7 +280,7 @@
 
     function tableRemoved(node)
     {
-        var table = itemIdMap[node.getAttribute("id")];
+        var table = itemsById[node.getAttribute("id")];
         figureList.removeItem(table);
     }
 
@@ -463,9 +463,9 @@
         Selection.trackWhileExecuting(function() {
             updateOutlineItemStructure(); // make sure pointers are valid
 
-            var section = itemIdMap[sectionId];
-            var parent = parentId ? itemIdMap[parentId] : null;
-            var next = nextId ? itemIdMap[nextId] : null;
+            var section = itemsById[sectionId];
+            var parent = parentId ? itemsById[parentId] : null;
+            var next = nextId ? itemsById[nextId] : null;
 
             var sectionNodes = new Array();
             getOutlineItemNodes(section,sectionNodes);
@@ -489,7 +489,7 @@
     Outline.deleteItem = function(itempId)
     {
         Selection.trackWhileExecuting(function() {
-            var item = itemIdMap[itempId];
+            var item = itemsById[itempId];
             if (item.type == "section") {
                 var sectionNodes = new Array();
                 getOutlineItemNodes(item,sectionNodes);
