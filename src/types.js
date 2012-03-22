@@ -91,8 +91,7 @@ function isTableNode(node)
 
 function isFigureNode(node)
 {
-    return ((DOM.upperName(node) == "DIV") &&
-            (node.hasAttribute("id") && (node.getAttribute("id").indexOf("figure") == 0)));
+    return (DOM.upperName(node) == "FIGURE");
 }
 
 function isOpaqueNode(node)

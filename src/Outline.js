@@ -3,7 +3,7 @@
     var itemIdMap = new Object();
     var nextSectionId = 1;
     var outlineDirty = false;
-    var ignoreHeadingModifications = 0;
+    var ignoreModifications = 0;
     var figureList = new DoublyLinkedList();
     var tableList = new DoublyLinkedList();
     var sectionList = new DoublyLinkedList();
@@ -38,26 +38,26 @@
         item.next = null;
     }
 
-    function OutlineItem(node)
+    function OutlineItem(type,node)
     {
         var section = this;
         if ((node != null) && (node.hasAttribute("id"))) {
             this.id = node.getAttribute("id");
         }
         else {
-            this.id = "section"+(nextSectionId++);
+            this.id = type+(nextSectionId++);
             if (node != null)
                 node.setAttribute("id",this.id);
         }
         this.node = node;
-        this.title = node ? getNodeText(node) : "Contents";
+        this.title = null;
         this.level = node ? parseInt(DOM.upperName(node).substring(1)) : 0;
         this.index = null;
         this.parent = null;
         this.children = new Array();
-        this.fullNumber = null;
         this.isRoot = (this.level == 0);
         this.span = null;
+        this.titleNode = null;
 
         this.prev = null;
         this.next = null;
@@ -66,7 +66,43 @@
 
         itemIdMap[this.id] = this;
 
+        var spanClass = null;
+        if (type == "section") {
+            this.titleNode = node;
+            spanClass = Keys.HEADING_NUMBER;
+        }
+        else if (type == "figure") {
+            this.titleNode = findChild(node,"FIGCAPTION");
+            if (this.titleNode == null) {
+                this.titleNode = DOM.createElement(document,"FIGCAPTION");
+                DOM.appendChild(this.node,this.titleNode);
+            }
+            spanClass = Keys.FIGURE_NUMBER;
+        }
+        else if (type == "table") {
+            this.titleNode = findChild(node,"CAPTION");
+            if (this.titleNode == null) {
+                this.titleNode = DOM.createElement(document,"CAPTION");
+                DOM.insertBefore(this.node,this.titleNode,this.node.firstChild);
+            }
+            spanClass = Keys.TABLE_NUMBER;
+        }
+
+        this.span = DOM.createElement(document,"SPAN");
+        this.span.setAttribute("class",spanClass);
+        DOM.insertBefore(this.titleNode,this.span,this.titleNode.firstChild);
+        DOM.appendChild(this.span,DOM.createTextNode(document,""));
+
         Object.seal(this);
+    }
+
+    function findChild(node,name)
+    {
+        for (var child = node.firstChild; child != null; child = child.nextSibling) {
+            if (DOM.upperName(child) == name)
+                return child;
+        }
+        return null;
     }
 
     OutlineItem.prototype.last = function()
@@ -93,7 +129,7 @@
         if (this.isRoot)
             return "(root)";
 
-        var str = "["+this.id+"] "+this.fullNumber+" "+this.node;
+        var str = "["+this.id+"] "+this.getFullNumber()+" "+this.node;
         if (this.node != null)
             str += " "+JSON.stringify(getNodeText(this.node));
         str += " (level "+this.level+")";
@@ -109,37 +145,53 @@
             this.children[i].print(indent+"    ");
     }
 
-    OutlineItem.prototype.updateFullNumberRecursive = function(prefix)
+    OutlineItem.prototype.getFullNumber = function()
     {
-        var number;
-        if (prefix == "")
-            number = ""+(this.index+1)
-        else
-            number = prefix+"."+(this.index+1);
-
-        if (number != this.fullNumber) {
-            this.fullNumber = number;
-
-            if (this.span == null) {
-                this.span = DOM.createElement(document,"SPAN");
-                this.span.setAttribute("class",Keys.HEADING_NUMBER);
-                DOM.insertBefore(this.node,this.span,this.node.firstChild);
-                var text = DOM.createTextNode(document,"");
-                DOM.appendChild(this.span,text);
-            }
-
-            DOM.setNodeValue(this.span.firstChild,this.fullNumber+" ");
-            this.title = getNodeText(this.node);
+        var item = this;
+        var fullNumber = ""+(item.index+1);
+        while (item.parent != null) {
+            item = item.parent;
+            fullNumber = (item.index+1)+"."+fullNumber;
         }
+        return fullNumber;
+    }
 
-        for (var i = 0; i < this.children.length; i++) {
-            this.children[i].updateFullNumberRecursive(number);
-        }
+    function getNodeTextAfter(node)
+    {
+        var text = "";
+        for (var child = node.nextSibling; child != null; child = child.nextSibling)
+            text += getNodeText(child);
+        return text;
+    }
+
+    function updateSectionItem(item)
+    {
+        item.title = normalizeWhitespace(getNodeTextAfter(item.span));
+        var spanText = item.getFullNumber()+" ";
+        DOM.setNodeValue(item.span.firstChild,spanText);
+    }
+
+    function updateFigureItem(item)
+    {
+        item.title = normalizeWhitespace(getNodeTextAfter(item.span));
+        var spanText = "Figure "+item.getFullNumber();
+        if (item.title != "")
+            spanText += ": ";
+        DOM.setNodeValue(item.span.firstChild,spanText);
+    }
+
+    function updateTableItem(item)
+    {
+        item.title = normalizeWhitespace(getNodeTextAfter(item.span));
+        var spanText = "Table "+item.getFullNumber();
+        if (item.title != "")
+            spanText += ": ";
+        DOM.setNodeValue(item.span.firstChild,spanText);
     }
 
     function headingModified(section)
     {
-        if (ignoreHeadingModifications > 0)
+        if (ignoreModifications > 0)
             return;
         var newTitle = getNodeText(section.node);
         if (newTitle != section.title) {
@@ -150,18 +202,16 @@
 
     function headingInserted(node)
     {
-        var section = new OutlineItem(node);
+        var item = new OutlineItem("section",node);
+        var prev = findPrevItemOfType(node,isHeadingNode);
+        sectionList.insertItemAfter(item,prev);
 
         // Remove any existing numbering
         var firstText = findFirstTextDescendant(node);
         if (firstText != null)
             DOM.setNodeValue(firstText,firstText.nodeValue.replace(/^(\d+\.)*\d*\s+/,""));
 
-        var actualPrev = findPrevItemOfType(node,isHeadingNode,null);
-        sectionList.insertItemAfter(section,actualPrev);
-
-
-        node.addEventListener("DOMSubtreeModified",section.modificationListener);
+        node.addEventListener("DOMSubtreeModified",item.modificationListener);
         scheduleUpdateOutlineItemStructure();
         return;
 
@@ -194,23 +244,21 @@
         return;
     }
 
-    function findPrevItemOfType(node,typeFun,defaultValue)
+    function findPrevItemOfType(node,typeFun)
     {
         do node = prevNode(node);
-        while ((node != null) && !typeFun(node));
-        return (node == null) ? defaultValue : itemIdMap[node.getAttribute("id")];
-    }
-
-
-    function findNextItemOfType(node,typeFun)
-    {
-        do node = nextNode(node);
         while ((node != null) && !typeFun(node));
         return (node == null) ? null : itemIdMap[node.getAttribute("id")];
     }
 
     function figureInserted(node)
     {
+        var item = new OutlineItem("figure",node);
+        var prev = findPrevItemOfType(node,isFigureNode);
+        figureList.insertItemAfter(item,prev);
+
+        scheduleUpdateOutlineItemStructure();
+        return;
     }
 
     function figureRemoved(node)
@@ -219,6 +267,12 @@
 
     function tableInserted(node)
     {
+        var item = new OutlineItem("table",node);
+        var prev = findPrevItemOfType(node,isTableNode);
+        tableList.insertItemAfter(item,prev);
+
+        scheduleUpdateOutlineItemStructure();
+        return;
     }
 
     function tableRemoved(node)
@@ -291,6 +345,8 @@
         outlineDirty = false;
 
         var toplevelSections = new Array();
+        var toplevelFigures = new Array();
+        var toplevelTables = new Array();
         var wrapper = new Object();
 
         var current = null;
@@ -306,7 +362,8 @@
             countA++;
         }
 
-        var countB = 0;
+        ignoreModifications++;
+
         for (var section = sectionList.sentinel.next;
              section != sectionList.sentinel;
              section = section.next) {
@@ -325,24 +382,42 @@
             }
 
             current = section;
-            countB++;
+            updateSectionItem(section);
         }
 
-        ignoreHeadingModifications++;
-        for (var i = 0; i < toplevelSections.length; i++)
-            toplevelSections[i].updateFullNumberRecursive("");
-        ignoreHeadingModifications--;
+        for (var figure = figureList.sentinel.next;
+             figure != figureList.sentinel;
+             figure = figure.next) {
+            figure.index = toplevelFigures.length;
+            toplevelFigures.push(figure);
+            updateFigureItem(figure);
+        }
 
-        var encOutlineItems = new Array();
+        for (var table = tableList.sentinel.next;
+             table != tableList.sentinel;
+             table = table.next) {
+            table.index = toplevelTables.length;
+            toplevelTables.push(table);
+            updateTableItem(table);
+        }
+
+        ignoreModifications--;
+
+        var encSections = new Array();
         var encFigures = new Array();
         var encTables = new Array();
 
         for (var i = 0; i < toplevelSections.length; i++)
-            encodeItem(toplevelSections[i],encOutlineItems);
+            encodeItem(toplevelSections[i],encSections);
+        for (var i = 0; i < toplevelFigures.length; i++)
+            encodeItem(toplevelFigures[i],encFigures);
+        for (var i = 0; i < toplevelTables.length; i++)
+            encodeItem(toplevelTables[i],encTables);
 
-        editor.setOutline({ sections: encOutlineItems,
-                            figures: encFigures,
-                            tables: encTables });
+        var arg = { sections: encSections,
+                    figures: encFigures,
+                    tables: encTables };
+        editor.setOutline(arg);
     }
 
     function encodeItem(item,result)
@@ -353,6 +428,7 @@
 
         var obj = { id: item.id,
                     index: (item.index == null) ? -1 : item.index,
+                    number: item.getFullNumber(),
                     title: item.title,
                     children: encChildren };
         result.push(obj);
