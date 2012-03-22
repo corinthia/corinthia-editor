@@ -84,6 +84,17 @@ function isInlineNode(node)
     return (!isContainerNode(node) && !isParagraphNode(node));
 }
 
+function isTableNode(node)
+{
+    return (DOM.upperName(node) == "TABLE");
+}
+
+function isFigureNode(node)
+{
+    return ((DOM.upperName(node) == "DIV") &&
+            (node.hasAttribute("id") && (node.getAttribute("id").indexOf("figure") == 0)));
+}
+
 function isOpaqueNode(node)
 {
     if (node.nodeType == Node.TEXT_NODE) {

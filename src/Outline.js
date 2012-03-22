@@ -4,7 +4,42 @@
     var nextSectionId = 0;
     var outlineDirty = false;
     var ignoreHeadingModifications = 0;
-    var rootSection = null;
+
+    var rootSection;
+
+    function DoublyLinkedList()
+    {
+        this.sentinel = new Object();
+        this.sentinel.next = this.sentinel;
+        this.sentinel.prev = this.sentinel;
+        this.sentinel.isSentinel = true;
+    }
+
+    DoublyLinkedList.prototype.insertItemAfter = function(item,after)
+    {
+        if (after == null)
+            after = this.sentinel;
+
+        item.prev = after;
+        item.next = after.next;
+
+        item.prev.next = item;
+        item.next.prev = item;
+    }
+
+    DoublyLinkedList.prototype.removeItem = function(item)
+    {
+        if (item == this.sentinel)
+            throw new Error("DoublyLinkedList: attempt tor remove sentinel node");
+        item.prev.next = item.next;
+        item.next.prev = item.prev;
+        item.prev = null;
+        item.next = null;
+    }
+
+    var figureList = new DoublyLinkedList();
+    var tableList = new DoublyLinkedList();
+    var sectionList = new DoublyLinkedList();
 
     function OutlineItem(node)
     {
@@ -49,6 +84,8 @@
     {
         var last = this.last();
         if (last == null)
+            return null;
+        else if (last.next.isSentinel)
             return null;
         else
             return last.next;
@@ -116,7 +153,6 @@
 
     function headingInserted(node)
     {
-        var prevOutlineItem = findPrevOutlineItem(node);
         var section = new OutlineItem(node);
 
         // Remove any existing numbering
@@ -124,23 +160,13 @@
         if (firstText != null)
             DOM.setNodeValue(firstText,firstText.nodeValue.replace(/^(\d+\.)*\d*\s+/,""));
 
-        section.next = prevOutlineItem.next;
-        if (section.next != null)
-            section.next.prev = section;
+        var actualPrev = findPrevItemOfType(node,isHeadingNode,null);
+        sectionList.insertItemAfter(section,actualPrev);
 
-        section.prev = prevOutlineItem;
-        section.prev.next = section;
 
         node.addEventListener("DOMSubtreeModified",section.modificationListener);
         scheduleUpdateOutlineItemStructure();
         return;
-
-        function findPrevOutlineItem(node)
-        {
-            do node = prevNode(node);
-            while ((node != null) && !isHeadingNode(node));
-            return (node == null) ? rootSection : itemIdMap[node.getAttribute("id")];
-        }
 
         function findFirstTextDescendant(node)
         {
@@ -160,16 +186,46 @@
     function headingRemoved(node)
     {
         var section = itemIdMap[node.getAttribute("id")];
-        if (section.prev != null)
-            section.prev.next = section.next;
-        if (section.next != null)
-            section.next.prev = section.prev;
+
+        sectionList.removeItem(section);
+
         if (section.span != null)
             DOM.deleteNode(section.span);
 
         node.removeEventListener("DOMSubtreeModified",section.modificationListener);
         scheduleUpdateOutlineItemStructure();
         return;
+    }
+
+    function findPrevItemOfType(node,typeFun,defaultValue)
+    {
+        do node = prevNode(node);
+        while ((node != null) && !typeFun(node));
+        return (node == null) ? defaultValue : itemIdMap[node.getAttribute("id")];
+    }
+
+
+    function findNextItemOfType(node,typeFun)
+    {
+        do node = nextNode(node);
+        while ((node != null) && !typeFun(node));
+        return (node == null) ? null : itemIdMap[node.getAttribute("id")];
+    }
+
+    function figureInserted(node)
+    {
+    }
+
+    function figureRemoved(node)
+    {
+    }
+
+    function tableInserted(node)
+    {
+    }
+
+    function tableRemoved(node)
+    {
     }
 
     function acceptNode(node)
@@ -193,6 +249,10 @@
         {
             if (isHeadingNode(node))
                 headingInserted(node);
+            else if (isFigureNode(node))
+                figureInserted(node);
+            else if (isTableNode(node))
+                tableInserted(node);
 
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
@@ -209,6 +269,10 @@
         {
             if (isHeadingNode(node))
                 headingRemoved(node);
+            else if (isFigureNode(node))
+                figureRemoved(node);
+            else if (isTableNode(node))
+                tableRemoved(node);
 
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
@@ -228,14 +292,25 @@
         if (!outlineDirty)
             return;
         outlineDirty = false;
-        var current = rootSection;
 
-        for (var section = rootSection; section != null; section = section.next) {
+
+        var current = rootSection;
+        rootSection.parent = null;
+        rootSection.children = [];
+
+        var countA = 0;
+        for (var section = sectionList.sentinel.next;
+             section != sectionList.sentinel;
+             section = section.next) {
             section.parent = null;
             section.children = [];
+            countA++;
         }
 
-        for (var section = rootSection.next; section != null; section = section.next) {
+        var countB = 0;
+        for (var section = sectionList.sentinel.next;
+             section != sectionList.sentinel;
+             section = section.next) {
            
             while (section.level < current.level+1)
                 current = current.parent;
@@ -245,7 +320,7 @@
             current.children.push(section);
 
             current = section;
-
+            countB++;
         }
 
         ignoreHeadingModifications++;
@@ -283,12 +358,11 @@
     Outline.init = function()
     {
         DOM.ensureUniqueIds(document.documentElement);
-        Outline.root = rootSection = new OutlineItem();
+        rootSection = new OutlineItem();
         document.addEventListener("DOMNodeInserted",docNodeInserted);
         document.addEventListener("DOMNodeRemoved",docNodeRemoved);
 
         docNodeInserted({target:document});
-//        rootSection.print();
     }
 
     function getOutlineItemNodes(section,result)
@@ -342,7 +416,7 @@
 
     Outline.goToItem = function(itemId)
     {
-        if (itemId == rootSection.id) {
+        if (itemId == null) {
             window.scrollTo(0);
         }
         else {
