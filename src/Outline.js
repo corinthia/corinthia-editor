@@ -49,6 +49,7 @@
             if (node != null)
                 node.setAttribute("id",this.id);
         }
+        this.type = type;
         this.node = node;
         this.title = null;
         this.level = node ? parseInt(DOM.upperName(node).substring(1)) : 0;
@@ -263,6 +264,8 @@
 
     function figureRemoved(node)
     {
+        var table = itemIdMap[node.getAttribute("id")];
+        figureList.removeItem(table);
     }
 
     function tableInserted(node)
@@ -277,6 +280,8 @@
 
     function tableRemoved(node)
     {
+        var table = itemIdMap[node.getAttribute("id")];
+        figureList.removeItem(table);
     }
 
     function acceptNode(node)
@@ -484,11 +489,16 @@
     Outline.deleteItem = function(itempId)
     {
         Selection.trackWhileExecuting(function() {
-            var section = itemIdMap[itempId];
-            var sectionNodes = new Array();
-            getOutlineItemNodes(section,sectionNodes);
-            for (var i = 0; i < sectionNodes.length; i++)
-                DOM.deleteNode(sectionNodes[i]);
+            var item = itemIdMap[itempId];
+            if (item.type == "section") {
+                var sectionNodes = new Array();
+                getOutlineItemNodes(item,sectionNodes);
+                for (var i = 0; i < sectionNodes.length; i++)
+                    DOM.deleteNode(sectionNodes[i]);
+            }
+            else {
+                DOM.deleteNode(item.node);
+            }
         });
 
         scheduleUpdateOutlineItemStructure();
