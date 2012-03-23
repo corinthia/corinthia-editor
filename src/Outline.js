@@ -46,7 +46,7 @@
             this.id = node.getAttribute("id");
         }
         else {
-            this.id = type+(nextSectionId++);
+            this.id = "item"+(nextSectionId++);
             if (node != null)
                 node.setAttribute("id",this.id);
         }
