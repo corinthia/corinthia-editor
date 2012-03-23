@@ -305,6 +305,14 @@
     }
 
     // public
+    function insertReference(itemId)
+    {
+        var a = DOM.createElement(document,"A");
+        a.setAttribute("href","#"+itemId);
+        Clipboard.pasteNodes([a]);
+    }
+
+    // public
     function insertCharacter(character)
     {
         var selectionRange = Selection.getSelectionRange();
@@ -457,6 +465,7 @@
     Cursor.updateBRAtEndOfParagraph = updateBRAtEndOfParagraph;
     Cursor.closestPositionForwards = closestPositionForwards;
     Cursor.closestPositionBackwards = closestPositionBackwards;
+    Cursor.insertReference = insertReference;
     Cursor.insertCharacter = insertCharacter;
     Cursor.deleteCharacter = deleteCharacter;
     Cursor.enterPressed = enterPressed;

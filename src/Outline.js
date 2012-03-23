@@ -1,6 +1,7 @@
 (function() {
 
     var itemsById = new Object();
+    var refsById = new Object();
     var nextSectionId = 1;
     var outlineDirty = false;
     var ignoreModifications = 0;
@@ -59,6 +60,7 @@
         this.isRoot = (this.level == 0);
         this.span = null;
         this.titleNode = null;
+        this.referenceText = null;
 
         this.prev = null;
         this.next = null;
@@ -155,6 +157,22 @@
             fullNumber = (item.index+1)+"."+fullNumber;
         }
         return fullNumber;
+    }
+
+    OutlineItem.prototype.setReferenceText = function(referenceText)
+    {
+        if (this.referenceText == referenceText)
+            return; // don't waste time updating refs
+
+        this.referenceText = referenceText;
+
+        var refs = refsById[this.id];
+        if (refs != null) {
+            for (var i = 0; i < refs.length; i++) {
+                DOM.deleteAllChildren(refs[i]);
+                DOM.appendChild(refs[i],DOM.createTextNode(document,referenceText));
+            }
+        }
     }
 
     function getNodeTextAfter(node)
@@ -278,6 +296,41 @@
         return;
     }
 
+    function refInserted(node)
+    {
+        var href = node.getAttribute("href");
+        if (href.charAt(0) != "#")
+            throw new Error("refInserted: not a # reference");
+        var id = href.substring(1);
+
+        if (refsById[id] == null)
+            refsById[id] = new Array();
+        refsById[id].push(node);
+
+        var item = itemsById[id];
+        if ((item != null) && (item.referenceText != null)) {
+            DOM.deleteAllChildren(node);
+            DOM.appendChild(node,DOM.createTextNode(document,item.referenceText));
+        }
+    }
+
+    function refRemoved(node)
+    {
+        var href = node.getAttribute("href");
+        if (href.charAt(0) != "#")
+            throw new Error("refInserted: not a # reference");
+        var id = href.substring(1);
+
+        if (refsById[id] == null)
+            throw new Error("refRemoved: refsById["+id+"] is null");
+        var index = refsById[id].indexOf(node);
+        if (index < 0)
+            throw new Error("refRemoved: refsById["+id+"] does not contain node");
+        refsById[id].splice(index,1);
+        if (refsById[id] == null)
+            delete refsById[id];
+    }
+
     function tableRemoved(node)
     {
         var table = itemsById[node.getAttribute("id")];
@@ -309,6 +362,8 @@
                 figureInserted(node);
             else if (isTableNode(node))
                 tableInserted(node);
+            else if (isRefNode(node))
+                refInserted(node);
 
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
@@ -329,6 +384,8 @@
                 figureRemoved(node);
             else if (isTableNode(node))
                 tableRemoved(node);
+            else if (isRefNode(node))
+                refRemoved(node);
 
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
@@ -388,6 +445,7 @@
 
             current = section;
             updateSectionItem(section);
+            section.setReferenceText("Section "+section.getFullNumber());
         }
 
         for (var figure = figureList.sentinel.next;
@@ -396,6 +454,7 @@
             figure.index = toplevelFigures.length;
             toplevelFigures.push(figure);
             updateFigureItem(figure);
+            figure.setReferenceText("Figure "+figure.getFullNumber());
         }
 
         for (var table = tableList.sentinel.next;
@@ -404,6 +463,7 @@
             table.index = toplevelTables.length;
             toplevelTables.push(table);
             updateTableItem(table);
+            table.setReferenceText("Table "+table.getFullNumber());
         }
 
         ignoreModifications--;
@@ -432,6 +492,7 @@
             encodeItem(item.children[i],encChildren);
 
         var obj = { id: item.id,
+                    type: item.type,
                     index: (item.index == null) ? -1 : item.index,
                     number: item.getFullNumber(),
                     title: item.title,

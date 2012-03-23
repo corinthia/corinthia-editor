@@ -94,6 +94,13 @@ function isFigureNode(node)
     return (DOM.upperName(node) == "FIGURE");
 }
 
+function isRefNode(node)
+{
+    return ((DOM.upperName(node) == "A") &&
+            node.hasAttribute("href") &&
+            node.getAttribute("href").charAt(0) == "#");
+}
+
 function isOpaqueNode(node)
 {
     if (node.nodeType == Node.TEXT_NODE) {

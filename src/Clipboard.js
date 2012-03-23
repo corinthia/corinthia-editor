@@ -290,6 +290,7 @@
         pasteNodes(nodes);
     }
 
+    // public
     function pasteNodes(nodes)
     {
         Selection.deleteSelectionContents();
@@ -367,5 +368,6 @@
     Clipboard.copy = copy;
     Clipboard.pasteText = pasteText;
     Clipboard.pasteHTML = pasteHTML;
+    Clipboard.pasteNodes = pasteNodes;
 
 })();
