@@ -3,6 +3,10 @@
 
 (function() {
 
+    var insertionNode = null;
+    var insertionTextBefore = null;
+    var insertionTextAfter = null;
+
     // public
     function ensureCursorVisible()
     {
@@ -344,6 +348,62 @@
     }
 
     // public
+    function beginInsertion()
+    {
+        var selectionRange = Selection.getSelectionRange();
+        if (selectionRange == null)
+            return;
+
+        if (!selectionRange.isEmpty())
+            Selection.deleteSelectionContents();
+        var pos = closestPositionForwards(selectionRange.start);
+        var node = pos.node;
+        var offset = pos.offset;
+
+        if (node.nodeType == Node.ELEMENT_NODE) {
+            var emptyTextNode = DOM.createTextNode(document,"");
+            if (offset >= node.childNodes.length)
+                DOM.appendChild(node,emptyTextNode);
+            else
+                DOM.insertBefore(node,emptyTextNode,node.childNodes[offset]);
+            node = emptyTextNode;
+            offset = 0;
+        }
+
+        insertionNode = node;
+        insertionTextBefore = insertionNode.nodeValue.slice(0,offset);
+        insertionTextAfter = insertionNode.nodeValue.slice(offset);
+
+        Selection.setEmptySelectionAt(node,offset,node,offset);
+        Selection.getSelectionRange().trackWhileExecuting(function() {
+            updateBRAtEndOfParagraph(node);
+        });
+        ensureCursorVisible();
+    }
+
+    // public
+    function updateInsertion(str)
+    {
+        DOM.setNodeValue(insertionNode,insertionTextBefore+str+insertionTextAfter);
+
+        var node = insertionNode;
+        var offset = (insertionTextBefore+str).length;
+        Selection.setEmptySelectionAt(node,offset,node,offset);
+        Selection.getSelectionRange().trackWhileExecuting(function() {
+            updateBRAtEndOfParagraph(node);
+        });
+        ensureCursorVisible();
+    }
+
+    // public
+    function endInsertion(str)
+    {
+        insertionNode = null;
+        insertionTextBefore = null;
+        insertionTextAfter = null;
+    }
+
+    // public
     function deleteCharacter()
     {
         var selectionRange = Selection.getSelectionRange();
@@ -467,6 +527,9 @@
     Cursor.closestPositionBackwards = closestPositionBackwards;
     Cursor.insertReference = insertReference;
     Cursor.insertCharacter = insertCharacter;
+    Cursor.beginInsertion = beginInsertion;
+    Cursor.updateInsertion = updateInsertion;
+    Cursor.endInsertion = endInsertion;
     Cursor.deleteCharacter = deleteCharacter;
     Cursor.enterPressed = enterPressed;
 
