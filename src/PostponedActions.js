@@ -18,6 +18,7 @@
             actions = new Array();
             for (var i = 0; i < actionsToPerform.length; i++)
                 actionsToPerform[i]();
+            Selection.updateSelectionDisplay();
         }
     }
 })();
