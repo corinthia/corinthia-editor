@@ -2,7 +2,7 @@
 
     var itemsById = new Object();
     var refsById = new Object();
-    var nextSectionId = 1;
+    var nextItemId = 1;
     var outlineDirty = false;
     var ignoreModifications = 0;
     var figureList = new DoublyLinkedList();
@@ -39,6 +39,15 @@
         item.next = null;
     }
 
+    function generateItemId()
+    {
+        var id;
+        do {
+            id = "item"+(nextItemId++);
+        } while (document.getElementById(id) != null);
+        return id;
+    }
+
     function OutlineItem(type,node)
     {
         var section = this;
@@ -46,7 +55,7 @@
             this.id = node.getAttribute("id");
         }
         else {
-            this.id = "item"+(nextSectionId++);
+            this.id = generateItemId();
             if (node != null)
                 node.setAttribute("id",this.id);
         }
