@@ -848,11 +848,16 @@
                 inlineProperties[name] = properties[name];
         }
 
-        var range = Selection.getSelectionRange();
-        if (range == null)
+        var selectionRange = Selection.getSelectionRange();
+        if (selectionRange == null)
             return;
 
-        range.trackWhileExecuting(function() {
+        var range = new Range(selectionRange.start.node,selectionRange.start.offset,
+                              selectionRange.end.node,selectionRange.end.offset);
+        var positions = [selectionRange.start,selectionRange.end,
+                         range.start,range.end];
+
+        Position.trackWhileExecuting(positions,function() {
             splitAroundSelection(range);
             range.expand();
             range.ensureRangeValidHierarchy();
@@ -921,7 +926,7 @@
             }
         });
 
-        Selection.updateSelectionDisplay();
+        Selection.setSelectionRange(selectionRange);
         return;
     }
 
