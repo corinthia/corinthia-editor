@@ -396,14 +396,6 @@
     }
 
     // public
-    function endInsertion(str)
-    {
-        insertionNode = null;
-        insertionTextBefore = null;
-        insertionTextAfter = null;
-    }
-
-    // public
     function deleteCharacter()
     {
         var selectionRange = Selection.getSelectionRange();
@@ -529,7 +521,6 @@
     Cursor.insertCharacter = insertCharacter;
     Cursor.beginInsertion = beginInsertion;
     Cursor.updateInsertion = updateInsertion;
-    Cursor.endInsertion = endInsertion;
     Cursor.deleteCharacter = deleteCharacter;
     Cursor.enterPressed = enterPressed;
 
