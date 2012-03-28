@@ -379,6 +379,7 @@
             updateBRAtEndOfParagraph(node);
         });
         ensureCursorVisible();
+        return insertionTextBefore;
     }
 
     // public
