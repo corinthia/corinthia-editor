@@ -73,17 +73,13 @@
             // Directly after an IMG, TABLE, UL, or OL -> YES
             if ((prev != null) &&
                 ((DOM.upperName(prev) == "IMG") ||
-                 (DOM.upperName(prev) == "TABLE") ||
-                 (DOM.upperName(prev) == "UL") ||
-                 (DOM.upperName(prev) == "OL")))
+                 (DOM.upperName(prev) == "TABLE")))
                 result = true;
 
             // Directly before an IMG, TABLE, UL, or OL -> YES
             if ((next != null) &&
                 ((DOM.upperName(next) == "IMG") ||
-                 (DOM.upperName(next) == "TABLE") ||
-                 (DOM.upperName(next) == "UL") ||
-                 (DOM.upperName(next) == "OL")))
+                 (DOM.upperName(next) == "TABLE")))
                 result = true;
 
             // In an empty paragraph or one that only contains a BR
@@ -91,7 +87,7 @@
                 result = true;
 
             if ((prev == null) && (next == null) &&
-                (isParagraphNode(node) ||
+                (isParagraphNode(node) || (DOM.upperName(node) == "LI") ||
                  INLINE_ELEMENTS_THAT_CAN_HAVE_CHILDREN[DOM.upperName(node)]))
                 result = true;
 
