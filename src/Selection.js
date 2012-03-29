@@ -270,7 +270,7 @@
         var zoom = Viewport.getZoom();
         var position = positionAtPoint(x/zoom,y/zoom);
         if (position != null) {
-            selectionRange.start = position;
+            selectionRange.start = Cursor.closestPositionBackwards(position);
             updateSelectionDisplay();
         }
     }
@@ -281,7 +281,7 @@
         var zoom = Viewport.getZoom();
         var position = positionAtPoint(x/zoom,y/zoom);
         if (position != null) {
-            selectionRange.end = position;
+            selectionRange.end = Cursor.closestPositionBackwards(position);
             updateSelectionDisplay();
         }
     }

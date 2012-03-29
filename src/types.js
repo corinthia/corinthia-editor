@@ -57,6 +57,7 @@ var OPAQUE_NODE_CLASSES = {
     "-uxwrite-heading-number": true,
     "-uxwrite-figure-number": true,
     "-uxwrite-table-number": true,
+    "-uxwrite-selection-highlight": true,
 };
 
 function isContainerNode(node)
@@ -117,7 +118,8 @@ function isOpaqueNode(node)
         return isOpaqueNode(node.parentNode);
     }
     else if (node.nodeType == Node.ELEMENT_NODE) {
-        if ((DOM.upperName(node) == "SPAN") && node.hasAttribute("class")) {
+        if (((DOM.upperName(node) == "SPAN") || (DOM.upperName(node) == "DIV"))
+            && node.hasAttribute("class")) {
             return OPAQUE_NODE_CLASSES[node.getAttribute("class")];
         }
         else if ((DOM.upperName(node) == "A") && node.hasAttribute("href")) {
