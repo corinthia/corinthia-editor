@@ -74,14 +74,14 @@ function isHeadingNode(node)
     return HEADING_ELEMENTS[DOM.upperName(node)];
 }
 
-function isParagraphOrContainerNode(node)
+function isBlockNode(node)
 {
     return (isContainerNode(node) || isParagraphNode(node));
 }
 
 function isInlineNode(node)
 {
-    return (!isContainerNode(node) && !isParagraphNode(node));
+    return !isBlockNode(node);
 }
 
 function isListNode(node)

@@ -157,11 +157,11 @@
                 range.start.offset = 0;
             }
             else if (range.start.node.nodeType == Node.ELEMENT_NODE) {
-                movePreceding(range.start.node,range.start.offset,isParagraphOrContainerNode);
+                movePreceding(range.start.node,range.start.offset,isBlockNode);
             }
             else {
                 movePreceding(range.start.node.parentNode,getOffsetOfNodeInParent(range.start.node),
-                              isParagraphOrContainerNode);
+                              isBlockNode);
             }
 
             // Save the start and end position of the range. The mutation listeners will move it
@@ -176,11 +176,11 @@
                 splitTextAfter(range.end.node,range.end.offset);
             }
             else if (range.end.node.nodeType == Node.ELEMENT_NODE) {
-                moveFollowing(range.end.node,range.end.offset,isParagraphOrContainerNode);
+                moveFollowing(range.end.node,range.end.offset,isBlockNode);
             }
             else {
                 moveFollowing(range.end.node.parentNode,getOffsetOfNodeInParent(range.end.node)+1,
-                              isParagraphOrContainerNode);
+                              isBlockNode);
             }
 
             range.start.node = startNode;
@@ -241,7 +241,7 @@
     function splitTextBefore(node,offset,parentCheckFn,force)
     {
         if (parentCheckFn == null)
-            parentCheckFn = isParagraphOrContainerNode;
+            parentCheckFn = isBlockNode;
         var before = DOM.createTextNode(document,node.nodeValue.slice(0,offset));
 
         DOM.insertBefore(node.parentNode,before,node);
@@ -255,7 +255,7 @@
     function splitTextAfter(node,offset,parentCheckFn,force)
     {
         if (parentCheckFn == null)
-            parentCheckFn = isParagraphOrContainerNode;
+            parentCheckFn = isBlockNode;
         var after = DOM.createTextNode(document,node.nodeValue.slice(offset));
 
         DOM.insertBefore(node.parentNode,after,node.nextSibling);
