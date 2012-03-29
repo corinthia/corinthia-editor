@@ -468,10 +468,6 @@
                     updateBRAtEndOfParagraph(prev);
                     break;
                 }
-                else if ((prev != null) && (DOM.upperName(prev) == "LI") && !nodeHasContent(prev)) {
-                    DOM.deleteAllChildren(prev);
-                    break;
-                }
             }
 
             for (var ancestor = start; ancestor != null; ancestor = ancestor.parentNode) {
