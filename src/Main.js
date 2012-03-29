@@ -64,6 +64,8 @@
     // public
     function getErrorReportingInfo()
     {
+        if (document.documentElement == null)
+            return "(document.documentElement is null)";
         try {
             var html = htmlWithSelection();
             cleanse(html);
@@ -195,6 +197,10 @@
     function init()
     {
         try {
+            if (document.documentElement == null)
+                throw new Error("document.documentElement is null");
+            if (document.body == null)
+                throw new Error("document.body is null");
             DOM.assignNodeIds(document);
             testtrace();
             addContentType();
@@ -206,6 +212,9 @@
             return e.toString();
         }
     }
+
+    addContentType = trace(addContentType);
+    getStyles = trace(getStyles);
 
     window.Main = new (function Main(){});
     Main.isEmptyDocument = trace(isEmptyDocument);
