@@ -122,7 +122,7 @@
     }
 
 
-    var DOM = new Object();
+    var DOM = new (function DOM(){});
 
     // public methods
     DOM.assignNodeIds = function(node)

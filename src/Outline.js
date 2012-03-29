@@ -509,9 +509,7 @@
         result.push(obj);
     }
 
-    window.Outline = new Object();
-
-    Outline.init = function()
+    function init()
     {
         DOM.ensureUniqueIds(document.documentElement);
         document.addEventListener("DOMNodeInserted",docNodeInserted);
@@ -528,7 +526,7 @@
             result.push(n);
     }
 
-    Outline.moveSection = function(sectionId,parentId,nextId)
+    function moveSection(sectionId,parentId,nextId)
     {
         Selection.trackWhileExecuting(function() {
             updateOutlineItemStructure(); // make sure pointers are valid
@@ -556,7 +554,7 @@
         scheduleUpdateOutlineItemStructure();
     }
 
-    Outline.deleteItem = function(itempId)
+    function deleteItem(itempId)
     {
         Selection.trackWhileExecuting(function() {
             var item = itemsById[itempId];
@@ -574,7 +572,7 @@
         scheduleUpdateOutlineItemStructure();
     }
 
-    Outline.goToItem = function(itemId)
+    function goToItem(itemId)
     {
         if (itemId == null) {
             window.scrollTo(0);
@@ -586,5 +584,11 @@
             window.scrollTo(0,location.y);
         }
     }
+
+    window.Outline = new (function Outline(){});
+    Outline.init = trace(init);
+    Outline.moveSection = trace(moveSection);
+    Outline.deleteItem = trace(deleteItem);
+    Outline.goToItem = trace(goToItem);
 
 })();

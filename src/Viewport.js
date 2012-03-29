@@ -66,8 +66,8 @@
         return window.outerWidth/window.innerWidth;
     }
 
-    window.Viewport = new Object();
-    Viewport.setViewportSize = setViewportSize;
+    window.Viewport = new (function Viewport(){});
+    Viewport.setViewportSize = trace(setViewportSize);
     Viewport.getViewportWidth = getViewportWidth;
     Viewport.getViewportHeight = getViewportHeight;
     Viewport.getZoom = getZoom;

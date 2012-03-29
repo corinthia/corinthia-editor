@@ -2,7 +2,7 @@
 
 (function() {
 
-    window.PostponedActions = new Object();
+    window.PostponedActions = new (function PostponedActions(){});
 
     var actions = new Array();
 

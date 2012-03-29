@@ -119,7 +119,7 @@
             ensureValidHierarchy(node.parentNode,true);
     }
 
-    window.Hierarchy = new Object();
-    Hierarchy.ensureValidHierarchy = ensureValidHierarchy;
+    window.Hierarchy = new (function Hierarchy(){});
+    Hierarchy.ensureValidHierarchy = trace(ensureValidHierarchy);
 
 })();

@@ -362,12 +362,12 @@
         // FIXME
     }
 
-    window.Clipboard = new Object();
-    Clipboard.htmlToText = htmlToText;
-    Clipboard.cut = cut;
-    Clipboard.copy = copy;
-    Clipboard.pasteText = pasteText;
-    Clipboard.pasteHTML = pasteHTML;
-    Clipboard.pasteNodes = pasteNodes;
+    window.Clipboard = new (function Clipboard(){});
+    Clipboard.htmlToText = trace(htmlToText);
+    Clipboard.cut = trace(cut);
+    Clipboard.copy = trace(copy);
+    Clipboard.pasteText = trace(pasteText);
+    Clipboard.pasteHTML = trace(pasteHTML);
+    Clipboard.pasteNodes = trace(pasteNodes);
 
 })();

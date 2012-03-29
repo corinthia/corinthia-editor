@@ -498,23 +498,23 @@
         }
     }
 
-    window.Cursor = new Object();
-    Cursor.ensureCursorVisible = ensureCursorVisible;
-    Cursor.isValidCursorPosition = isValidCursorPosition;
-    Cursor.positionCursor = positionCursor;
-    Cursor.getCursorPosition = getCursorPosition;
-    Cursor.moveLeft = moveLeft;
-    Cursor.moveRight = moveRight;
-    Cursor.moveToStartOfDocument = moveToStartOfDocument;
-    Cursor.moveToEndOfDocument = moveToEndOfDocument;
-    Cursor.updateBRAtEndOfParagraph = updateBRAtEndOfParagraph;
-    Cursor.closestPositionForwards = closestPositionForwards;
-    Cursor.closestPositionBackwards = closestPositionBackwards;
-    Cursor.insertReference = insertReference;
-    Cursor.insertCharacter = insertCharacter;
-    Cursor.beginInsertion = beginInsertion;
-    Cursor.updateInsertion = updateInsertion;
-    Cursor.deleteCharacter = deleteCharacter;
-    Cursor.enterPressed = enterPressed;
+    window.Cursor = new (function Cursor(){});
+    Cursor.ensureCursorVisible = trace(ensureCursorVisible);
+    Cursor.isValidCursorPosition = trace(isValidCursorPosition);
+    Cursor.positionCursor = trace(positionCursor);
+    Cursor.getCursorPosition = trace(getCursorPosition);
+    Cursor.moveLeft = trace(moveLeft);
+    Cursor.moveRight = trace(moveRight);
+    Cursor.moveToStartOfDocument = trace(moveToStartOfDocument);
+    Cursor.moveToEndOfDocument = trace(moveToEndOfDocument);
+    Cursor.updateBRAtEndOfParagraph = trace(updateBRAtEndOfParagraph);
+    Cursor.closestPositionForwards = trace(closestPositionForwards);
+    Cursor.closestPositionBackwards = trace(closestPositionBackwards);
+    Cursor.insertReference = trace(insertReference);
+    Cursor.insertCharacter = trace(insertCharacter);
+    Cursor.beginInsertion = trace(beginInsertion);
+    Cursor.updateInsertion = trace(updateInsertion);
+    Cursor.deleteCharacter = trace(deleteCharacter);
+    Cursor.enterPressed = trace(enterPressed);
 
 })();

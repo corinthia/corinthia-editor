@@ -2,7 +2,7 @@
 
 (function() {
 
-    window.UndoManager = new Object();
+    window.UndoManager = new (function UndoManager(){});
 
     function Monitor(id,object,property)
     {

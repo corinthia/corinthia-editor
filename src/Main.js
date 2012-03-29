@@ -207,12 +207,12 @@
         }
     }
 
-    window.Main = new Object();
-    Main.isEmptyDocument = isEmptyDocument;
-    Main.getHTML = getHTML;
-    Main.getErrorReportingInfo = getErrorReportingInfo;
-    Main.removeSpecial = removeSpecial;
-    Main.execute = execute;
-    Main.init = init;
+    window.Main = new (function Main(){});
+    Main.isEmptyDocument = trace(isEmptyDocument);
+    Main.getHTML = trace(getHTML);
+    Main.getErrorReportingInfo = trace(getErrorReportingInfo);
+    Main.removeSpecial = trace(removeSpecial);
+    Main.execute = trace(execute);
+    Main.init = trace(init);
 
 })();

@@ -426,19 +426,19 @@
             return selectionRange.trackWhileExecuting(fun);
     }
 
-    window.Selection = new Object();
-    Selection.getCursorRect = getCursorRect;
-    Selection.updateSelectionDisplay = updateSelectionDisplay;
-    Selection.selectAll = selectAll;
-    Selection.selectWordAtCursor = selectWordAtCursor;
-    Selection.beginSelectionAtCoords = beginSelectionAtCoords;
-    Selection.setSelectionStartAtCoords = setSelectionStartAtCoords;
-    Selection.setSelectionEndAtCoords = setSelectionEndAtCoords;
-    Selection.getSelectionRange = getSelectionRange;
-    Selection.setSelectionRange = setSelectionRange;
-    Selection.setEmptySelectionAt = setEmptySelectionAt;
-    Selection.deleteSelectionContents = deleteSelectionContents;
-    Selection.clearSelection = clearSelection;
-    Selection.trackWhileExecuting = trackWhileExecuting;
+    window.Selection = new (function Selection(){});
+    Selection.getCursorRect = trace(getCursorRect);
+    Selection.updateSelectionDisplay = trace(updateSelectionDisplay);
+    Selection.selectAll = trace(selectAll);
+    Selection.selectWordAtCursor = trace(selectWordAtCursor);
+    Selection.beginSelectionAtCoords = trace(beginSelectionAtCoords);
+    Selection.setSelectionStartAtCoords = trace(setSelectionStartAtCoords);
+    Selection.setSelectionEndAtCoords = trace(setSelectionEndAtCoords);
+    Selection.getSelectionRange = trace(getSelectionRange);
+    Selection.setSelectionRange = trace(setSelectionRange);
+    Selection.setEmptySelectionAt = trace(setEmptySelectionAt);
+    Selection.deleteSelectionContents = trace(deleteSelectionContents);
+    Selection.clearSelection = trace(clearSelection);
+    Selection.trackWhileExecuting = trace(trackWhileExecuting);
 
 })();

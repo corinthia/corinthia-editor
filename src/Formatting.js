@@ -954,19 +954,19 @@
         DOM.appendChild(head,style);
     }
 
-    window.Formatting = new Object();
-    Formatting.splitTextBefore = splitTextBefore;
-    Formatting.splitTextAfter = splitTextAfter;
-    Formatting.movePreceding = movePreceding;
-    Formatting.moveFollowing = moveFollowing;
-    Formatting.splitAroundSelection = splitAroundSelection;
-    Formatting.mergeWithNeighbours = mergeWithNeighbours;
-    Formatting.mergeRange = mergeRange;
-    Formatting.paragraphTextUpToPosition = paragraphTextUpToPosition;
-    Formatting.getFormatting = getFormatting;
-    Formatting.pushDownInlineProperties = pushDownInlineProperties;
-    Formatting.applyFormattingChanges = applyFormattingChanges;
-    Formatting.setStyleElement = setStyleElement;
+    window.Formatting = new (function Formatting(){});
+    Formatting.splitTextBefore = trace(splitTextBefore);
+    Formatting.splitTextAfter = trace(splitTextAfter);
+    Formatting.movePreceding = trace(movePreceding);
+    Formatting.moveFollowing = trace(moveFollowing);
+    Formatting.splitAroundSelection = trace(splitAroundSelection);
+    Formatting.mergeWithNeighbours = trace(mergeWithNeighbours);
+    Formatting.mergeRange = trace(mergeRange);
+    Formatting.paragraphTextUpToPosition = trace(paragraphTextUpToPosition);
+    Formatting.getFormatting = trace(getFormatting);
+    Formatting.pushDownInlineProperties = trace(pushDownInlineProperties);
+    Formatting.applyFormattingChanges = trace(applyFormattingChanges);
+    Formatting.setStyleElement = trace(setStyleElement);
 
     Formatting.MERGEABLE_INLINE = {
         "B": true,

@@ -40,16 +40,16 @@
     {
     }
 
-    window.Tables = new Object();
-    Tables.insertTable = insertTable;
-    Tables.insertRowsAbove = insertRowsAbove;
-    Tables.insertRowsBelow = insertRowsBelow;
-    Tables.insertColumnsLeft = insertColumnsLeft;
-    Tables.insertColumnsRight = insertColumnsRight;
-    Tables.deleteRows = deleteRows;
-    Tables.deleteColumns = deleteColumns;
-    Tables.clearCells = clearCells;
-    Tables.mergeCells = mergeCells;
-    Tables.splitCell = splitCell;
+    window.Tables = new (function Tables(){});
+    Tables.insertTable = trace(insertTable);
+    Tables.insertRowsAbove = trace(insertRowsAbove);
+    Tables.insertRowsBelow = trace(insertRowsBelow);
+    Tables.insertColumnsLeft = trace(insertColumnsLeft);
+    Tables.insertColumnsRight = trace(insertColumnsRight);
+    Tables.deleteRows = trace(deleteRows);
+    Tables.deleteColumns = trace(deleteColumns);
+    Tables.clearCells = trace(clearCells);
+    Tables.mergeCells = trace(mergeCells);
+    Tables.splitCell = trace(splitCell);
 
 })();

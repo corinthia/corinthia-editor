@@ -478,10 +478,10 @@
         setList("OL");
     }
 
-    window.Lists = new Object();
-    Lists.increaseIndent = increaseIndent;
-    Lists.decreaseIndent = decreaseIndent;
-    Lists.clearList = clearList;
-    Lists.setUnorderedList = setUnorderedList;
-    Lists.setOrderedList = setOrderedList;
+    window.Lists = new (function Lists(){});
+    Lists.increaseIndent = trace(increaseIndent);
+    Lists.decreaseIndent = trace(decreaseIndent);
+    Lists.clearList = trace(clearList);
+    Lists.setUnorderedList = trace(setUnorderedList);
+    Lists.setOrderedList = trace(setOrderedList);
 })();
