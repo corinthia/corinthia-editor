@@ -33,7 +33,8 @@ function readFile(filename)
 function loadCode()
 {
     // Sync with Editor.m
-    var javascriptFiles = ["nulleditor.js", // must be first
+    var javascriptFiles = ["../src/trace.js", // must be first
+                           "nulleditor.js", // must be second
                            "../src/Clipboard.js",
                            "../src/Cursor.js",
                            "../src/DOM.js",

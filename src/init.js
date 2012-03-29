@@ -188,6 +188,7 @@ function init()
 {
     try {
         DOM.assignNodeIds(document);
+        testtrace();
         addContentType();
         getStyles();
         Outline.init();
