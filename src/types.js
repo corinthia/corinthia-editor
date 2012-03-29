@@ -84,6 +84,16 @@ function isInlineNode(node)
     return (!isContainerNode(node) && !isParagraphNode(node));
 }
 
+function isListNode(node)
+{
+    return ((DOM.upperName(node) == "UL") || (DOM.upperName(node) == "OL"));
+}
+
+function isListItemNode(node)
+{
+    return (DOM.upperName(node) == "LI");
+}
+
 function isTableNode(node)
 {
     return (DOM.upperName(node) == "TABLE");

@@ -370,6 +370,36 @@
 
             if ((detail.startAncestor != null) && (detail.endAncestor != null) &&
                 (detail.startAncestor.nextSibling == detail.endAncestor)) {
+
+                if (isParagraphNode(detail.startAncestor) &&
+                    isListNode(detail.endAncestor) &&
+                    isListItemNode(detail.endAncestor.firstChild)) {
+                    var list = detail.endAncestor;
+                    var li = detail.endAncestor.firstChild;
+                    DOM.moveNode(li,list.parentNode,list);
+                    DOM.replaceElement(li,detail.startAncestor.nodeName);
+                    if (firstChildElement(list) == null)
+                        DOM.deleteNode(list);
+                }
+
+                if (isParagraphNode(detail.endAncestor) &&
+                    isListNode(detail.startAncestor) &&
+                    isListItemNode(detail.startAncestor.lastChild)) {
+                    var list = detail.startAncestor;
+                    var li = detail.startAncestor.lastChild;
+                    var p = detail.endAncestor;
+
+
+                    var oldLastChild = li.lastChild;
+                    while (p.firstChild != null)
+                        DOM.moveNode(p.firstChild,li,null);
+                    DOM.deleteNode(p);
+                    if (oldLastChild != null) {
+                        DOM.mergeWithNextSibling(oldLastChild,
+                                                 Formatting.MERGEABLE_BLOCK_AND_INLINE);
+                    }
+                }
+
                 DOM.mergeWithNextSibling(detail.startAncestor,
                                          Formatting.MERGEABLE_BLOCK_AND_INLINE);
             }
