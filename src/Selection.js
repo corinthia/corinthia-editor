@@ -376,7 +376,7 @@
                     isListItemNode(detail.endAncestor.firstChild)) {
                     var list = detail.endAncestor;
                     var li = detail.endAncestor.firstChild;
-                    DOM.moveNode(li,list.parentNode,list);
+                    DOM.moveNode(list.parentNode,li,list);
                     DOM.replaceElement(li,detail.startAncestor.nodeName);
                     if (firstChildElement(list) == null)
                         DOM.deleteNode(list);
@@ -392,7 +392,7 @@
 
                     var oldLastChild = li.lastChild;
                     while (p.firstChild != null)
-                        DOM.moveNode(p.firstChild,li,null);
+                        DOM.moveNode(li,p.firstChild,null);
                     DOM.deleteNode(p);
                     if (oldLastChild != null) {
                         DOM.mergeWithNextSibling(oldLastChild,

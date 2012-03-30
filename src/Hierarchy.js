@@ -23,7 +23,7 @@
             var node = first;
             while (true) {
                 var next = node.nextSibling;
-                DOM.moveNode(node,parentNode,null);
+                DOM.moveNode(parentNode,node,null);
                 if (node == last)
                     break;
                 node = next;
@@ -87,7 +87,7 @@
                         ancestors.push(child.parentNode);
                     child = child.parentNode;
                 }
-                DOM.moveNode(node,child.parentNode,child);
+                DOM.moveNode(child.parentNode,node,child);
                 DOM.deleteNode(child);
 
                 wrapInlineChildrenInAncestors(node,ancestors);
@@ -111,7 +111,7 @@
 
                 var stop = end.nextSibling;
                 while (p.nextSibling != stop)
-                    DOM.moveNode(p.nextSibling,p,null);
+                    DOM.moveNode(p,p.nextSibling,null);
             }
         }
 

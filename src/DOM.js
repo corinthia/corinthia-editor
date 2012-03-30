@@ -178,7 +178,7 @@
     DOM.insertBefore = function(node,child,before)
     {
         if (child.parentNode != null) // already in tree
-            return DOM.moveNode(child,node,before);
+            return DOM.moveNode(node,child,before);
 
         var result = insertBeforeInternal(node,child,before);
         trackedPositionsForNode(child.parentNode).forEach(function (position) {
@@ -233,7 +233,7 @@
     // DOM.appendChild. This is intended for nodes that are already in the tree, and the other
     // functions are intended for nodes that have not already been created. However there are
     // some situations in which you don't know if the node is in the tree or not yet.
-    DOM.moveNode = function(node,parentNode,nextSibling)
+    DOM.moveNode = function(parentNode,node,nextSibling)
     {
         if (node.parentNode == null) // not already in tree
             return DOM.insertBefore(parentNode,node,nextSibling);
@@ -361,7 +361,7 @@
 
         if (current.nodeType == Node.ELEMENT_NODE) {
             lastChild = current.lastChild;
-            DOM.moveNode(next,current,null);
+            DOM.moveNode(current,next,null);
             DOM.removeNodeButKeepChildren(next);
         }
         else {
