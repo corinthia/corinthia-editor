@@ -238,22 +238,15 @@
     // public
     function getListOperationNodes(range)
     {
-        var dca = null;
-        for (var ds = range.start.node; ds != null; ds = ds.parentNode) {
-            for (var de = range.end.node; de != null; de = de.parentNode) {
-                if (ds.parentNode == de.parentNode) {
-                    dca = ds.parentNode;
-                    break;
-                }
-            }
-            if (dca != null)
-                break;
-        }
+        var detail = range.detail();
+        var dca = detail.commonAncestor;
+        var ds = detail.startAncestor;
+        var de = detail.endAncestor        
 
         while (!isContainerNode(dca)) {
+            ds = dca;
+            de = dca;
             dca = dca.parentNode;
-            ds = ds.parentNode;
-            de = de.parentNode;
         }
 
         var nodes = new Array();
@@ -261,7 +254,7 @@
         // If, after moving up the tree until dca is a container node, a single node is selected,
         // check if it is wholly contained within a single list item. If so, select just that
         // list item.
-        if (ds == de) {
+        if ((ds == de) || ((ds != null) && (ds.nextSibling == null) && (de == null))) {
             for (var ancestor = dca; ancestor != null; ancestor = ancestor.parentNode) {
                 if (DOM.upperName(ancestor) == "LI") {
                     nodes.push(ancestor);
@@ -270,12 +263,18 @@
             }
         }
 
-        for (var child = ds; child != de.nextSibling; child = child.nextSibling) {
+        var end = (de == null) ? null : de.nextSibling;
+
+        for (var child = ds; child != end; child = child.nextSibling) {
             if ((DOM.upperName(child) == "UL") || (DOM.upperName(child) == "OL")) {
                 for (var gc = child.firstChild; gc != null; gc = gc.nextSibling) {
                     if (!isWhitespaceTextNode(gc))
                         nodes.push(gc);
                 }
+            }
+            else if ((DOM.upperName(child) == "DIV") &&
+                     child.getAttribute("class") == Keys.SELECTION_HIGHLIGHT) {
+                // skip
             }
             else {
                 if (!isWhitespaceTextNode(child))
