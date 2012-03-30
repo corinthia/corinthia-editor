@@ -35,7 +35,8 @@
     function deleteNodeInternal(node,deleteDescendantData)
     {
         if (node._nodeId == null)
-            throw new Error("deleteNodeInternal: node "+DOM.upperName(node)+" has no _nodeId property");
+            throw new Error("deleteNodeInternal: node "+DOM.upperName(node)+
+                            " has no _nodeId property");
 
         var parent = node.parentNode;
         var nextSibling = node.nextSibling;
@@ -44,7 +45,8 @@
         if (window.UndoManager != null) {
             UndoManager.addAction(function() {
                 insertBeforeInternal(parent,node,nextSibling);
-            },"Insert "+DOM.upperName(node)+" into parent "+DOM.upperName(parent)+" before "+nextName);
+            },"Insert "+DOM.upperName(node)+" into parent "+
+              DOM.upperName(parent)+" before "+nextName);
         }
 
         node.parentNode.removeChild(node);
@@ -89,12 +91,14 @@
         else if (event.attrChange == MutationEvent.REMOVAL) {
             UndoManager.addAction(function() {
                 element.setAttribute(attrName,prevValue);
-            },"Add "+attrName+" attribute to "+DOM.upperName(element)+" with value \""+prevValue+"\"");
+            },"Add "+attrName+" attribute to "+
+              DOM.upperName(element)+" with value \""+prevValue+"\"");
         }
         else if (event.attrChange == MutationEvent.MODIFICATION) {
             UndoManager.addAction(function() {
                 element.setAttribute(attrName,prevValue);
-            },"Change "+attrName+" attribute of "+DOM.upperName(element)+" to value \""+prevValue+"\"");
+            },"Change "+attrName+" attribute of "+
+              DOM.upperName(element)+" to value \""+prevValue+"\"");
         }
     }
 
@@ -160,49 +164,36 @@
 
     DOM.insertBefore = function(parent,child,nextSibling)
     {
-        if (child.parentNode != null) { // already in tree
-            var offset = DOM.nodeOffset(child);
-            var newOffset;
-            if (nextSibling != null)
-                newOffset = DOM.nodeOffset(nextSibling);
-            else
-                newOffset = parent.childNodes.length;
+        var newOffset;
+        if (nextSibling != null)
+            newOffset = DOM.nodeOffset(nextSibling);
+        else
+            newOffset = parent.childNodes.length;
 
-            if ((child.parentNode == parent) && (newOffset > offset))
+        var oldParent = child.parentNode;
+        if (oldParent != null) { // already in tree
+            var oldOffset = DOM.nodeOffset(child);
+
+            if ((oldParent == parent) && (newOffset > oldOffset))
                 newOffset--;
 
-            trackedPositionsForNode(child.parentNode).forEach(function (position) {
-                var old = position.toString();
-                if (position.offset > offset) {
+            trackedPositionsForNode(oldParent).forEach(function (position) {
+                if (position.offset > oldOffset) {
                     position.offset--;
                 }
-                else if (position.offset == offset) {
+                else if (position.offset == oldOffset) {
                     position.node = parent;
                     position.offset = newOffset;
                 }
             });
-
-            var result = insertBeforeInternal(parent,child,nextSibling);
-
-            trackedPositionsForNode(child.parentNode).forEach(function (position) {
-                var old = position.toString();
-                if (position.offset > newOffset) {
-                    position.offset++;
-                }
-            });
-
-            return result;
         }
-        else { // not already in tree
-            var result = insertBeforeInternal(parent,child,nextSibling);
-            trackedPositionsForNode(child.parentNode).forEach(function (position) {
-                var offset = DOM.nodeOffset(child);
-                if (offset < position.offset) {
-                    position.offset++;
-                }
-            });
-            return result;
-        }
+
+        var result = insertBeforeInternal(parent,child,nextSibling);
+        trackedPositionsForNode(parent).forEach(function (position) {
+            if (position.offset > newOffset)
+                position.offset++;
+        });
+        return result;
     }
 
     DOM.deleteNode = function(node)
