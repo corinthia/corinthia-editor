@@ -73,7 +73,10 @@
             throw new Error("Node "+DOM.upperName(node)+" \""+node.nodeValue+"\" has been removed");
 
         if (isContainerNode(node) || isParagraphNode(node)) {
-            if (!isContainerNode(node.parentNode)) {
+            var invalidNesting = !isContainerNode(node.parentNode);
+            if (isParagraphNode(node) && (DOM.upperName(node.parentNode) == "DIV"))
+                invalidNesting = false; // this case is ok
+            if (invalidNesting) {
                 DOM.removeAdjacentWhitespace(node);
 
                 var offset = DOM.nodeOffset(node);
