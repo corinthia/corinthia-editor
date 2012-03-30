@@ -241,7 +241,7 @@
         var detail = range.detail();
         var dca = detail.commonAncestor;
         var ds = detail.startAncestor;
-        var de = detail.endAncestor        
+        var de = detail.endAncestor;
 
         while (!isContainerNode(dca)) {
             ds = dca;
@@ -392,9 +392,9 @@
                     }
                     else {
                         var secondList = DOM.shallowCopyElement(list);
-                        DOM.insertBefore(list.parentNode,secondList,list.nextSibling);
+                        DOM.moveNode(secondList,list.parentNode,list.nextSibling);
                         while (li.nextSibling != null) {
-                            DOM.appendChild(secondList,li.nextSibling);
+                            DOM.moveNode(li.nextSibling,secondList,null);
                             DOM.removeAdjacentWhitespace(li);
                         }
 
@@ -429,17 +429,17 @@
                 }
                 else {
                     list = DOM.createElement(document,type);
-                    DOM.insertBefore(node.parentNode,list,listInsertionPoint);
+                    DOM.moveNode(list,node.parentNode,listInsertionPoint);
                     itemInsertionPoint = null;
                 }
 
                 if (li != null) {
-                    DOM.insertBefore(list,li,itemInsertionPoint);
+                    DOM.moveNode(li,list,itemInsertionPoint);
                 }
                 else {
                     var li = DOM.createElement(document,"LI");
-                    DOM.insertBefore(list,li,itemInsertionPoint);
-                    DOM.appendChild(li,node);
+                    DOM.moveNode(li,list,itemInsertionPoint);
+                    DOM.moveNode(node,li,null);
                 }
 
 
@@ -454,7 +454,7 @@
                         if (isWhitespaceTextNode(followingList.firstChild))
                             DOM.deleteNode(followingList.firstChild);
                         else
-                            DOM.appendChild(list,followingList.firstChild);
+                            DOM.moveNode(followingList.firstChild,list,null);
                     }
                     DOM.deleteNode(followingList);
                 }

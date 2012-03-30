@@ -226,8 +226,15 @@
         return copy;
     }
 
+    // FIXME: there is duplicated functionality between this function and DOM.insertBefore/
+    // DOM.appendChild. This is intended for nodes that are already in the tree, and the other
+    // functions are intended for nodes that have not already been created. However there are
+    // some situations in which you don't know if the node is in the tree or not yet.
     DOM.moveNode = function(node,parentNode,nextSibling)
     {
+        if (node.parentNode == null) // not already in tree
+            return DOM.insertBefore(parentNode,node,nextSibling);
+
         fireNodeWillBeRemoved(node);
 
         var offset = getOffsetOfNodeInParent(node);
