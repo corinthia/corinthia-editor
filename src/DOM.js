@@ -177,6 +177,9 @@
 
     DOM.insertBefore = function(node,child,before)
     {
+        if (child.parentNode != null) // already in tree
+            return DOM.moveNode(child,node,before);
+
         var result = insertBeforeInternal(node,child,before);
         trackedPositionsForNode(child.parentNode).forEach(function (position) {
             var offset = getOffsetOfNodeInParent(child);
