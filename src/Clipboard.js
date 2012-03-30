@@ -320,50 +320,60 @@
             previousSibling = node.previousSibling;
         }
 
+        var pasteList = new Array();
+
         if ((DOM.upperName(parent) == "UL") || (DOM.upperName(parent) == "OL")) {
             for (var i = 0; i < nodes.length; i++) {
                 if (DOM.upperName(nodes[i]) == "LI") {
-                    DOM.insertBefore(parent,nodes[i],nextSibling);
+                    pasteList.push(nodes[i]);
                 }
                 else if (DOM.upperName(nodes[i]) == DOM.upperName(parent)) {
-                    while (nodes[i].firstChild != null)
-                        DOM.insertBefore(parent,nodes[i].firstChild,nextSibling);
+                    for (var child = nodes[i].firstChild; child != null; child = child.nextSibling)
+                        pasteList.push(child);
                 }
                 else if (!isWhitespaceTextNode(nodes[i])) {
                     var li = DOM.createElement(document,"LI");
-                    DOM.insertBefore(parent,li,nextSibling);
                     DOM.appendChild(li,nodes[i]);
+                    pasteList.push(li);
                 }
             }
         }
         else {
-            for (var i = 0; i < nodes.length; i++) {
-                DOM.insertBefore(parent,nodes[i],nextSibling);
+            for (var i = 0; i < nodes.length; i++)
+                pasteList.push(nodes[i]);
+        }
+
+        for (var i = 0; i < pasteList.length; i++)
+            DOM.insertBefore(parent,pasteList[i],nextSibling);
+
+        if (pasteList.length == 0)
+            return;
+
+        var firstNode = pasteList[0];
+        var lastNode = pasteList[pasteList.length-1];
+        var pastedRange = new Range(firstNode.parentNode,DOM.nodeOffset(firstNode),
+                                    lastNode.parentNode,DOM.nodeOffset(lastNode)+1);
+        pastedRange.trackWhileExecuting(function() {
+
+            if (nodes.length > 0) {
+                var offset;
+                if (nextSibling != null)
+                    offset = DOM.nodeOffset(nextSibling);
+                else
+                    offset = parent.childNodes.length;
+                selectionRange = new Range(parent,offset,parent,offset);
+                Selection.setSelectionRange(selectionRange);
             }
-        }
+            selectionRange.trackWhileExecuting(function() {
+                if (previousSibling != null)
+                    Formatting.mergeWithNeighbours(previousSibling,Formatting.MERGEABLE_INLINE);
+                if (nextSibling != null)
+                    Formatting.mergeWithNeighbours(nextSibling,Formatting.MERGEABLE_INLINE);
 
-        if (nodes.length > 0) {
-            var offset;
-            if (nextSibling != null)
-                offset = DOM.nodeOffset(nextSibling);
-            else
-                offset = parent.childNodes.length;
-            selectionRange = new Range(parent,offset,parent,offset);
-            Selection.setSelectionRange(selectionRange);
-        }
-        selectionRange.trackWhileExecuting(function() {
-            if (previousSibling != null)
-                Formatting.mergeWithNeighbours(previousSibling,Formatting.MERGEABLE_INLINE);
-            if (nextSibling != null)
-                Formatting.mergeWithNeighbours(nextSibling,Formatting.MERGEABLE_INLINE);
+                Cursor.updateBRAtEndOfParagraph(parent);
 
-            Cursor.updateBRAtEndOfParagraph(parent);
-
-            var firstNode = nodes[0];
-            var lastNode = nodes[nodes.length-1];
-            var pastedRange = new Range(firstNode.parentNode,DOM.nodeOffset(firstNode),
-                                        lastNode.parentNode,DOM.nodeOffset(lastNode)+1);
-            pastedRange.ensureRangeValidHierarchy();
+                pastedRange.ensureRangeValidHierarchy();
+            });
         });
     }
 
