@@ -73,7 +73,7 @@
             throw new Error("Node "+DOM.upperName(node)+" \""+node.nodeValue+"\" has been removed");
 
         if (isContainerNode(node) || isParagraphNode(node)) {
-            if (!isContainerNode(node.parentNode) && !isParagraphNode(node.parentNode)) {
+            if (!isContainerNode(node.parentNode)) {
                 DOM.removeAdjacentWhitespace(node);
 
                 var offset = DOM.nodeOffset(node);
