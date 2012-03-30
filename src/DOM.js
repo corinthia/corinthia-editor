@@ -105,23 +105,6 @@
         },"Set text node to \""+prevValue+"\"");
     }
 
-    function fireNodeWillBeRemoved(node)
-    {
-    }
-
-    function fireNodeWasInserted(node)
-    {
-    }
-
-    function fireNodeWillBeMoved(node,destParent,destNextSibling)
-    {
-    }
-
-    function fireNodeWasMoved(node,srcParent,srcNextSibling)
-    {
-    }
-
-
     var DOM = new (function DOM(){});
 
     // public methods
@@ -178,8 +161,6 @@
     DOM.insertBefore = function(parent,child,nextSibling)
     {
         if (child.parentNode != null) { // already in tree
-            fireNodeWillBeRemoved(child);
-
             var offset = getOffsetOfNodeInParent(child);
             var newOffset;
             if (nextSibling != null)
@@ -210,8 +191,6 @@
                 }
             });
 
-
-            fireNodeWasInserted(child);
             return result;
         }
         else { // not already in tree
@@ -267,8 +246,6 @@
 
     DOM.removeNodeButKeepChildren = function(node)
     {
-        fireNodeWillBeRemoved(node);
-
         var offset = getOffsetOfNodeInParent(node);
         var childCount = node.childNodes.length;
 
@@ -289,7 +266,6 @@
         while (node.firstChild != null) {
             var child = node.firstChild;
             insertBeforeInternal(parent,child,nextSibling);
-            fireNodeWasInserted(child);
         }
     }
 
@@ -301,8 +277,6 @@
             var value = oldElement.getAttribute(name);
             newElement.setAttribute(name,value);
         }
-
-        fireNodeWillBeRemoved(oldElement);
 
         var positions = arrayCopy(trackedPositionsForNode(oldElement));
         if (positions != null) {
@@ -320,20 +294,16 @@
         insertBeforeInternal(parent,newElement,nextSibling);
         deleteNodeInternal(oldElement,false);
 
-        fireNodeWasInserted(newElement);
-
         return newElement;
     }
 
     DOM.wrapNode = function(node,elementName)
     {
         var wrapper = DOM.createElement(document,elementName);
-        fireNodeWillBeRemoved(node);
 
         insertBeforeInternal(node.parentNode,wrapper,node);
         appendChildInternal(wrapper,node);
 
-        fireNodeWasInserted(wrapper);
         return wrapper;
     }
 
