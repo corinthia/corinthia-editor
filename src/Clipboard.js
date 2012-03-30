@@ -297,6 +297,10 @@
         var selectionRange = Selection.getSelectionRange();
         if (selectionRange == null)
             return;
+
+        if (nodes.length == 0)
+            return;
+
         var pos = selectionRange.start;
         var node = pos.node;
         var offset = pos.offset;
@@ -354,6 +358,12 @@
                 Formatting.mergeWithNeighbours(nextSibling,Formatting.MERGEABLE_INLINE);
 
             Cursor.updateBRAtEndOfParagraph(parent);
+
+            var firstNode = nodes[0];
+            var lastNode = nodes[nodes.length-1];
+            var pastedRange = new Range(firstNode.parentNode,DOM.nodeOffset(firstNode),
+                                        lastNode.parentNode,DOM.nodeOffset(lastNode)+1);
+            pastedRange.ensureRangeValidHierarchy();
         });
     }
 
