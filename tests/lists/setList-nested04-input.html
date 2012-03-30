@@ -1,0 +1,30 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script language="javascript">
+function performTest()
+{
+    Lists.setOrderedList();
+    showRangeAsBrackets(Selection.getSelectionRange());
+}
+</script>
+</head>
+  <body>
+    <ul>
+      <li><p>O[ne</p></li>
+      <li><p>Two</p></li>
+      <li><p>Three</p></li>
+      <li>
+        <ul>
+          <li><p>Four</p></li>
+          <li><p>Fiv]e</p></li>
+          <li><p>Six</p></li>
+        </ul>
+      </li>
+      <li><p>Seven</p></li>
+      <li><p>Eight</p></li>
+      <li><p>Nine</p></li>
+    </ul>
+  </body>
+</html>
