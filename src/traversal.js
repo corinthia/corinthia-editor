@@ -106,14 +106,6 @@ function getNodeText(node)
     }
 }
 
-function getOffsetOfNodeInParent(node)
-{
-    var offset = 0;
-    for (var n = node.parentNode.firstChild; n != node; n = n.nextSibling)
-        offset++;
-    return offset;
-}
-
 function isWhitespaceTextNode(node)
 {
     if (node.nodeType != Node.TEXT_NODE)

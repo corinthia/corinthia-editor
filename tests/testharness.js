@@ -136,7 +136,7 @@ function extractPositionFromCharacter(c)
         if (node.nodeType == Node.TEXT_NODE) {
             var index = node.nodeValue.indexOf(c);
             if (index >= 0) {
-                var offsetInParent = leftArea.contentWindow.getOffsetOfNodeInParent(node);
+                var offsetInParent = leftArea.contentWindow.DOM.nodeOffset(node);
                 if (index == 0) {
                     node.nodeValue = node.nodeValue.substring(1);
                     return new leftArea.contentWindow.Position(node.parentNode,offsetInParent);
@@ -220,7 +220,7 @@ function leftLoaded()
 
     function getPosition(node)
     {
-        var offset = leftArea.contentWindow.getOffsetOfNodeInParent(node);
+        var offset = leftArea.contentWindow.DOM.nodeOffset(node);
         return new leftArea.contentWindow.Position(node.parentNode,offset);
     }
 }

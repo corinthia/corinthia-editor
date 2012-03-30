@@ -7,8 +7,8 @@ function performTest()
 {
     var tr = document.getElementsByTagName("TR")[1];
     var p = document.getElementsByTagName("P")[0];
-    var trOffset = getOffsetOfNodeInParent(tr);
-    var pOffset = getOffsetOfNodeInParent(p);
+    var trOffset = DOM.nodeOffset(tr);
+    var pOffset = DOM.nodeOffset(p);
     Selection.setSelectionRange(new Range(tr.parentNode,trOffset,p.parentNode,pOffset+1));
     Selection.deleteSelectionContents();
     showRangeAsBrackets(Selection.getSelectionRange());

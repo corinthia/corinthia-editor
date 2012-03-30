@@ -341,7 +341,7 @@
         if (nodes.length > 0) {
             var offset;
             if (nextSibling != null)
-                offset = getOffsetOfNodeInParent(nextSibling);
+                offset = DOM.nodeOffset(nextSibling);
             else
                 offset = parent.childNodes.length;
             selectionRange = new Range(parent,offset,parent,offset);

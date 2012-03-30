@@ -161,10 +161,10 @@
     DOM.insertBefore = function(parent,child,nextSibling)
     {
         if (child.parentNode != null) { // already in tree
-            var offset = getOffsetOfNodeInParent(child);
+            var offset = DOM.nodeOffset(child);
             var newOffset;
             if (nextSibling != null)
-                newOffset = getOffsetOfNodeInParent(nextSibling);
+                newOffset = DOM.nodeOffset(nextSibling);
             else
                 newOffset = parent.childNodes.length;
 
@@ -196,7 +196,7 @@
         else { // not already in tree
             var result = insertBeforeInternal(parent,child,nextSibling);
             trackedPositionsForNode(child.parentNode).forEach(function (position) {
-                var offset = getOffsetOfNodeInParent(child);
+                var offset = DOM.nodeOffset(child);
                 if (offset < position.offset) {
                     position.offset++;
                 }
@@ -216,13 +216,13 @@
                 adjustPositionsRecursive(child);
 
             trackedPositionsForNode(current.parentNode).forEach(function (position) {
-                var offset = getOffsetOfNodeInParent(current);
+                var offset = DOM.nodeOffset(current);
                 if (offset < position.offset) {
                     position.offset--;
                 }
             });
             trackedPositionsForNode(current).forEach(function (position) {
-                var offset = getOffsetOfNodeInParent(current);
+                var offset = DOM.nodeOffset(current);
                 position.node = current.parentNode;
                 position.offset = offset;
             });
@@ -246,7 +246,7 @@
 
     DOM.removeNodeButKeepChildren = function(node)
     {
-        var offset = getOffsetOfNodeInParent(node);
+        var offset = DOM.nodeOffset(node);
         var childCount = node.childNodes.length;
 
         trackedPositionsForNode(node.parentNode).forEach(function (position) {
@@ -316,7 +316,7 @@
             return;
 
         var currentLength = maxNodeOffset(current);
-        var nextOffset = getOffsetOfNodeInParent(next);
+        var nextOffset = DOM.nodeOffset(next);
 
         var lastChild = null;
 
@@ -546,6 +546,14 @@
                 nextNumberForPrefix[prefix] = num;
             }
         }
+    }
+
+    DOM.nodeOffset = function(node)
+    {
+        var offset = 0;
+        for (var n = node.parentNode.firstChild; n != node; n = n.nextSibling)
+            offset++;
+        return offset;
     }
 
     window.DOM = DOM;

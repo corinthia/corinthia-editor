@@ -197,7 +197,7 @@
         function checkRoot(root)
         {
             var rootDisp = treeView.displayNodes.get(treeView.domRoot);
-            var offset = getOffsetOfNodeInParent(root);
+            var offset = DOM.nodeOffset(root);
             checkPosition(new Position(root.parentNode,offset),
                           rootDisp.x - DISPLAY_NODE_WIDTH/2,
                           rootDisp.y);
@@ -307,7 +307,7 @@
         var offset = position.offset;
 
         if (position.node == treeView.domRoot.parentNode) {
-            var rootOffset = getOffsetOfNodeInParent(treeView.domRoot);
+            var rootOffset = DOM.nodeOffset(treeView.domRoot);
             var disp = treeView.displayNodes.get(treeView.domRoot);
             if (offset == rootOffset) {
                 return { x: disp.x - DISPLAY_NODE_WIDTH/2,

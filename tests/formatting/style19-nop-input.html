@@ -10,8 +10,8 @@ function performTest()
     // WebKit's parser will move the selection to before the table if we do that
     var table = document.getElementsByTagName("TABLE")[0];
     var tds = document.getElementsByTagName("TD");
-    var td1Offset = getOffsetOfNodeInParent(tds[1]);
-    var td2Offset = getOffsetOfNodeInParent(tds[2]);
+    var td1Offset = DOM.nodeOffset(tds[1]);
+    var td2Offset = DOM.nodeOffset(tds[2]);
 
     Selection.setSelectionRange(new Range(tds[1].parentNode,td1Offset,
                                           tds[2].parentNode,td2Offset+1));

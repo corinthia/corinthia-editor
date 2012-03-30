@@ -95,7 +95,7 @@
                 movePreceding(range.start.node,range.start.offset,isBlockNode);
             }
             else {
-                movePreceding(range.start.node.parentNode,getOffsetOfNodeInParent(range.start.node),
+                movePreceding(range.start.node.parentNode,DOM.nodeOffset(range.start.node),
                               isBlockNode);
             }
 
@@ -114,7 +114,7 @@
                 moveFollowing(range.end.node,range.end.offset,isBlockNode);
             }
             else {
-                moveFollowing(range.end.node.parentNode,getOffsetOfNodeInParent(range.end.node)+1,
+                moveFollowing(range.end.node.parentNode,DOM.nodeOffset(range.end.node)+1,
                               isBlockNode);
             }
 
@@ -182,7 +182,7 @@
         DOM.insertBefore(node.parentNode,before,node);
         DOM.deleteCharacters(node,0,offset);
 
-        movePreceding(node.parentNode,getOffsetOfNodeInParent(node),parentCheckFn,force);
+        movePreceding(node.parentNode,DOM.nodeOffset(node),parentCheckFn,force);
         return new Position(before,before.nodeValue.length);
     }
 
@@ -196,7 +196,7 @@
         DOM.insertBefore(node.parentNode,after,node.nextSibling);
         DOM.deleteCharacters(node,offset);
 
-        moveFollowing(node.parentNode,getOffsetOfNodeInParent(node)+1,parentCheckFn,force);
+        moveFollowing(node.parentNode,DOM.nodeOffset(node)+1,parentCheckFn,force);
         return new Position(after,0);
     }
 
@@ -233,7 +233,7 @@
             }
         }
 
-        movePreceding(node.parentNode,getOffsetOfNodeInParent(node),parentCheckFn,force);
+        movePreceding(node.parentNode,DOM.nodeOffset(node),parentCheckFn,force);
         return result;
     }
 
@@ -266,7 +266,7 @@
             }
         }
 
-        moveFollowing(node.parentNode,getOffsetOfNodeInParent(node)+1,parentCheckFn,force);
+        moveFollowing(node.parentNode,DOM.nodeOffset(node)+1,parentCheckFn,force);
         return result;
     }
 

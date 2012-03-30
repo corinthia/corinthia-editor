@@ -10,8 +10,8 @@ function performTest()
     // WebKit's parser will move the selection to cover the whole table if we do that
     var table = document.getElementsByTagName("TABLE")[0];
     var trs = document.getElementsByTagName("TR");
-    var tr1Offset = getOffsetOfNodeInParent(trs[1]);
-    var tr2Offset = getOffsetOfNodeInParent(trs[2]);
+    var tr1Offset = DOM.nodeOffset(trs[1]);
+    var tr2Offset = DOM.nodeOffset(trs[2]);
 
     // The table is not the parent of the TRs - the parser automatically inserts a TBODY
     // between them

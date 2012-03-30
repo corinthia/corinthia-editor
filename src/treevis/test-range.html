@@ -127,7 +127,7 @@ function updateForPosition(position)
 
 function updateForNode(node)
 {
-    var offset = getOffsetOfNodeInParent(node);
+    var offset = DOM.nodeOffset(node);
     updateForPosition(new Position(node.parentNode,offset));
 }
 

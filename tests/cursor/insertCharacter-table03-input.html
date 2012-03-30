@@ -8,7 +8,7 @@ function performTest()
     var trs = document.getElementsByTagName("TR");
     var tds = document.getElementsByTagName("TD");
     var tbody = document.getElementsByTagName("TBODY")[0];
-    Selection.setEmptySelectionAt(trs[0].parentNode,getOffsetOfNodeInParent(trs[0]));
+    Selection.setEmptySelectionAt(trs[0].parentNode,DOM.nodeOffset(trs[0]));
     Cursor.insertCharacter("X");
     showRangeAsBrackets(Selection.getSelectionRange());
 }

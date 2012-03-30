@@ -47,7 +47,7 @@ function removeIds()
 
 function selectNode(node)
 {
-    var offset = getOffsetOfNodeInParent(node);
+    var offset = DOM.nodeOffset(node);
     Selection.setSelectionRange(new Range(node.parentNode,offset,node.parentNode,offset+1));
 }
 

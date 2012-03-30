@@ -115,7 +115,7 @@
         while (node != document.body) {
             if (((node.nodeType == Node.TEXT_NODE) && (offset == node.nodeValue.length)) ||
                 ((node.nodeType == Node.ELEMENT_NODE) && (offset == node.childNodes.length))) {
-                offset = getOffsetOfNodeInParent(node)+1;
+                offset = DOM.nodeOffset(node)+1;
                 node = node.parentNode;
                 changed = true;
             }
@@ -136,7 +136,7 @@
         var offset = self.offset;
         var changed = false;
         while ((node != document.body) && (offset == 0)) {
-            offset = getOffsetOfNodeInParent(node);
+            offset = DOM.nodeOffset(node);
             node = node.parentNode;
             changed = true;
         }
@@ -226,7 +226,7 @@
             if (pos.node == pos.node.ownerDocument.body)
                 return null;
             else
-                return new Position(pos.node.parentNode,getOffsetOfNodeInParent(pos.node));
+                return new Position(pos.node.parentNode,DOM.nodeOffset(pos.node));
         }
     }
 
@@ -254,7 +254,7 @@
             if (pos.node == pos.node.ownerDocument.body)
                 return null;
             else
-                return new Position(pos.node.parentNode,getOffsetOfNodeInParent(pos.node)+1);
+                return new Position(pos.node.parentNode,DOM.nodeOffset(pos.node)+1);
         }
     }
 

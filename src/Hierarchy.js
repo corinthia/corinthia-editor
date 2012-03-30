@@ -76,7 +76,7 @@
             if (!isContainerNode(node.parentNode) && !isParagraphNode(node.parentNode)) {
                 DOM.removeAdjacentWhitespace(node);
 
-                var offset = getOffsetOfNodeInParent(node);
+                var offset = DOM.nodeOffset(node);
                 Formatting.moveFollowing(node.parentNode,offset+1,isContainerNode);
                 Formatting.movePreceding(node.parentNode,offset,isContainerNode);
 
