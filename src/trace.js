@@ -58,6 +58,5 @@
     }
 
     window.trace = trace;
-    window.testtrace = testtrace;
 
 })();
