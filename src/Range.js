@@ -56,7 +56,8 @@
             this.start.offset = offset;
         }
 
-        while ((this.end.offset == maxNodeOffset(this.end.node)) && (this.end.node != doc.body)) {
+        while ((this.end.offset == DOM.maxChildOffset(this.end.node)) &&
+               (this.end.node != doc.body)) {
             var offset = DOM.nodeOffset(this.end.node);
             this.end.node = this.end.node.parentNode;
             this.end.offset = offset+1;

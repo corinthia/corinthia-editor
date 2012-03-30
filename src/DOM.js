@@ -315,7 +315,7 @@
         if ((next == null) || !DOM.nodesMergeable(current,next,whiteList))
             return;
 
-        var currentLength = maxNodeOffset(current);
+        var currentLength = DOM.maxChildOffset(current);
         var nextOffset = DOM.nodeOffset(next);
 
         var lastChild = null;
@@ -554,6 +554,16 @@
         for (var n = node.parentNode.firstChild; n != node; n = n.nextSibling)
             offset++;
         return offset;
+    }
+
+    DOM.maxChildOffset = function(node)
+    {
+        if (node.nodeType == Node.TEXT_NODE)
+            return node.nodeValue.length;
+        else if (node.nodeType == Node.ELEMENT_NODE)
+            return node.childNodes.length;
+        else
+            throw new Error("maxOffset: invalid node type ("+node.nodeType+")");
     }
 
     window.DOM = DOM;

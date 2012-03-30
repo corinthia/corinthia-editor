@@ -208,7 +208,7 @@
             }
             else {
                 var child = this.node.childNodes[this.offset-1];
-                return new Position(child,maxNodeOffset(child));
+                return new Position(child,DOM.maxChildOffset(child));
             }
         }
         else if (this.node.nodeType == Node.TEXT_NODE) {
