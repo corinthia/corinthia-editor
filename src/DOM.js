@@ -175,19 +175,55 @@
         return DOM.insertBefore(node,child,null);
     }
 
-    DOM.insertBefore = function(node,child,before)
+    DOM.insertBefore = function(parent,child,nextSibling)
     {
-        if (child.parentNode != null) // already in tree
-            return DOM.moveNode(node,child,before);
+        if (child.parentNode != null) { // already in tree
+            fireNodeWillBeRemoved(child);
 
-        var result = insertBeforeInternal(node,child,before);
-        trackedPositionsForNode(child.parentNode).forEach(function (position) {
             var offset = getOffsetOfNodeInParent(child);
-            if (offset < position.offset) {
-                position.offset++;
-            }
-        });
-        return result;
+            var newOffset;
+            if (nextSibling != null)
+                newOffset = getOffsetOfNodeInParent(nextSibling);
+            else
+                newOffset = parent.childNodes.length;
+
+            if ((child.parentNode == parent) && (newOffset > offset))
+                newOffset--;
+
+            trackedPositionsForNode(child.parentNode).forEach(function (position) {
+                var old = position.toString();
+                if (position.offset > offset) {
+                    position.offset--;
+                }
+                else if (position.offset == offset) {
+                    position.node = parent;
+                    position.offset = newOffset;
+                }
+            });
+
+            var result = insertBeforeInternal(parent,child,nextSibling);
+
+            trackedPositionsForNode(child.parentNode).forEach(function (position) {
+                var old = position.toString();
+                if (position.offset > newOffset) {
+                    position.offset++;
+                }
+            });
+
+
+            fireNodeWasInserted(child);
+            return result;
+        }
+        else { // not already in tree
+            var result = insertBeforeInternal(parent,child,nextSibling);
+            trackedPositionsForNode(child.parentNode).forEach(function (position) {
+                var offset = getOffsetOfNodeInParent(child);
+                if (offset < position.offset) {
+                    position.offset++;
+                }
+            });
+            return result;
+        }
     }
 
     DOM.deleteNode = function(node)
@@ -227,51 +263,6 @@
         var copy = DOM.cloneNode(element,false);
         copy.removeAttribute("id");
         return copy;
-    }
-
-    // FIXME: there is duplicated functionality between this function and DOM.insertBefore/
-    // DOM.appendChild. This is intended for nodes that are already in the tree, and the other
-    // functions are intended for nodes that have not already been created. However there are
-    // some situations in which you don't know if the node is in the tree or not yet.
-    DOM.moveNode = function(parentNode,node,nextSibling)
-    {
-        if (node.parentNode == null) // not already in tree
-            return DOM.insertBefore(parentNode,node,nextSibling);
-
-        fireNodeWillBeRemoved(node);
-
-        var offset = getOffsetOfNodeInParent(node);
-        var newOffset;
-        if (nextSibling != null)
-            newOffset = getOffsetOfNodeInParent(nextSibling);
-        else
-            newOffset = parentNode.childNodes.length;
-
-        if ((node.parentNode == parentNode) && (newOffset > offset))
-            newOffset--;
-
-        trackedPositionsForNode(node.parentNode).forEach(function (position) {
-            var old = position.toString();
-            if (position.offset > offset) {
-                position.offset--;
-            }
-            else if (position.offset == offset) {
-                position.node = parentNode;
-                position.offset = newOffset;
-            }
-        });
-
-        insertBeforeInternal(parentNode,node,nextSibling);
-
-        trackedPositionsForNode(node.parentNode).forEach(function (position) {
-            var old = position.toString();
-            if (position.offset > newOffset) {
-                position.offset++;
-            }
-        });
-
-
-        fireNodeWasInserted(node);
     }
 
     DOM.removeNodeButKeepChildren = function(node)
@@ -361,7 +352,7 @@
 
         if (current.nodeType == Node.ELEMENT_NODE) {
             lastChild = current.lastChild;
-            DOM.moveNode(current,next,null);
+            DOM.insertBefore(current,next,null);
             DOM.removeNodeButKeepChildren(next);
         }
         else {
