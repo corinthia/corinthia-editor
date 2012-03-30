@@ -14,8 +14,16 @@ function insertAtPosition(position,node)
     }
 }
 
-function insertTextAtPosition(position,str)
+function insertTextAtPosition(position,str,inText)
 {
+    if (inText && (position.node.nodeType == Node.ELEMENT_NODE)) {
+        var before = position.node.childNodes[position.offset-1];
+        var after = position.node.childNodes[position.offset];
+        if ((after != null) && (after.nodeType == Node.TEXT_NODE))
+            position = new Position(after,0);
+        else if ((before != null) && (before.nodeType == Node.TEXT_NODE))
+            position = new Position(before,before.nodeValue.length);
+    }
     if (position.node.nodeType == Node.ELEMENT_NODE) {
         insertAtPosition(position,DOM.createTextNode(document,str));
     }
@@ -25,10 +33,10 @@ function insertTextAtPosition(position,str)
     }
 }
 
-function showRangeAsBrackets(range)
+function showRangeAsBrackets(range,inText)
 {
-    insertTextAtPosition(range.end,"]");
-    insertTextAtPosition(range.start,"[");
+    insertTextAtPosition(range.end,"]",inText);
+    insertTextAtPosition(range.start,"[",inText);
 }
 
 function removeIds()
