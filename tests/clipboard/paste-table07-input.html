@@ -1,0 +1,33 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script language="javascript">
+function performTest()
+{
+    Clipboard.pasteHTML("<thead>"+
+                        "  <tr>"+
+                        "    <td>One</td>"+
+                        "    <td>Two</td>"+
+                        "  </tr>"+
+                        "</thead>"+
+                        "<tbody>"+
+                        "  <tr>"+
+                        "    <td>Three</td>"+
+                        "    <td>Four</td>"+
+                        "  </tr>"+
+                        "</tbody>"+
+                        "<tfoot>"+
+                        "  <tr>"+
+                        "    <td>Five</td>"+
+                        "    <td>Six</td>"+
+                        "  </tr>"+
+                        "</tfoot>");
+    showRangeAsBrackets(Selection.getSelectionRange());
+}
+</script>
+</head>
+<body>
+[]
+</body>
+</html>
