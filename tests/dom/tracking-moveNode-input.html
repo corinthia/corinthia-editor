@@ -16,7 +16,7 @@ function performTest()
     var p2 = document.getElementById("p2");
 
     var result = comparePositionsBeforeAndAfter(function() {
-        DOM.moveNode(p2,p1.childNodes[1],p2.childNodes[3]);
+        DOM.insertBefore(p2,p1.childNodes[1],p2.childNodes[3]);
     });
 
     DOM.deleteAllChildren(document.body);

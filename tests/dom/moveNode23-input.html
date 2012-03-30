@@ -9,7 +9,7 @@ function performTest()
     var position = new Position(ps[0],1);
 
     Position.trackWhileExecuting([position],function() {
-        DOM.moveNode(ps[0],ps[0].childNodes[2],ps[0].childNodes[0]);
+        DOM.insertBefore(ps[0],ps[0].childNodes[2],ps[0].childNodes[0]);
     });
 
     var tt = DOM.createElement(document,"tt");

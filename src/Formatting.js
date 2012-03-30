@@ -221,14 +221,14 @@
         if ((toMove.length > 0) || force) {
             if (justWhitespace && !force) {
                 for (var i = 0; i < toMove.length; i++)
-                    DOM.moveNode(node.parentNode,toMove[i],node);
+                    DOM.insertBefore(node.parentNode,toMove[i],node);
             }
             else {
                 var copy = DOM.shallowCopyElement(node);
                 DOM.insertBefore(node.parentNode,copy,node);
 
                 for (var i = 0; i < toMove.length; i++)
-                    DOM.moveNode(copy,toMove[i],null);
+                    DOM.insertBefore(copy,toMove[i],null);
                 result = new Position(copy,copy.childNodes.length);
             }
         }
@@ -254,14 +254,14 @@
         if ((toMove.length > 0) || force) {
             if (justWhitespace && !force) {
                 for (var i = 0; i < toMove.length; i++)
-                    DOM.moveNode(node.parentNode,toMove[i],node.nextSibling);
+                    DOM.insertBefore(node.parentNode,toMove[i],node.nextSibling);
             }
             else {
                 var copy = DOM.shallowCopyElement(node);
                 DOM.insertBefore(node.parentNode,copy,node.nextSibling);
 
                 for (var i = 0; i < toMove.length; i++)
-                    DOM.moveNode(copy,toMove[i],null);
+                    DOM.insertBefore(copy,toMove[i],null);
                 result = new Position(copy,0);
             }
         }

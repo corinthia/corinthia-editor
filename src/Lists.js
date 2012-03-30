@@ -392,9 +392,9 @@
                     }
                     else {
                         var secondList = DOM.shallowCopyElement(list);
-                        DOM.moveNode(list.parentNode,secondList,list.nextSibling);
+                        DOM.insertBefore(list.parentNode,secondList,list.nextSibling);
                         while (li.nextSibling != null) {
-                            DOM.moveNode(secondList,li.nextSibling,null);
+                            DOM.insertBefore(secondList,li.nextSibling,null);
                             DOM.removeAdjacentWhitespace(li);
                         }
 
@@ -429,17 +429,17 @@
                 }
                 else {
                     list = DOM.createElement(document,type);
-                    DOM.moveNode(node.parentNode,list,listInsertionPoint);
+                    DOM.insertBefore(node.parentNode,list,listInsertionPoint);
                     itemInsertionPoint = null;
                 }
 
                 if (li != null) {
-                    DOM.moveNode(list,li,itemInsertionPoint);
+                    DOM.insertBefore(list,li,itemInsertionPoint);
                 }
                 else {
                     var li = DOM.createElement(document,"LI");
-                    DOM.moveNode(list,li,itemInsertionPoint);
-                    DOM.moveNode(li,node,null);
+                    DOM.insertBefore(list,li,itemInsertionPoint);
+                    DOM.insertBefore(li,node,null);
                 }
 
 
@@ -454,7 +454,7 @@
                         if (isWhitespaceTextNode(followingList.firstChild))
                             DOM.deleteNode(followingList.firstChild);
                         else
-                            DOM.moveNode(list,followingList.firstChild,null);
+                            DOM.insertBefore(list,followingList.firstChild,null);
                     }
                     DOM.deleteNode(followingList);
                 }
