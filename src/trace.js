@@ -1,59 +1,5 @@
 (function() {
 
-    function testtrace()
-    {
-        function TestClass(prefix)
-        {
-            this.prefix = prefix;
-        }
-
-        TestClass.prototype.toString = function() {
-            return "TestClass("+this.prefix+")";
-        }
-
-        TestClass.prototype.fourth = trace(function fourth(index,a,b,c) {
-            debug(this.prefix+": "+index+" "+a+" "+b+" "+c);
-            if (index == 5) {
-                var z = null;
-                var y = z.nothing;
-            }
-        });
-
-        TestClass.prototype.third = trace(function third(index,a,b,c) {
-            this.fourth(index,a,b,c);
-        });
-
-        TestClass.prototype.second = trace(function second(index,a,b,c) {
-            this.third(index,a,b,c);
-        });
-
-        TestClass.prototype.first = trace(function first(a,b,c) {
-            for (var index = 0; index < 10; index++)
-                this.second(index,a,b,c);
-        });
-
-        function Foo()
-        {
-        }
-
-        function testException()
-        {
-            var tc = new TestClass("xxxxx");
-            tc.first("one","two","three",new Foo());
-        }
-
-        testException = trace(testException);
-
-        try {
-            testException();
-        }
-        catch (e) {
-            debug("e = "+e);
-        }
-    }
-
-    // -----
-
     function valueString(arg)
     {
         try {

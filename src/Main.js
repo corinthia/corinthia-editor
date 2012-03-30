@@ -202,7 +202,6 @@
             if (document.body == null)
                 throw new Error("document.body is null");
             DOM.assignNodeIds(document);
-            testtrace();
             addContentType();
             getStyles();
             Outline.init();
