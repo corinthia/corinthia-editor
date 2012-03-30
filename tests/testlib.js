@@ -14,9 +14,9 @@ function insertAtPosition(position,node)
     }
 }
 
-function insertTextAtPosition(position,str,inText)
+function insertTextAtPosition(position,str)
 {
-    if (inText && (position.node.nodeType == Node.ELEMENT_NODE)) {
+    if (position.node.nodeType == Node.ELEMENT_NODE) {
         var before = position.node.childNodes[position.offset-1];
         var after = position.node.childNodes[position.offset];
         if ((after != null) && (after.nodeType == Node.TEXT_NODE))
@@ -33,10 +33,15 @@ function insertTextAtPosition(position,str,inText)
     }
 }
 
-function showRangeAsBrackets(range,inText)
+function showRangeAsBrackets(range)
 {
-    insertTextAtPosition(range.end,"]",inText);
-    insertTextAtPosition(range.start,"[",inText);
+    if (range.isEmpty()) {
+        insertTextAtPosition(range.end,"[]",true);
+    }
+    else {
+        insertTextAtPosition(range.end,"]",true);
+        insertTextAtPosition(range.start,"[",true);
+    }
 }
 
 function removeIds()
