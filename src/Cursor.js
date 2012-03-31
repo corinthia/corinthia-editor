@@ -71,8 +71,8 @@
                 result = true;
         }
         else if (node.nodeType == Node.ELEMENT_NODE) {
-            var prev = (offset == 0) ? null : node.childNodes[offset-1];
-            var next = (offset >= node.childNodes.length) ? null : node.childNodes[offset];
+            var prev = node.childNodes[offset-1];
+            var next = node.childNodes[offset];
 
             // Directly after an IMG, TABLE, UL, or OL -> YES
             if ((prev != null) &&
