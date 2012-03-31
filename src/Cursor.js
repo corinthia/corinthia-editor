@@ -12,14 +12,18 @@
     {
         var rect = Selection.getCursorRect();
         if (rect != null) {
-            var cursorY = rect.top + window.scrollY + rect.height/2;
-            if ((cursorY < window.scrollY) ||
-                (cursorY > window.scrollY + window.innerHeight)) {
-                var newScrollY = cursorY - window.innerHeight/2;
-                if (newScrollY < 0)
-                    newScrollY = 0;
-                window.scrollTo(window.scrollX,newScrollY);
-            }
+            var extraSpace = 4;
+
+            var cursorTop = rect.top + window.scrollY - extraSpace;
+            var cursorBottom = rect.top + rect.height + window.scrollY + extraSpace;
+
+            var windowTop = window.scrollY;
+            var windowBottom = window.scrollY + window.innerHeight;
+
+            if (cursorTop < windowTop)
+                window.scrollTo(window.scrollX,cursorTop);
+            else if (cursorBottom > windowBottom)
+                window.scrollTo(window.scrollX,cursorBottom - window.innerHeight);
         }
     }
 
