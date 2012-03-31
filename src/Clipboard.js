@@ -255,9 +255,9 @@
     // public
     function pasteText(text)
     {
-        var textNode = DOM.createTextNode(document,text);
-        var nodes = [textNode];
-        pasteNodes(nodes);
+        var converter = new Showdown.converter();
+        var html = converter.makeHtml(text);
+        pasteHTML(html);
     }
 
     // public

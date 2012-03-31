@@ -194,8 +194,7 @@
                 if (depths[depth] != null) {
                     for (var i = 0; i < depths[depth].length; i++) {
                         var node = depths[depth][i];
-                        if (node.parentNode != null)
-                            Hierarchy.ensureValidHierarchy(node,firstDepth);
+                        Hierarchy.ensureValidHierarchy(node,firstDepth);
                     }
                     firstDepth = false;
                 }

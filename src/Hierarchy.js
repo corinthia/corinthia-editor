@@ -66,11 +66,8 @@
     // or container+
     function ensureValidHierarchy(node,recursive)
     {
-        if ((node == null) || (node == document.body))
+        if ((node == null) || (node.parentNode == null) || (node == document.body))
             return;
-
-        if (node.parentNode == null)
-            throw new Error("Node "+DOM.upperName(node)+" \""+node.nodeValue+"\" has been removed");
 
         if (isContainerNode(node) || isParagraphNode(node)) {
             var invalidNesting = !isContainerNode(node.parentNode);

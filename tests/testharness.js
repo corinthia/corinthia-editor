@@ -47,6 +47,8 @@ function loadCode()
                            "../src/Position.js",
                            "../src/PostponedActions.js",
                            "../src/Range.js",
+                           "../src/Selection.js",
+                           "../src/showdown.js",
                            "../src/StringBuilder.js",
                            "../src/Tables.js",
                            "../src/traversal.js",
@@ -54,7 +56,6 @@ function loadCode()
                            "../src/UndoManager.js",
                            "../src/util.js",
                            "../src/Viewport.js",
-                           "../src/Selection.js",
                            "testlib.js"]; // must be last
     var allCodeArray = new Array();
     for (var i = 0; i < javascriptFiles.length; i++)
