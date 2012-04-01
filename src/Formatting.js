@@ -483,6 +483,19 @@
         return !PARAGRAPH_PROPERTIES[name];
     }
 
+    function putDirectInlineChildrenInParagraphs(parent)
+    {
+        var inlineChildren = new Array();
+        for (var child = parent.firstChild; child != null; child = child.nextSibling)
+            if (isInlineNode(child))
+                inlineChildren.push(child);
+        for (var i = 0; i < inlineChildren.length; i++) {
+            if (inlineChildren[i].parentNode == parent) { // may already have been moved
+                Hierarchy.wrapInlineNodesInParagraph(inlineChildren[i]);
+            }
+        }
+    }
+
     function getParagraphs(nodes)
     {
         var array = new Array();
@@ -491,6 +504,10 @@
             var node = nodes[i];
 
             var haveParagraph = false;
+            for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {   
+                if (isListItemNode(ancestor))
+                    putDirectInlineChildrenInParagraphs(ancestor);
+            }
             for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {   
                 if (isParagraphNode(ancestor)) {
                     add(ancestor);
@@ -505,6 +522,8 @@
 
         function recurse(node)
         {
+            if (isListItemNode(node))
+                putDirectInlineChildrenInParagraphs(node);
             if (isParagraphNode(node)) {
                 add(node);
             }

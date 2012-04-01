@@ -94,24 +94,9 @@
             }
         }
         else { // inline node
-            if (isContainerNode(node.parentNode) && !isWhitespaceTextNode(node)) {
-                // Wrap this node in a P element
-
-                var start = node;
-                var end = node;
-
-                while ((start.previousSibling != null) && isInlineNode(start.previousSibling))
-                    start = start.previousSibling;
-                while ((end.nextSibling != null) && isInlineNode(end.nextSibling))
-                    end = end.nextSibling;
-
-                var p = DOM.createElement(document,"P");
-                // p.style.border = "4px dashed red"; // debug
-                DOM.insertBefore(node.parentNode,p,start);
-
-                var stop = end.nextSibling;
-                while (p.nextSibling != stop)
-                    DOM.insertBefore(p,p.nextSibling,null);
+            if (isContainerNode(node.parentNode) && !isListItemNode(node.parentNode) &&
+                !isWhitespaceTextNode(node)) {
+                wrapInlineNodesInParagraph(node);
             }
         }
 
@@ -119,7 +104,27 @@
             ensureValidHierarchy(node.parentNode,true);
     }
 
+    function wrapInlineNodesInParagraph(node)
+    {
+        var start = node;
+        var end = node;
+
+        while ((start.previousSibling != null) && isInlineNode(start.previousSibling))
+            start = start.previousSibling;
+        while ((end.nextSibling != null) && isInlineNode(end.nextSibling))
+            end = end.nextSibling;
+
+        var p = DOM.createElement(document,"P");
+        // p.style.border = "4px dashed red"; // debug
+        DOM.insertBefore(node.parentNode,p,start);
+
+        var stop = end.nextSibling;
+        while (p.nextSibling != stop)
+            DOM.insertBefore(p,p.nextSibling,null);
+    }
+
     window.Hierarchy = new (function Hierarchy(){});
     Hierarchy.ensureValidHierarchy = trace(ensureValidHierarchy);
+    Hierarchy.wrapInlineNodesInParagraph = wrapInlineNodesInParagraph;
 
 })();
