@@ -904,22 +904,40 @@
     Formatting.setStyleElement = trace(setStyleElement);
 
     Formatting.MERGEABLE_INLINE = {
-        "B": true,
-        "I": true,
-        "U": true,
         "SPAN": true,
         "A": true,
-        "S": true
+        "Q": true,
+        "FONT": true,
+        "BASEFONT": true,
+
+         // HTML 4.01 Section 9.2.1: Phrase elements
+        "EM": true,
+        "STRONG": true,
+        "DFN": true,
+        "CODE": true,
+        "SAMP": true,
+        "KBD": true,
+        "VAR": true,
+        "CITE": true,
+        "ABBR": true,
+        "ACRONYM": true,
+
+        // HTML 4.01 Section 9.2.3: Subscripts and superscripts
+        "SUB": true,
+        "SUP": true,
+
+        // HTML 4.01 Section 15.2.1: Font style elements
+        "TT": true,
+        "I": true,
+        "B": true,
+        "BIG": true,
+        "SMALL": true,
+        "STRIKE": true,
+        "S": true,
+        "U": true,
     };
 
-    Formatting.MERGEABLE_BLOCK_AND_INLINE = {
-        "B": true,
-        "I": true,
-        "U": true,
-        "SPAN": true,
-        "A": true,
-        "S": true,
-
+    Formatting.MERGEABLE_BLOCK = {
         "P": true,
         "H1": true,
         "H2": true,
@@ -929,12 +947,19 @@
         "H6": true,
         "DIV": true,
         "PRE": true,
+        "BLOCKQUOTE": true,
 
         "UL": true,
         "OL":  true,
         "LI": true,
-
-        "force": true,
     };
+
+    Formatting.MERGEABLE_BLOCK_AND_INLINE = new Object();
+    for (var name in Formatting.MERGEABLE_INLINE)
+        Formatting.MERGEABLE_BLOCK_AND_INLINE[name] = Formatting.MERGEABLE_INLINE[name];
+    for (var name in Formatting.MERGEABLE_BLOCK)
+        Formatting.MERGEABLE_BLOCK_AND_INLINE[name] = Formatting.MERGEABLE_BLOCK[name];
+    Formatting.MERGEABLE_BLOCK_AND_INLINE["force"] = true;
+
 
 })();
