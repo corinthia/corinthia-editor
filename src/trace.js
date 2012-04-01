@@ -13,6 +13,12 @@
             else if (typeof(arg) == "string") {
                 return JSON.stringify(arg);
             }
+            else if (typeof(arg) == "function") {
+                if (arg.name)
+                    return "<function "+arg.name+">";
+                else
+                    return "<anonymous function>";
+            }
             else {
                 return arg;
             }
