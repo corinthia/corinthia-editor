@@ -100,7 +100,9 @@ function positionAtPoint(x,y)
         return null;
     }
 
-    return new Position(caretRange.startContainer,caretRange.startOffset);
+    var position = new Position(caretRange.startContainer,caretRange.startOffset);
+    position = Cursor.closestPositionBackwards(position);
+    return position;
 
     function rectContainsPoint(rect,x,y)
     {
