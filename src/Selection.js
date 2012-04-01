@@ -370,36 +370,7 @@
 
             if ((detail.startAncestor != null) && (detail.endAncestor != null) &&
                 (detail.startAncestor.nextSibling == detail.endAncestor)) {
-
-                if (isParagraphNode(detail.startAncestor) &&
-                    isListNode(detail.endAncestor) &&
-                    isListItemNode(detail.endAncestor.firstChild)) {
-                    var list = detail.endAncestor;
-                    var li = detail.endAncestor.firstChild;
-                    DOM.insertBefore(list.parentNode,li,list);
-                    DOM.replaceElement(li,detail.startAncestor.nodeName);
-                    if (firstChildElement(list) == null)
-                        DOM.deleteNode(list);
-                }
-
-                if (isParagraphNode(detail.endAncestor) &&
-                    isListNode(detail.startAncestor) &&
-                    isListItemNode(detail.startAncestor.lastChild)) {
-                    var list = detail.startAncestor;
-                    var li = detail.startAncestor.lastChild;
-                    var p = detail.endAncestor;
-
-
-                    var oldLastChild = li.lastChild;
-                    while (p.firstChild != null)
-                        DOM.insertBefore(li,p.firstChild,null);
-                    DOM.deleteNode(p);
-                    if (oldLastChild != null) {
-                        DOM.mergeWithNextSibling(oldLastChild,
-                                                 Formatting.MERGEABLE_BLOCK_AND_INLINE);
-                    }
-                }
-
+                prepareForMerge(detail);
                 DOM.mergeWithNextSibling(detail.startAncestor,
                                          Formatting.MERGEABLE_BLOCK_AND_INLINE);
             }
@@ -408,6 +379,55 @@
         });
 
         setEmptySelectionAt(selectionRange.start.node,selectionRange.start.offset);
+    }
+
+    function prepareForMerge(detail)
+    {
+        if (isParagraphNode(detail.startAncestor) && isInlineNode(detail.endAncestor)) {
+            var newParagraph = DOM.createElement(document,detail.startAncestor.nodeName);
+            DOM.insertBefore(detail.endAncestor.parentNode,newParagraph,detail.endAncestor);
+            DOM.appendChild(newParagraph,detail.endAncestor);
+            detail.endAncestor = newParagraph;
+        }
+        else if (isInlineNode(detail.startAncestor) && isParagraphNode(detail.endAncestor)) {
+            var newParagraph = DOM.createElement(document,detail.endAncestor.nodeName);
+            DOM.insertBefore(detail.startAncestor.parentNode,newParagraph,
+                             detail.startAncestor.nextSibling);
+            DOM.appendChild(newParagraph,detail.startAncestor);
+            detail.startAncestor = newParagraph;
+        }
+        else if (isParagraphNode(detail.startAncestor) &&
+                 isListNode(detail.endAncestor) &&
+                 isListItemNode(detail.endAncestor.firstChild)) {
+            var list = detail.endAncestor;
+            var li = detail.endAncestor.firstChild;
+            DOM.insertBefore(list.parentNode,li,list);
+            DOM.replaceElement(li,detail.startAncestor.nodeName);
+            if (firstChildElement(list) == null)
+                DOM.deleteNode(list);
+        }
+        else if (isParagraphNode(detail.endAncestor) &&
+                 isListNode(detail.startAncestor) &&
+                 isListItemNode(detail.startAncestor.lastChild)) {
+            var list = detail.startAncestor;
+            var li = detail.startAncestor.lastChild;
+            var p = detail.endAncestor;
+            var oldLastChild = li.lastChild;
+            while (p.firstChild != null)
+                DOM.insertBefore(li,p.firstChild,null);
+            DOM.deleteNode(p);
+            if (oldLastChild != null) {
+                DOM.mergeWithNextSibling(oldLastChild,
+                                         Formatting.MERGEABLE_BLOCK_AND_INLINE);
+            }
+        }
+
+        if ((detail.startAncestor.lastChild != null) && (detail.endAncestor.firstChild != null)) {
+            var childDetail = new Object();
+            childDetail.startAncestor = detail.startAncestor.lastChild;
+            childDetail.endAncestor = detail.endAncestor.firstChild;
+            prepareForMerge(childDetail);
+        }
     }
 
     // public
