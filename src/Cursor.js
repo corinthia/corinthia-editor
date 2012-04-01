@@ -86,9 +86,14 @@
                  (DOM.upperName(next) == "TABLE")))
                 result = true;
 
-            // In an empty paragraph or one that only contains a BR
-            if ((prev == null) && (next != null) && (DOM.upperName(next) == "BR"))
-                result = true;
+            // Just before a BR (but not after a non-empty text node)
+            if ((next != null) && (DOM.upperName(next) == "BR")) {
+                if ((prev == null) ||
+                    (prev.nodeType != Node.TEXT_NODE) ||
+                    isWhitespaceTextNode(prev)) {
+                    result = true;
+                }
+            }
 
             if ((prev == null) && (next == null) &&
                 (isParagraphNode(node) || (DOM.upperName(node) == "LI") ||
