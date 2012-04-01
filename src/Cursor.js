@@ -477,6 +477,17 @@
                     updateBRAtEndOfParagraph(prev);
                     break;
                 }
+                else if ((prev != null) && isListItemNode(prev) && !nodeHasContent(prev)) {
+                    var next;
+                    for (var child = prev.firstChild; child != null; child = next) {
+                        next = child.nextSibling;
+                        if (isWhitespaceTextNode(child))
+                            DOM.deleteNode(child);
+                        else
+                            updateBRAtEndOfParagraph(child);
+                    }
+                    break;
+                }
             }
 
             for (var ancestor = start; ancestor != null; ancestor = ancestor.parentNode) {
