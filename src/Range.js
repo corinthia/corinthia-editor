@@ -233,10 +233,6 @@
             detail.startParent = start.node;
             detail.startChild = start.node.childNodes[start.offset];
         }
-        else if ((start.node.nodeValue.length > 0) && (start.offset == start.node.nodeValue.length)) {
-            detail.startParent = start.node.parentNode;
-            detail.startChild = start.node.nextSibling;
-        }
         else {
             detail.startParent = start.node.parentNode;
             detail.startChild = start.node;

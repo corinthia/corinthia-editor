@@ -127,16 +127,8 @@ function getOutermostNodesSimple(range)
         var pos = allPositions[i];
 
         if ((pos.node.nodeType == Node.TEXT_NODE) && (i < endIndex)) {
-            var add = true;
-
-            if ((i == startIndex) && (pos.node.nodeValue.length > 0) &&
-                (pos.offset == pos.node.nodeValue.length))
-                add = false;
-
-            if (add) {
-                allArray.push(pos.node);
-                allSet.add(pos.node);
-            }
+            allArray.push(pos.node);
+            allSet.add(pos.node);
         }
         else if (pos.node.nodeType == Node.ELEMENT_NODE) {
             var prev = new Position(pos.node,pos.offset-1);
