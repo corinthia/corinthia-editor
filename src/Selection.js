@@ -373,12 +373,26 @@
                 prepareForMerge(detail);
                 DOM.mergeWithNextSibling(detail.startAncestor,
                                          Formatting.MERGEABLE_BLOCK_AND_INLINE);
+                if (isParagraphNode(detail.startAncestor) &&
+                    (DOM.upperName(detail.startAncestor) != "DIV"))
+                    removeParagraphDescendants(detail.startAncestor);
             }
 
             Cursor.updateBRAtEndOfParagraph(selectionRange.singleNode());
         });
 
         setEmptySelectionAt(selectionRange.start.node,selectionRange.start.offset);
+    }
+
+    function removeParagraphDescendants(parent)
+    {
+        var next;
+        for (var child = parent.firstChild; child != null; child = next) {
+            next = child.nextSibling;
+            removeParagraphDescendants(child);
+            if (isParagraphNode(child))
+                DOM.removeNodeButKeepChildren(child);
+        }
     }
 
     function prepareForMerge(detail)
