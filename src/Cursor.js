@@ -416,6 +416,32 @@
             var currentPos = selectionRange.start;
             var prevPos = prevCursorPosition(currentPos);
             if (prevPos != null) {
+
+                var ancestorInListItem = false;
+                for (var n = currentPos.closestActualNode();
+                     n.parentNode != null;
+                     n = n.parentNode) {
+                    if (isListItemNode(n.parentNode)) {
+                        ancestorInListItem = n;
+                        break;
+                    }
+                }
+
+                while ((ancestorInListItem != null) &&
+                       isInlineNode(ancestorInListItem) &&
+                       (ancestorInListItem.nextSibling != null) &&
+                       isInlineNode(ancestorInListItem.nextSibling)) {
+                    ancestorInListItem = ancestorInListItem.nextSibling;
+                }
+                if ((ancestorInListItem != null) && (ancestorInListItem.nextSibling != null)) {
+                    var listItem = ancestorInListItem.parentNode;
+                    var list = listItem.parentNode;
+                    var newLI = DOM.createElement(document,"LI");
+                    DOM.insertBefore(list,newLI,listItem.nextSibling);
+                    while (ancestorInListItem.nextSibling != null)
+                        DOM.appendChild(newLI,ancestorInListItem.nextSibling);
+                }
+
                 selectionRange.start.node = prevPos.node;
                 selectionRange.start.offset = prevPos.offset;
                 Selection.deleteSelectionContents();
