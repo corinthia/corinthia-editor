@@ -961,5 +961,4 @@
         Formatting.MERGEABLE_BLOCK_AND_INLINE[name] = Formatting.MERGEABLE_BLOCK[name];
     Formatting.MERGEABLE_BLOCK_AND_INLINE["force"] = true;
 
-
 })();
