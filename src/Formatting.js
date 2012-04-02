@@ -326,6 +326,8 @@
         for (var i = 0; i < leafNodes.length; i++) {
             if (!isWhitespaceTextNode(leafNodes[i])) {
                 var leafNodeProperties = getAllProperties(leafNodes[i]);
+                if (leafNodeProperties["uxwrite-style"] == null)
+                    leafNodeProperties["uxwrite-style"] = "__none";
                 if (commonProperties == null)
                     commonProperties = leafNodeProperties;
                 else
@@ -334,7 +336,7 @@
         }
 
         if (commonProperties == null)
-            commonProperties = {};
+            commonProperties = {"uxwrite-style": "__none"};
 
         getFlags(range.start,commonProperties);
 
@@ -435,7 +437,7 @@
                 if (node.hasAttribute("class"))
                     properties["uxwrite-style"] = "."+node.getAttribute("class");
                 else
-                    properties["uxwrite-style"] = "";
+                    properties["uxwrite-style"] = "P";
             }
         }
 
