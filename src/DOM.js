@@ -198,6 +198,8 @@
 
     DOM.deleteNode = function(node)
     {
+        if (node.parentNode == null) // already deleted
+            return;
         adjustPositionsRecursive(node);
         deleteNodeInternal(node,true);
 

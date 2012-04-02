@@ -95,6 +95,24 @@
                 }
             }
 
+            // Just after a numbering span for a heading, figure, or table
+            if ((prev != null) && (DOM.upperName(prev) == "SPAN") &&
+                ((prev.getAttribute("class") == Keys.HEADING_NUMBER) ||
+                 (prev.getAttribute("class") == Keys.FIGURE_NUMBER) ||
+                 (prev.getAttribute("class") == Keys.TABLE_NUMBER))) {
+
+                var followingContent = false;
+                for (; next != null; next = next.nextSibling) {
+                    if (nodeHasContent(next)) {
+                        followingContent = true;
+                        break;
+                    }
+                }
+
+                if (!followingContent)
+                    result = true;
+            }
+
             if ((prev == null) && (next == null) &&
                 (isParagraphNode(node) || (DOM.upperName(node) == "LI") ||
                  INLINE_ELEMENTS_THAT_CAN_HAVE_CHILDREN[DOM.upperName(node)]))

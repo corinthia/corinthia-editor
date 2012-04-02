@@ -101,7 +101,7 @@ function positionAtPoint(x,y)
     }
 
     var position = new Position(caretRange.startContainer,caretRange.startOffset);
-    position = Cursor.closestPositionBackwards(position);
+    position = Cursor.closestPositionForwards(position);
     return position;
 
     function rectContainsPoint(rect,x,y)
