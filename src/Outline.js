@@ -11,30 +11,46 @@
 
     function DoublyLinkedList()
     {
-        this.sentinel = new Object();
-        this.sentinel.next = this.sentinel;
-        this.sentinel.prev = this.sentinel;
-        this.sentinel.isSentinel = true;
+        this.first = null;
+        this.last = null;
     }
 
     DoublyLinkedList.prototype.insertItemAfter = function(item,after)
     {
-        if (after == null)
-            after = this.sentinel;
+        item.prev = null;
+        item.next = null;
 
-        item.prev = after;
-        item.next = after.next;
+        if (this.first == null) { // empty list
+            this.first = item;
+            this.last = item;
+        }
+        else if (after == null) { // insert at start
+            item.next = this.first;
+            this.first = item;
+        }
+        else {
+            item.next = after.next;
+            item.prev = after;
+            if (this.last == after)
+                this.last = item;
+        }
 
-        item.prev.next = item;
-        item.next.prev = item;
+        if (item.next != null)
+            item.next.prev = item;
+        if (item.prev != null)
+            item.prev.next = item;
     }
 
     DoublyLinkedList.prototype.removeItem = function(item)
     {
-        if (item == this.sentinel)
-            throw new Error("DoublyLinkedList: attempt tor remove sentinel node");
-        item.prev.next = item.next;
-        item.next.prev = item.prev;
+        if (this.first == item)
+            this.first = this.first.next;
+        if (this.last == item)
+            this.last = this.last.prev;
+        if (item.prev != null)
+            item.prev.next = item.next;
+        if (item.next != null)
+            item.next.prev = item.prev;
         item.prev = null;
         item.next = null;
     }
@@ -130,7 +146,7 @@
         var last = this.last();
         if (last == null)
             return null;
-        else if (last.next.isSentinel)
+        else if (last.next == null)
             return null;
         else
             return last.next;
@@ -425,9 +441,7 @@
         wrapper.children = [];
 
         var countA = 0;
-        for (var section = sectionList.sentinel.next;
-             section != sectionList.sentinel;
-             section = section.next) {
+        for (var section = sectionList.first; section != null; section = section.next) {
             section.parent = null;
             section.children = [];
             countA++;
@@ -435,9 +449,7 @@
 
         ignoreModifications++;
 
-        for (var section = sectionList.sentinel.next;
-             section != sectionList.sentinel;
-             section = section.next) {
+        for (var section = sectionList.first; section != null; section = section.next) {
            
             while ((current != null) && (section.level < current.level+1))
                 current = current.parent;
@@ -457,18 +469,14 @@
             section.setReferenceText("Section "+section.getFullNumber());
         }
 
-        for (var figure = figureList.sentinel.next;
-             figure != figureList.sentinel;
-             figure = figure.next) {
+        for (var figure = figureList.first; figure != null; figure = figure.next) {
             figure.index = toplevelFigures.length;
             toplevelFigures.push(figure);
             updateFigureItem(figure);
             figure.setReferenceText("Figure "+figure.getFullNumber());
         }
 
-        for (var table = tableList.sentinel.next;
-             table != tableList.sentinel;
-             table = table.next) {
+        for (var table = tableList.first; table != null; table = table.next) {
             table.index = toplevelTables.length;
             toplevelTables.push(table);
             updateTableItem(table);
