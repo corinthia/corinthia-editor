@@ -9,6 +9,8 @@ function setupOutline(topChildren)
 
     PostponedActions.perform();
 
+    setNumbering(true);
+
     function processChildren(level,children)
     {
         if (typeof children == "number") {

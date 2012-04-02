@@ -134,3 +134,20 @@ function showClipboard(clipboard)
            "\n"+
            text;
 }
+
+function setNumbering(enabled)
+{
+    recurse(document.body,enabled);
+    PostponedActions.perform();
+
+    function recurse(node,enabled)
+    {
+        if (isHeadingNode(node)) {
+            Outline.setNumbered(node.getAttribute("id"),enabled);
+        }
+        else {
+            for (var child = node.firstChild; child != null; child = child.nextSibling)
+                recurse(child,enabled);
+        }
+    }
+}

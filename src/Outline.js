@@ -8,6 +8,7 @@
     var figureList = new DoublyLinkedList();
     var tableList = new DoublyLinkedList();
     var sectionList = new DoublyLinkedList();
+    var doneInit = false;
 
     function DoublyLinkedList()
     {
@@ -86,6 +87,7 @@
         this.span = null;
         this.titleNode = null;
         this.referenceText = null;
+        this.numbered = false;
 
         this.prev = null;
         this.next = null;
@@ -94,10 +96,10 @@
 
         itemsById[this.id] = this;
 
-        var spanClass = null;
+        this.spanClass = null;
         if (type == "section") {
             this.titleNode = node;
-            spanClass = Keys.HEADING_NUMBER;
+            this.spanClass = Keys.HEADING_NUMBER;
         }
         else if (type == "figure") {
             this.titleNode = findChild(node,"FIGCAPTION");
@@ -105,7 +107,8 @@
                 this.titleNode = DOM.createElement(document,"FIGCAPTION");
                 DOM.appendChild(this.node,this.titleNode);
             }
-            spanClass = Keys.FIGURE_NUMBER;
+            this.spanClass = Keys.FIGURE_NUMBER;
+            this.enableNumbering();
         }
         else if (type == "table") {
             this.titleNode = findChild(node,"CAPTION");
@@ -113,13 +116,9 @@
                 this.titleNode = DOM.createElement(document,"CAPTION");
                 DOM.insertBefore(this.node,this.titleNode,this.node.firstChild);
             }
-            spanClass = Keys.TABLE_NUMBER;
+            this.spanClass = Keys.TABLE_NUMBER;
+            this.enableNumbering();
         }
-
-        this.span = DOM.createElement(document,"SPAN");
-        this.span.setAttribute("class",spanClass);
-        DOM.insertBefore(this.titleNode,this.span,this.titleNode.firstChild);
-        DOM.appendChild(this.span,DOM.createTextNode(document,""));
 
         Object.seal(this);
     }
@@ -131,6 +130,47 @@
                 return child;
         }
         return null;
+    }
+
+    OutlineItem.prototype.enableNumbering = function()
+    {
+        if (this.numbered)
+            return;
+        this.span = DOM.createElement(document,"SPAN");
+        this.span.setAttribute("class",this.spanClass);
+        DOM.insertBefore(this.titleNode,this.span,this.titleNode.firstChild);
+        DOM.appendChild(this.span,DOM.createTextNode(document,""));
+        this.numbered = true;
+        scheduleUpdateOutlineItemStructure();
+    }
+
+    OutlineItem.prototype.disableNumbering = function()
+    {
+        if (!this.numbered)
+            return;
+        DOM.deleteNode(this.span);
+        this.span = null;
+        this.numbered = false;
+        scheduleUpdateOutlineItemStructure();
+    }
+
+    OutlineItem.prototype.setNumberedUsingAdjacent = function()
+    {
+        // Enable numbering for the specified outline numbered if there are either no other
+        // items of its type, or either the preceding or following item of that type has
+        // numbering enabled
+        if ((this.prev == null) && (this.next == null)) {
+            this.enableNumbering();
+        }
+        else {
+            if (((this.prev != null) && this.prev.numbered) ||
+                ((this.next != null) && this.next.numbered)) {
+                this.enableNumbering();
+            }
+            else {
+                this.disableNumbering();
+            }
+        }
     }
 
     OutlineItem.prototype.last = function()
@@ -175,6 +215,8 @@
 
     OutlineItem.prototype.getFullNumber = function()
     {
+        if (!this.numbered)
+            return "";
         var item = this;
         var fullNumber = ""+(item.index+1);
         while (item.parent != null) {
@@ -210,27 +252,33 @@
 
     function updateSectionItem(item)
     {
-        item.title = normalizeWhitespace(getNodeTextAfter(item.span));
-        var spanText = item.getFullNumber()+" ";
-        DOM.setNodeValue(item.span.firstChild,spanText);
+        if (item.numbered) {
+            item.title = normalizeWhitespace(getNodeTextAfter(item.span));
+            var spanText = item.getFullNumber()+" ";
+            DOM.setNodeValue(item.span.firstChild,spanText);
+        }
     }
 
     function updateFigureItem(item)
     {
-        item.title = normalizeWhitespace(getNodeTextAfter(item.span));
-        var spanText = "Figure "+item.getFullNumber();
-        if (item.title != "")
-            spanText += ": ";
-        DOM.setNodeValue(item.span.firstChild,spanText);
+        if (item.numbered) {
+            item.title = normalizeWhitespace(getNodeTextAfter(item.span));
+            var spanText = "Figure "+item.getFullNumber();
+            if (item.title != "")
+                spanText += ": ";
+            DOM.setNodeValue(item.span.firstChild,spanText);
+        }
     }
 
     function updateTableItem(item)
     {
-        item.title = normalizeWhitespace(getNodeTextAfter(item.span));
-        var spanText = "Table "+item.getFullNumber();
-        if (item.title != "")
-            spanText += ": ";
-        DOM.setNodeValue(item.span.firstChild,spanText);
+        if (item.numbered) {
+            item.title = normalizeWhitespace(getNodeTextAfter(item.span));
+            var spanText = "Table "+item.getFullNumber();
+            if (item.title != "")
+                spanText += ": ";
+            DOM.setNodeValue(item.span.firstChild,spanText);
+        }
     }
 
     function headingModified(section)
@@ -252,8 +300,16 @@
 
         // Remove any existing numbering
         var firstText = findFirstTextDescendant(node);
-        if (firstText != null)
-            DOM.setNodeValue(firstText,firstText.nodeValue.replace(/^(\d+\.)*\d*\s+/,""));
+        if (firstText != null) {
+            var regex = /^(\d+\.)*\d*\s+/;
+            if (firstText.nodeValue.match(regex)) {
+                DOM.setNodeValue(firstText,firstText.nodeValue.replace(regex,""));
+                item.enableNumbering();
+            }
+        }
+
+        if (doneInit && !item.numbered)
+            item.setNumberedUsingAdjacent();
 
         node.addEventListener("DOMSubtreeModified",item.modificationListener);
         scheduleUpdateOutlineItemStructure();
@@ -524,6 +580,7 @@
         document.addEventListener("DOMNodeRemoved",docNodeRemoved);
 
         docNodeInserted({target:document});
+        doneInit = true;
     }
 
     function getOutlineItemNodes(section,result)
@@ -562,10 +619,10 @@
         scheduleUpdateOutlineItemStructure();
     }
 
-    function deleteItem(itempId)
+    function deleteItem(itemId)
     {
         Selection.trackWhileExecuting(function() {
-            var item = itemsById[itempId];
+            var item = itemsById[itemId];
             if (item.type == "section") {
                 var sectionNodes = new Array();
                 getOutlineItemNodes(item,sectionNodes);
@@ -593,10 +650,21 @@
         }
     }
 
+    // public
+    function setNumbered(itemId,numbered)
+    {
+        var item = itemsById[itemId];
+        if (numbered)
+            item.enableNumbering();
+        else
+            item.disableNumbering();
+    }
+
     window.Outline = new (function Outline(){});
     Outline.init = trace(init);
     Outline.moveSection = trace(moveSection);
     Outline.deleteItem = trace(deleteItem);
     Outline.goToItem = trace(goToItem);
+    Outline.setNumbered = setNumbered;
 
 })();

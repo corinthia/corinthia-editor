@@ -3,19 +3,23 @@
 <html>
 <head>
 <script language="javascript">
-
 function performTest()
 {
     PostponedActions.performImmediately = true;
     Outline.init();
     setNumbering(true);
-    Formatting.applyFormattingChanges("H1",{});
 }
 </script>
 </head>
 <body>
 <h1>One</h1>
-    [<h2>One - first subsection</h2>]
-    <h2>One - second subsection</h2>
+  <h2>One - first subsection</h2>
+  <h2>One - second subsection</h2>
+<h1>Two</h1>
+  <h2>Two - first subsection</h2>
+    <h3>Two - first level 3</h3>
+    <h3>Two - second level 3</h3>
+  <h2>Two - second subsection</h2>
+<h1>Three</h1>
 </body>
 </html>
