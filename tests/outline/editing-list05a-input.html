@@ -5,13 +5,24 @@
 <script language="javascript">
 function performTest()
 {
-    Cursor.deleteCharacter();
+    Selection.deleteSelectionContents();
     showRangeAsBrackets(Selection.getSelectionRange());
 }
 </script>
 </head>
 <body>
-<h1>Heading</h1>
-<div><p>[]Paragraph</p></div>
+<h1>Head[ing</h1>
+<ul>
+  <li>
+    <p>One <i>italic</i> normal</p>
+    <p>Tw]o</p>
+    <p>Three</p>
+  </li>
+  <li>
+    <p>Four</p>
+    <p>Five</p>
+    <p>Six</p>
+  </li>
+</ul>
 </body>
 </html>
