@@ -395,6 +395,42 @@
         }
     }
 
+    function findFirstParagraph(node)
+    {
+        if (isParagraphNode(node))
+            return node;
+        if (isListItemNode(node)) {
+            var nonWhitespaceInline = false;
+
+            for (var child = node.firstChild; child != null; child = child.nextSibling) {
+                if (isInlineNode(child) && !isWhitespaceTextNode(child))
+                    nonWhitespaceInline = true;
+
+                if (isParagraphNode(child)) {
+                    if (nonWhitespaceInline)
+                        return putPrecedingSiblingsInParagraph(node,child);
+                    return child;
+                }
+                else if (isListNode(child)) {
+                    if (nonWhitespaceInline)
+                        return putPrecedingSiblingsInParagraph(node,child);
+                    return findFirstParagraph(child);
+                }
+            }
+            if (nonWhitespaceInline)
+                return putPrecedingSiblingsInParagraph(node,null);
+        }
+        return null;
+
+        function putPrecedingSiblingsInParagraph(parent,node)
+        {
+            var p = DOM.createElement(document,"P");
+            while (parent.firstChild != node)
+                DOM.appendChild(p,parent.firstChild);
+            return p;
+        }
+    }
+
     function prepareForMerge(detail)
     {
         if (isParagraphNode(detail.startAncestor) && isInlineNode(detail.endAncestor)) {
@@ -415,8 +451,14 @@
                  isListItemNode(detail.endAncestor.firstChild)) {
             var list = detail.endAncestor;
             var li = detail.endAncestor.firstChild;
-            DOM.insertBefore(list.parentNode,li,list);
-            DOM.replaceElement(li,detail.startAncestor.nodeName);
+
+            var paragraph = findFirstParagraph(li);
+            if (paragraph != null) {
+                DOM.insertBefore(list.parentNode,paragraph,list);
+                DOM.replaceElement(paragraph,detail.startAncestor.nodeName);
+            }
+            if (!nodeHasContent(li))
+                DOM.deleteNode(li);
             if (firstChildElement(list) == null)
                 DOM.deleteNode(list);
         }
