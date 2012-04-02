@@ -433,6 +433,12 @@
             else if (DOM.upperName(node) == "H6") {
                 properties["uxwrite-style"] = "H6";
             }
+            else if (DOM.upperName(node) == "PRE") {
+                properties["uxwrite-style"] = "PRE";
+            }
+            else if (DOM.upperName(node) == "BLOCKQUOTE") {
+                properties["uxwrite-style"] = "BLOCKQUOTE";
+            }
             else if (isParagraphNode(node)) {
                 if (node.hasAttribute("class"))
                     properties["uxwrite-style"] = "."+node.getAttribute("class");
