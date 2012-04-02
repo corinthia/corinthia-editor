@@ -5,13 +5,13 @@
 <script language="javascript">
 function performTest()
 {
-    Selection.deleteSelectionContents();
+    Cursor.deleteCharacter();
     showRangeAsBrackets(Selection.getSelectionRange());
 }
 </script>
 </head>
 <body>
-<h1>Head[ing</h1>
-<ul><li><p>List ]item</p></li></ul>
+<h1>Heading</h1>
+<ul><li><p>[List item]</p></li></ul>
 </body>
 </html>
