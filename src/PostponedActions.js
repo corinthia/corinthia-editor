@@ -9,6 +9,8 @@
     PostponedActions.add = function(action)
     {
         actions.push(action);
+        if (PostponedActions.performImmediately)
+            PostponedActions.perform();
     }
 
     PostponedActions.perform = function()
@@ -21,4 +23,6 @@
             Selection.updateSelectionDisplay();
         }
     }
+
+    PostponedActions.performImmediately = false;
 })();

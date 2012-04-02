@@ -282,8 +282,11 @@
         var nextSibling = oldElement.nextSibling;
         while (oldElement.firstChild != null)
             appendChildInternal(newElement,oldElement.firstChild);
-        insertBeforeInternal(parent,newElement,nextSibling);
+        // Deletion must be done first so if it's a heading, the outline code picks up the change
+        // correctly. Otherwise, there could be two elements in the document with the same id at
+        // the same time.
         deleteNodeInternal(oldElement,false);
+        insertBeforeInternal(parent,newElement,nextSibling);
 
         return newElement;
     }

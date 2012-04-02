@@ -1,0 +1,22 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script language="javascript">
+
+function performTest()
+{
+    PostponedActions.performImmediately = true;
+    Outline.init();
+    debug("After init");
+    Formatting.applyFormattingChanges("H1",{});
+    debug("After applyFormattingChanges");
+}
+</script>
+</head>
+<body>
+<h1>One</h1>
+    [<h2>One - first subsection</h2>]
+    <h2>One - second subsection</h2>
+</body>
+</html>
