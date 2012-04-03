@@ -30,23 +30,6 @@
         Position.trackWhileExecuting([this.start,this.end],fun);
     }
 
-    function selectWholeWords()
-    {
-        if ((this.start.node.nodeType == Node.TEXT_NODE) &&
-            (this.end.node.nodeType == Node.TEXT_NODE)) {
-            if (this.isForwards()) {
-                // this.start comes before this.end
-                this.start.moveToStartOfWord();
-                this.end.moveToEndOfWord();
-            }
-            else {
-                // this.end comes before this.end
-                this.start.moveToEndOfWord();
-                this.end.moveToStartOfWord();
-            }
-        }
-    }
-
     function expand()
     {
         var doc = this.start.node.ownerDocument;
@@ -477,7 +460,6 @@
     Range.prototype.copy = trace(copy);
     Range.prototype.isEmpty = trace(isEmpty);
     Range.prototype.trackWhileExecuting = trace(trackWhileExecuting);
-    Range.prototype.selectWholeWords = trace(selectWholeWords);
     Range.prototype.expand = trace(expand);
     Range.prototype.omitEmptyTextSelection = trace(omitEmptyTextSelection);
     Range.prototype.isForwards = trace(isForwards);
