@@ -250,10 +250,18 @@
         return text;
     }
 
+    function getItemTitle(item)
+    {
+        if (item.span != null)
+            return normalizeWhitespace(getNodeTextAfter(item.span));
+        else
+            return normalizeWhitespace(getNodeText(item.titleNode));
+    }
+
     function updateSectionItem(item)
     {
+        item.title = getItemTitle(item);
         if (item.numbered) {
-            item.title = normalizeWhitespace(getNodeTextAfter(item.span));
             var spanText = item.getFullNumber()+" ";
             DOM.setNodeValue(item.span.firstChild,spanText);
         }
@@ -261,8 +269,8 @@
 
     function updateFigureItem(item)
     {
+        item.title = getItemTitle(item);
         if (item.numbered) {
-            item.title = normalizeWhitespace(getNodeTextAfter(item.span));
             var spanText = "Figure "+item.getFullNumber();
             if (item.title != "")
                 spanText += ": ";
@@ -272,8 +280,8 @@
 
     function updateTableItem(item)
     {
+        item.title = getItemTitle(item);
         if (item.numbered) {
-            item.title = normalizeWhitespace(getNodeTextAfter(item.span));
             var spanText = "Table "+item.getFullNumber();
             if (item.title != "")
                 spanText += ": ";
