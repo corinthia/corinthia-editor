@@ -308,25 +308,6 @@
         }
     }
 
-    // public
-    function beginSelectionAtCoords(x,y)
-    {
-        // FIXME: this function isn't called from the objective C side currently. Need to decide
-        // whether we still need it.
-        selectionRange = null;
-
-        var zoom = Viewport.getZoom();
-        var pos = positionAtPoint(x/zoom,y/zoom);
-        if (pos != null) {
-            if (pos.node.nodeType == Node.TEXT_NODE) {
-                Selection.setEmptySelectionAt(pos.node,pos.offset);
-                Selection.selectWordAtCursor();
-            }
-        }
-
-        updateSelectionDisplay();
-    }
-
     var originalDragStart = null;
     var originalDragEnd = null;
 
@@ -615,7 +596,6 @@
     Selection.updateSelectionDisplay = trace(updateSelectionDisplay);
     Selection.selectAll = trace(selectAll);
     Selection.selectWordAtCursor = trace(selectWordAtCursor);
-    Selection.beginSelectionAtCoords = trace(beginSelectionAtCoords);
     Selection.dragSelectionBegin = dragSelectionBegin;
     Selection.dragSelectionUpdate = dragSelectionUpdate;
     Selection.setSelectionStartAtCoords = trace(setSelectionStartAtCoords);
