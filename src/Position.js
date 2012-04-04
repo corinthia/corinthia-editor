@@ -85,27 +85,6 @@
     }
 
     // public
-    Position.prototype.moveToStartOfWord = function()
-    {
-        var self = this.self;
-        var text = self.node.nodeValue;
-        self.offset = self.origOffset;
-        while ((self.offset > 0) && isWordChar(text.charAt(self.offset-1)))
-            self.offset--;
-    }
-
-    // public
-    Position.prototype.moveToEndOfWord = function()
-    {
-        var self = this.self;
-        var text = self.node.nodeValue;
-        var length = text.length;
-        self.offset = self.origOffset;
-        while ((self.offset < length) && isWordChar(text.charAt(self.offset)))
-            self.offset++;
-    }
-
-    // public
     Position.prototype.moveForwardIfAtEnd = function()
     {
         var self = this.self;

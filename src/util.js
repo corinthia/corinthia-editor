@@ -1,12 +1,5 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
-function isWordChar(c)
-{
-    return (((c >= "a") && (c <= "z")) ||
-            ((c >= "A") && (c <= "Z")) ||
-            ((c >= "0") && (c <= "9")));
-}
-
 function arrayContains(array,value)
 {
     for (var i = 0; i < array.length; i++) {

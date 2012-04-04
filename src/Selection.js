@@ -214,6 +214,28 @@
         updateSelectionDisplay();
     }
 
+    function getPunctuationCharsForRegex()
+    {
+        var escaped = "^$\\.*+?()[]{}|"; // From ECMAScript regexp spec (PatternCharacter)
+        var unescaped = "";
+        for (var i = 32; i <= 127; i++) {
+            var c = String.fromCharCode(i);
+            if ((escaped.indexOf(c) < 0) && !c.match(/[\w\d]/))
+                unescaped += c;
+        }
+        return unescaped + escaped.replace(/(.)/g,"\\$1");
+    }
+
+    // The following are used by selectWordAtCursor(). We initialise them at startup to avoid
+    // repeating them
+    var punctuation = getPunctuationCharsForRegex();
+    var wsPunctuation = "\\s"+punctuation;
+
+    var reOtherEnd = new RegExp("["+wsPunctuation+"]*$");
+    var reOtherStart = new RegExp("^["+wsPunctuation+"]*");
+    var reWordOtherEnd = new RegExp("[^"+wsPunctuation+"]*["+wsPunctuation+"]*$");
+    var reWordOtherStart = new RegExp("^["+wsPunctuation+"]*[^"+wsPunctuation+"]*");
+
     // public
     function selectWordAtCursor()
     {
@@ -221,12 +243,52 @@
         if (selectionRange == null)
             return;
         var pos = Cursor.closestPositionBackwards(selectionRange.end);
+
+        // Note: We use a blacklist of punctuation characters here instead of a whitelist of
+        // "word" characters, as the \w character class in javascript regular expressions only
+        // matches characters in english words. By using a blacklist, and assuming every other
+        // character is part of a word, we can select words containing non-english characters.
+        // This isn't a perfect solution, because there are many unicode characters that represent
+        // punctuation as well, but at least we handle the common ones here.
+
+
         var node = pos.node;
         var offset = pos.offset;
         if (node.nodeType == Node.TEXT_NODE) {
-            selectionRange.start.moveToStartOfWord();
-            selectionRange.end.moveToEndOfWord();
-            Selection.setSelectionRange(selectionRange);
+            var before = node.nodeValue.substring(0,offset);
+            var after = node.nodeValue.substring(offset);
+
+            var otherBefore = before.match(reOtherEnd)[0];
+            var otherAfter = after.match(reOtherStart)[0];
+
+            var wordOtherBefore = before.match(reWordOtherEnd)[0];
+            var wordOtherAfter = after.match(reWordOtherStart)[0];
+
+            var startOffset = offset;
+            var endOffset = offset;
+
+            var haveWordBefore = (wordOtherBefore.length != otherBefore.length);
+            var haveWordAfter = (wordOtherAfter.length != otherAfter.length);
+
+            if ((otherBefore.length == 0) && (otherAfter.length == 0)) {
+                startOffset = offset - wordOtherBefore.length;
+                endOffset = offset + wordOtherAfter.length;
+            }
+            else if (haveWordBefore && !haveWordAfter) {
+                startOffset = offset - wordOtherBefore.length;
+            }
+            else if (haveWordAfter && !haveWordBefore) {
+                endOffset = offset + wordOtherAfter.length;
+            }
+            else if (otherBefore.length <= otherAfter.length) {
+                startOffset = offset - wordOtherBefore.length;
+            }
+            else {
+                endOffset = offset + wordOtherAfter.length;
+            }
+
+            Selection.setSelectionRange(new Range(node,startOffset,node,endOffset));
+
         }
         else if (node.nodeType == Node.ELEMENT_NODE) {
             var nodeBefore = null;
@@ -249,15 +311,16 @@
     // public
     function beginSelectionAtCoords(x,y)
     {
+        // FIXME: this function isn't called from the objective C side currently. Need to decide
+        // whether we still need it.
         selectionRange = null;
 
         var zoom = Viewport.getZoom();
         var pos = positionAtPoint(x/zoom,y/zoom);
         if (pos != null) {
             if (pos.node.nodeType == Node.TEXT_NODE) {
-                selectionRange = new Range(pos.node,pos.offset,pos.node,pos.offset);
-                selectionRange.start.moveToStartOfWord();
-                selectionRange.end.moveToEndOfWord();
+                Selection.setEmptySelectionAt(pos.node,pos.offset);
+                Selection.selectWordAtCursor();
             }
         }
 
