@@ -327,6 +327,51 @@
         updateSelectionDisplay();
     }
 
+    var originalDragStart = null;
+    var originalDragEnd = null;
+
+    // public
+    function dragSelectionBegin(x,y)
+    {
+        selectionRange = null;
+        originalDragStart = null;
+        originalDragEnd = null;
+
+        var zoom = Viewport.getZoom();
+        var pos = positionAtPoint(x/zoom,y/zoom);
+        if (pos != null) {
+            selectionRange = new Range(pos.node,pos.offset,pos.node,pos.offset);
+            Selection.selectWordAtCursor();
+            originalDragStart = new Position(selectionRange.start.node,selectionRange.start.offset);
+            originalDragEnd = new Position(selectionRange.end.node,selectionRange.end.offset);
+        }
+
+        updateSelectionDisplay();
+    }
+
+    // public
+    function dragSelectionUpdate(x,y)
+    {
+        var zoom = Viewport.getZoom();
+        var pos = positionAtPoint(x/zoom,y/zoom);
+        if (pos != null) {
+
+            var testRange = new Range(pos.node,pos.offset,
+                                      originalDragEnd.node,originalDragEnd.offset);
+            if (testRange.isForwards()) {
+                setSelectionRange(new Range(pos.node,pos.offset,
+                                            originalDragEnd.node,originalDragEnd.offset));
+                return "start";
+            }
+            else {
+                setSelectionRange(new Range(originalDragStart.node,originalDragStart.offset,
+                                            pos.node,pos.offset));
+                return "end";
+            }
+        }
+        return "none";
+    }
+
     // public
     function setSelectionStartAtCoords(x,y)
     {
@@ -571,6 +616,8 @@
     Selection.selectAll = trace(selectAll);
     Selection.selectWordAtCursor = trace(selectWordAtCursor);
     Selection.beginSelectionAtCoords = trace(beginSelectionAtCoords);
+    Selection.dragSelectionBegin = dragSelectionBegin;
+    Selection.dragSelectionUpdate = dragSelectionUpdate;
     Selection.setSelectionStartAtCoords = trace(setSelectionStartAtCoords);
     Selection.setSelectionEndAtCoords = trace(setSelectionEndAtCoords);
     Selection.getSelectionRange = trace(getSelectionRange);
