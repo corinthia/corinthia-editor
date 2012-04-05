@@ -57,7 +57,7 @@
     function setTextScale(zoom)
     {
         var pct = Math.floor(zoom*100)+"%";
-        document.documentElement.setAttribute("style","-webkit-text-size-adjust: "+pct);
+        document.documentElement.style.webkitTextSizeAdjust = pct;
 
         Selection.updateSelectionDisplay();
         Cursor.ensureCursorVisible();

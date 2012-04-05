@@ -56,6 +56,9 @@
     function getHTML()
     {
         var clone = DOM.cloneNode(document.documentElement,true);
+        clone.style.webkitTextSizeAdjust = null;
+        if (clone.style.length == 0)
+            clone.removeAttribute("style");
         removeSpecial(clone);
 
         return clone.outerHTML;
