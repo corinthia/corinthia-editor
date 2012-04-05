@@ -205,6 +205,7 @@
             addContentType();
             getStyles();
             Outline.init();
+            Viewport.init();
             return true;
         }
         catch (e) {

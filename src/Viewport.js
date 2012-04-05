@@ -2,45 +2,32 @@
 
 (function() {
 
-    var viewportMetaElement = null;
     var viewportWidth = null;
     var viewportHeight = null;
 
-    // FIXME: don't need this; there is always a head
-    function getOrCreateHead()
+    // public
+    function init()
     {
-        var html = document.documentElement;
-        for (var child = html.firstChild; child != null; child = child.nextSibling) {
-            if (DOM.upperName(child) == "HEAD")
-                return child;
+        var head = DOM.documentHead(document);
+        var viewportMetaElement = null;
+        for (var child = head.firstChild; child != null; child = child.nextSibling) {
+            if ((DOM.upperName(child) == "META") &&
+                (child.getAttribute("name") == "viewport")) {
+                viewportMetaElement = child;
+                break;
+            }
         }
-        var head = DOM.createElement(document,"HEAD");
-        DOM.insertBefore(html,head,html.firstChild);
-        return head;
+        if (viewportMetaElement == null) {
+            viewportMetaElement = DOM.createElement(document,"META");
+            viewportMetaElement.setAttribute("name","viewport");
+            DOM.appendChild(head,viewportMetaElement);
+        }
+        viewportMetaElement.setAttribute("content","width = device-width, user-scalable = no");
     }
 
     // public
     function setViewportSize(width,height)
     {
-        if (viewportWidth != width) {
-            if (viewportMetaElement == null) {
-                var head = getOrCreateHead();
-                for (var child = head.firstChild; child != null; child = child.nextSibling) {
-                    if ((DOM.upperName(child) == "META") &&
-                        (child.getAttribute("name") == "viewport")) {
-                        viewportMetaElement = child;
-                        break;
-                    }
-                }
-                if (viewportMetaElement == null) {
-                    viewportMetaElement = DOM.createElement(document,"META");
-                    viewportMetaElement.setAttribute("name","viewport");
-                    DOM.appendChild(head,viewportMetaElement);
-                }
-            }
-            viewportMetaElement.setAttribute("content","width = "+width);
-        }
-
         viewportWidth = width;
         viewportHeight = height;
 
@@ -63,13 +50,25 @@
     // public
     function getZoom()
     {
-        return window.outerWidth/window.innerWidth;
+        return 1;
+    }
+
+    // public
+    function setTextScale(zoom)
+    {
+        var pct = Math.floor(zoom*100)+"%";
+        document.documentElement.setAttribute("style","-webkit-text-size-adjust: "+pct);
+
+        Selection.updateSelectionDisplay();
+        Cursor.ensureCursorVisible();
     }
 
     window.Viewport = new (function Viewport(){});
+    Viewport.init = trace(init);
     Viewport.setViewportSize = trace(setViewportSize);
     Viewport.getViewportWidth = getViewportWidth;
     Viewport.getViewportHeight = getViewportHeight;
     Viewport.getZoom = getZoom;
+    Viewport.setTextScale = trace(setTextScale);
 
 })();
