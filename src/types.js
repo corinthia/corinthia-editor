@@ -12,7 +12,9 @@ var CONTAINER_ELEMENTS = {
     "TR": true,
     "TH": true,
     "TD": true,
-    "COL": true
+    "COL": true,
+    "FIGURE": true,
+    "FIGCAPTION": true,
 };
 
 var PARAGRAPH_ELEMENTS = {
