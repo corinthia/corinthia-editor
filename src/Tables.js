@@ -30,7 +30,6 @@
         }
 
         Clipboard.pasteNodes([table]);
-        printTree(document.body);
     }
 
     function insertRowsAbove(rows)
