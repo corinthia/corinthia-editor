@@ -38,6 +38,7 @@ function loadCode()
                            "../src/Clipboard.js",
                            "../src/Cursor.js",
                            "../src/DOM.js",
+                           "../src/Figures.js",
                            "../src/Formatting.js",
                            "../src/Hierarchy.js",
                            "../src/Lists.js",
