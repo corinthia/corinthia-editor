@@ -115,7 +115,8 @@
 
             if ((prev == null) && (next == null) &&
                 (isParagraphNode(node) || (DOM.upperName(node) == "LI") ||
-                 INLINE_ELEMENTS_THAT_CAN_HAVE_CHILDREN[DOM.upperName(node)]))
+                 INLINE_ELEMENTS_THAT_CAN_HAVE_CHILDREN[DOM.upperName(node)] ||
+                 CONTAINER_ELEMENTS_ALLOWING_CONTENT[DOM.upperName(node)]))
                 result = true;
 
             // Special case for an IMG that directly follows some text that ends in a
@@ -471,6 +472,14 @@
 
         selectionRange.trackWhileExecuting(function() {
 
+            // If we're directly in a container node, add a paragraph, so we have something to
+            // split.
+            if (enterPressedFilter(pos.node) || (pos.node == document.body)) {
+                var p = DOM.createElement(document,"P");
+                DOM.insertBefore(pos.node,p,pos.node.childNodes[pos.offset]);
+                pos = new Position(p,0);
+            }
+
             if (pos.node.nodeType == Node.TEXT_NODE)
                 pos = Formatting.splitTextAfter(pos.node,pos.offset,enterPressedFilter,true);
             else
@@ -487,6 +496,8 @@
 
             var detail = selectionRange.detail();
 
+            // If a preceding paragraph has become empty as a result of enter being pressed
+            // while the cursor was in it, then update the BR at the end of the paragraph
             var start = detail.startChild ? detail.startChild : detail.startParent;
             for (var ancestor = start; ancestor != null; ancestor = ancestor.parentNode) {
                 var prev = ancestor.previousSibling;

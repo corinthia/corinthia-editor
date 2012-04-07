@@ -48,6 +48,16 @@ var INLINE_ELEMENTS_THAT_CAN_HAVE_CHILDREN = {
     "SPAN": true,
 };
 
+var CONTAINER_ELEMENTS_ALLOWING_CONTENT = {
+    "BODY": true,
+    "LI": true,
+    "CAPTION": true,
+    "TH": true,
+    "TD": true,
+    "FIGURE": true,
+    "FIGCAPTION": true,
+};
+
 var Keys = {
     HEADING_NUMBER: "-uxwrite-heading-number",
     FIGURE_NUMBER: "-uxwrite-figure-number",

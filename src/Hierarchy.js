@@ -64,6 +64,7 @@
     //    container+ paragraph inline
     // or container+ paragraph
     // or container+
+    // public
     function ensureValidHierarchy(node,recursive)
     {
         if ((node == null) || (node.parentNode == null) || (node == document.body))
@@ -104,6 +105,7 @@
             ensureValidHierarchy(node.parentNode,true);
     }
 
+    // public
     function wrapInlineNodesInParagraph(node)
     {
         var start = node;
