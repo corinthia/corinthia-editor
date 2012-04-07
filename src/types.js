@@ -6,6 +6,7 @@ var CONTAINER_ELEMENTS = {
     "OL":  true,
     "LI": true,
     "TABLE": true,
+    "CAPTION": true,
     "THEAD": true,
     "TFOOT": true,
     "TBODY": true,
