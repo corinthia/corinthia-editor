@@ -214,6 +214,26 @@
         updateSelectionDisplay();
     }
 
+    // public
+    function selectParagraph()
+    {
+        if (selectionRange == null)
+            return;
+
+        selectionRange = selectionRange.forwards();
+
+        var start = selectionRange.start.closestActualNode();
+        while (!isParagraphNode(start) && !isContainerNode(start))
+            start = start.parentNode;
+
+        var end = selectionRange.start.closestActualNode();
+        while (!isParagraphNode(end) && !isContainerNode(end))
+                end = end.parentNode;
+
+        setSelectionRange(new Range(start.parentNode,DOM.nodeOffset(start),
+                                    end.parentNode,DOM.nodeOffset(end)+1));
+    }
+
     function getPunctuationCharsForRegex()
     {
         var escaped = "^$\\.*+?()[]{}|"; // From ECMAScript regexp spec (PatternCharacter)
@@ -595,6 +615,7 @@
     Selection.getCursorRect = trace(getCursorRect);
     Selection.updateSelectionDisplay = trace(updateSelectionDisplay);
     Selection.selectAll = trace(selectAll);
+    Selection.selectParagraph = trace(selectParagraph);
     Selection.selectWordAtCursor = trace(selectWordAtCursor);
     Selection.dragSelectionBegin = dragSelectionBegin;
     Selection.dragSelectionUpdate = dragSelectionUpdate;
