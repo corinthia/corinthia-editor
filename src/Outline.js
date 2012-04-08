@@ -34,6 +34,7 @@
         var prevItem = findPrevItemOfType(node,this.nodeFilter);
         this.list.insertAfter(item,prevItem);
         Editor.addOutlineItem(item.id,this.type);
+        node.addEventListener("DOMSubtreeModified",item.modificationListener);
         scheduleUpdateStructure();
         return item;
 
@@ -54,8 +55,10 @@
         }
         this.list.remove(item);
         Editor.removeOutlineItem(item.id);
+        item.node.removeEventListener("DOMSubtreeModified",item.modificationListener);
+        if (item.span != null)
+            DOM.deleteNode(item.span);
         scheduleUpdateStructure();
-        return item;
     }
 
     function generateItemId()
@@ -69,7 +72,7 @@
 
     function OutlineItem(type,node)
     {
-        var section = this;
+        var item = this;
         if ((node != null) && (node.hasAttribute("id"))) {
             this.id = node.getAttribute("id");
         }
@@ -94,7 +97,7 @@
         this.prev = null;
         this.next = null;
         this.references = new NodeSet();
-        this.modificationListener = function(event) { headingModified(section); }
+        this.modificationListener = function(event) { itemModified(item); }
 
         itemsById[this.id] = this;
 
@@ -282,7 +285,7 @@
         }
     }
 
-    function headingModified(section)
+    function itemModified(section)
     {
         if (ignoreModifications > 0)
             return;
@@ -310,7 +313,6 @@
         if (doneInit && !section.numbered)
             section.setNumberedUsingAdjacent();
 
-        node.addEventListener("DOMSubtreeModified",section.modificationListener);
         scheduleUpdateStructure();
         return;
 
@@ -331,12 +333,7 @@
 
     function headingRemoved(node)
     {
-        var section = sections.remove(node);
-
-        if (section.span != null)
-            DOM.deleteNode(section.span);
-
-        node.removeEventListener("DOMSubtreeModified",section.modificationListener);
+        sections.remove(node);
     }
 
     function figureInserted(node)
