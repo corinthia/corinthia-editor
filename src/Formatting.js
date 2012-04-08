@@ -798,6 +798,15 @@
         }
     }
 
+    function containsOnlyWhitespace(ancestor)
+    {
+        for (child = ancestor.firstChild; child != null; child = child.nextSibling) {
+            if (!isWhitespaceTextNode(child))
+                return false;
+        }
+        return true;
+    }
+
     // public
     function applyFormattingChanges(style,properties)
     {
@@ -817,6 +826,22 @@
         var selectionRange = Selection.getSelectionRange();
         if (selectionRange == null)
             return;
+
+        // If the cursor is in a container (such as BODY OR FIGCAPTION), and not inside a paragraph,
+        // put it in one so we can set a paragraph style
+        if (selectionRange.isEmpty()) {
+            var node = selectionRange.singleNode();
+            while (isInlineNode(node))
+                node = node.parentNode;
+            if (isContainerNode(node) && containsOnlyWhitespace(node)) {
+                var p = DOM.createElement(document,"P");
+                DOM.appendChild(node,p);
+                while (node.firstChild != p)
+                    DOM.appendChild(p,node.firstChild);
+                Cursor.updateBRAtEndOfParagraph(p);
+            }
+        }
+
 
         var range = new Range(selectionRange.start.node,selectionRange.start.offset,
                               selectionRange.end.node,selectionRange.end.offset);
