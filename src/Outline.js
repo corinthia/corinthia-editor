@@ -6,9 +6,13 @@
     var outlineDirty = false;
     var ignoreModifications = 0;
 
-    var sections = new Category("section",isHeadingNode);
-    var figures = new Category("figure",isFigureNode);
-    var tables = new Category("table",isTableNode);
+    var sectionNumberRegex = /^\s*(Chapter\s+)?\d+(\.\d+)*\.?\s+/i;
+    var figureNumberRegex = /^\s*Figure\s+\d+(\.\d+)*:?\s+/i;
+    var tableNumberRegex = /^\s*Table\s+\d+(\.\d+)*:?\s+/i;
+
+    var sections = new Category("section",isHeadingNode,sectionNumberRegex);
+    var figures = new Category("figure",isFigureNode,figureNumberRegex);
+    var tables = new Category("table",isTableNode,tableNumberRegex);
 
     var doneInit = false;
 
@@ -21,10 +25,11 @@
         return null;
     }
 
-    function Category(type,nodeFilter)
+    function Category(type,nodeFilter,numberRegex)
     {
         this.type = type;
         this.nodeFilter = nodeFilter;
+        this.numberRegex = numberRegex;
         this.list = new DoublyLinkedList();
     }
 
@@ -34,7 +39,34 @@
         var prevItem = findPrevItemOfType(node,this.nodeFilter);
         this.list.insertAfter(item,prevItem);
         Editor.addOutlineItem(item.id,this.type);
+
+        // Register for notifications to changes to this item's node content. We may need to
+        // update the title when such a modification occurs.
         node.addEventListener("DOMSubtreeModified",item.modificationListener);
+
+        // Examine the content of the node to determine whether it contains text representing
+        // a section, figure, or table number. This is done using the regular expressions at the
+        // top of the file. If we find a match, we mark the item as being numbered.
+        // The actual number given in the node content is irrelevant; we assign our own number
+        // based on the position of the item in the overall structurel.
+        var firstText = findFirstTextDescendant(node);
+        if (firstText != null) {
+            var regex = item.numberRegex;
+            var str = firstText.nodeValue;
+            if (str.match(item.numberRegex)) {
+                DOM.setNodeValue(firstText,str.replace(item.numberRegex,""));
+                item.enableNumbering();
+            }
+        }
+
+        // If we did not determine the item to be numbered based on inspecting its textual content
+        // above, consider adjacent items of the same type to decide whether to automatically
+        // number this item. If it is the only item of its type, or either of its neighbours are
+        // numbered, then this item will also be numbered. If it has two unnumbered neighbours,
+        // or only one neighbour (and that neighbour is not numbered), then it will not be numbered.
+        if (doneInit && !item.numbered)
+            item.setNumberedUsingAdjacent();
+
         scheduleUpdateStructure();
         return item;
 
@@ -43,6 +75,20 @@
             do node = prevNode(node);
             while ((node != null) && !typeFun(node));
             return (node == null) ? null : itemsById[node.getAttribute("id")];
+        }
+
+        function findFirstTextDescendant(node)
+        {
+            if (isWhitespaceTextNode(node))
+                return;
+            if (node.nodeType == Node.TEXT_NODE)
+                return node;
+            for (var child = node.firstChild; child != null; child = child.nextSibling) {
+                var result = findFirstTextDescendant(child);
+                if (result != null)
+                    return result;
+            }
+            return null;
         }
     }
 
@@ -298,37 +344,7 @@
 
     function headingInserted(node)
     {
-        var section = sections.add(node);
-
-        // Remove any existing numbering
-        var firstText = findFirstTextDescendant(node);
-        if (firstText != null) {
-            var regex = /^(\d+\.)*\d*\s+/;
-            if (firstText.nodeValue.match(regex)) {
-                DOM.setNodeValue(firstText,firstText.nodeValue.replace(regex,""));
-                section.enableNumbering();
-            }
-        }
-
-        if (doneInit && !section.numbered)
-            section.setNumberedUsingAdjacent();
-
-        scheduleUpdateStructure();
-        return;
-
-        function findFirstTextDescendant(node)
-        {
-            if (isWhitespaceTextNode(node))
-                return;
-            if (node.nodeType == Node.TEXT_NODE)
-                return node;
-            for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                var result = findFirstTextDescendant(child);
-                if (result != null)
-                    return result;
-            }
-            return null;
-        }
+        sections.add(node);
     }
 
     function headingRemoved(node)
