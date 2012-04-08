@@ -12,6 +12,30 @@
 
     var doneInit = false;
 
+    function findChild(node,name)
+    {
+        for (var child = node.firstChild; child != null; child = child.nextSibling) {
+            if (DOM.upperName(child) == name)
+                return child;
+        }
+        return null;
+    }
+
+    function getNodeTextAfter(node)
+    {
+        var text = "";
+        for (var child = node.nextSibling; child != null; child = child.nextSibling)
+            text += getNodeText(child);
+        return text;
+    }
+
+    function findPrevItemOfType(node,typeFun)
+    {
+        do node = prevNode(node);
+        while ((node != null) && !typeFun(node));
+        return (node == null) ? null : itemsById[node.getAttribute("id")];
+    }
+
     function Category(type,nodeFilter)
     {
         this.type = type;
@@ -107,15 +131,6 @@
         }
 
         Object.seal(this);
-    }
-
-    function findChild(node,name)
-    {
-        for (var child = node.firstChild; child != null; child = child.nextSibling) {
-            if (DOM.upperName(child) == name)
-                return child;
-        }
-        return null;
     }
 
     OutlineItem.prototype.enableNumbering = function()
@@ -228,14 +243,6 @@
         }
     }
 
-    function getNodeTextAfter(node)
-    {
-        var text = "";
-        for (var child = node.nextSibling; child != null; child = child.nextSibling)
-            text += getNodeText(child);
-        return text;
-    }
-
     function getItemTitle(item)
     {
         if (item.span != null)
@@ -330,13 +337,6 @@
             DOM.deleteNode(section.span);
 
         node.removeEventListener("DOMSubtreeModified",section.modificationListener);
-    }
-
-    function findPrevItemOfType(node,typeFun)
-    {
-        do node = prevNode(node);
-        while ((node != null) && !typeFun(node));
-        return (node == null) ? null : itemsById[node.getAttribute("id")];
     }
 
     function figureInserted(node)
