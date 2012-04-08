@@ -82,25 +82,84 @@ function clone(object)
 
 function positionAtPoint(x,y)
 {
-    var caretRange = document.caretRangeFromPoint(x,y);
-    if (caretRange == null)
+    // In general, we can use document.caretRangeFromPoint(x,y) to determine the location of the
+    // cursor based on screen coordinates. However, this doesn't work if the screen coordinates
+    // are outside the bounding box of the document's body. So when this is true, we find either
+    // the first or last non-whitespace text node, calculate a y value that is half-way between
+    // the top and bottom of its first or last rect (respectively), and then make a call to
+    // caretRangeFromPoint with the same x value but this new y value. This results in the cursor
+    // being placed on the first or last line when the user taps outside the document bounds.
+
+    var bodyRect = document.body.getBoundingClientRect();
+    var boundaryRect = null;
+    if (y <= bodyRect.top)
+        boundaryRect = findFirstTextRect();
+    else if (y >= bodyRect.bottom) 
+        boundaryRect = findLastTextRect();
+
+    if (boundaryRect != null) {
+        var boundaryY = boundaryRect.top + boundaryRect.height/2;
+        var range = document.caretRangeFromPoint(x,boundaryY);
+        if (range != null) {
+            var position;
+            if (range != null)
+                position = new Position(range.startContainer,range.startOffset);
+            else
+                position = new Position(node,node.nodeValue.length);
+            return Cursor.closestPositionForwards(position);
+        }
+    }
+
+    // We get here if the coordinates are inside the document's bounding rect, or if getting the
+    // position from the first or last rect failed for some reason.
+
+    var range = document.rangeFromPoint(x,y);
+    if (range == null)
         return null;
 
     var element = document.elementFromPoint(x,y);
-
-    if ((caretRange.startContainer.nodeType == Node.TEXT_NODE) &&
-        (element != caretRange.startContainer.parentNode)) {
+    if ((range.startContainer.nodeType == Node.TEXT_NODE) &&
+        (element != range.startContainer.parentNode)) {
         return null;
     }
 
-    var position = new Position(caretRange.startContainer,caretRange.startOffset);
-    position = Cursor.closestPositionForwards(position);
-    return position;
+    var position = new Position(range.startContainer,range.startOffset);
+    return Cursor.closestPositionForwards(position);
 
-    function rectContainsPoint(rect,x,y)
+    function findLastTextRect()
     {
-        return ((x >= rect.left) && (x <= rect.right) &&
-                (y >= rect.top) && (y <= rect.bottom));
+        var node = lastDescendant(document.body);
+
+        while ((node != null) && ((node.nodeType != Node.TEXT_NODE) || isWhitespaceTextNode(node)))
+            node = prevNode(node);
+        
+        if (node != null) {
+            var domRange = document.createRange();
+            domRange.setStart(node,0);
+            domRange.setEnd(node,node.nodeValue.length);
+            var rects = domRange.getClientRects();
+            if ((rects != null) && (rects.length > 0))
+                return rects[rects.length-1];
+        }
+        return null;
+    }
+
+    function findFirstTextRect()
+    {
+        var node = firstDescendant(document.body);
+
+        while ((node != null) && ((node.nodeType != Node.TEXT_NODE) || isWhitespaceTextNode(node)))
+            node = nextNode(node);
+        
+        if (node != null) {
+            var domRange = document.createRange();
+            domRange.setStart(node,0);
+            domRange.setEnd(node,node.nodeValue.length);
+            var rects = domRange.getClientRects();
+            if ((rects != null) && (rects.length > 0))
+                return rects[0];
+        }
+        return null;
     }
 }
 
