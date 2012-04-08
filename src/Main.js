@@ -25,6 +25,28 @@
         editor.setStyles(list);
     }
 
+    // public
+    function removeUnsupportedInput()
+    {
+        recurse(document.documentElement);
+
+        function recurse(node)
+        {
+            // Delete comments and processing instructions
+            if ((node.nodeType != Node.TEXT_NODE) &&
+                (node.nodeType != Node.ELEMENT_NODE)) {
+                DOM.deleteNode(node);
+            }
+            else {
+                var next;
+                for (var child = node.firstChild; child != null; child = next) {
+                    next = child.nextSibling;
+                    recurse(child);
+                }
+            }
+        }
+    }
+
     function addContentType()
     {
         var head = DOM.documentHead(document);
@@ -205,6 +227,7 @@
             if (document.body == null)
                 throw new Error("document.body is null");
             DOM.assignNodeIds(document);
+            removeUnsupportedInput();
             addContentType();
             getStyles();
             Outline.init();
@@ -223,6 +246,7 @@
     Main.isEmptyDocument = trace(isEmptyDocument);
     Main.getHTML = trace(getHTML);
     Main.getErrorReportingInfo = trace(getErrorReportingInfo);
+    Main.removeUnsupportedInput = trace(removeUnsupportedInput);
     Main.removeSpecial = trace(removeSpecial);
     Main.execute = trace(execute);
     Main.init = trace(init);
