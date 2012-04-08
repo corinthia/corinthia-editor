@@ -379,8 +379,13 @@
         var zoom = Viewport.getZoom();
         var position = positionAtPoint(x/zoom,y/zoom);
         if (position != null) {
-            selectionRange.start = Cursor.closestPositionBackwards(position);
-            updateSelectionDisplay();
+            position = Cursor.closestPositionBackwards(position);
+            var newRange = new Range(position.node,position.offset,
+                                     selectionRange.end.node,selectionRange.end.offset);
+            if (newRange.isForwards()) {
+                selectionRange = newRange;
+                updateSelectionDisplay();
+            }
         }
     }
 
@@ -390,8 +395,13 @@
         var zoom = Viewport.getZoom();
         var position = positionAtPoint(x/zoom,y/zoom);
         if (position != null) {
-            selectionRange.end = Cursor.closestPositionBackwards(position);
-            updateSelectionDisplay();
+            position = Cursor.closestPositionBackwards(position);
+            var newRange = new Range(selectionRange.start.node,selectionRange.start.offset,
+                                     position.node,position.offset);
+            if (newRange.isForwards()) {
+                selectionRange = newRange;
+                updateSelectionDisplay();
+            }
         }
     }
 
