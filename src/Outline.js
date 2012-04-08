@@ -16,7 +16,7 @@
         this.last = null;
     }
 
-    DoublyLinkedList.prototype.insertItemAfter = function(item,after)
+    DoublyLinkedList.prototype.insertAfter = function(item,after)
     {
         item.prev = null;
         item.next = null;
@@ -42,7 +42,7 @@
             item.prev.next = item;
     }
 
-    DoublyLinkedList.prototype.removeItem = function(item)
+    DoublyLinkedList.prototype.remove = function(item)
     {
         if (this.first == item)
             this.first = this.first.next;
@@ -304,7 +304,7 @@
     {
         var section = new OutlineItem("section",node);
         var prevSection = findPrevItemOfType(node,isHeadingNode);
-        sectionList.insertItemAfter(section,prevSection);
+        sectionList.insertAfter(section,prevSection);
         Editor.addOutlineItem(section.id,"section");
 
         // Remove any existing numbering
@@ -342,7 +342,7 @@
     function headingRemoved(node)
     {
         var section = itemsById[node.getAttribute("id")];
-        sectionList.removeItem(section);
+        sectionList.remove(section);
         Editor.removeOutlineItem(section.id);
 
         if (section.span != null)
@@ -363,7 +363,7 @@
     {
         var figure = new OutlineItem("figure",node);
         var prevFigure = findPrevItemOfType(node,isFigureNode);
-        figureList.insertItemAfter(figure,prevFigure);
+        figureList.insertAfter(figure,prevFigure);
         Editor.addOutlineItem(figure.id,"figure");
 
         scheduleUpdateOutlineItemStructure();
@@ -372,7 +372,7 @@
     function figureRemoved(node)
     {
         var figure = itemsById[node.getAttribute("id")];
-        figureList.removeItem(figure);
+        figureList.remove(figure);
         Editor.removeOutlineItem(figure.id);
 
         scheduleUpdateOutlineItemStructure();
@@ -382,7 +382,7 @@
     {
         var table = new OutlineItem("table",node);
         var prevTable = findPrevItemOfType(node,isTableNode);
-        tableList.insertItemAfter(table,prevTable);
+        tableList.insertAfter(table,prevTable);
         Editor.addOutlineItem(table.id,"table");
 
         scheduleUpdateOutlineItemStructure();
@@ -391,7 +391,7 @@
     function tableRemoved(node)
     {
         var table = itemsById[node.getAttribute("id")];
-        tableList.removeItem(table);
+        tableList.remove(table);
         Editor.removeOutlineItem(table.id);
 
         scheduleUpdateOutlineItemStructure();
