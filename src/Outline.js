@@ -21,13 +21,6 @@
         return null;
     }
 
-    function findPrevItemOfType(node,typeFun)
-    {
-        do node = prevNode(node);
-        while ((node != null) && !typeFun(node));
-        return (node == null) ? null : itemsById[node.getAttribute("id")];
-    }
-
     function Category(type,nodeFilter)
     {
         this.type = type;
@@ -43,6 +36,13 @@
         Editor.addOutlineItem(item.id,this.type);
         scheduleUpdateStructure();
         return item;
+
+        function findPrevItemOfType(node,typeFun)
+        {
+            do node = prevNode(node);
+            while ((node != null) && !typeFun(node));
+            return (node == null) ? null : itemsById[node.getAttribute("id")];
+        }
     }
 
     Category.prototype.remove = function(node)
