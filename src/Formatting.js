@@ -917,8 +917,11 @@
             }
         });
 
-        Selection.setSelectionRange(selectionRange);
-        return;
+        // The current cursor position may no longer be valid, e.g. if a heading span was inserted
+        // and the cursor is at a position that is now immediately before the span.
+        var start = Cursor.closestPositionForwards(selectionRange.start);
+        var end = Cursor.closestPositionForwards(selectionRange.end);
+        Selection.setSelectionRange(new Range(start.node,start.offset,end.node,end.offset));
     }
 
     // public
