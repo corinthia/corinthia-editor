@@ -24,6 +24,21 @@
             addBackMessage("debug",str);
         },
 
+        addOutlineItem: function(itemId,type)
+        {
+            addBackMessage("addOutlineItem",itemId,type);
+        },
+
+        updateOutlineItem: function(itemId,title)
+        {
+            addBackMessage("updateOutlineItem",itemId,title);
+        },
+
+        removeOutlineItem: function(itemId)
+        {
+            addBackMessage("removeOutlineItem",itemId);
+        },
+
         setOutline: function(outline)
         {
             addBackMessage("setOutline",outline);
