@@ -541,10 +541,7 @@
             encodeItem(item.children[i],encChildren);
 
         var obj = { id: item.id,
-                    type: item.type,
-                    index: (item.index == null) ? -1 : item.index,
                     number: item.getFullNumber(),
-                    title: item.title,
                     children: encChildren };
         result.push(obj);
     }
