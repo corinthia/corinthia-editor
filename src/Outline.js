@@ -342,36 +342,6 @@
         }
     }
 
-    function headingInserted(node)
-    {
-        sections.add(node);
-    }
-
-    function headingRemoved(node)
-    {
-        sections.remove(node);
-    }
-
-    function figureInserted(node)
-    {
-        figures.add(node);
-    }
-
-    function figureRemoved(node)
-    {
-        figures.remove(node);
-    }
-
-    function tableInserted(node)
-    {
-        tables.add(node);
-    }
-
-    function tableRemoved(node)
-    {
-        tables.remove(node);
-    }
-
     function refInserted(node)
     {
         var href = node.getAttribute("href");
@@ -427,11 +397,11 @@
         function recurse(node)
         {
             if (isHeadingNode(node))
-                headingInserted(node);
+                sections.add(node);
             else if (isFigureNode(node))
-                figureInserted(node);
+                figures.add(node);
             else if (isTableNode(node))
-                tableInserted(node);
+                tables.add(node);
             else if (isRefNode(node))
                 refInserted(node);
 
@@ -449,11 +419,11 @@
         function recurse(node)
         {
             if (isHeadingNode(node))
-                headingRemoved(node);
+                sections.remove(node);
             else if (isFigureNode(node))
-                figureRemoved(node);
+                figures.remove(node);
             else if (isTableNode(node))
-                tableRemoved(node);
+                tables.remove(node);
             else if (isRefNode(node))
                 refRemoved(node);
 
