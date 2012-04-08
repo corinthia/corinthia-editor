@@ -113,7 +113,7 @@ function positionAtPoint(x,y)
     // We get here if the coordinates are inside the document's bounding rect, or if getting the
     // position from the first or last rect failed for some reason.
 
-    var range = document.rangeFromPoint(x,y);
+    var range = document.caretRangeFromPoint(x,y);
     if (range == null)
         return null;
 
