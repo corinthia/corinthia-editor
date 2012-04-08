@@ -22,7 +22,7 @@
                 }
             }
         }
-        editor.setStyles(list);
+        Editor.setStyles(list);
     }
 
     // public
@@ -214,7 +214,7 @@
             return res;
         }
         catch (e) {
-            editor.reportJSError(e);
+            Editor.reportJSError(e);
         }
     }
 

@@ -15,7 +15,7 @@ function addBackMessage()
     return null;
 }
 
-var editor = {
+var Editor = {
     debug: function(str)
     {
         addBackMessage("debug",str);
@@ -59,7 +59,7 @@ var editor = {
 
 function debug(str)
 {
-    editor.debug(str);
+    Editor.debug(str);
 }
 
 function warning(str)

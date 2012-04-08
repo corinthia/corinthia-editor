@@ -563,7 +563,7 @@
         var arg = { sections: encSections,
                     figures: encFigures,
                     tables: encTables };
-        editor.setOutline(arg);
+        Editor.setOutline(arg);
     }
 
     function encodeItem(item,result)

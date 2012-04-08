@@ -119,10 +119,10 @@
                 var top = rect.top + window.scrollY;
                 var height = rect.height;
                 var width = rect.width ? (rect.width * zoom) : 2;
-                editor.setCursor(left*zoom,top*zoom,width,height*zoom);
+                Editor.setCursor(left*zoom,top*zoom,width,height*zoom);
             }
             else {
-                editor.setCursor(0,0,300,300);
+                Editor.setCursor(0,0,300,300);
             }
             return;
         }
@@ -184,12 +184,12 @@
             var y2 = (lastRect.top+window.scrollY)*zoom;
             var height2 = lastRect.height*zoom;
 
-            editor.setSelectionHandles(x1,y1,height1,x2,y2,height2);
-            editor.setSelectionBounds(boundsLeft*zoom,boundsTop*zoom,
+            Editor.setSelectionHandles(x1,y1,height1,x2,y2,height2);
+            Editor.setSelectionBounds(boundsLeft*zoom,boundsTop*zoom,
                                       boundsRight*zoom,boundsBottom*zoom);
         }
         else {
-            editor.clearSelectionHandlesAndCursor();
+            Editor.clearSelectionHandlesAndCursor();
         }
 
         function getAbsoluteOffset(node)
