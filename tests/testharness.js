@@ -1,14 +1,3 @@
-var editor = {
-    debug: function(str) { console.log(str); },
-    getHTMLError: function(message) {},
-    getHTMLResponse: function(html) {},
-    jsInterfaceInitError: function(error) {alert("js init error: "+error);},
-    jsInterfaceInitFinished: function() {},
-    setOutline: function(outline) {},
-    setStyles2: function(jsonStyles) {},
-    setStyles: function(jsonStyles) {}
-}
-
 var topArea;
 var leftArea;
 var rightArea;
@@ -34,7 +23,7 @@ function loadCode()
 {
     // Sync with Editor.m
     var javascriptFiles = ["../src/trace.js", // must be first
-                           "nulleditor.js", // must be second
+                           "../src/Editor.js", // must be second
                            "../src/Clipboard.js",
                            "../src/Cursor.js",
                            "../src/DOM.js",
@@ -174,10 +163,8 @@ function leftLoaded()
     var continuation = leftLoadedContinuation;
     leftLoadedContinuation = null;
 
-    leftArea.contentWindow.editor = editor;
-    leftArea.contentWindow.debug = editor.debug;
-
     leftArea.contentWindow.eval(allCode);
+    leftArea.contentWindow.debug = function(str) { console.log(str); };
 
     leftArea.contentWindow.DOM.assignNodeIds(leftArea.contentWindow.document);
 
