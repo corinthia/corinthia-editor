@@ -481,6 +481,10 @@
         "display": true,
     };
 
+    var SPECIAL_PROPERTIES = {
+        "-webkit-text-size-adjust": true, // set on HTML element for text scaling purposes
+    };
+
     function isParagraphProperty(name)
     {
         return PARAGRAPH_PROPERTIES[name];
@@ -488,7 +492,7 @@
 
     function isInlineProperty(name)
     {
-        return !PARAGRAPH_PROPERTIES[name];
+        return !PARAGRAPH_PROPERTIES[name] && !SPECIAL_PROPERTIES[name];
     }
 
     function putDirectInlineChildrenInParagraphs(parent)
