@@ -7,8 +7,8 @@
     var ignoreModifications = 0;
 
     var sectionNumberRegex = /^\s*(Chapter\s+)?\d+(\.\d+)*\.?\s+/i;
-    var figureNumberRegex = /^\s*Figure\s+\d+(\.\d+)*:?\s+/i;
-    var tableNumberRegex = /^\s*Table\s+\d+(\.\d+)*:?\s+/i;
+    var figureNumberRegex = /^\s*Figure\s+\d+(\.\d+)*:?\s*/i;
+    var tableNumberRegex = /^\s*Table\s+\d+(\.\d+)*:?\s*/i;
 
     var sections = new Category("section",isHeadingNode,sectionNumberRegex);
     var figures = new Category("figure",isFigureNode,figureNumberRegex);
@@ -284,50 +284,64 @@
         }
     }
 
-    function getItemTitle(item)
+    function updateItemNumbering(item)
     {
-        if (item.span != null)
-            return normalizeWhitespace(getNodeTextAfter(item.span));
-        else
-            return normalizeWhitespace(getNodeText(item.titleNode));
+        if (item.numbered) {
+            if (item.type == "section")
+                DOM.setNodeValue(item.span.firstChild,sectionNumberText(item));
+            else if (item.type == "figure")
+                DOM.setNodeValue(item.span.firstChild,figureNumberText(item));
+            else if (item.type == "table")
+                DOM.setNodeValue(item.span.firstChild,tableNumberText(item));
+        }
 
-        function getNodeTextAfter(node)
+        function sectionNumberText(item)
         {
-            var text = "";
-            for (var child = node.nextSibling; child != null; child = child.nextSibling)
-                text += getNodeText(child);
-            return text;
+            return item.getFullNumber()+" ";
         }
-    }
 
-    function updateSectionItem(item)
-    {
-        item.title = getItemTitle(item);
-        if (item.numbered) {
-            var spanText = item.getFullNumber()+" ";
-            DOM.setNodeValue(item.span.firstChild,spanText);
-        }
-    }
-
-    function updateFigureItem(item)
-    {
-        item.title = getItemTitle(item);
-        if (item.numbered) {
+        function figureNumberText(item)
+        {
             var spanText = "Figure "+item.getFullNumber();
             if (item.title != "")
                 spanText += ": ";
-            DOM.setNodeValue(item.span.firstChild,spanText);
+            return spanText;
         }
-    }
 
-    function updateTableItem(item)
-    {
-        item.title = getItemTitle(item);
-        if (item.numbered) {
+        function tableNumberText(item)
+        {
             var spanText = "Table "+item.getFullNumber();
             if (item.title != "")
                 spanText += ": ";
-            DOM.setNodeValue(item.span.firstChild,spanText);
+            return spanText;
+        }
+    }
+
+    function updateItem(item)
+    {
+        var newTitle = getItemTitle(item);
+        if (item.title == newTitle)
+            return;
+
+        item.title = newTitle;
+        Editor.updateOutlineItem(item.id,item.title);
+
+        updateItemNumbering(item);
+
+        function getItemTitle(item)
+        {
+            if (item.span != null)
+                return normalizeWhitespace(getNodeTextAfter(item.span));
+            else
+                return normalizeWhitespace(getNodeText(item.titleNode));
+
+            function getNodeTextAfter(node)
+            {
+                var text = "";
+                for (var child = node.nextSibling; child != null; child = child.nextSibling)
+                    text += getNodeText(child);
+                return text;
+            }
         }
     }
 
@@ -480,21 +494,21 @@
             }
 
             current = section;
-            updateSectionItem(section);
+            updateItem(section);
             section.setReferenceText("Section "+section.getFullNumber());
         }
 
         for (var figure = figures.list.first; figure != null; figure = figure.next) {
             figure.index = toplevelFigures.length;
             toplevelFigures.push(figure);
-            updateFigureItem(figure);
+            updateItem(figure);
             figure.setReferenceText("Figure "+figure.getFullNumber());
         }
 
         for (var table = tables.list.first; table != null; table = table.next) {
             table.index = toplevelTables.length;
             toplevelTables.push(table);
-            updateTableItem(table);
+            updateItem(table);
             table.setReferenceText("Table "+table.getFullNumber());
         }
 
