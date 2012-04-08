@@ -25,7 +25,7 @@
         var prevItem = findPrevItemOfType(node,this.nodeFilter);
         this.list.insertAfter(item,prevItem);
         Editor.addOutlineItem(item.id,this.type);
-        scheduleUpdateOutlineItemStructure();
+        scheduleUpdateStructure();
         return item;
     }
 
@@ -38,7 +38,7 @@
         }
         this.list.remove(item);
         Editor.removeOutlineItem(item.id);
-        scheduleUpdateOutlineItemStructure();
+        scheduleUpdateStructure();
         return item;
     }
 
@@ -127,7 +127,7 @@
         DOM.insertBefore(this.titleNode,this.span,this.titleNode.firstChild);
         DOM.appendChild(this.span,DOM.createTextNode(document,""));
         this.numbered = true;
-        scheduleUpdateOutlineItemStructure();
+        scheduleUpdateStructure();
     }
 
     OutlineItem.prototype.disableNumbering = function()
@@ -137,7 +137,7 @@
         DOM.deleteNode(this.span);
         this.span = null;
         this.numbered = false;
-        scheduleUpdateOutlineItemStructure();
+        scheduleUpdateStructure();
     }
 
     OutlineItem.prototype.setNumberedUsingAdjacent = function()
@@ -282,7 +282,7 @@
         var newTitle = getNodeText(section.node);
         if (newTitle != section.title) {
             section.title = newTitle;
-            scheduleUpdateOutlineItemStructure();
+            scheduleUpdateStructure();
         }
     }
 
@@ -304,7 +304,7 @@
             section.setNumberedUsingAdjacent();
 
         node.addEventListener("DOMSubtreeModified",section.modificationListener);
-        scheduleUpdateOutlineItemStructure();
+        scheduleUpdateStructure();
         return;
 
         function findFirstTextDescendant(node)
@@ -449,15 +449,15 @@
         }
     }
 
-    function scheduleUpdateOutlineItemStructure()
+    function scheduleUpdateStructure()
     {
         if (!outlineDirty) {
             outlineDirty = true;
-            PostponedActions.add(updateOutlineItemStructure);
+            PostponedActions.add(updateStructure);
         }
     }
 
-    function updateOutlineItemStructure()
+    function updateStructure()
     {
         if (!outlineDirty)
             return;
@@ -570,7 +570,7 @@
     function moveSection(sectionId,parentId,nextId)
     {
         Selection.trackWhileExecuting(function() {
-            updateOutlineItemStructure(); // make sure pointers are valid
+            updateStructure(); // make sure pointers are valid
 
             var section = itemsById[sectionId];
             var parent = parentId ? itemsById[parentId] : null;
@@ -592,7 +592,7 @@
             }
         });
 
-        scheduleUpdateOutlineItemStructure();
+        scheduleUpdateStructure();
     }
 
     function deleteItem(itemId)
@@ -610,7 +610,7 @@
             }
         });
 
-        scheduleUpdateOutlineItemStructure();
+        scheduleUpdateStructure();
     }
 
     function goToItem(itemId)
