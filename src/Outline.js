@@ -5,10 +5,42 @@
     var nextItemId = 1;
     var outlineDirty = false;
     var ignoreModifications = 0;
-    var figureList = new DoublyLinkedList();
-    var tableList = new DoublyLinkedList();
-    var sectionList = new DoublyLinkedList();
+
+    var sections = new Category("section",isHeadingNode);
+    var figures = new Category("figure",isFigureNode);
+    var tables = new Category("table",isTableNode);
+
     var doneInit = false;
+
+    function Category(type,nodeFilter)
+    {
+        this.type = type;
+        this.nodeFilter = nodeFilter;
+        this.list = new DoublyLinkedList();
+    }
+
+    Category.prototype.add = function(node)
+    {
+        var item = new OutlineItem(this.type,node);
+        var prevItem = findPrevItemOfType(node,this.nodeFilter);
+        this.list.insertAfter(item,prevItem);
+        Editor.addOutlineItem(item.id,this.type);
+        scheduleUpdateOutlineItemStructure();
+        return item;
+    }
+
+    Category.prototype.remove = function(node)
+    {
+        var item = itemsById[node.getAttribute("id")];
+        if (item == null) {
+            throw new Error("Attempt to remove non-existant "+node.nodeName+" item "+
+                            node.getAttribute("id"));
+        }
+        this.list.remove(item);
+        Editor.removeOutlineItem(item.id);
+        scheduleUpdateOutlineItemStructure();
+        return item;
+    }
 
     function generateItemId()
     {
@@ -256,10 +288,7 @@
 
     function headingInserted(node)
     {
-        var section = new OutlineItem("section",node);
-        var prevSection = findPrevItemOfType(node,isHeadingNode);
-        sectionList.insertAfter(section,prevSection);
-        Editor.addOutlineItem(section.id,"section");
+        var section = sections.add(node);
 
         // Remove any existing numbering
         var firstText = findFirstTextDescendant(node);
@@ -295,15 +324,12 @@
 
     function headingRemoved(node)
     {
-        var section = itemsById[node.getAttribute("id")];
-        sectionList.remove(section);
-        Editor.removeOutlineItem(section.id);
+        var section = sections.remove(node);
 
         if (section.span != null)
             DOM.deleteNode(section.span);
 
         node.removeEventListener("DOMSubtreeModified",section.modificationListener);
-        scheduleUpdateOutlineItemStructure();
     }
 
     function findPrevItemOfType(node,typeFun)
@@ -315,40 +341,22 @@
 
     function figureInserted(node)
     {
-        var figure = new OutlineItem("figure",node);
-        var prevFigure = findPrevItemOfType(node,isFigureNode);
-        figureList.insertAfter(figure,prevFigure);
-        Editor.addOutlineItem(figure.id,"figure");
-
-        scheduleUpdateOutlineItemStructure();
+        figures.add(node);
     }
 
     function figureRemoved(node)
     {
-        var figure = itemsById[node.getAttribute("id")];
-        figureList.remove(figure);
-        Editor.removeOutlineItem(figure.id);
-
-        scheduleUpdateOutlineItemStructure();
+        figures.remove(node);
     }
 
     function tableInserted(node)
     {
-        var table = new OutlineItem("table",node);
-        var prevTable = findPrevItemOfType(node,isTableNode);
-        tableList.insertAfter(table,prevTable);
-        Editor.addOutlineItem(table.id,"table");
-
-        scheduleUpdateOutlineItemStructure();
+        tables.add(node);
     }
 
     function tableRemoved(node)
     {
-        var table = itemsById[node.getAttribute("id")];
-        tableList.remove(table);
-        Editor.removeOutlineItem(table.id);
-
-        scheduleUpdateOutlineItemStructure();
+        tables.remove(node);
     }
 
     function refInserted(node)
@@ -465,7 +473,7 @@
         wrapper.children = [];
 
         var countA = 0;
-        for (var section = sectionList.first; section != null; section = section.next) {
+        for (var section = sections.list.first; section != null; section = section.next) {
             section.parent = null;
             section.children = [];
             countA++;
@@ -473,7 +481,7 @@
 
         ignoreModifications++;
 
-        for (var section = sectionList.first; section != null; section = section.next) {
+        for (var section = sections.list.first; section != null; section = section.next) {
            
             while ((current != null) && (section.level < current.level+1))
                 current = current.parent;
@@ -493,14 +501,14 @@
             section.setReferenceText("Section "+section.getFullNumber());
         }
 
-        for (var figure = figureList.first; figure != null; figure = figure.next) {
+        for (var figure = figures.list.first; figure != null; figure = figure.next) {
             figure.index = toplevelFigures.length;
             toplevelFigures.push(figure);
             updateFigureItem(figure);
             figure.setReferenceText("Figure "+figure.getFullNumber());
         }
 
-        for (var table = tableList.first; table != null; table = table.next) {
+        for (var table = tables.list.first; table != null; table = table.next) {
             table.index = toplevelTables.length;
             toplevelTables.push(table);
             updateTableItem(table);
