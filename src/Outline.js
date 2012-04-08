@@ -21,14 +21,6 @@
         return null;
     }
 
-    function getNodeTextAfter(node)
-    {
-        var text = "";
-        for (var child = node.nextSibling; child != null; child = child.nextSibling)
-            text += getNodeText(child);
-        return text;
-    }
-
     function findPrevItemOfType(node,typeFun)
     {
         do node = prevNode(node);
@@ -249,6 +241,14 @@
             return normalizeWhitespace(getNodeTextAfter(item.span));
         else
             return normalizeWhitespace(getNodeText(item.titleNode));
+
+        function getNodeTextAfter(node)
+        {
+            var text = "";
+            for (var child = node.nextSibling; child != null; child = child.nextSibling)
+                text += getNodeText(child);
+            return text;
+        }
     }
 
     function updateSectionItem(item)
