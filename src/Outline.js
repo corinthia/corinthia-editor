@@ -302,9 +302,10 @@
 
     function headingInserted(node)
     {
-        var item = new OutlineItem("section",node);
-        var prev = findPrevItemOfType(node,isHeadingNode);
-        sectionList.insertItemAfter(item,prev);
+        var section = new OutlineItem("section",node);
+        var prevSection = findPrevItemOfType(node,isHeadingNode);
+        sectionList.insertItemAfter(section,prevSection);
+        Editor.addOutlineItem(section.id,"section");
 
         // Remove any existing numbering
         var firstText = findFirstTextDescendant(node);
@@ -312,14 +313,14 @@
             var regex = /^(\d+\.)*\d*\s+/;
             if (firstText.nodeValue.match(regex)) {
                 DOM.setNodeValue(firstText,firstText.nodeValue.replace(regex,""));
-                item.enableNumbering();
+                section.enableNumbering();
             }
         }
 
-        if (doneInit && !item.numbered)
-            item.setNumberedUsingAdjacent();
+        if (doneInit && !section.numbered)
+            section.setNumberedUsingAdjacent();
 
-        node.addEventListener("DOMSubtreeModified",item.modificationListener);
+        node.addEventListener("DOMSubtreeModified",section.modificationListener);
         scheduleUpdateOutlineItemStructure();
         return;
 
@@ -341,15 +342,14 @@
     function headingRemoved(node)
     {
         var section = itemsById[node.getAttribute("id")];
-
         sectionList.removeItem(section);
+        Editor.removeOutlineItem(section.id);
 
         if (section.span != null)
             DOM.deleteNode(section.span);
 
         node.removeEventListener("DOMSubtreeModified",section.modificationListener);
         scheduleUpdateOutlineItemStructure();
-        return;
     }
 
     function findPrevItemOfType(node,typeFun)
@@ -361,28 +361,40 @@
 
     function figureInserted(node)
     {
-        var item = new OutlineItem("figure",node);
-        var prev = findPrevItemOfType(node,isFigureNode);
-        figureList.insertItemAfter(item,prev);
+        var figure = new OutlineItem("figure",node);
+        var prevFigure = findPrevItemOfType(node,isFigureNode);
+        figureList.insertItemAfter(figure,prevFigure);
+        Editor.addOutlineItem(figure.id,"figure");
 
         scheduleUpdateOutlineItemStructure();
-        return;
     }
 
     function figureRemoved(node)
     {
-        var table = itemsById[node.getAttribute("id")];
-        figureList.removeItem(table);
+        var figure = itemsById[node.getAttribute("id")];
+        figureList.removeItem(figure);
+        Editor.removeOutlineItem(figure.id);
+
+        scheduleUpdateOutlineItemStructure();
     }
 
     function tableInserted(node)
     {
-        var item = new OutlineItem("table",node);
-        var prev = findPrevItemOfType(node,isTableNode);
-        tableList.insertItemAfter(item,prev);
+        var table = new OutlineItem("table",node);
+        var prevTable = findPrevItemOfType(node,isTableNode);
+        tableList.insertItemAfter(table,prevTable);
+        Editor.addOutlineItem(table.id,"table");
 
         scheduleUpdateOutlineItemStructure();
-        return;
+    }
+
+    function tableRemoved(node)
+    {
+        var table = itemsById[node.getAttribute("id")];
+        tableList.removeItem(table);
+        Editor.removeOutlineItem(table.id);
+
+        scheduleUpdateOutlineItemStructure();
     }
 
     function refInserted(node)
@@ -418,12 +430,6 @@
         refsById[id].splice(index,1);
         if (refsById[id] == null)
             delete refsById[id];
-    }
-
-    function tableRemoved(node)
-    {
-        var table = itemsById[node.getAttribute("id")];
-        figureList.removeItem(table);
     }
 
     function acceptNode(node)
