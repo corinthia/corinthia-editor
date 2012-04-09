@@ -4,12 +4,12 @@
 
     var viewportWidth = null;
     var viewportHeight = null;
+    var viewportMetaElement = null;
 
     // public
     function init()
     {
         var head = DOM.documentHead(document);
-        var viewportMetaElement = null;
         for (var child = head.firstChild; child != null; child = child.nextSibling) {
             if ((DOM.upperName(child) == "META") &&
                 (child.getAttribute("name") == "viewport")) {
@@ -30,6 +30,7 @@
     {
         viewportWidth = width;
         viewportHeight = height;
+        viewportMetaElement.setAttribute("content","width = "+width+", user-scalable = no");
 
         Selection.updateSelectionDisplay();
         Cursor.ensureCursorVisible();
