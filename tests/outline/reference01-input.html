@@ -15,6 +15,7 @@ function performTest()
 {
     Outline.init();
     PostponedActions.perform();
+    setNumbering(true);
 
     for (var i = 0; i < 3; i++) {
         var ref = DOM.createElement(document,"A");

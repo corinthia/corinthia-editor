@@ -1,0 +1,27 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script type="text/javascript" src="OutlineTest.js"></script>
+<script language="javascript">
+
+function performTest()
+{
+    Outline.init();
+    PostponedActions.perform();
+    return Outline.plainText()+PrettyPrinter.getHTML(document.documentElement);
+}
+</script>
+</head>
+<body>
+<h1>99 Top-level heading</h1>
+<h2>First section - not numbered</h2>
+<h2>99 Second section</h2>
+<h2>99 Third section</h2>
+<h2>Fourth section - not numbered</h2>
+<h2>Fifth section - not numbered</h2>
+<h2>99 Sixth section</h2>
+<h2>99 Seventh section</h2>
+<h2>Eighth section - not numbered</h2>
+</body>
+</html>

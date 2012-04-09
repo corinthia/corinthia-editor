@@ -1,0 +1,28 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script type="text/javascript" src="OutlineTest.js"></script>
+<script language="javascript">
+
+function performTest()
+{
+    Outline.init();
+    PostponedActions.perform();
+    setNumbering(true);
+    return Outline.plainText()+PrettyPrinter.getHTML(document.documentElement);
+}
+</script>
+</head>
+<body>
+<h1></h1>
+<figure></figure>
+<table></table>
+<h2></h3>
+<figure></figure>
+<table></table>
+<h3></h3>
+<figure></figure>
+<table></table>
+</body>
+</html>

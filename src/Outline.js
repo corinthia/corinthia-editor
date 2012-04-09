@@ -21,7 +21,7 @@
         this.list = new DoublyLinkedList();
     }
 
-    Category.prototype.add = function(node)
+    Category.prototype.add = trace(function add(node)
     {
         var item = new OutlineItem(this.type,node);
         var prevItem = findPrevItemOfType(node,this.nodeFilter);
@@ -56,6 +56,7 @@
         if (doneInit && (item.numberSpan == null))
             item.setNumberedUsingAdjacent();
 
+        item.updateItemTitle();
         scheduleUpdateStructure();
         return item;
 
@@ -79,9 +80,9 @@
             }
             return null;
         }
-    }
+    });
 
-    Category.prototype.remove = function(node)
+    Category.prototype.remove = trace(function remove(node)
     {
         var item = itemsById[node.getAttribute("id")];
         if (item == null) {
@@ -94,7 +95,7 @@
         if (item.numberSpan != null)
             DOM.deleteNode(item.numberSpan);
         scheduleUpdateStructure();
-    }
+    });
 
     function OutlineItem(type,node)
     {
@@ -118,6 +119,7 @@
         this.numberSpan = null;
         this.titleNode = null;
         this.referenceText = null;
+        this.nextChildSectionNumber = null;
 
         this.prev = null;
         this.next = null;
@@ -127,28 +129,13 @@
         itemsById[this.id] = this;
 
         this.spanClass = null;
-        if (type == "section") {
-            this.titleNode = node;
+        this.titleNode = this.getTitleNode(false);
+        if (type == "section")
             this.spanClass = Keys.HEADING_NUMBER;
-        }
-        else if (type == "figure") {
-            this.titleNode = findChild(node,"FIGCAPTION");
-            if (this.titleNode == null) {
-                this.titleNode = DOM.createElement(document,"FIGCAPTION");
-                DOM.appendChild(this.node,this.titleNode);
-            }
+        else if (type == "figure")
             this.spanClass = Keys.FIGURE_NUMBER;
-            this.enableNumbering();
-        }
-        else if (type == "table") {
-            this.titleNode = findChild(node,"CAPTION");
-            if (this.titleNode == null) {
-                this.titleNode = DOM.createElement(document,"CAPTION");
-                DOM.insertBefore(this.node,this.titleNode,this.node.firstChild);
-            }
+        else if (type == "table")
             this.spanClass = Keys.TABLE_NUMBER;
-            this.enableNumbering();
-        }
 
         Object.seal(this);
         return;
@@ -161,15 +148,6 @@
             } while (document.getElementById(id) != null);
             return id;
         }
-
-        function findChild(node,name)
-        {
-            for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                if (DOM.upperName(child) == name)
-                    return child;
-            }
-            return null;
-        }
     }
 
     OutlineItem.prototype.enableNumbering = function()
@@ -178,6 +156,7 @@
             return;
         this.numberSpan = DOM.createElement(document,"SPAN");
         this.numberSpan.setAttribute("class",this.spanClass);
+        this.titleNode = this.getTitleNode(true);
         DOM.insertBefore(this.titleNode,this.numberSpan,this.titleNode.firstChild);
         DOM.appendChild(this.numberSpan,DOM.createTextNode(document,""));
         scheduleUpdateStructure();
@@ -190,6 +169,38 @@
         DOM.deleteNode(this.numberSpan);
         this.numberSpan = null;
         scheduleUpdateStructure();
+    }
+
+    OutlineItem.prototype.getTitleNode = function(create)
+    {
+        if (this.type == "section") {
+            return this.node;
+        }
+        else if (this.type == "figure") {
+            var titleNode = findChild(this.node,"FIGCAPTION");
+            if ((titleNode == null) && create) {
+                titleNode = DOM.createElement(document,"FIGCAPTION");
+                DOM.appendChild(this.node,titleNode);
+            }
+            return titleNode;
+        }
+        else if (this.type == "table") {
+            var titleNode = findChild(this.node,"CAPTION");
+            if ((titleNode == null) && create) {
+                titleNode = DOM.createElement(document,"CAPTION");
+                DOM.insertBefore(this.node,titleNode,this.node.firstChild);
+            }
+            return titleNode;
+        }
+
+        function findChild(node,name)
+        {
+            for (var child = node.firstChild; child != null; child = child.nextSibling) {
+                if (DOM.upperName(child) == name)
+                    return child;
+            }
+            return null;
+        }
     }
 
     OutlineItem.prototype.setNumberedUsingAdjacent = function()
@@ -256,10 +267,10 @@
         if (this.numberSpan == null)
             return "";
         var item = this;
-        var fullNumber = ""+(item.index+1);
+        var fullNumber = ""+item.index;
         while (item.parent != null) {
             item = item.parent;
-            fullNumber = (item.index+1)+"."+fullNumber;
+            fullNumber = item.index+"."+fullNumber;
         }
         return fullNumber;
     }
@@ -283,6 +294,8 @@
     OutlineItem.prototype.updateItemNumbering = function()
     {
         var item = this;
+        if (item.title == null)
+            throw new Error("updateItemNumbering: item "+item.id+" has null title");
         if (item.numberSpan != null) {
             var spanText = "";
             if (item.type == "section") {
@@ -306,8 +319,10 @@
     {
         if (this.numberSpan != null)
             newTitle = normalizeWhitespace(getNodeTextAfter(this.numberSpan));
-        else
+        else if (this.titleNode != null)
             newTitle = normalizeWhitespace(getNodeText(this.titleNode));
+        else
+            newTitle = "";
 
         if (this.title != newTitle) {
             this.title = newTitle;
@@ -437,17 +452,19 @@
         var toplevelSections = new Array();
         var toplevelFigures = new Array();
         var toplevelTables = new Array();
+        var nextToplevelSectionNumber = 1;
+        var nextFigureNumber = 1;
+        var nextTableNumber = 1;
         var wrapper = new Object();
 
         var current = null;
         wrapper.parent = null;
         wrapper.children = [];
 
-        var countA = 0;
         for (var section = sections.list.first; section != null; section = section.next) {
             section.parent = null;
             section.children = [];
-            countA++;
+            section.nextChildSectionNumber = 1;
         }
 
         ignoreModifications++;
@@ -459,11 +476,17 @@
 
             section.parent = current;
             if (current == null) {
-                section.index = toplevelSections.length;
+                if (section.numberSpan != null)
+                    section.index = nextToplevelSectionNumber++;
+                else
+                    section.index = 0;
                 toplevelSections.push(section);
             }
             else {
-                section.index = current.children.length;
+                if (section.numberSpan != null)
+                    section.index = current.nextChildSectionNumber++;
+                else
+                    section.index = 0;
                 current.children.push(section);
             }
 
@@ -473,14 +496,20 @@
         }
 
         for (var figure = figures.list.first; figure != null; figure = figure.next) {
-            figure.index = toplevelFigures.length;
+            if (figure.numberSpan != null)
+                figure.index = nextFigureNumber++;
+            else
+                figure.index = 0;
             toplevelFigures.push(figure);
             figure.updateItemNumbering();
             figure.setReferenceText("Figure "+figure.getFullNumber());
         }
 
         for (var table = tables.list.first; table != null; table = table.next) {
-            table.index = toplevelTables.length;
+            if (table.numberSpan != null)
+                table.index = nextTableNumber++;
+            else
+                table.index = 0;
             toplevelTables.push(table);
             table.updateItemNumbering();
             table.setReferenceText("Table "+table.getFullNumber());
@@ -516,6 +545,38 @@
                         number: item.getFullNumber(),
                         children: encChildren };
             result.push(obj);
+        }
+    }
+
+    function plainText()
+    {
+        var strings = new Array();
+
+        strings.push("Sections:\n");
+        for (var section = sections.list.first; section != null; section = section.next) {
+            if (section.level == 1)
+                printSectionRecursive(section,"    ");
+        }
+        strings.push("Figures:\n");
+        for (var figure = figures.list.first; figure != null; figure = figure.next) {
+            var title = figure.titleNode ? getNodeText(figure.titleNode) : "[no caption]";
+            strings.push("    "+title+" ("+figure.id+")\n");
+        }
+        strings.push("Tables:\n");
+        for (var table = tables.list.first; table != null; table = table.next) {
+            var title = table.titleNode ? getNodeText(table.titleNode) : "[no caption]";
+            strings.push("    "+title+" ("+table.id+")\n");
+        }
+        return strings.join("");
+
+        function printSectionRecursive(section,indent)
+        {
+            var content = getNodeText(section.titleNode);
+            if (isWhitespaceString(content))
+                content = "[empty]";
+            strings.push(indent+content+" ("+section.id+")\n");
+            for (var i = 0; i < section.children.length; i++)
+                printSectionRecursive(section.children[i],indent+"    ");
         }
     }
 
@@ -619,6 +680,7 @@
     Outline.moveSection = trace(moveSection);
     Outline.deleteItem = trace(deleteItem);
     Outline.goToItem = trace(goToItem);
-    Outline.setNumbered = setNumbered;
+    Outline.setNumbered = trace(setNumbered);
+    Outline.plainText = trace(plainText);
 
 })();
