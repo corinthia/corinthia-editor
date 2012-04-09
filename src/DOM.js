@@ -394,7 +394,15 @@
         else {
             return [];
         }
+    }
 
+    function listenersForNode(node)
+    {
+        var data = getDataForNode(node,false);
+        if (data != null)
+            return data.listeners;
+        else
+            return [];
     }
 
     DOM.addTrackedPosition = function(position)
@@ -560,6 +568,23 @@
             return node.childNodes.length;
         else
             throw new Error("maxOffset: invalid node type ("+node.nodeType+")");
+    }
+
+    DOM.addListener = function(node,listener)
+    {
+        var data = getDataForNode(node,true);
+        if (data.listeners == null)
+            data.listeners = [listener];
+        else
+            data.listeners.push(listener);
+    }
+
+    DOM.removeListener = function(node,listener)
+    {
+        var list = listenersForNode(node);
+        var index = list.indexOf(listener);
+        if (index >= 0)
+            list.splice(index,1);
     }
 
     window.DOM = DOM;

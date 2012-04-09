@@ -25,6 +25,63 @@
         return doc;
     }
 
+    function parseT(word,htmlP)
+    {
+        for (var child = word.firstChild; child != null; child = child.nextSibling) {
+            debug("parseT: child is "+nodeString(child));
+            if (child.nodeType == Node.TEXT_NODE) {
+                var htmlText = DOM.createTextNode(document,child.nodeValue);
+                DOM.appendChild(htmlP,htmlText);
+
+                var thisChild = child;
+
+                htmlText.addEventListener("DOMCharacterDataModified",function() {
+                    debug("Detected change in character data: "+htmlText.nodeValue);
+                    thisChild.nodeValue = htmlText.nodeValue;
+                });
+
+            }
+        }
+    }
+
+    function parseR(word,htmlP)
+    {
+        for (var child = word.firstChild; child != null; child = child.nextSibling) {
+            debug("parseR: child is "+nodeString(child));
+            if (isWordElement(child,"t"))
+                parseT(child,htmlP);
+        }
+    }
+
+    function parseP(word,htmlContainer)
+    {
+        var htmlP = DOM.createElement(document,"P");
+        DOM.appendChild(htmlContainer,htmlP);
+        for (var child = word.firstChild; child != null; child = child.nextSibling) {
+            debug("parseP: child is "+nodeString(child));
+            if (isWordElement(child,"r"))
+                parseR(child,htmlP);
+        }
+    }
+
+    function parseBody(word,htmlBody)
+    {
+        for (var child = word.firstChild; child != null; child = child.nextSibling) {
+            debug("parseBody: child is "+nodeString(child));
+            if (isWordElement(child,"p"))
+                parseP(child,htmlBody);
+        }
+    }
+
+    function parseDocument(word,htmlBody)
+    {
+        for (var child = word.firstChild; child != null; child = child.nextSibling) {
+            debug("parseDocument: child is "+nodeString(child));
+            if (isWordElement(child,"body"))
+                parseBody(child,htmlBody);
+        }
+    }
+
     // public
     function initWord()
     {
@@ -36,6 +93,8 @@
         debug("docx.numbering = "+docx.numbering);
         debug("docx.styles = "+docx.styles);
 
+        parseDocument(docx.document.documentElement,document.body);
+/*
         recurse(docx.document);
 
         function recurse(node)
@@ -50,6 +109,7 @@
                     recurse(child);
             }
         }
+*/
     }
 
     function serialize(xmlDocument)
