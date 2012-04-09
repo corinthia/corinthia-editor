@@ -264,6 +264,7 @@
 
     DOM.replaceElement = function(oldElement,newName)
     {
+        var listeners = listenersForNode(oldElement);
         var newElement = DOM.createElement(document,newName);
         for (var i = 0; i < oldElement.attributes.length; i++) {
             var name = oldElement.attributes[i].nodeName;
@@ -289,6 +290,9 @@
         // the same time.
         deleteNodeInternal(oldElement,false);
         insertBeforeInternal(parent,newElement,nextSibling);
+
+        for (var i = 0; i < listeners.length; i++)
+            listeners[i].afterReplaceElement(oldElement,newElement);
 
         return newElement;
     }
@@ -587,6 +591,13 @@
             list.splice(index,1);
     }
 
+    function Listener()
+    {
+    }
+
+    Listener.prototype.afterReplaceElement = function(oldElement,newElement) {}
+
     window.DOM = DOM;
+    DOM.Listener = Listener;
 
 })();
