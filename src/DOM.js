@@ -403,7 +403,7 @@
     function listenersForNode(node)
     {
         var data = getDataForNode(node,false);
-        if (data != null)
+        if ((data != null) && (data.listeners != null))
             return data.listeners;
         else
             return [];
