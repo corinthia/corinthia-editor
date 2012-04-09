@@ -284,8 +284,9 @@
         }
     }
 
-    function updateItemNumbering(item)
+    OutlineItem.prototype.updateItemNumbering = function()
     {
+        var item = this;
         if (item.numbered) {
             if (item.type == "section")
                 DOM.setNodeValue(item.span.firstChild,sectionNumberText(item));
@@ -317,16 +318,15 @@
         }
     }
 
-    function updateItem(item)
+    OutlineItem.prototype.updateItemTitle = function()
     {
+        var item = this;
         var newTitle = getItemTitle(item);
         if (item.title == newTitle)
             return;
 
         item.title = newTitle;
         Editor.updateOutlineItem(item.id,item.title);
-
-        updateItemNumbering(item);
 
         function getItemTitle(item)
         {
@@ -345,15 +345,11 @@
         }
     }
 
-    function itemModified(section)
+    function itemModified(item)
     {
         if (ignoreModifications > 0)
             return;
-        var newTitle = getNodeText(section.node);
-        if (newTitle != section.title) {
-            section.title = newTitle;
-            scheduleUpdateStructure();
-        }
+        item.updateItemTitle();
     }
 
     function refInserted(node)
@@ -494,21 +490,21 @@
             }
 
             current = section;
-            updateItem(section);
+            section.updateItemNumbering();
             section.setReferenceText("Section "+section.getFullNumber());
         }
 
         for (var figure = figures.list.first; figure != null; figure = figure.next) {
             figure.index = toplevelFigures.length;
             toplevelFigures.push(figure);
-            updateItem(figure);
+            figure.updateItemNumbering();
             figure.setReferenceText("Figure "+figure.getFullNumber());
         }
 
         for (var table = tables.list.first; table != null; table = table.next) {
             table.index = toplevelTables.length;
             toplevelTables.push(table);
-            updateItem(table);
+            table.updateItemNumbering();
             table.setReferenceText("Table "+table.getFullNumber());
         }
 
