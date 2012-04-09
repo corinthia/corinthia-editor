@@ -64,7 +64,7 @@
         // number this item. If it is the only item of its type, or either of its neighbours are
         // numbered, then this item will also be numbered. If it has two unnumbered neighbours,
         // or only one neighbour (and that neighbour is not numbered), then it will not be numbered.
-        if (doneInit && !item.numbered)
+        if (doneInit && (item.numberSpan == null))
             item.setNumberedUsingAdjacent();
 
         scheduleUpdateStructure();
@@ -102,8 +102,8 @@
         this.list.remove(item);
         Editor.removeOutlineItem(item.id);
         item.node.removeEventListener("DOMSubtreeModified",item.modificationListener);
-        if (item.span != null)
-            DOM.deleteNode(item.span);
+        if (item.numberSpan != null)
+            DOM.deleteNode(item.numberSpan);
         scheduleUpdateStructure();
     }
 
@@ -135,10 +135,9 @@
         this.parent = null;
         this.children = new Array();
         this.isRoot = (this.level == 0);
-        this.span = null;
+        this.numberSpan = null;
         this.titleNode = null;
         this.referenceText = null;
-        this.numbered = false;
 
         this.prev = null;
         this.next = null;
@@ -176,23 +175,21 @@
 
     OutlineItem.prototype.enableNumbering = function()
     {
-        if (this.numbered)
+        if (this.numberSpan != null)
             return;
-        this.span = DOM.createElement(document,"SPAN");
-        this.span.setAttribute("class",this.spanClass);
-        DOM.insertBefore(this.titleNode,this.span,this.titleNode.firstChild);
-        DOM.appendChild(this.span,DOM.createTextNode(document,""));
-        this.numbered = true;
+        this.numberSpan = DOM.createElement(document,"SPAN");
+        this.numberSpan.setAttribute("class",this.spanClass);
+        DOM.insertBefore(this.titleNode,this.numberSpan,this.titleNode.firstChild);
+        DOM.appendChild(this.numberSpan,DOM.createTextNode(document,""));
         scheduleUpdateStructure();
     }
 
     OutlineItem.prototype.disableNumbering = function()
     {
-        if (!this.numbered)
+        if (this.numberSpan == null)
             return;
-        DOM.deleteNode(this.span);
-        this.span = null;
-        this.numbered = false;
+        DOM.deleteNode(this.numberSpan);
+        this.numberSpan = null;
         scheduleUpdateStructure();
     }
 
@@ -205,8 +202,8 @@
             this.enableNumbering();
         }
         else {
-            if (((this.prev != null) && this.prev.numbered) ||
-                ((this.next != null) && this.next.numbered)) {
+            if (((this.prev != null) && (this.prev.numberSpan != null)) ||
+                ((this.next != null) && (this.next.numberSpan != null))) {
                 this.enableNumbering();
             }
             else {
@@ -257,7 +254,7 @@
 
     OutlineItem.prototype.getFullNumber = function()
     {
-        if (!this.numbered)
+        if (this.numberSpan == null)
             return "";
         var item = this;
         var fullNumber = ""+(item.index+1);
@@ -287,7 +284,7 @@
     OutlineItem.prototype.updateItemNumbering = function()
     {
         var item = this;
-        if (item.numbered) {
+        if (item.numberSpan != null) {
             var spanText = "";
             if (item.type == "section") {
                 spanText = item.getFullNumber()+" ";
@@ -302,14 +299,14 @@
                 if (item.title != "")
                     spanText += ": ";
             }
-            DOM.setNodeValue(item.span.firstChild,spanText);
+            DOM.setNodeValue(item.numberSpan.firstChild,spanText);
         }
     }
 
     OutlineItem.prototype.updateItemTitle = function()
     {
-        if (this.span != null)
-            newTitle = normalizeWhitespace(getNodeTextAfter(this.span));
+        if (this.numberSpan != null)
+            newTitle = normalizeWhitespace(getNodeTextAfter(this.numberSpan));
         else
             newTitle = normalizeWhitespace(getNodeText(this.titleNode));
 
