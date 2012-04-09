@@ -225,7 +225,7 @@ DoublyLinkedList.prototype.insertAfter = function(item,after)
         item.next.prev = item;
     if (item.prev != null)
         item.prev.next = item;
-}
+};
 
 DoublyLinkedList.prototype.remove = function(item)
 {
@@ -239,4 +239,4 @@ DoublyLinkedList.prototype.remove = function(item)
         item.next.prev = item.prev;
     item.prev = null;
     item.next = null;
-}
+};
