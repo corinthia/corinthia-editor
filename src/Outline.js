@@ -16,15 +16,6 @@
 
     var doneInit = false;
 
-    function findChild(node,name)
-    {
-        for (var child = node.firstChild; child != null; child = child.nextSibling) {
-            if (DOM.upperName(child) == name)
-                return child;
-        }
-        return null;
-    }
-
     function Category(type,nodeFilter,numberRegex)
     {
         this.type = type;
@@ -107,15 +98,6 @@
         scheduleUpdateStructure();
     }
 
-    function generateItemId()
-    {
-        var id;
-        do {
-            id = "item"+(nextItemId++);
-        } while (document.getElementById(id) != null);
-        return id;
-    }
-
     function OutlineItem(type,node)
     {
         var item = this;
@@ -171,6 +153,25 @@
         }
 
         Object.seal(this);
+        return;
+
+        function generateItemId()
+        {
+            var id;
+            do {
+                id = "item"+(nextItemId++);
+            } while (document.getElementById(id) != null);
+            return id;
+        }
+
+        function findChild(node,name)
+        {
+            for (var child = node.firstChild; child != null; child = child.nextSibling) {
+                if (DOM.upperName(child) == name)
+                    return child;
+            }
+            return null;
+        }
     }
 
     OutlineItem.prototype.enableNumbering = function()
@@ -504,20 +505,23 @@
                     figures: encFigures,
                     tables: encTables };
         Editor.setOutline(arg);
+        return;
+
+
+        function encodeItem(item,result)
+        {
+            var encChildren = new Array();
+            for (var i = 0; i < item.children.length; i++)
+                encodeItem(item.children[i],encChildren);
+
+            var obj = { id: item.id,
+                        number: item.getFullNumber(),
+                        children: encChildren };
+            result.push(obj);
+        }
     }
 
-    function encodeItem(item,result)
-    {
-        var encChildren = new Array();
-        for (var i = 0; i < item.children.length; i++)
-            encodeItem(item.children[i],encChildren);
-
-        var obj = { id: item.id,
-                    number: item.getFullNumber(),
-                    children: encChildren };
-        result.push(obj);
-    }
-
+    // public
     function init()
     {
         DOM.ensureUniqueIds(document.documentElement);
@@ -536,6 +540,7 @@
             result.push(n);
     }
 
+    // public
     function moveSection(sectionId,parentId,nextId)
     {
         Selection.trackWhileExecuting(function() {
@@ -564,6 +569,7 @@
         scheduleUpdateStructure();
     }
 
+    // public
     function deleteItem(itemId)
     {
         Selection.trackWhileExecuting(function() {
@@ -582,6 +588,7 @@
         scheduleUpdateStructure();
     }
 
+    // public
     function goToItem(itemId)
     {
         if (itemId == null) {
