@@ -9,6 +9,15 @@
         return (node.namespaceURI == WORD_NAMESPACE) && (node.localName == name);
     }
 
+    function getChild(node,name)
+    {
+        for (var child = node.firstChild; child != null; child = child.nextSibling) {
+            if (isWordElement(child,name))
+                return child;
+        }
+        return null;
+    }
+
     function readFile(filename)
     {
         var req = new XMLHttpRequest("file:///read/"+filename);
@@ -25,10 +34,9 @@
         return doc;
     }
 
-    function parseT(word,htmlP)
+    var parseT = trace(function parseT(wordT,htmlP)
     {
-        for (var child = word.firstChild; child != null; child = child.nextSibling) {
-            debug("parseT: child is "+nodeString(child));
+        for (var child = wordT.firstChild; child != null; child = child.nextSibling) {
             if (child.nodeType == Node.TEXT_NODE) {
                 var htmlText = DOM.createTextNode(document,child.nodeValue);
                 DOM.appendChild(htmlP,htmlText);
@@ -39,48 +47,107 @@
                     debug("Detected change in character data: "+htmlText.nodeValue);
                     thisChild.nodeValue = htmlText.nodeValue;
                 });
-
             }
         }
-    }
+    });
 
-    function parseR(word,htmlP)
+    var parseR = trace(function parseR(wordR,htmlP)
     {
-        for (var child = word.firstChild; child != null; child = child.nextSibling) {
-            debug("parseR: child is "+nodeString(child));
+        for (var child = wordR.firstChild; child != null; child = child.nextSibling) {
             if (isWordElement(child,"t"))
                 parseT(child,htmlP);
         }
+    });
+
+    function setWordPStyle(wordP,style)
+    {
+        debug("setWordPStyle "+style);
+        var pPr = getChild(wordP,"pPr");
+        debug("pPr = "+pPr);
+        if (pPr != null) {
+            var pStyle = getChild(pPr,"pStyle");
+            debug("pStyle = "+pStyle);
+            if (pStyle != null) {
+                pStyle.setAttributeNS(WORD_NAMESPACE,"val",style);
+            }
+        }
+        
     }
 
-    function parseP(word,htmlContainer)
+    var parseP = trace(function parseP(wordP,htmlContainer)
     {
-        var htmlP = DOM.createElement(document,"P");
+        var paragraphType = "P";
+
+        var pPr = getChild(wordP,"pPr");
+        debug("pPr = "+pPr);
+
+        if (pPr != null) {
+            var pStyle = getChild(pPr,"pStyle");
+            debug("pStyle = "+pStyle);
+            if (pStyle != null) {
+                var val = pStyle.getAttribute("val");
+                debug("paragraph style = "+val);
+                var val2 = pStyle.getAttributeNS(WORD_NAMESPACE,"val");
+                debug("paragraph style 2 = "+val2);
+
+                if (val2 == "Heading1")
+                    paragraphType = "H1";
+                else if (val2 == "Heading2")
+                    paragraphType = "H2";
+                else if (val2 == "Heading3")
+                    paragraphType = "H3";
+                else if (val2 == "Heading4")
+                    paragraphType = "H4";
+                else if (val2 == "Heading5")
+                    paragraphType = "H5";
+                else if (val2 == "Heading6")
+                    paragraphType = "H6";
+            }
+        }
+
+        var htmlP = DOM.createElement(document,paragraphType);
         DOM.appendChild(htmlContainer,htmlP);
-        for (var child = word.firstChild; child != null; child = child.nextSibling) {
-            debug("parseP: child is "+nodeString(child));
+
+        var listener = new DOM.Listener();
+        listener.afterReplaceElement = function(oldElement,newElement) {
+            debug("Detected replacement of "+oldElement.nodeName+" with "+newElement.nodeName);
+
+            if (DOM.upperName(newElement) == "H1")
+                setWordPStyle(wordP,"Heading1");
+            else if (DOM.upperName(newElement) == "H2")
+                setWordPStyle(wordP,"Heading2");
+            else if (DOM.upperName(newElement) == "H3")
+                setWordPStyle(wordP,"Heading3");
+            else if (DOM.upperName(newElement) == "H4")
+                setWordPStyle(wordP,"Heading4");
+            else if (DOM.upperName(newElement) == "H5")
+                setWordPStyle(wordP,"Heading5");
+            else if (DOM.upperName(newElement) == "H6")
+                setWordPStyle(wordP,"Heading6");
+        };
+        DOM.addListener(htmlP,listener);
+
+        for (var child = wordP.firstChild; child != null; child = child.nextSibling) {
             if (isWordElement(child,"r"))
                 parseR(child,htmlP);
         }
-    }
+    });
 
-    function parseBody(word,htmlBody)
+    var parseBody = trace(function parseBody(wordBody,htmlBody)
     {
-        for (var child = word.firstChild; child != null; child = child.nextSibling) {
-            debug("parseBody: child is "+nodeString(child));
+        for (var child = wordBody.firstChild; child != null; child = child.nextSibling) {
             if (isWordElement(child,"p"))
                 parseP(child,htmlBody);
         }
-    }
+    });
 
-    function parseDocument(word,htmlBody)
+    var parseDocument = trace(function parseDocument(wordDocument,htmlBody)
     {
-        for (var child = word.firstChild; child != null; child = child.nextSibling) {
-            debug("parseDocument: child is "+nodeString(child));
+        for (var child = wordDocument.firstChild; child != null; child = child.nextSibling) {
             if (isWordElement(child,"body"))
                 parseBody(child,htmlBody);
         }
-    }
+    });
 
     // public
     function initWord()
@@ -94,22 +161,6 @@
         debug("docx.styles = "+docx.styles);
 
         parseDocument(docx.document.documentElement,document.body);
-/*
-        recurse(docx.document);
-
-        function recurse(node)
-        {
-            if (isWordElement(node,"t")) {
-                var text = DOM.createTextNode(docx.document,"MODIFIED ");
-                DOM.insertBefore(node,text,node.firstChild);
-                debug(nodeString(node));
-            }
-            else {
-                for (var child = node.firstChild; child != null; child = child.nextSibling)
-                    recurse(child);
-            }
-        }
-*/
     }
 
     function serialize(xmlDocument)
