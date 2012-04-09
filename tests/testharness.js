@@ -165,6 +165,7 @@ function leftLoaded()
 
     leftArea.contentWindow.eval(allCode);
     leftArea.contentWindow.debug = function(str) { console.log(str); };
+    leftArea.contentWindow.PrettyPrinter = PrettyPrinter;
 
     leftArea.contentWindow.DOM.assignNodeIds(leftArea.contentWindow.document);
 
