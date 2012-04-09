@@ -5,15 +5,12 @@
     var nextItemId = 1;
     var outlineDirty = false;
     var ignoreModifications = 0;
-
     var sectionNumberRegex = /^\s*(Chapter\s+)?\d+(\.\d+)*\.?\s+/i;
     var figureNumberRegex = /^\s*Figure\s+\d+(\.\d+)*:?\s*/i;
     var tableNumberRegex = /^\s*Table\s+\d+(\.\d+)*:?\s*/i;
-
-    var sections = new Category("section",isHeadingNode,sectionNumberRegex);
-    var figures = new Category("figure",isFigureNode,figureNumberRegex);
-    var tables = new Category("table",isTableNode,tableNumberRegex);
-
+    var sections = null;
+    var figures = null;
+    var tables = null;
     var doneInit = false;
 
     function Category(type,nodeFilter,numberRegex)
@@ -42,10 +39,11 @@
         // based on the position of the item in the overall structurel.
         var firstText = findFirstTextDescendant(node);
         if (firstText != null) {
-            var regex = item.numberRegex;
+            var regex = this.numberRegex;
             var str = firstText.nodeValue;
-            if (str.match(item.numberRegex)) {
-                DOM.setNodeValue(firstText,str.replace(item.numberRegex,""));
+            if (str.match(this.numberRegex)) {
+                var match = str.match(this.numberRegex);
+                DOM.setNodeValue(firstText,str.replace(this.numberRegex,""));
                 item.enableNumbering();
             }
         }
@@ -524,6 +522,10 @@
     // public
     function init()
     {
+        sections = new Category("section",isHeadingNode,sectionNumberRegex);
+        figures = new Category("figure",isFigureNode,figureNumberRegex);
+        tables = new Category("table",isTableNode,tableNumberRegex);
+
         DOM.ensureUniqueIds(document.documentElement);
         document.addEventListener("DOMNodeInserted",docNodeInserted);
         document.addEventListener("DOMNodeRemoved",docNodeRemoved);
