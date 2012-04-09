@@ -142,7 +142,7 @@ function setNumbering(enabled)
 
     function recurse(node,enabled)
     {
-        if (isHeadingNode(node)) {
+        if (isHeadingNode(node) || isFigureNode(node) || isTableNode(node)) {
             Outline.setNumbered(node.getAttribute("id"),enabled);
         }
         else {
