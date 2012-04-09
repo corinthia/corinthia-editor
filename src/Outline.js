@@ -288,60 +288,42 @@
     {
         var item = this;
         if (item.numbered) {
-            if (item.type == "section")
-                DOM.setNodeValue(item.span.firstChild,sectionNumberText(item));
-            else if (item.type == "figure")
-                DOM.setNodeValue(item.span.firstChild,figureNumberText(item));
-            else if (item.type == "table")
-                DOM.setNodeValue(item.span.firstChild,tableNumberText(item));
-        }
-
-        function sectionNumberText(item)
-        {
-            return item.getFullNumber()+" ";
-        }
-
-        function figureNumberText(item)
-        {
-            var spanText = "Figure "+item.getFullNumber();
-            if (item.title != "")
-                spanText += ": ";
-            return spanText;
-        }
-
-        function tableNumberText(item)
-        {
-            var spanText = "Table "+item.getFullNumber();
-            if (item.title != "")
-                spanText += ": ";
-            return spanText;
+            var spanText = "";
+            if (item.type == "section") {
+                spanText = item.getFullNumber()+" ";
+            }
+            else if (item.type == "figure") {
+                spanText = "Figure "+item.getFullNumber();
+                if (item.title != "")
+                    spanText += ": ";
+            }
+            else if (item.type == "table") {
+                spanText = "Table "+item.getFullNumber();
+                if (item.title != "")
+                    spanText += ": ";
+            }
+            DOM.setNodeValue(item.span.firstChild,spanText);
         }
     }
 
     OutlineItem.prototype.updateItemTitle = function()
     {
-        var item = this;
-        var newTitle = getItemTitle(item);
-        if (item.title == newTitle)
-            return;
+        if (this.span != null)
+            newTitle = normalizeWhitespace(getNodeTextAfter(this.span));
+        else
+            newTitle = normalizeWhitespace(getNodeText(this.titleNode));
 
-        item.title = newTitle;
-        Editor.updateOutlineItem(item.id,item.title);
+        if (this.title != newTitle) {
+            this.title = newTitle;
+            Editor.updateOutlineItem(this.id,this.title);
+        }
 
-        function getItemTitle(item)
+        function getNodeTextAfter(node)
         {
-            if (item.span != null)
-                return normalizeWhitespace(getNodeTextAfter(item.span));
-            else
-                return normalizeWhitespace(getNodeText(item.titleNode));
-
-            function getNodeTextAfter(node)
-            {
-                var text = "";
-                for (var child = node.nextSibling; child != null; child = child.nextSibling)
-                    text += getNodeText(child);
-                return text;
-            }
+            var text = "";
+            for (var child = node.nextSibling; child != null; child = child.nextSibling)
+                text += getNodeText(child);
+            return text;
         }
     }
 
