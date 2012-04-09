@@ -345,14 +345,24 @@
             Selection.selectWordAtCursor();
             originalDragStart = new Position(selectionRange.start.node,selectionRange.start.offset);
             originalDragEnd = new Position(selectionRange.end.node,selectionRange.end.offset);
+            updateSelectionDisplay();
+            return "end";
         }
-
-        updateSelectionDisplay();
+        else {
+            updateSelectionDisplay();
+            return "error";
+        }
     }
 
     // public
     function dragSelectionUpdate(x,y)
     {
+        // It is possible that when the user first double-tapped, there was no point at that
+        // position, i.e. the pos == null case in dragSelectionBegin(). So we just try to begin
+        // the selection again.
+        if ((originalDragStart == null) || (originalDragEnd == null))
+            return dragSelectionBegin(x,y);
+
         var zoom = Viewport.getZoom();
         var pos = positionAtPoint(x/zoom,y/zoom);
         if (pos != null) {
