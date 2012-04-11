@@ -11,11 +11,11 @@ function performTest()
     Position.trackWhileExecuting([position],function() {
         var p2 = ps[2];
         var p1 = ps[1];
-        DOM.insertBefore(ps[0],p2,ps[0].childNodes[0]);
-        DOM.insertBefore(ps[0],p1,ps[0].childNodes[0]);
+        DOM_insertBefore(ps[0],p2,ps[0].childNodes[0]);
+        DOM_insertBefore(ps[0],p1,ps[0].childNodes[0]);
    });
 
-    var tt = DOM.createElement(document,"tt");
+    var tt = DOM_createElement(document,"tt");
     insertAtPosition(position,tt);
 }
 </script>

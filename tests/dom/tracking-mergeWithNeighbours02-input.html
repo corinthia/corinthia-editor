@@ -7,19 +7,19 @@
 
 function createElementWithId(elementName,id)
 {
-    var element = DOM.createElement(document,elementName);
+    var element = DOM_createElement(document,elementName);
     element.setAttribute("id",id);
     return element;
 }
 
 function performTest()
 {
-    // DOM.wrapNode() should not affect any positions, because the node itself remains in the
+    // DOM_wrapNode() should not affect any positions, because the node itself remains in the
     // tree unmodified.
 
-    DOM.deleteAllChildren(document.body);
+    DOM_deleteAllChildren(document.body);
 
-    var p = DOM.createElement(document,"P");
+    var p = DOM_createElement(document,"P");
 
     var span1 = createElementWithId("SPAN","span1");
     var span2 = createElementWithId("SPAN","span2");
@@ -29,22 +29,22 @@ function performTest()
     span1.setAttribute("style","color: blue");
     span5.setAttribute("style","color: blue");
 
-    DOM.appendChild(document.body,p);
-    DOM.appendChild(p,span1);
-    DOM.appendChild(p,span2);
-    DOM.appendChild(p,span3);
-    DOM.appendChild(p,span4);
-    DOM.appendChild(p,span5);
+    DOM_appendChild(document.body,p);
+    DOM_appendChild(p,span1);
+    DOM_appendChild(p,span2);
+    DOM_appendChild(p,span3);
+    DOM_appendChild(p,span4);
+    DOM_appendChild(p,span5);
 
-    DOM.appendChild(span2,createElementWithId("BR","br1"));
-    DOM.appendChild(span2,createElementWithId("BR","br2"));
-    DOM.appendChild(span2,createElementWithId("BR","br3"));
-    DOM.appendChild(span3,createElementWithId("BR","br4"));
-    DOM.appendChild(span3,createElementWithId("BR","br5"));
-    DOM.appendChild(span3,createElementWithId("BR","br6"));
-    DOM.appendChild(span4,createElementWithId("BR","br7"));
-    DOM.appendChild(span4,createElementWithId("BR","br8"));
-    DOM.appendChild(span4,createElementWithId("BR","br9"));
+    DOM_appendChild(span2,createElementWithId("BR","br1"));
+    DOM_appendChild(span2,createElementWithId("BR","br2"));
+    DOM_appendChild(span2,createElementWithId("BR","br3"));
+    DOM_appendChild(span3,createElementWithId("BR","br4"));
+    DOM_appendChild(span3,createElementWithId("BR","br5"));
+    DOM_appendChild(span3,createElementWithId("BR","br6"));
+    DOM_appendChild(span4,createElementWithId("BR","br7"));
+    DOM_appendChild(span4,createElementWithId("BR","br8"));
+    DOM_appendChild(span4,createElementWithId("BR","br9"));
 
     var result = comparePositionsBeforeAndAfter(function() {
 
@@ -55,7 +55,7 @@ function performTest()
         span4.removeAttribute("id");
         span5.removeAttribute("id");
 
-        Formatting.mergeWithNeighbours(span3,Formatting.MERGEABLE_INLINE);
+        Formatting_mergeWithNeighbours(span3,Formatting_MERGEABLE_INLINE);
 
         span1.setAttribute("id","span1");
         span2.setAttribute("id","span2");
@@ -66,8 +66,8 @@ function performTest()
     });
 
 
-    DOM.deleteAllChildren(document.body);
-    DOM.appendChild(document.body,DOM.createTextNode(document,"-\n"+result+"\n-"));
+    DOM_deleteAllChildren(document.body);
+    DOM_appendChild(document.body,DOM_createTextNode(document,"-\n"+result+"\n-"));
 }
 </script>
 </head>

@@ -4,10 +4,10 @@ function getStyleElement()
 {
     var style = document.getElementById("style");
     if (style == null) {
-        style = DOM.createElement(document,"STYLE");
+        style = DOM_createElement(document,"STYLE");
         style.setAttribute("id","style");
-        var head = DOM.documentHead(document);
-        DOM.appendChild(head,style);
+        var head = DOM_documentHead(document);
+        DOM_appendChild(head,style);
     }
     return style;
 }
@@ -15,8 +15,8 @@ function getStyleElement()
 function clearDocument()
 {
     var style = getStyleElement();
-    DOM.deleteAllChildren(style);
-    DOM.deleteAllChildren(document.body);
+    DOM_deleteAllChildren(style);
+    DOM_deleteAllChildren(document.body);
 }
 
 function setStyleSheet(selector,cssText)
@@ -40,19 +40,19 @@ function setStyleSheet(selector,cssText)
     clearDocument();
     
     var style = getStyleElement();
-    DOM.appendChild(style,DOM.createTextNode(document,cssText));
+    DOM_appendChild(style,DOM_createTextNode(document,cssText));
     
     var element;
     if (selector.charAt(0) == ".") {
-        element = DOM.createElement(document,"DIV");
+        element = DOM_createElement(document,"DIV");
         element.setAttribute("class",selector.slice(1));
     }
     else {
-        element = DOM.createElement(document,selector);
+        element = DOM_createElement(document,selector);
     }
     
-    DOM.appendChild(document.body,element);
-    DOM.appendChild(element,DOM.createTextNode(document,previewText));
+    DOM_appendChild(document.body,element);
+    DOM_appendChild(element,DOM_createTextNode(document,previewText));
 }
 
-DOM.assignNodeIds(document);
+DOM_assignNodeIds(document);

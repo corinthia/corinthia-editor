@@ -12,7 +12,7 @@ function removeWhitespaceTextNodes(parent)
     for (var child = parent.firstChild; child != null; child = next) {
         next = child.nextSibling;
         if (isWhitespaceTextNode(child) || (child.nodeType == Node.COMMENT_NODE))
-            DOM.deleteNode(child);
+            DOM_deleteNode(child);
         else
             removeWhitespaceTextNodes(child);
     }
@@ -61,7 +61,7 @@ function getAllPositions(root)
     var includeEmptyElements = true;
 
     var positions = new Array();
-    var rootOffset = DOM.nodeOffset(root);
+    var rootOffset = DOM_nodeOffset(root);
     positions.push(new Position(root.parentNode,rootOffset));
     recurse(root);
     positions.push(new Position(root.parentNode,rootOffset+1));

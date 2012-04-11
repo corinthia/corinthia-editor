@@ -7,10 +7,10 @@
 
 function performTest()
 {
-    Outline.init();
-    PostponedActions.perform();
+    Outline_init();
+    PostponedActions_perform();
     setNumbering(false);
-    return Outline.plainText()+PrettyPrinter.getHTML(document.documentElement);
+    return Outline_plainText()+PrettyPrinter.getHTML(document.documentElement);
 }
 </script>
 </head>

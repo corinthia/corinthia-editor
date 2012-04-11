@@ -6,9 +6,9 @@
 function performTest()
 {
     var p = document.getElementsByTagName("P")[2];
-    Selection.setSelectionRange(new Range(p.firstChild,3,p.firstChild,9));
-    DOM.replaceElement(p,"DIV");
-    showRangeAsBrackets(Selection.getSelectionRange());
+    Selection_setSelectionRange(new Range(p.firstChild,3,p.firstChild,9));
+    DOM_replaceElement(p,"DIV");
+    showRangeAsBrackets(Selection_getSelectionRange());
 }
 </script>
 </head>

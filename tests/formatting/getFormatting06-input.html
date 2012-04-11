@@ -5,18 +5,18 @@
 <script language="javascript">
 function performTest()
 {
-    var range = Selection.getSelectionRange();
-    var properties = Formatting.getFormatting(range);
+    var range = Selection_getSelectionRange();
+    var properties = Formatting_getFormatting(range);
     delete properties["uxwrite-shift"];
-    Selection.clearSelection();
+    Selection_clearSelection();
 
-    DOM.deleteAllChildren(document.body);
+    DOM_deleteAllChildren(document.body);
 
     var names = Object.getOwnPropertyNames(properties).sort();
     for (var i = 0; i < names.length; i++) {
-        var p = DOM.createElement(document,"P");
-        DOM.appendChild(document.body,p);
-        DOM.appendChild(p,DOM.createTextNode(document,names[i]+" = "+properties[names[i]]));
+        var p = DOM_createElement(document,"P");
+        DOM_appendChild(document.body,p);
+        DOM_appendChild(p,DOM_createTextNode(document,names[i]+" = "+properties[names[i]]));
     }
 }
 </script>

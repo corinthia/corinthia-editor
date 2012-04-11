@@ -1,5 +1,11 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
+var Lists_increaseIndent;
+var Lists_decreaseIndent;
+var Lists_clearList;
+var Lists_setUnorderedList;
+var Lists_setOrderedList;
+
 (function() {
     function findLIElements(range)
     {
@@ -22,7 +28,7 @@
             if (node == null)
                 return;
 
-            if (DOM.upperName(node) == "LI") {
+            if (DOM_upperName(node) == "LI") {
                 if (!arrayContains(array,node))
                     array.push(node);
                 return;
@@ -37,7 +43,7 @@
     // FIXME: write testcases for this
     function increaseIndent()
     {
-        var range = Selection.getSelectionRange();
+        var range = Selection_getSelectionRange();
         if (range == null)
             return null;
 
@@ -54,7 +60,7 @@
             for (var i = 0; i < listItems.length; i++) {
                 var li = listItems[i];
                 var prevLi = li.previousSibling;
-                while ((prevLi != null) && (DOM.upperName(prevLi) != "LI"))
+                while ((prevLi != null) && (DOM_upperName(prevLi) != "LI"))
                     prevLi = prevLi.previousSibling;
                 // We can only increase the indentation of the current list item C if there is
                 // another list item P immediately preceding C. In this case, C becomes a child of
@@ -74,11 +80,11 @@
                     }
 
                     if (prevList != null) {
-                        DOM.appendChild(prevList,li);
+                        DOM_appendChild(prevList,li);
                         if (childList != null) {
                             while (childList.firstChild != null)
-                                DOM.appendChild(prevList,childList.firstChild);
-                            DOM.deleteNode(childListContainer);
+                                DOM_appendChild(prevList,childList.firstChild);
+                            DOM_deleteNode(childListContainer);
                             // alert("Case 1: prevList and childList");
                         }
                         else {
@@ -90,23 +96,23 @@
                         if (childList != null) {
                             // alert("Case 3: no prevList but childList");
                             newList = childList;
-                            DOM.appendChild(prevLi,childListContainer);
+                            DOM_appendChild(prevLi,childListContainer);
                         }
                         else {
                             // alert("Case 4: no prevList and no childList");
-                            if (DOM.upperName(li.parentNode) == "UL")
-                                newList = DOM.createElement(document,"UL");
+                            if (DOM_upperName(li.parentNode) == "UL")
+                                newList = DOM_createElement(document,"UL");
                             else
-                                newList = DOM.createElement(document,"OL");
-                            DOM.appendChild(prevLi,newList);
+                                newList = DOM_createElement(document,"OL");
+                            DOM_appendChild(prevLi,newList);
                         }
-                        DOM.insertBefore(newList,li,newList.firstChild);
+                        DOM_insertBefore(newList,li,newList.firstChild);
                     }
                 }
             }
         });
 
-        Selection.setSelectionRange(range);
+        Selection_setSelectionRange(range);
 
         function firstDescendentList(node)
         {
@@ -114,7 +120,7 @@
                 var node = firstChildElement(node);
                 if (node == null)
                     return null;
-                if ((DOM.upperName(node) == "UL") || (DOM.upperName(node) == "OL"))
+                if ((DOM_upperName(node) == "UL") || (DOM_upperName(node) == "OL"))
                     return node;
             }
         }
@@ -125,7 +131,7 @@
                 var node = lastChildElement(node);
                 if (node == null)
                     return null;
-                if ((DOM.upperName(node) == "UL") || (DOM.upperName(node) == "OL"))
+                if ((DOM_upperName(node) == "UL") || (DOM_upperName(node) == "OL"))
                     return node;
             }
         }
@@ -135,7 +141,7 @@
     // FIXME: write testcases for this
     function decreaseIndent()
     {
-        var range = Selection.getSelectionRange();
+        var range = Selection_getSelectionRange();
         if (range == null)
             return null;
 
@@ -192,43 +198,43 @@
 
                 if (following != null) {
                     var secondHalf;
-                    if (DOM.upperName(parentList) == "UL")
-                        secondHalf = DOM.createElement(document,"UL");
+                    if (DOM_upperName(parentList) == "UL")
+                        secondHalf = DOM_createElement(document,"UL");
                     else
-                        secondHalf = DOM.createElement(document,"OL");
+                        secondHalf = DOM_createElement(document,"OL");
 
                     var copy = secondHalf;
 
                     for (var p = parentList.parentNode; p != container; p = p.parentNode) {
-                        var pcopy = DOM.shallowCopyElement(p);
-                        DOM.appendChild(pcopy,copy);
+                        var pcopy = DOM_shallowCopyElement(p);
+                        DOM_appendChild(pcopy,copy);
                         copy = pcopy;
                     }
 
-                    DOM.appendChild(node,copy);
+                    DOM_appendChild(node,copy);
 
                     while (following != null) {
                         var next = following.nextSibling;
-                        DOM.appendChild(secondHalf,following);
+                        DOM_appendChild(secondHalf,following);
                         following = next;
                     }
                 }
 
-                DOM.insertBefore(container.parentNode,node,container.nextSibling);
+                DOM_insertBefore(container.parentNode,node,container.nextSibling);
                 if (firstChildElement(parentList) == null) {
-                    DOM.deleteNode(parentList);
+                    DOM_deleteNode(parentList);
                 }
             }
         });
 
-        Selection.setSelectionRange(range);
+        Selection_setSelectionRange(range);
 
         function findContainingListItem(node)
         {
             if (node == null)
                 return null;
 
-            if (DOM.upperName(node) == "LI")
+            if (DOM_upperName(node) == "LI")
                 return node;
 
             return findContainingListItem(node.parentNode);
@@ -256,7 +262,7 @@
         // list item.
         if ((ds == de) || ((ds != null) && (ds.nextSibling == null) && (de == null))) {
             for (var ancestor = dca; ancestor != null; ancestor = ancestor.parentNode) {
-                if (DOM.upperName(ancestor) == "LI") {
+                if (DOM_upperName(ancestor) == "LI") {
                     nodes.push(ancestor);
                     return nodes;
                 }
@@ -266,13 +272,13 @@
         var end = (de == null) ? null : de.nextSibling;
 
         for (var child = ds; child != end; child = child.nextSibling) {
-            if ((DOM.upperName(child) == "UL") || (DOM.upperName(child) == "OL")) {
+            if ((DOM_upperName(child) == "UL") || (DOM_upperName(child) == "OL")) {
                 for (var gc = child.firstChild; gc != null; gc = gc.nextSibling) {
                     if (!isWhitespaceTextNode(gc))
                         nodes.push(gc);
                 }
             }
-            else if ((DOM.upperName(child) == "DIV") &&
+            else if ((DOM_upperName(child) == "DIV") &&
                      child.getAttribute("class") == Keys.SELECTION_HIGHLIGHT) {
                 // skip
             }
@@ -287,7 +293,7 @@
     // public
     function clearList()
     {
-        var range = Selection.getSelectionRange();
+        var range = Selection_getSelectionRange();
         if (range == null)
             return;
 
@@ -297,12 +303,12 @@
 
             for (var i = 0; i < nodes.length; i++) {
                 var node = nodes[i];
-                if (DOM.upperName(node) == "LI") {
+                if (DOM_upperName(node) == "LI") {
                     var li = node;
                     var list = li.parentNode;
                     var insertionPoint = null;
 
-                    DOM.removeAdjacentWhitespace(li);
+                    DOM_removeAdjacentWhitespace(li);
 
                     if (li.previousSibling == null) {
                         insertionPoint = list;
@@ -311,11 +317,11 @@
                         insertionPoint = list.nextSibling;
                     }
                     else {
-                        var secondList = DOM.shallowCopyElement(list);
-                        DOM.insertBefore(list.parentNode,secondList,list.nextSibling);
+                        var secondList = DOM_shallowCopyElement(list);
+                        DOM_insertBefore(list.parentNode,secondList,list.nextSibling);
                         while (li.nextSibling != null) {
-                            DOM.appendChild(secondList,li.nextSibling);
-                            DOM.removeAdjacentWhitespace(li);
+                            DOM_appendChild(secondList,li.nextSibling);
+                            DOM_removeAdjacentWhitespace(li);
                         }
 
                         insertionPoint = secondList;
@@ -323,32 +329,32 @@
 
                     while (li.firstChild != null) {
                         if (isWhitespaceTextNode(li.firstChild)) {
-                            DOM.deleteNode(li.firstChild);
+                            DOM_deleteNode(li.firstChild);
                         }
                         else if (isInlineNode(li.firstChild)) {
-                            var p = DOM.createElement(document,"p");
-                            DOM.appendChild(p,li.firstChild);
-                            DOM.insertBefore(list.parentNode,p,insertionPoint);
+                            var p = DOM_createElement(document,"p");
+                            DOM_appendChild(p,li.firstChild);
+                            DOM_insertBefore(list.parentNode,p,insertionPoint);
                         }
                         else {
-                            DOM.insertBefore(list.parentNode,li.firstChild,insertionPoint);
+                            DOM_insertBefore(list.parentNode,li.firstChild,insertionPoint);
                         }
                     }
 
-                    DOM.deleteNode(li);
+                    DOM_deleteNode(li);
 
                     if (list.firstChild == null)
-                        DOM.deleteNode(list);
+                        DOM_deleteNode(list);
                 }
             }
         });
 
-        Selection.setSelectionRange(range);
+        Selection_setSelectionRange(range);
     }
 
     function setList(type)
     {
-        var range = Selection.getSelectionRange();
+        var range = Selection_getSelectionRange();
         if (range == null)
             return;
 
@@ -366,21 +372,21 @@
                 var oldList = null;
                 var listInsertionPoint;
 
-                if ((DOM.upperName(node) == "LI") && (DOM.upperName(node.parentNode) == type)) {
+                if ((DOM_upperName(node) == "LI") && (DOM_upperName(node.parentNode) == type)) {
                     // Already in the correct type of list; don't need to do anything
                     continue;
                 }
 
-                if ((DOM.upperName(node) == "LI")) {
+                if ((DOM_upperName(node) == "LI")) {
                     li = node;
                     var list = li.parentNode;
 
-                    DOM.removeAdjacentWhitespace(list);
+                    DOM_removeAdjacentWhitespace(list);
                     prev = list.previousSibling;
                     next = list.nextSibling;
 
 
-                    DOM.removeAdjacentWhitespace(li);
+                    DOM_removeAdjacentWhitespace(li);
 
                     if (li.previousSibling == null) {
                         listInsertionPoint = list;
@@ -391,11 +397,11 @@
                         prev = null;
                     }
                     else {
-                        var secondList = DOM.shallowCopyElement(list);
-                        DOM.insertBefore(list.parentNode,secondList,list.nextSibling);
+                        var secondList = DOM_shallowCopyElement(list);
+                        DOM_insertBefore(list.parentNode,secondList,list.nextSibling);
                         while (li.nextSibling != null) {
-                            DOM.insertBefore(secondList,li.nextSibling,null);
-                            DOM.removeAdjacentWhitespace(li);
+                            DOM_insertBefore(secondList,li.nextSibling,null);
+                            DOM_removeAdjacentWhitespace(li);
                         }
 
                         listInsertionPoint = secondList;
@@ -408,7 +414,7 @@
                     oldList = list;
                 }
                 else {
-                    DOM.removeAdjacentWhitespace(node);
+                    DOM_removeAdjacentWhitespace(node);
                     prev = node.previousSibling;
                     next = node.nextSibling;
                     listInsertionPoint = node;
@@ -418,50 +424,50 @@
                 var itemInsertionPoint;
 
                 if ((prev != null) &&
-                    (DOM.upperName(prev) == type)) {
+                    (DOM_upperName(prev) == type)) {
                     list = prev;
                     itemInsertionPoint = null;
                 }
                 else if ((next != null) &&
-                         (DOM.upperName(next) == type)) {
+                         (DOM_upperName(next) == type)) {
                     list = next;
                     itemInsertionPoint = list.firstChild;
                 }
                 else {
-                    list = DOM.createElement(document,type);
-                    DOM.insertBefore(node.parentNode,list,listInsertionPoint);
+                    list = DOM_createElement(document,type);
+                    DOM_insertBefore(node.parentNode,list,listInsertionPoint);
                     itemInsertionPoint = null;
                 }
 
                 if (li != null) {
-                    DOM.insertBefore(list,li,itemInsertionPoint);
+                    DOM_insertBefore(list,li,itemInsertionPoint);
                 }
                 else {
-                    var li = DOM.createElement(document,"LI");
-                    DOM.insertBefore(list,li,itemInsertionPoint);
-                    DOM.insertBefore(li,node,null);
+                    var li = DOM_createElement(document,"LI");
+                    DOM_insertBefore(list,li,itemInsertionPoint);
+                    DOM_insertBefore(li,node,null);
                 }
 
 
                 if ((oldList != null) && (oldList.firstChild == null))
-                    DOM.deleteNode(oldList);
+                    DOM_deleteNode(oldList);
 
                 // Merge with adjacent list
-                DOM.removeAdjacentWhitespace(list);
-                if ((list.nextSibling != null) && (DOM.upperName(list.nextSibling) == type)) {
+                DOM_removeAdjacentWhitespace(list);
+                if ((list.nextSibling != null) && (DOM_upperName(list.nextSibling) == type)) {
                     var followingList = list.nextSibling;
                     while (followingList.firstChild != null) {
                         if (isWhitespaceTextNode(followingList.firstChild))
-                            DOM.deleteNode(followingList.firstChild);
+                            DOM_deleteNode(followingList.firstChild);
                         else
-                            DOM.insertBefore(list,followingList.firstChild,null);
+                            DOM_insertBefore(list,followingList.firstChild,null);
                     }
-                    DOM.deleteNode(followingList);
+                    DOM_deleteNode(followingList);
                 }
             }
         });
 
-        Selection.setSelectionRange(range);
+        Selection_setSelectionRange(range);
         return;
     }
 
@@ -477,10 +483,10 @@
         setList("OL");
     }
 
-    window.Lists = new (function Lists(){});
-    Lists.increaseIndent = trace(increaseIndent);
-    Lists.decreaseIndent = trace(decreaseIndent);
-    Lists.clearList = trace(clearList);
-    Lists.setUnorderedList = trace(setUnorderedList);
-    Lists.setOrderedList = trace(setOrderedList);
+    Lists_increaseIndent = trace(increaseIndent);
+    Lists_decreaseIndent = trace(decreaseIndent);
+    Lists_clearList = trace(clearList);
+    Lists_setUnorderedList = trace(setUnorderedList);
+    Lists_setOrderedList = trace(setOrderedList);
+
 })();

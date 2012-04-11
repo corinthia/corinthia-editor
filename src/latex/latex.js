@@ -451,10 +451,10 @@ LatexSource.prototype.parse = function()
 function main()
 {
     var texCode = load();
-//    var pre = DOM.createElement(document,"PRE");
-//    var text = DOM.createTextNode(document.texCode);
-//    DOM.appendChild(pre,text);
-//    DOM.appendChild(document.body,pre);
+//    var pre = DOM_createElement(document,"PRE");
+//    var text = DOM_createTextNode(document.texCode);
+//    DOM_appendChild(pre,text);
+//    DOM_appendChild(document.body,pre);
     
     var source = new LatexSource(texCode);
     source.parse();

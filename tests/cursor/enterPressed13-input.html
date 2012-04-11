@@ -5,9 +5,9 @@
 <script language="javascript">
 function performTest()
 {
-    Cursor.enterPressed();
-    Cursor.insertCharacter("X");
-    var range = Selection.getSelectionRange();
+    Cursor_enterPressed();
+    Cursor_insertCharacter("X");
+    var range = Selection_getSelectionRange();
     range.trackWhileExecuting(showEmptyTextNodes);
     showRangeAsBrackets(range)
 }

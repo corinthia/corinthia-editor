@@ -5,13 +5,13 @@
 <script language="javascript">
 function performTest()
 {
-    var selectionRange = Selection.getSelectionRange();
+    var selectionRange = Selection_getSelectionRange();
     var clonedElements = selectionRange.cloneContents();
-    Selection.clearSelection();
-    DOM.deleteAllChildren(document.body);
+    Selection_clearSelection();
+    DOM_deleteAllChildren(document.body);
 
     for (var i = 0; i < clonedElements.length; i++)
-        DOM.appendChild(document.body,clonedElements[i]);
+        DOM_appendChild(document.body,clonedElements[i]);
 }
 </script>
 </head>

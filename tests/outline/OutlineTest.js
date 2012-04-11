@@ -2,12 +2,12 @@ function setupOutline(topChildren)
 {
     var index = 1;
 
-    Outline.init();
-    PostponedActions.perform();
+    Outline_init();
+    PostponedActions_perform();
 
     processChildren(1,topChildren);
 
-    PostponedActions.perform();
+    PostponedActions_perform();
 
     setNumbering(true);
 
@@ -25,20 +25,20 @@ function setupOutline(topChildren)
 
     function recurse(level,children)
     {
-        var heading = DOM.createElement(document,"H"+level);
+        var heading = DOM_createElement(document,"H"+level);
 
-        DOM.appendChild(heading,DOM.createTextNode(document,"Section "+index));
+        DOM_appendChild(heading,DOM_createTextNode(document,"Section "+index));
 
-        var p1 = DOM.createElement(document,"P");
-        var p2 = DOM.createElement(document,"P");
+        var p1 = DOM_createElement(document,"P");
+        var p2 = DOM_createElement(document,"P");
 
-        DOM.appendChild(p1,DOM.createTextNode(document,"Content "+index+" A"));
-        DOM.appendChild(p2,DOM.createTextNode(document,"Content "+index+" B"));
+        DOM_appendChild(p1,DOM_createTextNode(document,"Content "+index+" A"));
+        DOM_appendChild(p2,DOM_createTextNode(document,"Content "+index+" B"));
 
 
-        DOM.appendChild(document.body,heading);
-        DOM.appendChild(document.body,p1);
-        DOM.appendChild(document.body,p2);
+        DOM_appendChild(document.body,heading);
+        DOM_appendChild(document.body,p1);
+        DOM_appendChild(document.body,p2);
         index++;
 
         processChildren(level+1,children);
@@ -49,18 +49,18 @@ function removeOutlineHTML(node)
 {
     if ((node.nodeName == "SPAN") &&
         (node.getAttribute("class") == "-uxwrite-heading-number")) {
-        DOM.removeNodeButKeepChildren(node);
+        DOM_removeNodeButKeepChildren(node);
     }
     else {
         for (var child = node.firstChild; child != null; child = child.nextSibling)
             removeOutlineHTML(child);
         for (var child = node.firstChild; child != null; child = child.nextSibling)
-            Formatting.mergeWithNeighbours(child,Formatting.MERGEABLE_INLINE);
+            Formatting_mergeWithNeighbours(child,Formatting_MERGEABLE_INLINE);
     }
 }
 
 function cleanupOutline()
 {
-    PostponedActions.perform();
+    PostponedActions_perform();
     removeOutlineHTML(document.body);
 }

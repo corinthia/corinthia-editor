@@ -59,19 +59,19 @@ DocxDocument.prototype.serializeDocumentXML = function()
 DocxDocument.prototype.addStyleSheet = function()
 {
     var head = document.documentElement.firstChild;
-    while ((head != null) && (DOM.upperName(head) != "HEAD"))
+    while ((head != null) && (DOM_upperName(head) != "HEAD"))
         head = head.nextSibling;
     if (head == null) {
-        head = DOM.createElement(document,"HEAD");
-        DOM.insertBefore(document.documentElement,head,document.documentElement.firstChild);
+        head = DOM_createElement(document,"HEAD");
+        DOM_insertBefore(document.documentElement,head,document.documentElement.firstChild);
     }
 
-    var style = DOM.createElement(document,"STYLE");
+    var style = DOM_createElement(document,"STYLE");
     style.setAttribute("type","text/css");
-    DOM.appendChild(head,style);
+    DOM_appendChild(head,style);
 
-    var text = DOM.createTextNode(document,DocxDocument.instance.styles.toCSSStyleSheet());
-    DOM.appendChild(style,text);
+    var text = DOM_createTextNode(document,DocxDocument.instance.styles.toCSSStyleSheet());
+    DOM_appendChild(style,text);
 }
 
 DocxDocument.prototype.getDocSectionProperties = function(doc)
@@ -144,7 +144,7 @@ DocxDocument.prototype.recurseP = function(node,htmlParent,containingBlockWidth)
                         var n = topList.nextSibling;
                         while (n != null) {
                             var next = n.nextSibling;
-                            DOM.appendChild(lastList.lastChild,n);
+                            DOM_appendChild(lastList.lastChild,n);
                             n = next;
                         }
                     }
@@ -155,11 +155,11 @@ DocxDocument.prototype.recurseP = function(node,htmlParent,containingBlockWidth)
 
             for (var i = 0; i <= properties.numPr.ilvl-1; i++) {
                 if ((htmlParent.lastChild != null) &&
-                    ((DOM.upperName(htmlParent.lastChild) == "OL") ||
-                     (DOM.upperName(htmlParent.lastChild) == "UL")) &&
+                    ((DOM_upperName(htmlParent.lastChild) == "OL") ||
+                     (DOM_upperName(htmlParent.lastChild) == "UL")) &&
                     (htmlParent.lastChild.getAttribute("word-ilvl") == i) &&
                     (htmlParent.lastChild.lastChild != null) &&
-                    (DOM.upperName(htmlParent.lastChild.lastChild) == "LI")) {
+                    (DOM_upperName(htmlParent.lastChild.lastChild) == "LI")) {
                     htmlParent = htmlParent.lastChild.lastChild;
                 }
             }
@@ -167,7 +167,7 @@ DocxDocument.prototype.recurseP = function(node,htmlParent,containingBlockWidth)
 
             var parentList = null;
             if ((htmlParent.lastChild != null) &&
-                (DOM.upperName(htmlParent.lastChild) == listType)) {
+                (DOM_upperName(htmlParent.lastChild) == listType)) {
                 parentList = htmlParent.lastChild;
             }
             else {
@@ -218,7 +218,7 @@ DocxDocument.prototype.recurseP = function(node,htmlParent,containingBlockWidth)
 
     // Remove empty paragraphs
     if (paragraph.firstChild == null)
-        DOM.deleteNode(paragraph);
+        DOM_deleteNode(paragraph);
 }
 
 DocxDocument.prototype.recurseR = function(node,htmlParent,containingBlockWidth)
@@ -419,11 +419,11 @@ DocxDocument.prototype.recurseTbl = function(node,htmlParent,containingBlockWidt
             total += table.grid.cols[i];
         if (total != 0) {
             for (var i = 0; i < table.grid.cols.length; i++) {
-                var col = DOM.createElement(document,"COL");
+                var col = DOM_createElement(document,"COL");
                 var pct = 100*table.grid.cols[i]/total;
                 pct = Math.round(pct*10)/10;
                 col.setAttribute("width",pct+"%");
-                DOM.appendChild(htmlTable,col);
+                DOM_appendChild(htmlTable,col);
             }
         }
     }
@@ -435,7 +435,7 @@ DocxDocument.prototype.recurseTbl = function(node,htmlParent,containingBlockWidt
             section = this.addChild(htmlTable,"THEAD");
         else if ((row == table.numRows-1) && (footer || styleHasSWCell || styleHasSECell))
             section = this.addChild(htmlTable,"TFOOT");
-        else if ((section == null) || (DOM.upperName(section) != "TBODY"))
+        else if ((section == null) || (DOM_upperName(section) != "TBODY"))
             section = this.addChild(htmlTable,"TBODY");
 
         var htmlTR = this.addChild(section,"TR");
@@ -465,8 +465,8 @@ DocxDocument.prototype.recurseTbl = function(node,htmlParent,containingBlockWidt
             }
 
             if (cell == null) {
-                //DOM.appendChild(htmlTD,DOM.createTextNode(document,"\u00a0"));
-                DOM.appendChild(htmlTD,DOM.createTextNode(document,"(none)")); // FIXME
+                //DOM_appendChild(htmlTD,DOM_createTextNode(document,"\u00a0"));
+                DOM_appendChild(htmlTD,DOM_createTextNode(document,"(none)")); // FIXME
             }
             else if (!cell.translated) {
                 if (colspan != 1)
@@ -484,7 +484,7 @@ DocxDocument.prototype.recurseTbl = function(node,htmlParent,containingBlockWidt
                 this.recurseChildren(cell.element,htmlTD,childWidth);
 
                 if (htmlTD.firstChild == null)
-                    DOM.appendChild(htmlTD,DOM.createTextNode(document,"\u00a0"));
+                    DOM_appendChild(htmlTD,DOM_createTextNode(document,"\u00a0"));
 
                 cell.translated = true;
             }
@@ -513,7 +513,7 @@ DocxDocument.prototype.recurseTbl = function(node,htmlParent,containingBlockWidt
 DocxDocument.prototype.recurse = function(node,htmlParent,containingBlockWidth)
 {
     if (node.nodeType == Node.TEXT_NODE)
-        DOM.appendChild(htmlParent,DOM.createTextNode(document,node.nodeValue));
+        DOM_appendChild(htmlParent,DOM_createTextNode(document,node.nodeValue));
     else if (node.namespaceURI != WORD_NAMESPACE)
         return;
     else if (node.localName == "p")
@@ -528,8 +528,8 @@ DocxDocument.prototype.recurse = function(node,htmlParent,containingBlockWidth)
 
 DocxDocument.prototype.addChild = function(parent,name)
 {
-    var child = DOM.createElement(document,name);
-    DOM.appendChild(parent,child);
+    var child = DOM_createElement(document,name);
+    DOM_appendChild(parent,child);
     return child;
 }
 

@@ -5,30 +5,30 @@
 <script language="javascript">
 function performTest()
 {
-    var p = DOM.createElement(document,"P");
-    var text1 = DOM.createTextNode(document,"One");
-    var text2 = DOM.createTextNode(document,"Two");
-    var text3 = DOM.createTextNode(document,"Three");
-    var text4 = DOM.createTextNode(document,"Four");
-    var text5 = DOM.createTextNode(document,"Five");
-    var br1 = DOM.createElement(document,"BR");
-    var br2 = DOM.createElement(document,"BR");
-    var br3 = DOM.createElement(document,"BR");
-    var br4 = DOM.createElement(document,"BR");
-    DOM.appendChild(p,br1);
-    DOM.appendChild(p,br2);
-    DOM.appendChild(p,text1);
-    DOM.appendChild(p,text2);
-    DOM.appendChild(p,text3);
-    DOM.appendChild(p,text4);
-    DOM.appendChild(p,text5);
-    DOM.appendChild(p,br3);
-    DOM.appendChild(p,br4);
-    DOM.appendChild(document.body,p);
+    var p = DOM_createElement(document,"P");
+    var text1 = DOM_createTextNode(document,"One");
+    var text2 = DOM_createTextNode(document,"Two");
+    var text3 = DOM_createTextNode(document,"Three");
+    var text4 = DOM_createTextNode(document,"Four");
+    var text5 = DOM_createTextNode(document,"Five");
+    var br1 = DOM_createElement(document,"BR");
+    var br2 = DOM_createElement(document,"BR");
+    var br3 = DOM_createElement(document,"BR");
+    var br4 = DOM_createElement(document,"BR");
+    DOM_appendChild(p,br1);
+    DOM_appendChild(p,br2);
+    DOM_appendChild(p,text1);
+    DOM_appendChild(p,text2);
+    DOM_appendChild(p,text3);
+    DOM_appendChild(p,text4);
+    DOM_appendChild(p,text5);
+    DOM_appendChild(p,br3);
+    DOM_appendChild(p,br4);
+    DOM_appendChild(document.body,p);
 
     var range = new Range(p,0,p,9);
     range.trackWhileExecuting(function() {
-        Formatting.mergeWithNeighbours(text3,Formatting.MERGEABLE_INLINE);
+        Formatting_mergeWithNeighbours(text3,Formatting_MERGEABLE_INLINE);
     });
     showRangeAsBrackets(range);
 }

@@ -274,38 +274,38 @@ DocxRunProperties.prototype.fromHTML = function(node)
             this.fromCSSStyleDeclaration(node.style,node);
         }
 
-        if ((DOM.upperName(node) == "B") || (DOM.upperName(node) == "STRONG")) {
+        if ((DOM_upperName(node) == "B") || (DOM_upperName(node) == "STRONG")) {
             this.b = true;
         }
-        else if ((DOM.upperName(node) == "I") || (DOM.upperName(node) == "EM")) {
+        else if ((DOM_upperName(node) == "I") || (DOM_upperName(node) == "EM")) {
             this.i = true;
         }
-        else if (DOM.upperName(node) == "U") {
+        else if (DOM_upperName(node) == "U") {
             this.u = true;
         }
         // FIXME: need to add style definitions for the following when they are present
-        else if (DOM.upperName(node) == "TT") {
+        else if (DOM_upperName(node) == "TT") {
             this.rStyle = "HTMLTypewriter";
         }
-        else if (DOM.upperName(node) == "CITE") {
+        else if (DOM_upperName(node) == "CITE") {
             this.rStyle = "HTMLCite";
         }
-        else if (DOM.upperName(node) == "DFN") {
+        else if (DOM_upperName(node) == "DFN") {
             this.rStyle = "HTMLDefinition";
         }
-        else if (DOM.upperName(node) == "CODE") {
+        else if (DOM_upperName(node) == "CODE") {
             this.rStyle = "HTMLCode";
         }
-        else if (DOM.upperName(node) == "SAMP") {
+        else if (DOM_upperName(node) == "SAMP") {
             this.rStyle = "HTMLSample";
         }
-        else if (DOM.upperName(node) == "KBD") {
+        else if (DOM_upperName(node) == "KBD") {
             this.rStyle = "HTMLKeyboard";
         }
-        else if (DOM.upperName(node) == "VAR") {
+        else if (DOM_upperName(node) == "VAR") {
             this.rStyle = "HTMLVariable";
         }
-        else if (DOM.upperName(node) == "ACRONYM") {
+        else if (DOM_upperName(node) == "ACRONYM") {
             this.rStyle = "HTMLAcronym";
         }
     }
@@ -313,43 +313,43 @@ DocxRunProperties.prototype.fromHTML = function(node)
 
 DocxRunProperties.prototype.toXML = function(doc)
 {
-    var rPr = DOM.createElementNS(doc,WORD_NAMESPACE,"w:rPr");
+    var rPr = DOM_createElementNS(doc,WORD_NAMESPACE,"w:rPr");
     if (this.b) {
-        var element = DOM.createElementNS(doc,WORD_NAMESPACE,"w:b");
-        DOM.appendChild(rPr,element);
+        var element = DOM_createElementNS(doc,WORD_NAMESPACE,"w:b");
+        DOM_appendChild(rPr,element);
     }
     if (this.i) {
-        var element = DOM.createElementNS(doc,WORD_NAMESPACE,"w:i");
-        DOM.appendChild(rPr,element);
+        var element = DOM_createElementNS(doc,WORD_NAMESPACE,"w:i");
+        DOM_appendChild(rPr,element);
     }
     if (this.u) {
-        var element = DOM.createElementNS(doc,WORD_NAMESPACE,"w:u");
+        var element = DOM_createElementNS(doc,WORD_NAMESPACE,"w:u");
         element.setAttributeNS(WORD_NAMESPACE,"w:val","single");
-        DOM.appendChild(rPr,element);
+        DOM_appendChild(rPr,element);
     }
     if (this.strike) {
-        var element = DOM.createElementNS(doc,WORD_NAMESPACE,"w:strike");
-        DOM.appendChild(rPr,element);
+        var element = DOM_createElementNS(doc,WORD_NAMESPACE,"w:strike");
+        DOM_appendChild(rPr,element);
     }
     if (this.color != null) {
-        var element = DOM.createElementNS(doc,WORD_NAMESPACE,"w:color");
+        var element = DOM_createElementNS(doc,WORD_NAMESPACE,"w:color");
         element.setAttributeNS(WORD_NAMESPACE,"w:val",this.color);
-        DOM.appendChild(rPr,element);
+        DOM_appendChild(rPr,element);
     }
     if (this.sz != null) {
-        var element = DOM.createElementNS(doc,WORD_NAMESPACE,"w:sz");
+        var element = DOM_createElementNS(doc,WORD_NAMESPACE,"w:sz");
         element.setAttributeNS(WORD_NAMESPACE,"w:val",this.sz);
-        DOM.appendChild(rPr,element);
+        DOM_appendChild(rPr,element);
 
-        element = DOM.createElementNS(doc,WORD_NAMESPACE,"w:szCs");
+        element = DOM_createElementNS(doc,WORD_NAMESPACE,"w:szCs");
         element.setAttributeNS(WORD_NAMESPACE,"w:val",this.sz);
-        DOM.appendChild(rPr,element);
+        DOM_appendChild(rPr,element);
     }
     if (this.rFonts != null) {
-        var element = DOM.createElementNS(doc,WORD_NAMESPACE,"w:rFonts");
+        var element = DOM_createElementNS(doc,WORD_NAMESPACE,"w:rFonts");
         element.setAttributeNS(WORD_NAMESPACE,"w:ascii",this.rFonts);
         element.setAttributeNS(WORD_NAMESPACE,"w:hAnsi",this.rFonts);
-        DOM.appendChild(rPr,element);
+        DOM_appendChild(rPr,element);
     }
 
     if (rPr.firstChild == null)

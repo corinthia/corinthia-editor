@@ -1,23 +1,26 @@
+// Copyright (c) 2012 UX Productivity Pty Ltd. All rights reserved.
+
+var Figures_insertFigure;
+
 (function() {
 
     // public
     function insertFigure(filename,numbered,caption)
     {
-        var figure = DOM.createElement(document,"FIGURE");
-        var img = DOM.createElement(document,"IMG");
+        var figure = DOM_createElement(document,"FIGURE");
+        var img = DOM_createElement(document,"IMG");
         img.setAttribute("src",filename);
-        DOM.appendChild(figure,img);
+        DOM_appendChild(figure,img);
 
         if ((caption != null) && (caption != "")) {
-            var figcaption = DOM.createElement(document,"FIGCAPTION");
-            DOM.appendChild(figcaption,DOM.createTextNode(document,caption));
-            DOM.appendChild(figure,figcaption);
+            var figcaption = DOM_createElement(document,"FIGCAPTION");
+            DOM_appendChild(figcaption,DOM_createTextNode(document,caption));
+            DOM_appendChild(figure,figcaption);
         }
 
-        Clipboard.pasteNodes([figure]);
+        Clipboard_pasteNodes([figure]);
     }
 
-    window.Figures = new (function Figures(){});
-    Figures.insertFigure = insertFigure;
+    Figures_insertFigure = insertFigure;
 
 })();

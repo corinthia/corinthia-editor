@@ -9,8 +9,8 @@
 body { -webkit-user-select: none }
 
 </style>
-<script type="text/javascript" src="../DOM.js"></script>
-<script type="text/javascript" src="../UndoManager.js"></script>
+<script type="text/javascript" src="../DOM_js"></script>
+<script type="text/javascript" src="../UndoManager_js"></script>
 <script type="text/javascript" src="../NodeSet.js"></script>
 <script type="text/javascript" src="../Position.js"></script>
 <script type="text/javascript" src="../Range.js"></script>
@@ -76,7 +76,7 @@ function updateForPosition(position)
 
 function updateForNode(node)
 {
-    var offset = DOM.nodeOffset(node);
+    var offset = DOM_nodeOffset(node);
     updateForPosition(new Position(node.parentNode,offset));
 }
 
@@ -92,7 +92,7 @@ function mouseUpPosition(position)
     dragging = false;
     range = new Range(range.start.node,range.start.offset,range.end.node,range.end.offset);
     range.expand();
-    Formatting.pushDownInlineProperties(range.getOutermostNodes());
+    Formatting_pushDownInlineProperties(range.getOutermostNodes());
     treeView.update();
 }
 
@@ -141,7 +141,7 @@ function removeWhitespaceTextNodes(parent)
     for (var child = parent.firstChild; child != null; child = next) {
         next = child.nextSibling;
         if (isWhitespaceTextNode(child) || (child.nodeType == Node.COMMENT_NODE))
-            DOM.deleteNode(child);
+            DOM_deleteNode(child);
         else
             removeWhitespaceTextNodes(child);
     }
@@ -150,15 +150,15 @@ function removeWhitespaceTextNodes(parent)
 function main()
 {
     window.showIds = true;
-    DOM.assignNodeIds(document);
+    DOM_assignNodeIds(document);
 
     var root = document.getElementById("root");
     removeWhitespaceTextNodes(root);
 
 
-    var svg = DOM.createElementNS(document,SVG_NAMESPACE,"svg");
+    var svg = DOM_createElementNS(document,SVG_NAMESPACE,"svg");
     svg.setAttribute("version","1.1");
-    DOM.appendChild(document.body,svg);
+    DOM_appendChild(document.body,svg);
 
     treeView = new TreeView(root);
     treeView.labelFun = function(node) {
@@ -203,7 +203,7 @@ function main()
         return style;
     };
 
-    DOM.appendChild(svg,treeView.element);
+    DOM_appendChild(svg,treeView.element);
     treeView.update();
 
     treeView.selectionMode = TreeView.POSITION_SELECTION;
@@ -211,7 +211,7 @@ function main()
     treeView.onMouseUpPosition = mouseUpPosition;
     treeView.onMouseOverPosition = mouseOverPosition;
 
-    UndoManager.monitorObject(state);
+    UndoManager_monitorObject(state);
     window.onresize = resize;
     layout();
 

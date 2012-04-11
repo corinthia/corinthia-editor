@@ -30,7 +30,7 @@
             throw new Error(req.status+": "+req.responseText);
         var doc = req.responseXML;
         if (doc != null)
-            DOM.assignNodeIds(doc);
+            DOM_assignNodeIds(doc);
         return doc;
     }
 
@@ -38,8 +38,8 @@
     {
         for (var child = wordT.firstChild; child != null; child = child.nextSibling) {
             if (child.nodeType == Node.TEXT_NODE) {
-                var htmlText = DOM.createTextNode(document,child.nodeValue);
-                DOM.appendChild(htmlP,htmlText);
+                var htmlText = DOM_createTextNode(document,child.nodeValue);
+                DOM_appendChild(htmlP,htmlText);
 
                 var thisChild = child;
 
@@ -105,27 +105,27 @@
             }
         }
 
-        var htmlP = DOM.createElement(document,paragraphType);
-        DOM.appendChild(htmlContainer,htmlP);
+        var htmlP = DOM_createElement(document,paragraphType);
+        DOM_appendChild(htmlContainer,htmlP);
 
-        var listener = new DOM.Listener();
+        var listener = new DOM_Listener();
         listener.afterReplaceElement = function(oldElement,newElement) {
             debug("Detected replacement of "+oldElement.nodeName+" with "+newElement.nodeName);
 
-            if (DOM.upperName(newElement) == "H1")
+            if (DOM_upperName(newElement) == "H1")
                 setWordPStyle(wordP,"Heading1");
-            else if (DOM.upperName(newElement) == "H2")
+            else if (DOM_upperName(newElement) == "H2")
                 setWordPStyle(wordP,"Heading2");
-            else if (DOM.upperName(newElement) == "H3")
+            else if (DOM_upperName(newElement) == "H3")
                 setWordPStyle(wordP,"Heading3");
-            else if (DOM.upperName(newElement) == "H4")
+            else if (DOM_upperName(newElement) == "H4")
                 setWordPStyle(wordP,"Heading4");
-            else if (DOM.upperName(newElement) == "H5")
+            else if (DOM_upperName(newElement) == "H5")
                 setWordPStyle(wordP,"Heading5");
-            else if (DOM.upperName(newElement) == "H6")
+            else if (DOM_upperName(newElement) == "H6")
                 setWordPStyle(wordP,"Heading6");
         };
-        DOM.addListener(htmlP,listener);
+        DOM_addListener(htmlP,listener);
 
         for (var child = wordP.firstChild; child != null; child = child.nextSibling) {
             if (isWordElement(child,"r"))

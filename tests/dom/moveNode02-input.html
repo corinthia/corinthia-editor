@@ -9,10 +9,10 @@ function performTest()
     var position = new Position(ps[0],0);
 
     Position.trackWhileExecuting([position],function() {
-        DOM.insertBefore(document.body,ps[0].childNodes[0],ps[1]);
+        DOM_insertBefore(document.body,ps[0].childNodes[0],ps[1]);
     });
 
-    var tt = DOM.createElement(document,"tt");
+    var tt = DOM_createElement(document,"tt");
     insertAtPosition(position,tt);
 }
 </script>

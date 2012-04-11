@@ -12,19 +12,19 @@
         this.domNode = domNode;
         this.treeView = treeView;
 
-        this.svgNode = DOM.createElementNS(document,SVG_NAMESPACE,"circle");
+        this.svgNode = DOM_createElementNS(document,SVG_NAMESPACE,"circle");
         this.svgNode.setAttribute("class","TreeView-Node");
         this.svgNode.setAttribute("r",Math.floor(DISPLAY_NODE_WIDTH/2));
-        this.overlay = DOM.createElementNS(document,SVG_NAMESPACE,"circle");
+        this.overlay = DOM_createElementNS(document,SVG_NAMESPACE,"circle");
         this.overlay.setAttribute("fill-opacity","0");
         this.overlay.setAttribute("r",Math.floor(DISPLAY_NODE_WIDTH/2));
-        this.parentLink = DOM.createElementNS(document,SVG_NAMESPACE,"line");
+        this.parentLink = DOM_createElementNS(document,SVG_NAMESPACE,"line");
         this.parentLink.setAttribute("class","TreeView-Link");
-        this.childrenHLine = DOM.createElementNS(document,SVG_NAMESPACE,"line");
+        this.childrenHLine = DOM_createElementNS(document,SVG_NAMESPACE,"line");
         this.childrenHLine.setAttribute("class","TreeView-Link");
-        this.childrenVLine = DOM.createElementNS(document,SVG_NAMESPACE,"line");
+        this.childrenVLine = DOM_createElementNS(document,SVG_NAMESPACE,"line");
         this.childrenVLine.setAttribute("class","TreeView-Link");
-        this.text = DOM.createElementNS(document,SVG_NAMESPACE,"text");
+        this.text = DOM_createElementNS(document,SVG_NAMESPACE,"text");
         this.text.setAttribute("text-anchor","middle");
         this.text.setAttribute("font-size","8pt");
         this.text.setAttribute("font-family","sans-serif");
@@ -197,7 +197,7 @@
         function checkRoot(root)
         {
             var rootDisp = treeView.displayNodes.get(treeView.domRoot);
-            var offset = DOM.nodeOffset(root);
+            var offset = DOM_nodeOffset(root);
             checkPosition(new Position(root.parentNode,offset),
                           rootDisp.x - DISPLAY_NODE_WIDTH/2,
                           rootDisp.y);
@@ -241,14 +241,14 @@
             }
         }
         if ((this.theMarker != null) && (this.theMarker.parentNode != null))
-            DOM.deleteNode(this.theMarker);
+            DOM_deleteNode(this.theMarker);
 
         if (this.currentPosition != null) {
             this.theMarker = createPositionMarker(treeView,this.currentPosition,"#808080",
                                                   4,DISPLAY_NODE_WIDTH*2);
             this.theMarker.setAttribute("fill-opacity","50%");
             this.theMarker.setAttribute("stroke","none");
-            DOM.appendChild(treeView.monitorGroup,this.theMarker);
+            DOM_appendChild(treeView.monitorGroup,this.theMarker);
         }
     }
 
@@ -307,7 +307,7 @@
         var offset = position.offset;
 
         if (position.node == treeView.domRoot.parentNode) {
-            var rootOffset = DOM.nodeOffset(treeView.domRoot);
+            var rootOffset = DOM_nodeOffset(treeView.domRoot);
             var disp = treeView.displayNodes.get(treeView.domRoot);
             if (offset == rootOffset) {
                 return { x: disp.x - DISPLAY_NODE_WIDTH/2,
@@ -353,7 +353,7 @@
         if (markerHeight == null)
             markerHeight = DISPLAY_NODE_WIDTH;
         var coords = positionCoords(treeView,value);
-        var marker = DOM.createElementNS(document,SVG_NAMESPACE,"rect");
+        var marker = DOM_createElementNS(document,SVG_NAMESPACE,"rect");
         marker.setAttribute("x",coords.x);
         marker.setAttribute("y",coords.y - markerHeight/2);
         marker.setAttribute("width",markerWidth);
@@ -365,8 +365,8 @@
 
     function updateMonitors(self)
     {
-        for (var monitorId in UndoManager.monitors) {
-            var monitor = UndoManager.monitors[monitorId];
+        for (var monitorId in UndoManager_monitors) {
+            var monitor = UndoManager_monitors[monitorId];
             var value = monitor.object[monitor.property];
             if ((value != null) && (value instanceof Node)) {
                 var displayNode = self.displayNodes.get(value);
@@ -375,9 +375,9 @@
                 var rectHeight = 20;
                 var rectSpacing = 20;
 
-                var label = DOM.createElementNS(document,SVG_NAMESPACE,"text");
-                DOM.appendChild(self.monitorGroup,label);
-                DOM.appendChild(label,DOM.createTextNode(document,monitor.property));
+                var label = DOM_createElementNS(document,SVG_NAMESPACE,"text");
+                DOM_appendChild(self.monitorGroup,label);
+                DOM_appendChild(label,DOM_createTextNode(document,monitor.property));
 
                 var ascent = -label.getBBox().y;
 
@@ -389,46 +389,46 @@
                 var border = 4;
 
                 var bbox = label.getBBox();
-                var bounds = DOM.createElementNS(document,SVG_NAMESPACE,"rect");
+                var bounds = DOM_createElementNS(document,SVG_NAMESPACE,"rect");
                 bounds.setAttribute("stroke","red");
                 bounds.setAttribute("fill","yellow");
                 bounds.setAttribute("x",bbox.x-border);
                 bounds.setAttribute("y",bbox.y-border);
                 bounds.setAttribute("width",bbox.width+2*border);
                 bounds.setAttribute("height",bbox.height+2*border);
-                DOM.insertBefore(self.monitorGroup,bounds,label);
+                DOM_insertBefore(self.monitorGroup,bounds,label);
 
-                var arrow = DOM.createElementNS(document,SVG_NAMESPACE,"line");
+                var arrow = DOM_createElementNS(document,SVG_NAMESPACE,"line");
                 arrow.setAttribute("stroke","red");
                 arrow.setAttribute("stroke-width","2");
                 arrow.setAttribute("x1",displayNode.x);
                 arrow.setAttribute("y1",displayNode.y + rectSpacing);
                 arrow.setAttribute("x2",displayNode.x);
                 arrow.setAttribute("y2",displayNode.y);
-                DOM.appendChild(self.monitorGroup,arrow);
+                DOM_appendChild(self.monitorGroup,arrow);
 
-                var marker = DOM.createElementNS(document,SVG_NAMESPACE,"path");
+                var marker = DOM_createElementNS(document,SVG_NAMESPACE,"path");
                 marker.setAttribute("stroke","red");
                 marker.setAttribute("stroke-width","1");
                 marker.setAttribute("fill","red");
                 marker.setAttribute("d","M 0 0 L 5 10 L -5 10");
                 marker.setAttribute("transform","translate("+displayNode.x+","+displayNode.y+")");
                 
-                DOM.appendChild(self.monitorGroup,marker);
+                DOM_appendChild(self.monitorGroup,marker);
             }
             else if ((value != null) && (value instanceof Position)) {
                 debug("position: "+value);
                 var node = value.node;
                 var offset = value.offset;
 
-                DOM.appendChild(self.monitorGroup,createPositionMarker(self,value,"blue"));
+                DOM_appendChild(self.monitorGroup,createPositionMarker(self,value,"blue"));
             }
 /*            else if ((value != null) && (value instanceof NodeSet)) {
                 for (var id in value.members) {
                     var node = value.members[id];
                     var displayNode = self.displayNodes.get(node);
 
-                    var rect = DOM.createElementNS(document,SVG_NAMESPACE,"rect");
+                    var rect = DOM_createElementNS(document,SVG_NAMESPACE,"rect");
                     rect.setAttribute("x",displayNode.x-DISPLAY_NODE_WIDTH);
                     rect.setAttribute("y",displayNode.y-DISPLAY_NODE_WIDTH);
                     rect.setAttribute("width",2*DISPLAY_NODE_WIDTH);
@@ -436,7 +436,7 @@
                     rect.setAttribute("stroke","none");
                     rect.setAttribute("fill","blue");
                     rect.setAttribute("fill-opacity","0.1");
-                    DOM.appendChild(self.monitorGroup,rect);
+                    DOM_appendChild(self.monitorGroup,rect);
                 }
             }
 */
@@ -516,7 +516,7 @@
             disp.text.setAttribute("x",disp.x);
             disp.text.setAttribute("y",disp.y+4);
 
-            DOM.deleteAllChildren(disp.text);
+            DOM_deleteAllChildren(disp.text);
             var label;
             if (self.this.labelFun != null) {
                 label = self.this.labelFun(disp.domNode);
@@ -525,7 +525,7 @@
                 var simpleId = parseInt(disp.domNode._nodeId.replace(/^.*:/,""));
                 label = simpleId.toString(16);
             }
-            DOM.appendChild(disp.text,DOM.createTextNode(document,label));
+            DOM_appendChild(disp.text,DOM_createTextNode(document,label));
 
 
             disp.svgNode.removeAttribute("style");
@@ -544,14 +544,14 @@
 
             if (disp.depth == 1) {
                 for (var i = 0; i < disp.levels; i++) {
-                    var rect = DOM.createElementNS(document,SVG_NAMESPACE,"rect");
+                    var rect = DOM_createElementNS(document,SVG_NAMESPACE,"rect");
                     rect.setAttribute("x",disp.minXAtLevel[i]);
                     rect.setAttribute("y",disp.y + i*LEVEL_HEIGHT - LEVEL_HEIGHT*0.4);
                     rect.setAttribute("width",disp.maxXAtLevel[i] - disp.minXAtLevel[i]);
                     rect.setAttribute("height",LEVEL_HEIGHT*0.8);
                     rect.setAttribute("stroke","red");
                     rect.setAttribute("fill","none");
-                    DOM.appendChild(self.nodeGroup,rect);
+                    DOM_appendChild(self.nodeGroup,rect);
                 }
             }
 
@@ -643,10 +643,10 @@
 
     function displayGroups(self)
     {
-        var monitorIds = Object.getOwnPropertyNames(UndoManager.monitors).sort();
+        var monitorIds = Object.getOwnPropertyNames(UndoManager_monitors).sort();
         var setno = 0;
         for (var i = 0; i < monitorIds.length; i++) {
-            var monitor = UndoManager.monitors[monitorIds[i]];
+            var monitor = UndoManager_monitors[monitorIds[i]];
             var value = monitor.object[monitor.property];
             if ((value != null) && (value instanceof NodeSet)) {
                 var color = SET_COLORS[setno] ? SET_COLORS[setno] : "gray";
@@ -666,12 +666,12 @@
                 recurse(child);
             var displayNode = new DisplayNode(node,self);
             self.displayNodes.put(node,displayNode);
-            DOM.appendChild(self.nodeGroup,displayNode.svgNode);
-            DOM.appendChild(self.nodeGroup,displayNode.text);
-            DOM.appendChild(self.linkGroup,displayNode.parentLink);
-            DOM.appendChild(self.linkGroup,displayNode.childrenHLine);
-            DOM.appendChild(self.linkGroup,displayNode.childrenVLine);
-            DOM.appendChild(self.overlayGroup,displayNode.overlay);
+            DOM_appendChild(self.nodeGroup,displayNode.svgNode);
+            DOM_appendChild(self.nodeGroup,displayNode.text);
+            DOM_appendChild(self.linkGroup,displayNode.parentLink);
+            DOM_appendChild(self.linkGroup,displayNode.childrenHLine);
+            DOM_appendChild(self.linkGroup,displayNode.childrenVLine);
+            DOM_appendChild(self.overlayGroup,displayNode.overlay);
         }
     }
 
@@ -705,19 +705,19 @@
 
         self.domRoot = domRoot;
 
-        self.treeGroup = DOM.createElementNS(document,SVG_NAMESPACE,"g");
-        self.backgroundRect = DOM.createElementNS(document,SVG_NAMESPACE,"rect");
-        self.backgroundGroup = DOM.createElementNS(document,SVG_NAMESPACE,"g");
-        self.linkGroup = DOM.createElementNS(document,SVG_NAMESPACE,"g");
-        self.nodeGroup = DOM.createElementNS(document,SVG_NAMESPACE,"g");
-        self.monitorGroup = DOM.createElementNS(document,SVG_NAMESPACE,"g");
-        self.overlayGroup = DOM.createElementNS(document,SVG_NAMESPACE,"g");
-        DOM.appendChild(self.treeGroup,self.backgroundGroup);
-        DOM.appendChild(self.treeGroup,self.linkGroup);
-        DOM.appendChild(self.treeGroup,self.nodeGroup);
-        DOM.appendChild(self.treeGroup,self.monitorGroup);
-        DOM.appendChild(self.treeGroup,self.overlayGroup);
-        DOM.appendChild(self.treeGroup,self.backgroundRect);
+        self.treeGroup = DOM_createElementNS(document,SVG_NAMESPACE,"g");
+        self.backgroundRect = DOM_createElementNS(document,SVG_NAMESPACE,"rect");
+        self.backgroundGroup = DOM_createElementNS(document,SVG_NAMESPACE,"g");
+        self.linkGroup = DOM_createElementNS(document,SVG_NAMESPACE,"g");
+        self.nodeGroup = DOM_createElementNS(document,SVG_NAMESPACE,"g");
+        self.monitorGroup = DOM_createElementNS(document,SVG_NAMESPACE,"g");
+        self.overlayGroup = DOM_createElementNS(document,SVG_NAMESPACE,"g");
+        DOM_appendChild(self.treeGroup,self.backgroundGroup);
+        DOM_appendChild(self.treeGroup,self.linkGroup);
+        DOM_appendChild(self.treeGroup,self.nodeGroup);
+        DOM_appendChild(self.treeGroup,self.monitorGroup);
+        DOM_appendChild(self.treeGroup,self.overlayGroup);
+        DOM_appendChild(self.treeGroup,self.backgroundRect);
         self.treeWidth = null;
         self.treeHeight = null;
         self.displayNodes = new NodeMap();
@@ -783,11 +783,11 @@
     TreeView.prototype.update = function()
     {
         var self = this.self;
-        DOM.deleteAllChildren(self.backgroundGroup);
-        DOM.deleteAllChildren(self.linkGroup);
-        DOM.deleteAllChildren(self.nodeGroup);
-        DOM.deleteAllChildren(self.monitorGroup);
-        DOM.deleteAllChildren(self.overlayGroup);
+        DOM_deleteAllChildren(self.backgroundGroup);
+        DOM_deleteAllChildren(self.linkGroup);
+        DOM_deleteAllChildren(self.nodeGroup);
+        DOM_deleteAllChildren(self.monitorGroup);
+        DOM_deleteAllChildren(self.overlayGroup);
         self.displayNodes.clear();
         createDisplayNodes(self);
         layoutDisplayNodes(self);

@@ -7,15 +7,15 @@
 
 function performTest()
 {
-    // DOM.wrapNode() should not affect any positions, because the node itself remains in the
+    // DOM_wrapNode() should not affect any positions, because the node itself remains in the
     // tree unmodified.
 
     var result = comparePositionsBeforeAndAfter(function() {
-        DOM.wrapNode(document.getElementById("p2"),"DIV");
+        DOM_wrapNode(document.getElementById("p2"),"DIV");
     });
 
-    DOM.deleteAllChildren(document.body);
-    DOM.appendChild(document.body,DOM.createTextNode(document,"-\n"+result+"\n-"));
+    DOM_deleteAllChildren(document.body);
+    DOM_appendChild(document.body,DOM_createTextNode(document,"-\n"+result+"\n-"));
 }
 </script>
 </head>

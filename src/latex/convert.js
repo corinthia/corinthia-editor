@@ -106,30 +106,30 @@ function translateHTML2Latex(document)
         else if (node.nodeType == Node.ELEMENT_NODE) {
             var prefix = "";
             var suffix = "";
-            if (DOM.upperName(node) == "H1") {
+            if (DOM_upperName(node) == "H1") {
                 prefix = "\n\\section{";
                 suffix = "}\n";
             }
-            else if (DOM.upperName(node) == "H2") {
+            else if (DOM_upperName(node) == "H2") {
                 prefix = "\n\\subsection{";
                 suffix = "}\n";
             }
 
-            else if (DOM.upperName(node) == "H3") {
+            else if (DOM_upperName(node) == "H3") {
                 prefix = "\n\\subsubsection{";
                 suffix = "}\n";
             }
 
-            else if (DOM.upperName(node) == "H4") {
+            else if (DOM_upperName(node) == "H4") {
                 prefix = "\n\\paragraph{";
                 suffix = "}\n";
             }
 
-            else if ((DOM.upperName(node) == "H5") || (DOM.upperName(node) == "H6")) {
+            else if ((DOM_upperName(node) == "H5") || (DOM_upperName(node) == "H6")) {
                 prefix = "\n\\subparagraph{";
                 suffix = "}\n";
             }
-            else if (DOM.upperName(node) == "P") {
+            else if (DOM_upperName(node) == "P") {
 
                 var prefix = "\n";
                 var suffix = "\n";
@@ -150,39 +150,39 @@ function translateHTML2Latex(document)
                     }
                 }
             }
-            else if (DOM.upperName(node) == "SCRIPT") {
+            else if (DOM_upperName(node) == "SCRIPT") {
                 return; // Dont want to display contents of this
             }
-            else if (DOM.upperName(node) == "UL") {
+            else if (DOM_upperName(node) == "UL") {
                 prefix = "\n\\begin{itemize}\n";
                 suffix = "\n\\end{itemize}\n";
             }
-            else if (DOM.upperName(node) == "OL") {
+            else if (DOM_upperName(node) == "OL") {
                 prefix = "\n\\begin{enumerate}\n";
                 suffix = "\n\\end{enumerate}\n";
             }
-            else if (DOM.upperName(node) == "LI") {
+            else if (DOM_upperName(node) == "LI") {
                 prefix = "\\item ";
                 suffix = "\n";
             }
-            else if (DOM.upperName(node) == "B") {
+            else if (DOM_upperName(node) == "B") {
                 prefix = "\\textbf{";
                 suffix = "}";
             }
-            else if (DOM.upperName(node) == "I") {
+            else if (DOM_upperName(node) == "I") {
                 prefix = "\\emph{";
                 suffix = "}";
             }
-            else if (DOM.upperName(node) == "U") {
+            else if (DOM_upperName(node) == "U") {
                 preamble.addRequiredPackage("ulem");
                 prefix = "\\uline{";
                 suffix = "}";
             }
-            else if (DOM.upperName(node) == "TT") {
+            else if (DOM_upperName(node) == "TT") {
                 prefix = "\\texttt{";
                 suffix = "}";
             }
-            else if (DOM.upperName(node) == "A") {
+            else if (DOM_upperName(node) == "A") {
                 var href = node.getAttribute("href");
                 if ((href != null) && (href.charAt(0) == "#")) {
                     var id = href.slice(1);
@@ -196,7 +196,7 @@ function translateHTML2Latex(document)
                     }
                 }
             }
-            else if (DOM.upperName(node) == "TABLE") {
+            else if (DOM_upperName(node) == "TABLE") {
                 var table = new htmltable.Table(node);
                 preamble.addRequiredPackage("tabularx");
                 builder.append("\n\\begin{tabularx}{\\textwidth}{|");
@@ -323,9 +323,9 @@ function translateHTML2Latex(document)
     function nodeLabel(node)
     {
         var id = node.getAttribute("id"); // FIXME: substitute special characters
-        if ((DOM.upperName(node) == "H1") ||
-            (DOM.upperName(node) == "H2") ||
-            (DOM.upperName(node) == "H3"))
+        if ((DOM_upperName(node) == "H1") ||
+            (DOM_upperName(node) == "H2") ||
+            (DOM_upperName(node) == "H3"))
             return "sec:"+id;
         else if (node.getAttribute("class") == "figure")
             return "fig:"+id;
@@ -347,8 +347,8 @@ function convert()
     var latex = translateHTML2Latex(document);
 
     var win = window.open();
-    var text = DOM.createTextNode(win.document,latex);
-    var pre = DOM.createElement(win.document,"PRE");
-    DOM.appendChild(pre,text);
-    DOM.appendChild(win.document.body,pre);
+    var text = DOM_createTextNode(win.document,latex);
+    var pre = DOM_createElement(win.document,"PRE");
+    DOM_appendChild(pre,text);
+    DOM_appendChild(win.document.body,pre);
 }

@@ -1,10 +1,20 @@
+// Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
+
+var Markdown_htmlToMarkdown;
+var Clipboard_htmlToText;
+var Clipboard_cut;
+var Clipboard_copy;
+var Clipboard_pasteText;
+var Clipboard_pasteHTML;
+var Clipboard_pasteNodes;
+
 (function() {
 
     function blockToText(md,node,indent,nextIndent,listType,listNo)
     {
         var linesBetweenChildren = 1;
         var childIndent = indent;
-        if (DOM.upperName(node) == "LI") {
+        if (DOM_upperName(node) == "LI") {
             if (listType == "OL") {
                 var listMarker;
                 if (listNo.value < 10)
@@ -20,41 +30,41 @@
             }
             listNo.value++;
         }
-        else if (DOM.upperName(node) == "UL") {
+        else if (DOM_upperName(node) == "UL") {
             listType = "UL";
             listNo = { value: 1 };
             beginParagraph(md,1,indent,nextIndent);
             linesBetweenChildren = 0;
         }
-        else if (DOM.upperName(node) == "OL") {
+        else if (DOM_upperName(node) == "OL") {
             listType = "OL";
             listNo = { value: 1 };
             beginParagraph(md,1,indent,nextIndent);
             linesBetweenChildren = 0;
         }
-        else if (DOM.upperName(node) == "H1") {
+        else if (DOM_upperName(node) == "H1") {
             beginParagraph(md,1,indent,nextIndent,"# "," #");
         }
-        else if (DOM.upperName(node) == "H2") {
+        else if (DOM_upperName(node) == "H2") {
             beginParagraph(md,1,indent,nextIndent,"## "," ##");
         }
-        else if (DOM.upperName(node) == "H3") {
+        else if (DOM_upperName(node) == "H3") {
             beginParagraph(md,1,indent,nextIndent,"### "," ###");
         }
-        else if (DOM.upperName(node) == "H4") {
+        else if (DOM_upperName(node) == "H4") {
             beginParagraph(md,1,indent,nextIndent,"#### "," ####");
         }
-        else if (DOM.upperName(node) == "H5") {
+        else if (DOM_upperName(node) == "H5") {
             beginParagraph(md,1,indent,nextIndent,"##### "," #####");
         }
-        else if (DOM.upperName(node) == "H6") {
+        else if (DOM_upperName(node) == "H6") {
             beginParagraph(md,1,indent,nextIndent,"###### "," ######");
         }
-        else if (DOM.upperName(node) == "BLOCKQUOTE") {
+        else if (DOM_upperName(node) == "BLOCKQUOTE") {
             beginParagraph(md,1,indent,nextIndent,"> ");
             nextIndent += "> ";
         }
-        else if (DOM.upperName(node) == "PRE") {
+        else if (DOM_upperName(node) == "PRE") {
             md.preDepth++;
         }
 
@@ -80,7 +90,7 @@
             }
         }
 
-        if (DOM.upperName(node) == "PRE") {
+        if (DOM_upperName(node) == "PRE") {
             md.preDepth--;
         }
     }
@@ -149,17 +159,17 @@
             }
             md.buildParagraph.push(text);
         }
-        else if ((DOM.upperName(node) == "I") || (DOM.upperName(node) == "EM")) {
+        else if ((DOM_upperName(node) == "I") || (DOM_upperName(node) == "EM")) {
             md.buildParagraph.push("*");
             processChildren();
             md.buildParagraph.push("*");
         }
-        else if ((DOM.upperName(node) == "B") || (DOM.upperName(node) == "STRONG")) {
+        else if ((DOM_upperName(node) == "B") || (DOM_upperName(node) == "STRONG")) {
             md.buildParagraph.push("**");
             processChildren();
             md.buildParagraph.push("**");
         }
-        else if (DOM.upperName(node) == "A") {
+        else if (DOM_upperName(node) == "A") {
             md.buildParagraph.push("[");
             processChildren();
             md.buildParagraph.push("]("+node.getAttribute("href")+")");
@@ -209,8 +219,7 @@
         }
     }
 
-    window.Markdown = new Object();
-    Markdown.htmlToMarkdown = htmlToMarkdown;
+    Markdown_htmlToMarkdown = htmlToMarkdown;
 
 })();
 
@@ -219,30 +228,30 @@
     // public (FIXME: temp: for testing)
     function htmlToText(node)
     {
-        return Markdown.htmlToMarkdown(node);
+        return Markdown_htmlToMarkdown(node);
     }
 
     // public
     function cut()
     {
         var content = copy();
-        Selection.deleteSelectionContents();
+        Selection_deleteSelectionContents();
         return content;
     }
 
     // public
     function copy()
     {
-        var selectionRange = Selection.getSelectionRange();
+        var selectionRange = Selection_getSelectionRange();
         var html = "";
         var text = "";
 
         if (selectionRange != null) {
             var nodes = selectionRange.cloneContents();
 
-            var div = DOM.createElement(document,"DIV");
+            var div = DOM_createElement(document,"DIV");
             for (var i = 0; i < nodes.length; i++)
-                DOM.appendChild(div,nodes[i]);
+                DOM_appendChild(div,nodes[i]);
 
             html = div.innerHTML;
             text = htmlToText(div);
@@ -278,10 +287,10 @@
         else if (html.match(/^\s*<li/i))
             html = "<ul>" + html + "</ul>";
 
-        var div = DOM.createElement(document,"DIV");
+        var div = DOM_createElement(document,"DIV");
         div.innerHTML = html;
         for (var child = div.firstChild; child != null; child = child.nextSibling)
-            DOM.assignNodeIds(child);
+            DOM_assignNodeIds(child);
 
         var nodes = new Array();
         for (var child = div.firstChild; child != null; child = child.nextSibling)
@@ -293,8 +302,8 @@
     // public
     function pasteNodes(nodes)
     {
-        Selection.deleteSelectionContents();
-        var selectionRange = Selection.getSelectionRange();
+        Selection_deleteSelectionContents();
+        var selectionRange = Selection_getSelectionRange();
         if (selectionRange == null)
             return;
 
@@ -314,7 +323,7 @@
             previousSibling = node.childNodes[offset-1];
         }
         else {
-            Formatting.splitTextBefore(node,offset);
+            Formatting_splitTextBefore(node,offset);
             parent = node.parentNode;
             nextSibling = node;
             previousSibling = node.previousSibling;
@@ -322,18 +331,18 @@
 
         var pasteList = new Array();
 
-        if ((DOM.upperName(parent) == "UL") || (DOM.upperName(parent) == "OL")) {
+        if ((DOM_upperName(parent) == "UL") || (DOM_upperName(parent) == "OL")) {
             for (var i = 0; i < nodes.length; i++) {
-                if (DOM.upperName(nodes[i]) == "LI") {
+                if (DOM_upperName(nodes[i]) == "LI") {
                     pasteList.push(nodes[i]);
                 }
-                else if (DOM.upperName(nodes[i]) == DOM.upperName(parent)) {
+                else if (DOM_upperName(nodes[i]) == DOM_upperName(parent)) {
                     for (var child = nodes[i].firstChild; child != null; child = child.nextSibling)
                         pasteList.push(child);
                 }
                 else if (!isWhitespaceTextNode(nodes[i])) {
-                    var li = DOM.createElement(document,"LI");
-                    DOM.appendChild(li,nodes[i]);
+                    var li = DOM_createElement(document,"LI");
+                    DOM_appendChild(li,nodes[i]);
                     pasteList.push(li);
                 }
             }
@@ -344,33 +353,33 @@
         }
 
         for (var i = 0; i < pasteList.length; i++)
-            DOM.insertBefore(parent,pasteList[i],nextSibling);
+            DOM_insertBefore(parent,pasteList[i],nextSibling);
 
         if (pasteList.length == 0)
             return;
 
         var firstNode = pasteList[0];
         var lastNode = pasteList[pasteList.length-1];
-        var pastedRange = new Range(firstNode.parentNode,DOM.nodeOffset(firstNode),
-                                    lastNode.parentNode,DOM.nodeOffset(lastNode)+1);
+        var pastedRange = new Range(firstNode.parentNode,DOM_nodeOffset(firstNode),
+                                    lastNode.parentNode,DOM_nodeOffset(lastNode)+1);
         pastedRange.trackWhileExecuting(function() {
 
             if (nodes.length > 0) {
                 var offset;
                 if (nextSibling != null)
-                    offset = DOM.nodeOffset(nextSibling);
+                    offset = DOM_nodeOffset(nextSibling);
                 else
                     offset = parent.childNodes.length;
                 selectionRange = new Range(parent,offset,parent,offset);
-                Selection.setSelectionRange(selectionRange);
+                Selection_setSelectionRange(selectionRange);
             }
             selectionRange.trackWhileExecuting(function() {
                 if (previousSibling != null)
-                    Formatting.mergeWithNeighbours(previousSibling,Formatting.MERGEABLE_INLINE);
+                    Formatting_mergeWithNeighbours(previousSibling,Formatting_MERGEABLE_INLINE);
                 if (nextSibling != null)
-                    Formatting.mergeWithNeighbours(nextSibling,Formatting.MERGEABLE_INLINE);
+                    Formatting_mergeWithNeighbours(nextSibling,Formatting_MERGEABLE_INLINE);
 
-                Cursor.updateBRAtEndOfParagraph(parent);
+                Cursor_updateBRAtEndOfParagraph(parent);
 
                 pastedRange.ensureRangeValidHierarchy();
             });
@@ -382,12 +391,11 @@
         // FIXME
     }
 
-    window.Clipboard = new (function Clipboard(){});
-    Clipboard.htmlToText = trace(htmlToText);
-    Clipboard.cut = trace(cut);
-    Clipboard.copy = trace(copy);
-    Clipboard.pasteText = trace(pasteText);
-    Clipboard.pasteHTML = trace(pasteHTML);
-    Clipboard.pasteNodes = trace(pasteNodes);
+    Clipboard_htmlToText = trace(htmlToText);
+    Clipboard_cut = trace(cut);
+    Clipboard_copy = trace(copy);
+    Clipboard_pasteText = trace(pasteText);
+    Clipboard_pasteHTML = trace(pasteHTML);
+    Clipboard_pasteNodes = trace(pasteNodes);
 
 })();

@@ -1,5 +1,38 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
+var DOM_assignNodeIds;
+var DOM_addUndoListeners;
+var DOM_createElement;
+var DOM_createElementNS;
+var DOM_createTextNode;
+var DOM_createComment;
+var DOM_cloneNode;
+var DOM_appendChild;
+var DOM_insertBefore;
+var DOM_deleteNode;
+var DOM_deleteAllChildren;
+var DOM_shallowCopyElement;
+var DOM_removeNodeButKeepChildren;
+var DOM_replaceElement;
+var DOM_wrapNode;
+var DOM_mergeWithNextSibling;
+var DOM_nodesMergeable;
+var DOM_addTrackedPosition;
+var DOM_removeTrackedPosition;
+var DOM_removeAdjacentWhitespace;
+var DOM_insertCharacters;
+var DOM_deleteCharacters;
+var DOM_setNodeValue;
+var DOM_lowerName;
+var DOM_upperName;
+var DOM_documentHead;
+var DOM_ensureUniqueIds;
+var DOM_nodeOffset;
+var DOM_maxChildOffset;
+var DOM_addListener;
+var DOM_removeListener;
+var DOM_Listener;
+
 (function() {
 
     // Assign a unique prefix to the ids, to ensure namespaces don't clash when multiple instances
@@ -18,10 +51,10 @@
 
     function insertBeforeInternal(parent,newChild,refChild)
     {
-        if (window.UndoManager != null) {
-            UndoManager.addAction(function() {
+        if (window.UndoManager_addAction != null) {
+            UndoManager_addAction(function() {
                 deleteNodeInternal(newChild);
-            },"Remove "+DOM.upperName(newChild)+" from parent "+DOM.upperName(parent));
+            },"Remove "+DOM_upperName(newChild)+" from parent "+DOM_upperName(parent));
         }
 
         parent.insertBefore(newChild,refChild);
@@ -35,18 +68,18 @@
     function deleteNodeInternal(node,deleteDescendantData)
     {
         if (node._nodeId == null)
-            throw new Error("deleteNodeInternal: node "+DOM.upperName(node)+
+            throw new Error("deleteNodeInternal: node "+DOM_upperName(node)+
                             " has no _nodeId property");
 
         var parent = node.parentNode;
         var nextSibling = node.nextSibling;
-        var nextName = (nextSibling == null) ? null : DOM.upperName(nextSibling);
+        var nextName = (nextSibling == null) ? null : DOM_upperName(nextSibling);
         var data = nodeData[node._nodeId];
-        if (window.UndoManager != null) {
-            UndoManager.addAction(function() {
+        if (window.UndoManager_addAction != null) {
+            UndoManager_addAction(function() {
                 insertBeforeInternal(parent,node,nextSibling);
-            },"Insert "+DOM.upperName(node)+" into parent "+
-              DOM.upperName(parent)+" before "+nextName);
+            },"Insert "+DOM_upperName(node)+" into parent "+
+              DOM_upperName(parent)+" before "+nextName);
         }
 
         node.parentNode.removeChild(node);
@@ -60,11 +93,11 @@
 
         function deleteNodeData(current)
         {
-            if (window.UndoManager != null) {
+            if (window.UndoManager_addAction != null) {
                 var data = nodeData[current._nodeId];
-                UndoManager.addAction(function() {
+                UndoManager_addAction(function() {
                     nodeData[current._nodeId] = data;
-                },"Set node data for "+DOM.upperName(current));
+                },"Set node data for "+DOM_upperName(current));
             }
             delete nodeData[current._nodeId];
         }
@@ -84,44 +117,42 @@
         var prevValue = event.prevValue;
         var newValue = event.newValue;
         if (event.attrChange == MutationEvent.ADDITION) {
-            UndoManager.addAction(function() {
+            UndoManager_addAction(function() {
                 element.removeAttribute(attrName);
-            },"Remove "+attrName+" attribute from "+DOM.upperName(element));
+            },"Remove "+attrName+" attribute from "+DOM_upperName(element));
         }
         else if (event.attrChange == MutationEvent.REMOVAL) {
-            UndoManager.addAction(function() {
+            UndoManager_addAction(function() {
                 element.setAttribute(attrName,prevValue);
             },"Add "+attrName+" attribute to "+
-              DOM.upperName(element)+" with value \""+prevValue+"\"");
+              DOM_upperName(element)+" with value \""+prevValue+"\"");
         }
         else if (event.attrChange == MutationEvent.MODIFICATION) {
-            UndoManager.addAction(function() {
+            UndoManager_addAction(function() {
                 element.setAttribute(attrName,prevValue);
             },"Change "+attrName+" attribute of "+
-              DOM.upperName(element)+" to value \""+prevValue+"\"");
+              DOM_upperName(element)+" to value \""+prevValue+"\"");
         }
     }
 
     function characterDataModified(node,prevValue)
     {
-        UndoManager.addAction(function() {
+        UndoManager_addAction(function() {
             node.nodeValue = prevValue;
         },"Set text node to \""+prevValue+"\"");
     }
 
-    var DOM = new (function DOM(){});
-
     // public methods
-    DOM.assignNodeIds = function(node)
+    DOM_assignNodeIds = function(node)
     {
         if (node._nodeId != null)
             throw new Error(node+" already has id");
         node._nodeId = prefix+nextNodeId++;
         for (var child = node.firstChild; child != null; child = child.nextSibling)
-            DOM.assignNodeIds(child);
+            DOM_assignNodeIds(child);
     }
 
-    DOM.addUndoListeners = function(node)
+    DOM_addUndoListeners = function(node)
     {
 //        node.addEventListener("DOMNodeInserted",nodeInserted);
 //        node.addEventListener("DOMNodeRemoved",nodeRemoved);
@@ -130,49 +161,49 @@
 
     // Low-level methods
 
-    DOM.createElement = function(document,elementName)
+    DOM_createElement = function(document,elementName)
     {
         return assignNodeId(document.createElement(elementName));
     }
 
-    DOM.createElementNS = function(document,namespaceURI,qualifiedName)
+    DOM_createElementNS = function(document,namespaceURI,qualifiedName)
     {
         return assignNodeId(document.createElementNS(namespaceURI,qualifiedName));
     }
 
-    DOM.createTextNode = function(document,data)
+    DOM_createTextNode = function(document,data)
     {
         return assignNodeId(document.createTextNode(data));
     }
 
-    DOM.createComment = function(document,data)
+    DOM_createComment = function(document,data)
     {
         return assignNodeId(document.createComment(data));
     }
 
-    DOM.cloneNode = function(original,deep)
+    DOM_cloneNode = function(original,deep)
     {
         var clone = original.cloneNode(deep);
-        DOM.assignNodeIds(clone);
+        DOM_assignNodeIds(clone);
         return clone;
     }
 
-    DOM.appendChild = function(node,child)
+    DOM_appendChild = function(node,child)
     {
-        return DOM.insertBefore(node,child,null);
+        return DOM_insertBefore(node,child,null);
     }
 
-    DOM.insertBefore = function(parent,child,nextSibling)
+    DOM_insertBefore = function(parent,child,nextSibling)
     {
         var newOffset;
         if (nextSibling != null)
-            newOffset = DOM.nodeOffset(nextSibling);
+            newOffset = DOM_nodeOffset(nextSibling);
         else
             newOffset = parent.childNodes.length;
 
         var oldParent = child.parentNode;
         if (oldParent != null) { // already in tree
-            var oldOffset = DOM.nodeOffset(child);
+            var oldOffset = DOM_nodeOffset(child);
 
             if ((oldParent == parent) && (newOffset > oldOffset))
                 newOffset--;
@@ -196,7 +227,7 @@
         return result;
     }
 
-    DOM.deleteNode = function(node)
+    DOM_deleteNode = function(node)
     {
         if (node.parentNode == null) // already deleted
             return;
@@ -209,13 +240,13 @@
                 adjustPositionsRecursive(child);
 
             trackedPositionsForNode(current.parentNode).forEach(function (position) {
-                var offset = DOM.nodeOffset(current);
+                var offset = DOM_nodeOffset(current);
                 if (offset < position.offset) {
                     position.offset--;
                 }
             });
             trackedPositionsForNode(current).forEach(function (position) {
-                var offset = DOM.nodeOffset(current);
+                var offset = DOM_nodeOffset(current);
                 position.node = current.parentNode;
                 position.offset = offset;
             });
@@ -224,22 +255,22 @@
 
     // High-level methods
 
-    DOM.deleteAllChildren = function(parent)
+    DOM_deleteAllChildren = function(parent)
     {
         while (parent.firstChild != null)
-            DOM.deleteNode(parent.firstChild);
+            DOM_deleteNode(parent.firstChild);
     }
 
-    DOM.shallowCopyElement = function(element)
+    DOM_shallowCopyElement = function(element)
     {
-        var copy = DOM.cloneNode(element,false);
+        var copy = DOM_cloneNode(element,false);
         copy.removeAttribute("id");
         return copy;
     }
 
-    DOM.removeNodeButKeepChildren = function(node)
+    DOM_removeNodeButKeepChildren = function(node)
     {
-        var offset = DOM.nodeOffset(node);
+        var offset = DOM_nodeOffset(node);
         var childCount = node.childNodes.length;
 
         trackedPositionsForNode(node.parentNode).forEach(function (position) {
@@ -262,10 +293,10 @@
         }
     }
 
-    DOM.replaceElement = function(oldElement,newName)
+    DOM_replaceElement = function(oldElement,newName)
     {
         var listeners = listenersForNode(oldElement);
-        var newElement = DOM.createElement(document,newName);
+        var newElement = DOM_createElement(document,newName);
         for (var i = 0; i < oldElement.attributes.length; i++) {
             var name = oldElement.attributes[i].nodeName;
             var value = oldElement.getAttribute(name);
@@ -297,9 +328,9 @@
         return newElement;
     }
 
-    DOM.wrapNode = function(node,elementName)
+    DOM_wrapNode = function(node,elementName)
     {
-        var wrapper = DOM.createElement(document,elementName);
+        var wrapper = DOM_createElement(document,elementName);
 
         insertBeforeInternal(node.parentNode,wrapper,node);
         appendChildInternal(wrapper,node);
@@ -307,26 +338,26 @@
         return wrapper;
     }
 
-    DOM.mergeWithNextSibling = function(current,whiteList)
+    DOM_mergeWithNextSibling = function(current,whiteList)
     {
         var parent = current.parentNode;
         var next = current.nextSibling;
 
-        if ((next == null) || !DOM.nodesMergeable(current,next,whiteList))
+        if ((next == null) || !DOM_nodesMergeable(current,next,whiteList))
             return;
 
-        var currentLength = DOM.maxChildOffset(current);
-        var nextOffset = DOM.nodeOffset(next);
+        var currentLength = DOM_maxChildOffset(current);
+        var nextOffset = DOM_nodeOffset(next);
 
         var lastChild = null;
 
         if (current.nodeType == Node.ELEMENT_NODE) {
             lastChild = current.lastChild;
-            DOM.insertBefore(current,next,null);
-            DOM.removeNodeButKeepChildren(next);
+            DOM_insertBefore(current,next,null);
+            DOM_removeNodeButKeepChildren(next);
         }
         else {
-            DOM.insertCharacters(current,current.nodeValue.length,next.nodeValue);
+            DOM_insertCharacters(current,current.nodeValue.length,next.nodeValue);
 
             trackedPositionsForNode(next).forEach(function (position) {
                 position.node = current;
@@ -340,14 +371,14 @@
                 }
             });
 
-            DOM.deleteNode(next);
+            DOM_deleteNode(next);
         }
 
         if (lastChild != null)
-            DOM.mergeWithNextSibling(lastChild,whiteList);
+            DOM_mergeWithNextSibling(lastChild,whiteList);
     }
 
-    DOM.nodesMergeable = function(a,b,whiteList)
+    DOM_nodesMergeable = function(a,b,whiteList)
     {
         if ((a.nodeType == Node.TEXT_NODE) && (b.nodeType == Node.TEXT_NODE))
             return true;
@@ -360,8 +391,8 @@
         {
             if (whiteList["force"] && isParagraphNode(a) && isParagraphNode(b))
                 return true;
-            if ((DOM.upperName(a) == DOM.upperName(b)) &&
-                whiteList[DOM.upperName(a)] &&
+            if ((DOM_upperName(a) == DOM_upperName(b)) &&
+                whiteList[DOM_upperName(a)] &&
                 (a.attributes.length == b.attributes.length)) {
                 for (var i = 0; i < a.attributes.length; i++) {
                     var attrName = a.attributes[i].nodeName;
@@ -378,7 +409,7 @@
     function getDataForNode(node,create)
     {
         if (node._nodeId == null)
-            throw new Error("getDataForNode: node "+DOM.upperName(node)+" has no _nodeId property");
+            throw new Error("getDataForNode: node "+DOM_upperName(node)+" has no _nodeId property");
         if ((nodeData[node._nodeId] == null) && create)
             nodeData[node._nodeId] = new Object();
         return nodeData[node._nodeId];
@@ -409,7 +440,7 @@
             return [];
     }
 
-    DOM.addTrackedPosition = function(position)
+    DOM_addTrackedPosition = function(position)
     {
         var data = getDataForNode(position.node,true);
         if (data.trackedPositions == null)
@@ -417,34 +448,34 @@
         data.trackedPositions.push(position);
     }
 
-    DOM.removeTrackedPosition = function(position)
+    DOM_removeTrackedPosition = function(position)
     {
         var data = getDataForNode(position.node,false);
         if ((data == null) || (data.trackedPositions == null))
-            throw new Error("DOM.removeTrackedPosition: no registered positions for this node "+
-                            "("+DOM.upperName(position.node)+")");
+            throw new Error("DOM_removeTrackedPosition: no registered positions for this node "+
+                            "("+DOM_upperName(position.node)+")");
         for (var i = 0; i < data.trackedPositions.length; i++) {
             if (data.trackedPositions[i] == position) {
                 data.trackedPositions.splice(i,1);
                 return;
             }
         }
-        throw new Error("DOM.removeTrackedPosition: position is not registered ("+
+        throw new Error("DOM_removeTrackedPosition: position is not registered ("+
                         data.trackedPositions.length+" others)");
     }
 
-    DOM.removeAdjacentWhitespace = function(node)
+    DOM_removeAdjacentWhitespace = function(node)
     {
         while ((node.previousSibling != null) && (isWhitespaceTextNode(node.previousSibling)))
-            DOM.deleteNode(node.previousSibling);
+            DOM_deleteNode(node.previousSibling);
         while ((node.nextSibling != null) && (isWhitespaceTextNode(node.nextSibling)))
-            DOM.deleteNode(node.nextSibling);
+            DOM_deleteNode(node.nextSibling);
     }
 
-    DOM.insertCharacters = function(textNode,offset,characters)
+    DOM_insertCharacters = function(textNode,offset,characters)
     {
         if (textNode.nodeType != Node.TEXT_NODE)
-            throw new Error("DOM.insertCharacters called on non-text node");
+            throw new Error("DOM_insertCharacters called on non-text node");
         trackedPositionsForNode(textNode).forEach(function (position) {
             if (position.offset > offset)
                 position.offset += characters.length;
@@ -455,14 +486,14 @@
                              textNode.nodeValue.slice(offset);
     }
 
-    DOM.deleteCharacters = function(textNode,startOffset,endOffset)
+    DOM_deleteCharacters = function(textNode,startOffset,endOffset)
     {
         if (textNode.nodeType != Node.TEXT_NODE)
-            throw new Error("DOM.deleteCharacters called on non-text node "+nodeString(textNode));
+            throw new Error("DOM_deleteCharacters called on non-text node "+nodeString(textNode));
         if (endOffset == null)
             endOffset = textNode.nodeValue.length;
         if (endOffset < startOffset)
-            throw new Error("DOM.deleteCharacters called with invalid start/end offset");
+            throw new Error("DOM_deleteCharacters called with invalid start/end offset");
         trackedPositionsForNode(textNode).forEach(function (position) {
             var deleteCount = endOffset - startOffset;
             if ((position.offset > startOffset) && (position.offset < endOffset))
@@ -475,10 +506,10 @@
                              textNode.nodeValue.slice(endOffset);
     }
 
-    DOM.setNodeValue = function(textNode,value)
+    DOM_setNodeValue = function(textNode,value)
     {
         if (textNode.nodeType != Node.TEXT_NODE)
-            throw new Error("DOM.setNodeValue called on non-text node");
+            throw new Error("DOM_setNodeValue called on non-text node");
         trackedPositionsForNode(textNode).forEach(function (position) {
             position.offset = 0;
         });
@@ -486,12 +517,12 @@
         textNode.nodeValue = value;
     }
 
-    DOM.lowerName = function(node)
+    DOM_lowerName = function(node)
     {
         return node.nodeName.toLowerCase();
     }
 
-    DOM.upperName = function(node)
+    DOM_upperName = function(node)
     {
         if (node.nodeType == Node.ELEMENT_NODE)
             return node.nodeName.toUpperCase();
@@ -499,17 +530,17 @@
             return node.nodeName;
     }
 
-    DOM.documentHead = function(document)
+    DOM_documentHead = function(document)
     {
         var html = document.documentElement;
         for (var child = html.firstChild; child != null; child = child.nextSibling) {
-            if (DOM.upperName(child) == "HEAD")
+            if (DOM_upperName(child) == "HEAD")
                 return child;
         }
         throw new Error("Document contains no HEAD element");
     }
 
-    DOM.ensureUniqueIds = function(root)
+    DOM_ensureUniqueIds = function(root)
     {
         var ids = new Object();
         var duplicates = new Array();
@@ -556,7 +587,7 @@
         }
     }
 
-    DOM.nodeOffset = function(node)
+    DOM_nodeOffset = function(node)
     {
         var offset = 0;
         for (var n = node.parentNode.firstChild; n != node; n = n.nextSibling)
@@ -564,7 +595,7 @@
         return offset;
     }
 
-    DOM.maxChildOffset = function(node)
+    DOM_maxChildOffset = function(node)
     {
         if (node.nodeType == Node.TEXT_NODE)
             return node.nodeValue.length;
@@ -574,7 +605,7 @@
             throw new Error("maxOffset: invalid node type ("+node.nodeType+")");
     }
 
-    DOM.addListener = function(node,listener)
+    DOM_addListener = function(node,listener)
     {
         var data = getDataForNode(node,true);
         if (data.listeners == null)
@@ -583,7 +614,7 @@
             data.listeners.push(listener);
     }
 
-    DOM.removeListener = function(node,listener)
+    DOM_removeListener = function(node,listener)
     {
         var list = listenersForNode(node);
         var index = list.indexOf(listener);
@@ -597,7 +628,6 @@
 
     Listener.prototype.afterReplaceElement = function(oldElement,newElement) {}
 
-    window.DOM = DOM;
-    DOM.Listener = Listener;
+    DOM_Listener = Listener;
 
 })();

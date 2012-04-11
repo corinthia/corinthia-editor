@@ -6,11 +6,11 @@
 function performTest()
 {
     var p = document.getElementsByTagName("P")[0];
-    var text = DOM.createTextNode(document,"");
-    DOM.insertBefore(p,text,p.firstChild);
-    Selection.setEmptySelectionAt(text,0);
-    Cursor.insertCharacter("X");
-    showRangeAsBrackets(Selection.getSelectionRange());
+    var text = DOM_createTextNode(document,"");
+    DOM_insertBefore(p,text,p.firstChild);
+    Selection_setEmptySelectionAt(text,0);
+    Cursor_insertCharacter("X");
+    showRangeAsBrackets(Selection_getSelectionRange());
 }
 </script>
 </head>

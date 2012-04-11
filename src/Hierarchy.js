@@ -1,5 +1,8 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
+var Hierarchy_ensureValidHierarchy;
+var Hierarchy_wrapInlineNodesInParagraph;
+
 (function() {
 
     function wrapInlineChildren(first,last,ancestors)
@@ -15,15 +18,15 @@
         var parentNode = first.parentNode;
         var nextSibling = first;
         for (var i = ancestors.length-1; i >= 0; i--) {
-            var ancestorCopy = DOM.shallowCopyElement(ancestors[i]);
-            DOM.insertBefore(parentNode,ancestorCopy,nextSibling);
+            var ancestorCopy = DOM_shallowCopyElement(ancestors[i]);
+            DOM_insertBefore(parentNode,ancestorCopy,nextSibling);
             parentNode = ancestorCopy;
             nextSibling = null;
 
             var node = first;
             while (true) {
                 var next = node.nextSibling;
-                DOM.insertBefore(parentNode,node,null);
+                DOM_insertBefore(parentNode,node,null);
                 if (node == last)
                     break;
                 node = next;
@@ -72,14 +75,14 @@
 
         if (isContainerNode(node) || isParagraphNode(node)) {
             var invalidNesting = !isContainerNode(node.parentNode);
-            if (isParagraphNode(node) && (DOM.upperName(node.parentNode) == "DIV"))
+            if (isParagraphNode(node) && (DOM_upperName(node.parentNode) == "DIV"))
                 invalidNesting = false; // this case is ok
             if (invalidNesting) {
-                DOM.removeAdjacentWhitespace(node);
+                DOM_removeAdjacentWhitespace(node);
 
-                var offset = DOM.nodeOffset(node);
-                Formatting.moveFollowing(node.parentNode,offset+1,isContainerNode);
-                Formatting.movePreceding(node.parentNode,offset,isContainerNode);
+                var offset = DOM_nodeOffset(node);
+                Formatting_moveFollowing(node.parentNode,offset+1,isContainerNode);
+                Formatting_movePreceding(node.parentNode,offset,isContainerNode);
 
                 var ancestors = new Array();
                 var child = node;
@@ -88,8 +91,8 @@
                         ancestors.push(child.parentNode);
                     child = child.parentNode;
                 }
-                DOM.insertBefore(child.parentNode,node,child);
-                DOM.deleteNode(child);
+                DOM_insertBefore(child.parentNode,node,child);
+                DOM_deleteNode(child);
 
                 wrapInlineChildrenInAncestors(node,ancestors);
             }
@@ -116,17 +119,16 @@
         while ((end.nextSibling != null) && isInlineNode(end.nextSibling))
             end = end.nextSibling;
 
-        var p = DOM.createElement(document,"P");
+        var p = DOM_createElement(document,"P");
         // p.style.border = "4px dashed red"; // debug
-        DOM.insertBefore(node.parentNode,p,start);
+        DOM_insertBefore(node.parentNode,p,start);
 
         var stop = end.nextSibling;
         while (p.nextSibling != stop)
-            DOM.insertBefore(p,p.nextSibling,null);
+            DOM_insertBefore(p,p.nextSibling,null);
     }
 
-    window.Hierarchy = new (function Hierarchy(){});
-    Hierarchy.ensureValidHierarchy = trace(ensureValidHierarchy);
-    Hierarchy.wrapInlineNodesInParagraph = wrapInlineNodesInParagraph;
+    Hierarchy_ensureValidHierarchy = trace(ensureValidHierarchy);
+    Hierarchy_wrapInlineNodesInParagraph = wrapInlineNodesInParagraph;
 
 })();

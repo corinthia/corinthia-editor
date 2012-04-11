@@ -5,10 +5,10 @@
 <script language="javascript">
 function performTest()
 {
-    var range = Selection.getSelectionRange();
-    Formatting.splitAroundSelection(range);
+    var range = Selection_getSelectionRange();
+    Formatting_splitAroundSelection(range);
     var outermost = range.getOutermostNodes();
-    Formatting.pushDownInlineProperties(outermost);
+    Formatting_pushDownInlineProperties(outermost);
 }
 </script>
 </head>

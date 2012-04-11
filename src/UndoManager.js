@@ -1,8 +1,20 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
-(function() {
+var UndoManager_monitors;
+var UndoManager_monitorObject;
+var UndoManager_unmonitorObject;
+var UndoManager_monitorWhileExecuting;
+var UndoManager_getLength;
+var UndoManager_getIndex;
+var UndoManager_setIndex;
+var UndoManager_print;
+var UndoManager_undo;
+var UndoManager_redo;
+var UndoManager_newGroup;
+var UndoManager_addAction;
+var UndoManager_group;
 
-    window.UndoManager = new (function UndoManager(){});
+(function() {
 
     function Monitor(id,object,property)
     {
@@ -17,7 +29,7 @@
     }
 
     var nextTrackingId = 0;
-    var monitors = UndoManager.monitors = new Object(); // public
+    var monitors = UndoManager_monitors = new Object(); // public
 
     function monitorProperty(object,name)
     {
@@ -49,7 +61,7 @@
 
         descriptor.set = function(newValue) {
             var oldValue = object[_name];
-            UndoManager.addAction(function() {
+            UndoManager_addAction(function() {
                 object[name] = oldValue;
             },"Set "+name+" to "+oldValue);
             //        debug("set: "+name+" = "+newValue);
@@ -87,12 +99,12 @@
     }
 
     // public
-    UndoManager.monitorObject = function(object)
+    UndoManager_monitorObject = function(object)
     {
         var names = Object.getOwnPropertyNames(object);
 
-        UndoManager.addAction(function() {
-            UndoManager.unmonitorObject(object);
+        UndoManager_addAction(function() {
+            UndoManager_unmonitorObject(object);
         },"Untrack object");
 
         for (var i = 0; i < names.length; i++)
@@ -100,10 +112,10 @@
     }
 
     // public
-    UndoManager.unmonitorObject = function(object)
+    UndoManager_unmonitorObject = function(object)
     {
-        UndoManager.addAction(function() {
-            UndoManager.monitorObject(object);
+        UndoManager_addAction(function() {
+            UndoManager_monitorObject(object);
         },"Track object");
 
         var names = Object.getOwnPropertyNames(object);
@@ -114,14 +126,14 @@
     }
 
     // public
-    UndoManager.monitorWhileExecuting = function(object,fun)
+    UndoManager_monitorWhileExecuting = function(object,fun)
     {
-        UndoManager.monitorObject(object);
+        UndoManager_monitorObject(object);
         try {
             return fun();
         }
         finally {
-            UndoManager.unmonitorObject(object);
+            UndoManager_unmonitorObject(object);
         }
     }
 
@@ -230,19 +242,19 @@
     }
 
     // public
-    UndoManager.getLength = function()
+    UndoManager_getLength = function()
     {
         return undoStack.length + redoStack.length;
     }
 
     // public
-    UndoManager.getIndex = function()
+    UndoManager_getIndex = function()
     {
         return undoStack.length;
     }
 
     // public
-    UndoManager.setIndex = function(index)
+    UndoManager_setIndex = function(index)
     {
         var length = this.getLength();
         while ((undoStack.length < index) && (redoStack.length > 0))
@@ -252,7 +264,7 @@
     }
 
     // public
-    UndoManager.print = function()
+    UndoManager_print = function()
     {
         debug("Undo stack:");
         for (var i = 0; i < undoStack.length; i++)
@@ -263,7 +275,7 @@
     }
 
     // public
-    UndoManager.undo = function()
+    UndoManager_undo = function()
     {
         if (undoStack.length > 0) {
             exitAllGroups();
@@ -280,7 +292,7 @@
     }
 
     // public
-    UndoManager.redo = function()
+    UndoManager_redo = function()
     {
         if (redoStack.length > 0) {
             exitAllGroups();
@@ -297,7 +309,7 @@
     }
 
     // public
-    UndoManager.newGroup = function(name)
+    UndoManager_newGroup = function(name)
     {
         if (currentGroup != null)
             exitGroup();
@@ -305,7 +317,7 @@
     }
 
     // public
-    UndoManager.addAction = function(fun,name)
+    UndoManager_addAction = function(fun,name)
     {
         //    debug("Undo action: "+name);
         if (currentGroup == null)
@@ -314,7 +326,7 @@
     }
 
     // public
-    UndoManager.group = function(fun)
+    UndoManager_group = function(fun)
     {
         // We enter two levels of grouping here, so that if fun calls newGroup(), it will still
         // remain within the scope of the outer group defined here.

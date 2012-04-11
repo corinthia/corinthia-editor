@@ -6,10 +6,10 @@
 function performTest()
 {
     var p = document.getElementsByTagName("P")[2];
-    var offset = DOM.nodeOffset(p);
+    var offset = DOM_nodeOffset(p);
     var range = new Range(document.body,offset,document.body,offset+1);
     range.trackWhileExecuting(function() {
-        DOM.replaceElement(p,"DIV");
+        DOM_replaceElement(p,"DIV");
     });
     showRangeAsBrackets(range);
 }

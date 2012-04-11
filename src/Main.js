@@ -1,5 +1,13 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
+var Main_isEmptyDocument;
+var Main_getHTML;
+var Main_getErrorReportingInfo;
+var Main_removeUnsupportedInput;
+var Main_removeSpecial;
+var Main_execute;
+var Main_init;
+
 (function() {
 
     function getStyles()
@@ -22,7 +30,7 @@
                 }
             }
         }
-        Editor.setStyles(list);
+        Editor_setStyles(list);
     }
 
     // public
@@ -35,7 +43,7 @@
             // Delete comments and processing instructions
             if ((node.nodeType != Node.TEXT_NODE) &&
                 (node.nodeType != Node.ELEMENT_NODE)) {
-                DOM.deleteNode(node);
+                DOM_deleteNode(node);
             }
             else {
                 var next;
@@ -49,10 +57,10 @@
 
     function addContentType()
     {
-        var head = DOM.documentHead(document);
+        var head = DOM_documentHead(document);
         var haveContentType = false;
         for (var child = head.firstChild; child != null; child = child.nextSibling) {
-            if (DOM.upperName(child) == "META") {
+            if (DOM_upperName(child) == "META") {
                 var httpEquiv = child.getAttribute("http-equiv");
                 if ((httpEquiv != null) && (httpEquiv.toLowerCase() == "content-type")) {
                     haveContentType = true;
@@ -61,10 +69,10 @@
             }
         }
         if (!haveContentType) {
-            var meta = DOM.createElement(document,"META");
+            var meta = DOM_createElement(document,"META");
             meta.setAttribute("http-equiv","Content-Type");
             meta.setAttribute("content","text/html; charset=utf-8");
-            DOM.insertBefore(head,meta,head.firstChild);
+            DOM_insertBefore(head,meta,head.firstChild);
         }
     }
 
@@ -77,7 +85,7 @@
     // public
     function getHTML()
     {
-        var clone = DOM.cloneNode(document.documentElement,true);
+        var clone = DOM_cloneNode(document.documentElement,true);
         clone.style.webkitTextSizeAdjust = null;
         if (clone.style.length == 0)
             clone.removeAttribute("style");
@@ -98,7 +106,7 @@
         }
         catch (e) {
             try {
-                var html = DOM.cloneNode(document.documentElement,true);
+                var html = DOM_cloneNode(document.documentElement,true);
                 cleanse(html);
                 return html.outerHTML+"\n[Error getting selection: "+e+"]";
             }
@@ -120,7 +128,7 @@
 
         function htmlWithSelection()
         {
-            var selectionRange = Selection.getSelectionRange();
+            var selectionRange = Selection_getSelectionRange();
             if (selectionRange != null) {
                 selectionRange = selectionRange.forwards();
                 var startSave = new Object();
@@ -138,7 +146,7 @@
                     addPositionMarker(selectionRange.end,"^^@@",endSave);
                     addPositionMarker(selectionRange.start,"@@^^",startSave);
 
-                    html = DOM.cloneNode(document.documentElement,true);
+                    html = DOM_cloneNode(document.documentElement,true);
 
                     removePositionMarker(selectionRange.start,startSave);
                     removePositionMarker(selectionRange.end,endSave);
@@ -147,7 +155,7 @@
                 return html;
             }
             else {
-                return DOM.cloneNode(document.documentElement,true);
+                return DOM_cloneNode(document.documentElement,true);
             }
         }
 
@@ -156,8 +164,8 @@
             var node = pos.node;
             var offset = pos.offset;
             if (node.nodeType == Node.ELEMENT_NODE) {
-                save.tempNode = DOM.createTextNode(document,name);
-                DOM.insertBefore(node,save.tempNode,node.childNodes[offset]);
+                save.tempNode = DOM_createTextNode(document,name);
+                DOM_insertBefore(node,save.tempNode,node.childNodes[offset]);
             }
             else if (node.nodeType == Node.TEXT_NODE) {
                 save.originalNodeValue = node.nodeValue;
@@ -170,7 +178,7 @@
             var node = pos.node;
             var offset = pos.offset;
             if (pos.node.nodeType == Node.ELEMENT_NODE) {
-                DOM.deleteNode(save.tempNode);
+                DOM_deleteNode(save.tempNode);
             }
             else if (pos.node.nodeType == Node.TEXT_NODE) {
                 node.nodeValue = save.originalNodeValue;
@@ -181,20 +189,20 @@
     // public
     function removeSpecial(node)
     {
-        if ((DOM.upperName(node) == "SPAN") &&
+        if ((DOM_upperName(node) == "SPAN") &&
             ((node.getAttribute("class") == Keys.HEADING_NUMBER) ||
              (node.getAttribute("class") == Keys.FIGURE_NUMBER) ||
              (node.getAttribute("class") == Keys.TABLE_NUMBER))) {
-            DOM.removeNodeButKeepChildren(node);
+            DOM_removeNodeButKeepChildren(node);
         }
-        else if ((DOM.upperName(node) == "DIV") &&
+        else if ((DOM_upperName(node) == "DIV") &&
                  (node.getAttribute("class") == Keys.SELECTION_HIGHLIGHT)) {
-            DOM.removeNodeButKeepChildren(node);
+            DOM_removeNodeButKeepChildren(node);
         }
-        else if ((DOM.upperName(node) == "META") &&
+        else if ((DOM_upperName(node) == "META") &&
                  node.hasAttribute("name") &&
                  (node.getAttribute("name").toLowerCase() == "viewport")) {
-            DOM.deleteNode(node);
+            DOM_deleteNode(node);
         }
         else {
             var next;
@@ -210,11 +218,11 @@
     {
         try {
             var res = fun();
-            PostponedActions.perform();
+            PostponedActions_perform();
             return res;
         }
         catch (e) {
-            Editor.reportJSError(e);
+            Editor_reportJSError(e);
         }
     }
 
@@ -226,12 +234,12 @@
                 throw new Error("document.documentElement is null");
             if (document.body == null)
                 throw new Error("document.body is null");
-            DOM.assignNodeIds(document);
+            DOM_assignNodeIds(document);
             removeUnsupportedInput();
             addContentType();
             getStyles();
-            Outline.init();
-            Viewport.init();
+            Outline_init();
+            Viewport_init();
             return true;
         }
         catch (e) {
@@ -242,13 +250,12 @@
     addContentType = trace(addContentType);
     getStyles = trace(getStyles);
 
-    window.Main = new (function Main(){});
-    Main.isEmptyDocument = trace(isEmptyDocument);
-    Main.getHTML = trace(getHTML);
-    Main.getErrorReportingInfo = trace(getErrorReportingInfo);
-    Main.removeUnsupportedInput = trace(removeUnsupportedInput);
-    Main.removeSpecial = trace(removeSpecial);
-    Main.execute = trace(execute);
-    Main.init = trace(init);
+    Main_isEmptyDocument = trace(isEmptyDocument);
+    Main_getHTML = trace(getHTML);
+    Main_getErrorReportingInfo = trace(getErrorReportingInfo);
+    Main_removeUnsupportedInput = trace(removeUnsupportedInput);
+    Main_removeSpecial = trace(removeSpecial);
+    Main_execute = trace(execute);
+    Main_init = trace(init);
 
 })();

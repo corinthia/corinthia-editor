@@ -7,11 +7,11 @@ function performTest()
 {
     var tr = document.getElementsByTagName("TR")[1];
     var table = document.getElementsByTagName("TABLE")[0];
-    var trOffset = DOM.nodeOffset(tr);
-    var tableOffset = DOM.nodeOffset(table);
-    Selection.setSelectionRange(new Range(table.parentNode,tableOffset,tr.parentNode,trOffset+1));
-    Selection.deleteSelectionContents();
-    showRangeAsBrackets(Selection.getSelectionRange());
+    var trOffset = DOM_nodeOffset(tr);
+    var tableOffset = DOM_nodeOffset(table);
+    Selection_setSelectionRange(new Range(table.parentNode,tableOffset,tr.parentNode,trOffset+1));
+    Selection_deleteSelectionContents();
+    showRangeAsBrackets(Selection_getSelectionRange());
 }
 </script>
 </head>

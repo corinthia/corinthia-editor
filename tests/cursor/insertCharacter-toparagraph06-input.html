@@ -6,9 +6,9 @@
 function deleteNeighbours(node)
 {
     while (node.previousSibling != null)
-        DOM.deleteNode(node.previousSibling);
+        DOM_deleteNode(node.previousSibling);
     while (node.nextSibling != null)
-        DOM.deleteNode(node.nextSibling);
+        DOM_deleteNode(node.nextSibling);
 }
 
 function performTest()
@@ -16,14 +16,14 @@ function performTest()
     var p = document.getElementsByTagName("P")[0];
     deleteNeighbours(p);
 
-    DOM.appendChild(document.body,DOM.createTextNode(document,"  "));
-    DOM.appendChild(document.body,DOM.createTextNode(document,"  "));
-    DOM.appendChild(document.body,DOM.createTextNode(document,"  "));
+    DOM_appendChild(document.body,DOM_createTextNode(document,"  "));
+    DOM_appendChild(document.body,DOM_createTextNode(document,"  "));
+    DOM_appendChild(document.body,DOM_createTextNode(document,"  "));
 
-    Selection.setEmptySelectionAt(document.body.lastChild,0);
+    Selection_setEmptySelectionAt(document.body.lastChild,0);
 
-    Cursor.insertCharacter("X");
-    showRangeAsBrackets(Selection.getSelectionRange());
+    Cursor_insertCharacter("X");
+    showRangeAsBrackets(Selection_getSelectionRange());
 }
 </script>
 </head>

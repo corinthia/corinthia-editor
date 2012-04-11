@@ -3,25 +3,25 @@
 <title></title>
 
 <script language="javascript" src="../tests/nulleditor.js"></script>
-<script language="javascript" src="../Clipboard.js"></script>
-<script language="javascript" src="../Cursor.js"></script>
-<script language="javascript" src="../DOM.js"></script>
-<script language="javascript" src="../Formatting.js"></script>
-<script language="javascript" src="../Hierarchy.js"></script>
+<script language="javascript" src="../Clipboard_js"></script>
+<script language="javascript" src="../Cursor_js"></script>
+<script language="javascript" src="../DOM_js"></script>
+<script language="javascript" src="../Formatting_js"></script>
+<script language="javascript" src="../Hierarchy_js"></script>
 <script language="javascript" src="../init.js"></script>
-<script language="javascript" src="../Lists.js"></script>
+<script language="javascript" src="../Lists_js"></script>
 <script language="javascript" src="../NodeSet.js"></script>
-<script language="javascript" src="../Outline.js"></script>
+<script language="javascript" src="../Outline_js"></script>
 <script language="javascript" src="../Position.js"></script>
-<script language="javascript" src="../PostponedActions.js"></script>
+<script language="javascript" src="../PostponedActions_js"></script>
 <script language="javascript" src="../Range.js"></script>
 <script language="javascript" src="../StringBuilder.js"></script>
 <script language="javascript" src="../traversal.js"></script>
 <script language="javascript" src="../types.js"></script>
-<script language="javascript" src="../UndoManager.js"></script>
+<script language="javascript" src="../UndoManager_js"></script>
 <script language="javascript" src="../util.js"></script>
-<script language="javascript" src="../Viewport.js"></script>
-<script language="javascript" src="../Selection.js"></script>
+<script language="javascript" src="../Viewport_js"></script>
+<script language="javascript" src="../Selection_js"></script>
 <script language="javascript" src="../tests/testlib.js"></script>
 <script language="javascript">
 function debug(str)
@@ -31,13 +31,13 @@ function debug(str)
 
 function loaded()
 {
-    DOM.assignNodeIds(document);
-    var text = Clipboard.htmlToText(document.body);
-    DOM.deleteAllChildren(document.body);
-    var pre = DOM.createElement(document,"PRE");
+    DOM_assignNodeIds(document);
+    var text = Clipboard_htmlToText(document.body);
+    DOM_deleteAllChildren(document.body);
+    var pre = DOM_createElement(document,"PRE");
     pre.style.whiteSpace = "pre-wrap";
-    DOM.appendChild(pre,DOM.createTextNode(document,text));
-    DOM.appendChild(document.body,pre);
+    DOM_appendChild(pre,DOM_createTextNode(document,text));
+    DOM_appendChild(document.body,pre);
 }
 </script>
 

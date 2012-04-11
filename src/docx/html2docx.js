@@ -12,18 +12,18 @@
 
     ContentTypes.prototype.addDefaultExtension = function(name,type)
     {
-        var elem = DOM.createElementNS(this.doc,TYPES_NAMESPACE,"Default");
+        var elem = DOM_createElementNS(this.doc,TYPES_NAMESPACE,"Default");
         elem.setAttribute("Extension",name);
         elem.setAttribute("ContentType",type);
-        DOM.appendChild(this.doc.documentElement,elem);
+        DOM_appendChild(this.doc.documentElement,elem);
     }
 
     ContentTypes.prototype.addFile = function(name,type)
     {
-        var elem = DOM.createElementNS(this.doc,TYPES_NAMESPACE,"Override");
+        var elem = DOM_createElementNS(this.doc,TYPES_NAMESPACE,"Override");
         elem.setAttribute("PartName",name);
         elem.setAttribute("ContentType",type);
-        DOM.appendChild(this.doc.documentElement,elem);
+        DOM_appendChild(this.doc.documentElement,elem);
     }
 
     ContentTypes.prototype.toString = function()
@@ -42,11 +42,11 @@
 
     Relationships.prototype.add = function(type,target)
     {
-        var elem = DOM.createElementNS(this.doc,RELATIONSHIPS_NAMESPACE,"Relationship");
+        var elem = DOM_createElementNS(this.doc,RELATIONSHIPS_NAMESPACE,"Relationship");
         elem.setAttribute("Id","rId"+(this.nextId++));
         elem.setAttribute("Type",type);
         elem.setAttribute("Target",target);
-        DOM.appendChild(this.doc.documentElement,elem);
+        DOM_appendChild(this.doc.documentElement,elem);
     }
 
     Relationships.prototype.toString = function()
@@ -79,9 +79,9 @@
         var wordDoc = document.implementation.createDocument(WORD_NAMESPACE,
                                                              "w:document");
 
-        var wordBody = DOM.createElementNS(wordDoc,WORD_NAMESPACE,"w:body");
+        var wordBody = DOM_createElementNS(wordDoc,WORD_NAMESPACE,"w:body");
         wordDoc.documentElement.setAttribute("xmlns:w",WORD_NAMESPACE);
-        DOM.appendChild(wordDoc.documentElement,wordBody);
+        DOM_appendChild(wordDoc.documentElement,wordBody);
 
         buildContainer(document.body,wordBody);
 
@@ -130,7 +130,7 @@
             if ((lastCharWhitespace) && (lastRun != null)) {
                 var str = lastRun.lastChild.lastChild.nodeValue;
                 if (str.length == 1) {
-                    DOM.deleteNode(lastRun);
+                    DOM_deleteNode(lastRun);
                 }
                 else {
                     str = str.substring(0,str.length-1);
@@ -148,19 +148,19 @@
                         str = str.substring(1);
 
                     if (str.length > 0) {
-                        var text = DOM.createTextNode(wordDoc,str);
-                        var t = DOM.createElementNS(wordDoc,WORD_NAMESPACE,"w:t");
-                        var r = DOM.createElementNS(wordDoc,WORD_NAMESPACE,"w:r");
+                        var text = DOM_createTextNode(wordDoc,str);
+                        var t = DOM_createElementNS(wordDoc,WORD_NAMESPACE,"w:t");
+                        var r = DOM_createElementNS(wordDoc,WORD_NAMESPACE,"w:r");
 
                         var runProperties = new DocxRunProperties();
                         runProperties.fromHTML(node);
                         var rPr = runProperties.toXML(wordDoc);
                         if (rPr != null)
-                            DOM.appendChild(r,rPr);
+                            DOM_appendChild(r,rPr);
 
-                        DOM.appendChild(t,text);
-                        DOM.appendChild(r,t);
-                        DOM.appendChild(p,r);
+                        DOM_appendChild(t,text);
+                        DOM_appendChild(r,t);
+                        DOM_appendChild(p,r);
 
                         lastCharWhitespace = (str.charAt(str.length-1) == " ");
                         lastRun = r;
@@ -179,15 +179,15 @@
         {
             var info = new htmltable.Table(htmlTable);
             for (var row = 0; row < info.numRows; row++) {
-                var wordTr = DOM.createElementNS(wordDoc,WORD_NAMESPACE,"w:tr");
-                DOM.appendChild(wordTbl,wordTr);
+                var wordTr = DOM_createElementNS(wordDoc,WORD_NAMESPACE,"w:tr");
+                DOM_appendChild(wordTbl,wordTr);
 
                 var col = 0;
                 while (col < info.numCols) {
-                    var wordTc = DOM.createElementNS(wordDoc,WORD_NAMESPACE,"w:tc");
-                    var wordTcPr = DOM.createElementNS(wordDoc,WORD_NAMESPACE,"w:tcPr");
-                    DOM.appendChild(wordTr,wordTc);
-                    DOM.appendChild(wordTc,wordTcPr);
+                    var wordTc = DOM_createElementNS(wordDoc,WORD_NAMESPACE,"w:tc");
+                    var wordTcPr = DOM_createElementNS(wordDoc,WORD_NAMESPACE,"w:tcPr");
+                    DOM_appendChild(wordTr,wordTc);
+                    DOM_appendChild(wordTc,wordTcPr);
 
                     var cell = info.get(row,col);
                     if (cell == null) {
@@ -195,16 +195,16 @@
                     }
                     else {
                         if (cell.colspan > 1) {
-                            var wordGridSpan = DOM.createElementNS(wordDoc,WORD_NAMESPACE,
+                            var wordGridSpan = DOM_createElementNS(wordDoc,WORD_NAMESPACE,
                                                                    "w:gridSpan");
                             wordGridSpan.setAttributeNS(WORD_NAMESPACE,"w:val",cell.colspan);
-                            DOM.appendChild(wordTcPr,wordGridSpan);
+                            DOM_appendChild(wordTcPr,wordGridSpan);
                         }
 
                         var buildContents = true;
                         if (cell.rowspan > 1) {
-                            var wordVMerge = DOM.createElementNS(wordDoc,WORD_NAMESPACE,"w:vMerge");
-                            DOM.appendChild(wordTcPr,wordVMerge);
+                            var wordVMerge = DOM_createElementNS(wordDoc,WORD_NAMESPACE,"w:vMerge");
+                            DOM_appendChild(wordTcPr,wordVMerge);
                             if (cell.startRow == row) {
                                 wordVMerge.setAttributeNS(WORD_NAMESPACE,"w:val","restart");
                             }
@@ -225,8 +225,8 @@
                             }
                         }
                         if (!haveP) {
-                            var wordP = DOM.createElementNS(wordDoc,WORD_NAMESPACE,"w:p");
-                            DOM.appendChild(wordTc,wordP);
+                            var wordP = DOM_createElementNS(wordDoc,WORD_NAMESPACE,"w:p");
+                            DOM_appendChild(wordTc,wordP);
                         }
 
                         col += cell.colspan;
@@ -241,20 +241,20 @@
             for (var child = node.firstChild; child != null; child = child.nextSibling) {
                 if ((child.nodeType == Node.TEXT_NODE) && isWhitespace(child.nodeValue))
                     continue;
-                if (DOM.upperName(child) == "SCRIPT")
+                if (DOM_upperName(child) == "SCRIPT")
                     continue;
 
-                if (DOM.upperName(child) == "TABLE") {
-                    var tbl = DOM.createElementNS(wordDoc,WORD_NAMESPACE,"w:tbl");
-                    DOM.appendChild(body,tbl);
+                if (DOM_upperName(child) == "TABLE") {
+                    var tbl = DOM_createElementNS(wordDoc,WORD_NAMESPACE,"w:tbl");
+                    DOM_appendChild(body,tbl);
                     buildTable(child,tbl);
                 }
 
-                p = DOM.createElementNS(wordDoc,WORD_NAMESPACE,"w:p");
-                DOM.appendChild(body,p);
+                p = DOM_createElementNS(wordDoc,WORD_NAMESPACE,"w:p");
+                DOM_appendChild(body,p);
                 buildParagraph(child,p);
 
-                if (DOM.upperName(child) == "P")
+                if (DOM_upperName(child) == "P")
                     p = null;
             }
         }

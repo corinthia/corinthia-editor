@@ -10,13 +10,13 @@ function performTest()
     // WebKit's parser will move the selection to before the table if we do that
     var table = document.getElementsByTagName("TABLE")[0];
     var tds = document.getElementsByTagName("TD");
-    var td1Offset = DOM.nodeOffset(tds[1]);
-    var td2Offset = DOM.nodeOffset(tds[2]);
+    var td1Offset = DOM_nodeOffset(tds[1]);
+    var td2Offset = DOM_nodeOffset(tds[2]);
 
-    Selection.setSelectionRange(new Range(tds[1].parentNode,td1Offset,
+    Selection_setSelectionRange(new Range(tds[1].parentNode,td1Offset,
                                           tds[2].parentNode,td2Offset+1));
 
-    Formatting.applyFormattingChanges("h1",null);
+    Formatting_applyFormattingChanges("h1",null);
 
     // An unrelated part of the code adds "id" attributes to heading elements to keep track of
     // sections - we're not testing that functionality here, so we want to ignore them

@@ -1,9 +1,12 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
+var Location;
+var Position;
+
 (function() {
 
     // public
-    function Location(parent,child)
+    Location = function(parent,child)
     {
         this.parent = parent;
         this.child = child;
@@ -16,7 +19,7 @@
     }
 
     // public
-    function Position(node,offset)
+    Position = function(node,offset)
     {
         Object.defineProperty(this,"self",{value: {}});
         var self = this.self;
@@ -44,12 +47,12 @@
 
     function actuallyStartTracking(self)
     {
-        DOM.addTrackedPosition(self.this);
+        DOM_addTrackedPosition(self.this);
     }
 
     function actuallyStopTracking(self)
     {
-        DOM.removeTrackedPosition(self.this);
+        DOM_removeTrackedPosition(self.this);
     }
 
     function startTracking(self)
@@ -94,7 +97,7 @@
         while (node != document.body) {
             if (((node.nodeType == Node.TEXT_NODE) && (offset == node.nodeValue.length)) ||
                 ((node.nodeType == Node.ELEMENT_NODE) && (offset == node.childNodes.length))) {
-                offset = DOM.nodeOffset(node)+1;
+                offset = DOM_nodeOffset(node)+1;
                 node = node.parentNode;
                 changed = true;
             }
@@ -115,7 +118,7 @@
         var offset = self.offset;
         var changed = false;
         while ((node != document.body) && (offset == 0)) {
-            offset = DOM.nodeOffset(node);
+            offset = DOM_nodeOffset(node);
             node = node.parentNode;
             changed = true;
         }
@@ -187,7 +190,7 @@
             }
             else {
                 var child = this.node.childNodes[this.offset-1];
-                return new Position(child,DOM.maxChildOffset(child));
+                return new Position(child,DOM_maxChildOffset(child));
             }
         }
         else if (this.node.nodeType == Node.TEXT_NODE) {
@@ -205,7 +208,7 @@
             if (pos.node == pos.node.ownerDocument.body)
                 return null;
             else
-                return new Position(pos.node.parentNode,DOM.nodeOffset(pos.node));
+                return new Position(pos.node.parentNode,DOM_nodeOffset(pos.node));
         }
     }
 
@@ -233,7 +236,7 @@
             if (pos.node == pos.node.ownerDocument.body)
                 return null;
             else
-                return new Position(pos.node.parentNode,DOM.nodeOffset(pos.node)+1);
+                return new Position(pos.node.parentNode,DOM_nodeOffset(pos.node)+1);
         }
     }
 
@@ -264,7 +267,7 @@
             return node.childNodes[offset];
     }
 
-    window.Location = Location;
-    window.Position = Position;
+    Location = Location;
+    Position = Position;
 
 })();

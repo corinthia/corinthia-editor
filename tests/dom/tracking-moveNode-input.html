@@ -7,7 +7,7 @@
 
 function performTest()
 {
-    // DOM.wrapNode() should not affect any positions, because the node itself remains in the
+    // DOM_wrapNode() should not affect any positions, because the node itself remains in the
     // tree unmodified.
 
     removeWhitespaceAndCommentNodes(document.body);
@@ -16,11 +16,11 @@ function performTest()
     var p2 = document.getElementById("p2");
 
     var result = comparePositionsBeforeAndAfter(function() {
-        DOM.insertBefore(p2,p1.childNodes[1],p2.childNodes[3]);
+        DOM_insertBefore(p2,p1.childNodes[1],p2.childNodes[3]);
     });
 
-    DOM.deleteAllChildren(document.body);
-    DOM.appendChild(document.body,DOM.createTextNode(document,"-\n"+result+"\n-"));
+    DOM_deleteAllChildren(document.body);
+    DOM_appendChild(document.body,DOM_createTextNode(document,"-\n"+result+"\n-"));
 }
 </script>
 </head>

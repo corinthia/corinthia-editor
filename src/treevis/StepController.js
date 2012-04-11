@@ -4,15 +4,15 @@
 
     function update(self)
     {
-        self.slider.setRange(0,UndoManager.getLength());
-        self.slider.value = UndoManager.getIndex();
+        self.slider.setRange(0,UndoManager_getLength());
+        self.slider.value = UndoManager_getIndex();
         self.treeView.update();
         placeToplevelGroups(self);
     }
 
     function valueChanged(self,value)
     {
-        UndoManager.setIndex(value);
+        UndoManager_setIndex(value);
         update(self);
     }
 
@@ -39,7 +39,7 @@
             valueChanged(self,self.slider.value);
             break;
         case KEYCODE_END:
-            self.slider.value = UndoManager.getLength();
+            self.slider.value = UndoManager_getLength();
             valueChanged(self,self.slider.value);
             break;
         case KEYCODE_PGUP:
@@ -73,13 +73,13 @@
         Object.defineProperty(this,"self",{value: {}});
         var self = this.self;
 
-        self.element = DOM.createElementNS(document,SVG_NAMESPACE,"g");
+        self.element = DOM_createElementNS(document,SVG_NAMESPACE,"g");
         self.treeView = new TreeView(domRoot);
         self.slider = new Slider();
         self.width = window.innerWidth;
         self.height = window.innerHeight;
-        DOM.appendChild(self.element,self.treeView.element);
-        DOM.appendChild(self.element,self.slider.element);
+        DOM_appendChild(self.element,self.treeView.element);
+        DOM_appendChild(self.element,self.slider.element);
 
         self.slider.onValueChanged = function(value) { valueChanged(self,value) };
         document.onkeydown = function(event) { keypress(self,event); };

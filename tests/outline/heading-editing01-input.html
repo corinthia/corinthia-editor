@@ -6,14 +6,14 @@
 
 function performTest()
 {
-    Outline.init();
-    PostponedActions.perform();
+    Outline_init();
+    PostponedActions_perform();
     var heading = document.getElementsByTagName("H1")[0];
-    Selection.setSelectionRange(new Range(heading.lastChild,0,
+    Selection_setSelectionRange(new Range(heading.lastChild,0,
                                           heading.lastChild,heading.lastChild.nodeValue.length));
-    Cursor.insertCharacter("d");
-    PostponedActions.perform();
-    showRangeAsBrackets(Selection.getSelectionRange());
+    Cursor_insertCharacter("d");
+    PostponedActions_perform();
+    showRangeAsBrackets(Selection_getSelectionRange());
 }
 </script>
 </head>

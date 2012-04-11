@@ -1,3 +1,12 @@
+// Copyright (c) 2012 UX Productivity Pty Ltd. All rights reserved.
+
+var Outline_init;
+var Outline_moveSection;
+var Outline_deleteItem;
+var Outline_goToItem;
+var Outline_setNumbered;
+var Outline_plainText;
+
 (function() {
 
     var itemsById = new Object();
@@ -26,7 +35,7 @@
         var item = new OutlineItem(this.type,node);
         var prevItem = findPrevItemOfType(node,this.nodeFilter);
         this.list.insertAfter(item,prevItem);
-        Editor.addOutlineItem(item.id,this.type);
+        Editor_addOutlineItem(item.id,this.type);
 
         // Register for notifications to changes to this item's node content. We may need to
         // update the title when such a modification occurs.
@@ -43,7 +52,7 @@
             var str = firstText.nodeValue;
             if (str.match(this.numberRegex)) {
                 var match = str.match(this.numberRegex);
-                DOM.setNodeValue(firstText,str.replace(this.numberRegex,""));
+                DOM_setNodeValue(firstText,str.replace(this.numberRegex,""));
                 item.enableNumbering();
             }
         }
@@ -90,10 +99,10 @@
                             node.getAttribute("id"));
         }
         this.list.remove(item);
-        Editor.removeOutlineItem(item.id);
+        Editor_removeOutlineItem(item.id);
         item.node.removeEventListener("DOMSubtreeModified",item.modificationListener);
         if (item.numberSpan != null)
-            DOM.deleteNode(item.numberSpan);
+            DOM_deleteNode(item.numberSpan);
         scheduleUpdateStructure();
     });
 
@@ -111,7 +120,7 @@
         this.type = type;
         this.node = node;
         this.title = null;
-        this.level = node ? parseInt(DOM.upperName(node).substring(1)) : 0;
+        this.level = node ? parseInt(DOM_upperName(node).substring(1)) : 0;
         this.index = null;
         this.parent = null;
         this.children = new Array();
@@ -154,11 +163,11 @@
     {
         if (this.numberSpan != null)
             return;
-        this.numberSpan = DOM.createElement(document,"SPAN");
+        this.numberSpan = DOM_createElement(document,"SPAN");
         this.numberSpan.setAttribute("class",this.spanClass);
         this.titleNode = this.getTitleNode(true);
-        DOM.insertBefore(this.titleNode,this.numberSpan,this.titleNode.firstChild);
-        DOM.appendChild(this.numberSpan,DOM.createTextNode(document,""));
+        DOM_insertBefore(this.titleNode,this.numberSpan,this.titleNode.firstChild);
+        DOM_appendChild(this.numberSpan,DOM_createTextNode(document,""));
         scheduleUpdateStructure();
     }
 
@@ -166,7 +175,7 @@
     {
         if (this.numberSpan == null)
             return;
-        DOM.deleteNode(this.numberSpan);
+        DOM_deleteNode(this.numberSpan);
         this.numberSpan = null;
         scheduleUpdateStructure();
     }
@@ -179,16 +188,16 @@
         else if (this.type == "figure") {
             var titleNode = findChild(this.node,"FIGCAPTION");
             if ((titleNode == null) && create) {
-                titleNode = DOM.createElement(document,"FIGCAPTION");
-                DOM.appendChild(this.node,titleNode);
+                titleNode = DOM_createElement(document,"FIGCAPTION");
+                DOM_appendChild(this.node,titleNode);
             }
             return titleNode;
         }
         else if (this.type == "table") {
             var titleNode = findChild(this.node,"CAPTION");
             if ((titleNode == null) && create) {
-                titleNode = DOM.createElement(document,"CAPTION");
-                DOM.insertBefore(this.node,titleNode,this.node.firstChild);
+                titleNode = DOM_createElement(document,"CAPTION");
+                DOM_insertBefore(this.node,titleNode,this.node.firstChild);
             }
             return titleNode;
         }
@@ -196,7 +205,7 @@
         function findChild(node,name)
         {
             for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                if (DOM.upperName(child) == name)
+                if (DOM_upperName(child) == name)
                     return child;
             }
             return null;
@@ -285,8 +294,8 @@
         var refs = refsById[this.id];
         if (refs != null) {
             for (var i = 0; i < refs.length; i++) {
-                DOM.deleteAllChildren(refs[i]);
-                DOM.appendChild(refs[i],DOM.createTextNode(document,referenceText));
+                DOM_deleteAllChildren(refs[i]);
+                DOM_appendChild(refs[i],DOM_createTextNode(document,referenceText));
             }
         }
     }
@@ -311,7 +320,7 @@
                 if (item.title != "")
                     spanText += ": ";
             }
-            DOM.setNodeValue(item.numberSpan.firstChild,spanText);
+            DOM_setNodeValue(item.numberSpan.firstChild,spanText);
         }
     }
 
@@ -326,7 +335,7 @@
 
         if (this.title != newTitle) {
             this.title = newTitle;
-            Editor.updateOutlineItem(this.id,this.title);
+            Editor_updateOutlineItem(this.id,this.title);
         }
 
         function getNodeTextAfter(node)
@@ -358,8 +367,8 @@
 
         var item = itemsById[id];
         if ((item != null) && (item.referenceText != null)) {
-            DOM.deleteAllChildren(node);
-            DOM.appendChild(node,DOM.createTextNode(document,item.referenceText));
+            DOM_deleteAllChildren(node);
+            DOM_appendChild(node,DOM_createTextNode(document,item.referenceText));
         }
     }
 
@@ -384,7 +393,7 @@
     {
         for (var p = node; p != null; p = p.parentNode) {
             if ((p.nodeType == Node.ELEMENT_NODE) &&
-                (DOM.upperName(p) == "SPAN") &&
+                (DOM_upperName(p) == "SPAN") &&
                 (p.getAttribute("class") == Keys.HEADING_NUMBER))
                 return false;
         }
@@ -439,7 +448,7 @@
     {
         if (!outlineDirty) {
             outlineDirty = true;
-            PostponedActions.add(updateStructure);
+            PostponedActions_add(updateStructure);
         }
     }
 
@@ -531,7 +540,7 @@
         var arg = { sections: encSections,
                     figures: encFigures,
                     tables: encTables };
-        Editor.setOutline(arg);
+        Editor_setOutline(arg);
         return;
 
 
@@ -587,7 +596,7 @@
         figures = new Category("figure",isFigureNode,figureNumberRegex);
         tables = new Category("table",isTableNode,tableNumberRegex);
 
-        DOM.ensureUniqueIds(document.documentElement);
+        DOM_ensureUniqueIds(document.documentElement);
         document.addEventListener("DOMNodeInserted",docNodeInserted);
         document.addEventListener("DOMNodeRemoved",docNodeRemoved);
 
@@ -606,7 +615,7 @@
     // public
     function moveSection(sectionId,parentId,nextId)
     {
-        Selection.trackWhileExecuting(function() {
+        Selection_trackWhileExecuting(function() {
             updateStructure(); // make sure pointers are valid
 
             var section = itemsById[sectionId];
@@ -621,11 +630,11 @@
 
             if (next == null) {
                 for (var i = 0; i < sectionNodes.length; i++)
-                    DOM.appendChild(document.body,sectionNodes[i]);
+                    DOM_appendChild(document.body,sectionNodes[i]);
             }
             else {
                 for (var i = 0; i < sectionNodes.length; i++)
-                    DOM.insertBefore(next.node.parentNode,sectionNodes[i],next.node);
+                    DOM_insertBefore(next.node.parentNode,sectionNodes[i],next.node);
             }
         });
 
@@ -635,16 +644,16 @@
     // public
     function deleteItem(itemId)
     {
-        Selection.trackWhileExecuting(function() {
+        Selection_trackWhileExecuting(function() {
             var item = itemsById[itemId];
             if (item.type == "section") {
                 var sectionNodes = new Array();
                 getOutlineItemNodes(item,sectionNodes);
                 for (var i = 0; i < sectionNodes.length; i++)
-                    DOM.deleteNode(sectionNodes[i]);
+                    DOM_deleteNode(sectionNodes[i]);
             }
             else {
-                DOM.deleteNode(item.node);
+                DOM_deleteNode(item.node);
             }
         });
 
@@ -675,12 +684,11 @@
             item.disableNumbering();
     }
 
-    window.Outline = new (function Outline(){});
-    Outline.init = trace(init);
-    Outline.moveSection = trace(moveSection);
-    Outline.deleteItem = trace(deleteItem);
-    Outline.goToItem = trace(goToItem);
-    Outline.setNumbered = trace(setNumbered);
-    Outline.plainText = trace(plainText);
+    Outline_init = trace(init);
+    Outline_moveSection = trace(moveSection);
+    Outline_deleteItem = trace(deleteItem);
+    Outline_goToItem = trace(goToItem);
+    Outline_setNumbered = trace(setNumbered);
+    Outline_plainText = trace(plainText);
 
 })();

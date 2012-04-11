@@ -39,11 +39,11 @@ Showdown is a Javascript port of Markdown.  You can get the full [source code] b
 <script language="javascript">
 function getComment()
 {
-    var head = DOM.documentHead(document);
+    var head = DOM_documentHead(document);
     var comment = null;
     for (var child = head.firstChild; child != null; child = child.nextSibling) {
         if (child.nodeType == Node.COMMENT_NODE) {
-            DOM.deleteNode(child);
+            DOM_deleteNode(child);
             return child.nodeValue;
         }
     }
@@ -52,8 +52,8 @@ function getComment()
 function performTest()
 {
     var comment = getComment();
-    Clipboard.pasteText(comment);
-    showRangeAsBrackets(Selection.getSelectionRange());
+    Clipboard_pasteText(comment);
+    showRangeAsBrackets(Selection_getSelectionRange());
 }
 </script>
 </head>

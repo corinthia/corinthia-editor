@@ -50,9 +50,9 @@ function nodeString(node)
     if (node.nodeType == Node.TEXT_NODE)
         return id+JSON.stringify(node.nodeValue);
     else if ((node.nodeType == Node.ELEMENT_NODE) && (node.hasAttribute("id")))
-        return id+DOM.upperName(node)+"#"+node.getAttribute("id");
+        return id+DOM_upperName(node)+"#"+node.getAttribute("id");
     else
-        return id+DOM.upperName(node);
+        return id+DOM_upperName(node);
 }
 
 function clone(object)
@@ -106,7 +106,7 @@ function positionAtPoint(x,y)
                 position = new Position(range.startContainer,range.startOffset);
             else
                 position = new Position(node,node.nodeValue.length);
-            return Cursor.closestPositionForwards(position);
+            return Cursor_closestPositionForwards(position);
         }
     }
 
@@ -124,7 +124,7 @@ function positionAtPoint(x,y)
     }
 
     var position = new Position(range.startContainer,range.startOffset);
-    return Cursor.closestPositionForwards(position);
+    return Cursor_closestPositionForwards(position);
 
     function findLastTextRect()
     {
@@ -168,7 +168,7 @@ function nodeHasContent(node)
     if (node.nodeType == Node.TEXT_NODE) {
         return !isWhitespaceString(node.nodeValue);
     }
-    else if ((DOM.upperName(node) == "IMG") || (DOM.upperName(node) == "TABLE")) {
+    else if ((DOM_upperName(node) == "IMG") || (DOM_upperName(node) == "TABLE")) {
         return true;
     }
     else {

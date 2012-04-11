@@ -1,28 +1,29 @@
 // Copyright (c) 2012 UX Productivity Pty Ltd. All rights reserved.
 
-(function() {
+var PostponedActions_add;
+var PostponedActions_perform;
+var PostponedActions_performImmediately = false;
 
-    window.PostponedActions = new (function PostponedActions(){});
+(function() {
 
     var actions = new Array();
 
-    PostponedActions.add = function(action)
+    PostponedActions_add = function(action)
     {
         actions.push(action);
-        if (PostponedActions.performImmediately)
-            PostponedActions.perform();
+        if (PostponedActions_performImmediately)
+            PostponedActions_perform();
     }
 
-    PostponedActions.perform = function()
+    PostponedActions_perform = function()
     {
         if (actions.length > 0) {
             var actionsToPerform = actions;
             actions = new Array();
             for (var i = 0; i < actionsToPerform.length; i++)
                 actionsToPerform[i]();
-            Selection.updateSelectionDisplay();
+            Selection_updateSelectionDisplay();
         }
     }
 
-    PostponedActions.performImmediately = false;
 })();

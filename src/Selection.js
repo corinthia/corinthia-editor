@@ -2,6 +2,22 @@
 
 // FIXME: cursor does not display correctly if it is after a space at the end of the line
 
+var Selection_getCursorRect;
+var Selection_updateSelectionDisplay;
+var Selection_selectAll;
+var Selection_selectParagraph;
+var Selection_selectWordAtCursor;
+var Selection_dragSelectionBegin;
+var Selection_dragSelectionUpdate;
+var Selection_setSelectionStartAtCoords;
+var Selection_setSelectionEndAtCoords;
+var Selection_getSelectionRange;
+var Selection_setSelectionRange;
+var Selection_setEmptySelectionAt;
+var Selection_deleteSelectionContents;
+var Selection_clearSelection;
+var Selection_trackWhileExecuting;
+
 (function() {
 
     var selectionDivs = new Array();
@@ -19,7 +35,7 @@
 
         if (node.nodeType == Node.ELEMENT_NODE) {
             // Cursor is immediately before table -> return table rect
-            if ((offset > 0) && (DOM.upperName(node.childNodes[offset-1]) == "TABLE")) {
+            if ((offset > 0) && (DOM_upperName(node.childNodes[offset-1]) == "TABLE")) {
                 var rect = node.childNodes[offset-1].getBoundingClientRect();
                 return { left: rect.left + rect.width,
                          top: rect.top,
@@ -28,7 +44,7 @@
             }
             // Cursor is immediately after table -> return table rect
             else if ((offset < node.childNodes.length) &&
-                     (DOM.upperName(node.childNodes[offset]) == "TABLE")) {
+                     (DOM_upperName(node.childNodes[offset]) == "TABLE")) {
                 var rect = node.childNodes[offset].getBoundingClientRect();
                 return { left: rect.left,
                          top: rect.top,
@@ -39,10 +55,10 @@
             // Cursor is between two elements. We don't want to use the rect of either element,
             // since its height may not reflect that of the current text size. Temporarily add a
             /// new character, and set the cursor's location and height based on this.
-            var tempNode = DOM.createTextNode(document,"X");
-            DOM.insertBefore(node,tempNode,node.childNodes[offset]);
+            var tempNode = DOM_createTextNode(document,"X");
+            DOM_insertBefore(node,tempNode,node.childNodes[offset]);
             var result = rectAtLeftOfRange(new Range(tempNode,0,tempNode,0));
-            DOM.deleteNode(tempNode);
+            DOM_deleteNode(tempNode);
             return result;
         }
         else if (node.nodeType == Node.TEXT_NODE) {
@@ -101,7 +117,7 @@
     function updateSelectionDisplay()
     {
         for (var i = 0; i < selectionDivs.length; i++)
-            DOM.deleteNode(selectionDivs[i]);
+            DOM_deleteNode(selectionDivs[i]);
         selectionDivs = new Array();
 
         var rects = null;
@@ -114,15 +130,15 @@
             var rect = getCursorRect();
 
             if (rect != null) {
-                var zoom = Viewport.getZoom();
+                var zoom = Viewport_getZoom();
                 var left = rect.left + window.scrollX;
                 var top = rect.top + window.scrollY;
                 var height = rect.height;
                 var width = rect.width ? (rect.width * zoom) : 2;
-                Editor.setCursor(left*zoom,top*zoom,width,height*zoom);
+                Editor_setCursor(left*zoom,top*zoom,width,height*zoom);
             }
             else {
-                Editor.setCursor(0,0,300,300);
+                Editor_setCursor(0,0,300,300);
             }
             return;
         }
@@ -135,7 +151,7 @@
             var boundsBottom = null
 
             for (var i = 0; i < rects.length; i++) {
-                var div = DOM.createElement(document,"DIV");
+                var div = DOM_createElement(document,"DIV");
                 div.setAttribute("class",Keys.SELECTION_HIGHLIGHT);
                 div.style.position = "absolute";
 
@@ -169,14 +185,14 @@
                 div.style.height = height+"px";
                 div.style.backgroundColor = "rgb(201,221,238)";
                 div.style.zIndex = -1;
-                DOM.appendChild(document.body,div);
+                DOM_appendChild(document.body,div);
                 selectionDivs.push(div);
             }
 
             var firstRect = rects[0];
             var lastRect = rects[rects.length-1];
 
-            var zoom = Viewport.getZoom();
+            var zoom = Viewport_getZoom();
             var x1 = (firstRect.left+window.scrollX)*zoom;
             var y1 = (firstRect.top+window.scrollY)*zoom;
             var height1 = firstRect.height*zoom;
@@ -184,12 +200,12 @@
             var y2 = (lastRect.top+window.scrollY)*zoom;
             var height2 = lastRect.height*zoom;
 
-            Editor.setSelectionHandles(x1,y1,height1,x2,y2,height2);
-            Editor.setSelectionBounds(boundsLeft*zoom,boundsTop*zoom,
+            Editor_setSelectionHandles(x1,y1,height1,x2,y2,height2);
+            Editor_setSelectionBounds(boundsLeft*zoom,boundsTop*zoom,
                                       boundsRight*zoom,boundsBottom*zoom);
         }
         else {
-            Editor.clearSelectionHandlesAndCursor();
+            Editor_clearSelectionHandlesAndCursor();
         }
 
         function getAbsoluteOffset(node)
@@ -230,8 +246,8 @@
         while (!isParagraphNode(end) && !isContainerNode(end))
                 end = end.parentNode;
 
-        setSelectionRange(new Range(start.parentNode,DOM.nodeOffset(start),
-                                    end.parentNode,DOM.nodeOffset(end)+1));
+        setSelectionRange(new Range(start.parentNode,DOM_nodeOffset(start),
+                                    end.parentNode,DOM_nodeOffset(end)+1));
     }
 
     function getPunctuationCharsForRegex()
@@ -259,10 +275,10 @@
     // public
     function selectWordAtCursor()
     {
-        var selectionRange = Selection.getSelectionRange();
+        var selectionRange = Selection_getSelectionRange();
         if (selectionRange == null)
             return;
-        var pos = Cursor.closestPositionBackwards(selectionRange.end);
+        var pos = Cursor_closestPositionBackwards(selectionRange.end);
 
         // Note: We use a blacklist of punctuation characters here instead of a whitelist of
         // "word" characters, as the \w character class in javascript regular expressions only
@@ -307,7 +323,7 @@
                 endOffset = offset + wordOtherAfter.length;
             }
 
-            Selection.setSelectionRange(new Range(node,startOffset,node,endOffset));
+            Selection_setSelectionRange(new Range(node,startOffset,node,endOffset));
 
         }
         else if (node.nodeType == Node.ELEMENT_NODE) {
@@ -320,10 +336,10 @@
                 nodeAfter = node.childNodes[offset];
 
             if ((nodeBefore != null) && !isWhitespaceTextNode(nodeBefore)) {
-                Selection.setSelectionRange(new Range(node,offset-1,node,offset));
+                Selection_setSelectionRange(new Range(node,offset-1,node,offset));
             }
             else if ((nodeAfter != null) && !isWhitespaceTextNode(nodeAfter)) {
-                Selection.setSelectionRange(new Range(node,offset,node,offset+1));
+                Selection_setSelectionRange(new Range(node,offset,node,offset+1));
             }
         }
     }
@@ -338,11 +354,11 @@
         originalDragStart = null;
         originalDragEnd = null;
 
-        var zoom = Viewport.getZoom();
+        var zoom = Viewport_getZoom();
         var pos = positionAtPoint(x/zoom,y/zoom);
         if (pos != null) {
             selectionRange = new Range(pos.node,pos.offset,pos.node,pos.offset);
-            Selection.selectWordAtCursor();
+            Selection_selectWordAtCursor();
             originalDragStart = new Position(selectionRange.start.node,selectionRange.start.offset);
             originalDragEnd = new Position(selectionRange.end.node,selectionRange.end.offset);
             updateSelectionDisplay();
@@ -363,7 +379,7 @@
         if ((originalDragStart == null) || (originalDragEnd == null))
             return dragSelectionBegin(x,y);
 
-        var zoom = Viewport.getZoom();
+        var zoom = Viewport_getZoom();
         var pos = positionAtPoint(x/zoom,y/zoom);
         if (pos != null) {
 
@@ -386,10 +402,10 @@
     // public
     function setSelectionStartAtCoords(x,y)
     {
-        var zoom = Viewport.getZoom();
+        var zoom = Viewport_getZoom();
         var position = positionAtPoint(x/zoom,y/zoom);
         if (position != null) {
-            position = Cursor.closestPositionBackwards(position);
+            position = Cursor_closestPositionBackwards(position);
             var newRange = new Range(position.node,position.offset,
                                      selectionRange.end.node,selectionRange.end.offset);
             if (newRange.isForwards()) {
@@ -402,10 +418,10 @@
     // public
     function setSelectionEndAtCoords(x,y)
     {
-        var zoom = Viewport.getZoom();
+        var zoom = Viewport_getZoom();
         var position = positionAtPoint(x/zoom,y/zoom);
         if (position != null) {
-            position = Cursor.closestPositionBackwards(position);
+            position = Cursor_closestPositionBackwards(position);
             var newRange = new Range(selectionRange.start.node,selectionRange.start.offset,
                                      position.node,position.offset);
             if (newRange.isForwards()) {
@@ -425,7 +441,7 @@
     function setSelectionRange(range)
     {
         var oldRange = selectionRange;
-        UndoManager.addAction(function() {
+        UndoManager_addAction(function() {
             setSelectionRange(oldRange);
         },"Set selection to "+oldRange);
         selectionRange = range;
@@ -459,7 +475,7 @@
                     var endOffset = selectionRange.end.offset;
                     if ((node.nodeType == Node.TEXT_NODE) &&
                         ((startOffset > 0) || (endOffset < node.nodeValue.length))) {
-                        DOM.deleteCharacters(node,startOffset,endOffset);
+                        DOM_deleteCharacters(node,startOffset,endOffset);
                     }
                     else {
                         removeWholeNode = true;
@@ -468,7 +484,7 @@
                 else if (node == selectionRange.start.node) {
                     var offset = selectionRange.start.offset;
                     if ((node.nodeType == Node.TEXT_NODE) && (offset > 0)) {
-                        DOM.deleteCharacters(node,offset);
+                        DOM_deleteCharacters(node,offset);
                     }
                     else {
                         removeWholeNode = true;
@@ -477,7 +493,7 @@
                 else if (node == selectionRange.end.node) {
                     var offset = selectionRange.end.offset;
                     if ((node.nodeType == Node.TEXT_NODE) && (offset < node.nodeValue.length)) {
-                        DOM.deleteCharacters(node,0,offset);
+                        DOM_deleteCharacters(node,0,offset);
                     }
                     else {
                         removeWholeNode = true;
@@ -488,10 +504,10 @@
                 }
 
                 if (removeWholeNode) {
-                    if ((DOM.upperName(node) == "TD") || (DOM.upperName(node) == "TH"))
-                        DOM.deleteAllChildren(node);
+                    if ((DOM_upperName(node) == "TD") || (DOM_upperName(node) == "TH"))
+                        DOM_deleteAllChildren(node);
                     else
-                        DOM.deleteNode(node);
+                        DOM_deleteNode(node);
                 }
             }
 
@@ -500,14 +516,14 @@
             if ((detail.startAncestor != null) && (detail.endAncestor != null) &&
                 (detail.startAncestor.nextSibling == detail.endAncestor)) {
                 prepareForMerge(detail);
-                DOM.mergeWithNextSibling(detail.startAncestor,
-                                         Formatting.MERGEABLE_BLOCK_AND_INLINE);
+                DOM_mergeWithNextSibling(detail.startAncestor,
+                                         Formatting_MERGEABLE_BLOCK_AND_INLINE);
                 if (isParagraphNode(detail.startAncestor) &&
-                    (DOM.upperName(detail.startAncestor) != "DIV"))
+                    (DOM_upperName(detail.startAncestor) != "DIV"))
                     removeParagraphDescendants(detail.startAncestor);
             }
 
-            Cursor.updateBRAtEndOfParagraph(selectionRange.singleNode());
+            Cursor_updateBRAtEndOfParagraph(selectionRange.singleNode());
         });
 
         setEmptySelectionAt(selectionRange.start.node,selectionRange.start.offset);
@@ -520,7 +536,7 @@
             next = child.nextSibling;
             removeParagraphDescendants(child);
             if (isParagraphNode(child))
-                DOM.removeNodeButKeepChildren(child);
+                DOM_removeNodeButKeepChildren(child);
         }
     }
 
@@ -553,9 +569,9 @@
 
         function putPrecedingSiblingsInParagraph(parent,node)
         {
-            var p = DOM.createElement(document,"P");
+            var p = DOM_createElement(document,"P");
             while (parent.firstChild != node)
-                DOM.appendChild(p,parent.firstChild);
+                DOM_appendChild(p,parent.firstChild);
             return p;
         }
     }
@@ -563,16 +579,16 @@
     function prepareForMerge(detail)
     {
         if (isParagraphNode(detail.startAncestor) && isInlineNode(detail.endAncestor)) {
-            var newParagraph = DOM.createElement(document,detail.startAncestor.nodeName);
-            DOM.insertBefore(detail.endAncestor.parentNode,newParagraph,detail.endAncestor);
-            DOM.appendChild(newParagraph,detail.endAncestor);
+            var newParagraph = DOM_createElement(document,detail.startAncestor.nodeName);
+            DOM_insertBefore(detail.endAncestor.parentNode,newParagraph,detail.endAncestor);
+            DOM_appendChild(newParagraph,detail.endAncestor);
             detail.endAncestor = newParagraph;
         }
         else if (isInlineNode(detail.startAncestor) && isParagraphNode(detail.endAncestor)) {
-            var newParagraph = DOM.createElement(document,detail.endAncestor.nodeName);
-            DOM.insertBefore(detail.startAncestor.parentNode,newParagraph,
+            var newParagraph = DOM_createElement(document,detail.endAncestor.nodeName);
+            DOM_insertBefore(detail.startAncestor.parentNode,newParagraph,
                              detail.startAncestor.nextSibling);
-            DOM.appendChild(newParagraph,detail.startAncestor);
+            DOM_appendChild(newParagraph,detail.startAncestor);
             detail.startAncestor = newParagraph;
         }
         else if (isParagraphNode(detail.startAncestor) &&
@@ -583,13 +599,13 @@
 
             var paragraph = findFirstParagraph(li);
             if (paragraph != null) {
-                DOM.insertBefore(list.parentNode,paragraph,list);
-                DOM.replaceElement(paragraph,detail.startAncestor.nodeName);
+                DOM_insertBefore(list.parentNode,paragraph,list);
+                DOM_replaceElement(paragraph,detail.startAncestor.nodeName);
             }
             if (!nodeHasContent(li))
-                DOM.deleteNode(li);
+                DOM_deleteNode(li);
             if (firstChildElement(list) == null)
-                DOM.deleteNode(list);
+                DOM_deleteNode(list);
         }
         else if (isParagraphNode(detail.endAncestor) &&
                  isListNode(detail.startAncestor) &&
@@ -599,11 +615,11 @@
             var p = detail.endAncestor;
             var oldLastChild = li.lastChild;
             while (p.firstChild != null)
-                DOM.insertBefore(li,p.firstChild,null);
-            DOM.deleteNode(p);
+                DOM_insertBefore(li,p.firstChild,null);
+            DOM_deleteNode(p);
             if (oldLastChild != null) {
-                DOM.mergeWithNextSibling(oldLastChild,
-                                         Formatting.MERGEABLE_BLOCK_AND_INLINE);
+                DOM_mergeWithNextSibling(oldLastChild,
+                                         Formatting_MERGEABLE_BLOCK_AND_INLINE);
             }
         }
 
@@ -631,21 +647,20 @@
             return selectionRange.trackWhileExecuting(fun);
     }
 
-    window.Selection = new (function Selection(){});
-    Selection.getCursorRect = trace(getCursorRect);
-    Selection.updateSelectionDisplay = trace(updateSelectionDisplay);
-    Selection.selectAll = trace(selectAll);
-    Selection.selectParagraph = trace(selectParagraph);
-    Selection.selectWordAtCursor = trace(selectWordAtCursor);
-    Selection.dragSelectionBegin = dragSelectionBegin;
-    Selection.dragSelectionUpdate = dragSelectionUpdate;
-    Selection.setSelectionStartAtCoords = trace(setSelectionStartAtCoords);
-    Selection.setSelectionEndAtCoords = trace(setSelectionEndAtCoords);
-    Selection.getSelectionRange = trace(getSelectionRange);
-    Selection.setSelectionRange = trace(setSelectionRange);
-    Selection.setEmptySelectionAt = trace(setEmptySelectionAt);
-    Selection.deleteSelectionContents = trace(deleteSelectionContents);
-    Selection.clearSelection = trace(clearSelection);
-    Selection.trackWhileExecuting = trace(trackWhileExecuting);
+    Selection_getCursorRect = trace(getCursorRect);
+    Selection_updateSelectionDisplay = trace(updateSelectionDisplay);
+    Selection_selectAll = trace(selectAll);
+    Selection_selectParagraph = trace(selectParagraph);
+    Selection_selectWordAtCursor = trace(selectWordAtCursor);
+    Selection_dragSelectionBegin = dragSelectionBegin;
+    Selection_dragSelectionUpdate = dragSelectionUpdate;
+    Selection_setSelectionStartAtCoords = trace(setSelectionStartAtCoords);
+    Selection_setSelectionEndAtCoords = trace(setSelectionEndAtCoords);
+    Selection_getSelectionRange = trace(getSelectionRange);
+    Selection_setSelectionRange = trace(setSelectionRange);
+    Selection_setEmptySelectionAt = trace(setEmptySelectionAt);
+    Selection_deleteSelectionContents = trace(deleteSelectionContents);
+    Selection_clearSelection = trace(clearSelection);
+    Selection_trackWhileExecuting = trace(trackWhileExecuting);
 
 })();

@@ -5,25 +5,25 @@
 <script language="javascript">
 function performTest()
 {
-    DOM.deleteAllChildren(document.body);
+    DOM_deleteAllChildren(document.body);
 
 
-    var p1 = DOM.createElement(document,"P");
-    var p2 = DOM.createElement(document,"P");
-    DOM.appendChild(p1,DOM.createTextNode(document,"First"));
-    DOM.appendChild(p2,DOM.createTextNode(document,"Second"));
+    var p1 = DOM_createElement(document,"P");
+    var p2 = DOM_createElement(document,"P");
+    DOM_appendChild(p1,DOM_createTextNode(document,"First"));
+    DOM_appendChild(p2,DOM_createTextNode(document,"Second"));
 
-    DOM.appendChild(document.body,p1);
-    DOM.appendChild(document.body,DOM.createTextNode(document,"  "));
-    DOM.appendChild(document.body,DOM.createTextNode(document,"  "));
-    DOM.appendChild(document.body,DOM.createTextNode(document,"  "));
-    DOM.appendChild(document.body,DOM.createTextNode(document,"  "));
-    DOM.appendChild(document.body,p2);
+    DOM_appendChild(document.body,p1);
+    DOM_appendChild(document.body,DOM_createTextNode(document,"  "));
+    DOM_appendChild(document.body,DOM_createTextNode(document,"  "));
+    DOM_appendChild(document.body,DOM_createTextNode(document,"  "));
+    DOM_appendChild(document.body,DOM_createTextNode(document,"  "));
+    DOM_appendChild(document.body,p2);
 
-    Selection.setEmptySelectionAt(document.body,3);
+    Selection_setEmptySelectionAt(document.body,3);
 
-    Cursor.insertCharacter("X");
-    showRangeAsBrackets(Selection.getSelectionRange());
+    Cursor_insertCharacter("X");
+    showRangeAsBrackets(Selection_getSelectionRange());
 }
 </script>
 </head>

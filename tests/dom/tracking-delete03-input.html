@@ -6,9 +6,9 @@
 function performTest()
 {
     var p = document.getElementsByTagName("P")[0];
-    var selectionRange = Selection.getSelectionRange();
+    var selectionRange = Selection_getSelectionRange();
     selectionRange.trackWhileExecuting(function() {
-        DOM.deleteNode(p);
+        DOM_deleteNode(p);
     });
     showRangeAsBrackets(selectionRange);
 }

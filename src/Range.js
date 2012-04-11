@@ -1,7 +1,10 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
+var Range;
+
 (function() {
-    function Range(startNode,startOffset,endNode,endOffset)
+
+    Range = function(startNode,startOffset,endNode,endOffset)
     {
         this.start = new Position(startNode,startOffset);
         this.end = new Position(endNode,endOffset);
@@ -34,14 +37,14 @@
     {
         var doc = this.start.node.ownerDocument;
         while ((this.start.offset == 0) && (this.start.node != doc.body)) {
-            var offset = DOM.nodeOffset(this.start.node);
+            var offset = DOM_nodeOffset(this.start.node);
             this.start.node = this.start.node.parentNode;
             this.start.offset = offset;
         }
 
-        while ((this.end.offset == DOM.maxChildOffset(this.end.node)) &&
+        while ((this.end.offset == DOM_maxChildOffset(this.end.node)) &&
                (this.end.node != doc.body)) {
-            var offset = DOM.nodeOffset(this.end.node);
+            var offset = DOM_nodeOffset(this.end.node);
             this.end.node = this.end.node.parentNode;
             this.end.offset = offset+1;
         }
@@ -177,7 +180,7 @@
                 if (depths[depth] != null) {
                     for (var i = 0; i < depths[depth].length; i++) {
                         var node = depths[depth][i];
-                        Hierarchy.ensureValidHierarchy(node,firstDepth);
+                        Hierarchy_ensureValidHierarchy(node,firstDepth);
                     }
                     firstDepth = false;
                 }
@@ -406,7 +409,7 @@
     {
         var cloneMap = new NodeMap();
         var detail = this.detail();
-        var cloneRoot = DOM.cloneNode(detail.commonAncestor,false);
+        var cloneRoot = DOM_cloneNode(detail.commonAncestor,false);
         cloneMap.put(detail.commonAncestor,cloneRoot);
         var outermost = this.getOutermostNodes();
         for (var i = 0; i < outermost.length; i++) {
@@ -443,20 +446,19 @@
             if (cloneMap.containsKey(node))
                 return cloneMap.get(node);
 
-            var clone = DOM.cloneNode(node,deep);
+            var clone = DOM_cloneNode(node,deep);
             cloneMap.put(node,clone);
             if (node.parentNode == detail.commonAncestor) {
-                DOM.appendChild(cloneRoot,clone);
+                DOM_appendChild(cloneRoot,clone);
             }
             else {
                 var parentClone = add(node.parentNode,false);
-                DOM.appendChild(parentClone,clone);
+                DOM_appendChild(parentClone,clone);
             }
             return clone;
         }
     }
 
-    window.Range = Range;
     Range.prototype.copy = trace(copy);
     Range.prototype.isEmpty = trace(isEmpty);
     Range.prototype.trackWhileExecuting = trace(trackWhileExecuting);

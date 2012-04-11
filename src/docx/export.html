@@ -11,10 +11,10 @@ p { page-break-inside: avoid }
 function save()
 {
     var win = window.open();
-    var text = DOM.createTextNode(win.document,document.documentElement.outerHTML);
-    var pre = DOM.createElement(win.document,"PRE");
-    DOM.appendChild(pre,text);
-    DOM.appendChild(win.document.body,pre);
+    var text = DOM_createTextNode(win.document,document.documentElement.outerHTML);
+    var pre = DOM_createElement(win.document,"PRE");
+    DOM_appendChild(pre,text);
+    DOM_appendChild(win.document.body,pre);
 }
 </script>
 
@@ -267,7 +267,7 @@ workflow languages with the computation facilities of functional programming lan
 allowing both aspects of a workflow to be expressed in the one language.</p>
 
 
-<!-- sync with import.html and Editor.m -->
+<!-- sync with import.html and Editor_m -->
 <script language="javascript" src="elements/DocxAbstractNum.js"></script>
 <script language="javascript" src="elements/DocxBorderProperties.js"></script>
 <script language="javascript" src="elements/DocxCellProperties.js"></script>
@@ -293,7 +293,7 @@ allowing both aspects of a workflow to be expressed in the one language.</p>
 <script language="javascript" src="htmltable.js"></script>
 <script language="javascript" src="DocxDocument.js"></script>
 <script language="javascript" src="html2docx.js"></script>
-<script language="javascript" src="../DOM.js"></script>
+<script language="javascript" src="../DOM_js"></script>
 
 <script language="javascript">
 html2docx("saved/saved1");

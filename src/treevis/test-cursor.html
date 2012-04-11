@@ -13,8 +13,8 @@ body { -webkit-user-select: none }
 window.debugIds = true;
 </script>
 <script type="text/javascript" src="../tests/nulleditor.js"></script>
-<script type="text/javascript" src="../DOM.js"></script>
-<script type="text/javascript" src="../UndoManager.js"></script>
+<script type="text/javascript" src="../DOM_js"></script>
+<script type="text/javascript" src="../UndoManager_js"></script>
 <script type="text/javascript" src="../NodeSet.js"></script>
 <script type="text/javascript" src="../Position.js"></script>
 <script type="text/javascript" src="../Range.js"></script>
@@ -56,7 +56,7 @@ function preorderTraversal(root)
 {
     var work = { currentNode: null, descendants: null };
 
-    UndoManager.monitorWhileExecuting(work,function() {
+    UndoManager_monitorWhileExecuting(work,function() {
         recurse(root);
     });
 
@@ -70,7 +70,7 @@ function preorderTraversal(root)
         addDescendants(node,set);
         work.descendants = set;
 
-        UndoManager.newGroup();
+        UndoManager_newGroup();
         for (var child = node.firstChild; child != null; child = child.nextSibling)
             recurse(child);
     }
@@ -87,16 +87,16 @@ function preorderTraversal(root)
 function traversePositions(root)
 {
     var work = { pos: null };
-    UndoManager.monitorWhileExecuting(work,function() {
+    UndoManager_monitorWhileExecuting(work,function() {
         var spaces = 0;
         for (var i = 0; i < allPositions.length; i++) {
             var pos = allPositions[i];
 
-            if (Cursor.isValidCursorPosition(pos)) {
+            if (Cursor_isValidCursorPosition(pos)) {
                 var range = new Range(pos.node,pos.offset,pos.node,pos.offset);
-                Selection.setSelectionRange(range);
+                Selection_setSelectionRange(range);
                 work.pos = pos;
-                UndoManager.newGroup();
+                UndoManager_newGroup();
             }
         }
     });
@@ -105,13 +105,13 @@ function traversePositions(root)
 function traversePositionsAll(root)
 {
     var work = { pos: null };
-    UndoManager.monitorWhileExecuting(work,function() {
+    UndoManager_monitorWhileExecuting(work,function() {
         for (var i = 0; i < allPositions.length; i++) {
             var pos = allPositions[i];
             var range = new Range(pos.node,pos.offset,pos.node,pos.offset);
-            Selection.setSelectionRange(range);
+            Selection_setSelectionRange(range);
             work.pos = pos;
-            UndoManager.newGroup();
+            UndoManager_newGroup();
         }
     });
 }
@@ -136,14 +136,14 @@ var cursorDiv = null;
 editor.setCursor = function(x,y,height)
 {
     if (cursorDiv == null)
-        cursorDiv = DOM.createElement(document,"DIV");
+        cursorDiv = DOM_createElement(document,"DIV");
     cursorDiv.style.position = "absolute";
     cursorDiv.style.left = x+"px";
     cursorDiv.style.top = y+"px";
     cursorDiv.style.width = "2px";
     cursorDiv.style.height = height+"px";
     cursorDiv.style.backgroundColor = "blue";
-    DOM.appendChild(document.body,cursorDiv);
+    DOM_appendChild(document.body,cursorDiv);
 }
     
 editor.setSelectionHandles = function(x1,y1,height1,x2,y2,height2)
@@ -153,7 +153,7 @@ editor.setSelectionHandles = function(x1,y1,height1,x2,y2,height2)
 editor.clearSelectionHandlesAndCursor = function()
 {
     if (cursorDiv != null) {
-        DOM.deleteNode(cursorDiv);
+        DOM_deleteNode(cursorDiv);
         cursorDiv = null;
     }
 }
@@ -161,10 +161,10 @@ editor.clearSelectionHandlesAndCursor = function()
 function main()
 {
     var root = document.getElementById("root");
-    DOM.assignNodeIds(document);
+    DOM_assignNodeIds(document);
     setup(root);
     printTree(root);
-//    DOM.assignNodeIds(document);
+//    DOM_assignNodeIds(document);
 
 //    preorderTraversal(root);
     traversePositions(root);
@@ -173,15 +173,15 @@ function main()
 
 
 //    var work = { set: null };
-//    UndoManager.monitorWhileExecuting(work,function() {
-//        UndoManager.newGroup();
+//    UndoManager_monitorWhileExecuting(work,function() {
+//        UndoManager_newGroup();
 //    });
 
 
 
-    var svg = DOM.createElementNS(document,SVG_NAMESPACE,"svg");
+    var svg = DOM_createElementNS(document,SVG_NAMESPACE,"svg");
     svg.setAttribute("version","1.1");
-    DOM.appendChild(document.body,svg);
+    DOM_appendChild(document.body,svg);
 
     var controller = new StepController(root);
     controller.treeView.labelFun = function(node) {
@@ -190,7 +190,7 @@ function main()
         else
             return node.nodeName;
     };
-    DOM.appendChild(svg,controller.element);
+    DOM_appendChild(svg,controller.element);
     controller.update();
 }
 

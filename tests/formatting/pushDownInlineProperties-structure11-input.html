@@ -5,11 +5,11 @@
 <script language="javascript">
 function performTest()
 {
-    var range = Selection.getSelectionRange();
+    var range = Selection_getSelectionRange();
     range.ensureRangeValidHierarchy();
-    Formatting.splitAroundSelection(range);
+    Formatting_splitAroundSelection(range);
     var outermost = range.getOutermostNodes();
-    Formatting.pushDownInlineProperties(outermost);
+    Formatting_pushDownInlineProperties(outermost);
 }
 </script>
 </head>

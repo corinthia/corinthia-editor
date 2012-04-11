@@ -10,15 +10,15 @@ function performTest()
     // WebKit's parser will move the selection to cover the whole table if we do that
     var table = document.getElementsByTagName("TABLE")[0];
     var trs = document.getElementsByTagName("TR");
-    var tr1Offset = DOM.nodeOffset(trs[1]);
-    var tr2Offset = DOM.nodeOffset(trs[2]);
+    var tr1Offset = DOM_nodeOffset(trs[1]);
+    var tr2Offset = DOM_nodeOffset(trs[2]);
 
     // The table is not the parent of the TRs - the parser automatically inserts a TBODY
     // between them
-    Selection.setSelectionRange(new Range(trs[1].parentNode,tr1Offset,
+    Selection_setSelectionRange(new Range(trs[1].parentNode,tr1Offset,
                                           trs[2].parentNode,tr2Offset+1));
 
-    Formatting.applyFormattingChanges("h1",null);
+    Formatting_applyFormattingChanges("h1",null);
 
     // An unrelated part of the code adds "id" attributes to heading elements to keep track of
     // sections - we're not testing that functionality here, so we want to ignore them

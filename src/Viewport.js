@@ -1,5 +1,12 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
+var Viewport_init;
+var Viewport_setViewportSize;
+var Viewport_getViewportWidth;
+var Viewport_getViewportHeight;
+var Viewport_getZoom;
+var Viewport_setTextScale;
+
 (function() {
 
     var viewportWidth = null;
@@ -9,18 +16,18 @@
     // public
     function init()
     {
-        var head = DOM.documentHead(document);
+        var head = DOM_documentHead(document);
         for (var child = head.firstChild; child != null; child = child.nextSibling) {
-            if ((DOM.upperName(child) == "META") &&
+            if ((DOM_upperName(child) == "META") &&
                 (child.getAttribute("name") == "viewport")) {
                 viewportMetaElement = child;
                 break;
             }
         }
         if (viewportMetaElement == null) {
-            viewportMetaElement = DOM.createElement(document,"META");
+            viewportMetaElement = DOM_createElement(document,"META");
             viewportMetaElement.setAttribute("name","viewport");
-            DOM.appendChild(head,viewportMetaElement);
+            DOM_appendChild(head,viewportMetaElement);
         }
         viewportMetaElement.setAttribute("content","width = device-width, user-scalable = no");
     }
@@ -32,8 +39,8 @@
         viewportHeight = height;
         viewportMetaElement.setAttribute("content","width = "+width+", user-scalable = no");
 
-        Selection.updateSelectionDisplay();
-        Cursor.ensureCursorVisible();
+        Selection_updateSelectionDisplay();
+        Cursor_ensureCursorVisible();
     }
 
     // public
@@ -60,16 +67,15 @@
         var pct = Math.floor(zoom*100)+"%";
         document.documentElement.style.webkitTextSizeAdjust = pct;
 
-        Selection.updateSelectionDisplay();
-        Cursor.ensureCursorVisible();
+        Selection_updateSelectionDisplay();
+        Cursor_ensureCursorVisible();
     }
 
-    window.Viewport = new (function Viewport(){});
-    Viewport.init = trace(init);
-    Viewport.setViewportSize = trace(setViewportSize);
-    Viewport.getViewportWidth = getViewportWidth;
-    Viewport.getViewportHeight = getViewportHeight;
-    Viewport.getZoom = getZoom;
-    Viewport.setTextScale = trace(setTextScale);
+    Viewport_init = trace(init);
+    Viewport_setViewportSize = trace(setViewportSize);
+    Viewport_getViewportWidth = getViewportWidth;
+    Viewport_getViewportHeight = getViewportHeight;
+    Viewport_getZoom = getZoom;
+    Viewport_setTextScale = trace(setTextScale);
 
 })();

@@ -7,7 +7,7 @@
 <body>
 
 
-<script type="text/javascript" src="UndoManager.js"></script>
+<script type="text/javascript" src="UndoManager_js"></script>
 <script type="text/javascript">
 function debug(str)
 {
@@ -24,7 +24,7 @@ TestClass.prototype.setValue = function(newValue)
 {
     var oldValue = this.value;
     var object = this;
-    UndoManager.addAction(function() {
+    UndoManager_addAction(function() {
         object.setValue(oldValue);
     },"Change value from "+oldValue+" to "+newValue);
     this.value = newValue;
@@ -34,7 +34,7 @@ TestClass.prototype.setValue = function(newValue)
 TestClass.prototype.increaseBy = function(amount)
 {
     var object = this;
-    UndoManager.namedGroup("Increase value by "+amount,function() {
+    UndoManager_namedGroup("Increase value by "+amount,function() {
 
         var oldIndent = object.indent;
         object.indent += "    ";
@@ -57,7 +57,7 @@ TestClass.prototype.multiplyBy = function(amount)
 {
     var object = this;
 
-    UndoManager.namedGroup("Multiply value by "+amount,function() {
+    UndoManager_namedGroup("Multiply value by "+amount,function() {
 
         var oldIndent = object.indent;
         object.indent += "    ";
@@ -80,38 +80,38 @@ TestClass.prototype.multiplyBy = function(amount)
 var obj = new TestClass();
 /*
 obj.setValue(1);
-UndoManager.closeGroup();
+UndoManager_closeGroup();
 obj.setValue(2);
-UndoManager.closeGroup();
+UndoManager_closeGroup();
 obj.setValue(3);
-UndoManager.closeGroup();
+UndoManager_closeGroup();
 obj.setValue(4);
-UndoManager.closeGroup();
+UndoManager_closeGroup();
 obj.setValue(5);
-UndoManager.closeGroup();
-UndoManager.print();
+UndoManager_closeGroup();
+UndoManager_print();
 
 debug("");
-UndoManager.undo();
-UndoManager.undo();
-UndoManager.undo();
-UndoManager.redo();
-UndoManager.redo();
-UndoManager.redo();
-UndoManager.redo();
+UndoManager_undo();
+UndoManager_undo();
+UndoManager_undo();
+UndoManager_redo();
+UndoManager_redo();
+UndoManager_redo();
+UndoManager_redo();
 */
 
 obj.setValue(3);
-//UndoManager.closeGroup();
+//UndoManager_closeGroup();
 obj.multiplyBy(4);
 obj.increaseBy(2);
-UndoManager.undo();
-UndoManager.undo();
-UndoManager.undo();
-UndoManager.redo();
-UndoManager.redo();
-UndoManager.redo();
-UndoManager.print();
+UndoManager_undo();
+UndoManager_undo();
+UndoManager_undo();
+UndoManager_redo();
+UndoManager_redo();
+UndoManager_redo();
+UndoManager_print();
 
 
 </script>

@@ -5,15 +5,15 @@
 <script language="javascript">
 function performTest()
 {
-    Cursor.enterPressed();
-    var range = Selection.getSelectionRange();
+    Cursor_enterPressed();
+    var range = Selection_getSelectionRange();
     range.trackWhileExecuting(showEmptyTextNodes);
 
     var u = document.getElementsByTagName("U")[0];
     range = new Range(u,0,u,0);
-    Selection.setSelectionRange(range);
-    Cursor.insertCharacter("X");
-    showRangeAsBrackets(Selection.getSelectionRange())
+    Selection_setSelectionRange(range);
+    Cursor_insertCharacter("X");
+    showRangeAsBrackets(Selection_getSelectionRange())
 }
 </script>
 </head>

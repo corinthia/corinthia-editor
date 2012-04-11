@@ -47,7 +47,7 @@
 
     Table.prototype.processTable = function(node)
     {
-        if ((DOM.upperName(node) == "TD") || (DOM.upperName(node) == "TH")) {
+        if ((DOM_upperName(node) == "TD") || (DOM_upperName(node) == "TH")) {
             var cell = new Cell(node,this.row,this.col);
 
             while (this.get(this.row,this.col) != null)
@@ -60,7 +60,7 @@
             }
             this.col += cell.colspan;
         }
-        else if (DOM.upperName(node) == "TR") {
+        else if (DOM_upperName(node) == "TR") {
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 this.processTable(child);
             this.row++;

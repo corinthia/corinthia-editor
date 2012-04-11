@@ -1,5 +1,18 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
+var Formatting_splitTextBefore;
+var Formatting_splitTextAfter;
+var Formatting_movePreceding;
+var Formatting_moveFollowing;
+var Formatting_splitAroundSelection;
+var Formatting_mergeWithNeighbours;
+var Formatting_mergeRange;
+var Formatting_paragraphTextUpToPosition;
+var Formatting_getFormatting;
+var Formatting_pushDownInlineProperties;
+var Formatting_applyFormattingChanges;
+var Formatting_setStyleElement;
+
 (function() {
 
     // Some properties in CSS, such as 'margin', 'border', and 'padding', are shorthands which
@@ -95,7 +108,7 @@
                 movePreceding(range.start.node,range.start.offset,isBlockNode);
             }
             else {
-                movePreceding(range.start.node.parentNode,DOM.nodeOffset(range.start.node),
+                movePreceding(range.start.node.parentNode,DOM_nodeOffset(range.start.node),
                               isBlockNode);
             }
 
@@ -114,7 +127,7 @@
                 moveFollowing(range.end.node,range.end.offset,isBlockNode);
             }
             else {
-                moveFollowing(range.end.node.parentNode,DOM.nodeOffset(range.end.node)+1,
+                moveFollowing(range.end.node.parentNode,DOM_nodeOffset(range.end.node)+1,
                               isBlockNode);
             }
 
@@ -136,11 +149,11 @@
         var end = node;
 
         while ((start.previousSibling != null) &&
-               DOM.nodesMergeable(start.previousSibling,start,whiteList))
+               DOM_nodesMergeable(start.previousSibling,start,whiteList))
             start = start.previousSibling;
 
         while ((end.nextSibling != null) &&
-               DOM.nodesMergeable(end,end.nextSibling,whiteList))
+               DOM_nodesMergeable(end,end.nextSibling,whiteList))
             end = end.nextSibling;
 
         if (start != end) {
@@ -152,7 +165,7 @@
                 if (start.nodeType == Node.ELEMENT_NODE)
                     lastChild = start.lastChild;
 
-                DOM.mergeWithNextSibling(start,whiteList);
+                DOM_mergeWithNextSibling(start,whiteList);
 
                 if (lastChild != null)
                     mergeWithNeighbours(lastChild,whiteList);
@@ -177,12 +190,12 @@
     {
         if (parentCheckFn == null)
             parentCheckFn = isBlockNode;
-        var before = DOM.createTextNode(document,node.nodeValue.slice(0,offset));
+        var before = DOM_createTextNode(document,node.nodeValue.slice(0,offset));
 
-        DOM.insertBefore(node.parentNode,before,node);
-        DOM.deleteCharacters(node,0,offset);
+        DOM_insertBefore(node.parentNode,before,node);
+        DOM_deleteCharacters(node,0,offset);
 
-        movePreceding(node.parentNode,DOM.nodeOffset(node),parentCheckFn,force);
+        movePreceding(node.parentNode,DOM_nodeOffset(node),parentCheckFn,force);
         return new Position(before,before.nodeValue.length);
     }
 
@@ -191,12 +204,12 @@
     {
         if (parentCheckFn == null)
             parentCheckFn = isBlockNode;
-        var after = DOM.createTextNode(document,node.nodeValue.slice(offset));
+        var after = DOM_createTextNode(document,node.nodeValue.slice(offset));
 
-        DOM.insertBefore(node.parentNode,after,node.nextSibling);
-        DOM.deleteCharacters(node,offset);
+        DOM_insertBefore(node.parentNode,after,node.nextSibling);
+        DOM_deleteCharacters(node,offset);
 
-        moveFollowing(node.parentNode,DOM.nodeOffset(node)+1,parentCheckFn,force);
+        moveFollowing(node.parentNode,DOM_nodeOffset(node)+1,parentCheckFn,force);
         return new Position(after,0);
     }
 
@@ -221,19 +234,19 @@
         if ((toMove.length > 0) || force) {
             if (justWhitespace && !force) {
                 for (var i = 0; i < toMove.length; i++)
-                    DOM.insertBefore(node.parentNode,toMove[i],node);
+                    DOM_insertBefore(node.parentNode,toMove[i],node);
             }
             else {
-                var copy = DOM.shallowCopyElement(node);
-                DOM.insertBefore(node.parentNode,copy,node);
+                var copy = DOM_shallowCopyElement(node);
+                DOM_insertBefore(node.parentNode,copy,node);
 
                 for (var i = 0; i < toMove.length; i++)
-                    DOM.insertBefore(copy,toMove[i],null);
+                    DOM_insertBefore(copy,toMove[i],null);
                 result = new Position(copy,copy.childNodes.length);
             }
         }
 
-        movePreceding(node.parentNode,DOM.nodeOffset(node),parentCheckFn,force);
+        movePreceding(node.parentNode,DOM_nodeOffset(node),parentCheckFn,force);
         return result;
     }
 
@@ -254,19 +267,19 @@
         if ((toMove.length > 0) || force) {
             if (justWhitespace && !force) {
                 for (var i = 0; i < toMove.length; i++)
-                    DOM.insertBefore(node.parentNode,toMove[i],node.nextSibling);
+                    DOM_insertBefore(node.parentNode,toMove[i],node.nextSibling);
             }
             else {
-                var copy = DOM.shallowCopyElement(node);
-                DOM.insertBefore(node.parentNode,copy,node.nextSibling);
+                var copy = DOM_shallowCopyElement(node);
+                DOM_insertBefore(node.parentNode,copy,node.nextSibling);
 
                 for (var i = 0; i < toMove.length; i++)
-                    DOM.insertBefore(copy,toMove[i],null);
+                    DOM_insertBefore(copy,toMove[i],null);
                 result = new Position(copy,0);
             }
         }
 
-        moveFollowing(node.parentNode,DOM.nodeOffset(node)+1,parentCheckFn,force);
+        moveFollowing(node.parentNode,DOM_nodeOffset(node)+1,parentCheckFn,force);
         return result;
     }
 
@@ -311,7 +324,7 @@
     {
         // FIXME: implement a more efficient version of this algorithm which avoids duplicate checks
 
-        var range = Selection.getSelectionRange();
+        var range = Selection_getSelectionRange();
         if (range == null)
             return {};
 
@@ -398,13 +411,13 @@
                 for (var name in nodeProperties)
                     properties[name] = nodeProperties[name];
             }
-            if (DOM.upperName(node) == "B") {
+            if (DOM_upperName(node) == "B") {
                 properties["font-weight"] = "bold";
             }
-            else if (DOM.upperName(node) == "I") {
+            else if (DOM_upperName(node) == "I") {
                 properties["font-style"] = "italic";
             }
-            else if (DOM.upperName(node) == "U") {
+            else if (DOM_upperName(node) == "U") {
                 var components = [];
                 if (properties["text-decoration"] != null) {
                     var components = properties["text-decoration"].toLowerCase().split(/\s+/);
@@ -415,28 +428,28 @@
                     properties["text-decoration"] = "underline";
                 }
             }
-            else if (DOM.upperName(node) == "H1") {
+            else if (DOM_upperName(node) == "H1") {
                 properties["uxwrite-style"] = "H1";
             }
-            else if (DOM.upperName(node) == "H2") {
+            else if (DOM_upperName(node) == "H2") {
                 properties["uxwrite-style"] = "H2";
             }
-            else if (DOM.upperName(node) == "H3") {
+            else if (DOM_upperName(node) == "H3") {
                 properties["uxwrite-style"] = "H3";
             }
-            else if (DOM.upperName(node) == "H4") {
+            else if (DOM_upperName(node) == "H4") {
                 properties["uxwrite-style"] = "H4";
             }
-            else if (DOM.upperName(node) == "H5") {
+            else if (DOM_upperName(node) == "H5") {
                 properties["uxwrite-style"] = "H5";
             }
-            else if (DOM.upperName(node) == "H6") {
+            else if (DOM_upperName(node) == "H6") {
                 properties["uxwrite-style"] = "H6";
             }
-            else if (DOM.upperName(node) == "PRE") {
+            else if (DOM_upperName(node) == "PRE") {
                 properties["uxwrite-style"] = "PRE";
             }
-            else if (DOM.upperName(node) == "BLOCKQUOTE") {
+            else if (DOM_upperName(node) == "BLOCKQUOTE") {
                 properties["uxwrite-style"] = "BLOCKQUOTE";
             }
             else if (isParagraphNode(node)) {
@@ -503,7 +516,7 @@
                 inlineChildren.push(child);
         for (var i = 0; i < inlineChildren.length; i++) {
             if (inlineChildren[i].parentNode == parent) { // may already have been moved
-                Hierarchy.wrapInlineNodesInParagraph(inlineChildren[i]);
+                Hierarchy_wrapInlineNodesInParagraph(inlineChildren[i]);
             }
         }
     }
@@ -557,17 +570,17 @@
         var wasHeading = isHeadingNode(paragraph);
         paragraph.removeAttribute("class");
         if (style == "") {
-            if (DOM.upperName(paragraph) != "P")
-                paragraph = DOM.replaceElement(paragraph,"P");
+            if (DOM_upperName(paragraph) != "P")
+                paragraph = DOM_replaceElement(paragraph,"P");
         }
         else if (style.charAt(0) == ".") {
-            if (DOM.upperName(paragraph) != "P")
-                paragraph = DOM.replaceElement(paragraph,"P");
+            if (DOM_upperName(paragraph) != "P")
+                paragraph = DOM_replaceElement(paragraph,"P");
             paragraph.setAttribute("class",style.slice(1));
         }
         else {
-            if (DOM.upperName(paragraph) != style)
-                paragraph = DOM.replaceElement(paragraph,style);
+            if (DOM_upperName(paragraph) != style)
+                paragraph = DOM_replaceElement(paragraph,style);
         }
         var isHeading = isHeadingNode(paragraph);
         if (wasHeading && !isHeading)
@@ -604,11 +617,11 @@
             for (var name in inlineProperties)
                 node.style.removeProperty(name);
 
-            if (DOM.upperName(node) == "B")
+            if (DOM_upperName(node) == "B")
                 inlineProperties["font-weight"] = "bold";
-            if (DOM.upperName(node) == "I")
+            if (DOM_upperName(node) == "I")
                 inlineProperties["font-style"] = "italic";
-            if (DOM.upperName(node) == "U") {
+            if (DOM_upperName(node) == "U") {
                 if (inlineProperties["text-decoration"] != null)
                     inlineProperties["text-decoration"] += " underline";
                 else
@@ -637,10 +650,10 @@
             if (node.hasAttribute("style") && (node.style.length == 0))
                 node.removeAttribute("style");
 
-            if ((DOM.upperName(node) == "B") ||
-                (DOM.upperName(node) == "I") ||
-                (DOM.upperName(node) == "U"))
-                DOM.removeNodeButKeepChildren(node);
+            if ((DOM_upperName(node) == "B") ||
+                (DOM_upperName(node) == "I") ||
+                (DOM_upperName(node) == "U"))
+                DOM_removeNodeButKeepChildren(node);
         }
     }
 
@@ -655,7 +668,7 @@
             return node;
         }
         else {
-            return DOM.wrapNode(node,elementName);
+            return DOM_wrapNode(node,elementName);
         }
     }
 
@@ -673,9 +686,9 @@
 
         if ((Object.getOwnPropertyNames(inlineProperties).length > 0) &&
             ((target.nodeType != Node.ELEMENT_NODE) ||
-             (DOM.upperName(target) == "B") ||
-             (DOM.upperName(target) == "I") ||
-             (DOM.upperName(target) == "U"))) {
+             (DOM_upperName(target) == "B") ||
+             (DOM_upperName(target) == "I") ||
+             (DOM_upperName(target) == "U"))) {
             target = wrapInline(target,"SPAN");
         }
 
@@ -772,10 +785,10 @@
                 node.removeAttribute("style");
         }
 
-        var willRemove = ((DOM.upperName(node) == "B") && (special.bold != null)) ||
-                         ((DOM.upperName(node) == "I") && (special.italic != null)) ||
-                         ((DOM.upperName(node) == "U") && (special.underline != null)) ||
-                         ((DOM.upperName(node) == "SPAN") && !node.hasAttribute("style")
+        var willRemove = ((DOM_upperName(node) == "B") && (special.bold != null)) ||
+                         ((DOM_upperName(node) == "I") && (special.italic != null)) ||
+                         ((DOM_upperName(node) == "U") && (special.underline != null)) ||
+                         ((DOM_upperName(node) == "SPAN") && !node.hasAttribute("style")
                                                           && !isSpecialSpan(node));
 
         var childRemaining = willRemove ? remaining : null;
@@ -787,7 +800,7 @@
         }
 
         if (willRemove)
-            DOM.removeNodeButKeepChildren(node);
+            DOM_removeNodeButKeepChildren(node);
         else if (remaining != null)
             remaining.push(node);
 
@@ -823,7 +836,7 @@
                 inlineProperties[name] = properties[name];
         }
 
-        var selectionRange = Selection.getSelectionRange();
+        var selectionRange = Selection_getSelectionRange();
         if (selectionRange == null)
             return;
 
@@ -834,11 +847,11 @@
             while (isInlineNode(node))
                 node = node.parentNode;
             if (isContainerNode(node) && containsOnlyWhitespace(node)) {
-                var p = DOM.createElement(document,"P");
-                DOM.appendChild(node,p);
+                var p = DOM_createElement(document,"P");
+                DOM_appendChild(node,p);
                 while (node.firstChild != p)
-                    DOM.appendChild(p,node.firstChild);
-                Cursor.updateBRAtEndOfParagraph(p);
+                    DOM_appendChild(p,node.firstChild);
+                Cursor_updateBRAtEndOfParagraph(p);
             }
         }
 
@@ -907,62 +920,61 @@
                 }
             }
 
-            mergeRange(range,Formatting.MERGEABLE_INLINE);
+            mergeRange(range,Formatting_MERGEABLE_INLINE);
 
             if (target != null) {
                 for (var p = target; p != null; p = next) {
                     next = p.parentNode;
-                    mergeWithNeighbours(p,Formatting.MERGEABLE_INLINE);
+                    mergeWithNeighbours(p,Formatting_MERGEABLE_INLINE);
                 }
             }
         });
 
         // The current cursor position may no longer be valid, e.g. if a heading span was inserted
         // and the cursor is at a position that is now immediately before the span.
-        var start = Cursor.closestPositionForwards(selectionRange.start);
-        var end = Cursor.closestPositionForwards(selectionRange.end);
-        Selection.setSelectionRange(new Range(start.node,start.offset,end.node,end.offset));
+        var start = Cursor_closestPositionForwards(selectionRange.start);
+        var end = Cursor_closestPositionForwards(selectionRange.end);
+        Selection_setSelectionRange(new Range(start.node,start.offset,end.node,end.offset));
     }
 
     // public
     function setStyleElement(cssText)
     {
         // Get the head element, or create it if it doesn't already exist
-        var head = DOM.documentHead(document);
+        var head = DOM_documentHead(document);
 
         // Remove all existing style elements
         var removed = 0;
         var next;
         for (var child = head.firstChild; child; child = next) {
             var next = child.nextSibling;
-            if (DOM.upperName(child) == "STYLE") {
-                DOM.deleteNode(child);
+            if (DOM_upperName(child) == "STYLE") {
+                DOM_deleteNode(child);
                 removed++;
             }
         }
 
         // Add the new style element
-        var style = DOM.createElement(document,"STYLE");
+        var style = DOM_createElement(document,"STYLE");
         style.setAttribute("type","text/css");
-        DOM.appendChild(style,DOM.createTextNode(document,cssText));
-        DOM.appendChild(head,style);
+        DOM_appendChild(style,DOM_createTextNode(document,cssText));
+        DOM_appendChild(head,style);
     }
 
-    window.Formatting = new (function Formatting(){});
-    Formatting.splitTextBefore = trace(splitTextBefore);
-    Formatting.splitTextAfter = trace(splitTextAfter);
-    Formatting.movePreceding = trace(movePreceding);
-    Formatting.moveFollowing = trace(moveFollowing);
-    Formatting.splitAroundSelection = trace(splitAroundSelection);
-    Formatting.mergeWithNeighbours = trace(mergeWithNeighbours);
-    Formatting.mergeRange = trace(mergeRange);
-    Formatting.paragraphTextUpToPosition = trace(paragraphTextUpToPosition);
-    Formatting.getFormatting = trace(getFormatting);
-    Formatting.pushDownInlineProperties = trace(pushDownInlineProperties);
-    Formatting.applyFormattingChanges = trace(applyFormattingChanges);
-    Formatting.setStyleElement = trace(setStyleElement);
+    Formatting_splitTextBefore = trace(splitTextBefore);
+    Formatting_splitTextAfter = trace(splitTextAfter);
+    Formatting_movePreceding = trace(movePreceding);
+    Formatting_moveFollowing = trace(moveFollowing);
+    Formatting_splitAroundSelection = trace(splitAroundSelection);
+    Formatting_mergeWithNeighbours = trace(mergeWithNeighbours);
+    Formatting_mergeRange = trace(mergeRange);
+    Formatting_paragraphTextUpToPosition = trace(paragraphTextUpToPosition);
+    Formatting_getFormatting = trace(getFormatting);
+    Formatting_pushDownInlineProperties = trace(pushDownInlineProperties);
+    Formatting_applyFormattingChanges = trace(applyFormattingChanges);
+    Formatting_setStyleElement = trace(setStyleElement);
 
-    Formatting.MERGEABLE_INLINE = {
+    Formatting_MERGEABLE_INLINE = {
         "SPAN": true,
         "A": true,
         "Q": true,
@@ -996,7 +1008,7 @@
         "U": true,
     };
 
-    Formatting.MERGEABLE_BLOCK = {
+    Formatting_MERGEABLE_BLOCK = {
         "P": true,
         "H1": true,
         "H2": true,
@@ -1013,11 +1025,11 @@
         "LI": true,
     };
 
-    Formatting.MERGEABLE_BLOCK_AND_INLINE = new Object();
-    for (var name in Formatting.MERGEABLE_INLINE)
-        Formatting.MERGEABLE_BLOCK_AND_INLINE[name] = Formatting.MERGEABLE_INLINE[name];
-    for (var name in Formatting.MERGEABLE_BLOCK)
-        Formatting.MERGEABLE_BLOCK_AND_INLINE[name] = Formatting.MERGEABLE_BLOCK[name];
-    Formatting.MERGEABLE_BLOCK_AND_INLINE["force"] = true;
+    Formatting_MERGEABLE_BLOCK_AND_INLINE = new Object();
+    for (var name in Formatting_MERGEABLE_INLINE)
+        Formatting_MERGEABLE_BLOCK_AND_INLINE[name] = Formatting_MERGEABLE_INLINE[name];
+    for (var name in Formatting_MERGEABLE_BLOCK)
+        Formatting_MERGEABLE_BLOCK_AND_INLINE[name] = Formatting_MERGEABLE_BLOCK[name];
+    Formatting_MERGEABLE_BLOCK_AND_INLINE["force"] = true;
 
 })();

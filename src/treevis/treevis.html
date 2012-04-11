@@ -9,8 +9,8 @@
 body { -webkit-user-select: none }
 
 </style>
-<script type="text/javascript" src="../DOM.js"></script>
-<script type="text/javascript" src="../UndoManager.js"></script>
+<script type="text/javascript" src="../DOM_js"></script>
+<script type="text/javascript" src="../UndoManager_js"></script>
 <script type="text/javascript" src="../NodeSet.js"></script>
 <script type="text/javascript" src="../Position.js"></script>
 
@@ -46,10 +46,10 @@ function buildTree(doc,parent,depth,nchildren)
         var count = Math.floor(nchildren*random());
         for (var i = 0; i < count; i++) {
 
-            UndoManager.newGroup();
-            var child = DOM.createElement(doc,"DIV");
+            UndoManager_newGroup();
+            var child = DOM_createElement(doc,"DIV");
             child.setAttribute("class","treenode");
-            DOM.appendChild(parent,child);
+            DOM_appendChild(parent,child);
 
 
             buildTree(doc,child,depth-1,nchildren);
@@ -61,7 +61,7 @@ function preorderTraversal(root)
 {
     var work = { currentNode: null, descendants: null };
 
-    UndoManager.monitorWhileExecuting(work,function() {
+    UndoManager_monitorWhileExecuting(work,function() {
         recurse(root);
     });
 
@@ -75,7 +75,7 @@ function preorderTraversal(root)
         addDescendants(node,set);
         work.descendants = set;
 
-        UndoManager.newGroup();
+        UndoManager_newGroup();
         for (var child = node.firstChild; child != null; child = child.nextSibling)
             recurse(child);
     }
@@ -92,7 +92,7 @@ function preorderTraversal(root)
 function traversePositions(root)
 {
     var work = { pos: null };
-    UndoManager.monitorWhileExecuting(work,function() {
+    UndoManager_monitorWhileExecuting(work,function() {
         recurse(root);
     });
 
@@ -102,13 +102,13 @@ function traversePositions(root)
             var offset = 0;
             for (var child = node.firstChild; child != null; child = child.nextSibling) {
                 work.pos = new Position(node,offset);
-                UndoManager.newGroup();
+                UndoManager_newGroup();
                 recurse(child);
                 offset++;
             }
             if (node.firstChild != null) {
                 work.pos = new Position(node,offset);
-                UndoManager.newGroup();
+                UndoManager_newGroup();
             }
         }
     }
@@ -120,7 +120,7 @@ function removeTextNodes(node)
     for (var child = node.firstChild; child != null; child = next) {
         next = child.nextSibling;
         if (child.nodeType == Node.TEXT_NODE) {
-            DOM.deleteNode(child);
+            DOM_deleteNode(child);
         }
         else {
             removeTextNodes(child);
@@ -130,11 +130,11 @@ function removeTextNodes(node)
 
 function programmaticTree()
 {
-    var root = DOM.createElement(document,"DIV");
+    var root = DOM_createElement(document,"DIV");
     root.style.display = "none";
-    DOM.appendChild(document.body,root);
-    DOM.addUndoListeners(root);
-    UndoManager.group(buildTree,document,root,6,4);
+    DOM_appendChild(document.body,root);
+    DOM_addUndoListeners(root);
+    UndoManager_group(buildTree,document,root,6,4);
 //    buildTree(document,root,5,5);
     return root;
 }
@@ -143,7 +143,7 @@ function declarativeTree()
 {
     var root = document.getElementById("root");
     removeTextNodes(root);
-    DOM.assignNodeIds(root);
+    DOM_assignNodeIds(root);
     return root;
 }
 
@@ -174,7 +174,7 @@ function main()
 
 /*
     var work = { set: null };
-    UndoManager.monitorWhileExecuting(work,function() {
+    UndoManager_monitorWhileExecuting(work,function() {
         var set = new NodeSet();
         set.add(map[0x1]);
         set.add(map[0x2]);
@@ -190,17 +190,17 @@ function main()
         set.add(map[0x0]);
 
         work.set = set;
-        UndoManager.newGroup();
+        UndoManager_newGroup();
     });
 */
 
 
-    var svg = DOM.createElementNS(document,SVG_NAMESPACE,"svg");
+    var svg = DOM_createElementNS(document,SVG_NAMESPACE,"svg");
     svg.setAttribute("version","1.1");
 
     var controller = new StepController(root);
-    DOM.appendChild(document.body,svg);
-    DOM.appendChild(svg,controller.element);
+    DOM_appendChild(document.body,svg);
+    DOM_appendChild(svg,controller.element);
     controller.update();
 }
 

@@ -1,3 +1,5 @@
+// Copyright (c) 2012 UX Productivity Pty Ltd. All rights reserved.
+
 (function() {
 
     function valueString(arg)

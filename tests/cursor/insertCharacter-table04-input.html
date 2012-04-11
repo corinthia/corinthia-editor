@@ -8,9 +8,9 @@ function performTest()
     var trs = document.getElementsByTagName("TR");
     var tds = document.getElementsByTagName("TD");
     var tbody = document.getElementsByTagName("TBODY")[0];
-    Selection.setEmptySelectionAt(trs[2].parentNode,DOM.nodeOffset(trs[2]));
-    Cursor.insertCharacter("X");
-    showRangeAsBrackets(Selection.getSelectionRange());
+    Selection_setEmptySelectionAt(trs[2].parentNode,DOM_nodeOffset(trs[2]));
+    Cursor_insertCharacter("X");
+    showRangeAsBrackets(Selection_getSelectionRange());
 }
 </script>
 </head>

@@ -6,13 +6,13 @@
 
 function performTest()
 {
-    Outline.init();
-    PostponedActions.perform();
+    Outline_init();
+    PostponedActions_perform();
     for (var i = 0; i < 11; i++) {
-        Cursor.insertCharacter(".");
-        PostponedActions.perform();
-        Cursor.moveRight();
-        PostponedActions.perform();
+        Cursor_insertCharacter(".");
+        PostponedActions_perform();
+        Cursor_moveRight();
+        PostponedActions_perform();
     }
 }
 </script>

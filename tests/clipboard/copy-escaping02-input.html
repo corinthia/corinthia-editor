@@ -7,13 +7,13 @@ function performTest()
 {
     // Use DOM APIs here because we can't include literal [ and ] in page
     removeWhitespaceAndCommentNodes(document.body);
-    var text = DOM.createTextNode(document,
+    var text = DOM_createTextNode(document,
                                   "[Daring Fireball](http://daringfireball.net) "+
                                   "[Apple](http://www.apple.com)");
-    DOM.appendChild(document.body,text);
-    Selection.setSelectionRange(new Range(document.body,0,
+    DOM_appendChild(document.body,text);
+    Selection_setSelectionRange(new Range(document.body,0,
                                           document.body,document.body.childNodes.length));
-    return showClipboard(Clipboard.copy());
+    return showClipboard(Clipboard_copy());
 }
 </script>
 </head>

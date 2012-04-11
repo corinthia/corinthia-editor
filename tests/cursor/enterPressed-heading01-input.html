@@ -5,13 +5,13 @@
 <script language="javascript">
 function performTest()
 {
-    Outline.init();
-    PostponedActions.perform();
-    Cursor.enterPressed();
-    var range = Selection.getSelectionRange();
+    Outline_init();
+    PostponedActions_perform();
+    Cursor_enterPressed();
+    var range = Selection_getSelectionRange();
     range.trackWhileExecuting(showEmptyTextNodes);
     showRangeAsBrackets(range)
-    Main.removeSpecial(document);
+    Main_removeSpecial(document);
 }
 </script>
 </head>

@@ -1,3 +1,5 @@
+// Copyright (c) 2012 UX Productivity Pty Ltd. All rights reserved.
+
 var CONTAINER_ELEMENTS = {
     "#document": true,
     "HTML": true,
@@ -75,17 +77,17 @@ var OPAQUE_NODE_CLASSES = {
 
 function isContainerNode(node)
 {
-    return CONTAINER_ELEMENTS[DOM.upperName(node)];
+    return CONTAINER_ELEMENTS[DOM_upperName(node)];
 }
 
 function isParagraphNode(node)
 {
-    return PARAGRAPH_ELEMENTS[DOM.upperName(node)];
+    return PARAGRAPH_ELEMENTS[DOM_upperName(node)];
 }
 
 function isHeadingNode(node)
 {
-    return HEADING_ELEMENTS[DOM.upperName(node)];
+    return HEADING_ELEMENTS[DOM_upperName(node)];
 }
 
 function isBlockNode(node)
@@ -100,27 +102,27 @@ function isInlineNode(node)
 
 function isListNode(node)
 {
-    return ((DOM.upperName(node) == "UL") || (DOM.upperName(node) == "OL"));
+    return ((DOM_upperName(node) == "UL") || (DOM_upperName(node) == "OL"));
 }
 
 function isListItemNode(node)
 {
-    return (DOM.upperName(node) == "LI");
+    return (DOM_upperName(node) == "LI");
 }
 
 function isTableNode(node)
 {
-    return (DOM.upperName(node) == "TABLE");
+    return (DOM_upperName(node) == "TABLE");
 }
 
 function isFigureNode(node)
 {
-    return (DOM.upperName(node) == "FIGURE");
+    return (DOM_upperName(node) == "FIGURE");
 }
 
 function isRefNode(node)
 {
-    return ((DOM.upperName(node) == "A") &&
+    return ((DOM_upperName(node) == "A") &&
             node.hasAttribute("href") &&
             node.getAttribute("href").charAt(0) == "#");
 }
@@ -131,11 +133,11 @@ function isOpaqueNode(node)
         return isOpaqueNode(node.parentNode);
     }
     else if (node.nodeType == Node.ELEMENT_NODE) {
-        if (((DOM.upperName(node) == "SPAN") || (DOM.upperName(node) == "DIV"))
+        if (((DOM_upperName(node) == "SPAN") || (DOM_upperName(node) == "DIV"))
             && node.hasAttribute("class")) {
             return OPAQUE_NODE_CLASSES[node.getAttribute("class")];
         }
-        else if ((DOM.upperName(node) == "A") && node.hasAttribute("href")) {
+        else if ((DOM_upperName(node) == "A") && node.hasAttribute("href")) {
             var href = node.getAttribute("href");
             return ((href.indexOf("#section") == 0) ||
                     (href.indexOf("#figure") == 0) ||

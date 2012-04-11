@@ -13,30 +13,30 @@ figcaption { color: #808080; font-style: italic; text-align: center }
 
 function performTest()
 {
-    Outline.init();
-    PostponedActions.perform();
+    Outline_init();
+    PostponedActions_perform();
     setNumbering(true);
 
     for (var i = 0; i < 3; i++) {
-        var ref = DOM.createElement(document,"A");
+        var ref = DOM_createElement(document,"A");
         ref.setAttribute("href","#hb");
-        DOM.appendChild(ref,DOM.createTextNode(document,"abcde"));
+        DOM_appendChild(ref,DOM_createTextNode(document,"abcde"));
 
-        var p = DOM.createElement(document,"P");
-        p.appendChild(DOM.createTextNode(document,"Dynamically added reference: "));
+        var p = DOM_createElement(document,"P");
+        p.appendChild(DOM_createTextNode(document,"Dynamically added reference: "));
         p.appendChild(ref);
-        DOM.insertBefore(document.body,p,document.body.firstChild);
+        DOM_insertBefore(document.body,p,document.body.firstChild);
     }
 
-    var newSection = DOM.createElement(document,"H1");
-    DOM.appendChild(newSection,DOM.createTextNode(document,"New section"));
+    var newSection = DOM_createElement(document,"H1");
+    DOM_appendChild(newSection,DOM_createTextNode(document,"New section"));
 
-    var newFigure = DOM.createElement(document,"FIGURE");
-    var newTable = DOM.createElement(document,"TABLE");
-    DOM.insertBefore(document.body,newTable,document.body.firstChild);
-    DOM.insertBefore(document.body,newFigure,document.body.firstChild);
-    DOM.insertBefore(document.body,newSection,document.body.firstChild);
-    PostponedActions.perform();
+    var newFigure = DOM_createElement(document,"FIGURE");
+    var newTable = DOM_createElement(document,"TABLE");
+    DOM_insertBefore(document.body,newTable,document.body.firstChild);
+    DOM_insertBefore(document.body,newFigure,document.body.firstChild);
+    DOM_insertBefore(document.body,newSection,document.body.firstChild);
+    PostponedActions_perform();
 }
 </script>
 </head>

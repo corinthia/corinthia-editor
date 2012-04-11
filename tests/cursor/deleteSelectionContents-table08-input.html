@@ -6,10 +6,10 @@
 function performTest()
 {
     var tr = document.getElementsByTagName("TR")[1];
-    var offset = DOM.nodeOffset(tr);
-    Selection.setSelectionRange(new Range(tr.parentNode,offset,tr.parentNode,offset+1));
-    Selection.deleteSelectionContents();
-    showRangeAsBrackets(Selection.getSelectionRange());
+    var offset = DOM_nodeOffset(tr);
+    Selection_setSelectionRange(new Range(tr.parentNode,offset,tr.parentNode,offset+1));
+    Selection_deleteSelectionContents();
+    showRangeAsBrackets(Selection_getSelectionRange());
 }
 </script>
 </head>

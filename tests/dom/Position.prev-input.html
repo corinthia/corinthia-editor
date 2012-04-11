@@ -47,10 +47,10 @@ function performTest()
 
     var message1 = "allPositions.length = "+allPositions.length;
     var message2 = "Test results: total "+total+", pass "+pass+", fail "+fail;
-    DOM.deleteAllChildren(document.body);
-    DOM.appendChild(document.body,DOM.createTextNode(document,message1));
-    DOM.appendChild(document.body,DOM.createElement(document,"BR"));
-    DOM.appendChild(document.body,DOM.createTextNode(document,message2));
+    DOM_deleteAllChildren(document.body);
+    DOM_appendChild(document.body,DOM_createTextNode(document,message1));
+    DOM_appendChild(document.body,DOM_createElement(document,"BR"));
+    DOM_appendChild(document.body,DOM_createTextNode(document,message2));
 
     function comparePositions(a,b)
     {

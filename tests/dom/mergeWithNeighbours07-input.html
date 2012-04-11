@@ -5,22 +5,22 @@
 <script language="javascript">
 function performTest()
 {
-    var p = DOM.createElement(document,"P");
-    var text1 = DOM.createTextNode(document,"One");
-    var text2 = DOM.createTextNode(document,"Two");
-    var text3 = DOM.createTextNode(document,"Three");
-    var text4 = DOM.createTextNode(document,"Four");
-    var text5 = DOM.createTextNode(document,"Five");
-    DOM.appendChild(p,text1);
-    DOM.appendChild(p,text2);
-    DOM.appendChild(p,text3);
-    DOM.appendChild(p,text4);
-    DOM.appendChild(p,text5);
-    DOM.appendChild(document.body,p);
+    var p = DOM_createElement(document,"P");
+    var text1 = DOM_createTextNode(document,"One");
+    var text2 = DOM_createTextNode(document,"Two");
+    var text3 = DOM_createTextNode(document,"Three");
+    var text4 = DOM_createTextNode(document,"Four");
+    var text5 = DOM_createTextNode(document,"Five");
+    DOM_appendChild(p,text1);
+    DOM_appendChild(p,text2);
+    DOM_appendChild(p,text3);
+    DOM_appendChild(p,text4);
+    DOM_appendChild(p,text5);
+    DOM_appendChild(document.body,p);
 
     var range = new Range(p,2,p,4);
     range.trackWhileExecuting(function() {
-        Formatting.mergeWithNeighbours(text3,Formatting.MERGEABLE_INLINE);
+        Formatting_mergeWithNeighbours(text3,Formatting_MERGEABLE_INLINE);
     });
     showRangeAsBrackets(range);
 }

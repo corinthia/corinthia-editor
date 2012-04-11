@@ -6,17 +6,17 @@
 
 function performTest()
 {
-    Outline.init();
-    PostponedActions.perform();
+    Outline_init();
+    PostponedActions_perform();
     for (var i = 0; i < 19; i++) {
-        Cursor.deleteCharacter();
-        PostponedActions.perform();
+        Cursor_deleteCharacter();
+        PostponedActions_perform();
     }
-    Cursor.beginInsertion();
-    Cursor.updateInsertion("One");
-    Cursor.enterPressed();
-    Cursor.beginInsertion();
-    Cursor.updateInsertion("Two");
+    Cursor_beginInsertion();
+    Cursor_updateInsertion("One");
+    Cursor_enterPressed();
+    Cursor_beginInsertion();
+    Cursor_updateInsertion("Two");
 }
 </script>
 </head>

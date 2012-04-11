@@ -5,12 +5,12 @@
 <script language="javascript">
 function performTest()
 {
-    var range = Selection.getSelectionRange();
+    var range = Selection_getSelectionRange();
     range.trackWhileExecuting(function() {
         removeWhitespaceAndCommentNodes(document.body);
     });
     var outermost = range.getOutermostNodes();
-    Formatting.pushDownInlineProperties(outermost);
+    Formatting_pushDownInlineProperties(outermost);
 }
 </script>
 </head>

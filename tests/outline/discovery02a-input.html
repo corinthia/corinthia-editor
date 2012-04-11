@@ -7,11 +7,11 @@
 
 function performTest()
 {
-    Outline.init();
-    PostponedActions.perform();
+    Outline_init();
+    PostponedActions_perform();
     setNumbering(true);
-    Main.removeSpecial(document.body);
-    return Outline.plainText()+PrettyPrinter.getHTML(document.documentElement);
+    Main_removeSpecial(document.body);
+    return Outline_plainText()+PrettyPrinter.getHTML(document.documentElement);
 }
 </script>
 </head>
