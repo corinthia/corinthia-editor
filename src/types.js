@@ -137,11 +137,8 @@ function isOpaqueNode(node)
             && node.hasAttribute("class")) {
             return OPAQUE_NODE_CLASSES[node.getAttribute("class")];
         }
-        else if ((DOM_upperName(node) == "A") && node.hasAttribute("href")) {
-            var href = node.getAttribute("href");
-            return ((href.indexOf("#section") == 0) ||
-                    (href.indexOf("#figure") == 0) ||
-                    (href.indexOf("#table") == 0));
+        else if (isRefNode(node)) {
+            return true;
         }
     }
     return false;

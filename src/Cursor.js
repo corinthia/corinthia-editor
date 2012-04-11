@@ -94,13 +94,15 @@ var Cursor_enterPressed;
             // Directly after an IMG, TABLE, UL, or OL -> YES
             if ((prev != null) &&
                 ((DOM_upperName(prev) == "IMG") ||
-                 (DOM_upperName(prev) == "TABLE")))
+                 (DOM_upperName(prev) == "TABLE") ||
+                 isOpaqueNode(prev)))
                 result = true;
 
             // Directly before an IMG, TABLE, UL, or OL -> YES
             if ((next != null) &&
                 ((DOM_upperName(next) == "IMG") ||
-                 (DOM_upperName(next) == "TABLE")))
+                 (DOM_upperName(next) == "TABLE") ||
+                 isOpaqueNode(next)))
                 result = true;
 
             // Just before a BR (but not after a non-empty text node)
