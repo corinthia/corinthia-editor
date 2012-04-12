@@ -504,10 +504,16 @@ var Cursor_enterPressed;
                 pos = new Position(p,0);
             }
 
-            if (pos.node.nodeType == Node.TEXT_NODE)
+            if (positionAtStartOfHeading(pos)) {
+                var container = getContainerOrParagraph(pos.node);
+                pos = Formatting_movePreceding(container,0,enterPressedFilter,true);
+            }
+            else if (pos.node.nodeType == Node.TEXT_NODE) {
                 pos = Formatting_splitTextAfter(pos.node,pos.offset,enterPressedFilter,true);
-            else
+            }
+            else {
                 pos = Formatting_moveFollowing(pos.node,pos.offset,enterPressedFilter,true);
+            }
 
             selectionRange.start.node = pos.node;
             selectionRange.start.offset = pos.offset;
@@ -568,6 +574,27 @@ var Cursor_enterPressed;
         function enterPressedFilter(node)
         {
             return (isContainerNode(node) && (DOM_upperName(node) != "LI"));
+        }
+
+        function getContainerOrParagraph(node)
+        {
+            while ((node != null) && isInlineNode(node))
+                node = node.parentNode;
+            return node;
+        }
+
+        function positionAtStartOfHeading(pos)
+        {
+            var container = getContainerOrParagraph(pos.node);
+            if (isHeadingNode(container)) {
+                var startOffset = 0;
+                if (isOpaqueNode(container.firstChild))
+                    startOffset = 1;
+                var range = new Range(container,startOffset,pos.node,pos.offset);
+                return !range.hasContent();
+            }
+            else
+                return false;
         }
     }
 

@@ -171,6 +171,9 @@ function nodeHasContent(node)
     else if ((DOM_upperName(node) == "IMG") || (DOM_upperName(node) == "TABLE")) {
         return true;
     }
+    else if (isOpaqueNode(node)) {
+        return true;
+    }
     else {
         for (var child = node.firstChild; child != null; child = child.nextSibling) {
             if (nodeHasContent(child))

@@ -459,6 +459,31 @@ var Range;
         }
     }
 
+    function hasContent()
+    {
+        var start = this.start;
+        var end = this.end;
+
+        var outermost = this.getOutermostNodes();
+        for (var i = 0; i < outermost.length; i++) {
+
+            if ((outermost[i].nodeType == Node.TEXT_NODE) && (outermost == start.node)) {
+                if (!isWhitespaceString(start.node.nodeValue.substring(start.offset)))
+                    return true;
+            }
+            else if ((outermost[i].nodeType == Node.TEXT_NODE) && (outermost == end.node)) {
+                if (!isWhitespaceString(end.node.nodeValue.substring(0,end.node.offset)))
+                    return true;
+            }
+            else {
+                if (nodeHasContent(outermost[i]))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
     Range.prototype.copy = trace(copy);
     Range.prototype.isEmpty = trace(isEmpty);
     Range.prototype.trackWhileExecuting = trace(trackWhileExecuting);
@@ -474,5 +499,6 @@ var Range;
     Range.prototype.getOutermostNodes = trace(getOutermostNodes);
     Range.prototype.getClientRects = trace(getClientRects);
     Range.prototype.cloneContents = trace(cloneContents);
+    Range.prototype.hasContent = trace(hasContent);
 
 })();
