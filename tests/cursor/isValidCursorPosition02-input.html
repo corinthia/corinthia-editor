@@ -1,0 +1,27 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script language="javascript">
+function performTest()
+{
+    var positions = new Array();
+    Selection_setEmptySelectionAt(document.body,0);
+    Cursor_moveLeft();
+    var prevPos;
+    var curPos;
+    var count = 0; // protect against infinite loops, so other tests can run
+    do {
+        Cursor_insertCharacter(".");
+        prevPos = Selection_getSelectionRange().start;
+        Cursor_moveRight();
+        curPos = Selection_getSelectionRange().start;
+        count++;
+    } while ((count < 500) && ((prevPos.node != curPos.node) || (prevPos.offset != curPos.offset)));
+}
+</script>
+</head>
+<body>
+<p>Here is an image <img src="nothing.png"> between spaces, and another image<img src="nothing.png">not between spaces</p>
+</body>
+</html>

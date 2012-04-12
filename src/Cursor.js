@@ -138,21 +138,21 @@ var Cursor_enterPressed;
                  CONTAINER_ELEMENTS_ALLOWING_CONTENT[DOM_upperName(node)]))
                 result = true;
 
-            // Special case for an IMG that directly follows some text that ends in a
+            // Special case for an IMG or opaque node that directly follows some text that ends in a
             // non-whitespace character. The cursor will be allowed at the end of the text
             // node, so we don't want to allow it before the image (which corresponds to the
             // same location on screen)
             if ((next != null) && (prev != null) &&
-                (DOM_upperName(next) == "IMG") &&
+                ((DOM_upperName(next) == "IMG") || isOpaqueNode(next)) &&
                 (prev.nodeType == Node.TEXT_NODE) &&
                 (prev.nodeValue.length > 0) &&
                 !isWhitespaceString(prev.nodeValue.charAt(prev.nodeValue.length-1))) {
                 result = false;
             }
 
-            // As above, but for an IMG that directly precedes some text
+            // As above, but for an IMG or opaque node that directly precedes some text
             if ((prev != null) && (next != null) &&
-                (DOM_upperName(prev) == "IMG") &&
+                ((DOM_upperName(prev) == "IMG") || isOpaqueNode(prev)) &&
                 (next.nodeType == Node.TEXT_NODE) &&
                 (next.nodeValue.length > 0) &&
                 !isWhitespaceString(next.nodeValue.charAt(0))) {
