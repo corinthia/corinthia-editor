@@ -383,16 +383,24 @@ var Selection_trackWhileExecuting;
         var pos = positionAtPoint(x/zoom,y/zoom);
         if (pos != null) {
 
-            var testRange = new Range(pos.node,pos.offset,
-                                      originalDragEnd.node,originalDragEnd.offset);
-            if (testRange.isForwards()) {
-                setSelectionRange(new Range(pos.node,pos.offset,
+            var startToPos = new Range(originalDragStart.node,originalDragStart.offset,
+                                       pos.node,pos.offset);
+            var posToEnd = new Range(pos.node,pos.offset,
+                                     originalDragEnd.node,originalDragEnd.offset);
+
+            if (startToPos.isForwards() && posToEnd.isForwards()) {
+                // Position is within the original selection
+                setSelectionRange(new Range(originalDragStart.node,originalDragStart.offset,
                                             originalDragEnd.node,originalDragEnd.offset));
+            }
+            else if (!startToPos.isForwards()) {
+                // Position comes before the start
+                setSelectionRange(posToEnd);
                 return "start";
             }
-            else {
-                setSelectionRange(new Range(originalDragStart.node,originalDragStart.offset,
-                                            pos.node,pos.offset));
+            else if (!posToEnd.isForwards()) {
+                // Position comes after the end
+                setSelectionRange(startToPos);
                 return "end";
             }
         }
