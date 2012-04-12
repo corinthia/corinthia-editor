@@ -158,6 +158,11 @@ var Cursor_enterPressed;
                 !isWhitespaceString(next.nodeValue.charAt(0))) {
                 result = false;
             }
+
+            // If the position is in a heading node but before the numbering span, don't allow it
+            if ((prev == null) && (next != null) && isOpaqueNode(next) && isHeadingNode(node)) {
+                result = false;
+            }
         }
 
         return result;
