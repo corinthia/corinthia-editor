@@ -131,21 +131,26 @@ var Selection_trackWhileExecuting;
             // Want to select the whole table
             return false; // FIXME
         }
+
+        var startTable = getContainingTable(startCell);
+        var endTable = getContainingTable(endCell);
+
+        if (startTable != endTable) {
+            // Cells are in different tables; need to handle this specially
+            return false; // FIXME
+        }
         else {
-            var topLeftRect = null;
-            var bottomRightRect = null;
-            if (selectionRange.isForwards()) {
-                topLeftRect = startCell.getBoundingClientRect();
-                bottomRightRect = endCell.getBoundingClientRect();
-            }
-            else {
-                bottomRightRect = startCell.getBoundingClientRect();
-                topLeftRect = endCell.getBoundingClientRect();
-            }
-            var x = topLeftRect.left;
-            var y = topLeftRect.top;
-            var width = bottomRightRect.right - x;
-            var height = bottomRightRect.bottom - y;
+            var startRect = startCell.getBoundingClientRect();
+            var endRect = endCell.getBoundingClientRect();
+            var left = (startRect.left < endRect.left) ? startRect.left : endRect.left;
+            var right = (startRect.right > endRect.right) ? startRect.right : endRect.right;
+            var top = (startRect.top < endRect.top) ? startRect.top : endRect.top;
+            var bottom = (startRect.bottom > endRect.bottom) ? startRect.bottom : endRect.bottom;
+
+            var x = left;
+            var y = top;
+            var width = right - left;
+            var height = bottom - top;
 
             x += window.scrollX;
             y += window.scrollY;
@@ -163,7 +168,7 @@ var Selection_trackWhileExecuting;
             selectionDivs.push(div);
 
             Editor_setTableSelection(x,y,width,height);
-                                     
+
             return true;
         }
 
@@ -302,7 +307,7 @@ var Selection_trackWhileExecuting;
     {
         selectionRange = new Range(document.body,0,
                                    document.body,document.body.childNodes.length);
-        updateSelectionDisplay();
+        Selection_updateSelectionDisplay();
     }
 
     // public
@@ -321,8 +326,8 @@ var Selection_trackWhileExecuting;
         while (!isParagraphNode(end) && !isContainerNode(end))
                 end = end.parentNode;
 
-        setSelectionRange(new Range(start.parentNode,DOM_nodeOffset(start),
-                                    end.parentNode,DOM_nodeOffset(end)+1));
+        Selection_setSelectionRange(new Range(start.parentNode,DOM_nodeOffset(start),
+                                              end.parentNode,DOM_nodeOffset(end)+1));
     }
 
     function getPunctuationCharsForRegex()
@@ -436,11 +441,11 @@ var Selection_trackWhileExecuting;
             Selection_selectWordAtCursor();
             originalDragStart = new Position(selectionRange.start.node,selectionRange.start.offset);
             originalDragEnd = new Position(selectionRange.end.node,selectionRange.end.offset);
-            updateSelectionDisplay();
+            Selection_updateSelectionDisplay();
             return "end";
         }
         else {
-            updateSelectionDisplay();
+            Selection_updateSelectionDisplay();
             return "error";
         }
     }
@@ -465,17 +470,18 @@ var Selection_trackWhileExecuting;
 
             if (startToPos.isForwards() && posToEnd.isForwards()) {
                 // Position is within the original selection
-                setSelectionRange(new Range(originalDragStart.node,originalDragStart.offset,
-                                            originalDragEnd.node,originalDragEnd.offset));
+                var original = new Range(originalDragStart.node,originalDragStart.offset,
+                                         originalDragEnd.node,originalDragEnd.offset);
+                Selection_setSelectionRange(original);
             }
             else if (!startToPos.isForwards()) {
                 // Position comes before the start
-                setSelectionRange(posToEnd);
+                Selection_setSelectionRange(posToEnd);
                 return "start";
             }
             else if (!posToEnd.isForwards()) {
                 // Position comes after the end
-                setSelectionRange(startToPos);
+                Selection_setSelectionRange(startToPos);
                 return "end";
             }
         }
@@ -493,7 +499,7 @@ var Selection_trackWhileExecuting;
                                      selectionRange.end.node,selectionRange.end.offset);
             if (newRange.isForwards()) {
                 selectionRange = newRange;
-                updateSelectionDisplay();
+                Selection_updateSelectionDisplay();
             }
         }
     }
@@ -509,7 +515,7 @@ var Selection_trackWhileExecuting;
                                      position.node,position.offset);
             if (newRange.isForwards()) {
                 selectionRange = newRange;
-                updateSelectionDisplay();
+                Selection_updateSelectionDisplay();
             }
         }
     }
@@ -528,13 +534,13 @@ var Selection_trackWhileExecuting;
             setSelectionRange(oldRange);
         },"Set selection to "+oldRange);
         selectionRange = range;
-        updateSelectionDisplay();
+        Selection_updateSelectionDisplay();
     }
 
     // public
     function setEmptySelectionAt(node,offset)
     {
-        setSelectionRange(new Range(node,offset,node,offset));
+        Selection_setSelectionRange(new Range(node,offset,node,offset));
     }
 
     // public
@@ -718,7 +724,7 @@ var Selection_trackWhileExecuting;
     function clearSelection()
     {
         selectionRange = null;
-        updateSelectionDisplay();
+        Selection_updateSelectionDisplay();
     }
 
     // public
@@ -745,5 +751,7 @@ var Selection_trackWhileExecuting;
     Selection_deleteSelectionContents = trace(deleteSelectionContents);
     Selection_clearSelection = trace(clearSelection);
     Selection_trackWhileExecuting = trace(trackWhileExecuting);
+
+    updateTableSelection = trace(updateTableSelection);
 
 })();
