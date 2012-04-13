@@ -147,6 +147,21 @@ var Selection_trackWhileExecuting;
             var width = bottomRightRect.right - x;
             var height = bottomRightRect.bottom - y;
 
+            x += window.scrollX;
+            y += window.scrollY;
+
+            var div = DOM_createElement(document,"DIV");
+            div.setAttribute("class",Keys.SELECTION_HIGHLIGHT);
+            div.style.position = "absolute";
+            div.style.left = x+"px";
+            div.style.top = y+"px";
+            div.style.width = width+"px";
+            div.style.height = height+"px";
+            div.style.backgroundColor = "rgb(201,221,238)";
+            div.style.zIndex = -1;
+            DOM_appendChild(document.body,div);
+            selectionDivs.push(div);
+
             Editor_setTableSelection(x,y,width,height);
                                      
             return true;
