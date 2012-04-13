@@ -69,6 +69,11 @@ var Editor_reportJSError;
     {
         addBackMessage("setSelectionHandles",x1,y1,height1,x2,y2,height2);
     };
+
+    Editor_setTableSelection = function(x,y,width,height)
+    {
+        addBackMessage("setTableSelection",x,y,width,height);
+    };
     
     Editor_clearSelectionHandlesAndCursor = function()
     {
