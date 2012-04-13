@@ -4,7 +4,6 @@ var Viewport_init;
 var Viewport_setViewportSize;
 var Viewport_getViewportWidth;
 var Viewport_getViewportHeight;
-var Viewport_getZoom;
 var Viewport_setTextScale;
 
 (function() {
@@ -56,15 +55,9 @@ var Viewport_setTextScale;
     }
 
     // public
-    function getZoom()
+    function setTextScale(textScale)
     {
-        return 1;
-    }
-
-    // public
-    function setTextScale(zoom)
-    {
-        var pct = Math.floor(zoom*100)+"%";
+        var pct = Math.floor(textScale*100)+"%";
         document.documentElement.style.webkitTextSizeAdjust = pct;
 
         Selection_updateSelectionDisplay();
@@ -75,7 +68,6 @@ var Viewport_setTextScale;
     Viewport_setViewportSize = trace(setViewportSize);
     Viewport_getViewportWidth = getViewportWidth;
     Viewport_getViewportHeight = getViewportHeight;
-    Viewport_getZoom = getZoom;
     Viewport_setTextScale = trace(setTextScale);
 
 })();

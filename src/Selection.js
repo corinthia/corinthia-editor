@@ -208,12 +208,11 @@ var Selection_trackWhileExecuting;
             var rect = getCursorRect();
 
             if (rect != null) {
-                var zoom = Viewport_getZoom();
                 var left = rect.left + window.scrollX;
                 var top = rect.top + window.scrollY;
                 var height = rect.height;
-                var width = rect.width ? (rect.width * zoom) : 2;
-                Editor_setCursor(left*zoom,top*zoom,width,height*zoom);
+                var width = rect.width ? rect.width : 2;
+                Editor_setCursor(left,top,width,height);
             }
             else {
                 Editor_setCursor(0,0,300,300);
@@ -272,17 +271,16 @@ var Selection_trackWhileExecuting;
             var firstRect = rects[0];
             var lastRect = rects[rects.length-1];
 
-            var zoom = Viewport_getZoom();
-            var x1 = (firstRect.left+window.scrollX)*zoom;
-            var y1 = (firstRect.top+window.scrollY)*zoom;
-            var height1 = firstRect.height*zoom;
-            var x2 = (lastRect.right+window.scrollX)*zoom;
-            var y2 = (lastRect.top+window.scrollY)*zoom;
-            var height2 = lastRect.height*zoom;
+            var x1 = firstRect.left + window.scrollX;
+            var y1 = firstRect.top + window.scrollY;
+            var height1 = firstRect.height;
+            var x2 = lastRect.right + window.scrollX;
+            var y2 = lastRect.top + window.scrollY;
+            var height2 = lastRect.height;
 
             Editor_setSelectionHandles(x1,y1,height1,x2,y2,height2);
-            Editor_setSelectionBounds(boundsLeft*zoom,boundsTop*zoom,
-                                      boundsRight*zoom,boundsBottom*zoom);
+            Editor_setSelectionBounds(boundsLeft,boundsTop,
+                                      boundsRight,boundsBottom);
         }
         else {
             Editor_clearSelectionHandlesAndCursor();
@@ -434,8 +432,7 @@ var Selection_trackWhileExecuting;
         originalDragStart = null;
         originalDragEnd = null;
 
-        var zoom = Viewport_getZoom();
-        var pos = positionAtPoint(x/zoom,y/zoom);
+        var pos = positionAtPoint(x,y);
         if (pos != null) {
             selectionRange = new Range(pos.node,pos.offset,pos.node,pos.offset);
             Selection_selectWordAtCursor();
@@ -459,8 +456,7 @@ var Selection_trackWhileExecuting;
         if ((originalDragStart == null) || (originalDragEnd == null))
             return dragSelectionBegin(x,y);
 
-        var zoom = Viewport_getZoom();
-        var pos = positionAtPoint(x/zoom,y/zoom);
+        var pos = positionAtPoint(x,y);
         if (pos != null) {
 
             var startToPos = new Range(originalDragStart.node,originalDragStart.offset,
@@ -491,8 +487,7 @@ var Selection_trackWhileExecuting;
     // public
     function setSelectionStartAtCoords(x,y)
     {
-        var zoom = Viewport_getZoom();
-        var position = positionAtPoint(x/zoom,y/zoom);
+        var position = positionAtPoint(x,y);
         if (position != null) {
             position = Cursor_closestPositionBackwards(position);
             var newRange = new Range(position.node,position.offset,
@@ -507,8 +502,7 @@ var Selection_trackWhileExecuting;
     // public
     function setSelectionEndAtCoords(x,y)
     {
-        var zoom = Viewport_getZoom();
-        var position = positionAtPoint(x/zoom,y/zoom);
+        var position = positionAtPoint(x,y);
         if (position != null) {
             position = Cursor_closestPositionBackwards(position);
             var newRange = new Range(selectionRange.start.node,selectionRange.start.offset,

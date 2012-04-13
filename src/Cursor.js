@@ -171,8 +171,7 @@ var Cursor_enterPressed;
     // public
     function positionCursor(x,y)
     {
-        var zoom = Viewport_getZoom();
-        var position = positionAtPoint(x/zoom,y/zoom);
+        var position = positionAtPoint(x,y);
         if ((position != null) && isOpaqueNode(position.node))
             position = nextCursorPosition(position);
         if (position == null)
@@ -194,10 +193,9 @@ var Cursor_enterPressed;
         if (rect == null)
             return null;
 
-        var zoom = Viewport_getZoom();
-        var left = (rect.left + window.scrollX) * zoom;
-        var top = (rect.top + window.scrollY) * zoom;
-        var height = rect.height * zoom;
+        var left = rect.left + window.scrollX;
+        var top = rect.top + window.scrollY;
+        var height = rect.height;
         return { x: left, y: top, width: 0, height: height };
     }
 
