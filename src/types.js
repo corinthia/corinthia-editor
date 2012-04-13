@@ -115,6 +115,12 @@ function isTableNode(node)
     return (DOM_upperName(node) == "TABLE");
 }
 
+function isTableCell(node)
+{
+    return ((DOM_upperName(node) == "TD") ||
+            (DOM_upperName(node) == "TH"));
+}
+
 function isFigureNode(node)
 {
     return (DOM_upperName(node) == "FIGURE");

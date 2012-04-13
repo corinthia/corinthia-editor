@@ -113,6 +113,64 @@ var Selection_trackWhileExecuting;
         }
     }
 
+    function updateTableSelection()
+    {
+        if (selectionRange == null)
+            return false;
+
+        var start = selectionRange.start.closestActualNode();
+        var end = selectionRange.end.closestActualNode();
+
+        var startCell = getContainingCell(start);
+        var endCell = getContainingCell(end);
+
+        if (startCell == endCell) // not in cell, or both in same cell
+            return false;
+
+        if ((startCell == null) || (endCell == null)) {
+            // Want to select the whole table
+            return false; // FIXME
+        }
+        else {
+            var topLeftRect = null;
+            var bottomRightRect = null;
+            if (selectionRange.isForwards()) {
+                topLeftRect = startCell.getBoundingClientRect();
+                bottomRightRect = endCell.getBoundingClientRect();
+            }
+            else {
+                bottomRightRect = startCell.getBoundingClientRect();
+                topLeftRect = endCell.getBoundingClientRect();
+            }
+            var x = topLeftRect.left;
+            var y = topLeftRect.top;
+            var width = bottomRightRect.right - x;
+            var height = bottomRightRect.bottom - y;
+
+            Editor_setTableSelection(x,y,width,height);
+                                     
+            return true;
+        }
+
+        function getContainingCell(node)
+        {
+            for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {
+                if (isTableCell(ancestor))
+                    return ancestor;
+            }
+            return null;
+        }
+
+        function getContainingTable(node)
+        {
+            for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {
+                if (isTableNode(ancestor))
+                    return ancestor;
+            }
+            return null;
+        }
+    }
+
     // public
     function updateSelectionDisplay()
     {
@@ -143,6 +201,8 @@ var Selection_trackWhileExecuting;
             return;
         }
 
+        if (updateTableSelection())
+            return;
 
         if ((rects != null) && (rects.length > 0)) {
             var boundsLeft = null;
