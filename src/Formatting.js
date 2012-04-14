@@ -371,9 +371,9 @@ var Formatting_setStyleElement;
             if (strBeforeCursor.match(/\.\s+$/))
                 commonProperties["uxwrite-shift"] = "true";
             if (strBeforeCursor.match(/\([^\)]*$/))
-                commonProperties["uxwrite-inbrackets"] = "true";
+                commonProperties["uxwrite-in-brackets"] = "true";
             if (strBeforeCursor.match(/\u201c[^\u201d]*$/))
-                commonProperties["uxwrite-inquotes"] = "true";
+                commonProperties["uxwrite-in-quotes"] = "true";
         }
 
         function intersection(a,b)
@@ -451,6 +451,19 @@ var Formatting_setStyleElement;
             }
             else if (DOM_upperName(node) == "BLOCKQUOTE") {
                 properties["uxwrite-style"] = "BLOCKQUOTE";
+            }
+            else if (DOM_upperName(node) == "IMG") {
+                properties["uxwrite-in-image"] = "true";
+            }
+            else if (DOM_upperName(node) == "TABLE") {
+                properties["uxwrite-in-table"] = "true";
+            }
+            else if ((DOM_upperName(node) == "A") && node.hasAttribute("href")) {
+                var href = node.getAttribute("href");
+                if (href.charAt(0) == "#")
+                    properties["uxwrite-in-reference"] = "true";
+                else
+                    properties["uxwrite-in-link"] = "true";
             }
             else if (isParagraphNode(node)) {
                 if (node.hasAttribute("class"))
