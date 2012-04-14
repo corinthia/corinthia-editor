@@ -255,16 +255,27 @@ var Position;
     }
 
     // public
-    Position.prototype.closestActualNode = function()
+    Position.prototype.closestActualNode = function(preferElement)
     {
         var node = this.node;
         var offset = this.offset;
         if ((node.nodeType != Node.ELEMENT_NODE) || (node.firstChild == null))
             return node;
+        else if (offset == 0)
+            return node.firstChild;
         else if (offset >= node.childNodes.length)
             return node.lastChild;
-        else
-            return node.childNodes[offset];
+
+        var prev = node.childNodes[offset-1];
+        var next = node.childNodes[offset];
+        if (preferElement &&
+            (next.nodeType != Node.ELEMENT_NODE) &&
+            (prev.nodeType == Node.ELEMENT_NODE)) {
+            return prev;
+        }
+        else {
+            return next;
+        }
     }
 
     Location = Location;

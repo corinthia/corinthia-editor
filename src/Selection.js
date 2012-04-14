@@ -124,14 +124,16 @@ var Selection_trackWhileExecuting;
         if (selectionRange == null)
             return false;
 
-        var start = selectionRange.start.closestActualNode();
-        var end = selectionRange.end.closestActualNode();
+        var start = selectionRange.start.closestActualNode(true);
+        var end = selectionRange.end.closestActualNode(true);
 
         var startCell = Tables_findContainingCell(start);
         var endCell = Tables_findContainingCell(end);
 
-        if (startCell == endCell) // not in cell, or both in same cell
-            return false;
+        if (!isTableCell(start) || !isTableCell(end)) {
+            if (startCell == endCell) // not in cell, or both in same cell
+                return false;
+        }
 
         if ((startCell == null) || (endCell == null)) {
             // Want to select the whole table
@@ -538,10 +540,10 @@ var Selection_trackWhileExecuting;
         var topLeftCell = structure.get(tableSelectionTopRow,tableSelectionLeftCol);
         var bottomRightCell = structure.get(tableSelectionBottomRow,tableSelectionRightCol);
 
-        var topLeftNode = topLeftCell.element;
-        var topLeftOffset = 0;
-        var bottomRightNode = bottomRightCell.element;
-        var bottomRightOffset = bottomRightNode.childNodes.length;
+        var topLeftNode = topLeftCell.element.parentNode;
+        var topLeftOffset = DOM_nodeOffset(topLeftCell.element);
+        var bottomRightNode = bottomRightCell.element.parentNode;
+        var bottomRightOffset = DOM_nodeOffset(bottomRightCell.element)+1;
 
         setSelectionRange(new Range(topLeftNode,topLeftOffset,bottomRightNode,bottomRightOffset));
 
