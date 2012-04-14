@@ -572,10 +572,6 @@ var Selection_trackWhileExecuting;
     // public
     function setSelectionRange(range)
     {
-        var oldRange = selectionRange;
-        UndoManager_addAction(function() {
-            setSelectionRange(oldRange);
-        },"Set selection to "+oldRange);
         selectionRange = range;
         Selection_updateSelectionDisplay();
     }
