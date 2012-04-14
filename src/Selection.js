@@ -23,6 +23,12 @@ var Selection_trackWhileExecuting;
     var selectionDivs = new Array();
     var selectionRange = null;
 
+    var selectedTable = null;
+    var tableSelectionTopRow = null;
+    var tableSelectionBottomRow = null;
+    var tableSelectionLeftRow = null;
+    var tableSelectionRightRow = null;
+
     // public
     function getCursorRect()
     {
@@ -121,8 +127,8 @@ var Selection_trackWhileExecuting;
         var start = selectionRange.start.closestActualNode();
         var end = selectionRange.end.closestActualNode();
 
-        var startCell = getContainingCell(start);
-        var endCell = getContainingCell(end);
+        var startCell = Tables_findContainingCell(start);
+        var endCell = Tables_findContainingCell(end);
 
         if (startCell == endCell) // not in cell, or both in same cell
             return false;
@@ -132,8 +138,8 @@ var Selection_trackWhileExecuting;
             return false; // FIXME
         }
 
-        var startTable = getContainingTable(startCell);
-        var endTable = getContainingTable(endCell);
+        var startTable = Tables_findContainingTable(startCell);
+        var endTable = Tables_findContainingTable(endCell);
 
         if (startTable != endTable) {
             // Cells are in different tables; need to handle this specially
@@ -169,31 +175,25 @@ var Selection_trackWhileExecuting;
 
             Editor_setTableSelection(x,y,width,height);
 
+            selectedTable = startTable;
+
+            var structure = Tables_analyseStructure(startTable);
+            var startInfo = structure.cellsByElement.get(startCell);
+            var endInfo = structure.cellsByElement.get(endCell);
+
+            tableSelectionTopRow = (startInfo.row < endInfo.row) ? startInfo.row : endInfo.row;
+            tableSelectionBottomRow = (startInfo.row > endInfo.row) ? startInfo.row : endInfo.row;
+            tableSelectionLeftCol = (startInfo.col < endInfo.col) ? startInfo.col : endInfo.col;
+            tableSelectionRightCol = (startInfo.col > endInfo.col) ? startInfo.col : endInfo.col;
+
             return true;
-        }
-
-        function getContainingCell(node)
-        {
-            for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {
-                if (isTableCell(ancestor))
-                    return ancestor;
-            }
-            return null;
-        }
-
-        function getContainingTable(node)
-        {
-            for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {
-                if (isTableNode(ancestor))
-                    return ancestor;
-            }
-            return null;
         }
     }
 
     // public
     function updateSelectionDisplay()
     {
+        selectedTable = null;
         for (var i = 0; i < selectionDivs.length; i++)
             DOM_deleteNode(selectionDivs[i]);
         selectionDivs = new Array();
@@ -515,6 +515,55 @@ var Selection_trackWhileExecuting;
     }
 
     // public
+    function setTableSelectionEdgeAtCoords(edge,x,y)
+    {
+        if (selectedTable == null)
+            return;
+
+        var structure = Tables_analyseStructure(selectedTable);
+        var pointInfo = findCellInTable(structure,x,y);
+        if (pointInfo == null)
+            return;
+
+        if ((edge == "top") && (pointInfo.row <= tableSelectionBottomRow))
+            tableSelectionTopRow = pointInfo.row;
+        else if ((edge == "bottom") && (pointInfo.row >= tableSelectionTopRow))
+            tableSelectionBottomRow = pointInfo.row;
+        else if ((edge == "left") && (pointInfo.col <= tableSelectionRightCol))
+            tableSelectionLeftCol = pointInfo.col;
+        else if ((edge == "right") && (pointInfo.col >= tableSelectionLeftCol))
+            tableSelectionRightCol = pointInfo.col;
+
+        // FIXME: handle the case where there is no cell at the specified row and column
+        var topLeftCell = structure.get(tableSelectionTopRow,tableSelectionLeftCol);
+        var bottomRightCell = structure.get(tableSelectionBottomRow,tableSelectionRightCol);
+
+        var topLeftNode = topLeftCell.element;
+        var topLeftOffset = 0;
+        var bottomRightNode = bottomRightCell.element;
+        var bottomRightOffset = bottomRightNode.childNodes.length;
+
+        setSelectionRange(new Range(topLeftNode,topLeftOffset,bottomRightNode,bottomRightOffset));
+
+        // FIXME: this could possibly be optimised
+        function findCellInTable(structure,x,y)
+        {
+            for (var r = 0; r < structure.numRows; r++) {
+                for (var c = 0; c < structure.numCols; c++) {
+                    var cell = structure.get(r,c);
+                    if (cell != null) {
+                        var rect = cell.element.getBoundingClientRect();
+                        if ((x >= rect.left) && (x <= rect.right) &&
+                            (y >= rect.top) && (y <= rect.bottom))
+                            return cell;
+                    }
+                }
+            }
+            return null;
+        }
+    }
+
+    // public
     function getSelectionRange()
     {
         return selectionRange;
@@ -739,6 +788,7 @@ var Selection_trackWhileExecuting;
     Selection_dragSelectionUpdate = dragSelectionUpdate;
     Selection_setSelectionStartAtCoords = trace(setSelectionStartAtCoords);
     Selection_setSelectionEndAtCoords = trace(setSelectionEndAtCoords);
+    Selection_setTableSelectionEdgeAtCoords = trace(setTableSelectionEdgeAtCoords);
     Selection_getSelectionRange = trace(getSelectionRange);
     Selection_setSelectionRange = trace(setSelectionRange);
     Selection_setEmptySelectionAt = trace(setEmptySelectionAt);

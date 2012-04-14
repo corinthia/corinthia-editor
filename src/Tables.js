@@ -11,6 +11,8 @@ var Tables_clearCells;
 var Tables_mergeCells;
 var Tables_splitCell;
 var Tables_analyseStructure;
+var Tables_findContainingCell;
+var Tables_findContainingTable;
 
 (function() {
 
@@ -177,6 +179,26 @@ var Tables_analyseStructure;
         return new Table(element);
     }
 
+    // public
+    function findContainingCell(node)
+    {
+        for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {
+            if (isTableCell(ancestor))
+                return ancestor;
+        }
+        return null;
+    }
+
+    // public
+    function findContainingTable(node)
+    {
+        for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {
+            if (isTableNode(ancestor))
+                return ancestor;
+        }
+        return null;
+    }
+
     Tables_insertTable = trace(insertTable);
     Tables_insertRowsAbove = trace(insertRowsAbove);
     Tables_insertRowsBelow = trace(insertRowsBelow);
@@ -188,5 +210,7 @@ var Tables_analyseStructure;
     Tables_mergeCells = trace(mergeCells);
     Tables_splitCell = trace(splitCell);
     Tables_analyseStructure = trace(analyseStructure);
+    Tables_findContainingCell = trace(findContainingCell);
+    Tables_findContainingTable = trace(findContainingTable);
 
 })();
