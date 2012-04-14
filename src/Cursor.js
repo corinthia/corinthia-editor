@@ -12,6 +12,7 @@ var Cursor_updateBRAtEndOfParagraph;
 var Cursor_closestPositionForwards;
 var Cursor_closestPositionBackwards;
 var Cursor_insertReference;
+var Cursor_insertLink;
 var Cursor_insertCharacter;
 var Cursor_beginInsertion;
 var Cursor_updateInsertion;
@@ -363,6 +364,15 @@ var Cursor_enterPressed;
     }
 
     // public
+    function insertLink(text,url)
+    {
+        var a = DOM_createElement(document,"A");
+        a.setAttribute("href",url);
+        DOM_appendChild(a,DOM_createTextNode(document,text));
+        Clipboard_pasteNodes([a]);
+    }
+
+    // public
     function insertCharacter(character)
     {
         var selectionRange = Selection_getSelectionRange();
@@ -608,6 +618,7 @@ var Cursor_enterPressed;
     Cursor_closestPositionForwards = trace(closestPositionForwards);
     Cursor_closestPositionBackwards = trace(closestPositionBackwards);
     Cursor_insertReference = trace(insertReference);
+    Cursor_insertLink = trace(insertLink);
     Cursor_insertCharacter = trace(insertCharacter);
     Cursor_beginInsertion = trace(beginInsertion);
     Cursor_updateInsertion = trace(updateInsertion);
