@@ -41,6 +41,7 @@ function loadCode()
                            "../src/Selection.js",
                            "../src/showdown.js",
                            "../src/StringBuilder.js",
+                           "../src/Styles.js",
                            "../src/Tables.js",
                            "../src/traversal.js",
                            "../src/types.js",
