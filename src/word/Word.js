@@ -1,3 +1,8 @@
+var Word_initWord;
+var Word_documentXML;
+var Word_numberingXML;
+var Word_stylesXML;
+
 (function() {
 
     var docx = new Object();
@@ -152,7 +157,7 @@
     // public
     function initWord()
     {
-        debug("This is Word.initWord()");
+        debug("This is Word_initWord()");
         docx.document = readFile("word/document.xml");
         docx.numbering = readFile("word/numbering.xml");
         docx.styles = readFile("word/styles.xml");
@@ -190,10 +195,9 @@
         return serialize(docx.styles);
     }
 
-    window.Word = new (function Word(){});
-    Word.initWord = trace(initWord);
-    Word.documentXML = trace(documentXML);
-    Word.numberingXML = trace(numberingXML);
-    Word.stylesXML = trace(stylesXML);
+    Word_initWord = trace(initWord);
+    Word_documentXML = trace(documentXML);
+    Word_numberingXML = trace(numberingXML);
+    Word_stylesXML = trace(stylesXML);
 
 })();
