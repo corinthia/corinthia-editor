@@ -96,13 +96,17 @@ var Tables_findContainingTable;
     }
 
     // public
-    function insertTable(rows,cols,numbered,caption)
+    function insertTable(rows,cols,width,numbered,caption)
     {
+        debug("insertTable: width = "+width);
         var table = DOM_createElement(document,"TABLE");
 
         // Probably the most sensible defaults for now
         table.setAttribute("border","1");
-        table.setAttribute("width","100%");
+//        table.setAttribute("width","100%");
+        if (width != null) {
+            table.style.width = width;
+        }
 
         // Caption comes first
         if ((caption != null) && (caption != "")) {
