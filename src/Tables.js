@@ -98,21 +98,32 @@ var Tables_findContainingTable;
     // public
     function insertTable(rows,cols,width,numbered,caption)
     {
-        debug("insertTable: width = "+width);
+        if (rows < 1)
+            rows = 1;
+        if (cols < 1)
+            cols = 1;
+
+        Styles_addDefaultRuleCategory("td-paragraph-margins");
+        Styles_addDefaultRuleCategory("table-borders");
+
         var table = DOM_createElement(document,"TABLE");
 
-        // Probably the most sensible defaults for now
-        table.setAttribute("border","1");
-//        table.setAttribute("width","100%");
-        if (width != null) {
+        if (width != null)
             table.style.width = width;
-        }
 
         // Caption comes first
         if ((caption != null) && (caption != "")) {
             var tableCaption = DOM_createElement(document,"CAPTION");
             tableCaption.appendChild(DOM_createTextNode(document,caption));
             DOM_appendChild(table,tableCaption);
+        }
+
+        // Set equal column widths
+        var colWidth = Math.round(100/cols)+"%";
+        for (var c = 0; c < cols; c++) {
+            var col = DOM_createElement(document,"COL");
+            col.setAttribute("style","width: "+colWidth);
+            DOM_appendChild(table,col);
         }
 
         // Then the rows and columns

@@ -214,7 +214,7 @@ var Main_init;
             DOM_assignNodeIds(document);
             removeUnsupportedInput();
             addContentType();
-            Styles_reportStylesToEditor();
+            Styles_discoverStyles();
             Outline_init();
             Viewport_init();
             return true;
