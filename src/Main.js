@@ -10,29 +10,6 @@ var Main_init;
 
 (function() {
 
-    function getStyles()
-    {
-        var list = new Array();
-        for (var i = 0; i < document.styleSheets.length; i++) {
-            var sheet = document.styleSheets[i];
-            var str = "";
-            for (name in sheet)
-                str += name+"\n";
-            for (var j = 0; j < sheet.cssRules.length; j++) {
-                var rule = sheet.cssRules[j];
-                if (rule.type == CSSRule.STYLE_RULE) {
-                    var properties = new Object();
-                    for (k = 0; k < rule.style.length; k++)
-                        properties[rule.style[k]] = rule.style.getPropertyValue(rule.style[k]);
-                    
-                    list.push({"selector": rule.selectorText,
-                               "properties": properties });
-                }
-            }
-        }
-        Editor_setStyles(list);
-    }
-
     // public
     function removeUnsupportedInput()
     {
@@ -237,7 +214,7 @@ var Main_init;
             DOM_assignNodeIds(document);
             removeUnsupportedInput();
             addContentType();
-            getStyles();
+            Styles_reportStylesToEditor();
             Outline_init();
             Viewport_init();
             return true;
@@ -248,7 +225,6 @@ var Main_init;
     }
 
     addContentType = trace(addContentType);
-    getStyles = trace(getStyles);
 
     Main_isEmptyDocument = trace(isEmptyDocument);
     Main_getHTML = trace(getHTML);
