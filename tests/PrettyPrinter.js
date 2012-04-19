@@ -112,7 +112,13 @@
                 builder.str += indent + "<" + name + attributeString(node) + "/>\n";
             }
             else {
-                if (singleDescendents(node)) {
+                if (DOM_upperName(node) == "STYLE") {
+                    builder.str += indent + "<" + name + attributeString(node) + ">\n";
+                    for (var child = node.firstChild; child != null; child = child.nextSibling)
+                        prettyPrint(builder,child,"");
+                    builder.str += indent + "</" + name + ">\n";
+                }
+                else if (singleDescendents(node)) {
                     builder.str += indent;
                     prettyPrintOneLine(builder,node);
                     builder.str += "\n";
@@ -123,7 +129,6 @@
                         prettyPrint(builder,child,indent+"  ");
                     builder.str += indent + "</" + name + ">\n";
                 }
-
             }
         }
         else if (node.nodeType == Node.TEXT_NODE) {
