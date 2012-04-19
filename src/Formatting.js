@@ -573,8 +573,10 @@ var Formatting_setStyleElement;
 
         function add(node)
         {
-            array.push(node);
-            set.add(node);
+            if (!set.contains(node)) {
+                array.push(node);
+                set.add(node);
+            }
         }
     }
 
