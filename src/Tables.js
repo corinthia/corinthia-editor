@@ -130,6 +130,15 @@ var Tables_findContainingTable;
         }
 
         Clipboard_pasteNodes([table]);
+
+        // If, as a result of inserting the table, the cursor is now placed immediately to
+        // the right of it, move the cursor forward to the start of the next paragraph
+        var selectionRange = Selection_getSelectionRange();
+        var pos = selectionRange.start;
+        if ((pos.node.nodeType == Node.ELEMENT_NODE) &&
+            (pos.node.childNodes[pos.offset-1] == table)) {
+            Cursor_moveRight(); // go to the start of the next paragraph
+        }
     }
 
     // public
