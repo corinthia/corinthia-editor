@@ -143,16 +143,16 @@ var DOM_Listener;
     }
 
     // public methods
-    DOM_assignNodeIds = function(node)
+    function assignNodeIds(node)
     {
         if (node._nodeId != null)
             throw new Error(node+" already has id");
         node._nodeId = prefix+nextNodeId++;
         for (var child = node.firstChild; child != null; child = child.nextSibling)
-            DOM_assignNodeIds(child);
+            assignNodeIds(child);
     }
 
-    DOM_addUndoListeners = function(node)
+    function addUndoListeners(node)
     {
 //        node.addEventListener("DOMNodeInserted",nodeInserted);
 //        node.addEventListener("DOMNodeRemoved",nodeRemoved);
@@ -161,39 +161,39 @@ var DOM_Listener;
 
     // Low-level methods
 
-    DOM_createElement = function(document,elementName)
+    function createElement(document,elementName)
     {
         return assignNodeId(document.createElement(elementName));
     }
 
-    DOM_createElementNS = function(document,namespaceURI,qualifiedName)
+    function createElementNS(document,namespaceURI,qualifiedName)
     {
         return assignNodeId(document.createElementNS(namespaceURI,qualifiedName));
     }
 
-    DOM_createTextNode = function(document,data)
+    function createTextNode(document,data)
     {
         return assignNodeId(document.createTextNode(data));
     }
 
-    DOM_createComment = function(document,data)
+    function createComment(document,data)
     {
         return assignNodeId(document.createComment(data));
     }
 
-    DOM_cloneNode = function(original,deep)
+    function cloneNode(original,deep)
     {
         var clone = original.cloneNode(deep);
         DOM_assignNodeIds(clone);
         return clone;
     }
 
-    DOM_appendChild = function(node,child)
+    function appendChild(node,child)
     {
         return DOM_insertBefore(node,child,null);
     }
 
-    DOM_insertBefore = function(parent,child,nextSibling)
+    function insertBefore(parent,child,nextSibling)
     {
         var newOffset;
         if (nextSibling != null)
@@ -227,7 +227,7 @@ var DOM_Listener;
         return result;
     }
 
-    DOM_deleteNode = function(node)
+    function deleteNode(node)
     {
         if (node.parentNode == null) // already deleted
             return;
@@ -255,20 +255,20 @@ var DOM_Listener;
 
     // High-level methods
 
-    DOM_deleteAllChildren = function(parent)
+    function deleteAllChildren(parent)
     {
         while (parent.firstChild != null)
             DOM_deleteNode(parent.firstChild);
     }
 
-    DOM_shallowCopyElement = function(element)
+    function shallowCopyElement(element)
     {
         var copy = DOM_cloneNode(element,false);
         copy.removeAttribute("id");
         return copy;
     }
 
-    DOM_removeNodeButKeepChildren = function(node)
+    function removeNodeButKeepChildren(node)
     {
         var offset = DOM_nodeOffset(node);
         var childCount = node.childNodes.length;
@@ -293,7 +293,7 @@ var DOM_Listener;
         }
     }
 
-    DOM_replaceElement = function(oldElement,newName)
+    function replaceElement(oldElement,newName)
     {
         var listeners = listenersForNode(oldElement);
         var newElement = DOM_createElement(document,newName);
@@ -328,7 +328,7 @@ var DOM_Listener;
         return newElement;
     }
 
-    DOM_wrapNode = function(node,elementName)
+    function wrapNode(node,elementName)
     {
         var wrapper = DOM_createElement(document,elementName);
 
@@ -338,7 +338,7 @@ var DOM_Listener;
         return wrapper;
     }
 
-    DOM_mergeWithNextSibling = function(current,whiteList)
+    function mergeWithNextSibling(current,whiteList)
     {
         var parent = current.parentNode;
         var next = current.nextSibling;
@@ -378,7 +378,7 @@ var DOM_Listener;
             DOM_mergeWithNextSibling(lastChild,whiteList);
     }
 
-    DOM_nodesMergeable = function(a,b,whiteList)
+    function nodesMergeable(a,b,whiteList)
     {
         if ((a.nodeType == Node.TEXT_NODE) && (b.nodeType == Node.TEXT_NODE))
             return true;
@@ -440,7 +440,7 @@ var DOM_Listener;
             return [];
     }
 
-    DOM_addTrackedPosition = function(position)
+    function addTrackedPosition(position)
     {
         var data = getDataForNode(position.node,true);
         if (data.trackedPositions == null)
@@ -448,7 +448,7 @@ var DOM_Listener;
         data.trackedPositions.push(position);
     }
 
-    DOM_removeTrackedPosition = function(position)
+    function removeTrackedPosition(position)
     {
         var data = getDataForNode(position.node,false);
         if ((data == null) || (data.trackedPositions == null))
@@ -464,7 +464,7 @@ var DOM_Listener;
                         data.trackedPositions.length+" others)");
     }
 
-    DOM_removeAdjacentWhitespace = function(node)
+    function removeAdjacentWhitespace(node)
     {
         while ((node.previousSibling != null) && (isWhitespaceTextNode(node.previousSibling)))
             DOM_deleteNode(node.previousSibling);
@@ -472,7 +472,7 @@ var DOM_Listener;
             DOM_deleteNode(node.nextSibling);
     }
 
-    DOM_insertCharacters = function(textNode,offset,characters)
+    function insertCharacters(textNode,offset,characters)
     {
         if (textNode.nodeType != Node.TEXT_NODE)
             throw new Error("DOM_insertCharacters called on non-text node");
@@ -486,7 +486,7 @@ var DOM_Listener;
                              textNode.nodeValue.slice(offset);
     }
 
-    DOM_deleteCharacters = function(textNode,startOffset,endOffset)
+    function deleteCharacters(textNode,startOffset,endOffset)
     {
         if (textNode.nodeType != Node.TEXT_NODE)
             throw new Error("DOM_deleteCharacters called on non-text node "+nodeString(textNode));
@@ -506,7 +506,7 @@ var DOM_Listener;
                              textNode.nodeValue.slice(endOffset);
     }
 
-    DOM_setNodeValue = function(textNode,value)
+    function setNodeValue(textNode,value)
     {
         if (textNode.nodeType != Node.TEXT_NODE)
             throw new Error("DOM_setNodeValue called on non-text node");
@@ -517,12 +517,12 @@ var DOM_Listener;
         textNode.nodeValue = value;
     }
 
-    DOM_lowerName = function(node)
+    function lowerName(node)
     {
         return node.nodeName.toLowerCase();
     }
 
-    DOM_upperName = function(node)
+    function upperName(node)
     {
         if (node.nodeType == Node.ELEMENT_NODE)
             return node.nodeName.toUpperCase();
@@ -530,7 +530,7 @@ var DOM_Listener;
             return node.nodeName;
     }
 
-    DOM_documentHead = function(document)
+    function documentHead(document)
     {
         var html = document.documentElement;
         for (var child = html.firstChild; child != null; child = child.nextSibling) {
@@ -540,7 +540,7 @@ var DOM_Listener;
         throw new Error("Document contains no HEAD element");
     }
 
-    DOM_ensureUniqueIds = function(root)
+    function ensureUniqueIds(root)
     {
         var ids = new Object();
         var duplicates = new Array();
@@ -587,7 +587,7 @@ var DOM_Listener;
         }
     }
 
-    DOM_nodeOffset = function(node)
+    function nodeOffset(node)
     {
         var offset = 0;
         for (var n = node.parentNode.firstChild; n != node; n = n.nextSibling)
@@ -595,7 +595,7 @@ var DOM_Listener;
         return offset;
     }
 
-    DOM_maxChildOffset = function(node)
+    function maxChildOffset(node)
     {
         if (node.nodeType == Node.TEXT_NODE)
             return node.nodeValue.length;
@@ -605,7 +605,7 @@ var DOM_Listener;
             throw new Error("maxOffset: invalid node type ("+node.nodeType+")");
     }
 
-    DOM_addListener = function(node,listener)
+    function addListener(node,listener)
     {
         var data = getDataForNode(node,true);
         if (data.listeners == null)
@@ -614,7 +614,7 @@ var DOM_Listener;
             data.listeners.push(listener);
     }
 
-    DOM_removeListener = function(node,listener)
+    function removeListener(node,listener)
     {
         var list = listenersForNode(node);
         var index = list.indexOf(listener);
@@ -629,5 +629,37 @@ var DOM_Listener;
     Listener.prototype.afterReplaceElement = function(oldElement,newElement) {}
 
     DOM_Listener = Listener;
+
+    DOM_assignNodeIds = trace(assignNodeIds);
+    DOM_addUndoListeners = trace(addUndoListeners);
+    DOM_createElement = trace(createElement);
+    DOM_createElementNS = trace(createElementNS);
+    DOM_createTextNode = trace(createTextNode);
+    DOM_createComment = trace(createComment);
+    DOM_cloneNode = trace(cloneNode);
+    DOM_appendChild = trace(appendChild);
+    DOM_insertBefore = trace(insertBefore);
+    DOM_deleteNode = trace(deleteNode);
+    DOM_deleteAllChildren = trace(deleteAllChildren);
+    DOM_shallowCopyElement = trace(shallowCopyElement);
+    DOM_removeNodeButKeepChildren = trace(removeNodeButKeepChildren);
+    DOM_replaceElement = trace(replaceElement);
+    DOM_wrapNode = trace(wrapNode);
+    DOM_mergeWithNextSibling = trace(mergeWithNextSibling);
+    DOM_nodesMergeable = trace(nodesMergeable);
+    DOM_addTrackedPosition = trace(addTrackedPosition);
+    DOM_removeTrackedPosition = trace(removeTrackedPosition);
+    DOM_removeAdjacentWhitespace = trace(removeAdjacentWhitespace);
+    DOM_insertCharacters = trace(insertCharacters);
+    DOM_deleteCharacters = trace(deleteCharacters);
+    DOM_setNodeValue = trace(setNodeValue);
+    DOM_lowerName = trace(lowerName);
+    DOM_upperName = trace(upperName);
+    DOM_documentHead = trace(documentHead);
+    DOM_ensureUniqueIds = trace(ensureUniqueIds);
+    DOM_nodeOffset = trace(nodeOffset);
+    DOM_maxChildOffset = trace(maxChildOffset);
+    DOM_addListener = trace(addListener);
+    DOM_removeListener = trace(removeListener);
 
 })();
