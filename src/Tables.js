@@ -151,9 +151,7 @@ var Tables_getTableRegionFromRange;
             }
         }
 
-        debug("before paste: table id = "+table.getAttribute("id"));
         Clipboard_pasteNodes([table]);
-        debug("after paste: table id = "+table.getAttribute("id"));
 
         // Now that the table has been inserted into the DOM tree, the outline code will
         // have noticed it and added an id attribute, as well as a caption giving the
@@ -164,28 +162,30 @@ var Tables_getTableRegionFromRange;
         var pos = new Position(firstTD,0);
         pos = Cursor_closestPositionForwards(pos);
         Selection_setEmptySelectionAt(pos.node,pos.offset);
-
-        printTree(document.body);
     }
 
     // public
     function insertRowsAbove(rows)
     {
+        debug("insertRowsAbove()");
     }
 
     // public
     function insertRowsBelow(rows)
     {
+        debug("insertRowsBelow()");
     }
 
     // public
     function insertColumnsLeft(cols)
     {
+        debug("insertColumnsLeft()");
     }
 
     // public
     function insertColumnsRight(cols)
     {
+        debug("insertColumnsRight()");
     }
 
     // public
@@ -206,11 +206,66 @@ var Tables_getTableRegionFromRange;
     // public
     function mergeCells()
     {
+        debug("mergeCells()");
+        var region = Tables_getTableRegionFromRange(Selection_getSelectionRange());
+        if (region == null)
+            return;
+
+        var structure = region.structure;
+
+        // FIXME: handle the case of missing cells
+        // (or even better, add cells where there are some missing)
+
+        for (var row = region.topRow; row <= region.bottomRow; row++) {
+            for (var col = region.leftCol; col <= region.rightCol; col++) {
+                var cell = structure.get(row,col);
+                var cellFirstRow = cell.row;
+                var cellLastRow = cell.row + cell.rowspan - 1;
+                var cellFirstCol = cell.col;
+                var cellLastCol = cell.col + cell.colspan - 1;
+
+                if ((cellFirstRow < region.topRow) || (cellLastRow > region.bottomRow) ||
+                    (cellFirstCol < region.leftCol) || (cellLastCol > region.rightCol)) {
+                    debug("Can't merge this table: cell at "+row+","+col+" goes outside bounds "+
+                          "of selection");
+                    return;
+                }
+            }
+        }
+
+        var mergedCell = structure.get(region.topRow,region.leftCol);
+
+        for (var row = region.topRow; row <= region.bottomRow; row++) {
+            for (var col = region.leftCol; col <= region.rightCol; col++) {
+                var cell = structure.get(row,col);
+                // parentNode will be null if we've already done this cell
+                if ((cell != mergedCell) && (cell.element.parentNode != null)) {
+                    while (cell.element.firstChild != null)
+                        DOM_appendChild(mergedCell.element,cell.element.firstChild);
+
+//                    DOM_deleteAllChildren(cell.element); // FIXME: temp
+
+                    DOM_deleteNode(cell.element);
+                }
+            }
+        }
+
+        var totalRows = region.bottomRow - region.topRow + 1;
+        var totalCols = region.rightCol - region.leftCol + 1;
+        if (totalRows == 1)
+            mergedCell.element.removeAttribute("rowspan");
+        else
+            mergedCell.element.setAttribute("rowspan",totalRows);
+        if (totalCols == 1)
+            mergedCell.element.removeAttribute("colspan");
+        else
+            mergedCell.element.setAttribute("colspan",totalCols);
     }
 
     // public
     function splitCell()
     {
+        debug("splitCell()");
     }
 
     // public
