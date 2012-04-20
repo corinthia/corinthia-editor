@@ -381,7 +381,7 @@ var Clipboard_pasteNodes;
 
                 Cursor_updateBRAtEndOfParagraph(parent);
 
-                pastedRange.ensureRangeValidHierarchy();
+                pastedRange.ensureRangeValidHierarchy(true);
             });
         });
     }
