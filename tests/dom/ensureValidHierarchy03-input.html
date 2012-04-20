@@ -6,13 +6,13 @@
 function performTest()
 {
     var p = document.getElementsByTagName("P")[0];
-    Hierarchy_ensureValidHierarchy(p,true);
+    Hierarchy_ensureValidHierarchy(p.firstChild,true);
 }
 </script>
 </head>
 <body>
 
-<b><i><u><ul><li>Item 1</li></ul><ol><li>Item 2</li></ol><p>Sample text</p><ul><li>Item 3</li></ul><ol><li>Item 4</li></ol></u></i></b>
+<b><p>Sample text</p><p>More text</p></b>
 
 </body>
 </html>
