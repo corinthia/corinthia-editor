@@ -16,7 +16,7 @@ function performTest()
     var range = new Range(document.body,0,document.body,3);
 
     range.trackWhileExecuting(function() {
-        Hierarchy_ensureValidHierarchy(text1);
+        Hierarchy_ensureInlineNodesInParagraph(text1);
     });
     showRangeAsBrackets(range);
 }

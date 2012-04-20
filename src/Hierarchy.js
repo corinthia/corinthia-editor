@@ -1,6 +1,7 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
 var Hierarchy_ensureValidHierarchy;
+var Hierarchy_ensureInlineNodesInParagraph;
 var Hierarchy_wrapInlineNodesInParagraph;
 
 (function() {
@@ -70,7 +71,11 @@ var Hierarchy_wrapInlineNodesInParagraph;
     // public
     function ensureValidHierarchy(node,recursive,allowDirectInline)
     {
+        var count = 0;
         while ((node != null) && (node.parentNode != null) && (node != document.body)) {
+            count++;
+            if (count > 20)
+                throw new Error("ensureValidHierarchy: too many iterations");
 
             if (isContainerNode(node) || isParagraphNode(node)) {
                 var invalidNesting = !isContainerNode(node.parentNode);
@@ -96,14 +101,24 @@ var Hierarchy_wrapInlineNodesInParagraph;
                     wrapInlineChildrenInAncestors(node,ancestors);
                 }
             }
-            else { // inline node
-                if (!allowDirectInline &&
-                    isContainerNode(node.parentNode) && !isListItemNode(node.parentNode) &&
-                    !isWhitespaceTextNode(node)) {
-                    wrapInlineNodesInParagraph(node);
-                }
-            }
 
+            node = node.parentNode;
+        }
+    }
+
+    function ensureInlineNodesInParagraph(node)
+    {
+        var count = 0;
+        while ((node != null) && (node.parentNode != null) && (node != document.body)) {
+            count++;
+            if (count > 20)
+                throw new Error("ensureInlineNodesInParagraph: too many iterations");
+            if (isInlineNode(node) &&
+                isContainerNode(node.parentNode) && !isListItemNode(node.parentNode) &&
+                !isWhitespaceTextNode(node)) {
+                wrapInlineNodesInParagraph(node);
+                return;
+            }
             node = node.parentNode;
         }
     }
@@ -126,9 +141,11 @@ var Hierarchy_wrapInlineNodesInParagraph;
         var stop = end.nextSibling;
         while (p.nextSibling != stop)
             DOM_insertBefore(p,p.nextSibling,null);
+        return p;
     }
 
     Hierarchy_ensureValidHierarchy = trace(ensureValidHierarchy);
-    Hierarchy_wrapInlineNodesInParagraph = wrapInlineNodesInParagraph;
+    Hierarchy_ensureInlineNodesInParagraph = trace(ensureInlineNodesInParagraph);
+    Hierarchy_wrapInlineNodesInParagraph = trace(wrapInlineNodesInParagraph);
 
 })();

@@ -165,6 +165,12 @@ var Range;
         var range = this;
         this.trackWhileExecuting(function() {
             var nodes = range.getAllNodes(true);
+
+            if (!allowDirectInline) {
+                for (var i = 0; i < nodes.length; i++)
+                    Hierarchy_ensureInlineNodesInParagraph(nodes[i]);
+            }
+
             for (var i = 0; i < nodes.length; i++)
                 Hierarchy_ensureValidHierarchy(nodes[i],true,allowDirectInline);
         });
