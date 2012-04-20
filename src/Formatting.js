@@ -90,12 +90,12 @@ var Formatting_setStyleElement;
     }
 
     // public (for testing purposes only)
-    function splitAroundSelection(range)
+    function splitAroundSelection(range,allowDirectInline)
     {
         range.trackWhileExecuting(function() {
 
 //            range.omitEmptyTextSelection(); // FIXME: enable this again?
-            range.ensureRangeValidHierarchy(true);
+            range.ensureRangeValidHierarchy(allowDirectInline);
 
             if ((range.start.node.nodeType == Node.TEXT_NODE) &&
                 (range.start.offset > 0)) {
@@ -878,7 +878,7 @@ var Formatting_setStyleElement;
 
         var allowDirectInline = (style == null);
         Position.trackWhileExecuting(positions,function() {
-            splitAroundSelection(range);
+            splitAroundSelection(range,allowDirectInline);
             range.expand();
             range.ensureRangeValidHierarchy(allowDirectInline);
             range.expand();
