@@ -177,6 +177,11 @@ var Outline_plainText;
             return;
         DOM_deleteNode(this.numberSpan);
         this.numberSpan = null;
+
+        var titleNode = this.getTitleNode(false);
+        if ((titleNode != null) && !nodeHasContent(titleNode))
+            DOM_deleteNode(titleNode);
+
         scheduleUpdateStructure();
     }
 

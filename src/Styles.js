@@ -33,6 +33,9 @@ var Styles_init;
             "table": {"border-collapse": "collapse"},
             "td": {"border": "1px solid black"},
         },
+        "table-caption": {
+            "caption": {"caption-side": "bottom"},
+        },
     };
 
     function stringsAllEqual(strings)

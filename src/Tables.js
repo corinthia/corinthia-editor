@@ -103,8 +103,12 @@ var Tables_findContainingTable;
         if (cols < 1)
             cols = 1;
 
+        var haveCaption = (caption != null) && (caption != "");
+
         Styles_addDefaultRuleCategory("td-paragraph-margins");
         Styles_addDefaultRuleCategory("table-borders");
+        if (numbered || haveCaption)
+            Styles_addDefaultRuleCategory("table-caption");
 
         var table = DOM_createElement(document,"TABLE");
 
@@ -112,7 +116,7 @@ var Tables_findContainingTable;
             table.style.width = width;
 
         // Caption comes first
-        if ((caption != null) && (caption != "")) {
+        if (haveCaption) {
             var tableCaption = DOM_createElement(document,"CAPTION");
             tableCaption.appendChild(DOM_createTextNode(document,caption));
             DOM_appendChild(table,tableCaption);
@@ -126,6 +130,8 @@ var Tables_findContainingTable;
             DOM_appendChild(table,col);
         }
 
+        var firstTD = null;
+
         // Then the rows and columns
         for (var r = 0; r < rows; r++) {
             var tr = DOM_createElement(document,"TR");
@@ -137,19 +143,27 @@ var Tables_findContainingTable;
                 DOM_appendChild(tr,td);
                 DOM_appendChild(td,p);
                 DOM_appendChild(p,br);
+
+                if (firstTD == null)
+                    firstTD = td;
             }
         }
 
+        debug("before paste: table id = "+table.getAttribute("id"));
         Clipboard_pasteNodes([table]);
+        debug("after paste: table id = "+table.getAttribute("id"));
 
-        // If, as a result of inserting the table, the cursor is now placed immediately to
-        // the right of it, move the cursor forward to the start of the next paragraph
-        var selectionRange = Selection_getSelectionRange();
-        var pos = selectionRange.start;
-        if ((pos.node.nodeType == Node.ELEMENT_NODE) &&
-            (pos.node.childNodes[pos.offset-1] == table)) {
-            Cursor_moveRight(); // go to the start of the next paragraph
-        }
+        // Now that the table has been inserted into the DOM tree, the outline code will
+        // have noticed it and added an id attribute, as well as a caption giving the
+        // table number.
+        Outline_setNumbered(table.getAttribute("id"),numbered);
+
+        // Place the cursor at the start of the first cell on the first row
+        var pos = new Position(firstTD,0);
+        pos = Cursor_closestPositionForwards(pos);
+        Selection_setEmptySelectionAt(pos.node,pos.offset);
+
+        printTree(document.body);
     }
 
     // public

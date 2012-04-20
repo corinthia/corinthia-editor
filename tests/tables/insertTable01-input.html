@@ -4,9 +4,12 @@
 <script language="javascript">
 function performTest()
 {
-    Styles_discoverStyles();
+    Outline_init();
+    Styles_init();
+
     Tables_insertTable(2,3,null,false,null);
     PostponedActions_perform();
+    showRangeAsBrackets(Selection_getSelectionRange());
 }
 </script>
 </head>
