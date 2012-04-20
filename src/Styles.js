@@ -162,7 +162,7 @@ var Styles_init;
         properties = condenseProperties(properties);
 
         if ((properties["font-family"] != null) &&
-            (/\s+/.match(properties["font-family"]))) {
+            (properties["font-family"].match(/\s+/))) {
             properties["font-family"] = JSON.stringify(properties["font-family"]);
         }
 
@@ -202,7 +202,7 @@ var Styles_init;
             // Changing the text content of the style element causes WebKit to re-parse the
             // stylesheet and create new CSSRule objects. So we have to rebuild our cache
             // with the new objects.
-            discoverStyles();
+            Styles_discoverStyles();
         }
     }
 
@@ -316,5 +316,9 @@ var Styles_init;
     Styles_addDefaultRuleCategory = trace(addDefaultRuleCategory);
     Styles_discoverStyles = trace(discoverStyles);
     Styles_init = trace(init);
+
+    condenseProperties = trace(condenseProperties);
+    propertyListText = trace(propertyListText);
+    applyCSSTextChanges = trace(applyCSSTextChanges);
 
 })();
