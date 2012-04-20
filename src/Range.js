@@ -160,7 +160,7 @@ var Range;
         return this.start.closestActualNode();
     }
 
-    function ensureRangeValidHierarchy()
+    function ensureRangeValidHierarchy(allowDirectInline)
     {
         var range = this;
         this.trackWhileExecuting(function() {
@@ -180,7 +180,7 @@ var Range;
                 if (depths[depth] != null) {
                     for (var i = 0; i < depths[depth].length; i++) {
                         var node = depths[depth][i];
-                        Hierarchy_ensureValidHierarchy(node,firstDepth);
+                        Hierarchy_ensureValidHierarchy(node,firstDepth,allowDirectInline);
                     }
                     firstDepth = false;
                 }

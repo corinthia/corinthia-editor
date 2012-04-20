@@ -68,7 +68,7 @@ var Hierarchy_wrapInlineNodesInParagraph;
     // or container+ paragraph
     // or container+
     // public
-    function ensureValidHierarchy(node,recursive)
+    function ensureValidHierarchy(node,recursive,allowDirectInline)
     {
         if ((node == null) || (node.parentNode == null) || (node == document.body))
             return;
@@ -98,14 +98,15 @@ var Hierarchy_wrapInlineNodesInParagraph;
             }
         }
         else { // inline node
-            if (isContainerNode(node.parentNode) && !isListItemNode(node.parentNode) &&
+            if (!allowDirectInline &&
+                isContainerNode(node.parentNode) && !isListItemNode(node.parentNode) &&
                 !isWhitespaceTextNode(node)) {
                 wrapInlineNodesInParagraph(node);
             }
         }
 
         if (recursive)
-            ensureValidHierarchy(node.parentNode,true);
+            ensureValidHierarchy(node.parentNode,true,allowDirectInline);
     }
 
     // public
