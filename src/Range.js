@@ -165,26 +165,8 @@ var Range;
         var range = this;
         this.trackWhileExecuting(function() {
             var nodes = range.getAllNodes(true);
-            
-            var depths = new Array();
-            for (var i = 0; i < nodes.length; i++) {
-                var depth = getNodeDepth(nodes[i]);
-                if (depths[depth] == null) {
-                    depths[depth] = new Array();
-                }
-                depths[depth].push(nodes[i]);
-            }
-            
-            for (var depth = 0; depth < depths.length; depth++) {
-                var firstDepth = true;
-                if (depths[depth] != null) {
-                    for (var i = 0; i < depths[depth].length; i++) {
-                        var node = depths[depth][i];
-                        Hierarchy_ensureValidHierarchy(node,firstDepth,allowDirectInline);
-                    }
-                    firstDepth = false;
-                }
-            }
+            for (var i = 0; i < nodes.length; i++)
+                Hierarchy_ensureValidHierarchy(nodes[i],true,allowDirectInline);
         });
     };
 
