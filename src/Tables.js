@@ -13,6 +13,7 @@ var Tables_splitCell;
 var Tables_analyseStructure;
 var Tables_findContainingCell;
 var Tables_findContainingTable;
+var Tables_getTableRegionFromRange;
 
 (function() {
 
@@ -39,6 +40,7 @@ var Tables_findContainingTable;
 
     function Table(element)
     {
+        this.element = element;
         this.row = 0;
         this.col = 0;
         this.cells = new Array();
@@ -237,6 +239,54 @@ var Tables_findContainingTable;
         return null;
     }
 
+    function TableRegion(structure,topRow,bottomRow,leftCol,rightCol)
+    {
+        this.structure = structure;
+        this.topRow = topRow;
+        this.bottomRow = bottomRow;
+        this.leftCol = leftCol;
+        this.rightCol = rightCol;
+    }
+
+    // public
+    function getTableRegionFromRange(range)
+    {
+        var region = null;
+
+        if (range == null)
+            return null;
+
+        var start = range.start.closestActualNode(true);
+        var end = range.end.closestActualNode(true);
+
+        var startTD = Tables_findContainingCell(start);
+        var endTD = Tables_findContainingCell(end);
+
+        if (!isTableCell(start) || !isTableCell(end)) {
+            if (startTD == endTD) // not in cell, or both in same cell
+                return null;
+        }
+
+        if ((startTD == null) || (endTD == null))
+            return null;
+
+        var startTable = Tables_findContainingTable(startTD);
+        var endTable = Tables_findContainingTable(endTD);
+
+        if (startTable != endTable)
+            return null;
+
+        var structure = Tables_analyseStructure(startTable);
+        var startInfo = structure.cellsByElement.get(startTD);
+        var endInfo = structure.cellsByElement.get(endTD);
+
+        var topRow = (startInfo.row < endInfo.row) ? startInfo.row : endInfo.row;
+        var bottomRow = (startInfo.row > endInfo.row) ? startInfo.row : endInfo.row;
+        var leftCol = (startInfo.col < endInfo.col) ? startInfo.col : endInfo.col;
+        var rightCol = (startInfo.col > endInfo.col) ? startInfo.col : endInfo.col;
+        return new TableRegion(structure,topRow,bottomRow,leftCol,rightCol);
+    }
+
     Tables_insertTable = trace(insertTable);
     Tables_insertRowsAbove = trace(insertRowsAbove);
     Tables_insertRowsBelow = trace(insertRowsBelow);
@@ -250,5 +300,6 @@ var Tables_findContainingTable;
     Tables_analyseStructure = trace(analyseStructure);
     Tables_findContainingCell = trace(findContainingCell);
     Tables_findContainingTable = trace(findContainingTable);
+    Tables_getTableRegionFromRange = trace(getTableRegionFromRange);
 
 })();
