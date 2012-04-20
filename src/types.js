@@ -66,6 +66,7 @@ var Keys = {
     TABLE_NUMBER: "-uxwrite-table-number",
     SELECTION_HIGHLIGHT: "-uxwrite-selection-highlight",
     UXWRITE_PREFIX: "-uxwrite-",
+    NONE_STYLE: "__none",
 };
 
 var OPAQUE_NODE_CLASSES = {

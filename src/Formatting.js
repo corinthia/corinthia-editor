@@ -342,7 +342,7 @@ var Formatting_setStyleElement;
             if (!isWhitespaceTextNode(leafNodes[i])) {
                 var leafNodeProperties = getAllProperties(leafNodes[i]);
                 if (leafNodeProperties["uxwrite-style"] == null)
-                    leafNodeProperties["uxwrite-style"] = "__none";
+                    leafNodeProperties["uxwrite-style"] = Keys.NONE_STYLE;
                 if (commonProperties == null)
                     commonProperties = leafNodeProperties;
                 else
@@ -351,7 +351,7 @@ var Formatting_setStyleElement;
         }
 
         if (commonProperties == null)
-            commonProperties = {"uxwrite-style": "__none"};
+            commonProperties = {"uxwrite-style": Keys.NONE_STYLE};
 
         getFlags(range.start,commonProperties);
 
@@ -842,6 +842,9 @@ var Formatting_setStyleElement;
     {
         if (properties == null)
             properties = new Object();
+
+        if (style == Keys.NONE_STYLE)
+            style = null;
 
         var paragraphProperties = new Object();
         var inlineProperties = new Object();
