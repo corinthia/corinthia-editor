@@ -5,6 +5,7 @@ var Styles_styleAtIndex;
 var Styles_addDefaultRule;
 var Styles_addDefaultRuleCategory;
 var Styles_discoverStyles;
+var Styles_init;
 
 (function() {
 
@@ -300,10 +301,17 @@ var Styles_discoverStyles;
         Editor_setStyles(styleList);
     }
 
+    // public
+    function init()
+    {
+        Styles_discoverStyles();
+    }
+
     Styles_count = trace(count);
     Styles_styleAtIndex = trace(styleAtIndex);
     Styles_addDefaultRule = trace(addDefaultRule);
     Styles_addDefaultRuleCategory = trace(addDefaultRuleCategory);
     Styles_discoverStyles = trace(discoverStyles);
+    Styles_init = trace(init);
 
 })();

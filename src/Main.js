@@ -214,8 +214,8 @@ var Main_init;
             DOM_assignNodeIds(document);
             removeUnsupportedInput();
             addContentType();
-            Styles_discoverStyles();
             Outline_init();
+            Styles_init();
             Viewport_init();
             return true;
         }
