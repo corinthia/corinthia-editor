@@ -482,6 +482,7 @@ var Cursor_enterPressed;
             return;
 
         selectionRange.trackWhileExecuting(function() {
+            selectionRange.ensureRangeInlineNodesInParagraph();
             selectionRange.ensureRangeValidHierarchy();
             if (!selectionRange.isEmpty())
                 Selection_deleteSelectionContents();

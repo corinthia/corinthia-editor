@@ -95,7 +95,9 @@ var Formatting_setStyleElement;
         range.trackWhileExecuting(function() {
 
 //            range.omitEmptyTextSelection(); // FIXME: enable this again?
-            range.ensureRangeValidHierarchy(allowDirectInline);
+            if (!allowDirectInline)
+                range.ensureRangeInlineNodesInParagraph();
+            range.ensureRangeValidHierarchy();
 
             if ((range.start.node.nodeType == Node.TEXT_NODE) &&
                 (range.start.offset > 0)) {
@@ -880,7 +882,9 @@ var Formatting_setStyleElement;
         Position.trackWhileExecuting(positions,function() {
             splitAroundSelection(range,allowDirectInline);
             range.expand();
-            range.ensureRangeValidHierarchy(allowDirectInline);
+            if (!allowDirectInline)
+                range.ensureRangeInlineNodesInParagraph();
+            range.ensureRangeValidHierarchy();
             range.expand();
             var outermost = range.getOutermostNodes();
             var target = null;

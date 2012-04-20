@@ -160,17 +160,21 @@ var Range;
         return this.start.closestActualNode();
     }
 
+    function ensureRangeInlineNodesInParagraph()
+    {
+        var range = this;
+        this.trackWhileExecuting(function() {
+            var nodes = range.getAllNodes(true);
+            for (var i = 0; i < nodes.length; i++)
+                Hierarchy_ensureInlineNodesInParagraph(nodes[i]);
+        });
+    }
+
     function ensureRangeValidHierarchy(allowDirectInline)
     {
         var range = this;
         this.trackWhileExecuting(function() {
             var nodes = range.getAllNodes(true);
-
-            if (!allowDirectInline) {
-                for (var i = 0; i < nodes.length; i++)
-                    Hierarchy_ensureInlineNodesInParagraph(nodes[i]);
-            }
-
             for (var i = 0; i < nodes.length; i++)
                 Hierarchy_ensureValidHierarchy(nodes[i],true,allowDirectInline);
         });
@@ -481,6 +485,7 @@ var Range;
     Range.prototype.getInlineNodes = trace(getInlineNodes);
     Range.prototype.getAllNodes = trace(getAllNodes);
     Range.prototype.singleNode = trace(singleNode);
+    Range.prototype.ensureRangeInlineNodesInParagraph = trace(ensureRangeInlineNodesInParagraph);
     Range.prototype.ensureRangeValidHierarchy = trace(ensureRangeValidHierarchy);
     Range.prototype.forwards = trace(forwards);
     Range.prototype.detail = trace(detail);
