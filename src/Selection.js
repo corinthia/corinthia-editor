@@ -23,11 +23,7 @@ var Selection_trackWhileExecuting;
     var selectionDivs = new Array();
     var selectionRange = null;
 
-    var selectedTable = null;
-    var tableSelectionTopRow = null;
-    var tableSelectionBottomRow = null;
-    var tableSelectionLeftRow = null;
-    var tableSelectionRightRow = null;
+    var tableSelection = null;
 
     // public
     function getCursorRect()
@@ -119,83 +115,55 @@ var Selection_trackWhileExecuting;
         }
     }
 
+
     function updateTableSelection()
     {
-        if (selectionRange == null)
+        tableSelection = Tables_getTableRegionFromRange(selectionRange);
+        if (tableSelection == null)
             return false;
 
-        var start = selectionRange.start.closestActualNode(true);
-        var end = selectionRange.end.closestActualNode(true);
+        var sel = tableSelection;
 
-        var startCell = Tables_findContainingCell(start);
-        var endCell = Tables_findContainingCell(end);
+        var topLeftTD = sel.structure.get(sel.topRow,sel.leftCol);
+        var bottomRightTD = sel.structure.get(sel.bottomRow,sel.rightCol);
 
-        if (!isTableCell(start) || !isTableCell(end)) {
-            if (startCell == endCell) // not in cell, or both in same cell
-                return false;
-        }
+        var topLeftRect = topLeftTD.element.getBoundingClientRect();
+        var bottomRightRect = bottomRightTD.element.getBoundingClientRect();
 
-        if ((startCell == null) || (endCell == null)) {
-            // Want to select the whole table
-            return false; // FIXME
-        }
+        var left = topLeftRect.left;
+        var top = topLeftRect.top;
 
-        var startTable = Tables_findContainingTable(startCell);
-        var endTable = Tables_findContainingTable(endCell);
+        var bottom = bottomRightRect.bottom;
+        var right = bottomRightRect.right;
 
-        if (startTable != endTable) {
-            // Cells are in different tables; need to handle this specially
-            return false; // FIXME
-        }
-        else {
-            var startRect = startCell.getBoundingClientRect();
-            var endRect = endCell.getBoundingClientRect();
-            var left = (startRect.left < endRect.left) ? startRect.left : endRect.left;
-            var right = (startRect.right > endRect.right) ? startRect.right : endRect.right;
-            var top = (startRect.top < endRect.top) ? startRect.top : endRect.top;
-            var bottom = (startRect.bottom > endRect.bottom) ? startRect.bottom : endRect.bottom;
+        var x = left;
+        var y = top;
+        var width = right - left;
+        var height = bottom - top;
 
-            var x = left;
-            var y = top;
-            var width = right - left;
-            var height = bottom - top;
+        x += window.scrollX;
+        y += window.scrollY;
 
-            x += window.scrollX;
-            y += window.scrollY;
+        var div = DOM_createElement(document,"DIV");
+        div.setAttribute("class",Keys.SELECTION_HIGHLIGHT);
+        div.style.position = "absolute";
+        div.style.left = x+"px";
+        div.style.top = y+"px";
+        div.style.width = width+"px";
+        div.style.height = height+"px";
+        div.style.backgroundColor = "rgb(201,221,238)";
+        div.style.zIndex = -1;
+        DOM_appendChild(document.body,div);
+        selectionDivs.push(div);
 
-            var div = DOM_createElement(document,"DIV");
-            div.setAttribute("class",Keys.SELECTION_HIGHLIGHT);
-            div.style.position = "absolute";
-            div.style.left = x+"px";
-            div.style.top = y+"px";
-            div.style.width = width+"px";
-            div.style.height = height+"px";
-            div.style.backgroundColor = "rgb(201,221,238)";
-            div.style.zIndex = -1;
-            DOM_appendChild(document.body,div);
-            selectionDivs.push(div);
+        Editor_setTableSelection(x,y,width,height);
 
-            Editor_setTableSelection(x,y,width,height);
-
-            selectedTable = startTable;
-
-            var structure = Tables_analyseStructure(startTable);
-            var startInfo = structure.cellsByElement.get(startCell);
-            var endInfo = structure.cellsByElement.get(endCell);
-
-            tableSelectionTopRow = (startInfo.row < endInfo.row) ? startInfo.row : endInfo.row;
-            tableSelectionBottomRow = (startInfo.row > endInfo.row) ? startInfo.row : endInfo.row;
-            tableSelectionLeftCol = (startInfo.col < endInfo.col) ? startInfo.col : endInfo.col;
-            tableSelectionRightCol = (startInfo.col > endInfo.col) ? startInfo.col : endInfo.col;
-
-            return true;
-        }
+        return true;
     }
 
     // public
     function updateSelectionDisplay()
     {
-        selectedTable = null;
         for (var i = 0; i < selectionDivs.length; i++)
             DOM_deleteNode(selectionDivs[i]);
         selectionDivs = new Array();
@@ -519,26 +487,26 @@ var Selection_trackWhileExecuting;
     // public
     function setTableSelectionEdgeAtCoords(edge,x,y)
     {
-        if (selectedTable == null)
+        if (tableSelection == null)
             return;
 
-        var structure = Tables_analyseStructure(selectedTable);
+        var structure = tableSelection.structure;
         var pointInfo = findCellInTable(structure,x,y);
         if (pointInfo == null)
             return;
 
-        if ((edge == "top") && (pointInfo.row <= tableSelectionBottomRow))
-            tableSelectionTopRow = pointInfo.row;
-        else if ((edge == "bottom") && (pointInfo.row >= tableSelectionTopRow))
-            tableSelectionBottomRow = pointInfo.row;
-        else if ((edge == "left") && (pointInfo.col <= tableSelectionRightCol))
-            tableSelectionLeftCol = pointInfo.col;
-        else if ((edge == "right") && (pointInfo.col >= tableSelectionLeftCol))
-            tableSelectionRightCol = pointInfo.col;
+        if ((edge == "top") && (pointInfo.row <= tableSelection.bottomRow))
+            tableSelection.topRow = pointInfo.row;
+        else if ((edge == "bottom") && (pointInfo.row >= tableSelection.topRow))
+            tableSelection.bottomRow = pointInfo.row;
+        else if ((edge == "left") && (pointInfo.col <= tableSelection.rightCol))
+            tableSelection.leftCol = pointInfo.col;
+        else if ((edge == "right") && (pointInfo.col >= tableSelection.leftCol))
+            tableSelection.rightCol = pointInfo.col;
 
         // FIXME: handle the case where there is no cell at the specified row and column
-        var topLeftCell = structure.get(tableSelectionTopRow,tableSelectionLeftCol);
-        var bottomRightCell = structure.get(tableSelectionBottomRow,tableSelectionRightCol);
+        var topLeftCell = structure.get(tableSelection.topRow,tableSelection.leftCol);
+        var bottomRightCell = structure.get(tableSelection.bottomRow,tableSelection.rightCol);
 
         var topLeftNode = topLeftCell.element.parentNode;
         var topLeftOffset = DOM_nodeOffset(topLeftCell.element);
