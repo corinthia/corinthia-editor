@@ -70,43 +70,42 @@ var Hierarchy_wrapInlineNodesInParagraph;
     // public
     function ensureValidHierarchy(node,recursive,allowDirectInline)
     {
-        if ((node == null) || (node.parentNode == null) || (node == document.body))
-            return;
+        while ((node != null) && (node.parentNode != null) && (node != document.body)) {
 
-        if (isContainerNode(node) || isParagraphNode(node)) {
-            var invalidNesting = !isContainerNode(node.parentNode);
-            if (isParagraphNode(node) && (DOM_upperName(node.parentNode) == "DIV"))
-                invalidNesting = false; // this case is ok
-            if (invalidNesting) {
-                DOM_removeAdjacentWhitespace(node);
+            if (isContainerNode(node) || isParagraphNode(node)) {
+                var invalidNesting = !isContainerNode(node.parentNode);
+                if (isParagraphNode(node) && (DOM_upperName(node.parentNode) == "DIV"))
+                    invalidNesting = false; // this case is ok
+                if (invalidNesting) {
+                    DOM_removeAdjacentWhitespace(node);
 
-                var offset = DOM_nodeOffset(node);
-                Formatting_moveFollowing(node.parentNode,offset+1,isContainerNode);
-                Formatting_movePreceding(node.parentNode,offset,isContainerNode);
+                    var offset = DOM_nodeOffset(node);
+                    Formatting_moveFollowing(node.parentNode,offset+1,isContainerNode);
+                    Formatting_movePreceding(node.parentNode,offset,isContainerNode);
 
-                var ancestors = new Array();
-                var child = node;
-                while (!isContainerNode(child.parentNode)) {
-                    if (isInlineNode(child.parentNode))
-                        ancestors.push(child.parentNode);
-                    child = child.parentNode;
+                    var ancestors = new Array();
+                    var child = node;
+                    while (!isContainerNode(child.parentNode)) {
+                        if (isInlineNode(child.parentNode))
+                            ancestors.push(child.parentNode);
+                        child = child.parentNode;
+                    }
+                    DOM_insertBefore(child.parentNode,node,child);
+                    DOM_deleteNode(child);
+
+                    wrapInlineChildrenInAncestors(node,ancestors);
                 }
-                DOM_insertBefore(child.parentNode,node,child);
-                DOM_deleteNode(child);
-
-                wrapInlineChildrenInAncestors(node,ancestors);
             }
-        }
-        else { // inline node
-            if (!allowDirectInline &&
-                isContainerNode(node.parentNode) && !isListItemNode(node.parentNode) &&
-                !isWhitespaceTextNode(node)) {
-                wrapInlineNodesInParagraph(node);
+            else { // inline node
+                if (!allowDirectInline &&
+                    isContainerNode(node.parentNode) && !isListItemNode(node.parentNode) &&
+                    !isWhitespaceTextNode(node)) {
+                    wrapInlineNodesInParagraph(node);
+                }
             }
-        }
 
-        if (recursive)
-            ensureValidHierarchy(node.parentNode,true,allowDirectInline);
+            node = node.parentNode;
+        }
     }
 
     // public
