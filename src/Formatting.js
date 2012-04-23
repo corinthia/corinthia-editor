@@ -11,7 +11,6 @@ var Formatting_paragraphTextUpToPosition;
 var Formatting_getFormatting;
 var Formatting_pushDownInlineProperties;
 var Formatting_applyFormattingChanges;
-var Formatting_setStyleElement;
 
 (function() {
 
@@ -960,30 +959,6 @@ var Formatting_setStyleElement;
         Selection_setSelectionRange(new Range(start.node,start.offset,end.node,end.offset));
     }
 
-    // public
-    function setStyleElement(cssText)
-    {
-        // Get the head element, or create it if it doesn't already exist
-        var head = DOM_documentHead(document);
-
-        // Remove all existing style elements
-        var removed = 0;
-        var next;
-        for (var child = head.firstChild; child; child = next) {
-            var next = child.nextSibling;
-            if (DOM_upperName(child) == "STYLE") {
-                DOM_deleteNode(child);
-                removed++;
-            }
-        }
-
-        // Add the new style element
-        var style = DOM_createElement(document,"STYLE");
-        style.setAttribute("type","text/css");
-        DOM_appendChild(style,DOM_createTextNode(document,cssText));
-        DOM_appendChild(head,style);
-    }
-
     Formatting_splitTextBefore = trace(splitTextBefore);
     Formatting_splitTextAfter = trace(splitTextAfter);
     Formatting_movePreceding = trace(movePreceding);
@@ -995,7 +970,6 @@ var Formatting_setStyleElement;
     Formatting_getFormatting = trace(getFormatting);
     Formatting_pushDownInlineProperties = trace(pushDownInlineProperties);
     Formatting_applyFormattingChanges = trace(applyFormattingChanges);
-    Formatting_setStyleElement = trace(setStyleElement);
 
     Formatting_MERGEABLE_INLINE = {
         "SPAN": true,
