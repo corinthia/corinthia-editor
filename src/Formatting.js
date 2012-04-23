@@ -407,6 +407,8 @@ var Formatting_applyFormattingChanges;
         var properties = getAllProperties(node.parentNode);
 
         if (node.nodeType == Node.ELEMENT_NODE) {
+            // Note: Style names corresponding to element names must be in lowercase, because
+            // canonicaliseSelector() in Styles.js always converts selectors to lowercase.
             if (node.hasAttribute("STYLE")) {
                 var nodeProperties = getStyleProperties(node);
                 for (var name in nodeProperties)
@@ -430,28 +432,28 @@ var Formatting_applyFormattingChanges;
                 }
             }
             else if (DOM_upperName(node) == "H1") {
-                properties["uxwrite-style"] = "H1";
+                properties["uxwrite-style"] = "h1";
             }
             else if (DOM_upperName(node) == "H2") {
-                properties["uxwrite-style"] = "H2";
+                properties["uxwrite-style"] = "h2";
             }
             else if (DOM_upperName(node) == "H3") {
-                properties["uxwrite-style"] = "H3";
+                properties["uxwrite-style"] = "h3";
             }
             else if (DOM_upperName(node) == "H4") {
-                properties["uxwrite-style"] = "H4";
+                properties["uxwrite-style"] = "h4";
             }
             else if (DOM_upperName(node) == "H5") {
-                properties["uxwrite-style"] = "H5";
+                properties["uxwrite-style"] = "h5";
             }
             else if (DOM_upperName(node) == "H6") {
-                properties["uxwrite-style"] = "H6";
+                properties["uxwrite-style"] = "h6";
             }
             else if (DOM_upperName(node) == "PRE") {
-                properties["uxwrite-style"] = "PRE";
+                properties["uxwrite-style"] = "pre";
             }
             else if (DOM_upperName(node) == "BLOCKQUOTE") {
-                properties["uxwrite-style"] = "BLOCKQUOTE";
+                properties["uxwrite-style"] = "blockquote";
             }
             else if (DOM_upperName(node) == "IMG") {
                 properties["uxwrite-in-image"] = "true";
@@ -470,7 +472,7 @@ var Formatting_applyFormattingChanges;
                 if (node.hasAttribute("class"))
                     properties["uxwrite-style"] = "."+node.getAttribute("class");
                 else
-                    properties["uxwrite-style"] = "P";
+                    properties["uxwrite-style"] = "p";
             }
         }
 
