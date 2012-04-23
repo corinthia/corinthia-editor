@@ -38,6 +38,7 @@ var Styles_init;
         this.styleId = styleId;
         this.displayName = displayName;
         this.rules = rules;
+        this.type = null;
     }
 
     function Rule(selector,properties)
