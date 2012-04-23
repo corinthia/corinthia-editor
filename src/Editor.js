@@ -6,7 +6,6 @@ var Editor_addOutlineItem;
 var Editor_updateOutlineItem;
 var Editor_removeOutlineItem;
 var Editor_setOutline;
-var Editor_setStyles;
 var Editor_setCursor;
 var Editor_setSelectionHandles;
 var Editor_clearSelectionHandlesAndCursor;
@@ -53,11 +52,6 @@ var Editor_reportJSError;
     Editor_setOutline = function(outline)
     {
         addBackMessage("setOutline",outline);
-    };
-    
-    Editor_setStyles = function(styles)
-    {
-        addBackMessage("setStyles",styles);
     };
     
     Editor_setCursor = function(x,y,width,height)

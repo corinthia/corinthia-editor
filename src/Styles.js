@@ -1,7 +1,7 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
-var Styles_count;
-var Styles_styleAtIndex;
+var Styles_getAllStyles;
+var Styles_updateStyle;
 var Styles_addDefaultRule;
 var Styles_addDefaultRuleCategory;
 var Styles_discoverStyles;
@@ -9,7 +9,14 @@ var Styles_init;
 
 (function() {
 
-    function JSRule(selector,properties)
+    function Style(styleId,displayName,rules)
+    {
+        this.styleId = styleId;
+        this.displayName = displayName;
+        this.rules = rules;
+    }
+
+    function Rule(selector,properties)
     {
         this.selector = selector;
         this.properties = properties;
@@ -235,15 +242,15 @@ var Styles_init;
     }
 
     // public
-    function count()
+    function getAllStyles()
     {
-        return styleList.length;
+        debug("getAllStyles: returning "+JSON.stringify(styleList));
+        return styleList;
     }
 
     // public
-    function styleAtIndex(index)
+    function updateStyle(style)
     {
-        return styleList[i];
     }
 
     // public
@@ -252,7 +259,7 @@ var Styles_init;
         selector = canonicaliseSelector(selector);
 
         if (jsRulesBySelector[selector] == null)
-            jsRulesBySelector[selector] = new JSRule(selector,{});
+            jsRulesBySelector[selector] = new Rule(selector,{});
 
         var rule = jsRulesBySelector[selector];
 
@@ -295,13 +302,15 @@ var Styles_init;
                         properties[rule.style[k]] = rule.style.getPropertyValue(rule.style[k]);
 
                     var selector = canonicaliseSelector(rule.selectorText);
-                    var jsRule = new JSRule(selector,properties);
-                    styleList.push(jsRule);
+                    var jsRule = new Rule(selector,properties);
+
+                    var jsStyle = new Style(selector,selector,{base: jsRule});
+
+                    styleList.push(jsStyle);
                     jsRulesBySelector[selector] = jsRule;
                 }
             }
         }
-        Editor_setStyles(styleList);
     }
 
     // public
@@ -310,8 +319,8 @@ var Styles_init;
         Styles_discoverStyles();
     }
 
-    Styles_count = trace(count);
-    Styles_styleAtIndex = trace(styleAtIndex);
+    Styles_getAllStyles = trace(getAllStyles);
+    Styles_updateStyle = trace(updateStyle);
     Styles_addDefaultRule = trace(addDefaultRule);
     Styles_addDefaultRuleCategory = trace(addDefaultRuleCategory);
     Styles_discoverStyles = trace(discoverStyles);
