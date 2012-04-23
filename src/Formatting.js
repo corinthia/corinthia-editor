@@ -503,6 +503,11 @@ var Formatting_applyFormattingChanges;
         "border-top-color": true,
         "border-bottom-color": true,
 
+        "border-top-left-radius": true,
+        "border-top-right-radius": true,
+        "border-bottom-left-radius": true,
+        "border-bottom-right-radius": true,
+
         "text-align": true,
         "line-height": true,
         "display": true,
