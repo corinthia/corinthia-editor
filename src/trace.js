@@ -7,10 +7,7 @@
         try {
             if (typeof(arg) == "object") {
                 var str = arg.toString();
-                if (str == "[object Object]")
-                    return "[object "+arg.constructor.name+"]";
-                else
-                    return str;
+                return "[object "+arg.constructor.name+"]";
             }
             else if (typeof(arg) == "string") {
                 return JSON.stringify(arg);
