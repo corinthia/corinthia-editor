@@ -9,6 +9,30 @@ var Styles_init;
 
 (function() {
 
+    // FIXME: We should have a separate HTML style element for each style, so we only have to
+    // update that one style each time we make a change. We should measure the performance benefit
+    // of doing so first. If we use multiple style elements, we should consolidate them before
+    // saving the file.
+
+    var HTML_DISPLAY_NAMES = {
+        "BODY": "Document defaults",
+        "TABLE": "Table",
+        "CAPTION": "Table caption",
+        "FIGURE": "Figure",
+        "FIGCAPTION": "Figure caption",
+        "UL": "Bulleted list",
+        "OL": "Numbered list",
+        "P": "Normal paragraph",
+        "H1": "Heading 1",
+        "H2": "Heading 2",
+        "H3": "Heading 3",
+        "H4": "Heading 4",
+        "H5": "Heading 5",
+        "H6": "Heading 6",
+        "PRE": "Preformatted text",
+        "BLOCKQUOTE": "Block quote"
+    };
+
     function Style(styleId,displayName,rules)
     {
         this.styleId = styleId;
@@ -20,10 +44,12 @@ var Styles_init;
     {
         this.selector = selector;
         this.properties = properties;
+        this.nilTextIfEmpty = false;
     }
 
     var styleList = null;
-    var jsRulesBySelector = null;
+    var stylesById = null;
+    var rulesBySelector = null;
     var documentStyleElement = null;
     var cssTextDirty = false;
 
@@ -194,22 +220,17 @@ var Styles_init;
             var styleElement = getOrCreateStyleElement();
             var cssTextArray = new Array();
 
-            var selectors = Object.getOwnPropertyNames(jsRulesBySelector).sort();
+            var selectors = Object.getOwnPropertyNames(rulesBySelector).sort();
             for (var i = 0; i < selectors.length; i++) {
-                var rule = jsRulesBySelector[selectors[i]];
-                cssTextArray.push(selectors[i]+" {\n");
-                cssTextArray.push(propertyListText(rule.properties));
-                cssTextArray.push("}\n");
+                var rule = rulesBySelector[selectors[i]];
+                var text = propertyListText(rule.properties);
+                if ((text != "") || !rule.nilTextIfEmpty)
+                    cssTextArray.push(rule.selector+" {\n"+text+"}\n");
             }
             var allCSSText = cssTextArray.join("");
 
             DOM_deleteAllChildren(styleElement);
             DOM_appendChild(styleElement,DOM_createTextNode(document,allCSSText));
-
-            // Changing the text content of the style element causes WebKit to re-parse the
-            // stylesheet and create new CSSRule objects. So we have to rebuild our cache
-            // with the new objects.
-            Styles_discoverStyles();
         }
     }
 
@@ -221,6 +242,7 @@ var Styles_init;
 
     function canonicaliseSelector(selector)
     {
+        // FIXME: are class names case sensitive?
         return selector.toLowerCase().replace(/\s+/g," ");
     }
 
@@ -244,7 +266,6 @@ var Styles_init;
     // public
     function getAllStyles()
     {
-        debug("getAllStyles: returning "+JSON.stringify(styleList));
         return styleList;
     }
 
@@ -258,10 +279,10 @@ var Styles_init;
     {
         selector = canonicaliseSelector(selector);
 
-        if (jsRulesBySelector[selector] == null)
-            jsRulesBySelector[selector] = new Rule(selector,{});
+        if (rulesBySelector[selector] == null)
+            rulesBySelector[selector] = new Rule(selector,{});
 
-        var rule = jsRulesBySelector[selector];
+        var rule = rulesBySelector[selector];
 
         for (name in defaultProperties) {
             if (rule.properties[name] == null)
@@ -283,11 +304,32 @@ var Styles_init;
         }
     }
 
+    function addStyleFromCSS(selector,properties)
+    {
+        selector = canonicaliseSelector(selector);
+        var displayName = displayNameForSelector(selector);
+        var rule = new Rule(selector,properties);
+        var style = new Style(selector,displayName,{base: rule});
+        styleList.push(style);
+        stylesById[selector] = style;
+        rulesBySelector[selector] = rule;
+        return style;
+    }
+
+    function addStyleIfNotPresent(selector)
+    {
+        if (stylesById[selector] == null) {
+            var style = addStyleFromCSS(selector,{});
+            style.rules.base.nilTextIfEmpty = true;
+        }
+    }
+
     // public
     function discoverStyles()
     {
         styleList = new Array();
-        jsRulesBySelector = new Object();
+        stylesById = new Object();
+        rulesBySelector = new Object();
 
         for (var i = 0; i < document.styleSheets.length; i++) {
             var sheet = document.styleSheets[i];
@@ -301,22 +343,46 @@ var Styles_init;
                     for (k = 0; k < rule.style.length; k++)
                         properties[rule.style[k]] = rule.style.getPropertyValue(rule.style[k]);
 
-                    var selector = canonicaliseSelector(rule.selectorText);
-                    var jsRule = new Rule(selector,properties);
-
-                    var jsStyle = new Style(selector,selector,{base: jsRule});
-
-                    styleList.push(jsStyle);
-                    jsRulesBySelector[selector] = jsRule;
+                    addStyleFromCSS(rule.selectorText,properties);
                 }
             }
         }
+    }
+
+    function displayNameForSelector(selector)
+    {
+        selector = selector.replace(/_/g," ");
+        var uppercaseSelector = selector.toUpperCase();
+        var name = HTML_DISPLAY_NAMES[uppercaseSelector];
+        if (name != null)
+            return name;
+        else if ((selector.length > 0) && (selector.charAt(0) == "."))
+            return selector.substring(1);
+        else
+            return selector;
     }
 
     // public
     function init()
     {
         Styles_discoverStyles();
+
+        addStyleIfNotPresent("BODY");
+        addStyleIfNotPresent("UL");
+        addStyleIfNotPresent("OL");
+        addStyleIfNotPresent("P");
+        addStyleIfNotPresent("H1");
+        addStyleIfNotPresent("H2");
+        addStyleIfNotPresent("H3");
+        addStyleIfNotPresent("H4");
+        addStyleIfNotPresent("H5");
+        addStyleIfNotPresent("H6");
+        addStyleIfNotPresent("PRE");
+        addStyleIfNotPresent("BLOCKQUOTE");
+        addStyleIfNotPresent("TABLE");
+        addStyleIfNotPresent("CAPTION");
+        addStyleIfNotPresent("FIGURE");
+        addStyleIfNotPresent("FIGCAPTION");
     }
 
     Styles_getAllStyles = trace(getAllStyles);
