@@ -30,8 +30,7 @@ var Styles_init;
         "H5": "Heading 5",
         "H6": "Heading 6",
         "PRE": "Preformatted text",
-        "BLOCKQUOTE": "Block quote",
-        "MORE": "More...",
+        "BLOCKQUOTE": "Block quote"
     };
 
     function Style(styleId,displayName,rules)
@@ -367,29 +366,24 @@ var Styles_init;
     // public
     function init()
     {
-        styleList = new Array();
-        stylesById = new Object();
-        rulesBySelector = new Object();
+        Styles_discoverStyles();
 
-//        Styles_discoverStyles();
-
-//        addStyleIfNotPresent("BODY");
-//        addStyleIfNotPresent("UL");
-//        addStyleIfNotPresent("OL");
+        addStyleIfNotPresent("BODY");
+        addStyleIfNotPresent("UL");
+        addStyleIfNotPresent("OL");
         addStyleIfNotPresent("P");
         addStyleIfNotPresent("H1");
         addStyleIfNotPresent("H2");
         addStyleIfNotPresent("H3");
-//        addStyleIfNotPresent("H4");
-//        addStyleIfNotPresent("H5");
-//        addStyleIfNotPresent("H6");
-//        addStyleIfNotPresent("PRE");
+        addStyleIfNotPresent("H4");
+        addStyleIfNotPresent("H5");
+        addStyleIfNotPresent("H6");
+        addStyleIfNotPresent("PRE");
         addStyleIfNotPresent("BLOCKQUOTE");
-        addStyleIfNotPresent("MORE");
-//        addStyleIfNotPresent("TABLE");
-//        addStyleIfNotPresent("CAPTION");
-//        addStyleIfNotPresent("FIGURE");
-//        addStyleIfNotPresent("FIGCAPTION");
+        addStyleIfNotPresent("TABLE");
+        addStyleIfNotPresent("CAPTION");
+        addStyleIfNotPresent("FIGURE");
+        addStyleIfNotPresent("FIGCAPTION");
     }
 
     Styles_getAllStyles = trace(getAllStyles);
