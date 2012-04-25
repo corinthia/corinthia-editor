@@ -367,8 +367,6 @@ var Styles_init;
         Styles_discoverStyles();
 
         addStyleIfNotPresent("BODY");
-        addStyleIfNotPresent("UL");
-        addStyleIfNotPresent("OL");
         addStyleIfNotPresent("P");
         addStyleIfNotPresent("H1");
         addStyleIfNotPresent("H2");
