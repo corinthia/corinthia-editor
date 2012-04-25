@@ -20,8 +20,6 @@ var Styles_init;
         "CAPTION": "Table caption",
         "FIGURE": "Figure",
         "FIGCAPTION": "Figure caption",
-        "UL": "Bulleted list",
-        "OL": "Numbered list",
         "P": "Normal paragraph",
         "H1": "Heading 1",
         "H2": "Heading 2",
