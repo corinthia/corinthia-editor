@@ -47,7 +47,6 @@ var Styles_init;
     }
 
     var stylesById = null;
-    var rulesBySelector = null;
     var documentStyleElement = null;
     var cssTextDirty = false;
 
@@ -218,12 +217,16 @@ var Styles_init;
             var styleElement = getOrCreateStyleElement();
             var cssTextArray = new Array();
 
-            var selectors = Object.getOwnPropertyNames(rulesBySelector).sort();
-            for (var i = 0; i < selectors.length; i++) {
-                var rule = rulesBySelector[selectors[i]];
-                var text = propertyListText(rule.properties);
-                if ((text != "") || !rule.nilTextIfEmpty)
-                    cssTextArray.push(rule.selector+" {\n"+text+"}\n");
+            var styleIds = Object.getOwnPropertyNames(stylesById).sort();
+            for (var styleIndex = 0; styleIndex < styleIds.length; styleIndex++) {
+                var style = stylesById[styleIds[styleIndex]];
+                var ruleIds = Object.getOwnPropertyNames(style.rules).sort();
+                for (var ruleIndex = 0; ruleIndex < ruleIds.length; ruleIndex++) {
+                    var rule = style.rules[ruleIds[ruleIndex]];
+                    var text = propertyListText(rule.properties);
+                    if ((text != "") || !rule.nilTextIfEmpty)
+                        cssTextArray.push(rule.selector+" {\n"+text+"}\n");
+                }
             }
             var allCSSText = cssTextArray.join("");
 
@@ -281,12 +284,8 @@ var Styles_init;
     // public
     function addDefaultRule(selector,defaultProperties)
     {
-        selector = canonicaliseSelector(selector);
-
-        if (rulesBySelector[selector] == null)
-            rulesBySelector[selector] = new Rule(selector,{});
-
-        var rule = rulesBySelector[selector];
+        var style = getOrCreateStyle(selector);
+        var rule = style.rules.base;
 
         for (name in defaultProperties) {
             if (rule.properties[name] == null)
@@ -308,6 +307,16 @@ var Styles_init;
         }
     }
 
+    function getOrCreateStyle(selector)
+    {
+        selector = canonicaliseSelector(selector);
+        var style = stylesById[selector];
+        if (style != null)
+            return style;
+        else
+            return addStyleFromCSS(selector,{});
+    }
+
     function addStyleFromCSS(selector,properties)
     {
         selector = canonicaliseSelector(selector);
@@ -315,26 +324,19 @@ var Styles_init;
         var rule = new Rule(selector,properties);
         var style = new Style(selector,displayName,{base: rule});
         stylesById[selector] = style;
-        rulesBySelector[selector] = rule;
         return style;
     }
 
-    function addStyleIfNotPresent(selector)
+    function defaultStyle(selector)
     {
-        selector = canonicaliseSelector(selector);
-        debug("addStyleIfNotPresent "+selector+": exists = "+
-              (stylesById[selector] != null));
-        if (stylesById[selector] == null) {
-            var style = addStyleFromCSS(selector,{});
-            style.rules.base.nilTextIfEmpty = true;
-        }
+        var style = getOrCreateStyle(selector);
+        style.rules.base.nilTextIfEmpty = true;
     }
 
     // public
     function discoverStyles()
     {
         stylesById = new Object();
-        rulesBySelector = new Object();
 
         for (var i = 0; i < document.styleSheets.length; i++) {
             var sheet = document.styleSheets[i];
@@ -372,20 +374,20 @@ var Styles_init;
     {
         Styles_discoverStyles();
 
-        addStyleIfNotPresent("BODY");
-        addStyleIfNotPresent("P");
-        addStyleIfNotPresent("H1");
-        addStyleIfNotPresent("H2");
-        addStyleIfNotPresent("H3");
-        addStyleIfNotPresent("H4");
-        addStyleIfNotPresent("H5");
-        addStyleIfNotPresent("H6");
-        addStyleIfNotPresent("PRE");
-        addStyleIfNotPresent("BLOCKQUOTE");
-        addStyleIfNotPresent("TABLE");
-        addStyleIfNotPresent("CAPTION");
-        addStyleIfNotPresent("FIGURE");
-        addStyleIfNotPresent("FIGCAPTION");
+        defaultStyle("BODY");
+        defaultStyle("P");
+        defaultStyle("H1");
+        defaultStyle("H2");
+        defaultStyle("H3");
+        defaultStyle("H4");
+        defaultStyle("H5");
+        defaultStyle("H6");
+        defaultStyle("PRE");
+        defaultStyle("BLOCKQUOTE");
+        defaultStyle("TABLE");
+        defaultStyle("CAPTION");
+        defaultStyle("FIGURE");
+        defaultStyle("FIGCAPTION");
     }
 
     Styles_getAllStyles = trace(getAllStyles);
