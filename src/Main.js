@@ -199,7 +199,7 @@ var Main_init;
             return res;
         }
         catch (e) {
-            Editor_reportJSError(e);
+            Editor_error(e);
         }
     }
 

@@ -10,7 +10,7 @@ var Editor_setCursor;
 var Editor_setSelectionHandles;
 var Editor_clearSelectionHandlesAndCursor;
 var Editor_setSelectionBounds;
-var Editor_reportJSError;
+var Editor_error;
 var debug;
 
 (function(){
@@ -35,9 +35,9 @@ var debug;
         addBackMessage("debug",str);
     };
 
-    Editor_reportJSError = function(error)
+    Editor_error = function(error)
     {
-        addBackMessage("reportJSError",error.toString());
+        addBackMessage("error",error.toString());
     };    
 
     Editor_addOutlineItem = function(itemId,type)
