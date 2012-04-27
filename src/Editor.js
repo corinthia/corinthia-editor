@@ -11,6 +11,7 @@ var Editor_setSelectionHandles;
 var Editor_clearSelectionHandlesAndCursor;
 var Editor_setSelectionBounds;
 var Editor_reportJSError;
+var debug;
 
 (function(){
 
@@ -84,8 +85,6 @@ var Editor_reportJSError;
         addBackMessage("reportJSError",error.toString());
     };    
 
-    window.debug = function(str)
-    {
-        Editor_debug(str);
-    };
+    debug = Editor_debug;
+
 })();

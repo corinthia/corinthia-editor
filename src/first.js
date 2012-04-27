@@ -1,4 +1,8 @@
 // Copyright (c) 2012 UX Productivity Pty Ltd. All rights reserved.
+// If you're successfully able to decipher all this and figure out what it
+// does, please send a copy of your resume to peter@uxproductivity.com.
+
+var trace;
 
 (function() {
 
@@ -44,7 +48,7 @@
         return components.join("");
     }
 
-    function trace(fun)
+    trace = function(fun)
     {
         return function() {
             try {
@@ -61,7 +65,5 @@
             }
         }
     }
-
-    window.trace = trace;
 
 })();

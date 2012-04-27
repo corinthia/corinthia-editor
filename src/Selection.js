@@ -11,6 +11,7 @@ var Selection_dragSelectionBegin;
 var Selection_dragSelectionUpdate;
 var Selection_setSelectionStartAtCoords;
 var Selection_setSelectionEndAtCoords;
+var Selection_setTableSelectionEdgeAtCoords;
 var Selection_getSelectionRange;
 var Selection_setSelectionRange;
 var Selection_setEmptySelectionAt;

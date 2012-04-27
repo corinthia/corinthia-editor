@@ -22,11 +22,11 @@ function readFile(filename)
 function loadCode()
 {
     // Sync with Editor.m
-    var javascriptFiles = ["../src/trace.js", // must be first
-                           "../src/Editor.js", // must be second
+    var javascriptFiles = ["../src/first.js", // must be first
                            "../src/Clipboard.js",
                            "../src/Cursor.js",
                            "../src/DOM.js",
+                           "../src/Editor.js",
                            "../src/Equations.js",
                            "../src/Figures.js",
                            "../src/Formatting.js",
@@ -39,7 +39,7 @@ function loadCode()
                            "../src/PostponedActions.js",
                            "../src/Range.js",
                            "../src/Selection.js",
-                           "../src/showdown.js",
+                           "../src/3rdparty/showdown/showdown.js",
                            "../src/StringBuilder.js",
                            "../src/Styles.js",
                            "../src/Tables.js",
