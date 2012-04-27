@@ -46,7 +46,6 @@ var Styles_init;
         this.nilTextIfEmpty = false;
     }
 
-    var styleList = null;
     var stylesById = null;
     var rulesBySelector = null;
     var documentStyleElement = null;
@@ -265,11 +264,17 @@ var Styles_init;
     // public
     function getAllStyles()
     {
-        return styleList;
+        return stylesById;
     }
 
     // public
     function updateStyle(style)
+    {
+        debug("js: updateStyle: "+JSON.stringify(style));
+    }
+
+    // public
+    function setAllStyles(styles)
     {
     }
 
@@ -309,7 +314,6 @@ var Styles_init;
         var displayName = displayNameForSelector(selector);
         var rule = new Rule(selector,properties);
         var style = new Style(selector,displayName,{base: rule});
-        styleList.push(style);
         stylesById[selector] = style;
         rulesBySelector[selector] = rule;
         return style;
@@ -317,6 +321,9 @@ var Styles_init;
 
     function addStyleIfNotPresent(selector)
     {
+        selector = canonicaliseSelector(selector);
+        debug("addStyleIfNotPresent "+selector+": exists = "+
+              (stylesById[selector] != null));
         if (stylesById[selector] == null) {
             var style = addStyleFromCSS(selector,{});
             style.rules.base.nilTextIfEmpty = true;
@@ -326,7 +333,6 @@ var Styles_init;
     // public
     function discoverStyles()
     {
-        styleList = new Array();
         stylesById = new Object();
         rulesBySelector = new Object();
 
