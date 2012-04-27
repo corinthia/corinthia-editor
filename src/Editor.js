@@ -35,6 +35,11 @@ var debug;
         addBackMessage("debug",str);
     };
 
+    Editor_reportJSError = function(error)
+    {
+        addBackMessage("reportJSError",error.toString());
+    };    
+
     Editor_addOutlineItem = function(itemId,type)
     {
         addBackMessage("addOutlineItem",itemId,type);
@@ -70,20 +75,15 @@ var debug;
         addBackMessage("setTableSelection",x,y,width,height);
     };
     
-    Editor_clearSelectionHandlesAndCursor = function()
-    {
-        addBackMessage("clearSelectionHandlesAndCursor");
-    };
-
     Editor_setSelectionBounds = function(left,top,right,bottom)
     {
         addBackMessage("setSelectionBounds",left,top,right,bottom);
     };
-    
-    Editor_reportJSError = function(error)
+
+    Editor_clearSelectionHandlesAndCursor = function()
     {
-        addBackMessage("reportJSError",error.toString());
-    };    
+        addBackMessage("clearSelectionHandlesAndCursor");
+    };
 
     debug = Editor_debug;
 
