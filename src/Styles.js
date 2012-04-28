@@ -1,7 +1,8 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
 var Styles_getAllStyles;
-var Styles_updateStyle;
+var Styles_setStyle;
+var Styles_setStyleSheet;
 var Styles_addDefaultRule;
 var Styles_addDefaultRuleCategory;
 var Styles_discoverStyles;
@@ -271,14 +272,18 @@ var Styles_init;
     }
 
     // public
-    function updateStyle(style)
+    function setStyle(style)
     {
-        debug("js: updateStyle: "+JSON.stringify(style));
+        debug("js: setStyle: "+JSON.stringify(style));
+        stylesById[style.styleId] = style;
+        scheduleApplyCSSTextChanges();
     }
 
     // public
-    function setAllStyles(styles)
+    function setStyleSheet(styles)
     {
+        stylesById = styles;
+        scheduleApplyCSSTextChanges();
     }
 
     // public
@@ -330,6 +335,10 @@ var Styles_init;
     function defaultStyle(selector)
     {
         var style = getOrCreateStyle(selector);
+        var disp = HTML_DISPLAY_NAMES[selector.toUpperCase()];
+        debug("defaultStyle("+selector+"): disp = "+disp);
+        if (disp != null)
+            style.displayName = disp;
         style.rules.base.nilTextIfEmpty = true;
     }
 
@@ -391,7 +400,8 @@ var Styles_init;
     }
 
     Styles_getAllStyles = trace(getAllStyles);
-    Styles_updateStyle = trace(updateStyle);
+    Styles_setStyle = trace(setStyle);
+    Styles_setStyleSheet = trace(setStyleSheet);
     Styles_addDefaultRule = trace(addDefaultRule);
     Styles_addDefaultRuleCategory = trace(addDefaultRuleCategory);
     Styles_discoverStyles = trace(discoverStyles);

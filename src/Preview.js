@@ -62,8 +62,33 @@ var Preview_showForStyle;
 
     function showForStyle(styleId)
     {
+        var displayName = styleId;
+        var style = Styles_getAllStyles()[styleId];
+        debug("showForStyle: styleId = "+styleId+", style = "+style);
+        if (style != null)
+            displayName = style.displayName;
+
+        var titleText = "Preview of style "+displayName;
+
+        // We use BR here instead of separate paragraphs, for the case in which we are displaying
+        // the BODY ("Document defaults style"), in which we don't want style properties set for
+        // the P element to be displayed.
         DOM_deleteAllChildren(document.body);
-        DOM_appendChild(document.body,DOM_createTextNode(document,previewText));
+        var title = DOM_createTextNode(document,titleText);
+        var text = DOM_createTextNode(document,previewText);
+        DOM_appendChild(document.body,title);
+        DOM_appendChild(document.body,DOM_createElement(document,"BR"));
+        DOM_appendChild(document.body,DOM_createElement(document,"BR"));
+        DOM_appendChild(document.body,text);
+
+        if (PARAGRAPH_ELEMENTS[styleId.toUpperCase()]) {
+            Selection_selectAll();
+            Formatting_applyFormattingChanges(styleId,null);
+            Selection_setSelectionRange(null);
+        }
+        else {
+            // FIXME
+        }
     }
 
     Preview_showForStyle = trace(showForStyle);
