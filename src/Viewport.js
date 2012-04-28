@@ -29,7 +29,6 @@ var Viewport_setTextScale;
             DOM_appendChild(head,viewportMetaElement);
         }
         viewportMetaElement.setAttribute("content","width = device-width, user-scalable = no");
-        debug("Viewport_init(): viewportMetaElement = "+nodeString(viewportMetaElement));
     }
 
     // public

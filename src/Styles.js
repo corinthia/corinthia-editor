@@ -274,7 +274,6 @@ var Styles_init;
     // public
     function setStyle(style)
     {
-        debug("js: setStyle: "+JSON.stringify(style));
         stylesById[style.styleId] = style;
         scheduleApplyCSSTextChanges();
     }
@@ -336,7 +335,6 @@ var Styles_init;
     {
         var style = getOrCreateStyle(selector);
         var disp = HTML_DISPLAY_NAMES[selector.toUpperCase()];
-        debug("defaultStyle("+selector+"): disp = "+disp);
         if (disp != null)
             style.displayName = disp;
         style.rules.base.nilTextIfEmpty = true;
