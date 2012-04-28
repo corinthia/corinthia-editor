@@ -5,11 +5,12 @@ var Figures_insertFigure;
 (function() {
 
     // public
-    function insertFigure(filename,numbered,caption)
+    function insertFigure(filename,width,numbered,caption)
     {
         var figure = DOM_createElement(document,"FIGURE");
         var img = DOM_createElement(document,"IMG");
         img.setAttribute("src",filename);
+        img.style.width = width;
         DOM_appendChild(figure,img);
 
         if ((caption != null) && (caption != "")) {
@@ -19,6 +20,7 @@ var Figures_insertFigure;
         }
 
         Clipboard_pasteNodes([figure]);
+        debug(figure.outerHTML); // FIXME: temp
     }
 
     Figures_insertFigure = insertFigure;

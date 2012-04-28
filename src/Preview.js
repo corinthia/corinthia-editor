@@ -108,7 +108,7 @@ var Preview_showForStyle;
         }
         else if ((styleId == "figure") || (styleId == "figcaption")) {
             Selection_selectAll();
-            Figures_insertFigure("SampleFigure.svg",true,"TCP 3-way handshake");
+            Figures_insertFigure("SampleFigure.svg","75%",true,"TCP 3-way handshake");
             Selection_setSelectionRange(null);
         }
         else if (styleId == "body") {
