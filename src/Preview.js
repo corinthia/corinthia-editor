@@ -60,6 +60,18 @@ var Preview_showForStyle;
         DOM_appendChild(element,DOM_createTextNode(document,previewText));
     }
 
+    function setTableCellContents(node)
+    {
+        if (isTableCell(node)) {
+            DOM_deleteAllChildren(node);
+            DOM_appendChild(node,DOM_createTextNode(document,"Cell contents"));
+        }
+        else {
+            for (var child = node.firstChild; child != null; child = child.nextSibling)
+                setTableCellContents(child);
+        }
+    }
+
     function showForStyle(styleId)
     {
         var displayName = styleId;
@@ -69,25 +81,41 @@ var Preview_showForStyle;
             displayName = style.displayName;
 
         var titleText = "Preview of style "+displayName;
+        var title = DOM_createTextNode(document,titleText);
+        var text = DOM_createTextNode(document,previewText);
 
         // We use BR here instead of separate paragraphs, for the case in which we are displaying
         // the BODY ("Document defaults style"), in which we don't want style properties set for
         // the P element to be displayed.
         DOM_deleteAllChildren(document.body);
-        var title = DOM_createTextNode(document,titleText);
-        var text = DOM_createTextNode(document,previewText);
-        DOM_appendChild(document.body,title);
-        DOM_appendChild(document.body,DOM_createElement(document,"BR"));
-        DOM_appendChild(document.body,DOM_createElement(document,"BR"));
-        DOM_appendChild(document.body,text);
 
         if (PARAGRAPH_ELEMENTS[styleId.toUpperCase()]) {
+            DOM_appendChild(document.body,title);
+            DOM_appendChild(document.body,DOM_createElement(document,"BR"));
+            DOM_appendChild(document.body,DOM_createElement(document,"BR"));
+            DOM_appendChild(document.body,text);
+
             Selection_selectAll();
             Formatting_applyFormattingChanges(styleId,null);
             Selection_setSelectionRange(null);
         }
-        else {
-            // FIXME
+        else if ((styleId == "table") || (styleId == "caption")) {
+            Selection_selectAll();
+            Tables_insertTable(3,3,"100%",true,"Table caption");
+            Selection_setSelectionRange(null);
+            var table = document.getElementsByTagName("TABLE")[0];
+            setTableCellContents(table);
+        }
+        else if ((styleId == "figure") || (styleId == "figcaption")) {
+            Selection_selectAll();
+            Figures_insertFigure("SampleFigure.svg",true,"TCP 3-way handshake");
+            Selection_setSelectionRange(null);
+        }
+        else if (styleId == "body") {
+            DOM_appendChild(document.body,title);
+            DOM_appendChild(document.body,DOM_createElement(document,"BR"));
+            DOM_appendChild(document.body,DOM_createElement(document,"BR"));
+            DOM_appendChild(document.body,text);
         }
     }
 
