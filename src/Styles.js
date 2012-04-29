@@ -16,11 +16,8 @@ var Styles_init;
     // saving the file.
 
     var HTML_DISPLAY_NAMES = {
-        "BODY": "Document defaults",
-        "TABLE": "Table",
-        "CAPTION": "Table caption",
-        "FIGURE": "Figure",
-        "FIGCAPTION": "Figure caption",
+
+        // Built-in paragraph styles
         "P": "Normal paragraph",
         "H1": "Heading 1",
         "H2": "Heading 2",
@@ -29,7 +26,14 @@ var Styles_init;
         "H5": "Heading 5",
         "H6": "Heading 6",
         "PRE": "Preformatted text",
-        "BLOCKQUOTE": "Block quote"
+        "BLOCKQUOTE": "Block quote",
+
+        // Built-in special styles
+        "BODY": "Document defaults",
+        "TABLE": "Table",
+        "CAPTION": "Table caption",
+        "FIGURE": "Figure",
+        "FIGCAPTION": "Figure caption",
     };
 
     function Style(styleId,displayName,rules)
@@ -37,7 +41,7 @@ var Styles_init;
         this.styleId = styleId;
         this.displayName = displayName;
         this.rules = rules;
-        this.type = null;
+        this.type = "general";
     }
 
     function Rule(selector,properties)
@@ -331,9 +335,10 @@ var Styles_init;
         return style;
     }
 
-    function defaultStyle(selector)
+    function defaultStyle(selector,type)
     {
         var style = getOrCreateStyle(selector);
+        style.type = type;
         var disp = HTML_DISPLAY_NAMES[selector.toUpperCase()];
         if (disp != null)
             style.displayName = disp;
@@ -381,20 +386,23 @@ var Styles_init;
     {
         Styles_discoverStyles();
 
-        defaultStyle("BODY");
-        defaultStyle("P");
-        defaultStyle("H1");
-        defaultStyle("H2");
-        defaultStyle("H3");
-        defaultStyle("H4");
-        defaultStyle("H5");
-        defaultStyle("H6");
-        defaultStyle("PRE");
-        defaultStyle("BLOCKQUOTE");
-        defaultStyle("TABLE");
-        defaultStyle("CAPTION");
-        defaultStyle("FIGURE");
-        defaultStyle("FIGCAPTION");
+        // Built-in paragraph styles
+        defaultStyle("P","paragraph");
+        defaultStyle("H1","paragraph");
+        defaultStyle("H2","paragraph");
+        defaultStyle("H3","paragraph");
+        defaultStyle("H4","paragraph");
+        defaultStyle("H5","paragraph");
+        defaultStyle("H6","paragraph");
+        defaultStyle("PRE","paragraph");
+        defaultStyle("BLOCKQUOTE","paragraph");
+
+        // Built-in special styles
+        defaultStyle("BODY","special");
+        defaultStyle("TABLE","special");
+        defaultStyle("CAPTION","special");
+        defaultStyle("FIGURE","special");
+        defaultStyle("FIGCAPTION","special");
     }
 
     Styles_getAllStyles = trace(getAllStyles);
