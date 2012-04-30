@@ -330,9 +330,14 @@ var Styles_init;
     {
         selector = canonicaliseSelector(selector);
         var displayName = displayNameForSelector(selector);
-        var rule = new Rule(selector,properties);
-        var style = new Style(selector,displayName,{base: rule});
-        stylesById[selector] = style;
+        var style = stylesById[selector];
+        if (style == null) {
+            var rule = new Rule(selector,{});
+            style = new Style(selector,displayName,{base: rule});
+            stylesById[selector] = style;
+        }
+        for (var name in properties)
+            style.rules.base.properties[name] = properties[name];
         return style;
     }
 
