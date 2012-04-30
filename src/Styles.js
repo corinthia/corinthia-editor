@@ -42,6 +42,7 @@ var Styles_init;
         this.displayName = displayName;
         this.rules = rules;
         this.type = "general";
+        this.latent = false;
     }
 
     function Rule(selector,properties)
