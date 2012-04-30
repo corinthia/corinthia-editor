@@ -76,7 +76,6 @@ var Preview_showForStyle;
     {
         var displayName = styleId;
         var style = Styles_getAllStyles()[styleId];
-        debug("showForStyle: styleId = "+styleId+", style = "+style);
         if (style != null)
             displayName = style.displayName;
 
