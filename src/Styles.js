@@ -293,7 +293,7 @@ var Styles_init;
     // public
     function addDefaultRule(selector,defaultProperties)
     {
-        var style = getOrCreateStyle(selector);
+        var style = styleForId(selector);
         var rule = style.rules.base;
 
         for (name in defaultProperties) {
@@ -316,18 +316,10 @@ var Styles_init;
         }
     }
 
-    function getOrCreateStyle(selector)
+    function styleForId(selector,properties)
     {
-        selector = canonicaliseSelector(selector);
-        var style = stylesById[selector];
-        if (style != null)
-            return style;
-        else
-            return addStyleFromCSS(selector,{});
-    }
-
-    function addStyleFromCSS(selector,properties)
-    {
+        if (properties == null)
+            properties = {};
         selector = canonicaliseSelector(selector);
         var displayName = displayNameForSelector(selector);
         var style = stylesById[selector];
@@ -343,7 +335,7 @@ var Styles_init;
 
     function defaultStyle(selector,type)
     {
-        var style = getOrCreateStyle(selector);
+        var style = styleForId(selector);
         style.type = type;
         var disp = HTML_DISPLAY_NAMES[selector.toUpperCase()];
         if (disp != null)
@@ -368,7 +360,7 @@ var Styles_init;
                     for (k = 0; k < rule.style.length; k++)
                         properties[rule.style[k]] = rule.style.getPropertyValue(rule.style[k]);
 
-                    addStyleFromCSS(rule.selectorText,properties);
+                    styleForId(rule.selectorText,properties);
                 }
             }
         }
