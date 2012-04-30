@@ -44,7 +44,7 @@ var Styles_init;
         this.rules = rules;
         this.type = "general";
         this.latent = false;
-        this.custom = false;
+        this.custom = true;
         this.hidden = false;
     }
 
@@ -317,6 +317,7 @@ var Styles_init;
     {
         var style = styleForId(selector,properties);
         style.type = type;
+        style.custom = false;
         var disp = HTML_DISPLAY_NAMES[selector.toUpperCase()];
         if (disp != null)
             style.displayName = disp;
