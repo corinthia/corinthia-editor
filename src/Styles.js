@@ -3,7 +3,6 @@
 var Styles_getAllStyles;
 var Styles_setStyle;
 var Styles_setStyleSheet;
-var Styles_addDefaultRule;
 var Styles_addDefaultRuleCategory;
 var Styles_discoverStyles;
 var Styles_init;
@@ -55,24 +54,6 @@ var Styles_init;
     var stylesById = null;
     var documentStyleElement = null;
     var cssTextDirty = false;
-
-    var defaultRuleCategories = {
-        "td-paragraph-margins": {
-            "td > p:first-child": {"margin-top": "0"},
-            "td > p:last-child": {"margin-bottom": "0"},
-        },
-        "th-paragraph-margins": {
-            "th > p:first-child": {"margin-top": "0"},
-            "th > p:last-child": {"margin-bottom": "0"},
-        },
-        "table-borders": {
-            "table": {"border-collapse": "collapse"},
-            "td": {"border": "1px solid black"},
-        },
-        "table-caption": {
-            "caption": {"caption-side": "bottom"},
-        },
-    };
 
     function stringsAllEqual(strings)
     {
@@ -226,12 +207,14 @@ var Styles_init;
             var styleIds = Object.getOwnPropertyNames(stylesById).sort();
             for (var styleIndex = 0; styleIndex < styleIds.length; styleIndex++) {
                 var style = stylesById[styleIds[styleIndex]];
-                var ruleIds = Object.getOwnPropertyNames(style.rules).sort();
-                for (var ruleIndex = 0; ruleIndex < ruleIds.length; ruleIndex++) {
-                    var rule = style.rules[ruleIds[ruleIndex]];
-                    var text = propertyListText(rule.properties);
-                    if ((text != "") || !rule.nilTextIfEmpty)
-                        cssTextArray.push(rule.selector+" {\n"+text+"}\n");
+                if (!style.latent) {
+                    var ruleIds = Object.getOwnPropertyNames(style.rules).sort();
+                    for (var ruleIndex = 0; ruleIndex < ruleIds.length; ruleIndex++) {
+                        var rule = style.rules[ruleIds[ruleIndex]];
+                        var text = propertyListText(rule.properties);
+                        if ((text != "") || !rule.nilTextIfEmpty)
+                            cssTextArray.push(rule.selector+" {\n"+text+"}\n");
+                    }
                 }
             }
             var allCSSText = cssTextArray.join("");
@@ -290,30 +273,23 @@ var Styles_init;
         scheduleApplyCSSTextChanges();
     }
 
-    // public
-    function addDefaultRule(selector,defaultProperties)
-    {
-        var style = styleForId(selector);
-        var rule = style.rules.base;
-
-        for (name in defaultProperties) {
-            if (rule.properties[name] == null)
-                rule.properties[name] = defaultProperties[name];
-        }
-
-        scheduleApplyCSSTextChanges();
-    }
+    var latentStyleGroups = {
+        "td-paragraph-margins": ["td > p:first-child", "td > p:last-child"],
+        "th-paragraph-margins": ["th > p:first-child", "th > p:last-child"],
+        "table-borders": ["table", "td"], // FIXME: add "th" (requires updating tests)
+        "table-caption": ["caption"],
+    };
 
     // public
     function addDefaultRuleCategory(category)
     {
-        var selectors = defaultRuleCategories[category];
+        var selectors = latentStyleGroups[category];
         if (selectors == null)
             throw new Error("No default rule category \""+category+"\"");
-        var names = Object.getOwnPropertyNames(selectors).sort();
-        for (var i = 0; i < names.length; i++) {
-            addDefaultRule(names[i],selectors[names[i]]);
-        }
+        for (var i = 0; i < selectors.length; i++)
+            styleForId(selectors[i]).latent = false;
+
+        scheduleApplyCSSTextChanges();
     }
 
     function styleForId(selector,properties)
@@ -333,14 +309,17 @@ var Styles_init;
         return style;
     }
 
-    function defaultStyle(selector,type)
+    function defaultStyle(selector,type,latent,properties)
     {
-        var style = styleForId(selector);
+        var style = styleForId(selector,properties);
         style.type = type;
         var disp = HTML_DISPLAY_NAMES[selector.toUpperCase()];
         if (disp != null)
             style.displayName = disp;
         style.rules.base.nilTextIfEmpty = true;
+
+        if (typeof(latent) == "boolean")
+            style.latent = latent;
     }
 
     // public
@@ -401,12 +380,27 @@ var Styles_init;
         defaultStyle("CAPTION","special");
         defaultStyle("FIGURE","special");
         defaultStyle("FIGCAPTION","special");
+
+        // "td-paragraph-margins"
+        defaultStyle("td > p:first-child","complex",true,{"margin-top": "0"});
+        defaultStyle("td > p:last-child","complex",true,{"margin-bottom": "0"});
+
+        // "th-paragraph-margins"
+        defaultStyle("th > p:first-child","complex",true,{"margin-top": "0"});
+        defaultStyle("th > p:last-child","complex",true,{"margin-bottom": "0"});
+
+        // "table-borders"
+        defaultStyle("table","special",true,{"border-collapse": "collapse"});
+        defaultStyle("td","special",true,{"border": "1px solid black"});
+        defaultStyle("th","special",true,{"border": "1px solid black"});
+
+        // "table-caption"
+        defaultStyle("caption","special",true,{"caption-side": "bottom"});
     }
 
     Styles_getAllStyles = trace(getAllStyles);
     Styles_setStyle = trace(setStyle);
     Styles_setStyleSheet = trace(setStyleSheet);
-    Styles_addDefaultRule = trace(addDefaultRule);
     Styles_addDefaultRuleCategory = trace(addDefaultRuleCategory);
     Styles_discoverStyles = trace(discoverStyles);
     Styles_init = trace(init);
