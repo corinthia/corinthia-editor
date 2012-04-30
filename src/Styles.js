@@ -276,7 +276,7 @@ var Styles_init;
     var latentStyleGroups = {
         "td-paragraph-margins": ["td > p:first-child", "td > p:last-child"],
         "th-paragraph-margins": ["th > p:first-child", "th > p:last-child"],
-        "table-borders": ["table", "td"], // FIXME: add "th" (requires updating tests)
+        "table-borders": ["table", "td", "th"],
         "table-caption": ["caption"],
     };
 
