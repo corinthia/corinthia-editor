@@ -41,7 +41,6 @@ var Preview_showForStyle;
 
     function setStyleSheet(selector,cssText)
     {
-
         clearDocument();
         
         var style = getStyleElement();
@@ -83,16 +82,16 @@ var Preview_showForStyle;
         var title = DOM_createTextNode(document,titleText);
         var text = DOM_createTextNode(document,previewText);
 
-        // We use BR here instead of separate paragraphs, for the case in which we are displaying
-        // the BODY ("Document defaults style"), in which we don't want style properties set for
-        // the P element to be displayed.
         DOM_deleteAllChildren(document.body);
 
-        if (PARAGRAPH_ELEMENTS[styleId.toUpperCase()]) {
-            DOM_appendChild(document.body,title);
-            DOM_appendChild(document.body,DOM_createElement(document,"BR"));
-            DOM_appendChild(document.body,DOM_createElement(document,"BR"));
-            DOM_appendChild(document.body,text);
+        if (PARAGRAPH_ELEMENTS[styleId.toUpperCase()] ||
+            (styleId.charAt(0) == ".")) {
+            var paragraph1 = createParagraphElementForStyleId(styleId);
+            var paragraph2 = createParagraphElementForStyleId(styleId);
+            DOM_appendChild(paragraph1,title);
+            DOM_appendChild(paragraph2,text);
+            DOM_appendChild(document.body,paragraph1);
+            DOM_appendChild(document.body,paragraph2);
 
             Selection_selectAll();
             Formatting_applyFormattingChanges(styleId,null);
@@ -111,10 +110,24 @@ var Preview_showForStyle;
             Selection_setSelectionRange(null);
         }
         else if (styleId == "body") {
+            // We use BR here instead of separate paragraphs, since we don't want the properties
+            // for the P element to be applied
             DOM_appendChild(document.body,title);
             DOM_appendChild(document.body,DOM_createElement(document,"BR"));
             DOM_appendChild(document.body,DOM_createElement(document,"BR"));
             DOM_appendChild(document.body,text);
+        }
+
+        function createParagraphElementForStyleId(styleId)
+        {
+            if (PARAGRAPH_ELEMENTS[styleId.toUpperCase()]) {
+                return DOM_createElement(document,styleId);
+            }
+            else {
+                var div = DOM_createElement(document,"DIV");
+                div.setAttribute("class",styleId.substring(1));
+                return div;
+            }
         }
     }
 
