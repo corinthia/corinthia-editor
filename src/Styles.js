@@ -30,6 +30,8 @@ var Styles_init;
         // Built-in special styles
         "BODY": "Document defaults",
         "TABLE": "Table",
+        "TD": "Table cell",
+        "TH": "Table header cell",
         "CAPTION": "Table caption",
         "FIGURE": "Figure",
         "FIGCAPTION": "Figure caption",
@@ -42,6 +44,8 @@ var Styles_init;
         this.rules = rules;
         this.type = "general";
         this.latent = false;
+        this.custom = false;
+        this.hidden = false;
     }
 
     function Rule(selector,properties)
@@ -320,6 +324,7 @@ var Styles_init;
 
         if (typeof(latent) == "boolean")
             style.latent = latent;
+        return style;
     }
 
     // public
@@ -391,8 +396,8 @@ var Styles_init;
 
         // "table-borders"
         defaultStyle("table","special",true,{"border-collapse": "collapse"});
-        defaultStyle("td","special",true,{"border": "1px solid black"});
-        defaultStyle("th","special",true,{"border": "1px solid black"});
+        defaultStyle("td","special",true,{"border": "1px solid black"}).hidden = true;
+        defaultStyle("th","special",true,{"border": "1px solid black"}).hidden = true;
 
         // "table-caption"
         defaultStyle("caption","special",true,{"caption-side": "bottom"});
