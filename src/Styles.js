@@ -3,6 +3,7 @@
 var Styles_getAllStyles;
 var Styles_setStyle;
 var Styles_setStyleSheet;
+var Styles_deleteStyleWithId;
 var Styles_addDefaultRuleCategory;
 var Styles_discoverStyles;
 var Styles_init;
@@ -277,6 +278,13 @@ var Styles_init;
         scheduleApplyCSSTextChanges();
     }
 
+    // public
+    function deleteStyleWithId(styleId)
+    {
+        delete stylesById[styleId];
+        scheduleApplyCSSTextChanges();
+    }
+
     var latentStyleGroups = {
         "td-paragraph-margins": ["td > p:first-child", "td > p:last-child"],
         "th-paragraph-margins": ["th > p:first-child", "th > p:last-child"],
@@ -407,6 +415,7 @@ var Styles_init;
     Styles_getAllStyles = trace(getAllStyles);
     Styles_setStyle = trace(setStyle);
     Styles_setStyleSheet = trace(setStyleSheet);
+    Styles_deleteStyleWithId = trace(deleteStyleWithId);
     Styles_addDefaultRuleCategory = trace(addDefaultRuleCategory);
     Styles_discoverStyles = trace(discoverStyles);
     Styles_init = trace(init);
