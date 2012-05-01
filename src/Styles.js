@@ -407,7 +407,9 @@ var Styles_init;
         defaultStyle("th > p:last-child","complex",true,{"margin-bottom": "0"});
 
         // "table-borders"
-        defaultStyle("table","special",true,{"border-collapse": "collapse"});
+        defaultStyle("table","special",true,{"border-collapse": "collapse",
+                                             "margin-left": "auto",
+                                             "margin-right": "auto"});
         defaultStyle("td","special",true,{"border": "1px solid black"}).hidden = true;
         defaultStyle("th","special",true,{"border": "1px solid black"}).hidden = true;
 

@@ -99,7 +99,7 @@ var Preview_showForStyle;
         }
         else if ((styleId == "table") || (styleId == "caption")) {
             Selection_selectAll();
-            Tables_insertTable(3,3,"100%",true,"Table caption");
+            Tables_insertTable(3,3,"66%",true,"Table caption");
             Selection_setSelectionRange(null);
             var table = document.getElementsByTagName("TABLE")[0];
             setTableCellContents(table);
