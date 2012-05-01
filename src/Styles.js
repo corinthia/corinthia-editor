@@ -18,24 +18,24 @@ var Styles_init;
     var HTML_DISPLAY_NAMES = {
 
         // Built-in paragraph styles
-        "P": "Normal paragraph",
+        "P": "Normal Paragraph",
         "H1": "Heading 1",
         "H2": "Heading 2",
         "H3": "Heading 3",
         "H4": "Heading 4",
         "H5": "Heading 5",
         "H6": "Heading 6",
-        "PRE": "Preformatted text",
-        "BLOCKQUOTE": "Block quote",
+        "PRE": "Preformatted Text",
+        "BLOCKQUOTE": "Block Quote",
 
         // Built-in special styles
-        "BODY": "Document defaults",
+        "BODY": "Document Defaults",
         "TABLE": "Table",
-        "TD": "Table cell",
-        "TH": "Table header cell",
-        "CAPTION": "Table caption",
+        "TD": "Table Cell",
+        "TH": "Table Header Cell",
+        "CAPTION": "Table Caption",
         "FIGURE": "Figure",
-        "FIGCAPTION": "Figure caption",
+        "FIGCAPTION": "Figure Caption",
     };
 
     function Style(styleId,displayName,rules)
