@@ -306,8 +306,6 @@ var Styles_init;
 
     function styleForId(selector,properties)
     {
-        if (properties == null)
-            properties = {};
         selector = canonicaliseSelector(selector);
         var displayName = displayNameForSelector(selector);
         var style = stylesById[selector];
@@ -316,8 +314,10 @@ var Styles_init;
             style = new Style(selector,displayName,{base: rule});
             stylesById[selector] = style;
         }
-        for (var name in properties)
-            style.rules.base.properties[name] = properties[name];
+        if (properties != null) {
+            for (var name in properties)
+                style.rules.base.properties[name] = properties[name];
+        }
         return style;
     }
 
@@ -394,6 +394,9 @@ var Styles_init;
         defaultStyle("CAPTION","special");
         defaultStyle("FIGURE","special");
         defaultStyle("FIGCAPTION","special");
+
+        // Page properties for printing
+        defaultStyle("@page","special",true,null).hidden = true;
 
         // "td-paragraph-margins"
         defaultStyle("td > p:first-child","complex",true,{"margin-top": "0"});
