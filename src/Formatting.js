@@ -431,6 +431,9 @@ var Formatting_applyFormattingChanges;
                     properties["text-decoration"] = "underline";
                 }
             }
+            else if (DOM_upperName(node) == "TT") {
+                properties["uxwrite-in-tt"] = "true";
+            }
             else if (DOM_upperName(node) == "H1") {
                 properties["uxwrite-style"] = "h1";
             }
@@ -460,6 +463,12 @@ var Formatting_applyFormattingChanges;
             }
             else if (DOM_upperName(node) == "TABLE") {
                 properties["uxwrite-in-table"] = "true";
+            }
+            else if (DOM_upperName(node) == "UL") {
+                properties["uxwrite-in-ul"] = "true";
+            }
+            else if (DOM_upperName(node) == "OL") {
+                properties["uxwrite-in-ol"] = "true";
             }
             else if ((DOM_upperName(node) == "A") && node.hasAttribute("href")) {
                 var href = node.getAttribute("href");
