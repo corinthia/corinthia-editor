@@ -287,16 +287,26 @@ var Selection_trackWhileExecuting;
 
         selectionRange = selectionRange.forwards();
 
-        var start = selectionRange.start.closestActualNode();
-        while (!isParagraphNode(start) && !isContainerNode(start))
-            start = start.parentNode;
+        var startNode = selectionRange.start.closestActualNode();
+        while (!isParagraphNode(startNode) && !isContainerNode(startNode))
+            startNode = startNode.parentNode;
 
-        var end = selectionRange.start.closestActualNode();
-        while (!isParagraphNode(end) && !isContainerNode(end))
-                end = end.parentNode;
+        var endNode = selectionRange.end.closestActualNode();
+        while (!isParagraphNode(endNode) && !isContainerNode(endNode))
+                endNode = endNode.parentNode;
 
-        Selection_setSelectionRange(new Range(start.parentNode,DOM_nodeOffset(start),
-                                              end.parentNode,DOM_nodeOffset(end)+1));
+        var startPos = new Position(startNode.parentNode,DOM_nodeOffset(startNode));
+        var endPos = new Position(endNode.parentNode,DOM_nodeOffset(endNode)+1);
+        startPos = Cursor_closestPositionForwards(startPos);
+        endPos = Cursor_closestPositionBackwards(endPos);
+        var paragraphRange = new Range(startPos.node,startPos.offset,
+                                       endPos.node,endPos.offset);
+        if (!paragraphRange.isForwards()) {
+             paragraphRange = new Range(startPos.node,startPos.offset,
+                                        startPos.node,startPos.offset);
+        }
+
+        Selection_setSelectionRange(paragraphRange);
     }
 
     function getPunctuationCharsForRegex()
