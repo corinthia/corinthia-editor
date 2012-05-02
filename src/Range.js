@@ -372,10 +372,10 @@ var Range;
     {
         var nodes = this.getOutermostNodes(true);
 
-        // WebKit in iOS 5.0 has a bug where if the selection spans multiple paragraphs, the complete
-        // rect for paragraphs other than the first is returned, instead of just the portions of it
-        // that are actually in the range. To get around this problem, we go through each text node
-        // individually and collect all the rects.
+        // WebKit in iOS 5.0 and 5.1 has a bug where if the selection spans multiple paragraphs,
+        // the complete rect for paragraphs other than the first is returned, instead of just the
+        // portions of it that are actually in the range. To get around this problem, we go through
+        // each text node individually and collect all the rects.
         var result = new Array();
         var doc = this.start.node.ownerDocument;
         var domRange = doc.createRange();
