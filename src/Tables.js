@@ -1,10 +1,10 @@
 // Copyright (c) 2012 UX Productivity Pty Ltd. All rights reserved.
 
 var Tables_insertTable;
-var Tables_insertRowsAbove;
-var Tables_insertRowsBelow;
-var Tables_insertColumnsLeft;
-var Tables_insertColumnsRight;
+var Tables_insertRowAbove;
+var Tables_insertRowBelow;
+var Tables_insertColumnLeft;
+var Tables_insertColumnRight;
 var Tables_deleteRows;
 var Tables_deleteColumns;
 var Tables_clearCells;
@@ -165,27 +165,27 @@ var Tables_getTableRegionFromRange;
     }
 
     // public
-    function insertRowsAbove(rows)
+    function insertRowAbove()
     {
-        debug("insertRowsAbove()");
+        debug("insertRowAbove()");
     }
 
     // public
-    function insertRowsBelow(rows)
+    function insertRowBelow()
     {
-        debug("insertRowsBelow()");
+        debug("insertRowBelow()");
     }
 
     // public
-    function insertColumnsLeft(cols)
+    function insertColumnLeft()
     {
-        debug("insertColumnsLeft()");
+        debug("insertColumnLeft()");
     }
 
     // public
-    function insertColumnsRight(cols)
+    function insertColumnRight()
     {
-        debug("insertColumnsRight()");
+        debug("insertColumnRight()");
     }
 
     // public
@@ -343,10 +343,10 @@ var Tables_getTableRegionFromRange;
     }
 
     Tables_insertTable = trace(insertTable);
-    Tables_insertRowsAbove = trace(insertRowsAbove);
-    Tables_insertRowsBelow = trace(insertRowsBelow);
-    Tables_insertColumnsLeft = trace(insertColumnsLeft);
-    Tables_insertColumnsRight = trace(insertColumnsRight);
+    Tables_insertRowAbove = trace(insertRowAbove);
+    Tables_insertRowBelow = trace(insertRowBelow);
+    Tables_insertColumnLeft = trace(insertColumnLeft);
+    Tables_insertColumnRight = trace(insertColumnRight);
     Tables_deleteRows = trace(deleteRows);
     Tables_deleteColumns = trace(deleteColumns);
     Tables_clearCells = trace(clearCells);
