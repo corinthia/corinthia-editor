@@ -130,6 +130,7 @@ var Tables_getTableRegionFromRange;
         var haveCaption = (caption != null) && (caption != "");
 
         Styles_addDefaultRuleCategory("td-paragraph-margins");
+        Styles_addDefaultRuleCategory("th-paragraph-margins");
         Styles_addDefaultRuleCategory("table-borders");
         if (numbered || haveCaption)
             Styles_addDefaultRuleCategory("table-caption");
