@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script language="javascript">
+function performTest()
+{
+    Outline_init();
+    Styles_init();
+
+//    Tables_insertTable(2,3,null,false,null);
+//    PostponedActions_perform();
+    Tables_insertRowBelow();
+    showRangeAsBrackets(Selection_getSelectionRange());
+}
+</script>
+<style type="text/css">
+table {
+    border-collapse: collapse;
+    margin-left: auto;
+    margin-right: auto;
+}
+td {
+    border: 1px solid black;
+}
+td > p:first-child {
+    margin-top: 0;
+}
+td > p:last-child {
+    margin-bottom: 0;
+}
+th {
+    border: 1px solid black;
+}
+</style>
+</head>
+<body>
+  <table style="width: 100%">
+    <tr>
+      <td>[One</td>
+      <td>Two</td>
+      <td>Three</td>
+      <td>Four</td>
+    </tr>
+    <tr>
+      <td>Five</td>
+      <td>Six</td>
+      <td>Seven</td>
+      <td>Eight</td>
+    </tr>
+    <tr>
+      <td>Nine</td>
+      <td colspan="2" rowspan="2">Ten</td>
+      <td>Twelve</td>
+    </tr>
+    <tr>
+      <td>Thirteen</td>
+      <td>Sixteen]</td>
+    </tr>
+  </table>
+</body>
+</html>

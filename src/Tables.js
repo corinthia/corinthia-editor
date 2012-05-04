@@ -38,6 +38,28 @@ var Tables_getTableRegionFromRange;
             this.rowspan = 1;
     }
 
+    Cell.prototype.setRowspan = function(rowspan)
+    {
+        if (rowspan < 1)
+            rowspan = 1;
+        this.rowspan = rowspan;
+        if (rowspan == 1)
+            this.element.removeAttribute("rowspan");
+        else
+            this.element.setAttribute("rowspan",rowspan);
+    }
+
+    Cell.prototype.setColspan = function(colspan)
+    {
+        if (colspan < 1)
+            colspan = 1;
+        this.colspan = colspan;
+        if (colspan == 1)
+            this.element.removeAttribute("colspan");
+        else
+            this.element.setAttribute("colspan",colspan);
+    }
+
     function Table(element)
     {
         this.element = element;
@@ -173,7 +195,34 @@ var Tables_getTableRegionFromRange;
     // public
     function insertRowBelow()
     {
-        debug("insertRowBelow()");
+        var region = Tables_getTableRegionFromRange(Selection_getSelectionRange());
+        if (region == null)
+            return;
+
+        var structure = region.structure;
+        var cell = structure.get(region.bottomRow,region.leftCol);
+        var existingTR = cell.element.parentNode;
+
+        var newTR = DOM_createElement(document,"TR");
+        var newRow = region.bottomRow+1;
+        DOM_insertBefore(existingTR.parentNode,newTR,existingTR.nextSibling);
+        var col = 0;
+        while (col < structure.numCols) {
+            var existingCell = structure.get(region.bottomRow,col);
+            if (newRow < existingCell.row + existingCell.rowspan) {
+                existingCell.setRowspan(existingCell.rowspan+1);
+                col += existingCell.colspan;
+            }
+            else {
+                var br = DOM_createElement(document,"br");
+                var p = DOM_createElement(document,"p");
+                var td = DOM_createElement(document,"TD");
+                DOM_appendChild(p,br);
+                DOM_appendChild(td,p);
+                DOM_appendChild(newTR,td);
+                col++;
+            }
+        }
     }
 
     // public
