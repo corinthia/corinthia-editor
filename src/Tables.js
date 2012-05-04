@@ -187,13 +187,19 @@ var Tables_getTableRegionFromRange;
         Selection_setEmptySelectionAt(pos.node,pos.offset);
     }
 
-    function addEmptyTableCell(newTR,elementName)
+    function createEmptyTableCell(elementName)
     {
         var br = DOM_createElement(document,"BR");
         var p = DOM_createElement(document,"P");
         var td = DOM_createElement(document,elementName);
         DOM_appendChild(p,br);
         DOM_appendChild(td,p);
+        return td;
+    }
+
+    function addEmptyTableCell(newTR,elementName)
+    {
+        var td = createEmptyTableCell(elementName);
         DOM_appendChild(newTR,td);
         return td;
     }
@@ -248,10 +254,91 @@ var Tables_getTableRegionFromRange;
         debug("insertColumnLeft()");
     }
 
+    function getColElements(table)
+    {
+        var cols = new Array();
+        for (child = table.firstChild; child != null; child = child.nextSibling) {
+            if (DOM_upperName(child) == "COLGROUP") {
+                for (var gc = child.firstChild; gc != null; gc = gc.nextSibling) {
+                    if (DOM_upperName(gc) == "COL")
+                        cols.push(gc);
+                }
+            }
+        }
+        return cols;
+    }
+
+    function getColWidths(cols,expectedCount)
+    {
+        // FIXME
+        return defaultColValues();
+
+        function defaultColValues()
+        {
+            var array = new Array();
+            for (var i = 0; i < expectedCount; i++)
+                array.push(100/expectedCount);
+            return array;
+        }
+    }
+
     // public
     function insertColumnRight()
     {
-        debug("insertColumnRight()");
+        // FIXME: this currently assumes columns are always set, and will break if they aren't
+        // FIXME: modify the test cases so that each column uses a different percentage, so we
+        // can test that the width adjustment logic is working correctly.
+        var region = Tables_getTableRegionFromRange(Selection_getSelectionRange());
+        if (region != null) {
+            var trs = new Array();
+            var table = region.structure.element;
+            getTRs(table,trs);
+
+            var cols = getColElements(table);
+            var colElements = getColElements(table);
+            var colWidths = getColWidths(colElements,region.structure.numCols);
+
+            var prevColElement = colElements[region.rightCol];
+            var prevColWidth = colWidths[region.rightCol];
+            var newColWidth = prevColWidth;
+            var newColElement = DOM_createElement(document,"COL");
+            newColElement.setAttribute("width",prevColElement.getAttribute("width"));
+            DOM_insertBefore(prevColElement.parentNode,newColElement,prevColElement.nextSibling);
+            colElements.splice(region.rightCol,0,newColElement);
+            colWidths.splice(region.rightCol,0,newColWidth);
+
+            var colWidthTotal = 0;
+            for (var i = 0; i < colWidths.length; i++)
+                colWidthTotal += colWidths[i];
+
+            for (var i = 0; i < colElements.length; i++) {
+                var pct = 100*colWidths[i]/colWidthTotal;
+                colElements[i].setAttribute("width",pct+"%");
+            }
+            
+
+            for (var row = 0; row < region.structure.numRows; row++) {
+                var cell = region.structure.get(row,region.rightCol);
+                var oldTD = cell.element;
+                if (cell.row == row) {
+                    var newTD = createEmptyTableCell(oldTD.nodeName);
+                    DOM_insertBefore(cell.element.parentNode,newTD,oldTD.nextSibling);
+                    if (cell.rowspan != 1)
+                        newTD.setAttribute("rowspan",cell.rowspan);
+                }
+            }
+        }
+
+        function getTRs(node,result)
+        {
+            if (DOM_upperName(node) == "TR") {
+                result.push(node);
+            }
+            else {
+                for (var child = node.firstChild; child != null; child = child.nextSibling)
+                    getTRs(child,result);
+            }
+        }
     }
 
     // public
