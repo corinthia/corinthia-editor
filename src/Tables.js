@@ -195,6 +195,7 @@ var Tables_getTableRegionFromRange;
         DOM_appendChild(p,br);
         DOM_appendChild(td,p);
         DOM_appendChild(newTR,td);
+        return td;
     }
 
     function populateNewRow(structure,newTR,newRow,oldRow)
@@ -204,12 +205,13 @@ var Tables_getTableRegionFromRange;
             var existingCell = structure.get(oldRow,col);
             if (newRow < existingCell.row + existingCell.rowspan) {
                 existingCell.setRowspan(existingCell.rowspan+1);
-                col += existingCell.colspan;
             }
             else {
-                addEmptyTableCell(newTR,existingCell.element.nodeName);
-                col++;
+                var td = addEmptyTableCell(newTR,existingCell.element.nodeName);
+                if (existingCell.colspan != 1)
+                    td.setAttribute("colspan",existingCell.colspan);
             }
+            col += existingCell.colspan;
         }
     }
 
