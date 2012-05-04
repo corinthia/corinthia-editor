@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style type="text/css">
+b, i, u { margin-right: 0px }
+pre, strong, code { margin-right: 0px }
+div, span { margin-right: 0px }
+table {
+    border-collapse: collapse;
+    margin-left: auto;
+    margin-right: auto;
+}
+td {
+    border: 1px solid black;
+}
+td > p:first-child {
+    margin-top: 0;
+}
+td > p:last-child {
+    margin-bottom: 0;
+}
+th {
+    border: 1px solid black; background-color: red;
+}
+    </style>
+<script language="javascript">
+function performTest()
+{
+    Styles_init();
+    Styles_scheduleApplyCSSTextChanges();
+    PostponedActions_perform();
+}
+</script>
+</head>
+<body>
+[]
+</body>
+</html>
