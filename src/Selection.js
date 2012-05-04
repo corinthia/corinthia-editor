@@ -407,7 +407,7 @@ var Selection_trackWhileExecuting;
     var originalDragEnd = null;
 
     // public
-    function dragSelectionBegin(x,y)
+    function dragSelectionBegin(x,y,selectWord)
     {
         selectionRange = null;
         originalDragStart = null;
@@ -416,7 +416,8 @@ var Selection_trackWhileExecuting;
         var pos = positionAtPoint(x,y);
         if (pos != null) {
             selectionRange = new Range(pos.node,pos.offset,pos.node,pos.offset);
-            Selection_selectWordAtCursor();
+            if (selectWord)
+                Selection_selectWordAtCursor();
             originalDragStart = new Position(selectionRange.start.node,selectionRange.start.offset);
             originalDragEnd = new Position(selectionRange.end.node,selectionRange.end.offset);
             Selection_updateSelectionDisplay();
