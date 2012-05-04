@@ -186,6 +186,32 @@ var Tables_getTableRegionFromRange;
         Selection_setEmptySelectionAt(pos.node,pos.offset);
     }
 
+    function addEmptyTableCell(newTR)
+    {
+        var br = DOM_createElement(document,"br");
+        var p = DOM_createElement(document,"p");
+        var td = DOM_createElement(document,"TD");
+        DOM_appendChild(p,br);
+        DOM_appendChild(td,p);
+        DOM_appendChild(newTR,td);
+    }
+
+    function populateNewRow(structure,newTR,newRow,oldRow)
+    {
+        var col = 0;
+        while (col < structure.numCols) {
+            var existingCell = structure.get(oldRow,col);
+            if (newRow < existingCell.row + existingCell.rowspan) {
+                existingCell.setRowspan(existingCell.rowspan+1);
+                col += existingCell.colspan;
+            }
+            else {
+                addEmptyTableCell(newTR);
+                col++;
+            }
+        }
+    }
+
     // public
     function insertRowAbove()
     {
@@ -196,32 +222,12 @@ var Tables_getTableRegionFromRange;
     function insertRowBelow()
     {
         var region = Tables_getTableRegionFromRange(Selection_getSelectionRange());
-        if (region == null)
-            return;
-
-        var structure = region.structure;
-        var cell = structure.get(region.bottomRow,region.leftCol);
-        var existingTR = cell.element.parentNode;
-
-        var newTR = DOM_createElement(document,"TR");
-        var newRow = region.bottomRow+1;
-        DOM_insertBefore(existingTR.parentNode,newTR,existingTR.nextSibling);
-        var col = 0;
-        while (col < structure.numCols) {
-            var existingCell = structure.get(region.bottomRow,col);
-            if (newRow < existingCell.row + existingCell.rowspan) {
-                existingCell.setRowspan(existingCell.rowspan+1);
-                col += existingCell.colspan;
-            }
-            else {
-                var br = DOM_createElement(document,"br");
-                var p = DOM_createElement(document,"p");
-                var td = DOM_createElement(document,"TD");
-                DOM_appendChild(p,br);
-                DOM_appendChild(td,p);
-                DOM_appendChild(newTR,td);
-                col++;
-            }
+        if (region != null) {
+            var cell = region.structure.get(region.bottomRow,region.leftCol);
+            var oldTR = cell.element.parentNode;
+            var newTR = DOM_createElement(document,"TR");
+            DOM_insertBefore(oldTR.parentNode,newTR,oldTR.nextSibling);
+            populateNewRow(region.structure,newTR,region.bottomRow+1,region.bottomRow);
         }
     }
 
