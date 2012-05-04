@@ -6,30 +6,15 @@ function performTest()
 {
     Outline_init();
     Styles_init();
+    Styles_addDefaultRuleCategory("td-paragraph-margins");
+    Styles_addDefaultRuleCategory("th-paragraph-margins");
+    Styles_addDefaultRuleCategory("table-borders");
+    PostponedActions_perform();
 
     Tables_insertRowBelow();
     showRangeAsBrackets(Selection_getSelectionRange());
 }
 </script>
-<style type="text/css">
-table {
-    border-collapse: collapse;
-    margin-left: auto;
-    margin-right: auto;
-}
-td {
-    border: 1px solid black;
-}
-td > p:first-child {
-    margin-top: 0;
-}
-td > p:last-child {
-    margin-bottom: 0;
-}
-th {
-    border: 1px solid black;
-}
-</style>
 </head>
 <body>
   <table style="width: 100%">
