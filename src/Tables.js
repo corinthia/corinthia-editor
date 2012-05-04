@@ -203,7 +203,8 @@ var Tables_getTableRegionFromRange;
         var col = 0;
         while (col < structure.numCols) {
             var existingCell = structure.get(oldRow,col);
-            if (newRow < existingCell.row + existingCell.rowspan) {
+            if (((newRow > oldRow) && (newRow < existingCell.row + existingCell.rowspan)) ||
+                ((newRow < oldRow) && (newRow >= existingCell.row))) {
                 existingCell.setRowspan(existingCell.rowspan+1);
             }
             else {
@@ -218,7 +219,14 @@ var Tables_getTableRegionFromRange;
     // public
     function insertRowAbove()
     {
-        debug("insertRowAbove()");
+        var region = Tables_getTableRegionFromRange(Selection_getSelectionRange());
+        if (region != null) {
+            var cell = region.structure.get(region.topRow,region.leftCol);
+            var oldTR = cell.element.parentNode;
+            var newTR = DOM_createElement(document,"TR");
+            DOM_insertBefore(oldTR.parentNode,newTR,oldTR);
+            populateNewRow(region.structure,newTR,region.topRow-1,region.topRow);
+        }
     }
 
     // public
