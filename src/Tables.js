@@ -186,11 +186,11 @@ var Tables_getTableRegionFromRange;
         Selection_setEmptySelectionAt(pos.node,pos.offset);
     }
 
-    function addEmptyTableCell(newTR)
+    function addEmptyTableCell(newTR,elementName)
     {
-        var br = DOM_createElement(document,"br");
-        var p = DOM_createElement(document,"p");
-        var td = DOM_createElement(document,"TD");
+        var br = DOM_createElement(document,"BR");
+        var p = DOM_createElement(document,"P");
+        var td = DOM_createElement(document,elementName);
         DOM_appendChild(p,br);
         DOM_appendChild(td,p);
         DOM_appendChild(newTR,td);
@@ -206,7 +206,7 @@ var Tables_getTableRegionFromRange;
                 col += existingCell.colspan;
             }
             else {
-                addEmptyTableCell(newTR);
+                addEmptyTableCell(newTR,existingCell.element.nodeName);
                 col++;
             }
         }
