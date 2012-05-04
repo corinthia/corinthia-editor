@@ -319,8 +319,8 @@ var Styles_init;
     }
 
     var latentStyleGroups = {
-        "td-paragraph-margins": ["td > p:first-child", "td > p:last-child"],
-        "th-paragraph-margins": ["th > p:first-child", "th > p:last-child"],
+        "td-paragraph-margins": ["td > *:first-child", "td > *:last-child"],
+        "th-paragraph-margins": ["th > *:first-child", "th > *:last-child"],
         "table-borders": ["table", "td", "th"],
         "table-caption": ["caption"],
     };
@@ -442,12 +442,12 @@ var Styles_init;
         defaultStyle("@page","special",true,null).hidden = true;
 
         // "td-paragraph-margins"
-        defaultStyle("td > p:first-child","complex",true,{"margin-top": "0"});
-        defaultStyle("td > p:last-child","complex",true,{"margin-bottom": "0"});
+        defaultStyle("td > *:first-child","complex",true,{"margin-top": "0"});
+        defaultStyle("td > *:last-child","complex",true,{"margin-bottom": "0"});
 
         // "th-paragraph-margins"
-        defaultStyle("th > p:first-child","complex",true,{"margin-top": "0"});
-        defaultStyle("th > p:last-child","complex",true,{"margin-bottom": "0"});
+        defaultStyle("th > *:first-child","complex",true,{"margin-top": "0"});
+        defaultStyle("th > *:last-child","complex",true,{"margin-bottom": "0"});
 
         // "table-borders"
         defaultStyle("table","special",true,{"border-collapse": "collapse",
