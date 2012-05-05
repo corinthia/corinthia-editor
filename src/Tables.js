@@ -94,11 +94,11 @@ var Tables_getTableRegionFromRange;
     Table.prototype.processTable = function(node)
     {
         if ((DOM_upperName(node) == "TD") || (DOM_upperName(node) == "TH")) {
-            var cell = new Cell(node,this.row,this.col);
-            this.cellsByElement.put(node,cell);
-
             while (this.get(this.row,this.col) != null)
                 this.col++;
+
+            var cell = new Cell(node,this.row,this.col);
+            this.cellsByElement.put(node,cell);
 
             for (var r = 0; r < cell.rowspan; r++) {
                 for (var c = 0; c < cell.colspan; c++) {
@@ -225,7 +225,7 @@ var Tables_getTableRegionFromRange;
     // public
     function insertRowAbove()
     {
-        var region = Tables_getTableRegionFromRange(Selection_getSelectionRange());
+        var region = Tables_getTableRegionFromRange(Selection_getSelectionRange(),true);
         if (region != null) {
             var cell = region.structure.get(region.topRow,region.leftCol);
             var oldTR = cell.element.parentNode;
@@ -238,7 +238,7 @@ var Tables_getTableRegionFromRange;
     // public
     function insertRowBelow()
     {
-        var region = Tables_getTableRegionFromRange(Selection_getSelectionRange());
+        var region = Tables_getTableRegionFromRange(Selection_getSelectionRange(),true);
         if (region != null) {
             var cell = region.structure.get(region.bottomRow,region.leftCol);
             var oldTR = cell.element.parentNode;
@@ -349,7 +349,7 @@ var Tables_getTableRegionFromRange;
     // public
     function insertColumnLeft()
     {
-        var region = Tables_getTableRegionFromRange(Selection_getSelectionRange());
+        var region = Tables_getTableRegionFromRange(Selection_getSelectionRange(),true);
         if (region != null) {
             addCol(region.structure,region.leftCol,region.leftCol-1);
             addColumnCells(region.structure,region.leftCol,false);
@@ -359,7 +359,7 @@ var Tables_getTableRegionFromRange;
     // public
     function insertColumnRight()
     {
-        var region = Tables_getTableRegionFromRange(Selection_getSelectionRange());
+        var region = Tables_getTableRegionFromRange(Selection_getSelectionRange(),true);
         if (region != null) {
             addCol(region.structure,region.rightCol,region.rightCol+1);
             addColumnCells(region.structure,region.rightCol,true);
@@ -482,7 +482,7 @@ var Tables_getTableRegionFromRange;
     }
 
     // public
-    function getTableRegionFromRange(range)
+    function getTableRegionFromRange(range,allowSameCell)
     {
         var region = null;
 
@@ -496,8 +496,10 @@ var Tables_getTableRegionFromRange;
         var endTD = Tables_findContainingCell(end);
 
         if (!isTableCell(start) || !isTableCell(end)) {
-            if (startTD == endTD) // not in cell, or both in same cell
-                return null;
+            if (!allowSameCell) {
+                if (startTD == endTD) // not in cell, or both in same cell
+                    return null;
+            }
         }
 
         if ((startTD == null) || (endTD == null))
@@ -510,13 +512,25 @@ var Tables_getTableRegionFromRange;
             return null;
 
         var structure = Tables_analyseStructure(startTable);
+
         var startInfo = structure.cellsByElement.get(startTD);
         var endInfo = structure.cellsByElement.get(endTD);
 
-        var topRow = (startInfo.row < endInfo.row) ? startInfo.row : endInfo.row;
-        var bottomRow = (startInfo.row > endInfo.row) ? startInfo.row : endInfo.row;
-        var leftCol = (startInfo.col < endInfo.col) ? startInfo.col : endInfo.col;
-        var rightCol = (startInfo.col > endInfo.col) ? startInfo.col : endInfo.col;
+        var startTopRow = startInfo.row;
+        var startBottomRow = startInfo.row + startInfo.rowspan - 1;
+        var startLeftCol = startInfo.col;
+        var startRightCol = startInfo.col + startInfo.colspan - 1;
+
+        var endTopRow = endInfo.row;
+        var endBottomRow = endInfo.row + endInfo.rowspan - 1;
+        var endLeftCol = endInfo.col;
+        var endRightCol = endInfo.col + endInfo.colspan - 1;
+
+        var topRow = (startTopRow < endTopRow) ? startTopRow : endTopRow;
+        var bottomRow = (startBottomRow > endBottomRow) ? startBottomRow : endBottomRow;
+        var leftCol = (startLeftCol < endLeftCol) ? startLeftCol : endLeftCol;
+        var rightCol = (startRightCol > endRightCol) ? startRightCol : endRightCol;
+
         return new TableRegion(structure,topRow,bottomRow,leftCol,rightCol);
     }
 
