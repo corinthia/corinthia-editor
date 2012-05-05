@@ -248,12 +248,6 @@ var Tables_getTableRegionFromRange;
         }
     }
 
-    // public
-    function insertColumnLeft()
-    {
-        debug("insertColumnLeft()");
-    }
-
     function getColElements(table)
     {
         var cols = new Array();
@@ -282,62 +276,93 @@ var Tables_getTableRegionFromRange;
         }
     }
 
-    // public
-    function insertColumnRight()
+    function addCol(structure,oldIndex,right)
     {
         // FIXME: this currently assumes columns are always set, and will break if they aren't
         // FIXME: modify the test cases so that each column uses a different percentage, so we
         // can test that the width adjustment logic is working correctly.
-        var region = Tables_getTableRegionFromRange(Selection_getSelectionRange());
-        if (region != null) {
-            var trs = new Array();
-            var table = region.structure.element;
-            getTRs(table,trs);
+        var table = structure.element;
+        var cols = getColElements(table);
+        var colElements = getColElements(table);
+        var colWidths = getColWidths(colElements,structure.numCols);
 
-            var cols = getColElements(table);
-            var colElements = getColElements(table);
-            var colWidths = getColWidths(colElements,region.structure.numCols);
-
-            var prevColElement = colElements[region.rightCol];
-            var prevColWidth = colWidths[region.rightCol];
-            var newColWidth = prevColWidth;
-            var newColElement = DOM_createElement(document,"COL");
-            newColElement.setAttribute("width",prevColElement.getAttribute("width"));
+        var prevColElement = colElements[oldIndex];
+        var prevColWidth = colWidths[oldIndex];
+        var newColWidth = prevColWidth;
+        var newColElement = DOM_createElement(document,"COL");
+        newColElement.setAttribute("width",prevColElement.getAttribute("width"));
+//        newColElement.setAttribute("new","true");
+        if (right)
             DOM_insertBefore(prevColElement.parentNode,newColElement,prevColElement.nextSibling);
-            colElements.splice(region.rightCol,0,newColElement);
-            colWidths.splice(region.rightCol,0,newColWidth);
+        else
+            DOM_insertBefore(prevColElement.parentNode,newColElement,prevColElement);
 
-            var colWidthTotal = 0;
-            for (var i = 0; i < colWidths.length; i++)
-                colWidthTotal += colWidths[i];
+        if (right) {
+            colElements.splice(oldIndex+1,0,newColElement);
+            colWidths.splice(oldIndex+1,0,newColWidth);
+        }
+        else {
+            colElements.splice(oldIndex+1,0,newColElement);
+            colWidths.splice(oldIndex+1,0,newColWidth);
+        }
 
-            for (var i = 0; i < colElements.length; i++) {
-                var pct = 100*colWidths[i]/colWidthTotal;
-                colElements[i].setAttribute("width",pct+"%");
-            }
-            
+//        for (var i = 0; i < colElements.length; i++) {
+//            debug("colElements["+i+"] = "+colElements[i].outerHTML);
+//        }
 
-            for (var row = 0; row < region.structure.numRows; row++) {
-                var cell = region.structure.get(row,region.rightCol);
-                var oldTD = cell.element;
-                if (cell.row == row) {
+
+        var colWidthTotal = 0;
+        for (var i = 0; i < colWidths.length; i++)
+            colWidthTotal += colWidths[i];
+
+        for (var i = 0; i < colElements.length; i++) {
+            var pct = 100*colWidths[i]/colWidthTotal;
+            colElements[i].setAttribute("width",pct+"%");
+        }
+    }
+
+    function addColumnCells(structure,oldIndex,right)
+    {
+        for (var row = 0; row < structure.numRows; row++) {
+            var cell = structure.get(row,oldIndex);
+            var oldTD = cell.element;
+            if (cell.row == row) {
+
+                if (((right && (oldIndex+1 < cell.col + cell.colspan)) ||
+                    (!right && (oldIndex-1 >= cell.col))) &&
+                    (cell.colspan > 1)) {
+                    cell.setColspan(cell.colspan+1);
+                }
+                else {
                     var newTD = createEmptyTableCell(oldTD.nodeName);
-                    DOM_insertBefore(cell.element.parentNode,newTD,oldTD.nextSibling);
+                    if (right)
+                        DOM_insertBefore(cell.element.parentNode,newTD,oldTD.nextSibling);
+                    else
+                        DOM_insertBefore(cell.element.parentNode,newTD,oldTD);
                     if (cell.rowspan != 1)
                         newTD.setAttribute("rowspan",cell.rowspan);
                 }
             }
         }
+    }
 
-        function getTRs(node,result)
-        {
-            if (DOM_upperName(node) == "TR") {
-                result.push(node);
-            }
-            else {
-                for (var child = node.firstChild; child != null; child = child.nextSibling)
-                    getTRs(child,result);
-            }
+    // public
+    function insertColumnLeft()
+    {
+        var region = Tables_getTableRegionFromRange(Selection_getSelectionRange());
+        if (region != null) {
+            addCol(region.structure,region.leftCol,region.leftCol-1);
+            addColumnCells(region.structure,region.leftCol,false);
+        }
+    }
+
+    // public
+    function insertColumnRight()
+    {
+        var region = Tables_getTableRegionFromRange(Selection_getSelectionRange());
+        if (region != null) {
+            addCol(region.structure,region.rightCol,region.rightCol+1);
+            addColumnCells(region.structure,region.rightCol,true);
         }
     }
 
