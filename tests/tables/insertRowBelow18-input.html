@@ -11,17 +11,13 @@ function performTest()
     Styles_addDefaultRuleCategory("table-borders");
     PostponedActions_perform();
 
-    Tables_insertColumnRight();
+    Tables_insertRowBelow();
     showRangeAsBrackets(Selection_getSelectionRange());
 }
 </script>
 </head>
 <body>
   <table style="width: 100%">
-    <col width="25%">
-    <col width="25%">
-    <col width="25%">
-    <col width="25%">
     <tr>
       <td>[One</td>
       <td>Two</td>
@@ -31,16 +27,18 @@ function performTest()
     <tr>
       <td>Five</td>
       <td>Six</td>
-      <td rowspan="2" colspan="2">Seven</td>
-   </tr>
+      <td>Seven</td>
+      <td>Eight</td>
+    </tr>
     <tr>
       <td>Nine</td>
       <td>Ten</td>
-   </tr>
+      <td>Eleven</td>
+      <td>Twelve</td>
+    </tr>
     <tr>
       <td>Thirteen</td>
-      <td>Fourteen</td>
-      <td>Fifteen</td>
+      <th colspan="2">Fourteen</th>
       <td>Sixteen]</td>
     </tr>
   </table>
