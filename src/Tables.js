@@ -269,36 +269,48 @@ var Tables_getTableRegionFromRange;
         return cols;
     }
 
-    function getColWidths(cols,expectedCount)
+    function getColWidths(colElements,expectedCount)
     {
-        // FIXME
-        return defaultColValues();
-
-        function defaultColValues()
-        {
-            var array = new Array();
-            for (var i = 0; i < expectedCount; i++)
-                array.push(100/expectedCount);
-            return array;
+        var colWidths = new Array();
+        for (var i = 0; i < colElements.length; i++) {
+            if (colElements[i].hasAttribute("width"))
+                colWidths.push(colElements[i].getAttribute("width"));
+            else
+                colWidths.push("");
         }
+        return colWidths;
     }
+
 
     function addCol(structure,oldIndex,right)
     {
-        // FIXME: this currently assumes columns are always set, and will break if they aren't
-        // FIXME: modify the test cases so that each column uses a different percentage, so we
-        // can test that the width adjustment logic is working correctly.
         var table = structure.element;
-        var cols = getColElements(table);
+
         var colElements = getColElements(table);
+        if (colElements.length == 0) {
+            // The table doesn't have any COL elements; don't add any
+            return;
+        }
         var colWidths = getColWidths(colElements,structure.numCols);
+
+        // If there are fewer COL elements than there are colums, add extra ones, copying the
+        // width value from the last one
+        // FIXME: handle col elements with colspan > 1, as well as colgroups with width set
+        while (colWidths.length < structure.numCols) {
+            var newColElement = DOM_createElement(document,"COL");
+            var lastColElement = colElements[colElements.length-1];
+            var lastColWidth = colWidths[colWidths.length-1];
+            DOM_insertBefore(lastColElement.parentNode,newColElement,lastColElement.nextSibling);
+            colElements.push(newColElement);
+            newColElement.setAttribute("width",lastColElement.getAttribute("width"));
+            colWidths.push(lastColWidth);
+        }
 
         var prevColElement = colElements[oldIndex];
         var prevColWidth = colWidths[oldIndex];
         var newColWidth = prevColWidth;
         var newColElement = DOM_createElement(document,"COL");
         newColElement.setAttribute("width",prevColElement.getAttribute("width"));
-//        newColElement.setAttribute("new","true");
         if (right)
             DOM_insertBefore(prevColElement.parentNode,newColElement,prevColElement.nextSibling);
         else
@@ -313,18 +325,31 @@ var Tables_getTableRegionFromRange;
             colWidths.splice(oldIndex+1,0,newColWidth);
         }
 
-//        for (var i = 0; i < colElements.length; i++) {
-//            debug("colElements["+i+"] = "+colElements[i].outerHTML);
-//        }
+        var percentages = colWidths.map(getPercentage);
+        if (percentages.every(notNull)) {
+            var colWidthTotal = 0;
+            for (var i = 0; i < percentages.length; i++)
+                colWidthTotal += percentages[i];
 
+            for (var i = 0; i < colElements.length; i++) {
+                var pct = 100*percentages[i]/colWidthTotal;
+                // Store value using at most two decimal places
+                pct = Math.round(100*pct)/100;
+                colElements[i].setAttribute("width",pct+"%");
+            }
+        }
 
-        var colWidthTotal = 0;
-        for (var i = 0; i < colWidths.length; i++)
-            colWidthTotal += colWidths[i];
+        function notNull(arg)
+        {
+            return (arg != null);
+        }
 
-        for (var i = 0; i < colElements.length; i++) {
-            var pct = 100*colWidths[i]/colWidthTotal;
-            colElements[i].setAttribute("width",pct+"%");
+        function getPercentage(str)
+        {
+            if (str.match(/^\s*\d+(\.\d+)?\s*%\s*$/))
+                return parseInt(str.replace(/\s*%\s*$/,""));
+            else
+                return null;
         }
     }
 
