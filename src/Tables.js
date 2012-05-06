@@ -328,8 +328,8 @@ var Tables_getTableRegionFromRange;
         }
     }
 
-    addCol = trace(addCol);
-    function addCol(structure,oldIndex,right)
+    addColElement = trace(addColElement);
+    function addColElement(structure,oldIndex,right)
     {
         var table = structure.element;
 
@@ -409,7 +409,7 @@ var Tables_getTableRegionFromRange;
     {
         var region = Tables_getTableRegionFromRange(Selection_getSelectionRange(),true);
         if (region != null) {
-            addCol(region.structure,region.left,region.left-1);
+            addColElement(region.structure,region.left,region.left-1);
             addColumnCells(region.structure,region.left,false);
         }
     }
@@ -419,7 +419,7 @@ var Tables_getTableRegionFromRange;
     {
         var region = Tables_getTableRegionFromRange(Selection_getSelectionRange(),true);
         if (region != null) {
-            addCol(region.structure,region.right,region.right+1);
+            addColElement(region.structure,region.right,region.right+1);
             addColumnCells(region.structure,region.right,true);
         }
     }
