@@ -11,12 +11,8 @@ function performTest()
     Styles_addDefaultRuleCategory("table-borders");
     PostponedActions_perform();
 
-    var range = Selection_getSelectionRange();
-    range.trackWhileExecuting(function() {
-        var region = Tables_getTableRegionFromRange(range,true);
-        Tables_split(region);
-    });
-    showRangeAsBrackets(range);
+    Tables_splitSelection();
+    showRangeAsBrackets(Selection_getSelectionRange());
 }
 </script>
 </head>

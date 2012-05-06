@@ -8,8 +8,7 @@ var Tables_insertColumnRight;
 var Tables_deleteRegion;
 var Tables_clearCells;
 var Tables_mergeCells;
-var Tables_splitCell;
-var Tables_split;
+var Tables_splitSelection;
 var Tables_cloneRegion;
 var Tables_analyseStructure;
 var Tables_findContainingCell;
@@ -559,13 +558,18 @@ var Tables_getTableRegionFromRange;
     }
 
     // public
-    function splitCell()
+    function splitSelection()
     {
-        debug("splitCell()");
+        var range = Selection_getSelectionRange();
+        range.trackWhileExecuting(function() {
+            var region = Tables_getTableRegionFromRange(range,true);
+            if (region != null)
+                splitCellsInRegion(region);
+        });
     }
 
-    // public
-    function split(region)
+    splitCellsInRegion= trace(splitCellsInRegion);
+    function splitCellsInRegion(region)
     {
         var structure = region.structure;
         var trElements = new Array();
@@ -761,8 +765,7 @@ var Tables_getTableRegionFromRange;
     Tables_deleteRegion = trace(deleteRegion);
     Tables_clearCells = trace(clearCells);
     Tables_mergeCells = trace(mergeCells);
-    Tables_splitCell = trace(splitCell);
-    Tables_split = trace(split);
+    Tables_splitSelection = trace(splitSelection);
     Tables_cloneRegion = trace(cloneRegion);
     Tables_analyseStructure = trace(analyseStructure);
     Tables_findContainingCell = trace(findContainingCell);
