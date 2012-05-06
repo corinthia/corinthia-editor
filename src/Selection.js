@@ -125,8 +125,8 @@ var Selection_trackWhileExecuting;
 
         var sel = tableSelection;
 
-        var topLeftTD = sel.structure.get(sel.topRow,sel.leftCol);
-        var bottomRightTD = sel.structure.get(sel.bottomRow,sel.rightCol);
+        var topLeftTD = sel.structure.get(sel.top,sel.left);
+        var bottomRightTD = sel.structure.get(sel.bottom,sel.right);
 
         var topLeftRect = topLeftTD.element.getBoundingClientRect();
         var bottomRightRect = bottomRightTD.element.getBoundingClientRect();
@@ -507,18 +507,18 @@ var Selection_trackWhileExecuting;
         if (pointInfo == null)
             return;
 
-        if ((edge == "top") && (pointInfo.row <= tableSelection.bottomRow))
-            tableSelection.topRow = pointInfo.row;
-        else if ((edge == "bottom") && (pointInfo.row >= tableSelection.topRow))
-            tableSelection.bottomRow = pointInfo.row;
-        else if ((edge == "left") && (pointInfo.col <= tableSelection.rightCol))
-            tableSelection.leftCol = pointInfo.col;
-        else if ((edge == "right") && (pointInfo.col >= tableSelection.leftCol))
-            tableSelection.rightCol = pointInfo.col;
+        if ((edge == "top") && (pointInfo.row <= tableSelection.bottom))
+            tableSelection.top = pointInfo.row;
+        else if ((edge == "bottom") && (pointInfo.row >= tableSelection.top))
+            tableSelection.bottom = pointInfo.row;
+        else if ((edge == "left") && (pointInfo.col <= tableSelection.right))
+            tableSelection.left = pointInfo.col;
+        else if ((edge == "right") && (pointInfo.col >= tableSelection.left))
+            tableSelection.right = pointInfo.col;
 
         // FIXME: handle the case where there is no cell at the specified row and column
-        var topLeftCell = structure.get(tableSelection.topRow,tableSelection.leftCol);
-        var bottomRightCell = structure.get(tableSelection.bottomRow,tableSelection.rightCol);
+        var topLeftCell = structure.get(tableSelection.top,tableSelection.left);
+        var bottomRightCell = structure.get(tableSelection.bottom,tableSelection.right);
 
         var topLeftNode = topLeftCell.element.parentNode;
         var topLeftOffset = DOM_nodeOffset(topLeftCell.element);

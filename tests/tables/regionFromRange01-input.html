@@ -14,10 +14,10 @@ function performTest()
     showRangeAsBrackets(Selection_getSelectionRange());
 
     var region = Tables_getTableRegionFromRange(Selection_getSelectionRange());
-    return "top "+region.topRow+"\n"+
-        "left "+region.leftCol+"\n"+
-        "bottom "+region.bottomRow+"\n"+
-        "right "+region.rightCol+"\n";
+    return "top "+region.top+"\n"+
+        "left "+region.left+"\n"+
+        "bottom "+region.bottom+"\n"+
+        "right "+region.right+"\n";
 }
 </script>
 </head>

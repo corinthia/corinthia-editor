@@ -227,11 +227,11 @@ var Tables_getTableRegionFromRange;
     {
         var region = Tables_getTableRegionFromRange(Selection_getSelectionRange(),true);
         if (region != null) {
-            var cell = region.structure.get(region.topRow,region.leftCol);
+            var cell = region.structure.get(region.top,region.left);
             var oldTR = cell.element.parentNode;
             var newTR = DOM_createElement(document,"TR");
             DOM_insertBefore(oldTR.parentNode,newTR,oldTR);
-            populateNewRow(region.structure,newTR,region.topRow-1,region.topRow);
+            populateNewRow(region.structure,newTR,region.top-1,region.top);
         }
     }
 
@@ -240,11 +240,11 @@ var Tables_getTableRegionFromRange;
     {
         var region = Tables_getTableRegionFromRange(Selection_getSelectionRange(),true);
         if (region != null) {
-            var cell = region.structure.get(region.bottomRow,region.leftCol);
+            var cell = region.structure.get(region.bottom,region.left);
             var oldTR = cell.element.parentNode;
             var newTR = DOM_createElement(document,"TR");
             DOM_insertBefore(oldTR.parentNode,newTR,oldTR.nextSibling);
-            populateNewRow(region.structure,newTR,region.bottomRow+1,region.bottomRow);
+            populateNewRow(region.structure,newTR,region.bottom+1,region.bottom);
         }
     }
 
@@ -351,8 +351,8 @@ var Tables_getTableRegionFromRange;
     {
         var region = Tables_getTableRegionFromRange(Selection_getSelectionRange(),true);
         if (region != null) {
-            addCol(region.structure,region.leftCol,region.leftCol-1);
-            addColumnCells(region.structure,region.leftCol,false);
+            addCol(region.structure,region.left,region.left-1);
+            addColumnCells(region.structure,region.left,false);
         }
     }
 
@@ -361,8 +361,8 @@ var Tables_getTableRegionFromRange;
     {
         var region = Tables_getTableRegionFromRange(Selection_getSelectionRange(),true);
         if (region != null) {
-            addCol(region.structure,region.rightCol,region.rightCol+1);
-            addColumnCells(region.structure,region.rightCol,true);
+            addCol(region.structure,region.right,region.right+1);
+            addColumnCells(region.structure,region.right,true);
         }
     }
 
@@ -394,16 +394,16 @@ var Tables_getTableRegionFromRange;
         // FIXME: handle the case of missing cells
         // (or even better, add cells where there are some missing)
 
-        for (var row = region.topRow; row <= region.bottomRow; row++) {
-            for (var col = region.leftCol; col <= region.rightCol; col++) {
+        for (var row = region.top; row <= region.bottom; row++) {
+            for (var col = region.left; col <= region.right; col++) {
                 var cell = structure.get(row,col);
                 var cellFirstRow = cell.row;
                 var cellLastRow = cell.row + cell.rowspan - 1;
                 var cellFirstCol = cell.col;
                 var cellLastCol = cell.col + cell.colspan - 1;
 
-                if ((cellFirstRow < region.topRow) || (cellLastRow > region.bottomRow) ||
-                    (cellFirstCol < region.leftCol) || (cellLastCol > region.rightCol)) {
+                if ((cellFirstRow < region.top) || (cellLastRow > region.bottom) ||
+                    (cellFirstCol < region.left) || (cellLastCol > region.right)) {
                     debug("Can't merge this table: cell at "+row+","+col+" goes outside bounds "+
                           "of selection");
                     return;
@@ -411,10 +411,10 @@ var Tables_getTableRegionFromRange;
             }
         }
 
-        var mergedCell = structure.get(region.topRow,region.leftCol);
+        var mergedCell = structure.get(region.top,region.left);
 
-        for (var row = region.topRow; row <= region.bottomRow; row++) {
-            for (var col = region.leftCol; col <= region.rightCol; col++) {
+        for (var row = region.top; row <= region.bottom; row++) {
+            for (var col = region.left; col <= region.right; col++) {
                 var cell = structure.get(row,col);
                 // parentNode will be null if we've already done this cell
                 if ((cell != mergedCell) && (cell.element.parentNode != null)) {
@@ -428,8 +428,8 @@ var Tables_getTableRegionFromRange;
             }
         }
 
-        var totalRows = region.bottomRow - region.topRow + 1;
-        var totalCols = region.rightCol - region.leftCol + 1;
+        var totalRows = region.bottom - region.top + 1;
+        var totalCols = region.right - region.left + 1;
         if (totalRows == 1)
             mergedCell.element.removeAttribute("rowspan");
         else
@@ -472,13 +472,13 @@ var Tables_getTableRegionFromRange;
         return null;
     }
 
-    function TableRegion(structure,topRow,bottomRow,leftCol,rightCol)
+    function TableRegion(structure,top,bottom,left,right)
     {
         this.structure = structure;
-        this.topRow = topRow;
-        this.bottomRow = bottomRow;
-        this.leftCol = leftCol;
-        this.rightCol = rightCol;
+        this.top = top;
+        this.bottom = bottom;
+        this.left = left;
+        this.right = right;
     }
 
     // public
@@ -526,12 +526,12 @@ var Tables_getTableRegionFromRange;
         var endLeftCol = endInfo.col;
         var endRightCol = endInfo.col + endInfo.colspan - 1;
 
-        var topRow = (startTopRow < endTopRow) ? startTopRow : endTopRow;
-        var bottomRow = (startBottomRow > endBottomRow) ? startBottomRow : endBottomRow;
-        var leftCol = (startLeftCol < endLeftCol) ? startLeftCol : endLeftCol;
-        var rightCol = (startRightCol > endRightCol) ? startRightCol : endRightCol;
+        var top = (startTopRow < endTopRow) ? startTopRow : endTopRow;
+        var bottom = (startBottomRow > endBottomRow) ? startBottomRow : endBottomRow;
+        var left = (startLeftCol < endLeftCol) ? startLeftCol : endLeftCol;
+        var right = (startRightCol > endRightCol) ? startRightCol : endRightCol;
 
-        return new TableRegion(structure,topRow,bottomRow,leftCol,rightCol);
+        return new TableRegion(structure,top,bottom,left,right);
     }
 
     Tables_insertTable = trace(insertTable);
