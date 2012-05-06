@@ -36,6 +36,11 @@ var Tables_getTableRegionFromRange;
             this.colspan = 1;
         if (this.rowspan < 1)
             this.rowspan = 1;
+
+        this.top = this.row;
+        this.bottom = this.top + this.rowspan - 1;
+        this.left = this.col;
+        this.right = this.left + this.colspan - 1;
     }
 
     Cell.prototype.setRowspan = function(rowspan)
@@ -43,6 +48,7 @@ var Tables_getTableRegionFromRange;
         if (rowspan < 1)
             rowspan = 1;
         this.rowspan = rowspan;
+        this.bottom = this.top + this.rowspan - 1;
         if (rowspan == 1)
             this.element.removeAttribute("rowspan");
         else
@@ -54,6 +60,7 @@ var Tables_getTableRegionFromRange;
         if (colspan < 1)
             colspan = 1;
         this.colspan = colspan;
+        this.right = this.left + this.colspan - 1;
         if (colspan == 1)
             this.element.removeAttribute("colspan");
         else
@@ -531,7 +538,44 @@ var Tables_getTableRegionFromRange;
         var left = (startLeftCol < endLeftCol) ? startLeftCol : endLeftCol;
         var right = (startRightCol > endRightCol) ? startRightCol : endRightCol;
 
-        return new TableRegion(structure,top,bottom,left,right);
+        var region = new TableRegion(structure,top,bottom,left,right);
+        adjustRegionForSpannedCells(region);
+        return region;
+    }
+
+    function adjustRegionForSpannedCells(region)
+    {
+        var structure = region.structure;
+        var boundariesOk;
+        var columnsOk;
+        do {
+            boundariesOk = true;
+            for (var row = region.top; row <= region.bottom; row++) {
+                var cell = structure.get(row,region.left);
+                if (region.left > cell.left) {
+                    region.left = cell.left;
+                    boundariesOk = false;
+                }
+                cell = structure.get(row,region.right);
+                if (region.right < cell.right) {
+                    region.right = cell.right;
+                    boundariesOk = false;
+                }
+            }
+
+            for (var col = region.left; col <= region.right; col++) {
+                var cell = structure.get(region.top,col);
+                if (region.top > cell.top) {
+                    region.top = cell.top;
+                    boundariesOk = false;
+                }
+                cell = structure.get(region.bottom,col);
+                if (region.bottom < cell.bottom) {
+                    region.bottom = cell.bottom;
+                    boundariesOk = false;
+                }
+            }
+        } while (!boundariesOk);
     }
 
     Tables_insertTable = trace(insertTable);
