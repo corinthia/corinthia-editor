@@ -247,7 +247,12 @@ var Clipboard_pasteNodes;
         var text = "";
 
         if (selectionRange != null) {
-            var nodes = selectionRange.cloneContents();
+            var nodes;
+            var region = Tables_getTableRegionFromRange(selectionRange);
+            if (region != null)
+                nodes = [Tables_cloneRegion(region)];
+            else
+                nodes = selectionRange.cloneContents();
 
             var div = DOM_createElement(document,"DIV");
             for (var i = 0; i < nodes.length; i++)

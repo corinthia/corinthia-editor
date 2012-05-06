@@ -9,6 +9,7 @@ var Tables_deleteRegion;
 var Tables_clearCells;
 var Tables_mergeCells;
 var Tables_splitCell;
+var Tables_cloneRegion;
 var Tables_analyseStructure;
 var Tables_findContainingCell;
 var Tables_findContainingTable;
@@ -562,6 +563,25 @@ var Tables_getTableRegionFromRange;
     }
 
     // public
+    function cloneRegion(region)
+    {
+        var cellNodesDone = new NodeSet();
+        var table = DOM_shallowCopyElement(region.structure.element);
+        for (var row = region.top; row <= region.bottom; row++) {
+            var tr = DOM_createElement(document,"TR");
+            DOM_appendChild(table,tr);
+            for (var col = region.left; col <= region.right; col++) {
+                var cell = region.structure.get(row,col);
+                if (!cellNodesDone.contains(cell.element)) {
+                    DOM_appendChild(tr,DOM_cloneNode(cell.element,true));
+                    cellNodesDone.add(cell.element);
+                }
+            }
+        }
+        return table;
+    }
+
+    // public
     function analyseStructure(element)
     {
         return new Table(element);
@@ -700,6 +720,7 @@ var Tables_getTableRegionFromRange;
     Tables_clearCells = trace(clearCells);
     Tables_mergeCells = trace(mergeCells);
     Tables_splitCell = trace(splitCell);
+    Tables_cloneRegion = trace(cloneRegion);
     Tables_analyseStructure = trace(analyseStructure);
     Tables_findContainingCell = trace(findContainingCell);
     Tables_findContainingTable = trace(findContainingTable);

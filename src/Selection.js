@@ -640,7 +640,7 @@ var Selection_trackWhileExecuting;
 
         selectionRange.trackWhileExecuting(function() {
             var region = Tables_getTableRegionFromRange(selectionRange);
-            if (tableSelection != null) {
+            if (region != null) {
                 Tables_deleteRegion(region);
             }
             else {
