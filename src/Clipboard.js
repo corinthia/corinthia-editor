@@ -307,6 +307,13 @@ var Clipboard_pasteNodes;
     // public
     function pasteNodes(nodes)
     {
+        if ((nodes.length == 0) && isTableNode(nodes[0])) {
+            var fromRegion = Tables_getTableRegionFromTable(nodes[0]);
+            var toRegion = Tables_getTableRegionFromRange(selectionRange);
+            if (toRegion != null) {
+                return;
+            }
+        }
         Selection_deleteSelectionContents(true);
         var selectionRange = Selection_getSelectionRange();
         if (selectionRange == null)

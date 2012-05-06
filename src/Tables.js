@@ -9,6 +9,7 @@ var Tables_deleteRegion;
 var Tables_clearCells;
 var Tables_mergeCells;
 var Tables_splitCell;
+var Tables_split;
 var Tables_cloneRegion;
 var Tables_analyseStructure;
 var Tables_findContainingCell;
@@ -438,15 +439,16 @@ var Tables_getTableRegionFromRange;
         for (var row = top; row <= bottom; row++)
             DOM_deleteNode(trElements[row]);
 
-        function getTRs(node,result)
-        {
-            if (DOM_upperName(node) == "TR") {
-                result.push(node);
-            }
-            else {
-                for (var child = node.firstChild; child != null; child = child.nextSibling)
-                    getTRs(child,result);
-            }
+    }
+
+    function getTRs(node,result)
+    {
+        if (DOM_upperName(node) == "TR") {
+            result.push(node);
+        }
+        else {
+            for (var child = node.firstChild; child != null; child = child.nextSibling)
+                getTRs(child,result);
         }
     }
 
@@ -563,6 +565,40 @@ var Tables_getTableRegionFromRange;
     }
 
     // public
+    function split(region)
+    {
+        var structure = region.structure;
+        var trElements = new Array();
+        getTRs(structure.element,trElements);
+
+        for (var row = region.top; row <= region.bottom; row++) {
+            for (var col = region.left; col <= region.right; col++) {
+                var cell = structure.get(row,col);
+                if ((cell.rowspan > 1) || (cell.colspan > 1)) {
+
+                    var original = cell.element;
+
+                    for (var r = cell.top; r <= cell.bottom; r++) {
+                        for (var c = cell.left; c <= cell.right; c++) {
+                            if ((r == cell.top) && (c == cell.left))
+                                continue;
+                            var newTD = createEmptyTableCell(original.nodeName);
+                            var nextCell = structure.get(r,cell.right+1);
+                            var nextElement = null;
+                            if ((nextCell != null) && (nextCell.row == r))
+                                nextElement = nextCell.element;
+                            DOM_insertBefore(trElements[r],newTD,nextElement);
+                            structure.set(r,c,new Cell(newTD,r,c));
+                        }
+                    }
+                    original.removeAttribute("rowspan");
+                    original.removeAttribute("colspan");
+                }
+            }
+        }
+    }
+
+    // public
     function cloneRegion(region)
     {
         var cellNodesDone = new NodeSet();
@@ -579,6 +615,12 @@ var Tables_getTableRegionFromRange;
             }
         }
         return table;
+    }
+
+    // public
+    function pasteCells(fromTableElement,toRegion)
+    {
+        var fromStructure = Tables_analyseStructure(fromTableElement);
     }
 
     // public
@@ -720,6 +762,7 @@ var Tables_getTableRegionFromRange;
     Tables_clearCells = trace(clearCells);
     Tables_mergeCells = trace(mergeCells);
     Tables_splitCell = trace(splitCell);
+    Tables_split = trace(split);
     Tables_cloneRegion = trace(cloneRegion);
     Tables_analyseStructure = trace(analyseStructure);
     Tables_findContainingCell = trace(findContainingCell);
