@@ -564,6 +564,71 @@ var Selection_trackWhileExecuting;
         Selection_setSelectionRange(new Range(node,offset,node,offset));
     }
 
+    function deleteTextSelection(selectionRange)
+    {
+        var nodes = selectionRange.getOutermostNodes();
+        for (var i = 0; i < nodes.length; i++) {
+            var node = nodes[i];
+
+            var removeWholeNode = false;
+
+            if ((node == selectionRange.start.node) &&
+                (node == selectionRange.end.node)) {
+                var startOffset = selectionRange.start.offset;
+                var endOffset = selectionRange.end.offset;
+                if ((node.nodeType == Node.TEXT_NODE) &&
+                    ((startOffset > 0) || (endOffset < node.nodeValue.length))) {
+                    DOM_deleteCharacters(node,startOffset,endOffset);
+                }
+                else {
+                    removeWholeNode = true;
+                }
+            }
+            else if (node == selectionRange.start.node) {
+                var offset = selectionRange.start.offset;
+                if ((node.nodeType == Node.TEXT_NODE) && (offset > 0)) {
+                    DOM_deleteCharacters(node,offset);
+                }
+                else {
+                    removeWholeNode = true;
+                }
+            }
+            else if (node == selectionRange.end.node) {
+                var offset = selectionRange.end.offset;
+                if ((node.nodeType == Node.TEXT_NODE) && (offset < node.nodeValue.length)) {
+                    DOM_deleteCharacters(node,0,offset);
+                }
+                else {
+                    removeWholeNode = true;
+                }
+            }
+            else {
+                removeWholeNode = true;
+            }
+
+            if (removeWholeNode) {
+                if ((DOM_upperName(node) == "TD") || (DOM_upperName(node) == "TH"))
+                    DOM_deleteAllChildren(node);
+                else
+                    DOM_deleteNode(node);
+            }
+        }
+
+        var detail = selectionRange.detail();
+
+        if ((detail.startAncestor != null) && (detail.endAncestor != null) &&
+            (detail.startAncestor.nextSibling == detail.endAncestor)) {
+            prepareForMerge(detail);
+            DOM_mergeWithNextSibling(detail.startAncestor,
+                                     Formatting_MERGEABLE_BLOCK_AND_INLINE);
+            if (isParagraphNode(detail.startAncestor) &&
+                (DOM_upperName(detail.startAncestor) != "DIV"))
+                removeParagraphDescendants(detail.startAncestor);
+        }
+
+        Cursor_updateBRAtEndOfParagraph(selectionRange.singleNode());
+    }
+
     // public
     function deleteSelectionContents(allowInvalidCursorPos)
     {
@@ -572,68 +637,15 @@ var Selection_trackWhileExecuting;
 
         selectionRange = selectionRange.forwards();
 
+
         selectionRange.trackWhileExecuting(function() {
-            var nodes = selectionRange.getOutermostNodes();
-            for (var i = 0; i < nodes.length; i++) {
-                var node = nodes[i];
-
-                var removeWholeNode = false;
-
-                if ((node == selectionRange.start.node) &&
-                    (node == selectionRange.end.node)) {
-                    var startOffset = selectionRange.start.offset;
-                    var endOffset = selectionRange.end.offset;
-                    if ((node.nodeType == Node.TEXT_NODE) &&
-                        ((startOffset > 0) || (endOffset < node.nodeValue.length))) {
-                        DOM_deleteCharacters(node,startOffset,endOffset);
-                    }
-                    else {
-                        removeWholeNode = true;
-                    }
-                }
-                else if (node == selectionRange.start.node) {
-                    var offset = selectionRange.start.offset;
-                    if ((node.nodeType == Node.TEXT_NODE) && (offset > 0)) {
-                        DOM_deleteCharacters(node,offset);
-                    }
-                    else {
-                        removeWholeNode = true;
-                    }
-                }
-                else if (node == selectionRange.end.node) {
-                    var offset = selectionRange.end.offset;
-                    if ((node.nodeType == Node.TEXT_NODE) && (offset < node.nodeValue.length)) {
-                        DOM_deleteCharacters(node,0,offset);
-                    }
-                    else {
-                        removeWholeNode = true;
-                    }
-                }
-                else {
-                    removeWholeNode = true;
-                }
-
-                if (removeWholeNode) {
-                    if ((DOM_upperName(node) == "TD") || (DOM_upperName(node) == "TH"))
-                        DOM_deleteAllChildren(node);
-                    else
-                        DOM_deleteNode(node);
-                }
+            var region = Tables_getTableRegionFromRange(selectionRange);
+            if (tableSelection != null) {
+                Tables_deleteRegion(region);
             }
-
-            var detail = selectionRange.detail();
-
-            if ((detail.startAncestor != null) && (detail.endAncestor != null) &&
-                (detail.startAncestor.nextSibling == detail.endAncestor)) {
-                prepareForMerge(detail);
-                DOM_mergeWithNextSibling(detail.startAncestor,
-                                         Formatting_MERGEABLE_BLOCK_AND_INLINE);
-                if (isParagraphNode(detail.startAncestor) &&
-                    (DOM_upperName(detail.startAncestor) != "DIV"))
-                    removeParagraphDescendants(detail.startAncestor);
+            else {
+                deleteTextSelection(selectionRange);
             }
-
-            Cursor_updateBRAtEndOfParagraph(selectionRange.singleNode());
         });
 
         if (allowInvalidCursorPos) {

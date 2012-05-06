@@ -5,8 +5,7 @@ var Tables_insertRowAbove;
 var Tables_insertRowBelow;
 var Tables_insertColumnLeft;
 var Tables_insertColumnRight;
-var Tables_deleteRows;
-var Tables_deleteColumns;
+var Tables_deleteRegion;
 var Tables_clearCells;
 var Tables_mergeCells;
 var Tables_splitCell;
@@ -281,49 +280,25 @@ var Tables_getTableRegionFromRange;
         return colWidths;
     }
 
-
-    function addCol(structure,oldIndex,right)
+    addMissingColElements = trace(addMissingColElements);
+    function addMissingColElements(structure,colElements)
     {
-        var table = structure.element;
-
-        var colElements = getColElements(table);
-        if (colElements.length == 0) {
-            // The table doesn't have any COL elements; don't add any
-            return;
-        }
-        var colWidths = getColWidths(colElements,structure.numCols);
-
         // If there are fewer COL elements than there are colums, add extra ones, copying the
         // width value from the last one
         // FIXME: handle col elements with colspan > 1, as well as colgroups with width set
-        while (colWidths.length < structure.numCols) {
+        while (colElements.length < structure.numCols) {
             var newColElement = DOM_createElement(document,"COL");
             var lastColElement = colElements[colElements.length-1];
-            var lastColWidth = colWidths[colWidths.length-1];
             DOM_insertBefore(lastColElement.parentNode,newColElement,lastColElement.nextSibling);
             colElements.push(newColElement);
             newColElement.setAttribute("width",lastColElement.getAttribute("width"));
-            colWidths.push(lastColWidth);
         }
+    }
 
-        var prevColElement = colElements[oldIndex];
-        var prevColWidth = colWidths[oldIndex];
-        var newColWidth = prevColWidth;
-        var newColElement = DOM_createElement(document,"COL");
-        newColElement.setAttribute("width",prevColElement.getAttribute("width"));
-        if (right)
-            DOM_insertBefore(prevColElement.parentNode,newColElement,prevColElement.nextSibling);
-        else
-            DOM_insertBefore(prevColElement.parentNode,newColElement,prevColElement);
-
-        if (right) {
-            colElements.splice(oldIndex+1,0,newColElement);
-            colWidths.splice(oldIndex+1,0,newColWidth);
-        }
-        else {
-            colElements.splice(oldIndex+1,0,newColElement);
-            colWidths.splice(oldIndex+1,0,newColWidth);
-        }
+    fixColPercentages = trace(fixColPercentages);
+    function fixColPercentages(structure,colElements)
+    {
+        var colWidths = getColWidths(colElements,structure.numCols);
 
         var percentages = colWidths.map(getPercentage);
         if (percentages.every(notNull)) {
@@ -351,6 +326,57 @@ var Tables_getTableRegionFromRange;
             else
                 return null;
         }
+    }
+
+    addCol = trace(addCol);
+    function addCol(structure,oldIndex,right)
+    {
+        var table = structure.element;
+
+        var colElements = getColElements(table);
+        if (colElements.length == 0) {
+            // The table doesn't have any COL elements; don't add any
+            return;
+        }
+
+        addMissingColElements(structure,colElements);
+
+        var prevColElement = colElements[oldIndex];
+        var newColElement = DOM_createElement(document,"COL");
+        newColElement.setAttribute("width",prevColElement.getAttribute("width"));
+        if (right)
+            DOM_insertBefore(prevColElement.parentNode,newColElement,prevColElement.nextSibling);
+        else
+            DOM_insertBefore(prevColElement.parentNode,newColElement,prevColElement);
+
+        if (right) {
+            colElements.splice(oldIndex+1,0,newColElement);
+        }
+        else {
+            colElements.splice(oldIndex+1,0,newColElement);
+        }
+
+        fixColPercentages(structure,colElements);
+    }
+
+    deleteColElements = trace(deleteColElements);
+    function deleteColElements(structure,left,right)
+    {
+        var table = structure.element;
+
+        var colElements = getColElements(table);
+        if (colElements.length == 0) {
+            // The table doesn't have any COL elements
+            return;
+        }
+
+        addMissingColElements(structure,colElements);
+
+        for (var col = left; col <= right; col++)
+            DOM_deleteNode(colElements[col]);
+        colElements.splice(left,right-left+1);
+
+        fixColPercentages(structure,colElements);
     }
 
     function addColumnCells(structure,oldIndex,right)
@@ -398,14 +424,71 @@ var Tables_getTableRegionFromRange;
         }
     }
 
-    // public
-    function deleteRows()
+    function deleteTable(structure)
     {
+        DOM_deleteNode(structure.element);
+    }
+
+    function deleteRows(structure,top,bottom)
+    {
+        var trElements = new Array();
+        getTRs(structure.element,trElements);
+
+        for (var row = top; row <= bottom; row++)
+            DOM_deleteNode(trElements[row]);
+
+        function getTRs(node,result)
+        {
+            if (DOM_upperName(node) == "TR") {
+                result.push(node);
+            }
+            else {
+                for (var child = node.firstChild; child != null; child = child.nextSibling)
+                    getTRs(child,result);
+            }
+        }
+    }
+
+    function deleteColumns(structure,left,right)
+    {
+        var nodesToDelete = new NodeSet();
+        for (var row = 0; row < structure.numRows; row++) {
+            for (var col = left; col <= right; col++) {
+                var cell = structure.get(row,col);
+                nodesToDelete.add(cell.element);
+            }
+        }
+        nodesToDelete.forEach(DOM_deleteNode);
+        deleteColElements(structure,left,right);
+    }
+
+    function deleteCellContents(region)
+    {
+        var structure = region.structure;
+        for (var row = region.top; row <= region.bottom; row++) {
+            for (var col = region.left; col <= region.right; col++) {
+                var cell = structure.get(row,col);
+                DOM_deleteAllChildren(cell.element);
+            }
+        }
     }
 
     // public
-    function deleteColumns()
+    function deleteRegion(region)
     {
+        var structure = region.structure;
+
+        var coversEntireWidth = (region.left == 0) && (region.right == structure.numCols-1);
+        var coversEntireHeight = (region.top == 0) && (region.bottom == structure.numRows-1);
+
+        if (coversEntireWidth && coversEntireHeight)
+            deleteTable(region.structure);
+        else if (coversEntireWidth)
+            deleteRows(structure,region.top,region.bottom);
+        else if (coversEntireHeight)
+            deleteColumns(structure,region.left,region.right);
+        else
+            deleteCellContents(region);
     }
 
     // public
@@ -513,6 +596,11 @@ var Tables_getTableRegionFromRange;
         this.right = right;
     }
 
+    TableRegion.prototype.toString = function()
+    {
+        return "("+this.top+","+this.left+") - ("+this.bottom+","+this.right+")";
+    }
+
     // public
     function getTableRegionFromRange(range,allowSameCell)
     {
@@ -608,8 +696,7 @@ var Tables_getTableRegionFromRange;
     Tables_insertRowBelow = trace(insertRowBelow);
     Tables_insertColumnLeft = trace(insertColumnLeft);
     Tables_insertColumnRight = trace(insertColumnRight);
-    Tables_deleteRows = trace(deleteRows);
-    Tables_deleteColumns = trace(deleteColumns);
+    Tables_deleteRegion = trace(deleteRegion);
     Tables_clearCells = trace(clearCells);
     Tables_mergeCells = trace(mergeCells);
     Tables_splitCell = trace(splitCell);
