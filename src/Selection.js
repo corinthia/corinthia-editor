@@ -565,7 +565,7 @@ var Selection_trackWhileExecuting;
     }
 
     // public
-    function deleteSelectionContents()
+    function deleteSelectionContents(allowInvalidCursorPos)
     {
         if (selectionRange == null)
             return;
@@ -636,7 +636,13 @@ var Selection_trackWhileExecuting;
             Cursor_updateBRAtEndOfParagraph(selectionRange.singleNode());
         });
 
-        setEmptySelectionAt(selectionRange.start.node,selectionRange.start.offset);
+        if (allowInvalidCursorPos) {
+            setEmptySelectionAt(selectionRange.start.node,selectionRange.start.offset);
+        }
+        else {
+            var pos = Cursor_closestPositionForwards(selectionRange.start);
+            setEmptySelectionAt(pos.node,pos.offset);
+        }
     }
 
     function removeParagraphDescendants(parent)

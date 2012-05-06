@@ -302,7 +302,7 @@ var Clipboard_pasteNodes;
     // public
     function pasteNodes(nodes)
     {
-        Selection_deleteSelectionContents();
+        Selection_deleteSelectionContents(true);
         var selectionRange = Selection_getSelectionRange();
         if (selectionRange == null)
             return;
