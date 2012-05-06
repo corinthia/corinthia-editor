@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script language="javascript">
+function performTest()
+{
+    Outline_init();
+    Styles_init();
+    Styles_addDefaultRuleCategory("td-paragraph-margins");
+    Styles_addDefaultRuleCategory("th-paragraph-margins");
+    Styles_addDefaultRuleCategory("table-borders");
+    PostponedActions_perform();
+
+    var range = Selection_getSelectionRange();
+    range.trackWhileExecuting(function() {
+        var region = Tables_getTableRegionFromRange(range);
+        Tables_split(region);
+    });
+    showRangeAsBrackets(range);
+}
+</script>
+</head>
+<body>
+  <table style="width: 100%">
+    <col width="25%">
+    <col width="25%">
+    <col width="25%">
+    <col width="25%">
+    <tr>
+      <td colspan="2">[One</td>
+      <td colspan="2">Three</td>
+    </tr>
+    <tr>
+      <td rowspan="2">Five</td>
+      <td>Six</td>
+      <td>Seven</td>
+      <td rowspan="2">Eight</td>
+    </tr>
+    <tr>
+      <td>Ten</td>
+      <td>Eleven</td>
+    </tr>
+    <tr>
+      <td colspan="2">Thirteen]</td>
+      <td colspan="2">Fifteen</td>
+    </tr>
+  </table>
+</body>
+</html>
