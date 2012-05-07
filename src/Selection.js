@@ -507,14 +507,18 @@ var Selection_trackWhileExecuting;
         if (pointInfo == null)
             return;
 
-        if ((edge == "top") && (pointInfo.row <= tableSelection.bottom))
-            tableSelection.top = pointInfo.row;
-        else if ((edge == "bottom") && (pointInfo.row >= tableSelection.top))
-            tableSelection.bottom = pointInfo.row;
-        else if ((edge == "left") && (pointInfo.col <= tableSelection.right))
-            tableSelection.left = pointInfo.col;
-        else if ((edge == "right") && (pointInfo.col >= tableSelection.left))
-            tableSelection.right = pointInfo.col;
+        if (edge == "topLeft") {
+            if (pointInfo.row <= tableSelection.bottom)
+                tableSelection.top = pointInfo.row;
+            if (pointInfo.col <= tableSelection.right)
+                tableSelection.left = pointInfo.col;
+        }
+        else if (edge == "bottomRight") {
+            if (pointInfo.row >= tableSelection.top)
+                tableSelection.bottom = pointInfo.row;
+            if (pointInfo.col >= tableSelection.left)
+                tableSelection.right = pointInfo.col;
+        }
 
         // FIXME: handle the case where there is no cell at the specified row and column
         var topLeftCell = structure.get(tableSelection.top,tableSelection.left);
