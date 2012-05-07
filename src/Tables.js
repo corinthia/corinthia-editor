@@ -158,7 +158,7 @@ var Tables_getTableRegionFromRange;
         var colWidth = Math.round(100/cols)+"%";
         for (var c = 0; c < cols; c++) {
             var col = DOM_createElement(document,"COL");
-            col.setAttribute("style","width: "+colWidth);
+            col.setAttribute("width",colWidth);
             DOM_appendChild(table,col);
         }
 
@@ -232,26 +232,34 @@ var Tables_getTableRegionFromRange;
     // public
     function insertRowAbove()
     {
-        var region = Tables_getTableRegionFromRange(Selection_getSelectionRange(),true);
+        var selectionRange = Selection_getSelectionRange();
+        var region = Tables_getTableRegionFromRange(selectionRange,true);
         if (region != null) {
-            var cell = region.structure.get(region.top,region.left);
-            var oldTR = cell.element.parentNode;
-            var newTR = DOM_createElement(document,"TR");
-            DOM_insertBefore(oldTR.parentNode,newTR,oldTR);
-            populateNewRow(region.structure,newTR,region.top-1,region.top);
+            selectionRange.trackWhileExecuting(function() {
+                var cell = region.structure.get(region.top,region.left);
+                var oldTR = cell.element.parentNode;
+                var newTR = DOM_createElement(document,"TR");
+                DOM_insertBefore(oldTR.parentNode,newTR,oldTR);
+                populateNewRow(region.structure,newTR,region.top-1,region.top);
+            });
+            Selection_setSelectionRange(selectionRange);
         }
     }
 
     // public
     function insertRowBelow()
     {
-        var region = Tables_getTableRegionFromRange(Selection_getSelectionRange(),true);
+        var selectionRange = Selection_getSelectionRange();
+        var region = Tables_getTableRegionFromRange(selectionRange,true);
         if (region != null) {
-            var cell = region.structure.get(region.bottom,region.left);
-            var oldTR = cell.element.parentNode;
-            var newTR = DOM_createElement(document,"TR");
-            DOM_insertBefore(oldTR.parentNode,newTR,oldTR.nextSibling);
-            populateNewRow(region.structure,newTR,region.bottom+1,region.bottom);
+            selectionRange.trackWhileExecuting(function() {
+                var cell = region.structure.get(region.bottom,region.left);
+                var oldTR = cell.element.parentNode;
+                var newTR = DOM_createElement(document,"TR");
+                DOM_insertBefore(oldTR.parentNode,newTR,oldTR.nextSibling);
+                populateNewRow(region.structure,newTR,region.bottom+1,region.bottom);
+            });
+            Selection_setSelectionRange(selectionRange);
         }
     }
 
@@ -271,6 +279,9 @@ var Tables_getTableRegionFromRange;
 
     function getColWidths(colElements,expectedCount)
     {
+        // FIXME: also handle the case where the width has been set as a CSS property in the
+        // style attribute. There's probably not much we can do if the width comes from a style
+        // rule elsewhere in the document though.
         var colWidths = new Array();
         for (var i = 0; i < colElements.length; i++) {
             if (colElements[i].hasAttribute("width"))
@@ -408,20 +419,29 @@ var Tables_getTableRegionFromRange;
     // public
     function insertColumnLeft()
     {
-        var region = Tables_getTableRegionFromRange(Selection_getSelectionRange(),true);
+        var selectionRange = Selection_getSelectionRange();
+        var region = Tables_getTableRegionFromRange(selectionRange,true);
         if (region != null) {
-            addColElement(region.structure,region.left,region.left-1);
-            addColumnCells(region.structure,region.left,false);
+            selectionRange.trackWhileExecuting(function() {
+                addColElement(region.structure,region.left,region.left-1);
+                addColumnCells(region.structure,region.left,false);
+            });
+            Selection_setSelectionRange(selectionRange);
         }
     }
 
     // public
     function insertColumnRight()
     {
-        var region = Tables_getTableRegionFromRange(Selection_getSelectionRange(),true);
+        var selectionRange = Selection_getSelectionRange();
+        var region = Tables_getTableRegionFromRange(selectionRange,true);
         if (region != null) {
-            addColElement(region.structure,region.right,region.right+1);
-            addColumnCells(region.structure,region.right,true);
+            selectionRange.trackWhileExecuting(function() {
+                debug("insertColumnRight: region = "+region);
+                addColElement(region.structure,region.right,region.right+1);
+                addColumnCells(region.structure,region.right,true);
+            });
+            Selection_setSelectionRange(selectionRange);
         }
     }
 
@@ -568,7 +588,7 @@ var Tables_getTableRegionFromRange;
         });
     }
 
-    splitCellsInRegion= trace(splitCellsInRegion);
+    splitCellsInRegion = trace(splitCellsInRegion);
     function splitCellsInRegion(region)
     {
         var structure = region.structure;
