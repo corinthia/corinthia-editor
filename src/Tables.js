@@ -273,6 +273,9 @@ var Tables_getTableRegionFromRange;
                         cols.push(gc);
                 }
             }
+            else if (DOM_upperName(child) == "COL") {
+                cols.push(child);
+            }
         }
         return cols;
     }
