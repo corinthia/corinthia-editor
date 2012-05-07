@@ -65,6 +65,7 @@ var Keys = {
     FIGURE_NUMBER: "-uxwrite-figure-number",
     TABLE_NUMBER: "-uxwrite-table-number",
     SELECTION_HIGHLIGHT: "-uxwrite-selection-highlight",
+    AUTOCORRECT_ENTRY: "-uxwrite-autocorrect-entry",
     UXWRITE_PREFIX: "-uxwrite-",
     NONE_STYLE: "__none",
 };
