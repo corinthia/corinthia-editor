@@ -211,7 +211,9 @@ var Cursor_enterPressed;
                 !isWhitespaceString(value.charAt(offset-2));
 
 
-            if (isWhitespaceString(value) && (offset == 1) && lastInParagraph(lastNode) &&
+            if (isWhitespaceString(value) &&
+                ((offset == 1) || (value.length == 0)) &&
+                lastInParagraph(lastNode) &&
                 ((node.previousSibling == null) || isInlineNode(node.previousSibling))) {
                 if ((node.previousSibling != null) &&
                     (DOM_upperName(node.previousSibling) == "BR") &&

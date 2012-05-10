@@ -6,6 +6,7 @@ var tests = [
             "isValidCursorPosition-body01a",
             "isValidCursorPosition-body01b",
             "isValidCursorPosition-body01c",
+            "isValidCursorPosition-body01d",
 
             "isValidCursorPosition-inline01a",
             "isValidCursorPosition-inline01b",
@@ -45,6 +46,9 @@ var tests = [
             "isValidCursorPosition-inline06i",
             "isValidCursorPosition-inline06j",
             "isValidCursorPosition-inline06k",
+            "isValidCursorPosition-inline07a",
+            "isValidCursorPosition-inline07f",
+            "isValidCursorPosition-inline07g",
 
 
             "isValidCursorPosition-afterbr01a",
@@ -100,6 +104,7 @@ var tests = [
             "isValidCursorPosition-paragraph03a",
             "isValidCursorPosition-paragraph03b",
             "isValidCursorPosition-paragraph03c",
+            "isValidCursorPosition-paragraph03d",
             "isValidCursorPosition-paragraph04a",
             "isValidCursorPosition-paragraph04b",
             "isValidCursorPosition-paragraph04c",

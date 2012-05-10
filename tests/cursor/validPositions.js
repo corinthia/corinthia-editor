@@ -84,3 +84,9 @@ function checkCursorPositions(node)
     var detail = findCursorPositionErrors(text);
     return text+"\n"+detail;
 }
+
+function addEmptyTextNode(parent)
+{
+    var text = DOM_createTextNode(document,"");
+    DOM_appendChild(parent,text);
+}
