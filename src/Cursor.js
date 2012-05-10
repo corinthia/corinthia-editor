@@ -45,22 +45,6 @@ var Cursor_enterPressed;
         }
     }
 
-    function isLeafNode(node)
-    {
-        if (node.nodeType == Node.TEXT_NODE) {
-            return !isWhitespaceTextNode(node);
-        }
-        else if (node.nodeType == Node.ELEMENT_NODE) {
-            return ((DOM_upperName(node) == "IMG") ||
-                    isOpaqueNode(node));
-        }
-        else {
-            return false;
-        }
-    }
-
-    function nothing() {}
-
     function lastInParagraph(node)
     {
         while (isInlineNode(node)) {
@@ -166,8 +150,6 @@ var Cursor_enterPressed;
         }
     }
 
-
-
     // public
     function isValidCursorPosition(pos)
     {
@@ -205,33 +187,17 @@ var Cursor_enterPressed;
             var precedingText = value.substring(0,offset);
             var followingText = value.substring(offset);
 
-            var firstEndSpace =
-                (offset >= 2) &&
-                isWhitespaceString(value.charAt(offset-1)) &&
-                !isWhitespaceString(value.charAt(offset-2));
-
-
-            if (isWhitespaceString(value) &&
-                ((offset == 1) || (value.length == 0)) &&
-                lastInParagraph(lastNode) &&
-                ((node.previousSibling == null) || isInlineNode(node.previousSibling))) {
-                if ((node.previousSibling != null) &&
-                    (DOM_upperName(node.previousSibling) == "BR") &&
-                    (node.nextSibling == null))
-                    return false;
-                if ((node.previousSibling != null) &&
-                    getNodeText(node.previousSibling).match(/\s$/))
-                    return false;
-                if (isContainerNode(node.parentNode) &&
-                    (node.previousSibling == null) &&
-                    (node.nextSibling != null))
-                    return false;
-
-                if (((node.previousSibling != null) && !isInlineNode(node.previousSibling)) ||
-                    ((node.nextSibling != null) && !isInlineNode(node.nextSibling)))
-                    return false;
-
-                return true;
+            if (isWhitespaceString(value)) {
+                if (offset == 0) {
+                    if ((node.nextSibling != null) && (DOM_upperName(node.nextSibling) == "BR"))
+                        return true;
+                    if ((node.firstChild == null) &&
+                        (node.previousSibling == null) &&
+                        (node.nextSibling == null)) {
+                        return true;
+                    }
+                }
+                return false;
             }
 
             if (isWhitespaceString(precedingText)) {
@@ -250,12 +216,7 @@ var Cursor_enterPressed;
                 if ((node.nextSibling == null) ||
                     (spaces != 0) ||
                     ((followingText.length > 0))) {
-                    if (havePrevChar)
-                        return true;
-
-                    // First space at end of text node
-                    if (firstEndSpace)
-                        return (spaces == null) || lastInParagraph(node);
+                    return havePrevChar;
                 }
 
                 return false;
@@ -263,7 +224,6 @@ var Cursor_enterPressed;
 
             if (havePrevChar || haveNextChar)
                 return true;
-
         }
         else if (node.nodeType == Node.ELEMENT_NODE) {
             if ((isParagraphNode(node) || isListItemNode(node) || isTableCell(node)) &&
