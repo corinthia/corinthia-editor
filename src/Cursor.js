@@ -45,68 +45,9 @@ var Cursor_enterPressed;
         }
     }
 
-    function lastInParagraph(node)
-    {
-        while (isInlineNode(node)) {
-            if (node.nextSibling != null) {
-                if (DOM_upperName(node.nextSibling) == "BR")
-                    return true;
-                else if (isParagraphNode(node.nextSibling))
-                    return true;
-                else
-                    return false;
-            }
-            node = node.parentNode;
-        }
-        return true;
-    }
-
     function nodeCausesLineBreak(node)
     {
-        if (DOM_upperName(node) == "BR")
-            return true;
-        if (isContainerNode(node))
-            return true;
-        if (isParagraphNode(node))
-            return true;
-        return false;
-    }
-
-    function spacesUntilPrevContent(node)
-    {
-        var spaces = 0;
-        while (1) {
-            if (node.previousSibling != null) {
-                node = node.previousSibling;
-                if (nodeCausesLineBreak(node))
-                    return null;
-                while (node.lastChild != null) {
-                    node = node.lastChild;
-                    if (nodeCausesLineBreak(node))
-                        return null;
-                }
-            }
-            else {
-                node = node.parentNode;
-            }
-
-            if ((node == null) || nodeCausesLineBreak(node))
-                return null;
-            if (isOpaqueNode(node))
-                return spaces;
-            if (node.nodeType == Node.TEXT_NODE) {
-                if (isWhitespaceTextNode(node)) {
-                    spaces += node.nodeValue.length;
-                }
-                else {
-                    var matches = node.nodeValue.match(/\s+$/);
-                    if (matches == null)
-                        return spaces;
-                    spaces += matches[0].length;
-                    return spaces;
-                }
-            }
-        }
+        return ((DOM_upperName(node) == "BR") || !isInlineNode(node));
     }
 
     function spacesUntilNextContent(node)
@@ -201,43 +142,34 @@ var Cursor_enterPressed;
             }
 
             if (isWhitespaceString(precedingText)) {
-                if ((node.previousSibling == null) ||
-                    (DOM_upperName(node.previousSibling) == "BR") ||
-                    (isParagraphNode(node.previousSibling)) ||
-                    (getNodeText(node.previousSibling).match(/\s$/)) ||
-                    ((precedingText.length > 0)))
-                    return haveNextChar;
-                else
-                    return false;
+                return (haveNextChar &&
+                        ((node.previousSibling == null) ||
+                         (DOM_upperName(node.previousSibling) == "BR") ||
+                         (isParagraphNode(node.previousSibling)) ||
+                         (getNodeText(node.previousSibling).match(/\s$/)) ||
+                         ((precedingText.length > 0))));
             }
+
             if (isWhitespaceString(followingText)) {
-
-                var spaces = spacesUntilNextContent(node);
-                if ((node.nextSibling == null) ||
-                    (spaces != 0) ||
-                    ((followingText.length > 0))) {
-                    return havePrevChar;
-                }
-
-                return false;
+                return (havePrevChar &&
+                        ((node.nextSibling == null) ||
+                         (followingText.length > 0) ||
+                         (spacesUntilNextContent(node) != 0)));
             }
 
-            if (havePrevChar || haveNextChar)
-                return true;
+            return (havePrevChar || haveNextChar);
         }
         else if (node.nodeType == Node.ELEMENT_NODE) {
-            if ((isParagraphNode(node) || isListItemNode(node) || isTableCell(node)) &&
-                (offset == 0) && (node.firstChild == null))
+            if ((node.firstChild == null) &&
+                (isParagraphNode(node) || isListItemNode(node) || isTableCell(node)))
                 return true;
-
 
             var prevNode = node.childNodes[offset-1];
             var nextNode = node.childNodes[offset];
 
             if ((prevNode == null) && (nextNode == null) &&
                 (CONTAINER_ELEMENTS_ALLOWING_CONTENT[node.nodeName] ||
-                (isInlineNode(node) && !isOpaqueNode(node) && (DOM_upperName(node) != "BR") &&
-                 (spacesUntilNextContent(node) != 0) && (spacesUntilPrevContent(node) != 0))))
+                (isInlineNode(node) && !isOpaqueNode(node) && (DOM_upperName(node) != "BR"))))
                 return true;
 
             if ((prevNode != null) && isTableNode(prevNode))
@@ -251,20 +183,16 @@ var Cursor_enterPressed;
                 return ((prevNode == null) || !isTextNode(prevNode));
 
             if ((prevNode != null) && (isOpaqueNode(prevNode) || isTableNode(prevNode))) {
-                if ((nextNode != null) &&
-                    !isOpaqueNode(nextNode) &&
-                    !isTextNode(nextNode) &&
-                    !isTableNode(nextNode))
-                    return false;
-                else
-                    return true;
+                return ((nextNode == null) ||
+                        isOpaqueNode(nextNode) ||
+                        isTextNode(nextNode) ||
+                        isTableNode(nextNode));
             }
             if ((nextNode != null) && (isOpaqueNode(nextNode) || isTableNode(nextNode))) {
-                if ((prevNode != null)
-                    && !isOpaqueNode(prevNode) && !isTextNode(prevNode) && !isTableNode(prevNode))
-                    return false;
-                else
-                    return true;
+                return ((prevNode == null) ||
+                        isOpaqueNode(prevNode) ||
+                        isTextNode(prevNode) ||
+                        isTableNode(prevNode));
             }
         }
 
