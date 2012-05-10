@@ -476,7 +476,7 @@ var Cursor_enterPressed;
     }
 
     // public
-    function insertCharacter(character,dontUpdateBR)
+    function insertCharacter(character,dontUpdateBR,dontMove)
     {
         var selectionRange = Selection_getSelectionRange();
         if (selectionRange == null)
@@ -484,7 +484,7 @@ var Cursor_enterPressed;
 
         if (!selectionRange.isEmpty())
             Selection_deleteSelectionContents();
-        var pos = closestPositionForwards(selectionRange.start);
+        var pos = dontMove ? selectionRange.start : closestPositionForwards(selectionRange.start);
         var node = pos.node;
         var offset = pos.offset;
 
