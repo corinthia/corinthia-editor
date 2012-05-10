@@ -70,6 +70,12 @@ var Keys = {
     NONE_STYLE: "__none",
 };
 
+var ITEM_NUMBER_CLASSES = {
+    "-uxwrite-heading-number": true,
+    "-uxwrite-figure-number": true,
+    "-uxwrite-table-number": true,
+};
+
 var OPAQUE_NODE_CLASSES = {
     "-uxwrite-heading-number": true,
     "-uxwrite-figure-number": true,
@@ -135,6 +141,29 @@ function isRefNode(node)
             node.getAttribute("href").charAt(0) == "#");
 }
 
+function isImageNode(node)
+{
+    return (DOM_upperName(node) == "IMG");
+}
+
+function isTextNode(node)
+{
+    return (node.nodeType == Node.TEXT_NODE);
+}
+
+function isItemNumber(node)
+{
+    if (node.nodeType == Node.TEXT_NODE) {
+        return isItemNumber(node.parentNode);
+    }
+    else if (node.nodeType == Node.ELEMENT_NODE) {
+        if ((DOM_upperName(node) == "SPAN") && node.hasAttribute("class")) {
+            return ITEM_NUMBER_CLASSES[node.getAttribute("class")];
+        }
+    }
+    return false;
+}
+
 function isOpaqueNode(node)
 {
     if (node.nodeType == Node.TEXT_NODE) {
@@ -145,7 +174,10 @@ function isOpaqueNode(node)
             && node.hasAttribute("class")) {
             return OPAQUE_NODE_CLASSES[node.getAttribute("class")];
         }
-        else if (isRefNode(node)) {
+        else if (DOM_upperName(node) == "A") {
+            return true;
+        }
+        else if (isImageNode(node)) {
             return true;
         }
     }

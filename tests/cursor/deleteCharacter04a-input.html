@@ -5,7 +5,11 @@
 <script language="javascript">
 function performTest()
 {
+    printTree(document.body);
+    debug("----");
     Cursor_deleteCharacter();
+    debug("----");
+    printTree(document.body);
     showRangeAsBrackets(Selection_getSelectionRange());
 }
 </script>

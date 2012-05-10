@@ -96,6 +96,7 @@
         }
         else if (node.nodeType == Node.TEXT_NODE) {
             var value = trim(node.nodeValue);
+//            var value = JSON.stringify(node.nodeValue);
             if (value.length > 0)
                 builder.str += value;
         }
@@ -133,6 +134,7 @@
         }
         else if (node.nodeType == Node.TEXT_NODE) {
             var value = trim(node.nodeValue);
+//            var value = JSON.stringify(node.nodeValue);
             if (value.length > 0)
                 builder.str += indent + value + "\n";
         }

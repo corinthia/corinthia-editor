@@ -45,11 +45,66 @@ var Cursor_enterPressed;
         }
     }
 
+    function isLeafNode(node)
+    {
+        if (node.nodeType == Node.TEXT_NODE) {
+            return !isWhitespaceTextNode(node);
+        }
+        else if (node.nodeType == Node.ELEMENT_NODE) {
+            return ((DOM_upperName(node) == "IMG") ||
+                    isOpaqueNode(node));
+        }
+        else {
+            return false;
+        }
+    }
+
+    function nothing() {}
+
+    function lastInParagraph(node)
+    {
+        while (isInlineNode(node)) {
+            if (node.nextSibling != null) {
+                if (DOM_upperName(node.nextSibling) == "BR")
+                    return true;
+//                else if (isParagraphNode(node.nextSibling))
+//                    return true;
+                else
+                    return false;
+            }
+            node = node.parentNode;
+        }
+        return true;
+    }
+
+    function getFirstNonInlineAncestor(node)
+    {
+        while (isInlineNode(node))
+            node = node.parentNode;
+        return node;
+    }
+
+    function haveContentAfterNodeInParagraph(node)
+    {
+        var originalAncestor = getFirstNonInlineAncestor(node);
+        node = nextNode(node);
+        while ((node != null) && (originalAncestor == getFirstNonInlineAncestor(node))) {
+            if (isOpaqueNode(node))
+                return true;
+            if (DOM_upperName(node) == "TABLE")
+                return true;
+            if (DOM_upperName(node) == "BR")
+                return false;
+            if ((node.nodeType == Node.TEXT_NODE) && !isWhitespaceTextNode(node))
+                return true;
+            node = nextNode(node);
+        }
+        return false;
+    }
+
     // public
     function isValidCursorPosition(pos)
     {
-        var result = false;
-
         var node = pos.node;
         var offset = pos.offset;
 
@@ -58,115 +113,124 @@ var Cursor_enterPressed;
 
         if (node.nodeType == Node.TEXT_NODE) {
             var value = node.nodeValue;
-            var prev = node.previousSibling;
-            var next = node.nextSibling;
 
-            // Immediately after a non-whitespace character -> YES
-            if ((offset > 0) && !isWhitespaceString(value.charAt(offset-1)))
-                result = true;
+            // If there are multiple adjacent text nodes, consider them as one (adjusting the
+            // offset appropriately)
 
-            // At the end of a text node (with no next sibling), and the preceding character
-            // is a whitespace character, but there is a non-whitespace character before it -> YES
-            if (isWhitespaceString(value.slice(offset)) &&
+            var firstNode = node;
+            var lastNode = node;
+
+            while ((firstNode.previousSibling != null) && isTextNode(firstNode.previousSibling)) {
+                firstNode = firstNode.previousSibling;
+                value = firstNode.nodeValue + value;
+                offset += firstNode.nodeValue.length;
+            }
+
+            while ((lastNode.nextSibling != null) && isTextNode(lastNode.nextSibling)) {
+                lastNode = lastNode.nextSibling;
+                value += lastNode.nodeValue;
+            }
+
+            var prevPrevChar = value.charAt(offset-2);
+            var prevChar = value.charAt(offset-1);
+            var nextChar = value.charAt(offset);
+            var havePrevChar = ((prevChar != null) && !isWhitespaceString(prevChar));
+            var haveNextChar = ((nextChar != null) && !isWhitespaceString(nextChar));
+            var precedingText = value.substring(0,offset);
+            var followingText = value.substring(offset);
+
+            var firstEndSpace =
                 (offset >= 2) &&
                 isWhitespaceString(value.charAt(offset-1)) &&
-                !isWhitespaceString(value.charAt(offset-2)) &&
-                (node.nextSibling == null)) {
-                result = true;
+                !isWhitespaceString(value.charAt(offset-2));
+
+            if (isWhitespaceString(value) && (offset == 1) && lastInParagraph(lastNode) &&
+                ((node.previousSibling == null) || isInlineNode(node.previousSibling))) {
+                if ((node.previousSibling != null) &&
+                    (DOM_upperName(node.previousSibling) == "BR") &&
+                    (node.nextSibling == null))
+                    return false;
+                if ((node.previousSibling != null) &&
+                    getNodeText(node.previousSibling).match(/\s$/))
+                    return false;
+                return true;
             }
 
-            // Immediately before a non-whitespace character -> YES
-            if ((offset < value.length) && !isWhitespaceString(value.charAt(offset)))
-                result = true;
-
-            // Right at the end of a whitespace node which is the first child in a paragraph,
-            // and has no next sibling, or is followed by a BR -> YES
-            if ((offset == value.length) &&
-                !isInlineNode(node.parentNode) &&
-                isWhitespaceTextNode(node) &&
-                (prev == null) &&
-                ((next == null) || (DOM_upperName(next) == "BR")))
-                result = true;
-        }
-        else if (node.nodeType == Node.ELEMENT_NODE) {
-            var prev = node.childNodes[offset-1];
-            var next = node.childNodes[offset];
-
-            // Directly after an IMG, TABLE, UL, or OL -> YES
-            if ((prev != null) &&
-                ((DOM_upperName(prev) == "IMG") ||
-                 (DOM_upperName(prev) == "TABLE") ||
-                 isOpaqueNode(prev)))
-                result = true;
-
-            // Directly before an IMG, TABLE, UL, or OL -> YES
-            if ((next != null) &&
-                ((DOM_upperName(next) == "IMG") ||
-                 (DOM_upperName(next) == "TABLE") ||
-                 isOpaqueNode(next)))
-                result = true;
-
-            // Just before a BR (but not after a non-empty text node)
-            if ((next != null) && (DOM_upperName(next) == "BR")) {
-                if ((prev == null) ||
-                    (prev.nodeType != Node.TEXT_NODE) ||
-                    isWhitespaceTextNode(prev)) {
-                    result = true;
-                }
+            if (isWhitespaceString(precedingText)) {
+                if ((node.previousSibling == null) ||
+                    (DOM_upperName(node.previousSibling) == "BR") ||
+                    (isParagraphNode(node.previousSibling)) ||
+                    (getNodeText(node.previousSibling).match(/\s$/)) ||
+                    ((precedingText.length > 0)))
+                    return haveNextChar;
+                else
+                    return false;
             }
+            if (isWhitespaceString(followingText)) {
+                if ((node.nextSibling == null) ||
+                    (DOM_upperName(node.nextSibling) == "BR") ||
+                    (isParagraphNode(node.nextSibling)) ||
+                    (getNodeText(node.nextSibling).match(/^\s/)) ||
+                    ((followingText.length > 0))) {
+                    if (havePrevChar)
+                        return true;
 
-            // Just after a numbering span for a heading, figure, or table
-            if ((prev != null) && (DOM_upperName(prev) == "SPAN") &&
-                ((prev.getAttribute("class") == Keys.HEADING_NUMBER) ||
-                 (prev.getAttribute("class") == Keys.FIGURE_NUMBER) ||
-                 (prev.getAttribute("class") == Keys.TABLE_NUMBER))) {
-
-                var followingContent = false;
-                for (; next != null; next = next.nextSibling) {
-                    if (nodeHasContent(next)) {
-                        followingContent = true;
-                        break;
+                    // First space at end of text node
+                    if (firstEndSpace) {
+//                        return true;
+//                        if (lastInParagraph(lastNode))
+//                            return true;
+                        if (!haveContentAfterNodeInParagraph(lastNode))
+                            return true;
+                        if ((node.nextSibling != null) && isParagraphNode(node.nextSibling))
+                            return true;
                     }
                 }
-
-                if (!followingContent)
-                    result = true;
+                return false;
             }
 
-            if ((prev == null) && (next == null) &&
-                (isParagraphNode(node) || (DOM_upperName(node) == "LI") ||
-                 INLINE_ELEMENTS_THAT_CAN_HAVE_CHILDREN[DOM_upperName(node)] ||
-                 CONTAINER_ELEMENTS_ALLOWING_CONTENT[DOM_upperName(node)]))
-                result = true;
+            if (havePrevChar || haveNextChar)
+                return true;
 
-            // Special case for an IMG or opaque node that directly follows some text that ends in a
-            // non-whitespace character. The cursor will be allowed at the end of the text
-            // node, so we don't want to allow it before the image (which corresponds to the
-            // same location on screen)
-            if ((next != null) && (prev != null) &&
-                ((DOM_upperName(next) == "IMG") || isOpaqueNode(next)) &&
-                (prev.nodeType == Node.TEXT_NODE) &&
-                (prev.nodeValue.length > 0) &&
-                !isWhitespaceString(prev.nodeValue.charAt(prev.nodeValue.length-1))) {
-                result = false;
+        }
+        else if (node.nodeType == Node.ELEMENT_NODE) {
+            if ((isParagraphNode(node) || isListItemNode(node) || isTableCell(node)) &&
+                (offset == 0) && (node.firstChild == null))
+                return true;
+
+
+            var prevNode = node.childNodes[offset-1];
+            var nextNode = node.childNodes[offset];
+
+            if ((prevNode != null) && isTableNode(prevNode))
+                return true;
+            if ((nextNode != null) && isTableNode(nextNode))
+                return true;
+
+            if ((nextNode != null) && isItemNumber(nextNode))
+                return false;
+            if ((nextNode != null) && (DOM_upperName(nextNode) == "BR"))
+                return ((prevNode == null) || !isTextNode(prevNode));
+
+            if ((prevNode != null) && (isOpaqueNode(prevNode) || isTableNode(prevNode))) {
+                if ((nextNode != null) &&
+                    !isOpaqueNode(nextNode) &&
+                    !isTextNode(nextNode) &&
+                    !isTableNode(nextNode))
+                    return false;
+                else
+                    return true;
             }
-
-            // As above, but for an IMG or opaque node that directly precedes some text
-            if ((prev != null) && (next != null) &&
-                ((DOM_upperName(prev) == "IMG") || isOpaqueNode(prev)) &&
-                (next.nodeType == Node.TEXT_NODE) &&
-                (next.nodeValue.length > 0) &&
-                !isWhitespaceString(next.nodeValue.charAt(0))) {
-                result = false;
-            }
-
-            // If the position is in a heading node but before the numbering span, don't allow it
-            if ((prev == null) && (next != null) && isOpaqueNode(next) && isHeadingNode(node)) {
-                result = false;
+            if ((nextNode != null) && (isOpaqueNode(nextNode) || isTableNode(nextNode))) {
+                if ((prevNode != null)
+                    && !isOpaqueNode(prevNode) && !isTextNode(prevNode) && !isTableNode(prevNode))
+                    return false;
+                else
+                    return true;
             }
         }
 
-        return result;
+        return false;
     }
 
     // public
@@ -373,7 +437,7 @@ var Cursor_enterPressed;
     }
 
     // public
-    function insertCharacter(character)
+    function insertCharacter(character,dontUpdateBR)
     {
         var selectionRange = Selection_getSelectionRange();
         if (selectionRange == null)
@@ -398,7 +462,8 @@ var Cursor_enterPressed;
         DOM_insertCharacters(node,offset,character);
         Selection_setEmptySelectionAt(node,offset+1,node,offset+1);
         Selection_getSelectionRange().trackWhileExecuting(function() {
-            updateBRAtEndOfParagraph(node);
+            if (!dontUpdateBR)
+                updateBRAtEndOfParagraph(node);
         });
         ensureCursorVisible();
     }
