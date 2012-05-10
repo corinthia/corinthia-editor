@@ -88,11 +88,47 @@ var Cursor_enterPressed;
         return false;
     }
 
+    function spacesUntilPrevContent(node)
+    {
+        var spaces = 0;
+        while (1) {
+            if (node.previousSibling != null) {
+                node = node.previousSibling;
+                if (nodeCausesLineBreak(node))
+                    return null;
+                while (node.lastChild != null) {
+                    node = node.lastChild;
+                    if (nodeCausesLineBreak(node))
+                        return null;
+                }
+            }
+            else {
+                node = node.parentNode;
+            }
+
+            if ((node == null) || nodeCausesLineBreak(node))
+                return null;
+            if (isOpaqueNode(node))
+                return spaces;
+            if (node.nodeType == Node.TEXT_NODE) {
+                if (isWhitespaceTextNode(node)) {
+                    spaces += node.nodeValue.length;
+                }
+                else {
+                    var matches = node.nodeValue.match(/\s+$/);
+                    if (matches == null)
+                        return spaces;
+                    spaces += matches[0].length;
+                    return spaces;
+                }
+            }
+        }
+    }
+
     function spacesUntilNextContent(node)
     {
         var spaces = 0;
         while (1) {
-//            node = nextNode(node);
             if (node.firstChild) {
                 node = node.firstChild;
             }
@@ -110,8 +146,6 @@ var Cursor_enterPressed;
                 else
                     node = node.parentNode.nextSibling;
             }
-
-
 
             if ((node == null) || nodeCausesLineBreak(node))
                 return null;
@@ -176,6 +210,7 @@ var Cursor_enterPressed;
                 isWhitespaceString(value.charAt(offset-1)) &&
                 !isWhitespaceString(value.charAt(offset-2));
 
+
             if (isWhitespaceString(value) && (offset == 1) && lastInParagraph(lastNode) &&
                 ((node.previousSibling == null) || isInlineNode(node.previousSibling))) {
                 if ((node.previousSibling != null) &&
@@ -238,7 +273,9 @@ var Cursor_enterPressed;
             var nextNode = node.childNodes[offset];
 
             if ((prevNode == null) && (nextNode == null) &&
-                CONTAINER_ELEMENTS_ALLOWING_CONTENT[node.nodeName])
+                (CONTAINER_ELEMENTS_ALLOWING_CONTENT[node.nodeName] ||
+                (isInlineNode(node) && !isOpaqueNode(node) && (DOM_upperName(node) != "BR") &&
+                 (spacesUntilNextContent(node) != 0) && (spacesUntilPrevContent(node) != 0))))
                 return true;
 
             if ((prevNode != null) && isTableNode(prevNode))
