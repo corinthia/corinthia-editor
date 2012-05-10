@@ -3,6 +3,10 @@ var tests = [
 
   { dir: "cursor",
     files: [
+            "isValidCursorPosition-body01a",
+            "isValidCursorPosition-body01b",
+            "isValidCursorPosition-body01c",
+
             "isValidCursorPosition-inline01a",
             "isValidCursorPosition-inline01b",
             "isValidCursorPosition-inline01c",

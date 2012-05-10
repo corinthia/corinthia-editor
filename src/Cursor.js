@@ -67,8 +67,8 @@ var Cursor_enterPressed;
             if (node.nextSibling != null) {
                 if (DOM_upperName(node.nextSibling) == "BR")
                     return true;
-//                else if (isParagraphNode(node.nextSibling))
-//                    return true;
+                else if (isParagraphNode(node.nextSibling))
+                    return true;
                 else
                     return false;
             }
@@ -77,30 +77,62 @@ var Cursor_enterPressed;
         return true;
     }
 
-    function getFirstNonInlineAncestor(node)
+    function nodeCausesLineBreak(node)
     {
-        while (isInlineNode(node))
-            node = node.parentNode;
-        return node;
-    }
-
-    function haveContentAfterNodeInParagraph(node)
-    {
-        var originalAncestor = getFirstNonInlineAncestor(node);
-        node = nextNode(node);
-        while ((node != null) && (originalAncestor == getFirstNonInlineAncestor(node))) {
-            if (isOpaqueNode(node))
-                return true;
-            if (DOM_upperName(node) == "TABLE")
-                return true;
-            if (DOM_upperName(node) == "BR")
-                return false;
-            if ((node.nodeType == Node.TEXT_NODE) && !isWhitespaceTextNode(node))
-                return true;
-            node = nextNode(node);
-        }
+        if (DOM_upperName(node) == "BR")
+            return true;
+        if (isContainerNode(node))
+            return true;
+        if (isParagraphNode(node))
+            return true;
         return false;
     }
+
+    function spacesUntilNextContent(node)
+    {
+        var spaces = 0;
+        while (1) {
+//            node = nextNode(node);
+            if (node.firstChild) {
+                node = node.firstChild;
+            }
+            else if (node.nextSibling) {
+                node = node.nextSibling;
+            }
+            else {
+                while ((node.parentNode != null) && (node.parentNode.nextSibling == null)) {
+                    node = node.parentNode;
+                    if (nodeCausesLineBreak(node))
+                        return null;
+                }
+                if (node.parentNode == null)
+                    node = null;
+                else
+                    node = node.parentNode.nextSibling;
+            }
+
+
+
+            if ((node == null) || nodeCausesLineBreak(node))
+                return null;
+            if (isOpaqueNode(node))
+                return spaces;
+            if (node.nodeType == Node.TEXT_NODE) {
+                if (isWhitespaceTextNode(node)) {
+                    spaces += node.nodeValue.length;
+                }
+                else {
+                    var matches = node.nodeValue.match(/^\s+/);
+                    if (matches == null)
+                        return spaces;
+                    spaces += matches[0].length;
+                    return spaces;
+                }
+            }
+        }
+    }
+
+
 
     // public
     function isValidCursorPosition(pos)
@@ -153,6 +185,15 @@ var Cursor_enterPressed;
                 if ((node.previousSibling != null) &&
                     getNodeText(node.previousSibling).match(/\s$/))
                     return false;
+                if (isContainerNode(node.parentNode) &&
+                    (node.previousSibling == null) &&
+                    (node.nextSibling != null))
+                    return false;
+
+                if (((node.previousSibling != null) && !isInlineNode(node.previousSibling)) ||
+                    ((node.nextSibling != null) && !isInlineNode(node.nextSibling)))
+                    return false;
+
                 return true;
             }
 
@@ -167,25 +208,19 @@ var Cursor_enterPressed;
                     return false;
             }
             if (isWhitespaceString(followingText)) {
+
+                var spaces = spacesUntilNextContent(node);
                 if ((node.nextSibling == null) ||
-                    (DOM_upperName(node.nextSibling) == "BR") ||
-                    (isParagraphNode(node.nextSibling)) ||
-                    (getNodeText(node.nextSibling).match(/^\s/)) ||
+                    (spaces != 0) ||
                     ((followingText.length > 0))) {
                     if (havePrevChar)
                         return true;
 
                     // First space at end of text node
-                    if (firstEndSpace) {
-//                        return true;
-//                        if (lastInParagraph(lastNode))
-//                            return true;
-                        if (!haveContentAfterNodeInParagraph(lastNode))
-                            return true;
-                        if ((node.nextSibling != null) && isParagraphNode(node.nextSibling))
-                            return true;
-                    }
+                    if (firstEndSpace)
+                        return (spaces == null) || lastInParagraph(node);
                 }
+
                 return false;
             }
 
@@ -201,6 +236,10 @@ var Cursor_enterPressed;
 
             var prevNode = node.childNodes[offset-1];
             var nextNode = node.childNodes[offset];
+
+            if ((prevNode == null) && (nextNode == null) &&
+                CONTAINER_ELEMENTS_ALLOWING_CONTENT[node.nodeName])
+                return true;
 
             if ((prevNode != null) && isTableNode(prevNode))
                 return true;
