@@ -2,9 +2,12 @@
 "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
+<script language="javascript" src="validPositions.js"></script>
 <script language="javascript">
 function performTest()
 {
+    showValidPositions();
+    return;
     var positions = new Array();
     Selection_setEmptySelectionAt(document.body,0);
     Cursor_moveLeft();
@@ -14,10 +17,12 @@ function performTest()
     do {
         Cursor_insertCharacter(".");
         prevPos = Selection_getSelectionRange().start;
+        debug("before: "+prevPos);
         Cursor_moveRight();
         curPos = Selection_getSelectionRange().start;
+        debug("after: "+curPos);
         count++;
-    } while ((count < 500) && ((prevPos.node != curPos.node) || (prevPos.offset != curPos.offset)));
+    } while ((count < 20) && ((prevPos.node != curPos.node) || (prevPos.offset != curPos.offset)));
 }
 </script>
 </head>

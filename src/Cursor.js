@@ -515,7 +515,7 @@ var Cursor_enterPressed;
     }
 
     // public
-    function insertCharacter(character,dontUpdateBR,dontMove)
+    function insertCharacter(character,testMode)
     {
         var selectionRange = Selection_getSelectionRange();
         if (selectionRange == null)
@@ -523,24 +523,36 @@ var Cursor_enterPressed;
 
         if (!selectionRange.isEmpty())
             Selection_deleteSelectionContents();
-        var pos = dontMove ? selectionRange.start : closestPositionForwards(selectionRange.start);
+        var pos = testMode ? selectionRange.start : closestPositionForwards(selectionRange.start);
         var node = pos.node;
         var offset = pos.offset;
 
         if (node.nodeType == Node.ELEMENT_NODE) {
-            var emptyTextNode = DOM_createTextNode(document,"");
-            if (offset >= node.childNodes.length)
-                DOM_appendChild(node,emptyTextNode);
-            else
-                DOM_insertBefore(node,emptyTextNode,node.childNodes[offset]);
-            node = emptyTextNode;
-            offset = 0;
+            var prev = node.childNodes[offset-1];
+            var next = node.childNodes[offset];
+            if (!testMode && (prev != null) && (prev.nodeType == Node.TEXT_NODE)) {
+                node = prev;
+                offset = prev.nodeValue.length;
+            }
+            else if (!testMode && (next != null) && (next.nodeType == Node.TEXT_NODE)) {
+                node = next;
+                offset = 0;
+            }
+            else {
+                var emptyTextNode = DOM_createTextNode(document,"");
+                if (offset >= node.childNodes.length)
+                    DOM_appendChild(node,emptyTextNode);
+                else
+                    DOM_insertBefore(node,emptyTextNode,node.childNodes[offset]);
+                node = emptyTextNode;
+                offset = 0;
+            }
         }
 
         DOM_insertCharacters(node,offset,character);
         Selection_setEmptySelectionAt(node,offset+1,node,offset+1);
         Selection_getSelectionRange().trackWhileExecuting(function() {
-            if (!dontUpdateBR)
+            if (!testMode)
                 updateBRAtEndOfParagraph(node);
         });
         ensureCursorVisible();

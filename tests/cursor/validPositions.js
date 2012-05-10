@@ -15,7 +15,7 @@ function showValidPositions()
         for (var i = validPositions.length-1; i >= 0; i--) {
             var pos = validPositions[i];
             Selection_setEmptySelectionAt(pos.node,pos.offset);
-            Cursor_insertCharacter('.',true,true);
+            Cursor_insertCharacter('.',true);
         }
     });
 }
