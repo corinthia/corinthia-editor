@@ -6,8 +6,7 @@
 function performTest()
 {
     var str = " one two three";
-    for (var i = 0; i < str.length; i++)
-        Cursor_insertCharacter(str.charAt(i));
+    Cursor_insertCharacter(str);
     showRangeAsBrackets(Selection_getSelectionRange());
 }
 </script>

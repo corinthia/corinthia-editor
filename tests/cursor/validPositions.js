@@ -1,3 +1,31 @@
+function oldInsertCharacter(character)
+{
+    var selectionRange = Selection_getSelectionRange();
+    if (selectionRange == null)
+        return;
+
+    if (!selectionRange.isEmpty())
+        Selection_deleteSelectionContents();
+    var pos = selectionRange.start;
+    var node = pos.node;
+    var offset = pos.offset;
+
+    if (node.nodeType == Node.ELEMENT_NODE) {
+        var prev = node.childNodes[offset-1];
+        var next = node.childNodes[offset];
+        var emptyTextNode = DOM_createTextNode(document,"");
+        if (offset >= node.childNodes.length)
+            DOM_appendChild(node,emptyTextNode);
+        else
+            DOM_insertBefore(node,emptyTextNode,node.childNodes[offset]);
+        node = emptyTextNode;
+        offset = 0;
+    }
+
+    DOM_insertCharacters(node,offset,character);
+    Selection_setEmptySelectionAt(node,offset+1,node,offset+1);
+}
+
 function showValidPositions()
 {
     var validPositions = new Array();
@@ -15,7 +43,7 @@ function showValidPositions()
         for (var i = validPositions.length-1; i >= 0; i--) {
             var pos = validPositions[i];
             Selection_setEmptySelectionAt(pos.node,pos.offset);
-            Cursor_insertCharacter('.',true);
+            oldInsertCharacter('.');
         }
     });
 }
