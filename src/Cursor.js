@@ -179,6 +179,9 @@ var Cursor_enterPressed;
 
             if ((nextNode != null) && isItemNumber(nextNode))
                 return false;
+            if ((prevNode != null) && isItemNumber(prevNode))
+                return ((nextNode == null) || isWhitespaceTextNode(nextNode));
+
             if ((nextNode != null) && (DOM_upperName(nextNode) == "BR"))
                 return ((prevNode == null) || !isTextNode(prevNode));
 
