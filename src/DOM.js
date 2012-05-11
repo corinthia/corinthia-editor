@@ -51,7 +51,7 @@ var DOM_Listener;
 
     function insertBeforeInternal(parent,newChild,refChild)
     {
-        if (window.UndoManager_addAction != null) {
+        if (window.undoSupported) {
             UndoManager_addAction(function() {
                 deleteNodeInternal(newChild);
             },"Remove "+DOM_upperName(newChild)+" from parent "+DOM_upperName(parent));
@@ -75,7 +75,7 @@ var DOM_Listener;
         var nextSibling = node.nextSibling;
         var nextName = (nextSibling == null) ? null : DOM_upperName(nextSibling);
         var data = nodeData[node._nodeId];
-        if (window.UndoManager_addAction != null) {
+        if (window.undoSupported) {
             UndoManager_addAction(function() {
                 insertBeforeInternal(parent,node,nextSibling);
             },"Insert "+DOM_upperName(node)+" into parent "+
@@ -93,9 +93,10 @@ var DOM_Listener;
 
         function deleteNodeData(current)
         {
-            if (window.UndoManager_addAction != null) {
+            if (window.undoSupported) {
                 var data = nodeData[current._nodeId];
                 UndoManager_addAction(function() {
+                    // FIXME: this won't redo properly
                     nodeData[current._nodeId] = data;
                 },"Set node data for "+DOM_upperName(current));
             }
@@ -118,28 +119,24 @@ var DOM_Listener;
         var newValue = event.newValue;
         if (event.attrChange == MutationEvent.ADDITION) {
             UndoManager_addAction(function() {
+                // FIXME: this won't redo properly
                 element.removeAttribute(attrName);
             },"Remove "+attrName+" attribute from "+DOM_upperName(element));
         }
         else if (event.attrChange == MutationEvent.REMOVAL) {
             UndoManager_addAction(function() {
+                // FIXME: this won't redo properly
                 element.setAttribute(attrName,prevValue);
             },"Add "+attrName+" attribute to "+
               DOM_upperName(element)+" with value \""+prevValue+"\"");
         }
         else if (event.attrChange == MutationEvent.MODIFICATION) {
             UndoManager_addAction(function() {
+                // FIXME: this won't redo properly
                 element.setAttribute(attrName,prevValue);
             },"Change "+attrName+" attribute of "+
               DOM_upperName(element)+" to value \""+prevValue+"\"");
         }
-    }
-
-    function characterDataModified(node,prevValue)
-    {
-        UndoManager_addAction(function() {
-            node.nodeValue = prevValue;
-        },"Set text node to \""+prevValue+"\"");
     }
 
     // public methods
@@ -480,7 +477,7 @@ var DOM_Listener;
             if (position.offset > offset)
                 position.offset += characters.length;
         });
-        characterDataModified(textNode,textNode.nodeValue);
+//        characterDataModified(textNode,textNode.nodeValue);
         textNode.nodeValue = textNode.nodeValue.slice(0,offset) +
                              characters +
                              textNode.nodeValue.slice(offset);
@@ -501,7 +498,7 @@ var DOM_Listener;
             else if (position.offset >= endOffset)
                 position.offset -= deleteCount;
         });
-        characterDataModified(textNode,textNode.nodeValue);
+//        characterDataModified(textNode,textNode.nodeValue);
         textNode.nodeValue = textNode.nodeValue.slice(0,startOffset) +
                              textNode.nodeValue.slice(endOffset);
     }
@@ -513,7 +510,12 @@ var DOM_Listener;
         trackedPositionsForNode(textNode).forEach(function (position) {
             position.offset = 0;
         });
-        characterDataModified(textNode,textNode.nodeValue);
+        var oldValue = textNode.nodeValue;
+        if (window.undoSupported) {
+            UndoManager_addAction(function() {
+                setNodeValue(textNode,oldValue);
+            },"Set text node to "+JSON.stringify(oldValue));
+        }
         textNode.nodeValue = value;
     }
 
