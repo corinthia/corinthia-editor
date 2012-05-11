@@ -47,6 +47,16 @@
         var proportion = (self.value/(self.max-self.min));
         self.thumb.setAttribute("x",self.x + self.width*proportion - self.thumbWidth/2);
         self.thumb.setAttribute("y",self.y);
+//        debug("self = "+self);
+//        debug("self.text = "+self.text);
+//        debug("self.text.firstChild = "+self.text.firstChild);
+        if (self.text == null) {
+            debug("text = null");
+        }
+        else {
+            debug("text = "+nodeString(self.text)+
+                  ", text.firstChild = "+nodeString(self.text.firstChild));
+        }
         self.text.firstChild.nodeValue = "Step "+self.value+" of "+self.max;
     }
 

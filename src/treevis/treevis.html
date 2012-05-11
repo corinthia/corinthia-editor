@@ -9,10 +9,12 @@
 body { -webkit-user-select: none }
 
 </style>
-<script type="text/javascript" src="../DOM_js"></script>
-<script type="text/javascript" src="../UndoManager_js"></script>
+<script type="text/javascript" src="../first.js"></script>
+<script type="text/javascript" src="../DOM.js"></script>
+<script type="text/javascript" src="../UndoManager.js"></script>
 <script type="text/javascript" src="../NodeSet.js"></script>
 <script type="text/javascript" src="../Position.js"></script>
+<script type="text/javascript" src="../util.js"></script>
 
 <script type="text/javascript" src="TreeView.js"></script>
 <script type="text/javascript" src="StepController.js"></script>
@@ -164,6 +166,7 @@ function getIdToNodeMap(top)
 
 function main()
 {
+    DOM_assignNodeIds(document.body);
     var root = programmaticTree();
 //    var root = declarativeTree();
 
