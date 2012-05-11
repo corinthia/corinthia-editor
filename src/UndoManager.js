@@ -99,7 +99,7 @@ var UndoManager_group;
     }
 
     // public
-    UndoManager_monitorObject = function(object)
+    function monitorObject(object)
     {
         var names = Object.getOwnPropertyNames(object);
 
@@ -112,7 +112,7 @@ var UndoManager_group;
     }
 
     // public
-    UndoManager_unmonitorObject = function(object)
+    function unmonitorObject(object)
     {
         UndoManager_addAction(function() {
             UndoManager_monitorObject(object);
@@ -126,7 +126,7 @@ var UndoManager_group;
     }
 
     // public
-    UndoManager_monitorWhileExecuting = function(object,fun)
+    function monitorWhileExecuting(object,fun)
     {
         UndoManager_monitorObject(object);
         try {
@@ -187,7 +187,7 @@ var UndoManager_group;
 
     UndoAction.prototype.perform = function(context)
     {
-        //    debug(context+": performing action \""+this.name+"\"");
+        //debug(context+": performing action \""+this.name+"\"");
         this.fun();
     }
 
@@ -242,29 +242,29 @@ var UndoManager_group;
     }
 
     // public
-    UndoManager_getLength = function()
+    function getLength()
     {
         return undoStack.length + redoStack.length;
     }
 
     // public
-    UndoManager_getIndex = function()
+    function getIndex()
     {
         return undoStack.length;
     }
 
     // public
-    UndoManager_setIndex = function(index)
+    function setIndex(index)
     {
-        var length = this.getLength();
+        var length = UndoManager_getLength();
         while ((undoStack.length < index) && (redoStack.length > 0))
-            this.redo();
+            UndoManager_redo();
         while ((redoStack.length < length - index) && (undoStack.length > 0))
-            this.undo();
+            UndoManager_undo();
     }
 
     // public
-    UndoManager_print = function()
+    function print()
     {
         debug("Undo stack:");
         for (var i = 0; i < undoStack.length; i++)
@@ -275,7 +275,7 @@ var UndoManager_group;
     }
 
     // public
-    UndoManager_undo = function()
+    function undo()
     {
         if (undoStack.length > 0) {
             exitAllGroups();
@@ -292,7 +292,7 @@ var UndoManager_group;
     }
 
     // public
-    UndoManager_redo = function()
+    function redo()
     {
         if (redoStack.length > 0) {
             exitAllGroups();
@@ -309,7 +309,7 @@ var UndoManager_group;
     }
 
     // public
-    UndoManager_newGroup = function(name)
+    function newGroup(name)
     {
         if (currentGroup != null)
             exitGroup();
@@ -317,16 +317,16 @@ var UndoManager_group;
     }
 
     // public
-    UndoManager_addAction = function(fun,name)
+    function addAction(fun,name)
     {
-        //    debug("Undo action: "+name);
+        //debug("Undo action: "+name);
         if (currentGroup == null)
             enterGroup();
         currentGroup.addAction(new UndoAction(fun,name));
     }
 
     // public
-    UndoManager_group = function(fun)
+    function group(fun)
     {
         // We enter two levels of grouping here, so that if fun calls newGroup(), it will still
         // remain within the scope of the outer group defined here.
@@ -341,4 +341,19 @@ var UndoManager_group;
         }
     }
 
+    UndoManager_monitorObject = trace(monitorObject);
+    UndoManager_unmonitorObject = trace(unmonitorObject);
+    UndoManager_monitorWhileExecuting = trace(monitorWhileExecuting);
+    UndoManager_getLength = trace(getLength);
+    UndoManager_getIndex = trace(getIndex);
+    UndoManager_setIndex = trace(setIndex);
+    UndoManager_print = trace(print);
+    UndoManager_undo = trace(undo);
+    UndoManager_redo = trace(redo);
+    UndoManager_newGroup = trace(newGroup);
+    UndoManager_addAction = trace(addAction);
+    UndoManager_group = trace(group);
+
 })();
+
+window.undoSupported = true;
