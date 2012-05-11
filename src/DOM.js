@@ -477,10 +477,15 @@ var DOM_Listener;
             if (position.offset > offset)
                 position.offset += characters.length;
         });
-//        characterDataModified(textNode,textNode.nodeValue);
         textNode.nodeValue = textNode.nodeValue.slice(0,offset) +
                              characters +
                              textNode.nodeValue.slice(offset);
+        if (window.undoSupported) {
+            var length = characters.length;
+            UndoManager_addAction(function() {
+                deleteCharacters(textNode,offset,length);
+            },"Delete "+JSON.stringify(characters)+" at position "+offset);
+        }
     }
 
     function deleteCharacters(textNode,startOffset,endOffset)
@@ -498,7 +503,14 @@ var DOM_Listener;
             else if (position.offset >= endOffset)
                 position.offset -= deleteCount;
         });
-//        characterDataModified(textNode,textNode.nodeValue);
+
+        if (window.undoSupported) {
+            var removed = textNode.nodeValue.slice(startOffset,endOffset);
+            UndoManager_addAction(function() {
+                insertCharacters(textNode,startOffset,removed);
+            },"Insert "+JSON.stringify(removed)+" at position "+startOffset);
+        }
+
         textNode.nodeValue = textNode.nodeValue.slice(0,startOffset) +
                              textNode.nodeValue.slice(endOffset);
     }
