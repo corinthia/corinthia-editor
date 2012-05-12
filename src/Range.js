@@ -476,6 +476,28 @@ var Range;
         return false;
     }
 
+    function findMatchingNodes(predicate)
+    {
+        var resultArray = new Array();
+        var resultSet = new NodeSet();
+        var all = this.getAllNodes();
+        for (var i = 0; i < all.length; i++)
+            recurse(all[i]);
+        return resultArray;
+
+        // Process parents before children, ensuring nodes are in document order
+        function recurse(node)
+        {
+            if (node == null)
+                return;
+            recurse(node.parentNode);
+            if (!resultSet.contains(node) && predicate(node)) {
+                resultArray.push(node);
+                resultSet.add(node);
+            }
+        }
+    }
+
     Range.prototype.copy = trace(copy);
     Range.prototype.isEmpty = trace(isEmpty);
     Range.prototype.trackWhileExecuting = trace(trackWhileExecuting);
@@ -493,5 +515,6 @@ var Range;
     Range.prototype.getClientRects = trace(getClientRects);
     Range.prototype.cloneContents = trace(cloneContents);
     Range.prototype.hasContent = trace(hasContent);
+    Range.prototype.findMatchingNodes = trace(findMatchingNodes);
 
 })();

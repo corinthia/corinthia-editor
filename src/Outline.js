@@ -5,6 +5,7 @@ var Outline_moveSection;
 var Outline_deleteItem;
 var Outline_goToItem;
 var Outline_setNumbered;
+var Outline_getItemElement;
 var Outline_plainText;
 
 (function() {
@@ -680,6 +681,16 @@ var Outline_plainText;
     }
 
     // public
+    function getItemElement(itemId)
+    {
+        var item = itemsById[itemId];
+        if (item != null)
+            return item.node;
+        else
+            return null;
+    }
+
+    // public
     function setNumbered(itemId,numbered)
     {
         var item = itemsById[itemId];
@@ -694,6 +705,7 @@ var Outline_plainText;
     Outline_deleteItem = trace(deleteItem);
     Outline_goToItem = trace(goToItem);
     Outline_setNumbered = trace(setNumbered);
+    Outline_getItemElement = trace(getItemElement);
     Outline_plainText = trace(plainText);
 
 })();

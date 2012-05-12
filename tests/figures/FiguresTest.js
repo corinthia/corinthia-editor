@@ -1,0 +1,18 @@
+function figurePropertiesString(index)
+{
+    var figure = document.getElementsByTagName("FIGURE")[0];
+    var parent = figure.parentNode;
+    var offset = DOM_nodeOffset(figure);
+    Selection_setSelectionRange(new Range(parent,offset,parent,offset+1));
+    var properties = Figures_getProperties();
+    var strings = new Array();
+    var names = Object.getOwnPropertyNames(properties).sort();
+    for (var i = 0; i < names.length; i++) {
+        var name = names[i];
+        if (properties[name] == null)
+            strings.push(name+" = null");
+        else
+            strings.push(name+" = "+properties[name]);
+    }
+    return strings.join("\n");
+}
