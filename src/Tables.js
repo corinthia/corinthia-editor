@@ -150,7 +150,7 @@ var Tables_getTableRegionFromRange;
         // Caption comes first
         if (haveCaption) {
             var tableCaption = DOM_createElement(document,"CAPTION");
-            tableCaption.appendChild(DOM_createTextNode(document,caption));
+            DOM_appendChild(tableCaption,DOM_createTextNode(document,caption));
             DOM_appendChild(table,tableCaption);
         }
 
