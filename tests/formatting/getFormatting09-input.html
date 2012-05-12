@@ -14,6 +14,8 @@ function performTest()
 
     var names = Object.getOwnPropertyNames(properties).sort();
     for (var i = 0; i < names.length; i++) {
+        if (names[i] == "border-image") // Extra property present in Chrome
+            continue;
         var p = DOM_createElement(document,"P");
         DOM_appendChild(document.body,p);
         DOM_appendChild(p,DOM_createTextNode(document,names[i]+" = "+properties[names[i]]));

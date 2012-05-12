@@ -27,6 +27,11 @@ th {
 function performTest()
 {
     Styles_init();
+
+    // Delete properties absent from Safari but present in Chrome
+    delete Styles_getAllStyles()["td"].rules.base.properties["border-image"];
+    delete Styles_getAllStyles()["th"].rules.base.properties["border-image"];
+
     Styles_scheduleApplyCSSTextChanges();
     PostponedActions_perform();
 }
