@@ -7,6 +7,8 @@ var Figures_insertFigure;
     // public
     function insertFigure(filename,width,numbered,caption)
     {
+        Styles_addDefaultRuleCategory("figure");
+
         var figure = DOM_createElement(document,"FIGURE");
         var img = DOM_createElement(document,"IMG");
         img.setAttribute("src",filename);

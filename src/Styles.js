@@ -323,6 +323,7 @@ var Styles_init;
         "th-paragraph-margins": ["th > *:first-child", "th > *:last-child"],
         "table-borders": ["table", "td", "th"],
         "table-caption": ["caption"],
+        "figure": ["figure"],
     };
 
     // public
@@ -435,7 +436,9 @@ var Styles_init;
         defaultStyle("BODY","special");
         defaultStyle("TABLE","special");
         defaultStyle("CAPTION","special");
-        defaultStyle("FIGURE","special");
+        defaultStyle("FIGURE","special",true,{"margin-left": "auto",
+                                              "margin-right": "auto",
+                                              "text-align": "center"});
         defaultStyle("FIGCAPTION","special");
 
         // Page properties for printing
