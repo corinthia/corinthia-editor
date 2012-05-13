@@ -18,10 +18,15 @@ var UndoManager_groupType;
         this.actions = new Array();
     }
 
-    function UndoAction(fun,description)
+    function UndoAction(fun,args)
     {
         this.fun = fun;
-        this.description = description;
+        this.args = args;
+    }
+
+    UndoAction.prototype.toString = function()
+    {
+        return this.fun.name + "(" + this.args.toString() + ")";
     }
 
     var undoStack = new Array();
@@ -62,7 +67,7 @@ var UndoManager_groupType;
             debug("    "+group.type);
             for (var actionIndex = 0; actionIndex < group.actions.length; actionIndex++) {
                 var action = group.actions[actionIndex];
-                debug("        "+action.description);
+                debug("        "+action);
             }
         }
         debug("Redo stack:");
@@ -71,7 +76,7 @@ var UndoManager_groupType;
             debug("    "+group.type);
             for (var actionIndex = 0; actionIndex < group.actions.length; actionIndex++) {
                 var action = group.actions[actionIndex];
-                debug("        "+action.description);
+                debug("        "+action);
             }
         }
         debug("Current group = "+currentGroup);
@@ -87,7 +92,7 @@ var UndoManager_groupType;
             var group = undoStack.pop();
             inUndo = true;
             for (var i = group.actions.length-1; i >= 0; i--)
-                group.actions[i].fun();
+                group.actions[i].fun.apply(null,group.actions[i].args);
             inUndo = false;
         }
         currentGroup = null;
@@ -101,14 +106,19 @@ var UndoManager_groupType;
             var group = redoStack.pop();
             inRedo = true;
             for (var i = group.actions.length-1; i >= 0; i--)
-                group.actions[i].fun();
+                group.actions[i].fun.apply(null,group.actions[i].args);
             inRedo = false;
         }
         currentGroup = null;
     }
 
-    function addActionInternal(fun,description)
+    // public
+    function addAction(fun) // remaining parameters are arguments to be supplied to fun
     {
+        var args = new Array();
+        for (var i = 1; i < arguments.length; i++)
+            args.push(arguments[i]);
+
         if (!inUndo && !inRedo && (redoStack.length > 0))
             redoStack.length = 0;
 
@@ -116,22 +126,12 @@ var UndoManager_groupType;
         if (currentGroup == null)
             UndoManager_newGroup(null);
 
-        if (currentGroup.actions.length == 0) {
+        // Only add a group to the undo stack one it has at least one action, to avoid having
+        // empty groups present.
+        if (currentGroup.actions.length == 0)
             stack.push(currentGroup);
-        }
 
-        var action = new UndoAction(fun,description);
-        currentGroup.actions.push(action);
-    }
-
-    // public
-    function addAction(fun) // remaining parameters are arguments to be supplied to fun
-    {
-        var args = arrayCopy(arguments);
-        args.shift();
-        addActionInternal(function () {
-            fun.apply(null,args);
-        },"");
+        currentGroup.actions.push(new UndoAction(fun,args));
     }
 
     // public
