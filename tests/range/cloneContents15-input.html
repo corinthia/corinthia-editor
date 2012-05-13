@@ -5,7 +5,7 @@
 <script language="javascript">
 function performTest()
 {
-    var selectionRange = Selection_getSelectionRange();
+    var selectionRange = Selection_get();
     var clonedElements = selectionRange.cloneContents();
     Selection_clearSelection();
     DOM_deleteAllChildren(document.body);

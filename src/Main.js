@@ -105,7 +105,7 @@ var Main_init;
 
         function htmlWithSelection()
         {
-            var selectionRange = Selection_getSelectionRange();
+            var selectionRange = Selection_get();
             if (selectionRange != null) {
                 selectionRange = selectionRange.forwards();
                 var startSave = new Object();

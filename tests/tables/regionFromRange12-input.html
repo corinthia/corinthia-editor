@@ -13,7 +13,7 @@ function performTest()
 
     showSelection();
 
-    var region = Tables_regionFromRange(Selection_getSelectionRange());
+    var region = Tables_regionFromRange(Selection_get());
     for (var row = region.top; row <= region.bottom; row++) {
         for (var col = region.left; col <= region.right; col++) {
             var cell = region.structure.get(row,col);

@@ -6,7 +6,7 @@
 function performTest()
 {
     var p = document.getElementsByTagName("P")[0];
-    var selectionRange = Selection_getSelectionRange();
+    var selectionRange = Selection_get();
     selectionRange.trackWhileExecuting(function() {
         DOM_deleteNode(p);
     });

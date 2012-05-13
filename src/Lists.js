@@ -43,7 +43,7 @@ var Lists_setOrderedList;
     // FIXME: write testcases for this
     function increaseIndent()
     {
-        var range = Selection_getSelectionRange();
+        var range = Selection_get();
         if (range == null)
             return null;
 
@@ -141,7 +141,7 @@ var Lists_setOrderedList;
     // FIXME: write testcases for this
     function decreaseIndent()
     {
-        var range = Selection_getSelectionRange();
+        var range = Selection_get();
         if (range == null)
             return null;
 
@@ -293,7 +293,7 @@ var Lists_setOrderedList;
     // public
     function clearList()
     {
-        var range = Selection_getSelectionRange();
+        var range = Selection_get();
         if (range == null)
             return;
 
@@ -354,7 +354,7 @@ var Lists_setOrderedList;
 
     function setList(type)
     {
-        var range = Selection_getSelectionRange();
+        var range = Selection_get();
         if (range == null)
             return;
 

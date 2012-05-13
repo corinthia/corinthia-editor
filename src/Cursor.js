@@ -211,7 +211,7 @@ var Cursor_enterPressed;
         if (position == null)
             return false;
 
-        var selectionRange = Selection_getSelectionRange();
+        var selectionRange = Selection_get();
         var samePosition = ((selectionRange != null) && selectionRange.isEmpty() &&
                             (position.node == selectionRange.start.node) &&
                             (position.offset == selectionRange.start.offset));
@@ -252,7 +252,7 @@ var Cursor_enterPressed;
     // public
     function moveLeft()
     {
-        var selectionRange = Selection_getSelectionRange();
+        var selectionRange = Selection_get();
         if (selectionRange == null)
             return;
 
@@ -267,7 +267,7 @@ var Cursor_enterPressed;
     // public
     function moveRight()
     {
-        var selectionRange = Selection_getSelectionRange();
+        var selectionRange = Selection_get();
         if (selectionRange == null)
             return;
 
@@ -415,13 +415,13 @@ var Cursor_enterPressed;
     // public
     function beginInsertion()
     {
-        var selectionRange = Selection_getSelectionRange();
+        var selectionRange = Selection_get();
         if (selectionRange == null)
             return;
 
         if (!selectionRange.isEmpty()) {
             Selection_deleteSelectionContents();
-            selectionRange = Selection_getSelectionRange();
+            selectionRange = Selection_get();
         }
         var pos = closestPositionForwards(selectionRange.start);
         var node = pos.node;
@@ -442,7 +442,7 @@ var Cursor_enterPressed;
         insertionTextAfter = insertionNode.nodeValue.slice(offset);
 
         Selection_setEmptySelectionAt(node,offset,node,offset);
-        Selection_getSelectionRange().trackWhileExecuting(function() {
+        Selection_get().trackWhileExecuting(function() {
             updateBRAtEndOfParagraph(node);
         });
         ensureCursorVisible();
@@ -457,7 +457,7 @@ var Cursor_enterPressed;
         var node = insertionNode;
         var offset = (insertionTextBefore+str).length;
         Selection_setEmptySelectionAt(node,offset,node,offset);
-        Selection_getSelectionRange().trackWhileExecuting(function() {
+        Selection_get().trackWhileExecuting(function() {
             updateBRAtEndOfParagraph(node);
         });
         ensureCursorVisible();
@@ -466,7 +466,7 @@ var Cursor_enterPressed;
     // public
     function deleteCharacter()
     {
-        var selectionRange = Selection_getSelectionRange();
+        var selectionRange = Selection_get();
         if (selectionRange == null)
             return;
 
@@ -489,7 +489,7 @@ var Cursor_enterPressed;
     // public
     function enterPressed()
     {
-        var selectionRange = Selection_getSelectionRange();
+        var selectionRange = Selection_get();
         if (selectionRange == null)
             return;
 

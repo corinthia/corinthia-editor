@@ -8,7 +8,7 @@ function performTest()
     Cursor_enterPressed();
     Cursor_insertCharacter("X");
 //    Cursor_moveLeft();
-    var range = Selection_getSelectionRange();
+    var range = Selection_get();
     range.trackWhileExecuting(showEmptyTextNodes);
     showRangeAsBrackets(range)
 }

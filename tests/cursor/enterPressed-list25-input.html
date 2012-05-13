@@ -6,14 +6,14 @@
 function performTest()
 {
     Cursor_enterPressed();
-    var range = Selection_getSelectionRange();
+    var range = Selection_get();
     range.trackWhileExecuting(showEmptyTextNodes);
 
     var u = document.getElementsByTagName("U")[0];
     range = new Range(u,0,u,0);
     Selection_setSelectionRange(range);
     Cursor_insertCharacter("X");
-    showRangeAsBrackets(Selection_getSelectionRange())
+    showRangeAsBrackets(Selection_get())
 }
 </script>
 </head>

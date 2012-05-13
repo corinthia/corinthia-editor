@@ -12,7 +12,7 @@ var Selection_dragSelectionUpdate;
 var Selection_setSelectionStartAtCoords;
 var Selection_setSelectionEndAtCoords;
 var Selection_setTableSelectionEdgeAtCoords;
-var Selection_getSelectionRange;
+var Selection_get;
 var Selection_setSelectionRange;
 var Selection_setEmptySelectionAt;
 var Selection_deleteSelectionContents;
@@ -334,7 +334,7 @@ var Selection_trackWhileExecuting;
     // public
     function selectWordAtCursor()
     {
-        var selectionRange = Selection_getSelectionRange();
+        var selectionRange = Selection_get();
         if (selectionRange == null)
             return;
         var pos = Cursor_closestPositionBackwards(selectionRange.end);
@@ -550,7 +550,7 @@ var Selection_trackWhileExecuting;
     }
 
     // public
-    function getSelectionRange()
+    function get()
     {
         if (selectionRange == null) {
             return null;
@@ -801,7 +801,7 @@ var Selection_trackWhileExecuting;
     Selection_setSelectionStartAtCoords = trace(setSelectionStartAtCoords);
     Selection_setSelectionEndAtCoords = trace(setSelectionEndAtCoords);
     Selection_setTableSelectionEdgeAtCoords = trace(setTableSelectionEdgeAtCoords);
-    Selection_getSelectionRange = trace(getSelectionRange);
+    Selection_get = trace(get);
     Selection_setSelectionRange = trace(setSelectionRange);
     Selection_setEmptySelectionAt = trace(setEmptySelectionAt);
     Selection_deleteSelectionContents = trace(deleteSelectionContents);

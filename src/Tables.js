@@ -232,7 +232,7 @@ var Tables_regionFromRange;
     // public
     function insertRowAbove()
     {
-        var selectionRange = Selection_getSelectionRange();
+        var selectionRange = Selection_get();
         var region = Tables_regionFromRange(selectionRange,true);
         if (region != null) {
             selectionRange.trackWhileExecuting(function() {
@@ -249,7 +249,7 @@ var Tables_regionFromRange;
     // public
     function insertRowBelow()
     {
-        var selectionRange = Selection_getSelectionRange();
+        var selectionRange = Selection_get();
         var region = Tables_regionFromRange(selectionRange,true);
         if (region != null) {
             selectionRange.trackWhileExecuting(function() {
@@ -422,7 +422,7 @@ var Tables_regionFromRange;
     // public
     function insertColumnLeft()
     {
-        var selectionRange = Selection_getSelectionRange();
+        var selectionRange = Selection_get();
         var region = Tables_regionFromRange(selectionRange,true);
         if (region != null) {
             selectionRange.trackWhileExecuting(function() {
@@ -436,7 +436,7 @@ var Tables_regionFromRange;
     // public
     function insertColumnRight()
     {
-        var selectionRange = Selection_getSelectionRange();
+        var selectionRange = Selection_get();
         var region = Tables_regionFromRange(selectionRange,true);
         if (region != null) {
             selectionRange.trackWhileExecuting(function() {
@@ -525,7 +525,7 @@ var Tables_regionFromRange;
     function mergeCells()
     {
         debug("mergeCells()");
-        var region = Tables_regionFromRange(Selection_getSelectionRange());
+        var region = Tables_regionFromRange(Selection_get());
         if (region == null)
             return;
 
@@ -583,7 +583,7 @@ var Tables_regionFromRange;
     // public
     function splitSelection()
     {
-        var range = Selection_getSelectionRange();
+        var range = Selection_get();
         range.trackWhileExecuting(function() {
             var region = Tables_regionFromRange(range,true);
             if (region != null)

@@ -5,7 +5,7 @@
 <script language="javascript">
 function performTest()
 {
-    var range = Selection_getSelectionRange();
+    var range = Selection_get();
     range.trackWhileExecuting(function() {
         removeWhitespaceAndCommentNodes(document.body);
     });

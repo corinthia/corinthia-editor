@@ -242,7 +242,7 @@ var Clipboard_pasteNodes;
     // public
     function copy()
     {
-        var selectionRange = Selection_getSelectionRange();
+        var selectionRange = Selection_get();
         var html = "";
         var text = "";
 
@@ -315,7 +315,7 @@ var Clipboard_pasteNodes;
             }
         }
         Selection_deleteSelectionContents(true);
-        var selectionRange = Selection_getSelectionRange();
+        var selectionRange = Selection_get();
         if (selectionRange == null)
             return;
 

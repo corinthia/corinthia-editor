@@ -6,7 +6,7 @@
 
 function performTest()
 {
-    var selectionRange = Selection_getSelectionRange();
+    var selectionRange = Selection_get();
     return Formatting_paragraphTextUpToPosition(selectionRange.start);
 }
 </script>

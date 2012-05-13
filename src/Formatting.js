@@ -325,7 +325,7 @@ var Formatting_applyFormattingChanges;
     {
         // FIXME: implement a more efficient version of this algorithm which avoids duplicate checks
 
-        var range = Selection_getSelectionRange();
+        var range = Selection_get();
         if (range == null)
             return {};
 
@@ -873,7 +873,7 @@ var Formatting_applyFormattingChanges;
                 inlineProperties[name] = properties[name];
         }
 
-        var selectionRange = Selection_getSelectionRange();
+        var selectionRange = Selection_get();
         if (selectionRange == null)
             return;
 

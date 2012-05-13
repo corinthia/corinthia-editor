@@ -1,6 +1,6 @@
 function oldInsertCharacter(character)
 {
-    var selectionRange = Selection_getSelectionRange();
+    var selectionRange = Selection_get();
     if (selectionRange == null)
         return;
 
