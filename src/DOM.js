@@ -1,7 +1,6 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
 var DOM_assignNodeIds;
-var DOM_addUndoListeners;
 var DOM_createElement;
 var DOM_createElementNS;
 var DOM_createTextNode;
@@ -123,34 +122,6 @@ var DOM_Listener;
         }
     }
 
-    function attrModified(event)
-    {
-        var element = event.target;
-        var attrName = event.attrName;
-        var prevValue = event.prevValue;
-        var newValue = event.newValue;
-        if (event.attrChange == MutationEvent.ADDITION) {
-            UndoManager_addAction(function() {
-                // FIXME: this won't redo properly
-                element.removeAttribute(attrName);
-            },"Remove "+attrName+" attribute from "+DOM_upperName(element));
-        }
-        else if (event.attrChange == MutationEvent.REMOVAL) {
-            UndoManager_addAction(function() {
-                // FIXME: this won't redo properly
-                element.setAttribute(attrName,prevValue);
-            },"Add "+attrName+" attribute to "+
-              DOM_upperName(element)+" with value \""+prevValue+"\"");
-        }
-        else if (event.attrChange == MutationEvent.MODIFICATION) {
-            UndoManager_addAction(function() {
-                // FIXME: this won't redo properly
-                element.setAttribute(attrName,prevValue);
-            },"Change "+attrName+" attribute of "+
-              DOM_upperName(element)+" to value \""+prevValue+"\"");
-        }
-    }
-
     // public methods
     function assignNodeIds(node)
     {
@@ -159,13 +130,6 @@ var DOM_Listener;
         node._nodeId = prefix+nextNodeId++;
         for (var child = node.firstChild; child != null; child = child.nextSibling)
             assignNodeIds(child);
-    }
-
-    function addUndoListeners(node)
-    {
-//        node.addEventListener("DOMNodeInserted",nodeInserted);
-//        node.addEventListener("DOMNodeRemoved",nodeRemoved);
-        node.addEventListener("DOMAttrModified",attrModified);
     }
 
     // Low-level methods
@@ -728,7 +692,6 @@ var DOM_Listener;
     DOM_Listener = Listener;
 
     DOM_assignNodeIds = trace(assignNodeIds);
-    DOM_addUndoListeners = trace(addUndoListeners);
     DOM_createElement = trace(createElement);
     DOM_createElementNS = trace(createElementNS);
     DOM_createTextNode = trace(createTextNode);

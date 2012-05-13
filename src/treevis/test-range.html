@@ -79,7 +79,6 @@ function programmaticTree()
     var root = DOM_createElement(document,"DIV");
     root.style.display = "none";
     DOM_appendChild(document.body,root);
-    DOM_addUndoListeners(root);
     UndoManager_group(buildTree,document,root,6,4);
     return root;
 }
