@@ -92,12 +92,9 @@ var DOM_Listener;
         var nextSibling = node.nextSibling;
         var nextName = (nextSibling == null) ? null : DOM_upperName(nextSibling);
         var data = nodeData[node._nodeId];
-        if (window.undoSupported) {
-            UndoManager_addAction(function() {
-                insertBeforeInternal(parent,node,nextSibling);
-            },"Insert "+DOM_upperName(node)+" into parent "+
-              DOM_upperName(parent)+" before "+nextName);
-        }
+        addUndoAction(function() {
+            insertBeforeInternal(parent,node,nextSibling);
+        },"Insert "+node+" into parent "+parent+" before "+nextName);
 
         node.parentNode.removeChild(node);
 
