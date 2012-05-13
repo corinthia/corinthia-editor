@@ -523,6 +523,8 @@ var DOM_Listener;
     {
         if (textNode.nodeType != Node.TEXT_NODE)
             throw new Error("DOM_insertCharacters called on non-text node");
+        if ((offset < 0) || (offset > textNode.nodeValue.length))
+            throw new Error("DOM_insertCharacters called with invalid offset");
         trackedPositionsForNode(textNode).forEach(function (position) {
             if (position.offset > offset)
                 position.offset += characters.length;
@@ -530,12 +532,10 @@ var DOM_Listener;
         textNode.nodeValue = textNode.nodeValue.slice(0,offset) +
                              characters +
                              textNode.nodeValue.slice(offset);
-        if (window.undoSupported) {
-            var length = characters.length;
-            UndoManager_addAction(function() {
-                deleteCharacters(textNode,offset,length);
-            },"Delete "+JSON.stringify(characters)+" at position "+offset);
-        }
+        var startOffset = offset;
+        var endOffset = offset + characters.length;
+        addUndoAction(function() { deleteCharacters(textNode,startOffset,endOffset); },
+                      "Delete "+JSON.stringify(characters)+" at position "+startOffset);
     }
 
     function deleteCharacters(textNode,startOffset,endOffset)
@@ -554,12 +554,10 @@ var DOM_Listener;
                 position.offset -= deleteCount;
         });
 
-        if (window.undoSupported) {
-            var removed = textNode.nodeValue.slice(startOffset,endOffset);
-            UndoManager_addAction(function() {
-                insertCharacters(textNode,startOffset,removed);
-            },"Insert "+JSON.stringify(removed)+" at position "+startOffset);
-        }
+        var removed = textNode.nodeValue.slice(startOffset,endOffset);
+        addUndoAction(function() {
+            insertCharacters(textNode,startOffset,removed);
+        },"Insert "+JSON.stringify(removed)+" at position "+startOffset);
 
         textNode.nodeValue = textNode.nodeValue.slice(0,startOffset) +
                              textNode.nodeValue.slice(endOffset);
@@ -573,11 +571,9 @@ var DOM_Listener;
             position.offset = 0;
         });
         var oldValue = textNode.nodeValue;
-        if (window.undoSupported) {
-            UndoManager_addAction(function() {
-                setNodeValue(textNode,oldValue);
-            },"Set text node to "+JSON.stringify(oldValue));
-        }
+        addUndoAction(function() {
+            setNodeValue(textNode,oldValue);
+        },"Set text node to "+JSON.stringify(oldValue));
         textNode.nodeValue = value;
     }
 
