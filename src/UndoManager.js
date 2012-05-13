@@ -277,6 +277,7 @@ var UndoManager_group;
     // public
     function undo()
     {
+        // FIXME: if the group is empty, undo() should skip it
         if (undoStack.length > 0) {
             exitAllGroups();
             inUndo = true;

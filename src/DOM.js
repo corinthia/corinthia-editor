@@ -7,6 +7,12 @@ var DOM_createElementNS;
 var DOM_createTextNode;
 var DOM_createComment;
 var DOM_cloneNode;
+var DOM_setAttribute;
+var DOM_setAttributeNS;
+var DOM_removeAttribute;
+var DOM_removeAttributeNS;
+var DOM_setStyleProperty;
+var DOM_removeStyleProperty;
 var DOM_appendChild;
 var DOM_insertBefore;
 var DOM_deleteNode;
@@ -40,6 +46,12 @@ var DOM_Listener;
     var prefix = Math.random()+":";
     var nextNodeId = 0;
     var nodeData = new Object();
+
+    function addUndoAction(fun,name)
+    {
+        if (window.undoSupported)
+            UndoManager_addAction(fun,name);
+    }
 
     function assignNodeId(node)
     {
@@ -183,6 +195,53 @@ var DOM_Listener;
         var clone = original.cloneNode(deep);
         DOM_assignNodeIds(clone);
         return clone;
+    }
+
+    function setAttribute(element,name,value)
+    {
+        if (element.hasAttribute(name)) {
+            var oldValue = element.getAttribute(name);
+            addUndoAction(function() { DOM_setAttribute(element,name,oldValue); },
+                          "Set attribute "+JSON.stringify(name)+" of element "+element.nodeName+
+                          " to "+JSON.stringify(oldValue));
+        }
+        else {
+            addUndoAction(function() {
+                DOM_removeAttribute(element,name);
+            },"Remove attribute "+JSON.stringify(name)+" from element "+element.nodeName);
+        }
+
+        if (value == null)
+            element.removeAttribute(name);
+        else
+            element.setAttribute(name,value);
+    }
+
+    function setAttributeNS(element,namespaceURI,qualifiedName,value)
+    {
+        element.setAttributeNS(namespaceURI,qualifiedName,value);
+    }
+
+    function removeAttribute(element,name,value)
+    {
+        DOM_setAttribute(element,name,null);
+    }
+
+    function removeAttributeNS(element,namespaceURI,localName)
+    {
+        element.removeAttributeNS(element,namespaceURI,localName);
+    }
+
+    function setStyleProperty(element,name,value)
+    {
+        element.style[name] = value;
+        if (element.getAttribute("style") == "")
+            element.removeAttribute("style");
+    }
+
+    function removeStyleProperty(element,name)
+    {
+        DOM_setStyleProperty(element,name,null);
     }
 
     function appendChild(node,child)
@@ -651,6 +710,12 @@ var DOM_Listener;
     DOM_createTextNode = trace(createTextNode);
     DOM_createComment = trace(createComment);
     DOM_cloneNode = trace(cloneNode);
+    DOM_setAttribute = trace(setAttribute);
+    DOM_setAttributeNS = trace(setAttributeNS);
+    DOM_removeAttribute = trace(removeAttribute);
+    DOM_removeAttributeNS = trace(removeAttributeNS);
+    DOM_setStyleProperty = trace(setStyleProperty);
+    DOM_removeStyleProperty = trace(removeStyleProperty);
     DOM_appendChild = trace(appendChild);
     DOM_insertBefore = trace(insertBefore);
     DOM_deleteNode = trace(deleteNode);

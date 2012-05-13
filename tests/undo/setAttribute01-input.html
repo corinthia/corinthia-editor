@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script language="javascript">
+function performTest()
+{
+    Outline_init();
+    Styles_init();
+    PostponedActions_perform();
+
+    var versions = new Array();
+    var img = document.getElementsByTagName("IMG")[0];
+    versions.push(DOM_cloneNode(img,true));
+
+    DOM_setAttribute(img,"src","second.png");
+    versions.push(DOM_cloneNode(img,true));
+    UndoManager_newGroup();
+
+    DOM_setAttribute(img,"src","third.png");
+    versions.push(DOM_cloneNode(img,true));
+
+    UndoManager_undo();
+    versions.push(DOM_cloneNode(img,true));
+
+    UndoManager_undo();
+    versions.push(DOM_cloneNode(img,true));
+
+    UndoManager_redo();
+    versions.push(DOM_cloneNode(img,true));
+
+    UndoManager_redo();
+    versions.push(DOM_cloneNode(img,true));
+
+    UndoManager_undo();
+    versions.push(DOM_cloneNode(img,true));
+
+    UndoManager_undo();
+    versions.push(DOM_cloneNode(img,true));
+
+    DOM_deleteAllChildren(document.body);
+    for (var i = 0; i < versions.length; i++)
+        DOM_appendChild(document.body,versions[i]);
+}
+</script>
+</head>
+<body>
+<img src="first.png">
+</body>
+</html>
