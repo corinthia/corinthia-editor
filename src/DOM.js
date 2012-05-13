@@ -62,10 +62,16 @@ var DOM_Listener;
 
     function insertBeforeInternal(parent,newChild,refChild)
     {
-        if (window.undoSupported) {
-            UndoManager_addAction(function() {
+        if (newChild.parentNode == null) {
+            addUndoAction(function() {
                 deleteNodeInternal(newChild);
-            },"Remove "+DOM_upperName(newChild)+" from parent "+DOM_upperName(parent));
+            },"Remove "+newChild+" from parent "+parent);
+        }
+        else {
+            var oldParent = newChild.parentNode;
+            var oldNext = newChild.nextSibling;
+            addUndoAction(function() { insertBeforeInternal(oldParent,newChild,oldNext); },
+                          "Insert "+newChild+" into parent "+oldParent+" before "+oldNext);
         }
 
         parent.insertBefore(newChild,refChild);
