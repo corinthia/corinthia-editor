@@ -23,8 +23,8 @@ function performTest()
         DOM_appendChild(ref,DOM_createTextNode(document,"abcde"));
 
         var p = DOM_createElement(document,"P");
-        p.appendChild(DOM_createTextNode(document,"Dynamically added reference: "));
-        p.appendChild(ref);
+        DOM_appendChild(p,DOM_createTextNode(document,"Dynamically added reference: "));
+        DOM_appendChild(p,ref);
         DOM_insertBefore(document.body,p,document.body.firstChild);
     }
 
