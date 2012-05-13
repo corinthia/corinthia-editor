@@ -98,6 +98,10 @@ var DOM_Listener;
 
         node.parentNode.removeChild(node);
 
+        // Delete all data associated with the node. This is not preserved across undo/redo;
+        // currently the only thing we are using this data for is tracked positions, and we
+        // are going to be recording undo information for the selection separately, so this is
+        // not a problem.
         if (deleteDescendantData)
             deleteNodeDataRecursive(node);
         else
@@ -107,13 +111,6 @@ var DOM_Listener;
 
         function deleteNodeData(current)
         {
-            if (window.undoSupported) {
-                var data = nodeData[current._nodeId];
-                UndoManager_addAction(function() {
-                    // FIXME: this won't redo properly
-                    nodeData[current._nodeId] = data;
-                },"Set node data for "+DOM_upperName(current));
-            }
             delete nodeData[current._nodeId];
         }
 
