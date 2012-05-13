@@ -219,7 +219,26 @@ var DOM_Listener;
 
     function setAttributeNS(element,namespaceURI,qualifiedName,value)
     {
-        element.setAttributeNS(namespaceURI,qualifiedName,value);
+        var localName = qualifiedName.replace(/^.*:/,"");
+        if (element.hasAttributeNS(namespaceURI,localName)) {
+            var oldValue = element.getAttributeNS(namespaceURI,localName);
+            var oldQName = element.getAttributeNodeNS(namespaceURI,localName).nodeName;
+            addUndoAction(function() {
+                DOM_setAttributeNS(element,namespaceURI,oldQName,oldValue);
+            },
+                          "Set attribute {"+namespaceURI+"}"+oldQName+" of element "+
+                          element.nodeName+" to "+JSON.stringify(oldValue));
+        }
+        else {
+            addUndoAction(function() {
+                DOM_removeAttributeNS(element,namespaceURI,localName);
+            },"Remove attribute "+JSON.stringify(name)+" from element "+element.nodeName);
+        }
+
+        if (value == null)
+            element.removeAttributeNS(namespaceURI,localName);
+        else
+            element.setAttributeNS(namespaceURI,qualifiedName,value);
     }
 
     function removeAttribute(element,name,value)
@@ -229,7 +248,7 @@ var DOM_Listener;
 
     function removeAttributeNS(element,namespaceURI,localName)
     {
-        element.removeAttributeNS(element,namespaceURI,localName);
+        DOM_setAttributeNS(element,namespaceURI,localName)
     }
 
     function setStyleProperty(element,name,value)
