@@ -168,7 +168,7 @@ var Cursor_enterPressed;
             var nextNode = node.childNodes[offset];
 
             if ((prevNode == null) && (nextNode == null) &&
-                (CONTAINER_ELEMENTS_ALLOWING_CONTENT[node.nodeName] ||
+                (CONTAINER_ELEMENTS_ALLOWING_CONTENT[DOM_upperName(node)] ||
                 (isInlineNode(node) && !isOpaqueNode(node) && (DOM_upperName(node) != "BR"))))
                 return true;
 

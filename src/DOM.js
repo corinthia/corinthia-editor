@@ -46,10 +46,10 @@ var DOM_Listener;
     var nextNodeId = 0;
     var nodeData = new Object();
 
-    function addUndoAction(fun,name)
+    function addUndoAction()
     {
         if (window.undoSupported)
-            UndoManager_addAction(fun,name);
+            UndoManager_addAction.apply(null,arrayCopy(arguments));
     }
 
     function assignNodeId(node)
@@ -63,15 +63,12 @@ var DOM_Listener;
     function insertBeforeInternal(parent,newChild,refChild)
     {
         if (newChild.parentNode == null) {
-            addUndoAction(function() {
-                deleteNodeInternal(newChild);
-            },"Remove "+newChild+" from parent "+parent);
+            addUndoAction(deleteNodeInternal,newChild)
         }
         else {
             var oldParent = newChild.parentNode;
             var oldNext = newChild.nextSibling;
-            addUndoAction(function() { insertBeforeInternal(oldParent,newChild,oldNext); },
-                          "Insert "+newChild+" into parent "+oldParent+" before "+oldNext);
+            addUndoAction(insertBeforeInternal,oldParent,newChild,oldNext);
         }
 
         parent.insertBefore(newChild,refChild);
@@ -92,9 +89,7 @@ var DOM_Listener;
         var nextSibling = node.nextSibling;
         var nextName = (nextSibling == null) ? null : DOM_upperName(nextSibling);
         var data = nodeData[node._nodeId];
-        addUndoAction(function() {
-            insertBeforeInternal(parent,node,nextSibling);
-        },"Insert "+node+" into parent "+parent+" before "+nextName);
+        addUndoAction(insertBeforeInternal,parent,node,nextSibling);
 
         node.parentNode.removeChild(node);
 
@@ -165,14 +160,10 @@ var DOM_Listener;
     {
         if (element.hasAttribute(name)) {
             var oldValue = element.getAttribute(name);
-            addUndoAction(function() { DOM_setAttribute(element,name,oldValue); },
-                          "Set attribute "+JSON.stringify(name)+" of element "+element.nodeName+
-                          " to "+JSON.stringify(oldValue));
+            addUndoAction(DOM_setAttribute,element,name,oldValue);
         }
         else {
-            addUndoAction(function() {
-                DOM_removeAttribute(element,name);
-            },"Remove attribute "+JSON.stringify(name)+" from element "+element.nodeName);
+            addUndoAction(DOM_removeAttribute,element,name);
         }
 
         if (value == null)
@@ -187,16 +178,10 @@ var DOM_Listener;
         if (element.hasAttributeNS(namespaceURI,localName)) {
             var oldValue = element.getAttributeNS(namespaceURI,localName);
             var oldQName = element.getAttributeNodeNS(namespaceURI,localName).nodeName;
-            addUndoAction(function() {
-                DOM_setAttributeNS(element,namespaceURI,oldQName,oldValue);
-            },
-                          "Set attribute {"+namespaceURI+"}"+oldQName+" of element "+
-                          element.nodeName+" to "+JSON.stringify(oldValue));
+            addUndoAction(DOM_setAttributeNS,element,namespaceURI,oldQName,oldValue)
         }
         else {
-            addUndoAction(function() {
-                DOM_removeAttributeNS(element,namespaceURI,localName);
-            },"Remove attribute "+JSON.stringify(name)+" from element "+element.nodeName);
+            addUndoAction(DOM_removeAttributeNS,element,namespaceURI,localName);
         }
 
         if (value == null)
@@ -218,9 +203,7 @@ var DOM_Listener;
     function setStyleProperty(element,name,value)
     {
         var oldValue = element.style[name];
-        addUndoAction(function() { DOM_setStyleProperty(element,name,oldValue); },
-                      element.nodeName+".style["+JSON.stringify(name)+"] = "+
-                      JSON.stringify(value));
+        addUndoAction(DOM_setStyleProperty,element,name,oldValue);
 
         element.style[name] = value;
         if (element.getAttribute("style") == "")
@@ -531,8 +514,7 @@ var DOM_Listener;
                              textNode.nodeValue.slice(offset);
         var startOffset = offset;
         var endOffset = offset + characters.length;
-        addUndoAction(function() { deleteCharacters(textNode,startOffset,endOffset); },
-                      "Delete "+JSON.stringify(characters)+" at position "+startOffset);
+        addUndoAction(deleteCharacters,textNode,startOffset,endOffset);
     }
 
     function deleteCharacters(textNode,startOffset,endOffset)
@@ -552,9 +534,7 @@ var DOM_Listener;
         });
 
         var removed = textNode.nodeValue.slice(startOffset,endOffset);
-        addUndoAction(function() {
-            insertCharacters(textNode,startOffset,removed);
-        },"Insert "+JSON.stringify(removed)+" at position "+startOffset);
+        addUndoAction(insertCharacters,textNode,startOffset,removed);
 
         textNode.nodeValue = textNode.nodeValue.slice(0,startOffset) +
                              textNode.nodeValue.slice(endOffset);
@@ -568,9 +548,7 @@ var DOM_Listener;
             position.offset = 0;
         });
         var oldValue = textNode.nodeValue;
-        addUndoAction(function() {
-            setNodeValue(textNode,oldValue);
-        },"Set text node to "+JSON.stringify(oldValue));
+        addUndoAction(setNodeValue,textNode,oldValue);
         textNode.nodeValue = value;
     }
 

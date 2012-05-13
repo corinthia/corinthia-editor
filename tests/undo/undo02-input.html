@@ -9,9 +9,7 @@ var strings = new Array();
 function setValue(newValue)
 {
     var oldValue = value;
-    UndoManager_addAction(function() {
-        setValue(oldValue);
-    },"Change value from "+newValue+" to "+oldValue);
+    UndoManager_addAction(setValue,oldValue);
 
     strings.push("value = "+newValue);
     value = newValue;

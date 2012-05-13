@@ -107,8 +107,7 @@ var UndoManager_groupType;
         currentGroup = null;
     }
 
-    // public
-    function addAction(fun,description)
+    function addActionInternal(fun,description)
     {
         if (!inUndo && !inRedo && (redoStack.length > 0))
             redoStack.length = 0;
@@ -123,6 +122,16 @@ var UndoManager_groupType;
 
         var action = new UndoAction(fun,description);
         currentGroup.actions.push(action);
+    }
+
+    // public
+    function addAction(fun) // remaining parameters are arguments to be supplied to fun
+    {
+        var args = arrayCopy(arguments);
+        args.shift();
+        addActionInternal(function () {
+            fun.apply(null,args);
+        },"");
     }
 
     // public
