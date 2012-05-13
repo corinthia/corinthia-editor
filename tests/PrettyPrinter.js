@@ -72,10 +72,14 @@
         names.sort();
         var str = "";
         for (var i = 0; i < names.length; i++) {
-            var value = node.getAttribute(names[i]);
-            if (names[i] == "style")
+            var name = names[i];
+            var value = node.getAttribute(name);
+            if (name == "style")
                 value = sortCSSProperties(value);
-            str += " "+names[i]+"=\""+value+"\"";
+            var attr = node.getAttributeNode(name);
+            if ((attr.namespaceURI != null) || (attr.prefix != null))
+                name = "{"+attr.namespaceURI+","+attr.prefix+","+attr.localName+"}"+name;
+            str += " "+name+"=\""+value+"\"";
         }
         return str;
     }
