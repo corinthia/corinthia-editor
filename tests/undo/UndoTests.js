@@ -7,10 +7,8 @@ function testUndo(versions,node)
     var backwards2 = new Array();
 
     var expected = new Array();
-    for (var i = 0; i < versions.length; i++) {
+    for (var i = 0; i < versions.length; i++)
         expected.push(PrettyPrinter.getHTML(versions[i]));
-        debug(expected[expected.length-1]);
-    }
 
     for (var i = 0; i < numSteps; i++) {
         UndoManager_undo();
