@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<script language="javascript" src="UndoTests.js"></script>
 <script language="javascript">
 function performTest()
 {
@@ -9,41 +10,27 @@ function performTest()
     PostponedActions_perform();
 
     var versions = new Array();
+
     var img = document.getElementsByTagName("IMG")[0];
     versions.push(DOM_cloneNode(img,true));
 
-    DOM_setAttribute(img,"src",null);
+    DOM_setAttribute(img,"src","1.png");
     versions.push(DOM_cloneNode(img,true));
     UndoManager_newGroup();
 
-    DOM_setAttribute(img,"src","third.png");
+    DOM_removeAttribute(img,"src");
     versions.push(DOM_cloneNode(img,true));
+    UndoManager_newGroup();
 
-    UndoManager_undo();
+    DOM_setAttribute(img,"src","3.png");
     versions.push(DOM_cloneNode(img,true));
+    UndoManager_newGroup();
 
-    UndoManager_undo();
-    versions.push(DOM_cloneNode(img,true));
-
-    UndoManager_redo();
-    versions.push(DOM_cloneNode(img,true));
-
-    UndoManager_redo();
-    versions.push(DOM_cloneNode(img,true));
-
-    UndoManager_undo();
-    versions.push(DOM_cloneNode(img,true));
-
-    UndoManager_undo();
-    versions.push(DOM_cloneNode(img,true));
-
-    DOM_deleteAllChildren(document.body);
-    for (var i = 0; i < versions.length; i++)
-        DOM_appendChild(document.body,versions[i]);
+    testUndo(versions,img);
 }
 </script>
 </head>
 <body>
-<img src="first.png">
+<img src="0.png">
 </body>
 </html>

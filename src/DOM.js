@@ -234,6 +234,11 @@ var DOM_Listener;
 
     function setStyleProperty(element,name,value)
     {
+        var oldValue = element.style[name];
+        addUndoAction(function() { DOM_setStyleProperty(element,name,oldValue); },
+                      element.nodeName+".style["+JSON.stringify(name)+"] = "+
+                      JSON.stringify(value));
+
         element.style[name] = value;
         if (element.getAttribute("style") == "")
             element.removeAttribute("style");

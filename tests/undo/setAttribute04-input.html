@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<script language="javascript" src="UndoTests.js"></script>
 <script language="javascript">
 function performTest()
 {
@@ -42,26 +43,9 @@ function performTest()
 
     DOM_removeAttribute(img,"alt");
     versions.push(DOM_cloneNode(img,true));
-//    UndoManager_newGroup();
+    UndoManager_newGroup();
 
-    for (var i = 0; i < 8; i++) {
-        UndoManager_undo();
-        versions.push(DOM_cloneNode(img,true));
-    }
-
-    for (var i = 0; i < 8; i++) {
-        UndoManager_redo();
-        versions.push(DOM_cloneNode(img,true));
-    }
-
-    for (var i = 0; i < 8; i++) {
-        UndoManager_undo();
-        versions.push(DOM_cloneNode(img,true));
-    }
-
-    DOM_deleteAllChildren(document.body);
-    for (var i = 0; i < versions.length; i++)
-        DOM_appendChild(document.body,versions[i]);
+    testUndo(versions,img);
 }
 </script>
 </head>
