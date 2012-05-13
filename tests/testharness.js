@@ -35,6 +35,7 @@ function loadCode()
                            "../src/Main.js",
                            "../src/NodeSet.js",
                            "../src/Outline.js",
+                           "../src/PDF.js",
                            "../src/Position.js",
                            "../src/PostponedActions.js",
                            "../src/Range.js",
