@@ -9,7 +9,7 @@ function performTest()
     var offset = DOM_nodeOffset(tr);
     Selection_setSelectionRange(new Range(tr.parentNode,offset,tr.parentNode,offset+1));
     Selection_deleteSelectionContents();
-    showRangeAsBrackets(Selection_getSelectionRange());
+    showSelection();
 }
 </script>
 </head>

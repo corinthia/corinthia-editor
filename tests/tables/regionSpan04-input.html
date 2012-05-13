@@ -12,7 +12,7 @@ function performTest()
     Styles_addDefaultRuleCategory("table-borders");
     PostponedActions_perform();
 
-    showRangeAsBrackets(Selection_getSelectionRange());
+    showSelection();
     showTableRegion(Tables_getTableRegionFromRange(Selection_getSelectionRange()));
 }
 </script>

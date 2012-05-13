@@ -8,7 +8,7 @@ function performTest()
     var lip = document.getElementsByTagName("P")[1];
     Selection_setSelectionRange(new Range(lip,0,lip,0));
     Cursor_deleteCharacter();
-    showRangeAsBrackets(Selection_getSelectionRange());
+    showSelection();
 }
 </script>
 </head>

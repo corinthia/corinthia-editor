@@ -11,7 +11,7 @@ function performTest()
     var pOffset = DOM_nodeOffset(p);
     Selection_setSelectionRange(new Range(tr.parentNode,trOffset,p.parentNode,pOffset+1));
     Selection_deleteSelectionContents();
-    showRangeAsBrackets(Selection_getSelectionRange());
+    showSelection();
 }
 </script>
 </head>

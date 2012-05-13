@@ -44,6 +44,11 @@ function showRangeAsBrackets(range)
     }
 }
 
+function showSelection()
+{
+    showRangeAsBrackets(Selection_getSelectionRange());
+}
+
 function removeIds()
 {
     recurse(document.body);

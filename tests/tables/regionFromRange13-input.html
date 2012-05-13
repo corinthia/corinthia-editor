@@ -11,7 +11,7 @@ function performTest()
     Styles_addDefaultRuleCategory("table-borders");
     PostponedActions_perform();
 
-    showRangeAsBrackets(Selection_getSelectionRange());
+    showSelection();
 
     var region = Tables_getTableRegionFromRange(Selection_getSelectionRange());
     for (var row = region.top; row <= region.bottom; row++) {

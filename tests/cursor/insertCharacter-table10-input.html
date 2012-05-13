@@ -10,7 +10,7 @@ function performTest()
     var tbody = document.getElementsByTagName("TBODY")[0];
     Selection_setEmptySelectionAt(tds[0].parentNode,DOM_nodeOffset(tds[0]));
     Cursor_insertCharacter("X");
-    showRangeAsBrackets(Selection_getSelectionRange());
+    showSelection();
 }
 </script>
 </head>
