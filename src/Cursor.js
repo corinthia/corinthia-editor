@@ -419,8 +419,10 @@ var Cursor_enterPressed;
         if (selectionRange == null)
             return;
 
-        if (!selectionRange.isEmpty())
+        if (!selectionRange.isEmpty()) {
             Selection_deleteSelectionContents();
+            selectionRange = Selection_getSelectionRange();
+        }
         var pos = closestPositionForwards(selectionRange.start);
         var node = pos.node;
         var offset = pos.offset;
@@ -476,8 +478,9 @@ var Cursor_enterPressed;
             var currentPos = selectionRange.start;
             var prevPos = prevCursorPosition(currentPos);
             if (prevPos != null) {
-                selectionRange.start.node = prevPos.node;
-                selectionRange.start.offset = prevPos.offset;
+                selectionRange = new Range(prevPos.node,prevPos.offset,
+                                           selectionRange.end.node,selectionRange.end.offset);
+                Selection_setSelectionRange(selectionRange);
                 Selection_deleteSelectionContents();
             }
         }
@@ -509,6 +512,7 @@ var Cursor_enterPressed;
             selectionRange.start.offset = 0;
             selectionRange.end.node = li;
             selectionRange.end.offset = 0;
+            Selection_setSelectionRange(selectionRange);
             return;
         }
 
@@ -537,6 +541,7 @@ var Cursor_enterPressed;
             selectionRange.start.offset = pos.offset;
             selectionRange.end.node = pos.node;
             selectionRange.end.offset = pos.offset;
+            Selection_setSelectionRange(selectionRange);
 
             if ((pos.node.nodeType == Node.TEXT_NODE) && (pos.node.nodeValue.length == 0)) {
                 DOM_deleteNode(pos.node);

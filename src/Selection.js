@@ -552,13 +552,25 @@ var Selection_trackWhileExecuting;
     // public
     function getSelectionRange()
     {
-        return selectionRange;
+        if (selectionRange == null) {
+            return null;
+        }
+        else {
+            return new Range(selectionRange.start.node,selectionRange.start.offset,
+                             selectionRange.end.node,selectionRange.end.offset);
+        }
     }
 
     // public
     function setSelectionRange(range)
     {
-        selectionRange = range;
+        if (range == null) {
+            selectionRange = null;
+        }
+        else {
+            selectionRange = new Range(range.start.node,range.start.offset,
+                                       range.end.node,range.end.offset);
+        }
         Selection_updateSelectionDisplay();
     }
 

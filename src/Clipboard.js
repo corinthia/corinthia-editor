@@ -367,8 +367,10 @@ var Clipboard_pasteNodes;
         for (var i = 0; i < pasteList.length; i++)
             DOM_insertBefore(parent,pasteList[i],nextSibling);
 
-        if (pasteList.length == 0)
+        if (pasteList.length == 0) {
+            Selection_setSelectionRange(selectionRange);
             return;
+        }
 
         var firstNode = pasteList[0];
         var lastNode = pasteList[pasteList.length-1];
@@ -396,6 +398,8 @@ var Clipboard_pasteNodes;
                 pastedRange.ensureRangeValidHierarchy(true);
             });
         });
+
+        Selection_setSelectionRange(selectionRange);
     }
 
     function pasteImage(href)
