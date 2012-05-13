@@ -13,7 +13,7 @@ var Tables_cloneRegion;
 var Tables_analyseStructure;
 var Tables_findContainingCell;
 var Tables_findContainingTable;
-var Tables_getTableRegionFromRange;
+var Tables_regionFromRange;
 
 (function() {
 
@@ -233,7 +233,7 @@ var Tables_getTableRegionFromRange;
     function insertRowAbove()
     {
         var selectionRange = Selection_getSelectionRange();
-        var region = Tables_getTableRegionFromRange(selectionRange,true);
+        var region = Tables_regionFromRange(selectionRange,true);
         if (region != null) {
             selectionRange.trackWhileExecuting(function() {
                 var cell = region.structure.get(region.top,region.left);
@@ -250,7 +250,7 @@ var Tables_getTableRegionFromRange;
     function insertRowBelow()
     {
         var selectionRange = Selection_getSelectionRange();
-        var region = Tables_getTableRegionFromRange(selectionRange,true);
+        var region = Tables_regionFromRange(selectionRange,true);
         if (region != null) {
             selectionRange.trackWhileExecuting(function() {
                 var cell = region.structure.get(region.bottom,region.left);
@@ -423,7 +423,7 @@ var Tables_getTableRegionFromRange;
     function insertColumnLeft()
     {
         var selectionRange = Selection_getSelectionRange();
-        var region = Tables_getTableRegionFromRange(selectionRange,true);
+        var region = Tables_regionFromRange(selectionRange,true);
         if (region != null) {
             selectionRange.trackWhileExecuting(function() {
                 addColElement(region.structure,region.left,region.left-1);
@@ -437,7 +437,7 @@ var Tables_getTableRegionFromRange;
     function insertColumnRight()
     {
         var selectionRange = Selection_getSelectionRange();
-        var region = Tables_getTableRegionFromRange(selectionRange,true);
+        var region = Tables_regionFromRange(selectionRange,true);
         if (region != null) {
             selectionRange.trackWhileExecuting(function() {
                 debug("insertColumnRight: region = "+region);
@@ -525,7 +525,7 @@ var Tables_getTableRegionFromRange;
     function mergeCells()
     {
         debug("mergeCells()");
-        var region = Tables_getTableRegionFromRange(Selection_getSelectionRange());
+        var region = Tables_regionFromRange(Selection_getSelectionRange());
         if (region == null)
             return;
 
@@ -585,7 +585,7 @@ var Tables_getTableRegionFromRange;
     {
         var range = Selection_getSelectionRange();
         range.trackWhileExecuting(function() {
-            var region = Tables_getTableRegionFromRange(range,true);
+            var region = Tables_regionFromRange(range,true);
             if (region != null)
                 splitCellsInRegion(region);
         });
@@ -691,7 +691,7 @@ var Tables_getTableRegionFromRange;
     }
 
     // public
-    function getTableRegionFromRange(range,allowSameCell)
+    function regionFromRange(range,allowSameCell)
     {
         var region = null;
 
@@ -793,6 +793,6 @@ var Tables_getTableRegionFromRange;
     Tables_analyseStructure = trace(analyseStructure);
     Tables_findContainingCell = trace(findContainingCell);
     Tables_findContainingTable = trace(findContainingTable);
-    Tables_getTableRegionFromRange = trace(getTableRegionFromRange);
+    Tables_regionFromRange = trace(regionFromRange);
 
 })();

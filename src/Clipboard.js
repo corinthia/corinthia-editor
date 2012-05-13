@@ -248,7 +248,7 @@ var Clipboard_pasteNodes;
 
         if (selectionRange != null) {
             var nodes;
-            var region = Tables_getTableRegionFromRange(selectionRange);
+            var region = Tables_regionFromRange(selectionRange);
             if (region != null)
                 nodes = [Tables_cloneRegion(region)];
             else
@@ -309,7 +309,7 @@ var Clipboard_pasteNodes;
     {
         if ((nodes.length == 0) && isTableNode(nodes[0])) {
             var fromRegion = Tables_getTableRegionFromTable(nodes[0]);
-            var toRegion = Tables_getTableRegionFromRange(selectionRange);
+            var toRegion = Tables_regionFromRange(selectionRange);
             if (toRegion != null) {
                 return;
             }

@@ -13,7 +13,7 @@ function performTest()
 
     showSelection();
 
-    var region = Tables_getTableRegionFromRange(Selection_getSelectionRange());
+    var region = Tables_regionFromRange(Selection_getSelectionRange());
     return "top "+region.top+"\n"+
         "left "+region.left+"\n"+
         "bottom "+region.bottom+"\n"+

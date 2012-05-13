@@ -119,7 +119,7 @@ var Selection_trackWhileExecuting;
 
     function updateTableSelection()
     {
-        tableSelection = Tables_getTableRegionFromRange(selectionRange);
+        tableSelection = Tables_regionFromRange(selectionRange);
         if (tableSelection == null)
             return false;
 
@@ -655,7 +655,7 @@ var Selection_trackWhileExecuting;
 
 
         selectionRange.trackWhileExecuting(function() {
-            var region = Tables_getTableRegionFromRange(selectionRange);
+            var region = Tables_regionFromRange(selectionRange);
             if (region != null) {
                 Tables_deleteRegion(region);
             }
