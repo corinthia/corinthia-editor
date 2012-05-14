@@ -123,7 +123,7 @@ var Outline_insertTableTOC;
 
         for (var item = this.list.first; item != null; item = item.next) {
             toc.addOutlineItem(item.id);
-            toc.updateOutlineItem(item.id,item.displayTitle());
+            toc.updateOutlineItem(item.id,item.title);
         }
 
         scheduleUpdateStructure();
@@ -139,21 +139,17 @@ var Outline_insertTableTOC;
     function TOC(node)
     {
         this.node = node;
-        this.liNodes = new Object();
         this.textNodes = new Object();
     }
 
     TOC.prototype.addOutlineItem = trace(function addOutlineItem(id)
     {
-        this.liNodes[id] = DOM_createElement(document,"LI");
         this.textNodes[id] = DOM_createTextNode(document,"");
-        DOM_appendChild(this.liNodes[id],this.textNodes[id]);
     });
 
     TOC.prototype.removeOutlineItem = trace(function removeOutlineItem(id)
     {
-        this.liNodes[id] = null;
-        this.textNodes[id] = null;
+        delete this.textNodes[id];
     });
 
     TOC.prototype.updateOutlineItem = trace(function updateOutlineItem(id,title)
@@ -174,8 +170,11 @@ var Outline_insertTableTOC;
             DOM_appendChild(parent,ul);
             for (var i = 0; i < items.length; i++) {
                 var item = items[i];
-                var li = toc.liNodes[item.id];
+                var li = DOM_createElement(document,"LI");
                 DOM_appendChild(ul,li);
+                if (item.numberSpan != null)
+                    DOM_appendChild(li,DOM_createTextNode(document,item.getFullNumber()+" "));
+                DOM_appendChild(li,toc.textNodes[item.id]);
                 recurse(item.children,li);
             }
         }
@@ -366,14 +365,6 @@ var Outline_insertTableTOC;
         return fullNumber;
     }
 
-    OutlineItem.prototype.displayTitle = function()
-    {
-        if (this.numberSpan == null)
-            return this.title;
-        else
-            return this.getFullNumber() + " " + this.title;
-    }
-
     OutlineItem.prototype.setReferenceText = function(referenceText)
     {
         if (this.referenceText == referenceText)
@@ -428,7 +419,7 @@ var Outline_insertTableTOC;
             Editor_updateOutlineItem(this.id,this.title);
             var item = this;
             this.category.tocs.forEach(function(node,toc) {
-                toc.updateOutlineItem(item.id,item.displayTitle());
+                toc.updateOutlineItem(item.id,item.title);
             });
         }
 
