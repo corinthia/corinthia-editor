@@ -61,32 +61,32 @@ var CONTAINER_ELEMENTS_ALLOWING_CONTENT = {
 };
 
 var Keys = {
-    HEADING_NUMBER: "-uxwrite-heading-number",
-    FIGURE_NUMBER: "-uxwrite-figure-number",
-    TABLE_NUMBER: "-uxwrite-table-number",
-    SECTION_TOC: "-uxwrite-section-toc",
-    FIGURE_TOC: "-uxwrite-figure-toc",
-    TABLE_TOC: "-uxwrite-table-toc",
-    SELECTION_HIGHLIGHT: "-uxwrite-selection-highlight",
-    AUTOCORRECT_ENTRY: "-uxwrite-autocorrect-entry",
-    UXWRITE_PREFIX: "-uxwrite-",
+    HEADING_NUMBER: "uxwrite-heading-number",
+    FIGURE_NUMBER: "uxwrite-figure-number",
+    TABLE_NUMBER: "uxwrite-table-number",
+    SECTION_TOC: "uxwrite-section-toc",
+    FIGURE_TOC: "uxwrite-figure-toc",
+    TABLE_TOC: "uxwrite-table-toc",
+    SELECTION_HIGHLIGHT: "uxwrite-selection-highlight",
+    AUTOCORRECT_ENTRY: "uxwrite-autocorrect-entry",
+    UXWRITE_PREFIX: "uxwrite-",
     NONE_STYLE: "__none",
 };
 
 var ITEM_NUMBER_CLASSES = {
-    "-uxwrite-heading-number": true,
-    "-uxwrite-figure-number": true,
-    "-uxwrite-table-number": true,
+    "uxwrite-heading-number": true,
+    "uxwrite-figure-number": true,
+    "uxwrite-table-number": true,
 };
 
 var OPAQUE_NODE_CLASSES = {
-    "-uxwrite-heading-number": true,
-    "-uxwrite-figure-number": true,
-    "-uxwrite-table-number": true,
-    "-uxwrite-section-toc": true,
-    "-uxwrite-figure-toc": true,
-    "-uxwrite-table-toc": true,
-    "-uxwrite-selection-highlight": true,
+    "uxwrite-heading-number": true,
+    "uxwrite-figure-number": true,
+    "uxwrite-table-number": true,
+    "uxwrite-section-toc": true,
+    "uxwrite-figure-toc": true,
+    "uxwrite-table-toc": true,
+    "uxwrite-selection-highlight": true,
 };
 
 function isContainerNode(node)

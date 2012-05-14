@@ -48,7 +48,7 @@ function setupOutline(topChildren)
 function removeOutlineHTML(node)
 {
     if ((node.nodeName == "SPAN") &&
-        (node.getAttribute("class") == "-uxwrite-heading-number")) {
+        (node.getAttribute("class") == "uxwrite-heading-number")) {
         DOM_removeNodeButKeepChildren(node);
     }
     else {
