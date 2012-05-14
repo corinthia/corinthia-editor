@@ -162,6 +162,8 @@ var Outline_insertTableTOC;
         var toc = this;
         DOM_deleteAllChildren(this.node);
 
+        Styles_addDefaultRuleCategory("section-toc");
+
         recurse(toplevelItems,this.node);
 
         function recurse(items,parent)
@@ -171,10 +173,23 @@ var Outline_insertTableTOC;
             for (var i = 0; i < items.length; i++) {
                 var item = items[i];
                 var li = DOM_createElement(document,"LI");
+                DOM_setAttribute(li,"class",Keys.SECTION_TOC);
                 DOM_appendChild(ul,li);
+
+                var leftSpan = DOM_createElement(document,"SPAN");
+                DOM_setAttribute(leftSpan,"class","uxwrite-toc-title");
+
+                var rightSpan = DOM_createElement(document,"SPAN");
+                DOM_setAttribute(rightSpan,"class","uxwrite-toc-pageno");
+
+                DOM_appendChild(li,leftSpan);
+                DOM_appendChild(li,rightSpan);
+
                 if (item.numberSpan != null)
-                    DOM_appendChild(li,DOM_createTextNode(document,item.getFullNumber()+" "));
-                DOM_appendChild(li,toc.textNodes[item.id]);
+                    DOM_appendChild(leftSpan,DOM_createTextNode(document,item.getFullNumber()+" "));
+                DOM_appendChild(leftSpan,toc.textNodes[item.id]);
+                DOM_appendChild(rightSpan,DOM_createTextNode(document,"14"));
+
                 recurse(item.children,li);
             }
         }

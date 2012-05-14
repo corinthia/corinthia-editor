@@ -178,9 +178,8 @@ function isOpaqueNode(node)
         return isOpaqueNode(node.parentNode);
     }
     else if (node.nodeType == Node.ELEMENT_NODE) {
-        if (((DOM_upperName(node) == "SPAN") || (DOM_upperName(node) == "DIV"))
-            && node.hasAttribute("class")) {
-            return OPAQUE_NODE_CLASSES[node.getAttribute("class")];
+        if (node.hasAttribute("class") && OPAQUE_NODE_CLASSES[node.getAttribute("class")]) {
+            return true;
         }
         else if (DOM_upperName(node) == "A") {
             return true;

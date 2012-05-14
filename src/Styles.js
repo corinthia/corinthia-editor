@@ -324,6 +324,7 @@ var Styles_init;
         "table-borders": ["table", "td", "th"],
         "table-caption": ["caption"],
         "figure": ["figure"],
+        "section-toc": [".uxwrite-section-toc li",".uxwrite-toc-title",".uxwrite-toc-pageno"],
     };
 
     // public
@@ -461,6 +462,20 @@ var Styles_init;
 
         // "table-caption"
         defaultStyle("caption","special",true,{"caption-side": "bottom"});
+
+        defaultStyle(".uxwrite-section-toc li","special",true,
+                     { "border-bottom": "2px dotted black",
+                       "list-style-type": "none",
+                       "height": "1em",
+                       "clear": "both"}).hidden = true;
+        defaultStyle(".uxwrite-toc-title","special",true,
+                     { "float": "left",
+                       "background": "white",
+                       "padding-right": "12pt" }).hidden = true;
+        defaultStyle(".uxwrite-toc-pageno","special",true,
+                     { "float": "right",
+                       "background": "white",
+                       "padding-left": "12pt",}).hidden = true;
 
         // Now that we've added the built-in styles, discover any styles explicitly defined
         // in the document. Any that are found will be marked as non-latent, because we want
