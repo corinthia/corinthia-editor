@@ -1,5 +1,8 @@
 // Copyright (c) 2012 UX Productivity Pty Ltd. All rights reserved.
 
+// FIXME: The TOC/ItemList stuff won't work with Undo, because we're making DOM mutations in
+// response to other DOM mutations, so at undo time the changes will be made twice
+
 var Outline_init;
 var Outline_moveSection;
 var Outline_deleteItem;
@@ -7,6 +10,9 @@ var Outline_goToItem;
 var Outline_setNumbered;
 var Outline_getItemElement;
 var Outline_plainText;
+var Outline_insertSectionTOC;
+var Outline_insertFigureTOC;
+var Outline_insertTableTOC;
 
 (function() {
 
@@ -29,14 +35,16 @@ var Outline_plainText;
         this.nodeFilter = nodeFilter;
         this.numberRegex = numberRegex;
         this.list = new DoublyLinkedList();
+        this.tocs = new NodeMap();
     }
 
     Category.prototype.add = trace(function add(node)
     {
-        var item = new OutlineItem(this.type,node);
+        var item = new OutlineItem(this,node);
         var prevItem = findPrevItemOfType(node,this.nodeFilter);
         this.list.insertAfter(item,prevItem);
         Editor_addOutlineItem(item.id,this.type);
+        this.tocs.forEach(function(node,toc) { toc.addOutlineItem(item.id); });
 
         // Register for notifications to changes to this item's node content. We may need to
         // update the title when such a modification occurs.
@@ -101,14 +109,81 @@ var Outline_plainText;
         }
         this.list.remove(item);
         Editor_removeOutlineItem(item.id);
+        this.tocs.forEach(function(node,toc) { toc.removeOutlineItem(item.id); });
         item.node.removeEventListener("DOMSubtreeModified",item.modificationListener);
         if (item.numberSpan != null)
             DOM_deleteNode(item.numberSpan);
         scheduleUpdateStructure();
     });
 
-    function OutlineItem(type,node)
+    Category.prototype.addTOC = trace(function addTOC(node)
     {
+        var toc = new TOC(node);
+        this.tocs.put(node,toc);
+
+        for (var item = this.list.first; item != null; item = item.next) {
+            toc.addOutlineItem(item.id);
+            toc.updateOutlineItem(item.id,item.displayTitle());
+        }
+
+        scheduleUpdateStructure();
+    });
+
+    Category.prototype.removeTOC = trace(function removeTOC(node)
+    {
+        if (this.tocs.get(node) == null)
+            throw new Error("Attempt to remove ItemList that doesn't exist");
+        this.tocs.remove(node);
+    });
+
+    function TOC(node)
+    {
+        this.node = node;
+        this.liNodes = new Object();
+        this.textNodes = new Object();
+    }
+
+    TOC.prototype.addOutlineItem = trace(function addOutlineItem(id)
+    {
+        this.liNodes[id] = DOM_createElement(document,"LI");
+        this.textNodes[id] = DOM_createTextNode(document,"");
+        DOM_appendChild(this.liNodes[id],this.textNodes[id]);
+    });
+
+    TOC.prototype.removeOutlineItem = trace(function removeOutlineItem(id)
+    {
+        this.liNodes[id] = null;
+        this.textNodes[id] = null;
+    });
+
+    TOC.prototype.updateOutlineItem = trace(function updateOutlineItem(id,title)
+    {
+        DOM_setNodeValue(this.textNodes[id],title);
+    });
+
+    TOC.prototype.updateStructure = trace(function updateStructure(toplevelItems)
+    {
+        var toc = this;
+        DOM_deleteAllChildren(this.node);
+
+        recurse(toplevelItems,this.node);
+
+        function recurse(items,parent)
+        {
+            var ul = DOM_createElement(document,"UL");
+            DOM_appendChild(parent,ul);
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                var li = toc.liNodes[item.id];
+                DOM_appendChild(ul,li);
+                recurse(item.children,li);
+            }
+        }
+    });
+
+    function OutlineItem(category,node)
+    {
+        var type = category.type;
         var item = this;
         if ((node != null) && (node.hasAttribute("id"))) {
             this.id = node.getAttribute("id");
@@ -118,6 +193,7 @@ var Outline_plainText;
             if (node != null)
                 node.setAttribute("id",this.id);
         }
+        this.category = category;
         this.type = type;
         this.node = node;
         this.title = null;
@@ -290,6 +366,14 @@ var Outline_plainText;
         return fullNumber;
     }
 
+    OutlineItem.prototype.displayTitle = function()
+    {
+        if (this.numberSpan == null)
+            return this.title;
+        else
+            return this.getFullNumber() + " " + this.title;
+    }
+
     OutlineItem.prototype.setReferenceText = function(referenceText)
     {
         if (this.referenceText == referenceText)
@@ -342,6 +426,10 @@ var Outline_plainText;
         if (this.title != newTitle) {
             this.title = newTitle;
             Editor_updateOutlineItem(this.id,this.title);
+            var item = this;
+            this.category.tocs.forEach(function(node,toc) {
+                toc.updateOutlineItem(item.id,item.displayTitle());
+            });
         }
 
         function getNodeTextAfter(node)
@@ -423,6 +511,16 @@ var Outline_plainText;
             else if (isRefNode(node))
                 refInserted(node);
 
+            if (DOM_upperName(node) == "DIV") {
+                var cls = node.getAttribute("class");
+                if (cls == Keys.SECTION_TOC)
+                    sections.addTOC(node);
+                else if (cls == Keys.FIGURE_TOC)
+                    figures.addTOC(node);
+                else if (cls == Keys.TABLE_TOC)
+                    tables.addTOC(node);
+            }
+
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
         }
@@ -444,6 +542,16 @@ var Outline_plainText;
                 tables.remove(node);
             else if (isRefNode(node))
                 refRemoved(node);
+
+            if (DOM_upperName(node) == "DIV") {
+                var cls = node.getAttribute("class");
+                if (cls == Keys.SECTION_TOC)
+                    sections.removeTOC(node);
+                else if (cls == Keys.FIGURE_TOC)
+                    figures.removeTOC(node);
+                else if (cls == Keys.TABLE_TOC)
+                    tables.removeTOC(node);
+            }
 
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
@@ -531,6 +639,10 @@ var Outline_plainText;
         }
 
         ignoreModifications--;
+
+        sections.tocs.forEach(function (node,toc) { toc.updateStructure(toplevelSections); });
+        figures.tocs.forEach(function (node,toc) { toc.updateStructure(toplevelFigures); });
+        tables.tocs.forEach(function (node,toc) { toc.updateStructure(toplevelTables); });
 
         var encSections = new Array();
         var encFigures = new Array();
@@ -700,6 +812,32 @@ var Outline_plainText;
             item.disableNumbering();
     }
 
+    function insertTOC(key,initialText)
+    {
+        var div = DOM_createElement(document,"DIV");
+        DOM_setAttribute(div,"class",key);
+        Clipboard_pasteNodes([div]);
+        DOM_setAttribute(div,"style","border: 1px solid red");
+    }
+
+    // public
+    function insertSectionTOC()
+    {
+        insertTOC(Keys.SECTION_TOC);
+    }
+
+    // public
+    function insertFigureTOC()
+    {
+        insertTOC(Keys.FIGURE_TOC);
+    }
+
+    // public
+    function insertTableTOC()
+    {
+        insertTOC(Keys.TABLE_TOC);
+    }
+
     Outline_init = trace(init);
     Outline_moveSection = trace(moveSection);
     Outline_deleteItem = trace(deleteItem);
@@ -707,5 +845,8 @@ var Outline_plainText;
     Outline_setNumbered = trace(setNumbered);
     Outline_getItemElement = trace(getItemElement);
     Outline_plainText = trace(plainText);
+    Outline_insertSectionTOC = trace(insertSectionTOC);
+    Outline_insertFigureTOC = trace(insertFigureTOC);
+    Outline_insertTableTOC = trace(insertTableTOC);
 
 })();
