@@ -13,6 +13,7 @@ var Outline_plainText;
 var Outline_insertSectionTOC;
 var Outline_insertFigureTOC;
 var Outline_insertTableTOC;
+var Outline_examinePrintLayout;
 
 (function() {
 
@@ -188,7 +189,10 @@ var Outline_insertTableTOC;
                 if (item.numberSpan != null)
                     DOM_appendChild(leftSpan,DOM_createTextNode(document,item.getFullNumber()+" "));
                 DOM_appendChild(leftSpan,toc.textNodes[item.id]);
-                DOM_appendChild(rightSpan,DOM_createTextNode(document,"14"));
+                if (item.pageNo == null)
+                    DOM_appendChild(rightSpan,DOM_createTextNode(document,"XXXX"));
+                else
+                    DOM_appendChild(rightSpan,DOM_createTextNode(document,item.pageNo));
 
                 recurse(item.children,li);
             }
@@ -220,6 +224,7 @@ var Outline_insertTableTOC;
         this.titleNode = null;
         this.referenceText = null;
         this.nextChildSectionNumber = null;
+        this.pageNo = null;
 
         this.prev = null;
         this.next = null;
@@ -844,6 +849,95 @@ var Outline_insertTableTOC;
         insertTOC(Keys.TABLE_TOC);
     }
 
+    // public
+    function examinePrintLayout(pageHeight)
+    {
+        var result = new Object();
+
+        result.destsByPage = new Object();
+        result.linksByPage = new Object();
+        result.leafRectsByPage = new Object();
+        debug("examinePrintLayout 1");
+
+        for (var id in itemsById) {
+            var item = itemsById[id];
+//            debug("examinePrintLayout 1.1: item "+id);
+            var rect = item.node.getBoundingClientRect();
+//            debug("examinePrintLayout 1.2: rect "+rect);
+            var pageNo = 1+Math.floor(rect.top/pageHeight);
+//            debug("examinePrintLayout 1.3: pageNo "+pageNo);
+            var pageTop = (pageNo-1)*pageHeight;
+//            debug("examinePrintLayout 1.4: pageTop "+pageTop);
+            debug("item "+id+" ("+JSON.stringify(item.title)+") is on page "+pageNo);
+            item.pageNo = pageNo;
+
+            if (result.destsByPage[pageNo] == null)
+                result.destsByPage[pageNo] = new Array();
+            result.destsByPage[pageNo].push({ itemId: id,
+                                              x: rect.left,
+                                              y: rect.top - pageTop});
+        }
+
+        debug("examinePrintLayout 2");
+        var links = document.getElementsByTagName("A");
+        for (var i = 0; i < links.length; i++) {
+            var a = links[i];
+
+            if (!a.hasAttribute("href"))
+                continue;
+
+            var offset = DOM_nodeOffset(a);
+            var range = new Range(a.parentNode,offset,a.parentNode,offset+1);
+            var rects = range.getClientRects();
+            for (var rectIndex = 0; rectIndex < rects.length; rectIndex++) {
+                var rect = rects[rectIndex];
+                var pageNo = 1+Math.floor(rect.top/pageHeight);
+                var pageTop = (pageNo-1)*pageHeight;
+
+                if (result.linksByPage[pageNo] == null)
+                    result.linksByPage[pageNo] = new Array();
+                result.linksByPage[pageNo].push({ pageNo: pageNo,
+                                                  left: rect.left,
+                                                  top: rect.top - pageTop,
+                                                  width: rect.width,
+                                                  height: rect.height,
+                                                  href: a.getAttribute("href"), });
+            }
+        }
+
+        recurse(document.body);
+
+        debug("examinePrintLayout 3");
+        scheduleUpdateStructure();
+        return result;
+
+
+        function recurse(node)
+        {
+            if (node.firstChild == null) {
+                var offset = DOM_nodeOffset(node);
+                var range = new Range(node.parentNode,offset,node.parentNode,offset+1);
+                var rects = range.getClientRects();
+                for (var i = 0; i < rects.length; i++) {
+                    var rect = rects[i];
+
+                    var pageNo = 1+Math.floor(rect.top/pageHeight);
+                    var pageTop = (pageNo-1)*pageHeight;
+
+                    if (result.leafRectsByPage[pageNo] == null)
+                        result.leafRectsByPage[pageNo] = new Array();
+                    result.leafRectsByPage[pageNo].push({ left: rect.left,
+                                                          top: rect.top - pageTop,
+                                                          width: rect.width,
+                                                          height: rect.height });
+                }
+            }
+
+            for (var child = node.firstChild; child != null; child = child.nextSibling)
+                recurse(child);
+        }
+    }
+
     Outline_init = trace(init);
     Outline_moveSection = trace(moveSection);
     Outline_deleteItem = trace(deleteItem);
@@ -854,5 +948,6 @@ var Outline_insertTableTOC;
     Outline_insertSectionTOC = trace(insertSectionTOC);
     Outline_insertFigureTOC = trace(insertFigureTOC);
     Outline_insertTableTOC = trace(insertTableTOC);
+    Outline_examinePrintLayout = trace(examinePrintLayout);
 
 })();
