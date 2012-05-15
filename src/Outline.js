@@ -13,6 +13,7 @@ var Outline_plainText;
 var Outline_insertSectionTOC;
 var Outline_insertFigureTOC;
 var Outline_insertTableTOC;
+var Outline_preparePrintMargins;
 var Outline_examinePrintLayout;
 
 (function() {
@@ -850,6 +851,18 @@ var Outline_examinePrintLayout;
     }
 
     // public
+    function preparePrintMargins()
+    {
+        var computed = window.getComputedStyle(document.body);
+        var obj = { "margin-left": computed.marginLeft,
+                    "margin-right": computed.marginRight,
+                    "margin-top": computed.marginTop,
+                    "margin-bottom": computed.marginBottom };
+        document.body.style.margin = "0";
+        return obj;
+    }
+
+    // public
     function examinePrintLayout(pageHeight)
     {
         var result = new Object();
@@ -948,6 +961,7 @@ var Outline_examinePrintLayout;
     Outline_insertSectionTOC = trace(insertSectionTOC);
     Outline_insertFigureTOC = trace(insertFigureTOC);
     Outline_insertTableTOC = trace(insertTableTOC);
+    Outline_preparePrintMargins = trace(preparePrintMargins);
     Outline_examinePrintLayout = trace(examinePrintLayout);
 
 })();
