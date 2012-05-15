@@ -130,6 +130,9 @@ var Cursor_enterPressed;
 
             if (isWhitespaceString(value)) {
                 if (offset == 0) {
+                    if ((node == firstNode) &&
+                        (firstNode.previousSibling == null) && (lastNode.nextSibling == null))
+                        return true;
                     if ((node.nextSibling != null) && (DOM_upperName(node.nextSibling) == "BR"))
                         return true;
                     if ((node.firstChild == null) &&
