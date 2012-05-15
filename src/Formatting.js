@@ -706,9 +706,9 @@ var Formatting_applyFormattingChanges;
         }
     }
 
-    function applyInlineFormatting(target,inlineProperties,special)
+    function applyInlineFormatting(target,inlineProperties,special,applyToWhitespace)
     {
-        if (isWhitespaceTextNode(target))
+        if (!applyToWhitespace && isWhitespaceTextNode(target))
             return;
 
         if (special.underline)
@@ -932,7 +932,8 @@ var Formatting_applyFormattingChanges;
                 }
 
                 var special = extractSpecial(toSet);
-                applyInlineFormatting(outermost[i],toSet,special);
+                var applyToWhitespace = (outermost.length == 1);
+                applyInlineFormatting(outermost[i],toSet,special,applyToWhitespace);
             }
 
             // Remove properties from paragraph nodes
