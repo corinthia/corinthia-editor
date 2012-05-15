@@ -858,7 +858,16 @@ var Outline_examinePrintLayout;
                     "margin-right": computed.marginRight,
                     "margin-top": computed.marginTop,
                     "margin-bottom": computed.marginBottom };
-        document.body.style.margin = "0";
+
+        var bodyStyle = Styles_getAllStyles()["body"];
+        if (bodyStyle == null)
+            throw new Error("no body style");
+        bodyStyle.rules.base.properties["margin-left"] = "0";
+        bodyStyle.rules.base.properties["margin-right"] = "0";
+        bodyStyle.rules.base.properties["margin-top"] = "0";
+        bodyStyle.rules.base.properties["margin-bottom"] = "0";
+        Styles_setStyle(bodyStyle);
+
         return obj;
     }
 
