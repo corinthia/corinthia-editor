@@ -470,11 +470,11 @@ var Styles_init;
                        "clear": "both"}).hidden = true;
         defaultStyle(".uxwrite-toc-title","special",true,
                      { "float": "left",
-                       "background": "white",
+                       "background-color": "white",
                        "padding-right": "12pt" }).hidden = true;
         defaultStyle(".uxwrite-toc-pageno","special",true,
                      { "float": "right",
-                       "background": "white",
+                       "background-color": "white",
                        "padding-left": "12pt",}).hidden = true;
 
         // Now that we've added the built-in styles, discover any styles explicitly defined
