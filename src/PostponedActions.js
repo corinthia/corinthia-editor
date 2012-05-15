@@ -17,12 +17,16 @@ var PostponedActions_performImmediately = false;
 
     PostponedActions_perform = function()
     {
-        if (actions.length > 0) {
+        var count = 0;
+        while (actions.length > 0) {
+            if (count >= 10)
+                throw new Error("Too many postponed actions");
             var actionsToPerform = actions;
             actions = new Array();
             for (var i = 0; i < actionsToPerform.length; i++)
                 actionsToPerform[i]();
             Selection_updateSelectionDisplay();
+            count++;
         }
     }
 
