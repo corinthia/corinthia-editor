@@ -14,23 +14,23 @@ function performTest()
     var img = document.getElementsByTagName("IMG")[0];
     versions.push(DOM_cloneNode(img,true));
 
-    DOM_setStyleProperty(img,"width","200px");
+    DOM_setStyleProperties(img,{"width": "200px"});
     versions.push(DOM_cloneNode(img,true));
     UndoManager_newGroup();
 
-    DOM_setStyleProperty(img,"height","150px");
+    DOM_setStyleProperties(img,{"height": "150px"});
     versions.push(DOM_cloneNode(img,true));
     UndoManager_newGroup();
 
-    DOM_setStyleProperty(img,"width",null);
+    DOM_setStyleProperties(img,{"width": null});
     versions.push(DOM_cloneNode(img,true));
     UndoManager_newGroup();
 
-    DOM_setStyleProperty(img,"height",null);
+    DOM_setStyleProperties(img,{"height": null});
     versions.push(DOM_cloneNode(img,true));
     UndoManager_newGroup();
 
-    DOM_setStyleProperty(img,"height","100px");
+    DOM_setStyleProperties(img,{"height": "100px"});
     versions.push(DOM_cloneNode(img,true));
     UndoManager_newGroup();
 

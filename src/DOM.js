@@ -18,13 +18,12 @@ var DOM_setAttribute;
 var DOM_setAttributeNS;
 var DOM_removeAttribute;
 var DOM_removeAttributeNS;
-var DOM_setStyleProperty;
-var DOM_removeStyleProperty;
 var DOM_insertCharacters;
 var DOM_deleteCharacters;
 var DOM_setNodeValue;
 
 // High-level DOM operations
+var DOM_setStyleProperties;
 var DOM_deleteAllChildren;
 var DOM_shallowCopyElement;
 var DOM_removeNodeButKeepChildren;
@@ -122,7 +121,6 @@ var DOM_Listener;
       * deleteNodeInternal(node,deleteDescendantData)
       * setAttribute(element,name,value)
       * setAttributeNS(element,namespaceURI,qualifiedName,value)
-      * setStyleProperty(element,name,value)
       * insertCharacters(textNode,offset,characters)
       * deleteCharacters(textNode,startOffset,endOffset)
       * setNodeValue(textNode,value)
@@ -261,16 +259,6 @@ var DOM_Listener;
             element.removeAttributeNS(namespaceURI,localName);
         else
             element.setAttributeNS(namespaceURI,qualifiedName,value);
-    }
-
-    // public
-    function setStyleProperty(element,name,value)
-    {
-        addUndoAction(DOM_setStyleProperty,element,name,element.style[name]);
-
-        element.style[name] = value;
-        if (element.getAttribute("style") == "")
-            element.removeAttribute("style");
     }
 
     // public
@@ -421,9 +409,18 @@ var DOM_Listener;
     }
 
     // public
-    function removeStyleProperty(element,name)
+    function setStyleProperties(element,properties)
     {
-        DOM_setStyleProperty(element,name,null);
+        if (element.hasAttribute("style"))
+            addUndoAction(DOM_setAttribute,element,"style",element.getAttribute("style"));
+        else
+            addUndoAction(DOM_setAttribute,element,"style",null);
+
+        for (var name in properties)
+            element.style[name] = properties[name];
+
+        if (element.getAttribute("style") == "")
+            element.removeAttribute("style");
     }
 
     // public
@@ -791,8 +788,7 @@ var DOM_Listener;
     DOM_setAttributeNS = trace(setAttributeNS);
     DOM_removeAttribute = trace(removeAttribute);
     DOM_removeAttributeNS = trace(removeAttributeNS);
-    DOM_setStyleProperty = trace(setStyleProperty);
-    DOM_removeStyleProperty = trace(removeStyleProperty);
+    DOM_setStyleProperties = trace(setStyleProperties);
     DOM_insertCharacters = trace(insertCharacters);
     DOM_deleteCharacters = trace(deleteCharacters);
     DOM_setNodeValue = trace(setNodeValue);
