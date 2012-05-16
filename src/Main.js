@@ -11,7 +11,7 @@ var Main_init;
 (function() {
 
     // public
-    function removeUnsupportedInput()
+    Main_removeUnsupportedInput = trace(function removeUnsupportedInput()
     {
         recurse(document.documentElement);
 
@@ -30,9 +30,10 @@ var Main_init;
                 }
             }
         }
-    }
+    });
 
-    function addContentType()
+    // private
+    var addContentType = trace(function addContentType()
     {
         var head = DOM_documentHead(document);
         var haveContentType = false;
@@ -51,28 +52,28 @@ var Main_init;
             DOM_setAttribute(meta,"content","text/html; charset=utf-8");
             DOM_insertBefore(head,meta,head.firstChild);
         }
-    }
+    });
 
     // public
-    function isEmptyDocument()
+    Main_isEmptyDocument = trace(function isEmptyDocument()
     {
         return !nodeHasContent(document.body);
-    }
+    });
 
     // public
-    function getHTML()
+    Main_getHTML = trace(function getHTML()
     {
         var clone = DOM_cloneNode(document.documentElement,true);
         DOM_setStyleProperties(clone,{"-webkit-text-size-adjust": null});
         if (clone.style.length == 0)
             DOM_removeAttribute(clone,"style");
-        removeSpecial(clone);
+        Main_removeSpecial(clone);
 
         return clone.outerHTML;
-    }
+    });
 
     // public
-    function getErrorReportingInfo()
+    Main_getErrorReportingInfo = trace(function getErrorReportingInfo()
     {
         if (document.documentElement == null)
             return "(document.documentElement is null)";
@@ -161,10 +162,10 @@ var Main_init;
                 node.nodeValue = save.originalNodeValue;
             }
         }
-    }
+    });
 
     // public
-    function removeSpecial(node)
+    Main_removeSpecial = trace(function removeSpecial(node)
     {
         if ((DOM_upperName(node) == "SPAN") &&
             ((node.getAttribute("class") == Keys.HEADING_NUMBER) ||
@@ -185,13 +186,13 @@ var Main_init;
             var next;
             for (var child = node.firstChild; child != null; child = next) {
                 next = child.nextSibling;
-                removeSpecial(child);
+                Main_removeSpecial(child);
             }
         }
-    }
+    });
 
     // public
-    function execute(fun)
+    Main_execute = trace(function execute(fun)
     {
         try {
             var res = fun();
@@ -201,10 +202,10 @@ var Main_init;
         catch (e) {
             Editor_error(e);
         }
-    }
+    });
 
     // public
-    function init()
+    Main_init = trace(function init()
     {
         try {
             if (document.documentElement == null)
@@ -212,7 +213,7 @@ var Main_init;
             if (document.body == null)
                 throw new Error("document.body is null");
             DOM_assignNodeIds(document);
-            removeUnsupportedInput();
+            Main_removeUnsupportedInput();
             addContentType();
             Outline_init();
             Styles_init();
@@ -223,16 +224,6 @@ var Main_init;
         catch (e) {
             return e.toString();
         }
-    }
-
-    addContentType = trace(addContentType);
-
-    Main_isEmptyDocument = trace(isEmptyDocument);
-    Main_getHTML = trace(getHTML);
-    Main_getErrorReportingInfo = trace(getErrorReportingInfo);
-    Main_removeUnsupportedInput = trace(removeUnsupportedInput);
-    Main_removeSpecial = trace(removeSpecial);
-    Main_execute = trace(execute);
-    Main_init = trace(init);
+    });
 
 })();

@@ -36,28 +36,28 @@ var UndoManager_groupType;
     var currentGroup = null;
 
     // public
-    function getLength()
+    UndoManager_getLength = trace(function getLength()
     {
         return undoStack.length + redoStack.length;
-    }
+    });
 
     // public
-    function getIndex()
+    UndoManager_getIndex = trace(function getIndex()
     {
         return undoStack.length;
-    }
+    });
 
     // public
-    function setIndex(index)
+    UndoManager_setIndex = trace(function setIndex(index)
     {
         while (undoStack.length > index)
             UndoManager_undo();
         while (undoStack.length < index)
             UndoManager_redo();
-    }
+    });
 
     // public
-    function print()
+    UndoManager_print = trace(function print()
     {
         debug("");
         debug("--------------------------------------------------------------------");
@@ -82,10 +82,10 @@ var UndoManager_groupType;
         debug("Current group = "+currentGroup);
         debug("--------------------------------------------------------------------");
         debug("");
-    }
+    });
 
     // public
-    function undo()
+    UndoManager_undo = trace(function undo()
     {
         currentGroup = null;
         if (undoStack.length > 0) {
@@ -96,10 +96,10 @@ var UndoManager_groupType;
             inUndo = false;
         }
         currentGroup = null;
-    }
+    });
 
     // public
-    function redo()
+    UndoManager_redo = trace(function redo()
     {
         currentGroup = null;
         if (redoStack.length > 0) {
@@ -110,11 +110,12 @@ var UndoManager_groupType;
             inRedo = false;
         }
         currentGroup = null;
-    }
+    });
 
     // public
-    function addAction(fun) // remaining parameters are arguments to be supplied to fun
+    UndoManager_addAction = trace(function addAction(fun)
     {
+        // remaining parameters after fun are arguments to be supplied to fun
         var args = new Array();
         for (var i = 1; i < arguments.length; i++)
             args.push(arguments[i]);
@@ -132,10 +133,10 @@ var UndoManager_groupType;
             stack.push(currentGroup);
 
         currentGroup.actions.push(new UndoAction(fun,args));
-    }
+    });
 
     // public
-    function newGroup(type)
+    UndoManager_newGroup = trace(function newGroup(type)
     {
         // We don't actually add the group to the undo stack until the first request to add an
         // action to it. This way we don't end up with empty groups in the undo stack, which
@@ -144,26 +145,16 @@ var UndoManager_groupType;
         if ((type == null) || (type == ""))
             type = "Anonymous";
         currentGroup = new UndoGroup(type);
-    }
+    });
 
     // public
-    function groupType()
+    UndoManager_groupType = trace(function groupType()
     {
         if (undoStack.length > 0)
             return undoStack[undoStack.length-1].type;
         else
             return null;
-    }
-
-    UndoManager_getLength = trace(getLength);
-    UndoManager_getIndex = trace(getIndex);
-    UndoManager_setIndex = trace(setIndex);
-    UndoManager_print = trace(print);
-    UndoManager_undo = trace(undo);
-    UndoManager_redo = trace(redo);
-    UndoManager_addAction = trace(addAction);
-    UndoManager_newGroup = trace(newGroup);
-    UndoManager_groupType = trace(groupType);
+    });
 
 })();
 
