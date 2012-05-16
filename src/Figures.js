@@ -13,8 +13,8 @@ var Figures_setProperties;
 
         var figure = DOM_createElement(document,"FIGURE");
         var img = DOM_createElement(document,"IMG");
-        img.setAttribute("src",filename);
-        img.style.width = width;
+        DOM_setAttribute(img,"src",filename);
+        DOM_setStyleProperties(img,{"width": width});
         DOM_appendChild(figure,img);
 
         if ((caption != null) && (caption != "")) {
@@ -68,13 +68,13 @@ var Figures_setProperties;
         for (var child = figure.firstChild; child != null; child = child.nextSibling) {
             if (DOM_upperName(child) == "IMG") {
                 if (src == null)
-                    child.removeAttribute("src");
+                    DOM_removeAttribute(child,"src");
                 else
-                    child.setAttribute("src",src);
+                    DOM_setAttribute(child,"src",src);
 
-                child.style.width = width;
+                DOM_setStyleProperties(child,{"width": width});
                 if (child.getAttribute("style") == "")
-                    child.removeAttribute("style");
+                    DOM_removeAttribute(child,"style");
             }
         }
     }

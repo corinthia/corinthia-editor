@@ -19,7 +19,7 @@ function performTest()
 
     for (var i = 0; i < 3; i++) {
         var ref = DOM_createElement(document,"A");
-        ref.setAttribute("href","#hb");
+        DOM_setAttribute(ref,"href","#hb");
         DOM_appendChild(ref,DOM_createTextNode(document,"abcde"));
 
         var p = DOM_createElement(document,"P");

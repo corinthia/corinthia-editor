@@ -286,7 +286,7 @@ var Styles_init;
             }
         }
         documentStyleElement = DOM_createElement(document,"STYLE");
-        documentStyleElement.setAttribute("type","text/css");
+        DOM_setAttribute(documentStyleElement,"type","text/css");
         DOM_appendChild(head,documentStyleElement);
         return documentStyleElement;
     }
@@ -383,8 +383,11 @@ var Styles_init;
                 var rule = sheet.cssRules[j];
                 if (rule.type == CSSRule.STYLE_RULE) {
                     var properties = new Object();
-                    for (k = 0; k < rule.style.length; k++)
-                        properties[rule.style[k]] = rule.style.getPropertyValue(rule.style[k]);
+                    for (k = 0; k < rule.style.length; k++) {
+                        var name = rule.style[k];
+                        var value = rule.style.getPropertyValue(name);
+                        properties[name] = value;
+                    }
 
                     var individualSelectors = rule.selectorText.split(/\s*,\s*/);
                     for (var i = 0; i < individualSelectors.length; i++) {

@@ -7,7 +7,7 @@
 function createElementWithId(elementName,id)
 {
     var element = DOM_createElement(document,elementName);
-    element.setAttribute("id",id);
+    DOM_setAttribute(element,"id",id);
     return element;
 }
 
@@ -25,8 +25,8 @@ function performTest()
     var span3 = createElementWithId("SPAN","span3");
     var span4 = createElementWithId("SPAN","span4");
     var span5 = createElementWithId("SPAN","span5");
-    span1.setAttribute("style","color: blue");
-    span5.setAttribute("style","color: blue");
+    DOM_setAttribute(span1,"style","color: blue");
+    DOM_setAttribute(span5,"style","color: blue");
 
     DOM_appendChild(document.body,p);
     DOM_appendChild(p,span1);
@@ -48,19 +48,19 @@ function performTest()
     var result = comparePositionsBeforeAndAfter(function() {
 
         // Temporarily remove id attributes so that elements will be considered mergeable
-        span1.removeAttribute("id");
-        span2.removeAttribute("id");
-        span3.removeAttribute("id");
-        span4.removeAttribute("id");
-        span5.removeAttribute("id");
+        DOM_removeAttribute(span1,"id");
+        DOM_removeAttribute(span2,"id");
+        DOM_removeAttribute(span3,"id");
+        DOM_removeAttribute(span4,"id");
+        DOM_removeAttribute(span5,"id");
 
         Formatting_mergeWithNeighbours(span3,Formatting_MERGEABLE_INLINE);
 
-        span1.setAttribute("id","span1");
-        span2.setAttribute("id","span2");
-        span3.setAttribute("id","span3");
-        span4.setAttribute("id","span4");
-        span5.setAttribute("id","span5");
+        DOM_setAttribute(span1,"id","span1");
+        DOM_setAttribute(span2,"id","span2");
+        DOM_setAttribute(span3,"id","span3");
+        DOM_setAttribute(span4,"id","span4");
+        DOM_setAttribute(span5,"id","span5");
 
     });
 

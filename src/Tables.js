@@ -50,9 +50,9 @@ var Tables_regionFromRange;
         this.rowspan = rowspan;
         this.bottom = this.top + this.rowspan - 1;
         if (rowspan == 1)
-            this.element.removeAttribute("rowspan");
+            DOM_removeAttribute(this.element,"rowspan");
         else
-            this.element.setAttribute("rowspan",rowspan);
+            DOM_setAttribute(this.element,"rowspan",rowspan);
     }
 
     Cell.prototype.setColspan = function(colspan)
@@ -62,9 +62,9 @@ var Tables_regionFromRange;
         this.colspan = colspan;
         this.right = this.left + this.colspan - 1;
         if (colspan == 1)
-            this.element.removeAttribute("colspan");
+            DOM_removeAttribute(this.element,"colspan");
         else
-            this.element.setAttribute("colspan",colspan);
+            DOM_setAttribute(this.element,"colspan",colspan);
     }
 
     function Table(element)
@@ -145,7 +145,7 @@ var Tables_regionFromRange;
         var table = DOM_createElement(document,"TABLE");
 
         if (width != null)
-            table.style.width = width;
+            DOM_setStyleProperties(table,{"width": width});
 
         // Caption comes first
         if (haveCaption) {
@@ -158,7 +158,7 @@ var Tables_regionFromRange;
         var colWidth = Math.round(100/cols)+"%";
         for (var c = 0; c < cols; c++) {
             var col = DOM_createElement(document,"COL");
-            col.setAttribute("width",colWidth);
+            DOM_setAttribute(col,"width",colWidth);
             DOM_appendChild(table,col);
         }
 
@@ -221,9 +221,9 @@ var Tables_regionFromRange;
                 existingCell.setRowspan(existingCell.rowspan+1);
             }
             else {
-                var td = addEmptyTableCell(newTR,existingCell.element.nodeName);
+                var td = addEmptyTableCell(newTR,existingCell.element.nodeName); // check-ok
                 if (existingCell.colspan != 1)
-                    td.setAttribute("colspan",existingCell.colspan);
+                    DOM_setAttribute(td,"colspan",existingCell.colspan);
             }
             col += existingCell.colspan;
         }
@@ -306,7 +306,7 @@ var Tables_regionFromRange;
             var lastColElement = colElements[colElements.length-1];
             DOM_insertBefore(lastColElement.parentNode,newColElement,lastColElement.nextSibling);
             colElements.push(newColElement);
-            newColElement.setAttribute("width",lastColElement.getAttribute("width"));
+            DOM_setAttribute(newColElement,"width",lastColElement.getAttribute("width"));
         }
     }
 
@@ -325,7 +325,7 @@ var Tables_regionFromRange;
                 var pct = 100*percentages[i]/colWidthTotal;
                 // Store value using at most two decimal places
                 pct = Math.round(100*pct)/100;
-                colElements[i].setAttribute("width",pct+"%");
+                DOM_setAttribute(colElements[i],"width",pct+"%");
             }
         }
 
@@ -358,7 +358,7 @@ var Tables_regionFromRange;
 
         var prevColElement = colElements[oldIndex];
         var newColElement = DOM_createElement(document,"COL");
-        newColElement.setAttribute("width",prevColElement.getAttribute("width"));
+        DOM_setAttribute(newColElement,"width",prevColElement.getAttribute("width"));
         if (right)
             DOM_insertBefore(prevColElement.parentNode,newColElement,prevColElement.nextSibling);
         else
@@ -407,13 +407,13 @@ var Tables_regionFromRange;
                     cell.setColspan(cell.colspan+1);
                 }
                 else {
-                    var newTD = createEmptyTableCell(oldTD.nodeName);
+                    var newTD = createEmptyTableCell(oldTD.nodeName); // check-ok
                     if (right)
                         DOM_insertBefore(cell.element.parentNode,newTD,oldTD.nextSibling);
                     else
                         DOM_insertBefore(cell.element.parentNode,newTD,oldTD);
                     if (cell.rowspan != 1)
-                        newTD.setAttribute("rowspan",cell.rowspan);
+                        DOM_setAttribute(newTD,"rowspan",cell.rowspan);
                 }
             }
         }
@@ -571,13 +571,13 @@ var Tables_regionFromRange;
         var totalRows = region.bottom - region.top + 1;
         var totalCols = region.right - region.left + 1;
         if (totalRows == 1)
-            mergedCell.element.removeAttribute("rowspan");
+            DOM_removeAttribute(mergedCell.element,"rowspan");
         else
-            mergedCell.element.setAttribute("rowspan",totalRows);
+            DOM_setAttribute(mergedCell.element,"rowspan",totalRows);
         if (totalCols == 1)
-            mergedCell.element.removeAttribute("colspan");
+            DOM_removeAttribute(mergedCell.element,"colspan");
         else
-            mergedCell.element.setAttribute("colspan",totalCols);
+            DOM_setAttribute(mergedCell.element,"colspan",totalCols);
     }
 
     // public
@@ -609,7 +609,7 @@ var Tables_regionFromRange;
                         for (var c = cell.left; c <= cell.right; c++) {
                             if ((r == cell.top) && (c == cell.left))
                                 continue;
-                            var newTD = createEmptyTableCell(original.nodeName);
+                            var newTD = createEmptyTableCell(original.nodeName); // check-ok
                             var nextCell = structure.get(r,cell.right+1);
                             var nextElement = null;
                             if ((nextCell != null) && (nextCell.row == r))
@@ -618,8 +618,8 @@ var Tables_regionFromRange;
                             structure.set(r,c,new Cell(newTD,r,c));
                         }
                     }
-                    original.removeAttribute("rowspan");
-                    original.removeAttribute("colspan");
+                    DOM_removeAttribute(original,"rowspan");
+                    DOM_removeAttribute(original,"colspan");
                 }
             }
         }

@@ -73,7 +73,7 @@ var Word_stylesXML;
             var pStyle = getChild(pPr,"pStyle");
             debug("pStyle = "+pStyle);
             if (pStyle != null) {
-                pStyle.setAttributeNS(WORD_NAMESPACE,"val",style);
+                DOM_setAttributeNS(pStyle,WORD_NAMESPACE,"val",style);
             }
         }
         
@@ -115,7 +115,8 @@ var Word_stylesXML;
 
         var listener = new DOM_Listener();
         listener.afterReplaceElement = function(oldElement,newElement) {
-            debug("Detected replacement of "+oldElement.nodeName+" with "+newElement.nodeName);
+            debug("Detected replacement of "+DOM_upperName(oldElement)+
+                  " with "+DOM_upperName(newElement));
 
             if (DOM_upperName(newElement) == "H1")
                 setWordPStyle(wordP,"Heading1");

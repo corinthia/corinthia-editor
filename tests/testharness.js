@@ -274,12 +274,12 @@ function runAllTests()
             DOM_appendChild(resultElement,a);
             results[fullname] = new Result(actual,expected);
             if (actual == expected) {
-                resultElement.setAttribute("class","pass");
+                DOM_setAttribute(resultElement,"class","pass");
                 DOM_appendChild(a,DOM_createTextNode(document,"PASS"));
                 passes++;
             }
             else {
-                resultElement.setAttribute("class","fail");
+                DOM_setAttribute(resultElement,"class","fail");
                 DOM_appendChild(a,DOM_createTextNode(document,"FAIL"));
                 failures++;
             }
@@ -323,12 +323,12 @@ function loaded()
 
         var tr = DOM_createElement(document,"tr");
         DOM_appendChild(table,tr);
-        tr.setAttribute("class","dirrow");
-        table.setAttribute("width","100%");
+        DOM_setAttribute(tr,"class","dirrow");
+        DOM_setAttribute(table,"width","100%");
 
         var td = DOM_createElement(document,"td");
         DOM_appendChild(tr,td);
-        td.setAttribute("colspan","2");
+        DOM_setAttribute(td,"colspan","2");
         DOM_appendChild(td,DOM_createTextNode(document,dir.dir));
 
         for (var fileno = 0; fileno < dir.files.length; fileno++) {
@@ -336,11 +336,11 @@ function loaded()
 
             tr = DOM_createElement(document,"tr");
             DOM_appendChild(table,tr);
-            tr.setAttribute("class","testrow");
+            DOM_setAttribute(tr,"class","testrow");
 
             td = DOM_createElement(document,"td");
             DOM_appendChild(tr,td);
-            td.setAttribute("width","50%");
+            DOM_setAttribute(td,"width","50%");
 
             var a = DOM_createElement(document,"a");
             DOM_appendChild(td,a);
@@ -349,7 +349,7 @@ function loaded()
 
             td = DOM_createElement(document,"td");
             DOM_appendChild(tr,td);
-            td.setAttribute("width","50%");
+            DOM_setAttribute(td,"width","50%");
             td.id = "result-"+dir.dir+"-"+filename;
         }
     }

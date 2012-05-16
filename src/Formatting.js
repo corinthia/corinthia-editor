@@ -600,7 +600,7 @@ var Formatting_applyFormattingChanges;
     function setParagraphStyle(paragraph,style)
     {
         var wasHeading = isHeadingNode(paragraph);
-        paragraph.removeAttribute("class");
+        DOM_removeAttribute(paragraph,"class");
         if (style == "") {
             if (DOM_upperName(paragraph) != "P")
                 paragraph = DOM_replaceElement(paragraph,"P");
@@ -608,7 +608,7 @@ var Formatting_applyFormattingChanges;
         else if (style.charAt(0) == ".") {
             if (DOM_upperName(paragraph) != "P")
                 paragraph = DOM_replaceElement(paragraph,"P");
-            paragraph.setAttribute("class",style.slice(1));
+            DOM_setAttribute(paragraph,"class",style.slice(1));
         }
         else {
             if (!PARAGRAPH_ELEMENTS[style.toUpperCase()])
@@ -618,7 +618,7 @@ var Formatting_applyFormattingChanges;
         }
         var isHeading = isHeadingNode(paragraph);
         if (wasHeading && !isHeading)
-            paragraph.removeAttribute("id");
+            DOM_removeAttribute(paragraph,"id");
     }
 
     function pushDownInlineProperties(outermost)
@@ -648,8 +648,10 @@ var Formatting_applyFormattingChanges;
                 }
             }
 
+            var remove = new Object();
             for (var name in inlineProperties)
-                node.style.removeProperty(name);
+                remove[name] = null;
+            DOM_setStyleProperties(node,remove);
 
             if (DOM_upperName(node) == "B")
                 inlineProperties["font-weight"] = "bold";
@@ -682,7 +684,7 @@ var Formatting_applyFormattingChanges;
             }
 
             if (node.hasAttribute("style") && (node.style.length == 0))
-                node.removeAttribute("style");
+                DOM_removeAttribute(node,"style");
 
             if ((DOM_upperName(node) == "B") ||
                 (DOM_upperName(node) == "I") ||
@@ -726,11 +728,14 @@ var Formatting_applyFormattingChanges;
             target = wrapInline(target,"SPAN");
         }
 
+
+        var propertiesToSet = new Object();
         for (var name in inlineProperties) {
             var existing = target.style.getPropertyValue(name);
             if ((existing == null) || (existing == ""))
-                target.style.setProperty(name,inlineProperties[name],null);
+                propertiesToSet[name] = inlineProperties[name];
         }
+        DOM_setStyleProperties(target,propertiesToSet);
 
         return target;
     }
@@ -813,10 +818,10 @@ var Formatting_applyFormattingChanges;
     function removePropertiesSingle(node,properties,special,remaining)
     {
         if ((node.nodeType == Node.ELEMENT_NODE) && (node.hasAttribute("style"))) {
+            var remove = new Object();
             for (var name in properties)
-                node.style.removeProperty(name);
-            if (node.style.length == 0)
-                node.removeAttribute("style");
+                remove[name] = null;
+            DOM_setStyleProperties(node,remove);
         }
 
         var willRemove = ((DOM_upperName(node) == "B") && (special.bold != null)) ||
@@ -947,12 +952,8 @@ var Formatting_applyFormattingChanges;
             }
 
             var outermostParagraphs = getOutermostParagraphs(paragraphs);
-            for (var i = 0; i < outermostParagraphs.length; i++) {
-                for (var name in paragraphPropertiesToSet) {
-                    var p = outermostParagraphs[i];
-                    p.style.setProperty(name,paragraphPropertiesToSet[name],null);
-                }
-            }
+            for (var i = 0; i < outermostParagraphs.length; i++)
+                DOM_setStyleProperties(outermostParagraphs[i],paragraphPropertiesToSet);
 
             // Set style on paragraph nodes
             if (style != null) {

@@ -148,14 +148,14 @@ var Selection_trackWhileExecuting;
         y += window.scrollY;
 
         var div = DOM_createElement(document,"DIV");
-        div.setAttribute("class",Keys.SELECTION_HIGHLIGHT);
-        div.style.position = "absolute";
-        div.style.left = x+"px";
-        div.style.top = y+"px";
-        div.style.width = width+"px";
-        div.style.height = height+"px";
-        div.style.backgroundColor = "rgb(201,221,238)";
-        div.style.zIndex = -1;
+        DOM_setAttribute(div,"class",Keys.SELECTION_HIGHLIGHT);
+        DOM_setStyleProperties(div,{ "position": "absolute",
+                                     "left": x+"px",
+                                     "top": y+"px",
+                                     "width": width+"px",
+                                     "height": height+"px",
+                                     "background-color": "rgb(201,221,238)",
+                                     "z-index": -1 });
         DOM_appendChild(document.body,div);
         selectionDivs.push(div);
 
@@ -212,8 +212,8 @@ var Selection_trackWhileExecuting;
 
             for (var i = 0; i < rects.length; i++) {
                 var div = DOM_createElement(document,"DIV");
-                div.setAttribute("class",Keys.SELECTION_HIGHLIGHT);
-                div.style.position = "absolute";
+                DOM_setAttribute(div,"class",Keys.SELECTION_HIGHLIGHT);
+                DOM_setStyleProperties(div,{"position": "absolute"});
 
                 var left = rects[i].left + window.scrollX;
                 var top = rects[i].top + window.scrollY;
@@ -239,12 +239,12 @@ var Selection_trackWhileExecuting;
                         boundsBottom = bottom;
                 }
 
-                div.style.left = left+"px";
-                div.style.top = top+"px";
-                div.style.width = width+"px";
-                div.style.height = height+"px";
-                div.style.backgroundColor = "rgb(201,221,238)";
-                div.style.zIndex = -1;
+                DOM_setStyleProperties(div,{ "left": left+"px",
+                                             "top": top+"px",
+                                             "width": width+"px",
+                                             "height": height+"px",
+                                             "background-color": "rgb(201,221,238)",
+                                             "z-index": -1 });
                 DOM_appendChild(document.body,div);
                 selectionDivs.push(div);
             }
@@ -758,13 +758,15 @@ var Selection_trackWhileExecuting;
     function prepareForMerge(detail)
     {
         if (isParagraphNode(detail.startAncestor) && isInlineNode(detail.endAncestor)) {
-            var newParagraph = DOM_createElement(document,detail.startAncestor.nodeName);
+            var name = detail.startAncestor.nodeName; // check-ok
+            var newParagraph = DOM_createElement(document,name);
             DOM_insertBefore(detail.endAncestor.parentNode,newParagraph,detail.endAncestor);
             DOM_appendChild(newParagraph,detail.endAncestor);
             detail.endAncestor = newParagraph;
         }
         else if (isInlineNode(detail.startAncestor) && isParagraphNode(detail.endAncestor)) {
-            var newParagraph = DOM_createElement(document,detail.endAncestor.nodeName);
+            var name = detail.endAncestor.nodeName; // check-ok
+            var newParagraph = DOM_createElement(document,name);
             DOM_insertBefore(detail.startAncestor.parentNode,newParagraph,
                              detail.startAncestor.nextSibling);
             DOM_appendChild(newParagraph,detail.startAncestor);
@@ -779,7 +781,8 @@ var Selection_trackWhileExecuting;
             var paragraph = findFirstParagraph(li);
             if (paragraph != null) {
                 DOM_insertBefore(list.parentNode,paragraph,list);
-                DOM_replaceElement(paragraph,detail.startAncestor.nodeName);
+                var name = detail.startAncestor.nodeName; // check-ok
+                DOM_replaceElement(paragraph,name);
             }
             if (!nodeHasContent(li))
                 DOM_deleteNode(li);

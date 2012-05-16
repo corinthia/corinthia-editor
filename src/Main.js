@@ -47,8 +47,8 @@ var Main_init;
         }
         if (!haveContentType) {
             var meta = DOM_createElement(document,"META");
-            meta.setAttribute("http-equiv","Content-Type");
-            meta.setAttribute("content","text/html; charset=utf-8");
+            DOM_setAttribute(meta,"http-equiv","Content-Type");
+            DOM_setAttribute(meta,"content","text/html; charset=utf-8");
             DOM_insertBefore(head,meta,head.firstChild);
         }
     }
@@ -63,9 +63,9 @@ var Main_init;
     function getHTML()
     {
         var clone = DOM_cloneNode(document.documentElement,true);
-        clone.style.webkitTextSizeAdjust = null;
+        DOM_setStyleProperties(clone,{"-webkit-text-size-adjust": null});
         if (clone.style.length == 0)
-            clone.removeAttribute("style");
+            DOM_removeAttribute(clone,"style");
         removeSpecial(clone);
 
         return clone.outerHTML;

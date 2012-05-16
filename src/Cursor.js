@@ -395,7 +395,7 @@ var Cursor_enterPressed;
     function insertReference(itemId)
     {
         var a = DOM_createElement(document,"A");
-        a.setAttribute("href","#"+itemId);
+        DOM_setAttribute(a,"href","#"+itemId);
         Clipboard_pasteNodes([a]);
     }
 
@@ -403,7 +403,7 @@ var Cursor_enterPressed;
     function insertLink(text,url)
     {
         var a = DOM_createElement(document,"A");
-        a.setAttribute("href",url);
+        DOM_setAttribute(a,"href",url);
         DOM_appendChild(a,DOM_createTextNode(document,text));
         Clipboard_pasteNodes([a]);
     }
@@ -578,7 +578,7 @@ var Cursor_enterPressed;
             for (var ancestor = start; ancestor != null; ancestor = ancestor.parentNode) {
                 if (isParagraphNode(ancestor) && isHeadingNode(ancestor)) {
                     ancestor = DOM_replaceElement(ancestor,"P");
-                    ancestor.removeAttribute("id");
+                    DOM_removeAttribute(ancestor,"id");
                 }
 
                 if (isParagraphNode(ancestor) && !nodeHasContent(ancestor)) {

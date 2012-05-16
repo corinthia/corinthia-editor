@@ -56,7 +56,7 @@ function removeIds()
     function recurse(node)
     {
         if (node.nodeType == Node.ELEMENT_NODE) {
-            node.removeAttribute("id");
+            DOM_removeAttribute(node,"id");
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
         }

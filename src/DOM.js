@@ -18,12 +18,12 @@ var DOM_setAttribute;
 var DOM_setAttributeNS;
 var DOM_removeAttribute;
 var DOM_removeAttributeNS;
+var DOM_setStyleProperties;
 var DOM_insertCharacters;
 var DOM_deleteCharacters;
 var DOM_setNodeValue;
 
 // High-level DOM operations
-var DOM_setStyleProperties;
 var DOM_deleteAllChildren;
 var DOM_shallowCopyElement;
 var DOM_removeNodeButKeepChildren;
@@ -108,7 +108,7 @@ var DOM_Listener;
       * createElementNS(document,namespaceURI,qualifiedName)
       * createTextNode(document,data)
       * createComment(document,data)
-      * cloneNode(original,deep)
+      * cloneNode(original,deep,noIdAttr)
 
       The purpose of these is to ensure that a unique _nodeId value is assigned to each node object,
       which is needed for using the NodeSet and NodeMap classes. All nodes in a document must have
@@ -121,6 +121,7 @@ var DOM_Listener;
       * deleteNodeInternal(node,deleteDescendantData)
       * setAttribute(element,name,value)
       * setAttributeNS(element,namespaceURI,qualifiedName,value)
+      * setStyleProperties(element,properties)
       * insertCharacters(textNode,offset,characters)
       * deleteCharacters(textNode,startOffset,endOffset)
       * setNodeValue(textNode,value)
@@ -143,42 +144,44 @@ var DOM_Listener;
       *** IMPORTANT ***
 
       Just in case it isn't already clear, you must *never* make direct calls to methods like
-      node.appendChild() and document.createElement(). Doing so will result in subtle and probably
-      hard-to-find bugs. As far as all javascript code for UX Write is concerned, consider the
-      public functions defined in this file to be the DOM API. You can use check-dom-methods.sh to
-      search for any cases where this rule has been violated.
+      appendChild() and createElement() on the node objects themselves. Doing so will result in
+      subtle and probably hard-to-find bugs. As far as all javascript code for UX Write is
+      concerned, consider the public functions defined in this file to be the DOM API. You can use
+      check-dom-methods.sh to search for any cases where this rule has been violated.
 
       */
 
     // public
     function createElement(document,elementName)
     {
-        return assignNodeId(document.createElement(elementName));
+        return assignNodeId(document.createElement(elementName)); // check-ok
     }
 
     // public
     function createElementNS(document,namespaceURI,qualifiedName)
     {
-        return assignNodeId(document.createElementNS(namespaceURI,qualifiedName));
+        return assignNodeId(document.createElementNS(namespaceURI,qualifiedName)); // check-ok
     }
 
     // public
     function createTextNode(document,data)
     {
-        return assignNodeId(document.createTextNode(data));
+        return assignNodeId(document.createTextNode(data)); // check-ok
     }
 
     // public
     function createComment(document,data)
     {
-        return assignNodeId(document.createComment(data));
+        return assignNodeId(document.createComment(data)); // check-ok
     }
 
     // public
-    function cloneNode(original,deep)
+    function cloneNode(original,deep,noIdAttr)
     {
-        var clone = original.cloneNode(deep);
+        var clone = original.cloneNode(deep); // check-ok
         DOM_assignNodeIds(clone);
+        if (noIdAttr)
+            clone.removeAttribute("id"); // check-ok
         return clone;
     }
 
@@ -193,7 +196,7 @@ var DOM_Listener;
             addUndoAction(insertBeforeInternal,oldParent,newChild,oldNext);
         }
 
-        parent.insertBefore(newChild,refChild);
+        parent.insertBefore(newChild,refChild); // check-ok
     }
 
     function deleteNodeInternal(node,deleteDescendantData)
@@ -202,7 +205,7 @@ var DOM_Listener;
 
         addUndoAction(insertBeforeInternal,node.parentNode,node,node.nextSibling);
 
-        node.parentNode.removeChild(node);
+        node.parentNode.removeChild(node); // check-ok
 
         // Delete all data associated with the node. This is not preserved across undo/redo;
         // currently the only thing we are using this data for is tracked positions, and we
@@ -237,9 +240,9 @@ var DOM_Listener;
             addUndoAction(setAttribute,element,name,null);
 
         if (value == null)
-            element.removeAttribute(name);
+            element.removeAttribute(name); // check-ok
         else
-            element.setAttribute(name,value);
+            element.setAttribute(name,value); // check-ok
     }
 
     // public
@@ -248,7 +251,7 @@ var DOM_Listener;
         var localName = qualifiedName.replace(/^.*:/,"");
         if (element.hasAttributeNS(namespaceURI,localName)) {
             var oldValue = element.getAttributeNS(namespaceURI,localName);
-            var oldQName = element.getAttributeNodeNS(namespaceURI,localName).nodeName;
+            var oldQName = element.getAttributeNodeNS(namespaceURI,localName).nodeName; // check-ok
             addUndoAction(setAttributeNS,element,namespaceURI,oldQName,oldValue)
         }
         else {
@@ -256,9 +259,27 @@ var DOM_Listener;
         }
 
         if (value == null)
-            element.removeAttributeNS(namespaceURI,localName);
+            element.removeAttributeNS(namespaceURI,localName); // check-ok
         else
-            element.setAttributeNS(namespaceURI,qualifiedName,value);
+            element.setAttributeNS(namespaceURI,qualifiedName,value); // check-ok
+    }
+
+    // public
+    function setStyleProperties(element,properties)
+    {
+        if (Object.getOwnPropertyNames(properties).length == 0)
+            return;
+
+        if (element.hasAttribute("style"))
+            addUndoAction(DOM_setAttribute,element,"style",element.getAttribute("style"));
+        else
+            addUndoAction(DOM_setAttribute,element,"style",null);
+
+        for (var name in properties)
+            element.style.setProperty(name,properties[name]); // check-ok
+
+        if (element.getAttribute("style") == "")
+            element.removeAttribute("style"); // check-ok
     }
 
     // public
@@ -409,21 +430,6 @@ var DOM_Listener;
     }
 
     // public
-    function setStyleProperties(element,properties)
-    {
-        if (element.hasAttribute("style"))
-            addUndoAction(DOM_setAttribute,element,"style",element.getAttribute("style"));
-        else
-            addUndoAction(DOM_setAttribute,element,"style",null);
-
-        for (var name in properties)
-            element.style[name] = properties[name];
-
-        if (element.getAttribute("style") == "")
-            element.removeAttribute("style");
-    }
-
-    // public
     function deleteAllChildren(parent)
     {
         while (parent.firstChild != null)
@@ -433,9 +439,7 @@ var DOM_Listener;
     // public
     function shallowCopyElement(element)
     {
-        var copy = DOM_cloneNode(element,false);
-        copy.removeAttribute("id");
-        return copy;
+        return DOM_cloneNode(element,false,true);
     }
 
     // public
@@ -470,9 +474,9 @@ var DOM_Listener;
         var listeners = listenersForNode(oldElement);
         var newElement = DOM_createElement(document,newName);
         for (var i = 0; i < oldElement.attributes.length; i++) {
-            var name = oldElement.attributes[i].nodeName;
+            var name = oldElement.attributes[i].nodeName; // check-ok
             var value = oldElement.getAttribute(name);
-            newElement.setAttribute(name,value);
+            DOM_setAttribute(newElement,name,value);
         }
 
         var positions = arrayCopy(trackedPositionsForNode(oldElement));
@@ -570,7 +574,7 @@ var DOM_Listener;
                 whiteList[DOM_upperName(a)] &&
                 (a.attributes.length == b.attributes.length)) {
                 for (var i = 0; i < a.attributes.length; i++) {
-                    var attrName = a.attributes[i].nodeName;
+                    var attrName = a.attributes[i].nodeName; // check-ok
                     if (a.getAttribute(attrName) != b.getAttribute(attrName))
                         return false;
                 }
@@ -653,16 +657,16 @@ var DOM_Listener;
     // public
     function lowerName(node)
     {
-        return node.nodeName.toLowerCase();
+        return node.nodeName.toLowerCase(); // check-ok
     }
 
     // public
     function upperName(node)
     {
         if (node.nodeType == Node.ELEMENT_NODE)
-            return node.nodeName.toUpperCase();
+            return node.nodeName.toUpperCase(); // check-ok
         else
-            return node.nodeName;
+            return node.nodeName; // check-ok
     }
 
     // public
@@ -717,7 +721,7 @@ var DOM_Listener;
                     num++;
                 } while (ids[candidate]);
 
-                duplicates[i].setAttribute("id",candidate);
+                DOM_setAttribute(duplicates[i],"id",candidate);
                 ids[candidate] = true;
                 nextNumberForPrefix[prefix] = num;
             }

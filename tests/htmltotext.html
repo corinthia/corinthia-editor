@@ -35,7 +35,7 @@ function loaded()
     var text = Clipboard_htmlToText(document.body);
     DOM_deleteAllChildren(document.body);
     var pre = DOM_createElement(document,"PRE");
-    pre.style.whiteSpace = "pre-wrap";
+    DOM_setStyleProperties(pre,{"white-space": "pre-wrap"});
     DOM_appendChild(pre,DOM_createTextNode(document,text));
     DOM_appendChild(document.body,pre);
 }

@@ -25,10 +25,10 @@ var Viewport_setTextScale;
         }
         if (viewportMetaElement == null) {
             viewportMetaElement = DOM_createElement(document,"META");
-            viewportMetaElement.setAttribute("name","viewport");
+            DOM_setAttribute(viewportMetaElement,"name","viewport");
             DOM_appendChild(head,viewportMetaElement);
         }
-        viewportMetaElement.setAttribute("content","width = device-width, user-scalable = no");
+        DOM_setAttribute(viewportMetaElement,"content","width = device-width, user-scalable = no");
     }
 
     // public
@@ -36,7 +36,7 @@ var Viewport_setTextScale;
     {
         viewportWidth = width;
         viewportHeight = height;
-        viewportMetaElement.setAttribute("content","width = "+width+", user-scalable = no");
+        DOM_setAttribute(viewportMetaElement,"content","width = "+width+", user-scalable = no");
 
         Selection_updateSelectionDisplay();
         Cursor_ensureCursorVisible();
@@ -58,7 +58,7 @@ var Viewport_setTextScale;
     function setTextScale(textScale)
     {
         var pct = Math.floor(textScale*100)+"%";
-        document.documentElement.style.webkitTextSizeAdjust = pct;
+        DOM_setStyleProperties(document.documentElement,{"-webkit-text-size-adjust": pct});
 
         Selection_updateSelectionDisplay();
         Cursor_ensureCursorVisible();

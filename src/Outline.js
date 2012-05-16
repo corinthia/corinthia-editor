@@ -106,8 +106,8 @@ var Outline_examinePrintLayout;
     {
         var item = itemsById[node.getAttribute("id")];
         if (item == null) {
-            throw new Error("Attempt to remove non-existant "+node.nodeName+" item "+
-                            node.getAttribute("id"));
+            throw new Error("Attempt to remove non-existant "+DOM_upperName(node)+
+                            " item "+node.getAttribute("id"));
         }
         this.list.remove(item);
         Editor_removeOutlineItem(item.id);
@@ -210,7 +210,7 @@ var Outline_examinePrintLayout;
         else {
             this.id = generateItemId();
             if (node != null)
-                node.setAttribute("id",this.id);
+                DOM_setAttribute(node,"id",this.id);
         }
         this.category = category;
         this.type = type;
@@ -261,7 +261,7 @@ var Outline_examinePrintLayout;
         if (this.numberSpan != null)
             return;
         this.numberSpan = DOM_createElement(document,"SPAN");
-        this.numberSpan.setAttribute("class",this.spanClass);
+        DOM_setAttribute(this.numberSpan,"class",this.spanClass);
         this.titleNode = this.getTitleNode(true);
         DOM_insertBefore(this.titleNode,this.numberSpan,this.titleNode.firstChild);
         DOM_appendChild(this.numberSpan,DOM_createTextNode(document,""));

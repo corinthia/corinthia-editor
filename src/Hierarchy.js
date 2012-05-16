@@ -135,7 +135,7 @@ var Hierarchy_wrapInlineNodesInParagraph;
             end = end.nextSibling;
 
         var p = DOM_createElement(document,"P");
-        // p.style.border = "4px dashed red"; // debug
+        // DOM_setStyleProperties(p,{"border": "4px dashed red"}); // debug
         DOM_insertBefore(node.parentNode,p,start);
 
         var stop = end.nextSibling;

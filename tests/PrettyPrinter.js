@@ -5,8 +5,8 @@
         var copy = DOM_cloneNode(root,true);
         for (var body = copy.firstChild; body != null; body = body.nextSibling) {
             if (body.nodeName == "BODY") {
-                body.removeAttribute("style");
-                body.removeAttribute("contentEditable");
+                DOM_removeAttribute(body,"style");
+                DOM_removeAttribute(body,"contentEditable");
             }
         }
 

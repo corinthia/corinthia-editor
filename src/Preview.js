@@ -25,7 +25,7 @@ var Preview_showForStyle;
         var style = document.getElementById("style");
         if (style == null) {
             style = DOM_createElement(document,"STYLE");
-            style.setAttribute("id","style");
+            DOM_setAttribute(style,"id","style");
             var head = DOM_documentHead(document);
             DOM_appendChild(head,style);
         }
@@ -49,7 +49,7 @@ var Preview_showForStyle;
         var element;
         if (selector.charAt(0) == ".") {
             element = DOM_createElement(document,"DIV");
-            element.setAttribute("class",selector.slice(1));
+            DOM_setAttribute(element,"class",selector.slice(1));
         }
         else {
             element = DOM_createElement(document,selector);
@@ -125,7 +125,7 @@ var Preview_showForStyle;
             }
             else {
                 var div = DOM_createElement(document,"DIV");
-                div.setAttribute("class",styleId.substring(1));
+                DOM_setAttribute(div,"class",styleId.substring(1));
                 return div;
             }
         }

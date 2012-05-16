@@ -13,8 +13,8 @@ function performTest()
     var p = DOM_createElement(document,"P");
     var br1 = DOM_createElement(document,"BR");
     var br2 = DOM_createElement(document,"BR");
-    br1.setAttribute("id","br1");
-    br2.setAttribute("id","br2");
+    DOM_setAttribute(br1,"id","br1");
+    DOM_setAttribute(br2,"id","br2");
     var text1 = DOM_createTextNode(document,"One");
     var text2 = DOM_createTextNode(document,"Two");
     var text3 = DOM_createTextNode(document,"Three");
