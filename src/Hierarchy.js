@@ -6,7 +6,8 @@ var Hierarchy_wrapInlineNodesInParagraph;
 
 (function() {
 
-    function wrapInlineChildren(first,last,ancestors)
+    // private
+    var wrapInlineChildren = trace(function wrapInlineChildren(first,last,ancestors)
     {
         var haveNonWhitespace = false;
         for (var node = first; node != last.nextSibling; node = node.nextSibling) {
@@ -33,9 +34,10 @@ var Hierarchy_wrapInlineNodesInParagraph;
                 node = next;
             }
         }
-    }
+    });
 
-    function wrapInlineChildrenInAncestors(node,ancestors)
+    // private
+    var wrapInlineChildrenInAncestors = trace(function wrapInlineChildrenInAncestors(node,ancestors)
     {
         var firstInline = null;
         var lastInline = null;
@@ -62,14 +64,15 @@ var Hierarchy_wrapInlineNodesInParagraph;
                 break;
             child = next;
         }
-    }
+    });
 
     // Enforce the restriction that any path from the root to a given node must be of the form
     //    container+ paragraph inline
     // or container+ paragraph
     // or container+
     // public
-    function ensureValidHierarchy(node,recursive,allowDirectInline)
+    Hierarchy_ensureValidHierarchy = trace(
+        function ensureValidHierarchy(node,recursive,allowDirectInline)
     {
         var count = 0;
         while ((node != null) && (node.parentNode != null) && (node != document.body)) {
@@ -104,9 +107,9 @@ var Hierarchy_wrapInlineNodesInParagraph;
 
             node = node.parentNode;
         }
-    }
+    });
 
-    function ensureInlineNodesInParagraph(node)
+    Hierarchy_ensureInlineNodesInParagraph = trace(function ensureInlineNodesInParagraph(node)
     {
         var count = 0;
         while ((node != null) && (node.parentNode != null) && (node != document.body)) {
@@ -116,15 +119,15 @@ var Hierarchy_wrapInlineNodesInParagraph;
             if (isInlineNode(node) &&
                 isContainerNode(node.parentNode) && !isListItemNode(node.parentNode) &&
                 !isWhitespaceTextNode(node)) {
-                wrapInlineNodesInParagraph(node);
+                Hierarchy_wrapInlineNodesInParagraph(node);
                 return;
             }
             node = node.parentNode;
         }
-    }
+    });
 
     // public
-    function wrapInlineNodesInParagraph(node)
+    Hierarchy_wrapInlineNodesInParagraph = trace(function wrapInlineNodesInParagraph(node)
     {
         var start = node;
         var end = node;
@@ -142,10 +145,6 @@ var Hierarchy_wrapInlineNodesInParagraph;
         while (p.nextSibling != stop)
             DOM_insertBefore(p,p.nextSibling,null);
         return p;
-    }
-
-    Hierarchy_ensureValidHierarchy = trace(ensureValidHierarchy);
-    Hierarchy_ensureInlineNodesInParagraph = trace(ensureInlineNodesInParagraph);
-    Hierarchy_wrapInlineNodesInParagraph = trace(wrapInlineNodesInParagraph);
+    });
 
 })();

@@ -127,7 +127,7 @@ var Tables_regionFromRange;
     }
 
     // public
-    function insertTable(rows,cols,width,numbered,caption)
+    Tables_insertTable = trace(function insertTable(rows,cols,width,numbered,caption)
     {
         if (rows < 1)
             rows = 1;
@@ -192,9 +192,10 @@ var Tables_regionFromRange;
         var pos = new Position(firstTD,0);
         pos = Cursor_closestPositionForwards(pos);
         Selection_setEmptySelectionAt(pos.node,pos.offset);
-    }
+    });
 
-    function createEmptyTableCell(elementName)
+    // private
+    var createEmptyTableCell = trace(function createEmptyTableCell(elementName)
     {
         var br = DOM_createElement(document,"BR");
         var p = DOM_createElement(document,"P");
@@ -202,16 +203,18 @@ var Tables_regionFromRange;
         DOM_appendChild(p,br);
         DOM_appendChild(td,p);
         return td;
-    }
+    });
 
-    function addEmptyTableCell(newTR,elementName)
+    // private
+    var addEmptyTableCell = trace(function addEmptyTableCell(newTR,elementName)
     {
         var td = createEmptyTableCell(elementName);
         DOM_appendChild(newTR,td);
         return td;
-    }
+    });
 
-    function populateNewRow(structure,newTR,newRow,oldRow)
+    // private
+    var populateNewRow = trace(function populateNewRow(structure,newTR,newRow,oldRow)
     {
         var col = 0;
         while (col < structure.numCols) {
@@ -227,10 +230,10 @@ var Tables_regionFromRange;
             }
             col += existingCell.colspan;
         }
-    }
+    });
 
     // public
-    function insertRowAbove()
+    Tables_insertRowAbove = trace(function insertRowAbove()
     {
         var selectionRange = Selection_get();
         var region = Tables_regionFromRange(selectionRange,true);
@@ -244,10 +247,10 @@ var Tables_regionFromRange;
             });
             Selection_setSelectionRange(selectionRange);
         }
-    }
+    });
 
     // public
-    function insertRowBelow()
+    Tables_insertRowBelow = trace(function insertRowBelow()
     {
         var selectionRange = Selection_get();
         var region = Tables_regionFromRange(selectionRange,true);
@@ -261,9 +264,10 @@ var Tables_regionFromRange;
             });
             Selection_setSelectionRange(selectionRange);
         }
-    }
+    });
 
-    function getColElements(table)
+    // private
+    var getColElements = trace(function getColElements(table)
     {
         var cols = new Array();
         for (child = table.firstChild; child != null; child = child.nextSibling) {
@@ -278,9 +282,10 @@ var Tables_regionFromRange;
             }
         }
         return cols;
-    }
+    });
 
-    function getColWidths(colElements,expectedCount)
+    // private
+    var getColWidths = trace(function getColWidths(colElements,expectedCount)
     {
         // FIXME: also handle the case where the width has been set as a CSS property in the
         // style attribute. There's probably not much we can do if the width comes from a style
@@ -293,10 +298,10 @@ var Tables_regionFromRange;
                 colWidths.push("");
         }
         return colWidths;
-    }
+    });
 
-    addMissingColElements = trace(addMissingColElements);
-    function addMissingColElements(structure,colElements)
+    // private
+    var addMissingColElements = trace(function addMissingColElements(structure,colElements)
     {
         // If there are fewer COL elements than there are colums, add extra ones, copying the
         // width value from the last one
@@ -308,10 +313,10 @@ var Tables_regionFromRange;
             colElements.push(newColElement);
             DOM_setAttribute(newColElement,"width",lastColElement.getAttribute("width"));
         }
-    }
+    });
 
-    fixColPercentages = trace(fixColPercentages);
-    function fixColPercentages(structure,colElements)
+    // private
+    var fixColPercentages = trace(function fixColPercentages(structure,colElements)
     {
         var colWidths = getColWidths(colElements,structure.numCols);
 
@@ -341,10 +346,10 @@ var Tables_regionFromRange;
             else
                 return null;
         }
-    }
+    });
 
-    addColElement = trace(addColElement);
-    function addColElement(structure,oldIndex,right)
+    // private
+    var addColElement = trace(function addColElement(structure,oldIndex,right)
     {
         var table = structure.element;
 
@@ -372,10 +377,10 @@ var Tables_regionFromRange;
         }
 
         fixColPercentages(structure,colElements);
-    }
+    });
 
-    deleteColElements = trace(deleteColElements);
-    function deleteColElements(structure,left,right)
+    // private
+    var deleteColElements = trace(function deleteColElements(structure,left,right)
     {
         var table = structure.element;
 
@@ -392,9 +397,10 @@ var Tables_regionFromRange;
         colElements.splice(left,right-left+1);
 
         fixColPercentages(structure,colElements);
-    }
+    });
 
-    function addColumnCells(structure,oldIndex,right)
+    // private
+    var addColumnCells = trace(function addColumnCells(structure,oldIndex,right)
     {
         for (var row = 0; row < structure.numRows; row++) {
             var cell = structure.get(row,oldIndex);
@@ -417,10 +423,10 @@ var Tables_regionFromRange;
                 }
             }
         }
-    }
+    });
 
     // public
-    function insertColumnLeft()
+    Tables_insertColumnLeft = trace(function insertColumnLeft()
     {
         var selectionRange = Selection_get();
         var region = Tables_regionFromRange(selectionRange,true);
@@ -431,10 +437,10 @@ var Tables_regionFromRange;
             });
             Selection_setSelectionRange(selectionRange);
         }
-    }
+    });
 
     // public
-    function insertColumnRight()
+    Tables_insertColumnRight = trace(function insertColumnRight()
     {
         var selectionRange = Selection_get();
         var region = Tables_regionFromRange(selectionRange,true);
@@ -445,24 +451,26 @@ var Tables_regionFromRange;
             });
             Selection_setSelectionRange(selectionRange);
         }
-    }
+    });
 
-    function deleteTable(structure)
+    // private
+    var deleteTable = trace(function deleteTable(structure)
     {
         DOM_deleteNode(structure.element);
-    }
+    });
 
-    function deleteRows(structure,top,bottom)
+    // private
+    var deleteRows = trace(function deleteRows(structure,top,bottom)
     {
         var trElements = new Array();
         getTRs(structure.element,trElements);
 
         for (var row = top; row <= bottom; row++)
             DOM_deleteNode(trElements[row]);
+    });
 
-    }
-
-    function getTRs(node,result)
+    // private
+    var getTRs = trace(function getTRs(node,result)
     {
         if (DOM_upperName(node) == "TR") {
             result.push(node);
@@ -471,9 +479,10 @@ var Tables_regionFromRange;
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 getTRs(child,result);
         }
-    }
+    });
 
-    function deleteColumns(structure,left,right)
+    // private
+    var deleteColumns = trace(function deleteColumns(structure,left,right)
     {
         var nodesToDelete = new NodeSet();
         for (var row = 0; row < structure.numRows; row++) {
@@ -484,9 +493,10 @@ var Tables_regionFromRange;
         }
         nodesToDelete.forEach(DOM_deleteNode);
         deleteColElements(structure,left,right);
-    }
+    });
 
-    function deleteCellContents(region)
+    // private
+    var deleteCellContents = trace(function deleteCellContents(region)
     {
         var structure = region.structure;
         for (var row = region.top; row <= region.bottom; row++) {
@@ -495,10 +505,10 @@ var Tables_regionFromRange;
                 DOM_deleteAllChildren(cell.element);
             }
         }
-    }
+    });
 
     // public
-    function deleteRegion(region)
+    Tables_deleteRegion = trace(function deleteRegion(region)
     {
         var structure = region.structure;
 
@@ -513,15 +523,15 @@ var Tables_regionFromRange;
             deleteColumns(structure,region.left,region.right);
         else
             deleteCellContents(region);
-    }
+    });
 
     // public
-    function clearCells()
+    Tables_clearCells = trace(function clearCells()
     {
-    }
+    });
 
     // public
-    function mergeCells()
+    Tables_mergeCells = trace(function mergeCells()
     {
         debug("mergeCells()");
         var region = Tables_regionFromRange(Selection_get());
@@ -577,10 +587,10 @@ var Tables_regionFromRange;
             DOM_removeAttribute(mergedCell.element,"colspan");
         else
             DOM_setAttribute(mergedCell.element,"colspan",totalCols);
-    }
+    });
 
     // public
-    function splitSelection()
+    Tables_splitSelection = trace(function splitSelection()
     {
         var range = Selection_get();
         range.trackWhileExecuting(function() {
@@ -588,10 +598,10 @@ var Tables_regionFromRange;
             if (region != null)
                 splitCellsInRegion(region);
         });
-    }
+    });
 
-    splitCellsInRegion = trace(splitCellsInRegion);
-    function splitCellsInRegion(region)
+    // private
+    var splitCellsInRegion = trace(function splitCellsInRegion(region)
     {
         var structure = region.structure;
         var trElements = new Array();
@@ -622,10 +632,10 @@ var Tables_regionFromRange;
                 }
             }
         }
-    }
+    });
 
     // public
-    function cloneRegion(region)
+    Tables_cloneRegion = trace(function cloneRegion(region)
     {
         var cellNodesDone = new NodeSet();
         var table = DOM_shallowCopyElement(region.structure.element);
@@ -641,39 +651,40 @@ var Tables_regionFromRange;
             }
         }
         return table;
-    }
+    });
 
-    // public
-    function pasteCells(fromTableElement,toRegion)
+    // private
+    var pasteCells = trace(function pasteCells(fromTableElement,toRegion)
     {
+        // FIXME
         var fromStructure = Tables_analyseStructure(fromTableElement);
-    }
+    });
 
     // public
-    function analyseStructure(element)
+    Tables_analyseStructure = trace(function analyseStructure(element)
     {
         return new Table(element);
-    }
+    });
 
     // public
-    function findContainingCell(node)
+    Tables_findContainingCell = trace(function findContainingCell(node)
     {
         for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {
             if (isTableCell(ancestor))
                 return ancestor;
         }
         return null;
-    }
+    });
 
     // public
-    function findContainingTable(node)
+    Tables_findContainingTable = trace(function findContainingTable(node)
     {
         for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {
             if (isTableNode(ancestor))
                 return ancestor;
         }
         return null;
-    }
+    });
 
     function TableRegion(structure,top,bottom,left,right)
     {
@@ -690,7 +701,7 @@ var Tables_regionFromRange;
     }
 
     // public
-    function regionFromRange(range,allowSameCell)
+    Tables_regionFromRange = trace(function regionFromRange(range,allowSameCell)
     {
         var region = null;
 
@@ -742,9 +753,10 @@ var Tables_regionFromRange;
         var region = new TableRegion(structure,top,bottom,left,right);
         adjustRegionForSpannedCells(region);
         return region;
-    }
+    });
 
-    function adjustRegionForSpannedCells(region)
+    // private
+    var adjustRegionForSpannedCells = trace(function adjustRegionForSpannedCells(region)
     {
         var structure = region.structure;
         var boundariesOk;
@@ -777,21 +789,6 @@ var Tables_regionFromRange;
                 }
             }
         } while (!boundariesOk);
-    }
-
-    Tables_insertTable = trace(insertTable);
-    Tables_insertRowAbove = trace(insertRowAbove);
-    Tables_insertRowBelow = trace(insertRowBelow);
-    Tables_insertColumnLeft = trace(insertColumnLeft);
-    Tables_insertColumnRight = trace(insertColumnRight);
-    Tables_deleteRegion = trace(deleteRegion);
-    Tables_clearCells = trace(clearCells);
-    Tables_mergeCells = trace(mergeCells);
-    Tables_splitSelection = trace(splitSelection);
-    Tables_cloneRegion = trace(cloneRegion);
-    Tables_analyseStructure = trace(analyseStructure);
-    Tables_findContainingCell = trace(findContainingCell);
-    Tables_findContainingTable = trace(findContainingTable);
-    Tables_regionFromRange = trace(regionFromRange);
+    });
 
 })();

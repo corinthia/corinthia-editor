@@ -453,14 +453,16 @@ var Outline_examinePrintLayout;
         }
     }
 
-    function itemModified(item)
+    // private
+    var itemModified = trace(function itemModified(item)
     {
         if (ignoreModifications > 0)
             return;
         item.updateItemTitle();
-    }
+    });
 
-    function refInserted(node)
+    // private
+    var refInserted = trace(function refInserted(node)
     {
         var href = node.getAttribute("href");
         if (href.charAt(0) != "#")
@@ -476,9 +478,10 @@ var Outline_examinePrintLayout;
             DOM_deleteAllChildren(node);
             DOM_appendChild(node,DOM_createTextNode(document,item.referenceText));
         }
-    }
+    });
 
-    function refRemoved(node)
+    // private
+    var refRemoved = trace(function refRemoved(node)
     {
         var href = node.getAttribute("href");
         if (href.charAt(0) != "#")
@@ -493,9 +496,10 @@ var Outline_examinePrintLayout;
         refsById[id].splice(index,1);
         if (refsById[id] == null)
             delete refsById[id];
-    }
+    });
 
-    function acceptNode(node)
+    // private
+    var acceptNode = trace(function acceptNode(node)
     {
         for (var p = node; p != null; p = p.parentNode) {
             if ((p.nodeType == Node.ELEMENT_NODE) &&
@@ -504,9 +508,10 @@ var Outline_examinePrintLayout;
                 return false;
         }
         return true;
-    }
+    });
 
-    function docNodeInserted(event)
+    // private
+    var docNodeInserted = trace(function docNodeInserted(event)
     {
         if (!acceptNode(event.target))
             return;
@@ -536,9 +541,10 @@ var Outline_examinePrintLayout;
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
         }
-    }
+    });
 
-    function docNodeRemoved(event)
+    // private
+    var docNodeRemoved = trace(function docNodeRemoved(event)
     {
         if (!acceptNode(event.target))
             return;
@@ -568,17 +574,19 @@ var Outline_examinePrintLayout;
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
         }
-    }
+    });
 
-    function scheduleUpdateStructure()
+    // private
+    var scheduleUpdateStructure = trace(function scheduleUpdateStructure()
     {
         if (!outlineDirty) {
             outlineDirty = true;
             PostponedActions_add(updateStructure);
         }
-    }
+    });
 
-    function updateStructure()
+    // private
+    var updateStructure = trace(function updateStructure()
     {
         if (!outlineDirty)
             return;
@@ -685,9 +693,9 @@ var Outline_examinePrintLayout;
                         children: encChildren };
             result.push(obj);
         }
-    }
+    });
 
-    function plainText()
+    Outline_plainText = trace(function plainText()
     {
         var strings = new Array();
 
@@ -717,10 +725,10 @@ var Outline_examinePrintLayout;
             for (var i = 0; i < section.children.length; i++)
                 printSectionRecursive(section.children[i],indent+"    ");
         }
-    }
+    });
 
     // public
-    function init()
+    Outline_init = trace(function init()
     {
         sections = new Category("section",isHeadingNode,sectionNumberRegex);
         figures = new Category("figure",isFigureNode,figureNumberRegex);
@@ -732,18 +740,19 @@ var Outline_examinePrintLayout;
 
         docNodeInserted({target:document});
         doneInit = true;
-    }
+    });
 
-    function getOutlineItemNodes(section,result)
+    // private
+    var getOutlineItemNodes = trace(function getOutlineItemNodes(section,result)
     {
         var endOutlineItem = section.outerNext();
         var endNode = endOutlineItem ? endOutlineItem.node : null;
         for (var n = section.node; (n != null) && (n != endNode); n = n.nextSibling)
             result.push(n);
-    }
+    });
 
     // public
-    function moveSection(sectionId,parentId,nextId)
+    Outline_moveSection = trace(function moveSection(sectionId,parentId,nextId)
     {
         Selection_preserveWhileExecuting(function() {
             updateStructure(); // make sure pointers are valid
@@ -769,10 +778,10 @@ var Outline_examinePrintLayout;
         });
 
         scheduleUpdateStructure();
-    }
+    });
 
     // public
-    function deleteItem(itemId)
+    Outline_deleteItem = trace(function deleteItem(itemId)
     {
         Selection_preserveWhileExecuting(function() {
             var item = itemsById[itemId];
@@ -788,10 +797,10 @@ var Outline_examinePrintLayout;
         });
 
         scheduleUpdateStructure();
-    }
+    });
 
     // public
-    function goToItem(itemId)
+    Outline_goToItem = trace(function goToItem(itemId)
     {
         if (itemId == null) {
             window.scrollTo(0);
@@ -802,56 +811,57 @@ var Outline_examinePrintLayout;
                                                             new WebKitPoint(0,0));
             window.scrollTo(0,location.y);
         }
-    }
+    });
 
     // public
-    function getItemElement(itemId)
+    Outline_getItemElement = trace(function getItemElement(itemId)
     {
         var item = itemsById[itemId];
         if (item != null)
             return item.node;
         else
             return null;
-    }
+    });
 
     // public
-    function setNumbered(itemId,numbered)
+    Outline_setNumbered = trace(function setNumbered(itemId,numbered)
     {
         var item = itemsById[itemId];
         if (numbered)
             item.enableNumbering();
         else
             item.disableNumbering();
-    }
+    });
 
-    function insertTOC(key,initialText)
+    // private
+    var insertTOC = trace(function insertTOC(key,initialText)
     {
         var div = DOM_createElement(document,"DIV");
         DOM_setAttribute(div,"class",key);
         Clipboard_pasteNodes([div]);
         DOM_setAttribute(div,"style","border: 1px solid red");
-    }
+    });
 
     // public
-    function insertSectionTOC()
+    Outline_insertSectionTOC = trace(function insertSectionTOC()
     {
         insertTOC(Keys.SECTION_TOC);
-    }
+    });
 
     // public
-    function insertFigureTOC()
+    Outline_insertFigureTOC = trace(function insertFigureTOC()
     {
         insertTOC(Keys.FIGURE_TOC);
-    }
+    });
 
     // public
-    function insertTableTOC()
+    Outline_insertTableTOC = trace(function insertTableTOC()
     {
         insertTOC(Keys.TABLE_TOC);
-    }
+    });
 
     // public
-    function preparePrintMargins()
+    Outline_preparePrintMargins = trace(function preparePrintMargins()
     {
         var computed = window.getComputedStyle(document.body);
         var obj = { "margin-left": computed.marginLeft,
@@ -869,10 +879,10 @@ var Outline_examinePrintLayout;
         Styles_setStyle(bodyStyle);
 
         return obj;
-    }
+    });
 
     // public
-    function examinePrintLayout(pageHeight)
+    Outline_examinePrintLayout = trace(function examinePrintLayout(pageHeight)
     {
         var result = new Object();
 
@@ -958,19 +968,6 @@ var Outline_examinePrintLayout;
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
         }
-    }
-
-    Outline_init = trace(init);
-    Outline_moveSection = trace(moveSection);
-    Outline_deleteItem = trace(deleteItem);
-    Outline_goToItem = trace(goToItem);
-    Outline_setNumbered = trace(setNumbered);
-    Outline_getItemElement = trace(getItemElement);
-    Outline_plainText = trace(plainText);
-    Outline_insertSectionTOC = trace(insertSectionTOC);
-    Outline_insertFigureTOC = trace(insertFigureTOC);
-    Outline_insertTableTOC = trace(insertTableTOC);
-    Outline_preparePrintMargins = trace(preparePrintMargins);
-    Outline_examinePrintLayout = trace(examinePrintLayout);
+    });
 
 })();

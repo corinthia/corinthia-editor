@@ -61,7 +61,8 @@ var Styles_init;
     var documentStyleElement = null;
     var cssTextDirty = false;
 
-    function stringsAllEqual(strings)
+    // private
+    var stringsAllEqual = trace(function stringsAllEqual(strings)
     {
         var first = strings[0];
         for (var i = 1; i < strings.length; i++) {
@@ -69,9 +70,10 @@ var Styles_init;
                 return false;
         }
         return true;
-    }
+    });
 
-    function condenseProperties(properties)
+    // private
+    var condenseProperties = trace(function condenseProperties(properties)
     {
         // Make a copy of cssProperties because we want to make some changes before preparing the
         // CSS text, while leaving the object itself unchanged
@@ -178,9 +180,10 @@ var Styles_init;
             delete properties["padding-bottom"];
         }
         return properties;
-    }
+    });
 
-    function propertyListText(properties)
+    // private
+    var propertyListText = trace(function propertyListText(properties)
     {
         properties = condenseProperties(properties);
 
@@ -195,14 +198,15 @@ var Styles_init;
             lines.push("    "+keys[i]+": "+properties[keys[i]]+";\n");
         }
         return lines.join("");
-    }
+    });
 
     // Unfortunately, modifying the CSS stylesheet object associated with a style element
     // does not cause its text content to be updated. Thus, we have to do it ourselves.
     // To avoid doing this multiple times for a single editing operation, call the
     // scheduleApplyCSSTextChanges() function, which will cause the changes to be applied
     // when PostponedActions_perform() is next called.
-    function applyCSSTextChanges()
+    // private
+    var applyCSSTextChanges = trace(function applyCSSTextChanges()
     {
         if (cssTextDirty) {
             cssTextDirty = false;
@@ -260,13 +264,13 @@ var Styles_init;
                     return 0;
             }
         }
-    }
+    });
 
-    function scheduleApplyCSSTextChanges()
+    Styles_scheduleApplyCSSTextChanges = trace(function scheduleApplyCSSTextChanges()
     {
         cssTextDirty = true;
         PostponedActions_add(applyCSSTextChanges);
-    }
+    });
 
     function canonicaliseSelector(selector)
     {
@@ -274,7 +278,8 @@ var Styles_init;
         return selector.toLowerCase().replace(/\s+/g," ");
     }
 
-    function getOrCreateStyleElement()
+    // private
+    var getOrCreateStyleElement = trace(function getOrCreateStyleElement()
     {
         if (documentStyleElement != null)
             return documentStyleElement;
@@ -289,34 +294,34 @@ var Styles_init;
         DOM_setAttribute(documentStyleElement,"type","text/css");
         DOM_appendChild(head,documentStyleElement);
         return documentStyleElement;
-    }
+    });
 
     // public
-    function getAllStyles()
+    Styles_getAllStyles = trace(function getAllStyles()
     {
         return stylesById;
-    }
+    });
 
     // public
-    function setStyle(style)
+    Styles_setStyle = trace(function setStyle(style)
     {
         stylesById[style.styleId] = style;
-        scheduleApplyCSSTextChanges();
-    }
+        Styles_scheduleApplyCSSTextChanges();
+    });
 
     // public
-    function setStyleSheet(styles)
+    Styles_setStyleSheet = trace(function setStyleSheet(styles)
     {
         stylesById = styles;
-        scheduleApplyCSSTextChanges();
-    }
+        Styles_scheduleApplyCSSTextChanges();
+    });
 
     // public
-    function deleteStyleWithId(styleId)
+    Styles_deleteStyleWithId = trace(function deleteStyleWithId(styleId)
     {
         delete stylesById[styleId];
-        scheduleApplyCSSTextChanges();
-    }
+        Styles_scheduleApplyCSSTextChanges();
+    });
 
     var latentStyleGroups = {
         "td-paragraph-margins": ["td > *:first-child", "td > *:last-child"],
@@ -328,7 +333,7 @@ var Styles_init;
     };
 
     // public
-    function addDefaultRuleCategory(category)
+    Styles_addDefaultRuleCategory = trace(function addDefaultRuleCategory(category)
     {
         var selectors = latentStyleGroups[category];
         if (selectors == null)
@@ -336,10 +341,11 @@ var Styles_init;
         for (var i = 0; i < selectors.length; i++)
             styleForId(selectors[i]).latent = false;
 
-        scheduleApplyCSSTextChanges();
-    }
+        Styles_scheduleApplyCSSTextChanges();
+    });
 
-    function styleForId(selector,properties)
+    // private
+    var styleForId = trace(function styleForId(selector,properties)
     {
         selector = canonicaliseSelector(selector);
         var displayName = displayNameForSelector(selector);
@@ -354,9 +360,10 @@ var Styles_init;
                 style.rules.base.properties[name] = properties[name];
         }
         return style;
-    }
+    });
 
-    function defaultStyle(selector,type,latent,properties)
+    // private
+    var defaultStyle = trace(function defaultStyle(selector,type,latent,properties)
     {
         var style = styleForId(selector,properties);
         style.type = type;
@@ -369,10 +376,10 @@ var Styles_init;
         if (typeof(latent) == "boolean")
             style.latent = latent;
         return style;
-    }
+    });
 
     // public
-    function discoverStyles()
+    Styles_discoverStyles = trace(function discoverStyles()
     {
         for (var i = 0; i < document.styleSheets.length; i++) {
             var sheet = document.styleSheets[i];
@@ -401,9 +408,10 @@ var Styles_init;
                 }
             }
         }
-    }
+    });
 
-    function displayNameForSelector(selector)
+    // private
+    var displayNameForSelector = trace(function displayNameForSelector(selector)
     {
         selector = selector.replace(/_/g," ");
         var uppercaseSelector = selector.toUpperCase();
@@ -414,10 +422,10 @@ var Styles_init;
             return selector.substring(1);
         else
             return selector;
-    }
+    });
 
     // public
-    function init()
+    Styles_init = trace(function init()
     {
         stylesById = new Object();
 
@@ -485,19 +493,6 @@ var Styles_init;
         // to preserve them when re-generating the stylesheet text.
 
         Styles_discoverStyles();
-    }
-
-    Styles_scheduleApplyCSSTextChanges = trace(scheduleApplyCSSTextChanges);
-    Styles_getAllStyles = trace(getAllStyles);
-    Styles_setStyle = trace(setStyle);
-    Styles_setStyleSheet = trace(setStyleSheet);
-    Styles_deleteStyleWithId = trace(deleteStyleWithId);
-    Styles_addDefaultRuleCategory = trace(addDefaultRuleCategory);
-    Styles_discoverStyles = trace(discoverStyles);
-    Styles_init = trace(init);
-
-    condenseProperties = trace(condenseProperties);
-    propertyListText = trace(propertyListText);
-    applyCSSTextChanges = trace(applyCSSTextChanges);
+    });
 
 })();
