@@ -44,11 +44,10 @@ var Lists_setOrderedList;
     // public
     Lists_increaseIndent = trace(function increaseIndent()
     {
-        var range = Selection_get();
-        if (range == null)
-            return null;
-
-        range.trackWhileExecuting(function() {
+        Selection_preserveWhileExecuting(function() {
+            var range = Selection_get();
+            if (range == null)
+                return null;
 
             // Determine the set of LI nodes that are part of the selection
             // Note that these could be spread out all over the place, e.g. in different lists,
@@ -113,8 +112,6 @@ var Lists_setOrderedList;
             }
         });
 
-        Selection_setSelectionRange(range);
-
         function firstDescendentList(node)
         {
             while (true) {
@@ -141,11 +138,10 @@ var Lists_setOrderedList;
     // public
     Lists_decreaseIndent = trace(function decreaseIndent()
     {
-        var range = Selection_get();
-        if (range == null)
-            return null;
-
-        range.trackWhileExecuting(function() {
+        Selection_preserveWhileExecuting(function() {
+            var range = Selection_get();
+            if (range == null)
+                return null;
 
             // Determine the set of LI nodes that are part of the selection
             // Note that these could be spread out all over the place, e.g. in different lists,
@@ -237,8 +233,6 @@ var Lists_setOrderedList;
             }
         });
 
-        Selection_setSelectionRange(range);
-
         function findContainingListItem(node)
         {
             if (node == null)
@@ -303,11 +297,10 @@ var Lists_setOrderedList;
     // public
     Lists_clearList = trace(function clearList()
     {
-        var range = Selection_get();
-        if (range == null)
-            return;
-
-        range.trackWhileExecuting(function() {
+        Selection_preserveWhileExecuting(function() {
+            var range = Selection_get();
+            if (range == null)
+                return;
 
             var nodes = getListOperationNodes(range);
 
@@ -358,18 +351,15 @@ var Lists_setOrderedList;
                 }
             }
         });
-
-        Selection_setSelectionRange(range);
     });
 
     // private
     var setList = trace(function setList(type)
     {
-        var range = Selection_get();
-        if (range == null)
-            return;
-
-        range.trackWhileExecuting(function() {
+        Selection_preserveWhileExecuting(function() {
+            var range = Selection_get();
+            if (range == null)
+                return;
 
             var nodes = getListOperationNodes(range);
 
@@ -477,9 +467,6 @@ var Lists_setOrderedList;
                 }
             }
         });
-
-        Selection_setSelectionRange(range);
-        return;
     });
 
     // public
