@@ -7,7 +7,9 @@ var Lists_setUnorderedList;
 var Lists_setOrderedList;
 
 (function() {
-    function findLIElements(range)
+
+    // private
+    findLIElements = trace(function findLIElements(range)
     {
         var listItems = new Array();
 
@@ -37,10 +39,10 @@ var Lists_setOrderedList;
             if (!isWhitespaceTextNode(node))
                 addListItems(array,node.parentNode);
         }
-    }
+    });
 
     // public
-    function increaseIndent()
+    Lists_increaseIndent = trace(function increaseIndent()
     {
         var range = Selection_get();
         if (range == null)
@@ -134,10 +136,10 @@ var Lists_setOrderedList;
                     return node;
             }
         }
-    }
+    });
 
     // public
-    function decreaseIndent()
+    Lists_decreaseIndent = trace(function decreaseIndent()
     {
         var range = Selection_get();
         if (range == null)
@@ -247,10 +249,10 @@ var Lists_setOrderedList;
 
             return findContainingListItem(node.parentNode);
         }
-    }
+    });
 
     // public
-    function getListOperationNodes(range)
+    getListOperationNodes = trace(function getListOperationNodes(range)
     {
         var detail = range.detail();
         var dca = detail.commonAncestor;
@@ -296,10 +298,10 @@ var Lists_setOrderedList;
             }
         }
         return nodes;
-    }
+    });
 
     // public
-    function clearList()
+    Lists_clearList = trace(function clearList()
     {
         var range = Selection_get();
         if (range == null)
@@ -358,9 +360,10 @@ var Lists_setOrderedList;
         });
 
         Selection_setSelectionRange(range);
-    }
+    });
 
-    function setList(type)
+    // private
+    setList = trace(function setList(type)
     {
         var range = Selection_get();
         if (range == null)
@@ -477,24 +480,18 @@ var Lists_setOrderedList;
 
         Selection_setSelectionRange(range);
         return;
-    }
+    });
 
     // public
-    function setUnorderedList()
+    Lists_setUnorderedList = trace(function setUnorderedList()
     {
         setList("UL");
-    }
+    });
 
     // public
-    function setOrderedList()
+    Lists_setOrderedList = trace(function setOrderedList()
     {
         setList("OL");
-    }
-
-    Lists_increaseIndent = trace(increaseIndent);
-    Lists_decreaseIndent = trace(decreaseIndent);
-    Lists_clearList = trace(clearList);
-    Lists_setUnorderedList = trace(setUnorderedList);
-    Lists_setOrderedList = trace(setOrderedList);
+    });
 
 })();

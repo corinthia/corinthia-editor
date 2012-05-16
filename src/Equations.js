@@ -4,7 +4,7 @@ var Equations_insertEquation;
 
 (function() {
 
-    function insertEquation()
+    Equations_insertEquation = trace(function insertEquation()
     {
         var math = DOM_createElementNS(document,"http://www.w3.org/1998/Math/MathML","math");
         var mrow = DOM_createElementNS(document,"http://www.w3.org/1998/Math/MathML","mrow");
@@ -35,8 +35,6 @@ var Equations_insertEquation;
         DOM_appendChild(math,mrow);
 
         Clipboard_pasteNodes([math]);
-    }
-
-    Equations_insertEquation = trace(insertEquation);
+    });
 
 })();

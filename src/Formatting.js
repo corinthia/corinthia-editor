@@ -64,7 +64,8 @@ var Formatting_applyFormattingChanges;
         "border-left-style-rtl-source": null,
     };
 
-    function getStyleProperties(element,dontReplace)
+    // private
+    var getStyleProperties = trace(function getStyleProperties(element,dontReplace)
     {
         var properties = new Object();
 
@@ -86,10 +87,10 @@ var Formatting_applyFormattingChanges;
                 properties[replacement] = value;
         }
         return properties;
-    }
+    });
 
     // public (for testing purposes only)
-    function splitAroundSelection(range,allowDirectInline)
+    Formatting_splitAroundSelection = trace(function splitAroundSelection(range,allowDirectInline)
     {
         range.trackWhileExecuting(function() {
 
@@ -100,17 +101,17 @@ var Formatting_applyFormattingChanges;
 
             if ((range.start.node.nodeType == Node.TEXT_NODE) &&
                 (range.start.offset > 0)) {
-                splitTextBefore(range.start.node,range.start.offset);
+                Formatting_splitTextBefore(range.start.node,range.start.offset);
                 if (range.end.node == range.start.node)
                     range.end.offset -= range.start.offset;
                 range.start.offset = 0;
             }
             else if (range.start.node.nodeType == Node.ELEMENT_NODE) {
-                movePreceding(range.start.node,range.start.offset,isBlockNode);
+                Formatting_movePreceding(range.start.node,range.start.offset,isBlockNode);
             }
             else {
-                movePreceding(range.start.node.parentNode,DOM_nodeOffset(range.start.node),
-                              isBlockNode);
+                Formatting_movePreceding(range.start.node.parentNode,
+                                         DOM_nodeOffset(range.start.node),isBlockNode);
             }
 
             // Save the start and end position of the range. The mutation listeners will move it
@@ -122,14 +123,14 @@ var Formatting_applyFormattingChanges;
 
             if ((range.end.node.nodeType == Node.TEXT_NODE) &&
                 (range.end.offset < range.end.node.nodeValue.length)) {
-                splitTextAfter(range.end.node,range.end.offset);
+                Formatting_splitTextAfter(range.end.node,range.end.offset);
             }
             else if (range.end.node.nodeType == Node.ELEMENT_NODE) {
-                moveFollowing(range.end.node,range.end.offset,isBlockNode);
+                Formatting_moveFollowing(range.end.node,range.end.offset,isBlockNode);
             }
             else {
-                moveFollowing(range.end.node.parentNode,DOM_nodeOffset(range.end.node)+1,
-                              isBlockNode);
+                Formatting_moveFollowing(range.end.node.parentNode,DOM_nodeOffset(range.end.node)+1,
+                                         isBlockNode);
             }
 
             range.start.node = startNode;
@@ -137,10 +138,10 @@ var Formatting_applyFormattingChanges;
             range.end.node = endNode;
             range.end.offset = endOffset;
         });
-    }
+    });
 
     // public (for use by tests)
-    function mergeWithNeighbours(node,whiteList)
+    Formatting_mergeWithNeighbours = trace(function mergeWithNeighbours(node,whiteList)
     {
         var parent = node.parentNode;
         if (parent == null)
@@ -169,25 +170,26 @@ var Formatting_applyFormattingChanges;
                 DOM_mergeWithNextSibling(start,whiteList);
 
                 if (lastChild != null)
-                    mergeWithNeighbours(lastChild,whiteList);
+                    Formatting_mergeWithNeighbours(lastChild,whiteList);
             } while (!lastMerge);
         }
-    }
+    });
 
-    function mergeRange(range,whiteList)
+    // public
+    Formatting_mergeRange = trace(function mergeRange(range,whiteList)
     {
         var nodes = range.getAllNodes();
         for (var i = 0; i < nodes.length; i++) {
             var next;
             for (var p = nodes[i]; p != null; p = next) {
                 next = p.parentNode;
-                mergeWithNeighbours(p,whiteList);
+                Formatting_mergeWithNeighbours(p,whiteList);
             }
         }
-    }
+    });
 
     // public (called from cursor.js)
-    function splitTextBefore(node,offset,parentCheckFn,force)
+    Formatting_splitTextBefore = trace(function splitTextBefore(node,offset,parentCheckFn,force)
     {
         if (parentCheckFn == null)
             parentCheckFn = isBlockNode;
@@ -196,12 +198,12 @@ var Formatting_applyFormattingChanges;
         DOM_insertBefore(node.parentNode,before,node);
         DOM_deleteCharacters(node,0,offset);
 
-        movePreceding(node.parentNode,DOM_nodeOffset(node),parentCheckFn,force);
+        Formatting_movePreceding(node.parentNode,DOM_nodeOffset(node),parentCheckFn,force);
         return new Position(before,before.nodeValue.length);
-    }
+    });
 
     // public
-    function splitTextAfter(node,offset,parentCheckFn,force)
+    Formatting_splitTextAfter = trace(function splitTextAfter(node,offset,parentCheckFn,force)
     {
         if (parentCheckFn == null)
             parentCheckFn = isBlockNode;
@@ -210,15 +212,16 @@ var Formatting_applyFormattingChanges;
         DOM_insertBefore(node.parentNode,after,node.nextSibling);
         DOM_deleteCharacters(node,offset);
 
-        moveFollowing(node.parentNode,DOM_nodeOffset(node)+1,parentCheckFn,force);
+        Formatting_moveFollowing(node.parentNode,DOM_nodeOffset(node)+1,parentCheckFn,force);
         return new Position(after,0);
-    }
+    });
 
     // FIXME: movePreceding and moveNext could possibly be optimised by passing in a (parent,child)
     // pair instead of (node,offset), i.e. parent is the same as node, but rather than passing the
     // index of a child, we pass the child itself (or null if the offset is equal to
     // childNodes.length)
-    function movePreceding(node,offset,parentCheckFn,force)
+    // public
+    Formatting_movePreceding = trace(function movePreceding(node,offset,parentCheckFn,force)
     {
         if (parentCheckFn(node) || (node == document.body))
             return new Position(node,offset);
@@ -247,11 +250,12 @@ var Formatting_applyFormattingChanges;
             }
         }
 
-        movePreceding(node.parentNode,DOM_nodeOffset(node),parentCheckFn,force);
+        Formatting_movePreceding(node.parentNode,DOM_nodeOffset(node),parentCheckFn,force);
         return result;
-    }
+    });
 
-    function moveFollowing(node,offset,parentCheckFn,force)
+    // public
+    Formatting_moveFollowing = trace(function moveFollowing(node,offset,parentCheckFn,force)
     {
         if (parentCheckFn(node) || (node == document.body))
             return new Position(node,offset);
@@ -280,12 +284,12 @@ var Formatting_applyFormattingChanges;
             }
         }
 
-        moveFollowing(node.parentNode,DOM_nodeOffset(node)+1,parentCheckFn,force);
+        Formatting_moveFollowing(node.parentNode,DOM_nodeOffset(node)+1,parentCheckFn,force);
         return result;
-    }
+    });
 
     // public
-    function paragraphTextUpToPosition(pos)
+    Formatting_paragraphTextUpToPosition = trace(function paragraphTextUpToPosition(pos)
     {
         if (pos.node.nodeType == Node.TEXT_NODE) {
             return stringToStartOfParagraph(pos.node,pos.offset);
@@ -317,11 +321,10 @@ var Formatting_applyFormattingChanges;
             }
             return components.reverse().join("");
         }
-    }
-
+    });
 
     // public
-    function getFormatting()
+    Formatting_getFormatting = trace(function getFormatting()
     {
         // FIXME: implement a more efficient version of this algorithm which avoids duplicate checks
 
@@ -358,7 +361,7 @@ var Formatting_applyFormattingChanges;
 
         function getFlags(pos,commonProperties)
         {
-            var strBeforeCursor = paragraphTextUpToPosition(pos);
+            var strBeforeCursor = Formatting_paragraphTextUpToPosition(pos);
 
             if (isWhitespaceString(strBeforeCursor)) {
                 var firstInParagraph = true;
@@ -397,9 +400,10 @@ var Formatting_applyFormattingChanges;
                     findLeafNodes(child,result);
             }
         }
-    }
+    });
 
-    function getAllProperties(node)
+    // private
+    var getAllProperties = trace(function getAllProperties(node)
     {
         if (node == node.ownerDocument.body)
             return new Object();
@@ -486,7 +490,7 @@ var Formatting_applyFormattingChanges;
         }
 
         return properties;
-    }
+    });
 
     var PARAGRAPH_PROPERTIES = {
         "margin-left": true,
@@ -538,7 +542,9 @@ var Formatting_applyFormattingChanges;
         return !PARAGRAPH_PROPERTIES[name] && !SPECIAL_PROPERTIES[name];
     }
 
-    function putDirectInlineChildrenInParagraphs(parent)
+    // private
+    var putDirectInlineChildrenInParagraphs = trace(
+        function putDirectInlineChildrenInParagraphs(parent)
     {
         var inlineChildren = new Array();
         for (var child = parent.firstChild; child != null; child = child.nextSibling)
@@ -549,9 +555,10 @@ var Formatting_applyFormattingChanges;
                 Hierarchy_wrapInlineNodesInParagraph(inlineChildren[i]);
             }
         }
-    }
+    });
 
-    function getParagraphs(nodes)
+    // private
+    var getParagraphs = trace(function getParagraphs(nodes)
     {
         var array = new Array();
         var set = new NodeSet();
@@ -595,9 +602,10 @@ var Formatting_applyFormattingChanges;
                 set.add(node);
             }
         }
-    }
+    });
 
-    function setParagraphStyle(paragraph,style)
+    // private
+    var setParagraphStyle = trace(function setParagraphStyle(paragraph,style)
     {
         var wasHeading = isHeadingNode(paragraph);
         DOM_removeAttribute(paragraph,"class");
@@ -619,15 +627,17 @@ var Formatting_applyFormattingChanges;
         var isHeading = isHeadingNode(paragraph);
         if (wasHeading && !isHeading)
             DOM_removeAttribute(paragraph,"id");
-    }
+    });
 
-    function pushDownInlineProperties(outermost)
+    // public
+    Formatting_pushDownInlineProperties = trace(function pushDownInlineProperties(outermost)
     {
         for (var i = 0; i < outermost.length; i++)
             outermost[i] = pushDownInlinePropertiesSingle(outermost[i]);
-    }
+    });
 
-    function pushDownInlinePropertiesSingle(target)
+    // private
+    var pushDownInlinePropertiesSingle = trace(function pushDownInlinePropertiesSingle(target)
     {
         recurse(target.parentNode);
         return target;
@@ -691,9 +701,10 @@ var Formatting_applyFormattingChanges;
                 (DOM_upperName(node) == "U"))
                 DOM_removeNodeButKeepChildren(node);
         }
-    }
+    });
 
-    function wrapInline(node,elementName)
+    // private
+    var wrapInline = trace(function wrapInline(node,elementName)
     {
         if (!isInlineNode(node)) {
             var next;
@@ -706,9 +717,11 @@ var Formatting_applyFormattingChanges;
         else {
             return DOM_wrapNode(node,elementName);
         }
-    }
+    });
 
-    function applyInlineFormatting(target,inlineProperties,special,applyToWhitespace)
+    // private
+    var applyInlineFormatting = trace(function applyInlineFormatting(target,inlineProperties,
+                                                                     special,applyToWhitespace)
     {
         if (!applyToWhitespace && isWhitespaceTextNode(target))
             return;
@@ -738,9 +751,10 @@ var Formatting_applyFormattingChanges;
         DOM_setStyleProperties(target,propertiesToSet);
 
         return target;
-    }
+    });
 
-    function extractSpecial(properties)
+    // private
+    var extractSpecial = trace(function extractSpecial(properties)
     {
         var special = { bold: null, italic: null, underline: null };
         var fontWeight = properties["font-weight"];
@@ -781,9 +795,10 @@ var Formatting_applyFormattingChanges;
             }
         }
         return special;
-    }
+    });
 
-    function removeProperties(outermost,properties)
+    // private
+    var removeProperties = trace(function removeProperties(outermost,properties)
     {
         properties = clone(properties);
         var special = extractSpecial(properties);
@@ -792,9 +807,10 @@ var Formatting_applyFormattingChanges;
             removePropertiesSingle(outermost[i],properties,special,remaining);
         }
         return remaining;
-    }
+    });
 
-    function getOutermostParagraphs(paragraphs)
+    // private
+    var getOutermostParagraphs = trace(function getOutermostParagraphs(paragraphs)
     {
         var all = new NodeSet();
         for (var i = 0; i < paragraphs.length; i++)
@@ -813,9 +829,11 @@ var Formatting_applyFormattingChanges;
                 result.push(paragraphs[i]);
         }
         return result;
-    }
+    });
 
-    function removePropertiesSingle(node,properties,special,remaining)
+    // private
+    var removePropertiesSingle = trace(function removePropertiesSingle(node,properties,
+                                                                       special,remaining)
     {
         if ((node.nodeType == Node.ELEMENT_NODE) && (node.hasAttribute("style"))) {
             var remove = new Object();
@@ -848,19 +866,20 @@ var Formatting_applyFormattingChanges;
             return (span.hasAttribute("class") &&
                     (span.getAttribute("class").indexOf(Keys.UXWRITE_PREFIX) == 0));
         }
-    }
+    });
 
-    function containsOnlyWhitespace(ancestor)
+    // private
+    var containsOnlyWhitespace = trace(function containsOnlyWhitespace(ancestor)
     {
         for (child = ancestor.firstChild; child != null; child = child.nextSibling) {
             if (!isWhitespaceTextNode(child))
                 return false;
         }
         return true;
-    }
+    });
 
     // public
-    function applyFormattingChanges(style,properties)
+    Formatting_applyFormattingChanges = trace(function applyFormattingChanges(style,properties)
     {
         if (properties == null)
             properties = new Object();
@@ -905,7 +924,7 @@ var Formatting_applyFormattingChanges;
 
         var allowDirectInline = (style == null);
         Position.trackWhileExecuting(positions,function() {
-            splitAroundSelection(range,allowDirectInline);
+            Formatting_splitAroundSelection(range,allowDirectInline);
             range.expand();
             if (!allowDirectInline)
                 range.ensureRangeInlineNodesInParagraph();
@@ -921,7 +940,7 @@ var Formatting_applyFormattingChanges;
                 paragraphs = getParagraphs([range.singleNode()]);
 
             // Push down inline properties
-            pushDownInlineProperties(outermost);
+            Formatting_pushDownInlineProperties(outermost);
 
             outermost = removeProperties(outermost,inlineProperties);
 
@@ -962,12 +981,12 @@ var Formatting_applyFormattingChanges;
                 }
             }
 
-            mergeRange(range,Formatting_MERGEABLE_INLINE);
+            Formatting_mergeRange(range,Formatting_MERGEABLE_INLINE);
 
             if (target != null) {
                 for (var p = target; p != null; p = next) {
                     next = p.parentNode;
-                    mergeWithNeighbours(p,Formatting_MERGEABLE_INLINE);
+                    Formatting_mergeWithNeighbours(p,Formatting_MERGEABLE_INLINE);
                 }
             }
         });
@@ -977,19 +996,7 @@ var Formatting_applyFormattingChanges;
         var start = Cursor_closestPositionForwards(selectionRange.start);
         var end = Cursor_closestPositionForwards(selectionRange.end);
         Selection_setSelectionRange(new Range(start.node,start.offset,end.node,end.offset));
-    }
-
-    Formatting_splitTextBefore = trace(splitTextBefore);
-    Formatting_splitTextAfter = trace(splitTextAfter);
-    Formatting_movePreceding = trace(movePreceding);
-    Formatting_moveFollowing = trace(moveFollowing);
-    Formatting_splitAroundSelection = trace(splitAroundSelection);
-    Formatting_mergeWithNeighbours = trace(mergeWithNeighbours);
-    Formatting_mergeRange = trace(mergeRange);
-    Formatting_paragraphTextUpToPosition = trace(paragraphTextUpToPosition);
-    Formatting_getFormatting = trace(getFormatting);
-    Formatting_pushDownInlineProperties = trace(pushDownInlineProperties);
-    Formatting_applyFormattingChanges = trace(applyFormattingChanges);
+    });
 
     Formatting_MERGEABLE_INLINE = {
         "SPAN": true,

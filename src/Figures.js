@@ -7,7 +7,7 @@ var Figures_setProperties;
 (function() {
 
     // public
-    function insertFigure(filename,width,numbered,caption)
+    Figures_insertFigure = trace(function insertFigure(filename,width,numbered,caption)
     {
         Styles_addDefaultRuleCategory("figure");
 
@@ -29,10 +29,10 @@ var Figures_setProperties;
         // have noticed it and added an id attribute, as well as a caption giving the
         // table number.
         Outline_setNumbered(figure.getAttribute("id"),numbered);
-    }
+    });
 
-
-    function getSelectedFigureElement()
+    // private
+    var getSelectedFigureElement = trace(function getSelectedFigureElement()
     {
         var selectionRange = Selection_get();
         if (selectionRange == null)
@@ -42,10 +42,10 @@ var Figures_setProperties;
             return matches[0];
         else
             return null;
-    }
+    });
 
     // public
-    function getProperties()
+    Figures_getProperties = trace(function getProperties()
     {
         var figure = getSelectedFigureElement();
         if (figure == null)
@@ -59,10 +59,10 @@ var Figures_setProperties;
         }
         result.itemId = figure.getAttribute("id");
         return result;
-    }
+    });
 
     // public
-    function setProperties(itemId,width,src)
+    Figures_setProperties = trace(function setProperties(itemId,width,src)
     {
         var figure = Outline_getItemElement(itemId);
         for (var child = figure.firstChild; child != null; child = child.nextSibling) {
@@ -77,10 +77,6 @@ var Figures_setProperties;
                     DOM_removeAttribute(child,"style");
             }
         }
-    }
-
-    Figures_insertFigure = trace(insertFigure);
-    Figures_getProperties = trace(getProperties);
-    Figures_setProperties = trace(setProperties);
+    });
 
 })();
