@@ -9,7 +9,7 @@ var Lists_setOrderedList;
 (function() {
 
     // private
-    findLIElements = trace(function findLIElements(range)
+    var findLIElements = trace(function findLIElements(range)
     {
         var listItems = new Array();
 
@@ -252,7 +252,7 @@ var Lists_setOrderedList;
     });
 
     // public
-    getListOperationNodes = trace(function getListOperationNodes(range)
+    var getListOperationNodes = trace(function getListOperationNodes(range)
     {
         var detail = range.detail();
         var dca = detail.commonAncestor;
@@ -363,7 +363,7 @@ var Lists_setOrderedList;
     });
 
     // private
-    setList = trace(function setList(type)
+    var setList = trace(function setList(type)
     {
         var range = Selection_get();
         if (range == null)
