@@ -27,6 +27,7 @@ var Selection_trackWhileExecuting;
     var tableSelection = null;
 
     // public
+    Selection_getCursorRect = getCursorRect = trace(getCursorRect);
     function getCursorRect()
     {
         if (selectionRange == null)
@@ -116,7 +117,8 @@ var Selection_trackWhileExecuting;
         }
     }
 
-
+    // private
+    updateTableSelection = trace(updateTableSelection);
     function updateTableSelection()
     {
         tableSelection = Tables_regionFromRange(selectionRange);
@@ -163,6 +165,7 @@ var Selection_trackWhileExecuting;
     }
 
     // public
+    Selection_updateSelectionDisplay = updateSelectionDisplay = trace(updateSelectionDisplay);
     function updateSelectionDisplay()
     {
         for (var i = 0; i < selectionDivs.length; i++)
@@ -272,6 +275,7 @@ var Selection_trackWhileExecuting;
     }
 
     // public
+    Selection_selectAll = selectAll = trace(selectAll);
     function selectAll()
     {
         selectionRange = new Range(document.body,0,
@@ -280,6 +284,7 @@ var Selection_trackWhileExecuting;
     }
 
     // public
+    Selection_selectParagraph = selectParagraph = trace(selectParagraph);
     function selectParagraph()
     {
         if (selectionRange == null)
@@ -309,6 +314,8 @@ var Selection_trackWhileExecuting;
         Selection_setSelectionRange(paragraphRange);
     }
 
+    // private
+    getPunctuationCharsForRegex = trace(getPunctuationCharsForRegex);
     function getPunctuationCharsForRegex()
     {
         var escaped = "^$\\.*+?()[]{}|"; // From ECMAScript regexp spec (PatternCharacter)
@@ -332,6 +339,7 @@ var Selection_trackWhileExecuting;
     var reWordOtherStart = new RegExp("^["+wsPunctuation+"]*[^"+wsPunctuation+"]*");
 
     // public
+    Selection_selectWordAtCursor = selectWordAtCursor = trace(selectWordAtCursor);
     function selectWordAtCursor()
     {
         var selectionRange = Selection_get();
@@ -407,6 +415,7 @@ var Selection_trackWhileExecuting;
     var originalDragEnd = null;
 
     // public
+    Selection_dragSelectionBegin = dragSelectionBegin = trace(dragSelectionBegin);
     function dragSelectionBegin(x,y,selectWord)
     {
         selectionRange = null;
@@ -430,6 +439,7 @@ var Selection_trackWhileExecuting;
     }
 
     // public
+    Selection_dragSelectionUpdate = dragSelectionUpdate = trace(dragSelectionUpdate);
     function dragSelectionUpdate(x,y)
     {
         // It is possible that when the user first double-tapped, there was no point at that
@@ -467,6 +477,8 @@ var Selection_trackWhileExecuting;
     }
 
     // public
+    Selection_setSelectionStartAtCoords = setSelectionStartAtCoords =
+        trace(setSelectionStartAtCoords);
     function setSelectionStartAtCoords(x,y)
     {
         var position = positionAtPoint(x,y);
@@ -482,6 +494,7 @@ var Selection_trackWhileExecuting;
     }
 
     // public
+    Selection_setSelectionEndAtCoords = setSelectionEndAtCoords = trace(setSelectionEndAtCoords);
     function setSelectionEndAtCoords(x,y)
     {
         var position = positionAtPoint(x,y);
@@ -497,6 +510,8 @@ var Selection_trackWhileExecuting;
     }
 
     // public
+    Selection_setTableSelectionEdgeAtCoords = setTableSelectionEdgeAtCoords =
+        trace(setTableSelectionEdgeAtCoords);
     function setTableSelectionEdgeAtCoords(edge,x,y)
     {
         if (tableSelection == null)
@@ -550,6 +565,7 @@ var Selection_trackWhileExecuting;
     }
 
     // public
+    Selection_get = get = trace(get);
     function get()
     {
         if (selectionRange == null) {
@@ -562,6 +578,7 @@ var Selection_trackWhileExecuting;
     }
 
     // public
+    Selection_setSelectionRange = setSelectionRange = trace(setSelectionRange);
     function setSelectionRange(range)
     {
         if (range == null) {
@@ -575,11 +592,14 @@ var Selection_trackWhileExecuting;
     }
 
     // public
+    Selection_setEmptySelectionAt = setEmptySelectionAt = trace(setEmptySelectionAt);
     function setEmptySelectionAt(node,offset)
     {
         Selection_setSelectionRange(new Range(node,offset,node,offset));
     }
 
+    // private
+    deleteTextSelection = trace(deleteTextSelection);
     function deleteTextSelection(selectionRange)
     {
         var nodes = selectionRange.getOutermostNodes();
@@ -646,6 +666,7 @@ var Selection_trackWhileExecuting;
     }
 
     // public
+    Selection_deleteSelectionContents = deleteSelectionContents = trace(deleteSelectionContents);
     function deleteSelectionContents(allowInvalidCursorPos)
     {
         if (selectionRange == null)
@@ -673,6 +694,8 @@ var Selection_trackWhileExecuting;
         }
     }
 
+    // private
+    removeParagraphDescendants = trace(removeParagraphDescendants);
     function removeParagraphDescendants(parent)
     {
         var next;
@@ -684,6 +707,8 @@ var Selection_trackWhileExecuting;
         }
     }
 
+    // private
+    findFirstParagraph = trace(findFirstParagraph);
     function findFirstParagraph(node)
     {
         if (isParagraphNode(node))
@@ -720,6 +745,8 @@ var Selection_trackWhileExecuting;
         }
     }
 
+    // private
+    prepareForMerge = trace(prepareForMerge);
     function prepareForMerge(detail)
     {
         if (isParagraphNode(detail.startAncestor) && isInlineNode(detail.endAncestor)) {
@@ -776,6 +803,7 @@ var Selection_trackWhileExecuting;
     }
 
     // public
+    Selection_clearSelection = clearSelection = trace(clearSelection);
     function clearSelection()
     {
         selectionRange = null;
@@ -783,6 +811,7 @@ var Selection_trackWhileExecuting;
     }
 
     // public
+    Selection_trackWhileExecuting = trackWhileExecuting = trace(trackWhileExecuting);
     function trackWhileExecuting(fun)
     {
         if (selectionRange == null)
@@ -790,24 +819,5 @@ var Selection_trackWhileExecuting;
         else
             return selectionRange.trackWhileExecuting(fun);
     }
-
-    Selection_getCursorRect = trace(getCursorRect);
-    Selection_updateSelectionDisplay = trace(updateSelectionDisplay);
-    Selection_selectAll = trace(selectAll);
-    Selection_selectParagraph = trace(selectParagraph);
-    Selection_selectWordAtCursor = trace(selectWordAtCursor);
-    Selection_dragSelectionBegin = dragSelectionBegin;
-    Selection_dragSelectionUpdate = dragSelectionUpdate;
-    Selection_setSelectionStartAtCoords = trace(setSelectionStartAtCoords);
-    Selection_setSelectionEndAtCoords = trace(setSelectionEndAtCoords);
-    Selection_setTableSelectionEdgeAtCoords = trace(setTableSelectionEdgeAtCoords);
-    Selection_get = trace(get);
-    Selection_setSelectionRange = trace(setSelectionRange);
-    Selection_setEmptySelectionAt = trace(setEmptySelectionAt);
-    Selection_deleteSelectionContents = trace(deleteSelectionContents);
-    Selection_clearSelection = trace(clearSelection);
-    Selection_trackWhileExecuting = trace(trackWhileExecuting);
-
-    updateTableSelection = trace(updateTableSelection);
 
 })();
