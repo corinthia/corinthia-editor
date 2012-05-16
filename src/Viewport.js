@@ -13,7 +13,7 @@ var Viewport_setTextScale;
     var viewportMetaElement = null;
 
     // public
-    function init()
+    Viewport_init = trace(function init()
     {
         var head = DOM_documentHead(document);
         for (var child = head.firstChild; child != null; child = child.nextSibling) {
@@ -29,10 +29,10 @@ var Viewport_setTextScale;
             DOM_appendChild(head,viewportMetaElement);
         }
         DOM_setAttribute(viewportMetaElement,"content","width = device-width, user-scalable = no");
-    }
+    });
 
     // public
-    function setViewportSize(width,height)
+    Viewport_setViewportSize = trace(function setViewportSize(width,height)
     {
         viewportWidth = width;
         viewportHeight = height;
@@ -40,34 +40,28 @@ var Viewport_setTextScale;
 
         Selection_updateSelectionDisplay();
         Cursor_ensureCursorVisible();
-    }
+    });
 
     // public
-    function getViewportWidth()
+    Viewport_getViewportWidth = trace(function getViewportWidth()
     {
         return viewportWidth;
-    }
+    });
 
     // public
-    function getViewportHeight()
+    Viewport_getViewportHeight = trace(function getViewportHeight()
     {
         return viewportHeight;
-    }
+    });
 
     // public
-    function setTextScale(textScale)
+    Viewport_setTextScale = trace(function setTextScale(textScale)
     {
         var pct = Math.floor(textScale*100)+"%";
         DOM_setStyleProperties(document.documentElement,{"-webkit-text-size-adjust": pct});
 
         Selection_updateSelectionDisplay();
         Cursor_ensureCursorVisible();
-    }
-
-    Viewport_init = trace(init);
-    Viewport_setViewportSize = trace(setViewportSize);
-    Viewport_getViewportWidth = getViewportWidth;
-    Viewport_getViewportHeight = getViewportHeight;
-    Viewport_setTextScale = trace(setTextScale);
+    });
 
 })();
