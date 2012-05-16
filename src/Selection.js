@@ -3,7 +3,9 @@
 // FIXME: cursor does not display correctly if it is after a space at the end of the line
 
 var Selection_getCursorRect;
+var Selection_hide;
 var Selection_updateSelectionDisplay;
+var Selection_show;
 var Selection_selectAll;
 var Selection_selectParagraph;
 var Selection_selectWordAtCursor;
@@ -13,10 +15,13 @@ var Selection_setSelectionStartAtCoords;
 var Selection_setSelectionEndAtCoords;
 var Selection_setTableSelectionEdgeAtCoords;
 var Selection_get;
+var Selection_set;
+var Selection_clear;
 var Selection_setSelectionRange;
 var Selection_setEmptySelectionAt;
 var Selection_deleteSelectionContents;
 var Selection_clearSelection;
+var Selection_hideWhileExecuting;
 var Selection_trackWhileExecuting;
 
 (function() {
@@ -25,6 +30,7 @@ var Selection_trackWhileExecuting;
     var selectionRange = null;
 
     var tableSelection = null;
+    var selectionVisible = true;
 
     // public
     Selection_getCursorRect = getCursorRect = trace(getCursorRect);
@@ -164,10 +170,13 @@ var Selection_trackWhileExecuting;
         return true;
     }
 
-    // private
-    hideSelection = trace(hideSelection);
-    function hideSelection()
+    // public
+    Selection_hide = hide = trace(hide);
+    function hide()
     {
+        if (!selectionVisible)
+            throw new Error("Selection is already hidden");
+        selectionVisible = false;
         for (var i = 0; i < selectionDivs.length; i++)
             DOM_deleteNode(selectionDivs[i]);
         selectionDivs = new Array();
@@ -177,8 +186,17 @@ var Selection_trackWhileExecuting;
     Selection_updateSelectionDisplay = updateSelectionDisplay = trace(updateSelectionDisplay);
     function updateSelectionDisplay()
     {
-        hideSelection();
+        if (selectionVisible)
+            hide();
+        show();
+    }
 
+    Selection_show = show = trace(show);
+    function show()
+    {
+        if (selectionVisible)
+            throw new Error("Selection is already visible");
+        selectionVisible = true;
         var rects = null;
         if (selectionRange != null)
             rects = selectionRange.getClientRects();
@@ -296,29 +314,22 @@ var Selection_trackWhileExecuting;
     {
         if (selectionRange == null)
             return;
+        Selection_hideWhileExecuting(function() {
+            var startNode = selectionRange.start.closestActualNode();
+            while (!isParagraphNode(startNode) && !isContainerNode(startNode))
+                startNode = startNode.parentNode;
 
-        selectionRange = selectionRange.forwards();
-
-        var startNode = selectionRange.start.closestActualNode();
-        while (!isParagraphNode(startNode) && !isContainerNode(startNode))
-            startNode = startNode.parentNode;
-
-        var endNode = selectionRange.end.closestActualNode();
-        while (!isParagraphNode(endNode) && !isContainerNode(endNode))
+            var endNode = selectionRange.end.closestActualNode();
+            while (!isParagraphNode(endNode) && !isContainerNode(endNode))
                 endNode = endNode.parentNode;
 
-        var startPos = new Position(startNode.parentNode,DOM_nodeOffset(startNode));
-        var endPos = new Position(endNode.parentNode,DOM_nodeOffset(endNode)+1);
-        startPos = Cursor_closestPositionForwards(startPos);
-        endPos = Cursor_closestPositionBackwards(endPos);
-        var paragraphRange = new Range(startPos.node,startPos.offset,
-                                       endPos.node,endPos.offset);
-        if (!paragraphRange.isForwards()) {
-             paragraphRange = new Range(startPos.node,startPos.offset,
-                                        startPos.node,startPos.offset);
-        }
+            var startPos = new Position(startNode.parentNode,DOM_nodeOffset(startNode));
+            var endPos = new Position(endNode.parentNode,DOM_nodeOffset(endNode)+1);
+            startPos = Cursor_closestPositionForwards(startPos);
+            endPos = Cursor_closestPositionBackwards(endPos);
 
-        Selection_setSelectionRange(paragraphRange);
+            Selection_set(startPos.node,startPos.offset,endPos.node,endPos.offset);
+        });
     }
 
     // private
@@ -335,10 +346,17 @@ var Selection_trackWhileExecuting;
         return unescaped + escaped.replace(/(.)/g,"\\$1");
     }
 
-    // The following are used by selectWordAtCursor(). We initialise them at startup to avoid
-    // repeating them
+    // The following regular expressions are used by selectWordAtCursor(). We initialise them at
+    // startup to avoid repeatedly initialising them.
     var punctuation = getPunctuationCharsForRegex();
     var wsPunctuation = "\\s"+punctuation;
+
+    // Note: We use a blacklist of punctuation characters here instead of a whitelist of "word"
+    // characters, as the \w character class in javascript regular expressions only matches
+    // characters in english words. By using a blacklist, and assuming every other character is
+    // part of a word, we can select words containing non-english characters. This isn't a perfect
+    // solution, because there are many unicode characters that represent punctuation as well, but
+    // at least we handle the common ones here.
 
     var reOtherEnd = new RegExp("["+wsPunctuation+"]*$");
     var reOtherStart = new RegExp("^["+wsPunctuation+"]*");
@@ -352,70 +370,57 @@ var Selection_trackWhileExecuting;
         var selectionRange = Selection_get();
         if (selectionRange == null)
             return;
-        var pos = Cursor_closestPositionBackwards(selectionRange.end);
 
-        // Note: We use a blacklist of punctuation characters here instead of a whitelist of
-        // "word" characters, as the \w character class in javascript regular expressions only
-        // matches characters in english words. By using a blacklist, and assuming every other
-        // character is part of a word, we can select words containing non-english characters.
-        // This isn't a perfect solution, because there are many unicode characters that represent
-        // punctuation as well, but at least we handle the common ones here.
+        Selection_hideWhileExecuting(function() {
+            var pos = Cursor_closestPositionBackwards(selectionRange.end);
+            var node = pos.node;
+            var offset = pos.offset;
 
+            if (node.nodeType == Node.TEXT_NODE) {
+                var before = node.nodeValue.substring(0,offset);
+                var after = node.nodeValue.substring(offset);
 
-        var node = pos.node;
-        var offset = pos.offset;
-        if (node.nodeType == Node.TEXT_NODE) {
-            var before = node.nodeValue.substring(0,offset);
-            var after = node.nodeValue.substring(offset);
+                var otherBefore = before.match(reOtherEnd)[0];
+                var otherAfter = after.match(reOtherStart)[0];
 
-            var otherBefore = before.match(reOtherEnd)[0];
-            var otherAfter = after.match(reOtherStart)[0];
+                var wordOtherBefore = before.match(reWordOtherEnd)[0];
+                var wordOtherAfter = after.match(reWordOtherStart)[0];
 
-            var wordOtherBefore = before.match(reWordOtherEnd)[0];
-            var wordOtherAfter = after.match(reWordOtherStart)[0];
+                var startOffset = offset;
+                var endOffset = offset;
 
-            var startOffset = offset;
-            var endOffset = offset;
+                var haveWordBefore = (wordOtherBefore.length != otherBefore.length);
+                var haveWordAfter = (wordOtherAfter.length != otherAfter.length);
 
-            var haveWordBefore = (wordOtherBefore.length != otherBefore.length);
-            var haveWordAfter = (wordOtherAfter.length != otherAfter.length);
+                if ((otherBefore.length == 0) && (otherAfter.length == 0)) {
+                    startOffset = offset - wordOtherBefore.length;
+                    endOffset = offset + wordOtherAfter.length;
+                }
+                else if (haveWordBefore && !haveWordAfter) {
+                    startOffset = offset - wordOtherBefore.length;
+                }
+                else if (haveWordAfter && !haveWordBefore) {
+                    endOffset = offset + wordOtherAfter.length;
+                }
+                else if (otherBefore.length <= otherAfter.length) {
+                    startOffset = offset - wordOtherBefore.length;
+                }
+                else {
+                    endOffset = offset + wordOtherAfter.length;
+                }
 
-            if ((otherBefore.length == 0) && (otherAfter.length == 0)) {
-                startOffset = offset - wordOtherBefore.length;
-                endOffset = offset + wordOtherAfter.length;
+                Selection_set(node,startOffset,node,endOffset);
             }
-            else if (haveWordBefore && !haveWordAfter) {
-                startOffset = offset - wordOtherBefore.length;
-            }
-            else if (haveWordAfter && !haveWordBefore) {
-                endOffset = offset + wordOtherAfter.length;
-            }
-            else if (otherBefore.length <= otherAfter.length) {
-                startOffset = offset - wordOtherBefore.length;
-            }
-            else {
-                endOffset = offset + wordOtherAfter.length;
-            }
+            else if (node.nodeType == Node.ELEMENT_NODE) {
+                var nodeBefore = node.childNodes[offset-1];
+                var nodeAfter = node.childNodes[offset];
 
-            Selection_setSelectionRange(new Range(node,startOffset,node,endOffset));
-
-        }
-        else if (node.nodeType == Node.ELEMENT_NODE) {
-            var nodeBefore = null;
-            var nodeAfter = null;
-
-            if (offset > 0)
-                nodeBefore = node.childNodes[offset-1];
-            if (offset+1 < node.childNodes.length)
-                nodeAfter = node.childNodes[offset];
-
-            if ((nodeBefore != null) && !isWhitespaceTextNode(nodeBefore)) {
-                Selection_setSelectionRange(new Range(node,offset-1,node,offset));
+                if ((nodeBefore != null) && !isWhitespaceTextNode(nodeBefore))
+                    Selection_set(node,offset-1,node,offset);
+                else if ((nodeAfter != null) && !isWhitespaceTextNode(nodeAfter))
+                    Selection_set(node,offset,node,offset+1);
             }
-            else if ((nodeAfter != null) && !isWhitespaceTextNode(nodeAfter)) {
-                Selection_setSelectionRange(new Range(node,offset,node,offset+1));
-            }
-        }
+        });
     }
 
     var originalDragStart = null;
@@ -429,20 +434,25 @@ var Selection_trackWhileExecuting;
         originalDragStart = null;
         originalDragEnd = null;
 
-        var pos = Cursor_closestPositionForwards(positionAtPoint(x,y));
-        if (pos != null) {
-            selectionRange = new Range(pos.node,pos.offset,pos.node,pos.offset);
-            if (selectWord)
-                Selection_selectWordAtCursor();
-            originalDragStart = new Position(selectionRange.start.node,selectionRange.start.offset);
-            originalDragEnd = new Position(selectionRange.end.node,selectionRange.end.offset);
-            Selection_updateSelectionDisplay();
+        var result = Selection_hideWhileExecuting(function() {
+            var pos = Cursor_closestPositionForwards(positionAtPoint(x,y));
+            if (pos == null)
+                return "error";
+
+            Selection_set(pos.node,pos.offset,pos.node,pos.offset);
             return "end";
+        });
+
+        if (selectWord) {
+            Selection_selectWordAtCursor();
+            if (result != "error") {
+                originalDragStart = new Position(selectionRange.start.node,
+                                                 selectionRange.start.offset);
+                originalDragEnd = new Position(selectionRange.end.node,
+                                               selectionRange.end.offset);
+            }
         }
-        else {
-            Selection_updateSelectionDisplay();
-            return "error";
-        }
+        return result;
     }
 
     // public
@@ -455,32 +465,35 @@ var Selection_trackWhileExecuting;
         if ((originalDragStart == null) || (originalDragEnd == null))
             return dragSelectionBegin(x,y);
 
-        var pos = Cursor_closestPositionForwards(positionAtPoint(x,y));
-        if (pos != null) {
+        return Selection_hideWhileExecuting(function() {
+            var pos = Cursor_closestPositionForwards(positionAtPoint(x,y));
+            if (pos != null) {
 
-            var startToPos = new Range(originalDragStart.node,originalDragStart.offset,
-                                       pos.node,pos.offset);
-            var posToEnd = new Range(pos.node,pos.offset,
-                                     originalDragEnd.node,originalDragEnd.offset);
-
-            if (startToPos.isForwards() && posToEnd.isForwards()) {
-                // Position is within the original selection
-                var original = new Range(originalDragStart.node,originalDragStart.offset,
+                var startToPos = new Range(originalDragStart.node,originalDragStart.offset,
+                                           pos.node,pos.offset);
+                var posToEnd = new Range(pos.node,pos.offset,
                                          originalDragEnd.node,originalDragEnd.offset);
-                Selection_setSelectionRange(original);
+
+                if (startToPos.isForwards() && posToEnd.isForwards()) {
+                    // Position is within the original selection
+                    Selection_set(originalDragStart.node,originalDragStart.offset,
+                                  originalDragEnd.node,originalDragEnd.offset)
+                }
+                else if (!startToPos.isForwards()) {
+                    // Position comes before the start
+                    Selection_set(posToEnd.start.node,posToEnd.start.offset,
+                                  posToEnd.end.node,posToEnd.end.offset);
+                    return "start";
+                }
+                else if (!posToEnd.isForwards()) {
+                    // Position comes after the end
+                    Selection_set(startToPos.start.node,startToPos.start.offset,
+                                  startToPos.end.node,startToPos.end.offset);
+                    return "end";
+                }
             }
-            else if (!startToPos.isForwards()) {
-                // Position comes before the start
-                Selection_setSelectionRange(posToEnd);
-                return "start";
-            }
-            else if (!posToEnd.isForwards()) {
-                // Position comes after the end
-                Selection_setSelectionRange(startToPos);
-                return "end";
-            }
-        }
-        return "none";
+            return "none";
+        });
     }
 
     // public
@@ -529,29 +542,31 @@ var Selection_trackWhileExecuting;
         if (pointInfo == null)
             return;
 
-        if (edge == "topLeft") {
-            if (pointInfo.row <= tableSelection.bottom)
-                tableSelection.top = pointInfo.row;
-            if (pointInfo.col <= tableSelection.right)
-                tableSelection.left = pointInfo.col;
-        }
-        else if (edge == "bottomRight") {
-            if (pointInfo.row >= tableSelection.top)
-                tableSelection.bottom = pointInfo.row;
-            if (pointInfo.col >= tableSelection.left)
-                tableSelection.right = pointInfo.col;
-        }
+        Selection_hideWhileExecuting(function() {
+            if (edge == "topLeft") {
+                if (pointInfo.row <= tableSelection.bottom)
+                    tableSelection.top = pointInfo.row;
+                if (pointInfo.col <= tableSelection.right)
+                    tableSelection.left = pointInfo.col;
+            }
+            else if (edge == "bottomRight") {
+                if (pointInfo.row >= tableSelection.top)
+                    tableSelection.bottom = pointInfo.row;
+                if (pointInfo.col >= tableSelection.left)
+                    tableSelection.right = pointInfo.col;
+            }
 
-        // FIXME: handle the case where there is no cell at the specified row and column
-        var topLeftCell = structure.get(tableSelection.top,tableSelection.left);
-        var bottomRightCell = structure.get(tableSelection.bottom,tableSelection.right);
+            // FIXME: handle the case where there is no cell at the specified row and column
+            var topLeftCell = structure.get(tableSelection.top,tableSelection.left);
+            var bottomRightCell = structure.get(tableSelection.bottom,tableSelection.right);
 
-        var topLeftNode = topLeftCell.element.parentNode;
-        var topLeftOffset = DOM_nodeOffset(topLeftCell.element);
-        var bottomRightNode = bottomRightCell.element.parentNode;
-        var bottomRightOffset = DOM_nodeOffset(bottomRightCell.element)+1;
+            var topLeftNode = topLeftCell.element.parentNode;
+            var topLeftOffset = DOM_nodeOffset(topLeftCell.element);
+            var bottomRightNode = bottomRightCell.element.parentNode;
+            var bottomRightOffset = DOM_nodeOffset(bottomRightCell.element)+1;
 
-        setSelectionRange(new Range(topLeftNode,topLeftOffset,bottomRightNode,bottomRightOffset));
+            Selection_set(topLeftNode,topLeftOffset,bottomRightNode,bottomRightOffset);
+        });
 
         // FIXME: this could possibly be optimised
         function findCellInTable(structure,x,y)
@@ -585,24 +600,42 @@ var Selection_trackWhileExecuting;
     }
 
     // public
+    Selection_set = set = trace(set);
+    function set(startNode,startOffset,endNode,endOffset)
+    {
+        if (selectionVisible)
+            throw new Error("Attempt to set selection while visible");
+        selectionRange = new Range(startNode,startOffset,endNode,endOffset).forwards();
+    }
+
+    // public
+    Selection_clear = clear = trace(clear)
+    function clear()
+    {
+        if (selectionVisible)
+            throw new Error("Attempt to clear selection while visible");
+        selectionRange = null;
+    }
+
+    // public
     Selection_setSelectionRange = setSelectionRange = trace(setSelectionRange);
     function setSelectionRange(range)
     {
-        if (range == null) {
-            selectionRange = null;
-        }
-        else {
-            selectionRange = new Range(range.start.node,range.start.offset,
-                                       range.end.node,range.end.offset);
-        }
-        Selection_updateSelectionDisplay();
+        Selection_hideWhileExecuting(function() {
+            if (range == null)
+                Selection_clear();
+            else
+                Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
+        });
     }
 
     // public
     Selection_setEmptySelectionAt = setEmptySelectionAt = trace(setEmptySelectionAt);
     function setEmptySelectionAt(node,offset)
     {
-        Selection_setSelectionRange(new Range(node,offset,node,offset));
+        Selection_hideWhileExecuting(function() {
+            Selection_set(node,offset,node,offset);
+        });
     }
 
     // private
@@ -679,27 +712,27 @@ var Selection_trackWhileExecuting;
         if (selectionRange == null)
             return;
 
-        hideSelection();
+        Selection_hideWhileExecuting(function() {
+            selectionRange.trackWhileExecuting(function() {
+                var region = Tables_regionFromRange(selectionRange);
+                if (region != null)
+                    Tables_deleteRegion(region);
+                else
+                    deleteTextSelection(selectionRange);
+            });
 
-        selectionRange = selectionRange.forwards();
-
-        selectionRange.trackWhileExecuting(function() {
-            var region = Tables_regionFromRange(selectionRange);
-            if (region != null) {
-                Tables_deleteRegion(region);
+            if (allowInvalidCursorPos) {
+                var node = selectionRange.start.node;
+                var offset = selectionRange.start.offset;
+                Selection_set(node,offset,node,offset);
             }
             else {
-                deleteTextSelection(selectionRange);
+                var pos = Cursor_closestPositionForwards(selectionRange.start);
+                var node = pos.node;
+                var offset = pos.offset;
+                Selection_set(node,offset,node,offset);
             }
         });
-
-        if (allowInvalidCursorPos) {
-            setEmptySelectionAt(selectionRange.start.node,selectionRange.start.offset);
-        }
-        else {
-            var pos = Cursor_closestPositionForwards(selectionRange.start);
-            setEmptySelectionAt(pos.node,pos.offset);
-        }
     }
 
     // private
@@ -819,6 +852,18 @@ var Selection_trackWhileExecuting;
     {
         selectionRange = null;
         Selection_updateSelectionDisplay();
+    }
+
+    Selection_hideWhileExecuting = hideWhileExecuting = trace(hideWhileExecuting);
+    function hideWhileExecuting(fun)
+    {
+        hide();
+        try {
+            return fun();
+        }
+        finally {
+            show();
+        }
     }
 
     // public
