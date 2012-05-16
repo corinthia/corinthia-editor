@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+function performTest()
+{
+    // FIXME: the expected output of this test should include a space after the 'A'
+    Cursor_insertCharacter("A  b");
+    Cursor_enterPressed();
+    Cursor_deleteCharacter();
+    Cursor_deleteCharacter();
+    showSelection();
+}
+</script>
+</head>
+<body>
+[]
+</body>
+</html>

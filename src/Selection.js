@@ -164,13 +164,20 @@ var Selection_trackWhileExecuting;
         return true;
     }
 
-    // public
-    Selection_updateSelectionDisplay = updateSelectionDisplay = trace(updateSelectionDisplay);
-    function updateSelectionDisplay()
+    // private
+    hideSelection = trace(hideSelection);
+    function hideSelection()
     {
         for (var i = 0; i < selectionDivs.length; i++)
             DOM_deleteNode(selectionDivs[i]);
         selectionDivs = new Array();
+    }
+
+    // public
+    Selection_updateSelectionDisplay = updateSelectionDisplay = trace(updateSelectionDisplay);
+    function updateSelectionDisplay()
+    {
+        hideSelection();
 
         var rects = null;
         if (selectionRange != null)
@@ -672,8 +679,9 @@ var Selection_trackWhileExecuting;
         if (selectionRange == null)
             return;
 
-        selectionRange = selectionRange.forwards();
+        hideSelection();
 
+        selectionRange = selectionRange.forwards();
 
         selectionRange.trackWhileExecuting(function() {
             var region = Tables_regionFromRange(selectionRange);
