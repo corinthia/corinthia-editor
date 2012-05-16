@@ -278,7 +278,4 @@ var Position;
         }
     }
 
-    Location = Location;
-    Position = Position;
-
 })();

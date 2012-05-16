@@ -745,7 +745,7 @@ var Outline_examinePrintLayout;
     // public
     function moveSection(sectionId,parentId,nextId)
     {
-        Selection_trackWhileExecuting(function() {
+        Selection_preserveWhileExecuting(function() {
             updateStructure(); // make sure pointers are valid
 
             var section = itemsById[sectionId];
@@ -774,7 +774,7 @@ var Outline_examinePrintLayout;
     // public
     function deleteItem(itemId)
     {
-        Selection_trackWhileExecuting(function() {
+        Selection_preserveWhileExecuting(function() {
             var item = itemsById[itemId];
             if (item.type == "section") {
                 var sectionNodes = new Array();
