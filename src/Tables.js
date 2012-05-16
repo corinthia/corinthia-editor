@@ -440,7 +440,6 @@ var Tables_regionFromRange;
         var region = Tables_regionFromRange(selectionRange,true);
         if (region != null) {
             selectionRange.trackWhileExecuting(function() {
-                debug("insertColumnRight: region = "+region);
                 addColElement(region.structure,region.right,region.right+1);
                 addColumnCells(region.structure,region.right,true);
             });
