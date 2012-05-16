@@ -40,7 +40,6 @@ var Lists_setOrderedList;
     }
 
     // public
-    // FIXME: write testcases for this
     function increaseIndent()
     {
         var range = Selection_get();
@@ -138,7 +137,6 @@ var Lists_setOrderedList;
     }
 
     // public
-    // FIXME: write testcases for this
     function decreaseIndent()
     {
         var range = Selection_get();
@@ -184,19 +182,29 @@ var Lists_setOrderedList;
                     i++;
             }
 
+            function haveContentAfter(node)
+            {
+                for (node = node.nextSibling; node != null; node = node.nextSibling) {
+                    if (nodeHasContent(node))
+                        return true;
+                }
+                return false;
+            }
+
             // For LI nodes that are in a top-level list, change them to regular paragraphs
             // For LI nodes that are part of a nested list, move them to the parent (this requires
             // splitting the child list in two)
             for (var i = 0; i < listItems.length; i++) {
                 var node = listItems[i];
                 var parentList = node.parentNode;
-                var following = node.nextSibling;
+
+
                 var container = findContainingListItem(node.parentNode);
 
                 // We can only decrease the indentation of a list node if the list it is in is
                 // itself inside another list
 
-                if (following != null) {
+                if (haveContentAfter(node)) {
                     var secondHalf;
                     if (DOM_upperName(parentList) == "UL")
                         secondHalf = DOM_createElement(document,"UL");
@@ -213,6 +221,7 @@ var Lists_setOrderedList;
 
                     DOM_appendChild(node,copy);
 
+                    var following = node.nextSibling;
                     while (following != null) {
                         var next = following.nextSibling;
                         DOM_appendChild(secondHalf,following);
@@ -221,9 +230,8 @@ var Lists_setOrderedList;
                 }
 
                 DOM_insertBefore(container.parentNode,node,container.nextSibling);
-                if (firstChildElement(parentList) == null) {
+                if (!nodeHasContent(parentList))
                     DOM_deleteNode(parentList);
-                }
             }
         });
 
