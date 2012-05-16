@@ -208,7 +208,7 @@ var Cursor_enterPressed;
     // public
     function positionCursor(x,y)
     {
-        var position = positionAtPoint(x,y);
+        var position = Cursor_closestPositionForwards(positionAtPoint(x,y));
         if ((position != null) && isOpaqueNode(position.node))
             position = nextCursorPosition(position);
         if (position == null)
@@ -356,6 +356,9 @@ var Cursor_enterPressed;
     // public
     function closestPositionForwards(pos)
     {
+        if (pos == null)
+            return null;
+
         pos = tryAndFindEquivalentValidPosition(pos);
 
         if (isValidCursorPosition(pos))
@@ -375,6 +378,9 @@ var Cursor_enterPressed;
     // public
     function closestPositionBackwards(pos)
     {
+        if (pos == null)
+            return null;
+
         pos = tryAndFindEquivalentValidPosition(pos);
 
         if (isValidCursorPosition(pos))

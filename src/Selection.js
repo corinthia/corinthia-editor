@@ -429,7 +429,7 @@ var Selection_trackWhileExecuting;
         originalDragStart = null;
         originalDragEnd = null;
 
-        var pos = positionAtPoint(x,y);
+        var pos = Cursor_closestPositionForwards(positionAtPoint(x,y));
         if (pos != null) {
             selectionRange = new Range(pos.node,pos.offset,pos.node,pos.offset);
             if (selectWord)
@@ -455,7 +455,7 @@ var Selection_trackWhileExecuting;
         if ((originalDragStart == null) || (originalDragEnd == null))
             return dragSelectionBegin(x,y);
 
-        var pos = positionAtPoint(x,y);
+        var pos = Cursor_closestPositionForwards(positionAtPoint(x,y));
         if (pos != null) {
 
             var startToPos = new Range(originalDragStart.node,originalDragStart.offset,
@@ -488,7 +488,7 @@ var Selection_trackWhileExecuting;
         trace(setSelectionStartAtCoords);
     function setSelectionStartAtCoords(x,y)
     {
-        var position = positionAtPoint(x,y);
+        var position = Cursor_closestPositionForwards(positionAtPoint(x,y));
         if (position != null) {
             position = Cursor_closestPositionBackwards(position);
             var newRange = new Range(position.node,position.offset,
@@ -504,7 +504,7 @@ var Selection_trackWhileExecuting;
     Selection_setSelectionEndAtCoords = setSelectionEndAtCoords = trace(setSelectionEndAtCoords);
     function setSelectionEndAtCoords(x,y)
     {
-        var position = positionAtPoint(x,y);
+        var position = Cursor_closestPositionForwards(positionAtPoint(x,y));
         if (position != null) {
             position = Cursor_closestPositionBackwards(position);
             var newRange = new Range(selectionRange.start.node,selectionRange.start.offset,

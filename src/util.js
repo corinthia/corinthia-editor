@@ -106,7 +106,7 @@ function positionAtPoint(x,y)
                 position = new Position(range.startContainer,range.startOffset);
             else
                 position = new Position(node,node.nodeValue.length);
-            return Cursor_closestPositionForwards(position);
+            return position;
         }
     }
 
@@ -124,7 +124,7 @@ function positionAtPoint(x,y)
     }
 
     var position = new Position(range.startContainer,range.startOffset);
-    return Cursor_closestPositionForwards(position);
+    return position;
 
     function findLastTextRect()
     {
