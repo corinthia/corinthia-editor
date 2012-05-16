@@ -2,6 +2,10 @@
 
 // FIXME: cursor does not display correctly if it is after a space at the end of the line
 
+var Selection_get;
+var Selection_set;
+var Selection_clear;
+
 var Selection_getCursorRect;
 var Selection_hide;
 var Selection_updateSelectionDisplay;
@@ -14,16 +18,12 @@ var Selection_dragSelectionUpdate;
 var Selection_setSelectionStartAtCoords;
 var Selection_setSelectionEndAtCoords;
 var Selection_setTableSelectionEdgeAtCoords;
-var Selection_get;
-var Selection_set;
-var Selection_clear;
 var Selection_setSelectionRange;
 var Selection_setEmptySelectionAt;
 var Selection_deleteSelectionContents;
 var Selection_clearSelection;
 var Selection_hideWhileExecuting;
 var Selection_preserveWhileExecuting;
-
 
 (function() {
 
@@ -43,18 +43,16 @@ var Selection_preserveWhileExecuting;
         var endOffset = null;
 
         // public
-        Selection_get = trace(get);
-        function get()
+        Selection_get = trace(function get()
         {
             if (startNode == null)
                 return null;
             else
                 return new Range(startNode,startOffset,endNode,endOffset);
-        }
+        });
 
         // public
-        Selection_set = trace(set);
-        function set(newStartNode,newStartOffset,newEndNode,newEndOffset)
+        Selection_set = trace(function set(newStartNode,newStartOffset,newEndNode,newEndOffset)
         {
             if (selectionVisible)
                 throw new Error("Attempt to set selection while visible");
@@ -71,11 +69,10 @@ var Selection_preserveWhileExecuting;
                 endNode = newStartNode;
                 endOffset = newStartOffset;
             }
-        }
+        });
 
         // public
-        Selection_clear = trace(clear)
-        function clear()
+        Selection_clear = trace(function clear()
         {
             if (selectionVisible)
                 throw new Error("Attempt to clear selection while visible");
@@ -83,7 +80,7 @@ var Selection_preserveWhileExecuting;
             startOffset = null;
             endNode = null;
             endOffset = null;
-        }
+        });
     })();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -96,8 +93,7 @@ var Selection_preserveWhileExecuting;
     var tableSelection = null;
 
     // public
-    Selection_getCursorRect = getCursorRect = trace(getCursorRect);
-    function getCursorRect()
+    Selection_getCursorRect = trace(function getCursorRect()
     {
         var selRange = Selection_get();
         if (selRange == null)
@@ -185,11 +181,10 @@ var Selection_preserveWhileExecuting;
                      width: 0,
                      height: rect.height };
         }
-    }
+    });
 
     // private
-    updateTableSelection = trace(updateTableSelection);
-    function updateTableSelection()
+    updateTableSelection = trace(function updateTableSelection()
     {
         var selRange = Selection_get();
         tableSelection = Tables_regionFromRange(selRange);
@@ -233,11 +228,10 @@ var Selection_preserveWhileExecuting;
         Editor_setTableSelection(x,y,width,height);
 
         return true;
-    }
+    });
 
     // public
-    Selection_hide = hide = trace(hide);
-    function hide()
+    Selection_hide = trace(function hide()
     {
         if (!selectionVisible)
             throw new Error("Selection is already hidden");
@@ -245,19 +239,17 @@ var Selection_preserveWhileExecuting;
         for (var i = 0; i < selectionDivs.length; i++)
             DOM_deleteNode(selectionDivs[i]);
         selectionDivs = new Array();
-    }
+    });
 
     // public
-    Selection_updateSelectionDisplay = updateSelectionDisplay = trace(updateSelectionDisplay);
-    function updateSelectionDisplay()
+    Selection_updateSelectionDisplay = trace(function updateSelectionDisplay()
     {
         if (selectionVisible)
-            hide();
-        show();
-    }
+            Selection_hide();
+        Selection_show();
+    });
 
-    Selection_show = show = trace(show);
-    function show()
+    Selection_show = trace(function show()
     {
         if (selectionVisible)
             throw new Error("Selection is already visible");
@@ -271,7 +263,7 @@ var Selection_preserveWhileExecuting;
         if ((selRange != null) && selRange.isEmpty()) {
             // We just have a cursor
 
-            var rect = getCursorRect();
+            var rect = Selection_getCursorRect();
 
             if (rect != null) {
                 var left = rect.left + window.scrollX;
@@ -364,20 +356,18 @@ var Selection_preserveWhileExecuting;
             }
             return { offsetLeft: offsetLeft, offsetTop: offsetTop };
         }
-    }
+    });
 
     // public
-    Selection_selectAll = selectAll = trace(selectAll);
-    function selectAll()
+    Selection_selectAll = trace(function selectAll()
     {
         Selection_hideWhileExecuting(function() {
             Selection_set(document.body,0,document.body,document.body.childNodes.length);
         });
-    }
+    });
 
     // public
-    Selection_selectParagraph = selectParagraph = trace(selectParagraph);
-    function selectParagraph()
+    Selection_selectParagraph = trace(function selectParagraph()
     {
         var selRange = Selection_get();
         if (selRange == null)
@@ -398,10 +388,9 @@ var Selection_preserveWhileExecuting;
 
             Selection_set(startPos.node,startPos.offset,endPos.node,endPos.offset);
         });
-    }
+    });
 
     // private
-    getPunctuationCharsForRegex = trace(getPunctuationCharsForRegex);
     function getPunctuationCharsForRegex()
     {
         var escaped = "^$\\.*+?()[]{}|"; // From ECMAScript regexp spec (PatternCharacter)
@@ -432,8 +421,7 @@ var Selection_preserveWhileExecuting;
     var reWordOtherStart = new RegExp("^["+wsPunctuation+"]*[^"+wsPunctuation+"]*");
 
     // public
-    Selection_selectWordAtCursor = selectWordAtCursor = trace(selectWordAtCursor);
-    function selectWordAtCursor()
+    Selection_selectWordAtCursor = trace(function selectWordAtCursor()
     {
         var selRange = Selection_get();
         if (selRange == null)
@@ -489,14 +477,13 @@ var Selection_preserveWhileExecuting;
                     Selection_set(node,offset,node,offset+1);
             }
         });
-    }
+    });
 
     var originalDragStart = null;
     var originalDragEnd = null;
 
     // public
-    Selection_dragSelectionBegin = dragSelectionBegin = trace(dragSelectionBegin);
-    function dragSelectionBegin(x,y,selectWord)
+    Selection_dragSelectionBegin = trace(function dragSelectionBegin(x,y,selectWord)
     {
         originalDragStart = null;
         originalDragEnd = null;
@@ -523,17 +510,16 @@ var Selection_preserveWhileExecuting;
             }
         }
         return result;
-    }
+    });
 
     // public
-    Selection_dragSelectionUpdate = dragSelectionUpdate = trace(dragSelectionUpdate);
-    function dragSelectionUpdate(x,y)
+    Selection_dragSelectionUpdate = trace(function dragSelectionUpdate(x,y)
     {
         // It is possible that when the user first double-tapped, there was no point at that
         // position, i.e. the pos == null case in dragSelectionBegin(). So we just try to begin
         // the selection again.
         if ((originalDragStart == null) || (originalDragEnd == null))
-            return dragSelectionBegin(x,y);
+            return Selection_dragSelectionBegin(x,y);
 
         return Selection_hideWhileExecuting(function() {
             var pos = Cursor_closestPositionForwards(positionAtPoint(x,y));
@@ -564,12 +550,10 @@ var Selection_preserveWhileExecuting;
             }
             return "none";
         });
-    }
+    });
 
     // public
-    Selection_setSelectionStartAtCoords = setSelectionStartAtCoords =
-        trace(setSelectionStartAtCoords);
-    function setSelectionStartAtCoords(x,y)
+    Selection_setSelectionStartAtCoords = trace(function setSelectionStartAtCoords(x,y)
     {
         Selection_hideWhileExecuting(function() {
             var position = Cursor_closestPositionForwards(positionAtPoint(x,y));
@@ -584,11 +568,10 @@ var Selection_preserveWhileExecuting;
                 }
             }
         });
-    }
+    });
 
     // public
-    Selection_setSelectionEndAtCoords = setSelectionEndAtCoords = trace(setSelectionEndAtCoords);
-    function setSelectionEndAtCoords(x,y)
+    Selection_setSelectionEndAtCoords = trace(function setSelectionEndAtCoords(x,y)
     {
         Selection_hideWhileExecuting(function() {
             var position = Cursor_closestPositionForwards(positionAtPoint(x,y));
@@ -603,12 +586,10 @@ var Selection_preserveWhileExecuting;
                 }
             }
         });
-    }
+    });
 
     // public
-    Selection_setTableSelectionEdgeAtCoords = setTableSelectionEdgeAtCoords =
-        trace(setTableSelectionEdgeAtCoords);
-    function setTableSelectionEdgeAtCoords(edge,x,y)
+    Selection_setTableSelectionEdgeAtCoords = trace(function setTableSelectionEdgeAtCoords(edge,x,y)
     {
         if (tableSelection == null)
             return;
@@ -660,11 +641,10 @@ var Selection_preserveWhileExecuting;
             }
             return null;
         }
-    }
+    });
 
     // public
-    Selection_setSelectionRange = setSelectionRange = trace(setSelectionRange);
-    function setSelectionRange(range)
+    Selection_setSelectionRange = trace(function setSelectionRange(range)
     {
         Selection_hideWhileExecuting(function() {
             if (range == null)
@@ -672,20 +652,18 @@ var Selection_preserveWhileExecuting;
             else
                 Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
         });
-    }
+    });
 
     // public
-    Selection_setEmptySelectionAt = setEmptySelectionAt = trace(setEmptySelectionAt);
-    function setEmptySelectionAt(node,offset)
+    Selection_setEmptySelectionAt = trace(function setEmptySelectionAt(node,offset)
     {
         Selection_hideWhileExecuting(function() {
             Selection_set(node,offset,node,offset);
         });
-    }
+    });
 
     // private
-    deleteTextSelection = trace(deleteTextSelection);
-    function deleteTextSelection(selRange)
+    deleteTextSelection = trace(function deleteTextSelection(selRange)
     {
         var nodes = selRange.getOutermostNodes();
         for (var i = 0; i < nodes.length; i++) {
@@ -748,11 +726,10 @@ var Selection_preserveWhileExecuting;
         }
 
         Cursor_updateBRAtEndOfParagraph(selRange.singleNode());
-    }
+    });
 
     // public
-    Selection_deleteSelectionContents = deleteSelectionContents = trace(deleteSelectionContents);
-    function deleteSelectionContents(allowInvalidCursorPos)
+    Selection_deleteSelectionContents = trace(function deleteSelectionContents(allowInvalidPos)
     {
         var selRange = Selection_get();
         if (selRange == null)
@@ -767,7 +744,7 @@ var Selection_preserveWhileExecuting;
                     deleteTextSelection(selRange);
             });
 
-            if (allowInvalidCursorPos) {
+            if (allowInvalidPos) {
                 var node = selRange.start.node;
                 var offset = selRange.start.offset;
                 Selection_set(node,offset,node,offset);
@@ -779,11 +756,10 @@ var Selection_preserveWhileExecuting;
                 Selection_set(node,offset,node,offset);
             }
         });
-    }
+    });
 
     // private
-    removeParagraphDescendants = trace(removeParagraphDescendants);
-    function removeParagraphDescendants(parent)
+    removeParagraphDescendants = trace(function removeParagraphDescendants(parent)
     {
         var next;
         for (var child = parent.firstChild; child != null; child = next) {
@@ -792,11 +768,10 @@ var Selection_preserveWhileExecuting;
             if (isParagraphNode(child))
                 DOM_removeNodeButKeepChildren(child);
         }
-    }
+    });
 
     // private
-    findFirstParagraph = trace(findFirstParagraph);
-    function findFirstParagraph(node)
+    findFirstParagraph = trace(function findFirstParagraph(node)
     {
         if (isParagraphNode(node))
             return node;
@@ -830,11 +805,10 @@ var Selection_preserveWhileExecuting;
                 DOM_appendChild(p,parent.firstChild);
             return p;
         }
-    }
+    });
 
     // private
-    prepareForMerge = trace(prepareForMerge);
-    function prepareForMerge(detail)
+    prepareForMerge = trace(function prepareForMerge(detail)
     {
         if (isParagraphNode(detail.startAncestor) && isInlineNode(detail.endAncestor)) {
             var name = detail.startAncestor.nodeName; // check-ok
@@ -890,33 +864,30 @@ var Selection_preserveWhileExecuting;
             childDetail.endAncestor = detail.endAncestor.firstChild;
             prepareForMerge(childDetail);
         }
-    }
+    });
 
     // public
-    Selection_clearSelection = clearSelection = trace(clearSelection);
-    function clearSelection()
+    Selection_clearSelection = trace(function clearSelection()
     {
         Selection_hideWhileExecuting(function() {
             Selection_clear();
         });
-    }
+    });
 
     // public
-    Selection_hideWhileExecuting = hideWhileExecuting = trace(hideWhileExecuting);
-    function hideWhileExecuting(fun)
+    Selection_hideWhileExecuting = trace(function hideWhileExecuting(fun)
     {
-        hide();
+        Selection_hide();
         try {
             return fun();
         }
         finally {
-            show();
+            Selection_show();
         }
-    }
+    });
 
     // public
-    Selection_preserveWhileExecuting = preserveWhileExecuting = trace(preserveWhileExecuting);
-    function preserveWhileExecuting(fun)
+    Selection_preserveWhileExecuting = trace(function preserveWhileExecuting(fun)
     {
         return Selection_hideWhileExecuting(function () {
             var range = Selection_get();
@@ -934,6 +905,6 @@ var Selection_preserveWhileExecuting;
             }
             return result;
         });
-    }
+    });
 
 })();
