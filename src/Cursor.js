@@ -426,38 +426,42 @@ var Cursor_enterPressed;
     // public
     Cursor_beginInsertion = trace(function beginInsertion()
     {
-        var selectionRange = Selection_get();
-        if (selectionRange == null)
-            return;
+        Selection_hideWhileExecuting(function() {
+            var selRange = Selection_get();
+            if (selRange == null)
+                return;
 
-        if (!selectionRange.isEmpty()) {
-            Selection_deleteSelectionContents();
-            selectionRange = Selection_get();
-        }
-        var pos = Cursor_closestPositionForwards(selectionRange.start);
-        var node = pos.node;
-        var offset = pos.offset;
+            if (!selRange.isEmpty()) {
+                Selection_deleteContents();
+                selRange = Selection_get();
+            }
+            var pos = Cursor_closestPositionForwards(selRange.start);
+            var node = pos.node;
+            var offset = pos.offset;
 
-        if (node.nodeType == Node.ELEMENT_NODE) {
-            var emptyTextNode = DOM_createTextNode(document,"");
-            if (offset >= node.childNodes.length)
-                DOM_appendChild(node,emptyTextNode);
-            else
-                DOM_insertBefore(node,emptyTextNode,node.childNodes[offset]);
-            node = emptyTextNode;
-            offset = 0;
-        }
+            if (node.nodeType == Node.ELEMENT_NODE) {
+                var emptyTextNode = DOM_createTextNode(document,"");
+                if (offset >= node.childNodes.length)
+                    DOM_appendChild(node,emptyTextNode);
+                else
+                    DOM_insertBefore(node,emptyTextNode,node.childNodes[offset]);
+                node = emptyTextNode;
+                offset = 0;
+            }
 
-        insertionNode = node;
-        insertionTextBefore = insertionNode.nodeValue.slice(0,offset);
-        insertionTextAfter = insertionNode.nodeValue.slice(offset);
+            insertionNode = node;
+            insertionTextBefore = insertionNode.nodeValue.slice(0,offset);
+            insertionTextAfter = insertionNode.nodeValue.slice(offset);
 
-        Selection_setEmptySelectionAt(node,offset,node,offset);
-        Selection_get().trackWhileExecuting(function() {
-            Cursor_updateBRAtEndOfParagraph(node);
+            var range = new Range(node,offset,node,offset);
+            range.trackWhileExecuting(function() {
+                Cursor_updateBRAtEndOfParagraph(node);
+            });
+            Selection_set(range.start.node,range.start.offset,
+                          range.end.node,range.end.offset);
+            Cursor_ensureCursorVisible();
+            return insertionTextBefore;
         });
-        Cursor_ensureCursorVisible();
-        return insertionTextBefore;
     });
 
     // public
