@@ -477,24 +477,25 @@ var Cursor_enterPressed;
     // public
     Cursor_deleteCharacter = trace(function deleteCharacter()
     {
-        var selectionRange = Selection_get();
-        if (selectionRange == null)
-            return;
+        Selection_hideWhileExecuting(function() {
+            var selRange = Selection_get();
+            if (selRange == null)
+                return;
 
-        if (!selectionRange.isEmpty()) {
-            Selection_deleteSelectionContents();
-            return;
-        }
-        else {
-            var currentPos = selectionRange.start;
-            var prevPos = prevCursorPosition(currentPos);
-            if (prevPos != null) {
-                selectionRange = new Range(prevPos.node,prevPos.offset,
-                                           selectionRange.end.node,selectionRange.end.offset);
-                Selection_setSelectionRange(selectionRange);
-                Selection_deleteSelectionContents();
+            if (!selRange.isEmpty()) {
+                Selection_deleteContents();
+                return;
             }
-        }
+            else {
+                var currentPos = selRange.start;
+                var prevPos = prevCursorPosition(currentPos);
+                if (prevPos != null) {
+                    Selection_set(prevPos.node,prevPos.offset,
+                                  selRange.end.node,selRange.end.offset)
+                    Selection_deleteContents();
+                }
+            }
+        });
     });
 
     // public

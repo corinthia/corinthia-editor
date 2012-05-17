@@ -20,6 +20,7 @@ var Selection_setSelectionEndAtCoords;
 var Selection_setTableSelectionEdgeAtCoords;
 var Selection_setSelectionRange;
 var Selection_setEmptySelectionAt;
+var Selection_deleteContents;
 var Selection_deleteSelectionContents;
 var Selection_clearSelection;
 var Selection_hideWhileExecuting;
@@ -728,33 +729,42 @@ var Selection_preserveWhileExecuting;
         Cursor_updateBRAtEndOfParagraph(selRange.singleNode());
     });
 
-    // public
-    Selection_deleteSelectionContents = trace(function deleteSelectionContents(allowInvalidPos)
+    Selection_deleteContents = trace(function deleteContents(allowInvalidPos)
     {
+        if (selectionVisible)
+            throw new Error("deleteContents while selection visible");
         var selRange = Selection_get();
         if (selRange == null)
             return;
 
-        Selection_hideWhileExecuting(function() {
-            selRange.trackWhileExecuting(function() {
-                var region = Tables_regionFromRange(selRange);
-                if (region != null)
-                    Tables_deleteRegion(region);
-                else
-                    deleteTextSelection(selRange);
-            });
+        selRange.trackWhileExecuting(function() {
+            var region = Tables_regionFromRange(selRange);
+            if (region != null)
+                Tables_deleteRegion(region);
+            else
+                deleteTextSelection(selRange);
+        });
 
-            if (allowInvalidPos) {
-                var node = selRange.start.node;
-                var offset = selRange.start.offset;
-                Selection_set(node,offset,node,offset);
-            }
-            else {
-                var pos = Cursor_closestPositionForwards(selRange.start);
-                var node = pos.node;
-                var offset = pos.offset;
-                Selection_set(node,offset,node,offset);
-            }
+        if (allowInvalidPos) {
+            var node = selRange.start.node;
+            var offset = selRange.start.offset;
+            Selection_set(node,offset,node,offset);
+        }
+        else {
+            var pos = Cursor_closestPositionForwards(selRange.start);
+            var node = pos.node;
+            var offset = pos.offset;
+            Selection_set(node,offset,node,offset);
+        }
+    });
+
+    // public
+    Selection_deleteSelectionContents = trace(function deleteSelectionContents(allowInvalidPos)
+    {
+        if (!selectionVisible)
+            throw new Error("deleteSelectionContents while selection hidden");
+        Selection_hideWhileExecuting(function() {
+            Selection_deleteContents(allowInvalidPos);
         });
     });
 
