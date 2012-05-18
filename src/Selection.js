@@ -500,15 +500,13 @@ var Selection_preserveWhileExecuting;
             return "end";
         });
 
-        if (selectWord) {
+        if (selectWord)
             Selection_selectWordAtCursor();
-            if (result != "error") {
-                var selRange = Selection_get();
-                originalDragStart = new Position(selRange.start.node,
-                                                 selRange.start.offset);
-                originalDragEnd = new Position(selRange.end.node,
-                                               selRange.end.offset);
-            }
+
+        if (result != "error") {
+            var selRange = Selection_get();
+            originalDragStart = new Position(selRange.start.node,selRange.start.offset);
+            originalDragEnd = new Position(selRange.end.node,selRange.end.offset);
         }
         return result;
     });
@@ -520,7 +518,7 @@ var Selection_preserveWhileExecuting;
         // position, i.e. the pos == null case in dragSelectionBegin(). So we just try to begin
         // the selection again.
         if ((originalDragStart == null) || (originalDragEnd == null))
-            return Selection_dragSelectionBegin(x,y);
+            return Selection_dragSelectionBegin(x,y,false); // FIXME: what about selectWord?
 
         return Selection_hideWhileExecuting(function() {
             var pos = Cursor_closestPositionForwards(positionAtPoint(x,y));
