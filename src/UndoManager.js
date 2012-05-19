@@ -29,10 +29,23 @@ var UndoManager_disableWhileExecuting;
 
     UndoAction.prototype.toString = function()
     {
+        var name;
         if (this.fun.wrappedName != null)
-            return this.fun.wrappedName + "(" + this.args.toString() + ")";
+            name = this.fun.wrappedName;
         else
-            return this.fun.name + "(" + this.args.toString() + ")";
+            name = this.fun.name;
+
+        var argStrings = new Array();
+        for (var i = 0; i < this.args.length; i++) {
+            if (this.args[i] instanceof Node)
+                argStrings.push(nodeString(this.args[i]));
+            else if (this.args[i] == null)
+                argStrings.push("null");
+            else
+                argStrings.push(this.args[i].toString());
+        }
+
+        return name + "(" + argStrings.join(",") + ")";
     }
 
     var undoStack = new Array();
