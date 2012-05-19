@@ -29,7 +29,10 @@ var UndoManager_disableWhileExecuting;
 
     UndoAction.prototype.toString = function()
     {
-        return this.fun.name + "(" + this.args.toString() + ")";
+        if (this.fun.wrappedName != null)
+            return this.fun.wrappedName + "(" + this.args.toString() + ")";
+        else
+            return this.fun.name + "(" + this.args.toString() + ")";
     }
 
     var undoStack = new Array();

@@ -50,7 +50,7 @@ var trace;
 
     trace = function(fun)
     {
-        return function() {
+        var result = function() {
             try {
                 return fun.apply(this,arguments);
             }
@@ -64,6 +64,8 @@ var trace;
                 throw error;
             }
         }
+        result.wrappedName = fun.name;
+        return result;
     }
 
 })();
