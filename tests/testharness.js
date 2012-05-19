@@ -191,7 +191,10 @@ function leftLoaded()
             positionMergeWithNeighbours(end);
         });
 
-        leftArea.contentWindow.Selection_setSelectionRange(range);
+        leftArea.contentWindow.Selection_hideWhileExecuting(function() {
+            leftArea.contentWindow.Selection_set(range.start.node,range.start.offset,
+                                                 range.end.node,range.end.offset);
+        });
     }
     continuation();
 

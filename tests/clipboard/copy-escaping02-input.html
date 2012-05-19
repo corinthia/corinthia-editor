@@ -10,8 +10,9 @@ function performTest()
                                   "[Daring Fireball](http://daringfireball.net) "+
                                   "[Apple](http://www.apple.com)");
     DOM_appendChild(document.body,text);
-    Selection_setSelectionRange(new Range(document.body,0,
-                                          document.body,document.body.childNodes.length));
+    Selection_hideWhileExecuting(function() {
+        Selection_set(document.body,0,document.body,document.body.childNodes.length);
+    });
     return showClipboard(Clipboard_copy());
 }
 </script>

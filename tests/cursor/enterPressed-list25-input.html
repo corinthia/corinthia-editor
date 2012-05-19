@@ -9,8 +9,9 @@ function performTest()
     range.trackWhileExecuting(showEmptyTextNodes);
 
     var u = document.getElementsByTagName("U")[0];
-    range = new Range(u,0,u,0);
-    Selection_setSelectionRange(range);
+    Selection_hideWhileExecuting(function() {
+        Selection_set(u,0,u,0);
+    });
     Cursor_insertCharacter("X");
     showRangeAsBrackets(Selection_get())
 }

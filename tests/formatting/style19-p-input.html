@@ -12,8 +12,9 @@ function performTest()
     var td1Offset = DOM_nodeOffset(tds[1]);
     var td2Offset = DOM_nodeOffset(tds[2]);
 
-    Selection_setSelectionRange(new Range(tds[1].parentNode,td1Offset,
-                                          tds[2].parentNode,td2Offset+1));
+    Selection_hideWhileExecuting(function() {
+        Selection_set(tds[1].parentNode,td1Offset,tds[2].parentNode,td2Offset+1);
+    });
 
     Formatting_applyFormattingChanges("h1",null);
 

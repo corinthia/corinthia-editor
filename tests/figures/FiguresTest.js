@@ -3,7 +3,9 @@ function figurePropertiesString(index)
     var figure = document.getElementsByTagName("FIGURE")[0];
     var parent = figure.parentNode;
     var offset = DOM_nodeOffset(figure);
-    Selection_setSelectionRange(new Range(parent,offset,parent,offset+1));
+    Selection_hideWhileExecuting(function() {
+        Selection_set(parent,offset,parent,offset+1);
+    });
     var properties = Figures_getProperties();
     var strings = new Array();
     var names = Object.getOwnPropertyNames(properties).sort();

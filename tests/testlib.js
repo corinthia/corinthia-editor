@@ -66,7 +66,9 @@ function removeIds()
 function selectNode(node)
 {
     var offset = DOM_nodeOffset(node);
-    Selection_setSelectionRange(new Range(node.parentNode,offset,node.parentNode,offset+1));
+    Selection_hideWhileExecuting(function() {
+        Selection_set(node.parentNode,offset,node.parentNode,offset+1);
+    });
 }
 
 function removeWhitespaceAndCommentNodes(node)

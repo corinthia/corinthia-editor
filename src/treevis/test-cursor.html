@@ -92,8 +92,9 @@ function traversePositions(root)
             var pos = allPositions[i];
 
             if (Cursor_isValidCursorPosition(pos)) {
-                var range = new Range(pos.node,pos.offset,pos.node,pos.offset);
-                Selection_setSelectionRange(range);
+                Selection_hideWhileExecuting(function() {
+                    Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+                });
                 work.pos = pos;
                 UndoManager_newGroup();
             }
@@ -107,8 +108,9 @@ function traversePositionsAll(root)
     UndoManager_monitorWhileExecuting(work,function() {
         for (var i = 0; i < allPositions.length; i++) {
             var pos = allPositions[i];
-            var range = new Range(pos.node,pos.offset,pos.node,pos.offset);
-            Selection_setSelectionRange(range);
+            Selection_hideWhileExecuting(function() {
+                Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+            });
             work.pos = pos;
             UndoManager_newGroup();
         }
