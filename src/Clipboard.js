@@ -241,24 +241,24 @@ var Clipboard_pasteNodes;
     Clipboard_cut = trace(function cut()
     {
         var content = Clipboard_copy();
-        Selection_deleteSelectionContents();
+        Selection_hideWhileExecuting(Selection_deleteContents);
         return content;
     });
 
     // public
     Clipboard_copy = trace(function copy()
     {
-        var selectionRange = Selection_get();
+        var range = Selection_get();
         var html = "";
         var text = "";
 
-        if (selectionRange != null) {
+        if (range != null) {
             var nodes;
-            var region = Tables_regionFromRange(selectionRange);
+            var region = Tables_regionFromRange(range);
             if (region != null)
                 nodes = [Tables_cloneRegion(region)];
             else
-                nodes = selectionRange.cloneContents();
+                nodes = range.cloneContents();
 
             var div = DOM_createElement(document,"DIV");
             for (var i = 0; i < nodes.length; i++)
@@ -314,98 +314,105 @@ var Clipboard_pasteNodes;
     Clipboard_pasteNodes = trace(function pasteNodes(nodes)
     {
         if ((nodes.length == 0) && isTableNode(nodes[0])) {
+            // FIXME: this won't work; selectionRange is not defined
             var fromRegion = Tables_getTableRegionFromTable(nodes[0]);
             var toRegion = Tables_regionFromRange(selectionRange);
             if (toRegion != null) {
                 return;
             }
         }
-        Selection_deleteSelectionContents(true);
-        var selectionRange = Selection_get();
-        if (selectionRange == null)
-            return;
+        Selection_hideWhileExecuting(function() {
+            Selection_deleteContents(true);
+            var range = Selection_get();
+            if (range == null)
+                return;
 
-        if (nodes.length == 0)
-            return;
+            if (nodes.length == 0)
+                return;
 
-        var pos = selectionRange.start;
-        var node = pos.node;
-        var offset = pos.offset;
+            var pos = range.start;
+            var node = pos.node;
+            var offset = pos.offset;
 
-        var parent;
-        var previousSibling;
-        var nextSibling;
-        if (node.nodeType == Node.ELEMENT_NODE) {
-            parent = node;
-            nextSibling = node.childNodes[offset];
-            previousSibling = node.childNodes[offset-1];
-        }
-        else {
-            Formatting_splitTextBefore(node,offset);
-            parent = node.parentNode;
-            nextSibling = node;
-            previousSibling = node.previousSibling;
-        }
+            var parent;
+            var previousSibling;
+            var nextSibling;
+            if (node.nodeType == Node.ELEMENT_NODE) {
+                parent = node;
+                nextSibling = node.childNodes[offset];
+                previousSibling = node.childNodes[offset-1];
+            }
+            else {
+                Formatting_splitTextBefore(node,offset);
+                parent = node.parentNode;
+                nextSibling = node;
+                previousSibling = node.previousSibling;
+            }
 
-        var pasteList = new Array();
+            var pasteList = new Array();
 
-        if ((DOM_upperName(parent) == "UL") || (DOM_upperName(parent) == "OL")) {
-            for (var i = 0; i < nodes.length; i++) {
-                if (DOM_upperName(nodes[i]) == "LI") {
+            if ((DOM_upperName(parent) == "UL") || (DOM_upperName(parent) == "OL")) {
+                for (var i = 0; i < nodes.length; i++) {
+                    if (DOM_upperName(nodes[i]) == "LI") {
+                        pasteList.push(nodes[i]);
+                    }
+                    else if (DOM_upperName(nodes[i]) == DOM_upperName(parent)) {
+                        for (var child = nodes[i].firstChild;
+                             child != null;
+                             child = child.nextSibling) {
+                            pasteList.push(child);
+                        }
+                    }
+                    else if (!isWhitespaceTextNode(nodes[i])) {
+                        var li = DOM_createElement(document,"LI");
+                        DOM_appendChild(li,nodes[i]);
+                        pasteList.push(li);
+                    }
+                }
+            }
+            else {
+                for (var i = 0; i < nodes.length; i++)
                     pasteList.push(nodes[i]);
-                }
-                else if (DOM_upperName(nodes[i]) == DOM_upperName(parent)) {
-                    for (var child = nodes[i].firstChild; child != null; child = child.nextSibling)
-                        pasteList.push(child);
-                }
-                else if (!isWhitespaceTextNode(nodes[i])) {
-                    var li = DOM_createElement(document,"LI");
-                    DOM_appendChild(li,nodes[i]);
-                    pasteList.push(li);
-                }
             }
-        }
-        else {
-            for (var i = 0; i < nodes.length; i++)
-                pasteList.push(nodes[i]);
-        }
 
-        for (var i = 0; i < pasteList.length; i++)
-            DOM_insertBefore(parent,pasteList[i],nextSibling);
+            for (var i = 0; i < pasteList.length; i++)
+                DOM_insertBefore(parent,pasteList[i],nextSibling);
 
-        if (pasteList.length == 0) {
-            Selection_setSelectionRange(selectionRange);
-            return;
-        }
-
-        var firstNode = pasteList[0];
-        var lastNode = pasteList[pasteList.length-1];
-        var pastedRange = new Range(firstNode.parentNode,DOM_nodeOffset(firstNode),
-                                    lastNode.parentNode,DOM_nodeOffset(lastNode)+1);
-        pastedRange.trackWhileExecuting(function() {
-
-            if (nodes.length > 0) {
-                var offset;
-                if (nextSibling != null)
-                    offset = DOM_nodeOffset(nextSibling);
-                else
-                    offset = parent.childNodes.length;
-                selectionRange = new Range(parent,offset,parent,offset);
-                Selection_setSelectionRange(selectionRange);
+            if (pasteList.length == 0) {
+                Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
+                return;
             }
-            selectionRange.trackWhileExecuting(function() {
-                if (previousSibling != null)
-                    Formatting_mergeWithNeighbours(previousSibling,Formatting_MERGEABLE_INLINE);
-                if (nextSibling != null)
-                    Formatting_mergeWithNeighbours(nextSibling,Formatting_MERGEABLE_INLINE);
 
-                Cursor_updateBRAtEndOfParagraph(parent);
+            var firstNode = pasteList[0];
+            var lastNode = pasteList[pasteList.length-1];
+            var pastedRange = new Range(firstNode.parentNode,DOM_nodeOffset(firstNode),
+                                        lastNode.parentNode,DOM_nodeOffset(lastNode)+1);
+            pastedRange.trackWhileExecuting(function() {
 
-                pastedRange.ensureRangeValidHierarchy(true);
+                if (nodes.length > 0) {
+                    var offset;
+                    if (nextSibling != null)
+                        offset = DOM_nodeOffset(nextSibling);
+                    else
+                        offset = parent.childNodes.length;
+                    range = new Range(parent,offset,parent,offset);
+                    Selection_set(range.start.node,range.start.offset,
+                                  range.end.node,range.end.offset);
+                }
+                range.trackWhileExecuting(function() {
+                    if (previousSibling != null)
+                        Formatting_mergeWithNeighbours(previousSibling,Formatting_MERGEABLE_INLINE);
+                    if (nextSibling != null)
+                        Formatting_mergeWithNeighbours(nextSibling,Formatting_MERGEABLE_INLINE);
+
+                    Cursor_updateBRAtEndOfParagraph(parent);
+
+                    pastedRange.ensureRangeValidHierarchy(true);
+                });
             });
-        });
 
-        Selection_setSelectionRange(selectionRange);
+            Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
+        });
     });
 
     function pasteImage(href)
