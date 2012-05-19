@@ -171,11 +171,17 @@ function leftLoaded()
 
     leftArea.contentWindow.DOM_assignNodeIds(leftArea.contentWindow.document);
 
-    var start = extractPositionFromCharacter("[");
-    var track = (start == null) ? [] : [start];
+    var start;
+    var track;
     var end;
-    leftArea.contentWindow.Position.trackWhileExecuting(track,function() {
-        end = extractPositionFromCharacter("]");
+
+
+    leftArea.contentWindow.UndoManager_disableWhileExecuting(function() {
+        start = extractPositionFromCharacter("[");
+        track = (start == null) ? [] : [start];
+        leftArea.contentWindow.Position.trackWhileExecuting(track,function() {
+            end = extractPositionFromCharacter("]");
+        });
     });
 
     if ((start != null) && (end == null))
@@ -186,9 +192,11 @@ function leftLoaded()
     if ((start != null) && (end != null)) {
         var range = new leftArea.contentWindow.Range(start.node,start.offset,end.node,end.offset);
 
-        range.trackWhileExecuting(function() {
-            positionMergeWithNeighbours(start);
-            positionMergeWithNeighbours(end);
+        leftArea.contentWindow.UndoManager_disableWhileExecuting(function() {
+            range.trackWhileExecuting(function() {
+                positionMergeWithNeighbours(start);
+                positionMergeWithNeighbours(end);
+            });
         });
 
         leftArea.contentWindow.Selection_hideWhileExecuting(function() {

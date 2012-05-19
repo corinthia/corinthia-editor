@@ -129,6 +129,8 @@ var Tables_regionFromRange;
     // public
     Tables_insertTable = trace(function insertTable(rows,cols,width,numbered,caption)
     {
+        UndoManager_newGroup("Insert table");
+
         if (rows < 1)
             rows = 1;
         if (cols < 1)

@@ -4,6 +4,7 @@
 // response to other DOM mutations, so at undo time the changes will be made twice
 
 var Outline_init;
+var Outline_removeListeners;
 var Outline_moveSection;
 var Outline_deleteItem;
 var Outline_goToItem;
@@ -744,6 +745,13 @@ var Outline_examinePrintLayout;
         doneInit = true;
     });
 
+    // public (for the undo tests, when they report results)
+    Outline_removeListeners = trace(function removeListeners()
+    {
+        document.removeEventListener("DOMNodeInserted",docNodeInserted);
+        document.removeEventListener("DOMNodeRemoved",docNodeRemoved);
+    });
+
     // private
     var getOutlineItemNodes = trace(function getOutlineItemNodes(section,result)
     {
@@ -834,6 +842,10 @@ var Outline_examinePrintLayout;
     {
         var node = document.getElementById(itemId);
         var item = itemsByNode.get(node);
+
+        var oldNumbered = (item.numberSpan != null);
+        UndoManager_addAction(Outline_setNumbered,itemId,oldNumbered);
+
         if (numbered)
             item.enableNumbering();
         else
