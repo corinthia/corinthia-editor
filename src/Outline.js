@@ -18,8 +18,8 @@ var Outline_examinePrintLayout;
 
 (function() {
 
-    var itemsById = new Object();
-    var refsById = new Object();
+    var itemsByNode = null;
+    var refsById = null;
     var nextItemId = 1;
     var outlineDirty = false;
     var ignoreModifications = 0;
@@ -84,7 +84,7 @@ var Outline_examinePrintLayout;
         {
             do node = prevNode(node);
             while ((node != null) && !typeFun(node));
-            return (node == null) ? null : itemsById[node.getAttribute("id")];
+            return (node == null) ? null : itemsByNode.get(node);
         }
 
         function findFirstTextDescendant(node)
@@ -104,7 +104,7 @@ var Outline_examinePrintLayout;
 
     Category.prototype.remove = trace(function remove(node)
     {
-        var item = itemsById[node.getAttribute("id")];
+        var item = itemsByNode.get(node);
         if (item == null) {
             throw new Error("Attempt to remove non-existant "+DOM_upperName(node)+
                             " item "+node.getAttribute("id"));
@@ -232,7 +232,7 @@ var Outline_examinePrintLayout;
         this.references = new NodeSet();
         this.modificationListener = function(event) { itemModified(item); }
 
-        itemsById[this.id] = this;
+        itemsByNode.put(this.node,this);
 
         this.spanClass = null;
         this.titleNode = this.getTitleNode(false);
@@ -473,7 +473,7 @@ var Outline_examinePrintLayout;
             refsById[id] = new Array();
         refsById[id].push(node);
 
-        var item = itemsById[id];
+        var item = itemsByNode.get(node);
         if ((item != null) && (item.referenceText != null)) {
             DOM_deleteAllChildren(node);
             DOM_appendChild(node,DOM_createTextNode(document,item.referenceText));
@@ -733,6 +733,8 @@ var Outline_examinePrintLayout;
         sections = new Category("section",isHeadingNode,sectionNumberRegex);
         figures = new Category("figure",isFigureNode,figureNumberRegex);
         tables = new Category("table",isTableNode,tableNumberRegex);
+        itemsByNode = new NodeMap();
+        refsById = new Object();
 
         DOM_ensureUniqueIds(document.documentElement);
         document.addEventListener("DOMNodeInserted",docNodeInserted);
@@ -757,9 +759,16 @@ var Outline_examinePrintLayout;
         Selection_preserveWhileExecuting(function() {
             updateStructure(); // make sure pointers are valid
 
-            var section = itemsById[sectionId];
-            var parent = parentId ? itemsById[parentId] : null;
-            var next = nextId ? itemsById[nextId] : null;
+            var node = document.getElementById(sectionId);
+            var section = itemsByNode.get(node);
+
+            // FIXME: We should throw an exception if a parentId or nextId which does not exist
+            // in the document is specified. However there are currently some tests (like
+            // moveSection-nested*) which rely us interpreting such parameters as null.
+            var parentNode = parentId ? document.getElementById(parentId) : null;
+            var nextNode = nextId ? document.getElementById(nextId) : null;
+            var parent = parentNode ? itemsByNode.get(parentNode) : null;
+            var next = nextNode ? itemsByNode.get(nextNode) : null;
 
             var sectionNodes = new Array();
             getOutlineItemNodes(section,sectionNodes);
@@ -784,7 +793,8 @@ var Outline_examinePrintLayout;
     Outline_deleteItem = trace(function deleteItem(itemId)
     {
         Selection_preserveWhileExecuting(function() {
-            var item = itemsById[itemId];
+            var node = document.getElementById(itemId);
+            var item = itemsByNode.get(node);
             if (item.type == "section") {
                 var sectionNodes = new Array();
                 getOutlineItemNodes(item,sectionNodes);
@@ -816,17 +826,14 @@ var Outline_examinePrintLayout;
     // public
     Outline_getItemElement = trace(function getItemElement(itemId)
     {
-        var item = itemsById[itemId];
-        if (item != null)
-            return item.node;
-        else
-            return null;
+        return document.getElementById(itemId);
     });
 
     // public
     Outline_setNumbered = trace(function setNumbered(itemId,numbered)
     {
-        var item = itemsById[itemId];
+        var node = document.getElementById(itemId);
+        var item = itemsByNode.get(node);
         if (numbered)
             item.enableNumbering();
         else
@@ -891,16 +898,15 @@ var Outline_examinePrintLayout;
         result.leafRectsByPage = new Object();
         debug("examinePrintLayout 1");
 
-        for (var id in itemsById) {
-            var item = itemsById[id];
-//            debug("examinePrintLayout 1.1: item "+id);
+        itemsByNode.forEach(function(node,item) {
+//            debug("examinePrintLayout 1.1: item "+item.id);
             var rect = item.node.getBoundingClientRect();
 //            debug("examinePrintLayout 1.2: rect "+rect);
             var pageNo = 1+Math.floor(rect.top/pageHeight);
 //            debug("examinePrintLayout 1.3: pageNo "+pageNo);
             var pageTop = (pageNo-1)*pageHeight;
 //            debug("examinePrintLayout 1.4: pageTop "+pageTop);
-            debug("item "+id+" ("+JSON.stringify(item.title)+") is on page "+pageNo);
+            debug("item "+item.id+" ("+JSON.stringify(item.title)+") is on page "+pageNo);
             item.pageNo = pageNo;
 
             if (result.destsByPage[pageNo] == null)
@@ -908,7 +914,7 @@ var Outline_examinePrintLayout;
             result.destsByPage[pageNo].push({ itemId: id,
                                               x: rect.left,
                                               y: rect.top - pageTop});
-        }
+        });
 
         debug("examinePrintLayout 2");
         var links = document.getElementsByTagName("A");
