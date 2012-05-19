@@ -995,7 +995,9 @@ var Formatting_applyFormattingChanges;
         // and the cursor is at a position that is now immediately before the span.
         var start = Cursor_closestPositionForwards(selectionRange.start);
         var end = Cursor_closestPositionForwards(selectionRange.end);
-        Selection_setSelectionRange(new Range(start.node,start.offset,end.node,end.offset));
+        Selection_hideWhileExecuting(function() {
+            Selection_set(start.node,start.offset,end.node,end.offset);
+        });
     });
 
     Formatting_MERGEABLE_INLINE = {
