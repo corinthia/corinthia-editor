@@ -235,34 +235,30 @@ var Tables_regionFromRange;
     // public
     Tables_insertRowAbove = trace(function insertRowAbove()
     {
-        var selectionRange = Selection_get();
-        var region = Tables_regionFromRange(selectionRange,true);
+        var region = Tables_regionFromRange(Selection_get(),true);
         if (region != null) {
-            selectionRange.trackWhileExecuting(function() {
+            Selection_preserveWhileExecuting(function() {
                 var cell = region.structure.get(region.top,region.left);
                 var oldTR = cell.element.parentNode;
                 var newTR = DOM_createElement(document,"TR");
                 DOM_insertBefore(oldTR.parentNode,newTR,oldTR);
                 populateNewRow(region.structure,newTR,region.top-1,region.top);
             });
-            Selection_setSelectionRange(selectionRange);
         }
     });
 
     // public
     Tables_insertRowBelow = trace(function insertRowBelow()
     {
-        var selectionRange = Selection_get();
-        var region = Tables_regionFromRange(selectionRange,true);
+        var region = Tables_regionFromRange(Selection_get(),true);
         if (region != null) {
-            selectionRange.trackWhileExecuting(function() {
+            Selection_preserveWhileExecuting(function() {
                 var cell = region.structure.get(region.bottom,region.left);
                 var oldTR = cell.element.parentNode;
                 var newTR = DOM_createElement(document,"TR");
                 DOM_insertBefore(oldTR.parentNode,newTR,oldTR.nextSibling);
                 populateNewRow(region.structure,newTR,region.bottom+1,region.bottom);
             });
-            Selection_setSelectionRange(selectionRange);
         }
     });
 
@@ -428,28 +424,24 @@ var Tables_regionFromRange;
     // public
     Tables_insertColumnLeft = trace(function insertColumnLeft()
     {
-        var selectionRange = Selection_get();
-        var region = Tables_regionFromRange(selectionRange,true);
+        var region = Tables_regionFromRange(Selection_get(),true);
         if (region != null) {
-            selectionRange.trackWhileExecuting(function() {
+            Selection_preserveWhileExecuting(function() {
                 addColElement(region.structure,region.left,region.left-1);
                 addColumnCells(region.structure,region.left,false);
             });
-            Selection_setSelectionRange(selectionRange);
         }
     });
 
     // public
     Tables_insertColumnRight = trace(function insertColumnRight()
     {
-        var selectionRange = Selection_get();
-        var region = Tables_regionFromRange(selectionRange,true);
+        var region = Tables_regionFromRange(Selection_get(),true);
         if (region != null) {
-            selectionRange.trackWhileExecuting(function() {
+            Selection_preserveWhileExecuting(function() {
                 addColElement(region.structure,region.right,region.right+1);
                 addColumnCells(region.structure,region.right,true);
             });
-            Selection_setSelectionRange(selectionRange);
         }
     });
 
