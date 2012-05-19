@@ -505,109 +505,108 @@ var Cursor_enterPressed;
     // public
     Cursor_enterPressed = trace(function enterPressed()
     {
-        var selectionRange = Selection_get();
-        if (selectionRange == null)
-            return;
+        Selection_hideWhileExecuting(function() {
+            var selRange = Selection_get();
+            if (selRange == null)
+                return;
 
-        selectionRange.trackWhileExecuting(function() {
-            selectionRange.ensureRangeInlineNodesInParagraph();
-            selectionRange.ensureRangeValidHierarchy();
-            if (!selectionRange.isEmpty())
-                Selection_deleteSelectionContents();
-        });
+            selRange.trackWhileExecuting(function() {
+                selRange.ensureRangeInlineNodesInParagraph();
+                selRange.ensureRangeValidHierarchy();
+                if (!selRange.isEmpty())
+                    Selection_deleteContents();
+            });
 
-        var pos = selectionRange.start;
+            var pos = selRange.start;
 
-        var detail = selectionRange.detail();
-        if ((DOM_upperName(detail.startParent) == "OL") ||
-            (DOM_upperName(detail.startParent) == "UL")) {
-            var li = DOM_createElement(document,"LI");
-            DOM_insertBefore(detail.startParent,li,detail.startChild);
-            
-            selectionRange.start.node = li;
-            selectionRange.start.offset = 0;
-            selectionRange.end.node = li;
-            selectionRange.end.offset = 0;
-            Selection_setSelectionRange(selectionRange);
-            return;
-        }
+            var detail = selRange.detail();
+            if ((DOM_upperName(detail.startParent) == "OL") ||
+                (DOM_upperName(detail.startParent) == "UL")) {
+                var li = DOM_createElement(document,"LI");
+                DOM_insertBefore(detail.startParent,li,detail.startChild);
 
-        selectionRange.trackWhileExecuting(function() {
-
-            // If we're directly in a container node, add a paragraph, so we have something to
-            // split.
-            if (enterPressedFilter(pos.node) || (pos.node == document.body)) {
-                var p = DOM_createElement(document,"P");
-                DOM_insertBefore(pos.node,p,pos.node.childNodes[pos.offset]);
-                pos = new Position(p,0);
+                Selection_set(li,0,li,0);
+                return;
             }
 
-            if (positionAtStartOfHeading(pos)) {
-                var container = getContainerOrParagraph(pos.node);
-                pos = Formatting_movePreceding(container,0,enterPressedFilter,true);
-            }
-            else if (pos.node.nodeType == Node.TEXT_NODE) {
-                pos = Formatting_splitTextAfter(pos.node,pos.offset,enterPressedFilter,true);
-            }
-            else {
-                pos = Formatting_moveFollowing(pos.node,pos.offset,enterPressedFilter,true);
-            }
+            selRange.trackWhileExecuting(function() {
 
-            selectionRange.start.node = pos.node;
-            selectionRange.start.offset = pos.offset;
-            selectionRange.end.node = pos.node;
-            selectionRange.end.offset = pos.offset;
-            Selection_setSelectionRange(selectionRange);
-
-            if ((pos.node.nodeType == Node.TEXT_NODE) && (pos.node.nodeValue.length == 0)) {
-                DOM_deleteNode(pos.node);
-            }
-
-            var detail = selectionRange.detail();
-
-            // If a preceding paragraph has become empty as a result of enter being pressed
-            // while the cursor was in it, then update the BR at the end of the paragraph
-            var start = detail.startChild ? detail.startChild : detail.startParent;
-            for (var ancestor = start; ancestor != null; ancestor = ancestor.parentNode) {
-                var prev = ancestor.previousSibling;
-                if ((prev != null) && isParagraphNode(prev) && !nodeHasContent(prev)) {
-                    DOM_deleteAllChildren(prev);
-                    Cursor_updateBRAtEndOfParagraph(prev);
-                    break;
+                // If we're directly in a container node, add a paragraph, so we have something to
+                // split.
+                if (enterPressedFilter(pos.node) || (pos.node == document.body)) {
+                    var p = DOM_createElement(document,"P");
+                    DOM_insertBefore(pos.node,p,pos.node.childNodes[pos.offset]);
+                    pos = new Position(p,0);
                 }
-                else if ((prev != null) && isListItemNode(prev) && !nodeHasContent(prev)) {
-                    var next;
-                    for (var child = prev.firstChild; child != null; child = next) {
-                        next = child.nextSibling;
-                        if (isWhitespaceTextNode(child))
-                            DOM_deleteNode(child);
-                        else
-                            Cursor_updateBRAtEndOfParagraph(child);
+
+                if (positionAtStartOfHeading(pos)) {
+                    var container = getContainerOrParagraph(pos.node);
+                    pos = Formatting_movePreceding(container,0,enterPressedFilter,true);
+                }
+                else if (pos.node.nodeType == Node.TEXT_NODE) {
+                    pos = Formatting_splitTextAfter(pos.node,pos.offset,enterPressedFilter,true);
+                }
+                else {
+                    pos = Formatting_moveFollowing(pos.node,pos.offset,enterPressedFilter,true);
+                }
+            });
+
+            Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+            selRange = Selection_get();
+
+            selRange.trackWhileExecuting(function() {
+                if ((pos.node.nodeType == Node.TEXT_NODE) && (pos.node.nodeValue.length == 0)) {
+                    DOM_deleteNode(pos.node);
+                }
+
+                var detail = selRange.detail();
+
+                // If a preceding paragraph has become empty as a result of enter being pressed
+                // while the cursor was in it, then update the BR at the end of the paragraph
+                var start = detail.startChild ? detail.startChild : detail.startParent;
+                for (var ancestor = start; ancestor != null; ancestor = ancestor.parentNode) {
+                    var prev = ancestor.previousSibling;
+                    if ((prev != null) && isParagraphNode(prev) && !nodeHasContent(prev)) {
+                        DOM_deleteAllChildren(prev);
+                        Cursor_updateBRAtEndOfParagraph(prev);
+                        break;
                     }
-                    break;
+                    else if ((prev != null) && isListItemNode(prev) && !nodeHasContent(prev)) {
+                        var next;
+                        for (var child = prev.firstChild; child != null; child = next) {
+                            next = child.nextSibling;
+                            if (isWhitespaceTextNode(child))
+                                DOM_deleteNode(child);
+                            else
+                                Cursor_updateBRAtEndOfParagraph(child);
+                        }
+                        break;
+                    }
                 }
-            }
 
-            for (var ancestor = start; ancestor != null; ancestor = ancestor.parentNode) {
-                if (isParagraphNode(ancestor) && isHeadingNode(ancestor)) {
-                    ancestor = DOM_replaceElement(ancestor,"P");
-                    DOM_removeAttribute(ancestor,"id");
+                for (var ancestor = start; ancestor != null; ancestor = ancestor.parentNode) {
+                    if (isParagraphNode(ancestor) && isHeadingNode(ancestor)) {
+                        ancestor = DOM_replaceElement(ancestor,"P");
+                        DOM_removeAttribute(ancestor,"id");
+                    }
+
+                    if (isParagraphNode(ancestor) && !nodeHasContent(ancestor)) {
+                        Cursor_updateBRAtEndOfParagraph(prev);
+                        break;
+                    }
+                    else if ((DOM_upperName(ancestor) == "LI") && !nodeHasContent(ancestor)) {
+                        DOM_deleteAllChildren(ancestor);
+                        break;
+                    }
                 }
 
-                if (isParagraphNode(ancestor) && !nodeHasContent(ancestor)) {
-                    Cursor_updateBRAtEndOfParagraph(prev);
-                    break;
-                }
-                else if ((DOM_upperName(ancestor) == "LI") && !nodeHasContent(ancestor)) {
-                    DOM_deleteAllChildren(ancestor);
-                    break;
-                }
-            }
+                Cursor_updateBRAtEndOfParagraph(selRange.singleNode());
+            });
 
-            Cursor_updateBRAtEndOfParagraph(selectionRange.singleNode());
+            Selection_set(selRange.start.node,selRange.start.offset,
+                          selRange.end.node,selRange.end.offset);
         });
 
-        Selection_setSelectionRange(selectionRange);
         Cursor_ensureCursorVisible();
 
         function enterPressedFilter(node)
