@@ -191,7 +191,9 @@ var Tables_regionFromRange;
         // Place the cursor at the start of the first cell on the first row
         var pos = new Position(firstTD,0);
         pos = Cursor_closestPositionForwards(pos);
-        Selection_setEmptySelectionAt(pos.node,pos.offset);
+        Selection_hideWhileExecuting(function() {
+            Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+        });
     });
 
     // private

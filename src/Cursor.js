@@ -210,19 +210,21 @@ var Cursor_enterPressed;
     // public
     Cursor_positionCursor = trace(function positionCursor(x,y)
     {
-        var position = Cursor_closestPositionForwards(positionAtPoint(x,y));
-        if ((position != null) && isOpaqueNode(position.node))
-            position = nextCursorPosition(position);
-        if (position == null)
-            return false;
+        return Selection_hideWhileExecuting(function() {
+            var position = Cursor_closestPositionForwards(positionAtPoint(x,y));
+            if ((position != null) && isOpaqueNode(position.node))
+                position = nextCursorPosition(position);
+            if (position == null)
+                return false;
 
-        var selectionRange = Selection_get();
-        var samePosition = ((selectionRange != null) && selectionRange.isEmpty() &&
-                            (position.node == selectionRange.start.node) &&
-                            (position.offset == selectionRange.start.offset));
-        Selection_setEmptySelectionAt(position.node,position.offset);
-        Cursor_ensureCursorVisible();
-        return samePosition;
+            var selectionRange = Selection_get();
+            var samePosition = ((selectionRange != null) && selectionRange.isEmpty() &&
+                                (position.node == selectionRange.start.node) &&
+                                (position.offset == selectionRange.start.offset));
+            Selection_set(position.node,position.offset,position.node,position.offset);
+            Cursor_ensureCursorVisible();
+            return samePosition;
+        });
     });
 
     // public
@@ -257,47 +259,55 @@ var Cursor_enterPressed;
     // public
     Cursor_moveLeft = trace(function moveLeft()
     {
-        var selectionRange = Selection_get();
-        if (selectionRange == null)
-            return;
+        Selection_hideWhileExecuting(function() {
+            var range = Selection_get();
+            if (range == null)
+                return;
 
-        var pos = prevCursorPosition(selectionRange.start);
+            var pos = prevCursorPosition(range.start);
 
-        if (pos != null) {
-            Selection_setEmptySelectionAt(pos.node,pos.offset);
-            Cursor_ensureCursorVisible();
-        }
+            if (pos != null) {
+                Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+                Cursor_ensureCursorVisible();
+            }
+        });
     });
 
     // public
     Cursor_moveRight = trace(function moveRight()
     {
-        var selectionRange = Selection_get();
-        if (selectionRange == null)
-            return;
+        Selection_hideWhileExecuting(function() {
+            var range = Selection_get();
+            if (range == null)
+                return;
 
-        var pos = nextCursorPosition(selectionRange.start);
+            var pos = nextCursorPosition(range.start);
 
-        if (pos != null) {
-            Selection_setEmptySelectionAt(pos.node,pos.offset);
-            Cursor_ensureCursorVisible();
-        }
+            if (pos != null) {
+                Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+                Cursor_ensureCursorVisible();
+            }
+        });
     });
 
     Cursor_moveToStartOfDocument = trace(function moveToStartOfDocument()
     {
-        var pos = new Position(document.body,0);
-        pos = Cursor_closestPositionBackwards(pos);
-        Selection_setEmptySelectionAt(pos.node,pos.offset);
-        Cursor_ensureCursorVisible();
+        Selection_hideWhileExecuting(function() {
+            var pos = new Position(document.body,0);
+            pos = Cursor_closestPositionBackwards(pos);
+            Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+            Cursor_ensureCursorVisible();
+        });
     });
 
     Cursor_moveToEndOfDocument = trace(function moveToEndOfDocument()
     {
-        var pos = new Position(document.body,document.body.childNodes.length);
-        pos = Cursor_closestPositionForwards(pos);
-        Selection_setEmptySelectionAt(pos.node,pos.offset);
-        Cursor_ensureCursorVisible();
+        Selection_hideWhileExecuting(function() {
+            var pos = new Position(document.body,document.body.childNodes.length);
+            pos = Cursor_closestPositionForwards(pos);
+            Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+            Cursor_ensureCursorVisible();
+        });
     });
 
     // An empty paragraph does not get shown and cannot be edited. We can fix this by adding
@@ -467,15 +477,17 @@ var Cursor_enterPressed;
     // public
     Cursor_updateInsertion = trace(function updateInsertion(str)
     {
-        DOM_setNodeValue(insertionNode,insertionTextBefore+str+insertionTextAfter);
+        Selection_hideWhileExecuting(function() {
+            DOM_setNodeValue(insertionNode,insertionTextBefore+str+insertionTextAfter);
 
-        var node = insertionNode;
-        var offset = (insertionTextBefore+str).length;
-        Selection_setEmptySelectionAt(node,offset,node,offset);
-        Selection_get().trackWhileExecuting(function() {
-            Cursor_updateBRAtEndOfParagraph(node);
+            var node = insertionNode;
+            var offset = (insertionTextBefore+str).length;
+            Selection_set(node,offset,node,offset);
+            Selection_get().trackWhileExecuting(function() {
+                Cursor_updateBRAtEndOfParagraph(node);
+            });
+            Cursor_ensureCursorVisible();
         });
-        Cursor_ensureCursorVisible();
     });
 
     // public
