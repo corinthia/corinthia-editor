@@ -1,5 +1,7 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
+// FIXME: place a limit on the number of undo steps recorded - say, 30-50?
+
 var UndoManager_getLength;
 var UndoManager_getIndex;
 var UndoManager_setIndex;
@@ -9,6 +11,7 @@ var UndoManager_redo;
 var UndoManager_addAction;
 var UndoManager_newGroup;
 var UndoManager_groupType;
+var UndoManager_disableWhileExecuting;
 
 (function() {
 
@@ -34,6 +37,7 @@ var UndoManager_groupType;
     var inUndo = false;
     var inRedo = false;
     var currentGroup = null;
+    var disabled = 0;
 
     // public
     UndoManager_getLength = trace(function getLength()
@@ -115,6 +119,9 @@ var UndoManager_groupType;
     // public
     UndoManager_addAction = trace(function addAction(fun)
     {
+        if (disabled > 0)
+            return;
+
         // remaining parameters after fun are arguments to be supplied to fun
         var args = new Array();
         for (var i = 1; i < arguments.length; i++)
@@ -138,6 +145,9 @@ var UndoManager_groupType;
     // public
     UndoManager_newGroup = trace(function newGroup(type)
     {
+        if (disabled > 0)
+            return;
+
         // We don't actually add the group to the undo stack until the first request to add an
         // action to it. This way we don't end up with empty groups in the undo stack, which
         // simplifies logic for moving back and forward through the undo history.
@@ -154,6 +164,16 @@ var UndoManager_groupType;
             return undoStack[undoStack.length-1].type;
         else
             return null;
+    });
+
+    UndoManager_disableWhileExecuting = trace(function disableWhileExecuting(fun) {
+        disabled++;
+        try {
+            return fun();
+        }
+        finally {
+            disabled--;
+        }
     });
 
 })();
