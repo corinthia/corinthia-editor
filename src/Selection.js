@@ -18,7 +18,6 @@ var Selection_dragSelectionUpdate;
 var Selection_setSelectionStartAtCoords;
 var Selection_setSelectionEndAtCoords;
 var Selection_setTableSelectionEdgeAtCoords;
-var Selection_setSelectionRange;
 var Selection_setEmptySelectionAt;
 var Selection_deleteContents;
 var Selection_deleteSelectionContents;
@@ -640,17 +639,6 @@ var Selection_preserveWhileExecuting;
             }
             return null;
         }
-    });
-
-    // public
-    Selection_setSelectionRange = trace(function setSelectionRange(range)
-    {
-        Selection_hideWhileExecuting(function() {
-            if (range == null)
-                Selection_clear();
-            else
-                Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
-        });
     });
 
     // public
