@@ -3,6 +3,10 @@
 // FIXME: The TOC/ItemList stuff won't work with Undo, because we're making DOM mutations in
 // response to other DOM mutations, so at undo time the changes will be made twice
 
+// Any DOM manipulations performed by this class in response to other DOM events (insertion or
+// removal of a node) must be wrapped in a call to UndoManager_disableWhileExecuting(), to avoid
+// duplicate numberSpans and the like from appearing in the document if an undo + redo occurs.
+
 var Outline_init;
 var Outline_removeListeners;
 var Outline_moveSection;
@@ -114,8 +118,10 @@ var Outline_examinePrintLayout;
         Editor_removeOutlineItem(item.id);
         this.tocs.forEach(function(node,toc) { toc.removeOutlineItem(item.id); });
         item.node.removeEventListener("DOMSubtreeModified",item.modificationListener);
-        if (item.numberSpan != null)
-            DOM_deleteNode(item.numberSpan);
+        UndoManager_disableWhileExecuting(function() {
+            if (item.numberSpan != null)
+                DOM_deleteNode(item.numberSpan);
+        });
         scheduleUpdateStructure();
     });
 
@@ -261,11 +267,15 @@ var Outline_examinePrintLayout;
     {
         if (this.numberSpan != null)
             return;
-        this.numberSpan = DOM_createElement(document,"SPAN");
-        DOM_setAttribute(this.numberSpan,"class",this.spanClass);
         this.titleNode = this.getTitleNode(true);
-        DOM_insertBefore(this.titleNode,this.numberSpan,this.titleNode.firstChild);
-        DOM_appendChild(this.numberSpan,DOM_createTextNode(document,""));
+
+        var item = this;
+        UndoManager_disableWhileExecuting(function() {
+            item.numberSpan = DOM_createElement(document,"SPAN");
+            DOM_setAttribute(item.numberSpan,"class",item.spanClass);
+            DOM_insertBefore(item.titleNode,item.numberSpan,item.titleNode.firstChild);
+            DOM_appendChild(item.numberSpan,DOM_createTextNode(document,""));
+        });
         scheduleUpdateStructure();
     }
 
@@ -273,8 +283,12 @@ var Outline_examinePrintLayout;
     {
         if (this.numberSpan == null)
             return;
-        DOM_deleteNode(this.numberSpan);
-        this.numberSpan = null;
+
+        var item = this;
+        UndoManager_disableWhileExecuting(function() {
+            DOM_deleteNode(item.numberSpan);
+            item.numberSpan = null;
+        });
 
         var titleNode = this.getTitleNode(false);
         if ((titleNode != null) && !nodeHasContent(titleNode))
@@ -592,7 +606,11 @@ var Outline_examinePrintLayout;
         if (!outlineDirty)
             return;
         outlineDirty = false;
+        UndoManager_disableWhileExecuting(updateStructureReal);
+    });
 
+    var updateStructureReal = trace(function updateStructureReal()
+    {
         var toplevelSections = new Array();
         var toplevelFigures = new Array();
         var toplevelTables = new Array();

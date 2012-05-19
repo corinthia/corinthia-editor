@@ -12,6 +12,7 @@ function testUndo(versions,node)
 
     for (var i = 0; i < numSteps; i++) {
         UndoManager_undo();
+        PostponedActions_perform();
         if (PrettyPrinter.getHTML(node) == expected[versions.length-2-i])
             backwards1.push(DOM_createTextNode(document,"OK"));
         else
@@ -21,6 +22,7 @@ function testUndo(versions,node)
 
     for (var i = 0; i < numSteps; i++) {
         UndoManager_redo();
+        PostponedActions_perform();
         if (PrettyPrinter.getHTML(node) == expected[i+1])
             forwards2.push(DOM_createTextNode(document,"OK"));
         else
@@ -30,6 +32,7 @@ function testUndo(versions,node)
 
     for (var i = 0; i < numSteps; i++) {
         UndoManager_undo();
+        PostponedActions_perform();
         if (PrettyPrinter.getHTML(node) == expected[versions.length-2-i])
             backwards2.push(DOM_createTextNode(document,"OK"));
         else
