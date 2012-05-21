@@ -202,6 +202,7 @@ var Outline_examinePrintLayout;
                 DOM_appendChild(li,leftSpan);
                 DOM_appendChild(li,rightSpan);
 
+                // FIXME: item -> shadow
                 if (item.numberSpan != null)
                     DOM_appendChild(leftSpan,DOM_createTextNode(document,item.getFullNumber()+" "));
                 DOM_appendChild(leftSpan,toc.textNodes[item.id]);
@@ -232,9 +233,9 @@ var Outline_examinePrintLayout;
         this.node = node;
         this.title = null;
         this.level = node ? parseInt(DOM_upperName(node).substring(1)) : 0;
-        this.index = null;
-        this.parent = null;
-        this.children = new Array();
+//        this.index = null; // FIXME: refs
+//        this.parent = null; // FIXME: refs
+//        this.children = new Array(); // FIXME: refs
         this.isRoot = (this.level == 0);
         this.numberSpan = null;
         this.referenceText = null;
@@ -359,59 +360,6 @@ var Outline_examinePrintLayout;
         }
     });
 
-    OutlineItem.prototype.last = trace(function last()
-    {
-        if (this.children.length == 0)
-            return this;
-        else
-            return this.children[this.children.length-1].last();
-    });
-
-    OutlineItem.prototype.outerNext = trace(function outerNext()
-    {
-        var last = this.last();
-        if (last == null)
-            return null;
-        else if (last.next == null)
-            return null;
-        else
-            return last.next;
-    });
-
-    OutlineItem.prototype.toString = trace(function toString()
-    {
-        if (this.isRoot)
-            return "(root)";
-
-        var str = "["+this.id+"] "+this.getFullNumber()+" "+this.node;
-        if (this.node != null)
-            str += " "+JSON.stringify(getNodeText(this.node));
-        str += " (level "+this.level+")";
-        return str;
-    });
-
-    OutlineItem.prototype.print = trace(function print(indent)
-    {
-        if (indent == null)
-            indent = "";
-        debug(indent+this);
-        for (var i = 0; i < this.children.length; i++)
-            this.children[i].print(indent+"    ");
-    });
-
-    OutlineItem.prototype.getFullNumber = trace(function getFullNumber()
-    {
-        if (this.numberSpan == null)
-            return "";
-        var item = this;
-        var fullNumber = ""+item.index;
-        while (item.parent != null) {
-            item = item.parent;
-            fullNumber = item.index+"."+fullNumber;
-        }
-        return fullNumber;
-    });
-
     OutlineItem.prototype.setReferenceText = trace(function setReferenceText(referenceText)
     {
         if (this.referenceText == referenceText)
@@ -425,30 +373,6 @@ var Outline_examinePrintLayout;
                 DOM_deleteAllChildren(refs[i]);
                 DOM_appendChild(refs[i],DOM_createTextNode(document,referenceText));
             }
-        }
-    });
-
-    OutlineItem.prototype.updateItemNumbering = trace(function updateItemNumbering()
-    {
-        var item = this;
-        if (item.title == null)
-            throw new Error("updateItemNumbering: item "+item.id+" has null title");
-        if (item.numberSpan != null) {
-            var spanText = "";
-            if (item.type == "section") {
-                spanText = item.getFullNumber()+" ";
-            }
-            else if (item.type == "figure") {
-                spanText = "Figure "+item.getFullNumber();
-                if (item.title != "")
-                    spanText += ": ";
-            }
-            else if (item.type == "table") {
-                spanText = "Table "+item.getFullNumber();
-                if (item.title != "")
-                    spanText += ": ";
-            }
-            DOM_setNodeValue(item.numberSpan.firstChild,spanText);
         }
     });
 
@@ -621,90 +545,192 @@ var Outline_examinePrintLayout;
         UndoManager_disableWhileExecuting(updateStructureReal);
     });
 
-    var updateStructureReal = trace(function updateStructureReal()
+    function Shadow(node)
     {
-        var toplevelSections = new Array();
-        var toplevelFigures = new Array();
-        var toplevelTables = new Array();
+        this.node = node;
+        this.item = itemsByNode.get(node);
+        this.level = this.item.level;
+        this.children = [];
+        this.parent = null;
+    }
+
+    Shadow.prototype.last = trace(function last()
+    {
+        if (this.children.length == 0)
+            return this;
+        else
+            return this.children[this.children.length-1].last();
+    });
+
+    Shadow.prototype.outerNext = trace(function outerNext(structure)
+    {
+        var last = this.last();
+        if (last == null)
+            return null;
+        else if (last.item.next == null)
+            return null;
+        else
+            return structure.shadowsByNode.get(last.item.next.node);
+    });
+
+    Shadow.prototype.getFullNumber = trace(function getFullNumber()
+    {
+        if (this.item.numberSpan == null)
+            return "";
+        var shadow = this;
+        var fullNumber = ""+shadow.index;
+        while (shadow.parent != null) {
+            shadow = shadow.parent;
+            fullNumber = shadow.index+"."+fullNumber;
+        }
+        return fullNumber;
+    });
+
+    Shadow.prototype.updateItemNumbering = trace(function updateItemNumbering()
+    {
+        var shadow = this;
+        var item = this.item;
+        if (item.title == null)
+            throw new Error("updateItemNumbering: item "+item.id+" has null title");
+        if (item.numberSpan != null) {
+            var spanText = "";
+            if (item.type == "section") {
+                spanText = shadow.getFullNumber()+" ";
+            }
+            else if (item.type == "figure") {
+                spanText = "Figure "+shadow.getFullNumber();
+                if (item.title != "")
+                    spanText += ": ";
+            }
+            else if (item.type == "table") {
+                spanText = "Table "+shadow.getFullNumber();
+                if (item.title != "")
+                    spanText += ": ";
+            }
+            DOM_setNodeValue(item.numberSpan.firstChild,spanText);
+        }
+    });
+
+    function Structure()
+    {
+        this.toplevelSections = new Array();
+        this.toplevelFigures = new Array();
+        this.toplevelTables = new Array();
+        this.shadowsByNode = new NodeMap();
+    }
+
+    var discoverStructure = trace(function discoverStructure()
+    {
+        var structure = new Structure();
         var nextToplevelSectionNumber = 1;
         var nextFigureNumber = 1;
         var nextTableNumber = 1;
-        var wrapper = new Object();
 
         var current = null;
-        wrapper.parent = null;
-        wrapper.children = [];
 
         for (var section = sections.list.first; section != null; section = section.next) {
-            section.parent = null;
-            section.children = [];
-            section.nextChildSectionNumber = 1;
+            structure.shadowsByNode.put(section.node,new Shadow(section.node));
+        }
+        for (var figure = figures.list.first; figure != null; figure = figure.next) {
+            structure.shadowsByNode.put(figure.node,new Shadow(figure.node));
+        }
+        for (var table = tables.list.first; table != null; table = table.next) {
+            structure.shadowsByNode.put(table.node,new Shadow(table.node));
+        }
+
+        for (var section = sections.list.first; section != null; section = section.next) {
+            var shadow = structure.shadowsByNode.get(section.node);
+            shadow.parent = null;
+            shadow.children = [];
+            shadow.nextChildSectionNumber = 1;
         }
 
         ignoreModifications++;
 
         for (var section = sections.list.first; section != null; section = section.next) {
+            var shadow = structure.shadowsByNode.get(section.node);
            
-            while ((current != null) && (section.level < current.level+1))
+            while ((current != null) && (shadow.level < current.level+1))
                 current = current.parent;
 
-            section.parent = current;
+            shadow.parent = current;
             if (current == null) {
-                if (section.numberSpan != null)
-                    section.index = nextToplevelSectionNumber++;
+                if (shadow.item.numberSpan != null)
+                    shadow.index = nextToplevelSectionNumber++;
                 else
-                    section.index = 0;
-                toplevelSections.push(section);
+                    shadow.index = 0;
+                structure.toplevelSections.push(shadow);
             }
             else {
-                if (section.numberSpan != null)
-                    section.index = current.nextChildSectionNumber++;
+                if (shadow.item.numberSpan != null)
+                    shadow.index = current.nextChildSectionNumber++;
                 else
-                    section.index = 0;
-                current.children.push(section);
+                    shadow.index = 0;
+                current.children.push(shadow);
             }
 
-            current = section;
-            section.updateItemNumbering();
-            section.setReferenceText("Section "+section.getFullNumber());
+            current = shadow;
         }
 
         for (var figure = figures.list.first; figure != null; figure = figure.next) {
-            if (figure.numberSpan != null)
-                figure.index = nextFigureNumber++;
+            var shadow = structure.shadowsByNode.get(figure.node);
+            if (shadow.item.numberSpan != null)
+                shadow.index = nextFigureNumber++;
             else
-                figure.index = 0;
-            toplevelFigures.push(figure);
-            figure.updateItemNumbering();
-            figure.setReferenceText("Figure "+figure.getFullNumber());
+                shadow.index = 0;
+            structure.toplevelFigures.push(shadow);
         }
 
         for (var table = tables.list.first; table != null; table = table.next) {
-            if (table.numberSpan != null)
-                table.index = nextTableNumber++;
+            var shadow = structure.shadowsByNode.get(table.node);
+            if (shadow.item.numberSpan != null)
+                shadow.index = nextTableNumber++;
             else
-                table.index = 0;
-            toplevelTables.push(table);
-            table.updateItemNumbering();
-            table.setReferenceText("Table "+table.getFullNumber());
+                shadow.index = 0;
+            structure.toplevelTables.push(shadow);
         }
 
         ignoreModifications--;
 
-        sections.tocs.forEach(function (node,toc) { toc.updateStructure(toplevelSections); });
-        figures.tocs.forEach(function (node,toc) { toc.updateStructure(toplevelFigures); });
-        tables.tocs.forEach(function (node,toc) { toc.updateStructure(toplevelTables); });
+        return structure;
+    });
+
+    var updateStructureReal = trace(function updateStructureReal()
+    {
+        var structure = discoverStructure();
+
+        for (var section = sections.list.first; section != null; section = section.next) {
+            var shadow = structure.shadowsByNode.get(section.node);
+            shadow.updateItemNumbering();
+            shadow.item.setReferenceText("Section "+shadow.getFullNumber());
+        }
+
+        for (var figure = figures.list.first; figure != null; figure = figure.next) {
+            var shadow = structure.shadowsByNode.get(figure.node);
+            shadow.updateItemNumbering();
+            shadow.item.setReferenceText("Figure "+shadow.getFullNumber());
+        }
+
+        for (var table = tables.list.first; table != null; table = table.next) {
+            var shadow = structure.shadowsByNode.get(table.node);
+            shadow.updateItemNumbering();
+            shadow.item.setReferenceText("Table "+shadow.getFullNumber());
+        }
+
+        sections.tocs.forEach(function (node,toc) { toc.updateStructure(structure.toplevelSections); });
+        figures.tocs.forEach(function (node,toc) { toc.updateStructure(structure.toplevelFigures); });
+        tables.tocs.forEach(function (node,toc) { toc.updateStructure(structure.toplevelTables); });
 
         var encSections = new Array();
         var encFigures = new Array();
         var encTables = new Array();
 
-        for (var i = 0; i < toplevelSections.length; i++)
-            encodeItem(toplevelSections[i],encSections);
-        for (var i = 0; i < toplevelFigures.length; i++)
-            encodeItem(toplevelFigures[i],encFigures);
-        for (var i = 0; i < toplevelTables.length; i++)
-            encodeItem(toplevelTables[i],encTables);
+        for (var i = 0; i < structure.toplevelSections.length; i++)
+            encodeShadow(structure.toplevelSections[i],encSections);
+        for (var i = 0; i < structure.toplevelFigures.length; i++)
+            encodeShadow(structure.toplevelFigures[i],encFigures);
+        for (var i = 0; i < structure.toplevelTables.length; i++)
+            encodeShadow(structure.toplevelTables[i],encTables);
 
         var arg = { sections: encSections,
                     figures: encFigures,
@@ -713,14 +739,14 @@ var Outline_examinePrintLayout;
         return;
 
 
-        function encodeItem(item,result)
+        function encodeShadow(shadow,result)
         {
             var encChildren = new Array();
-            for (var i = 0; i < item.children.length; i++)
-                encodeItem(item.children[i],encChildren);
+            for (var i = 0; i < shadow.children.length; i++)
+                encodeShadow(shadow.children[i],encChildren);
 
-            var obj = { id: item.id,
-                        number: item.getFullNumber(),
+            var obj = { id: shadow.item.id,
+                        number: shadow.getFullNumber(),
                         children: encChildren };
             result.push(obj);
         }
@@ -729,11 +755,13 @@ var Outline_examinePrintLayout;
     Outline_plainText = trace(function plainText()
     {
         var strings = new Array();
+        var structure = discoverStructure();
 
         strings.push("Sections:\n");
         for (var section = sections.list.first; section != null; section = section.next) {
+            var shadow = structure.shadowsByNode.get(section.node);
             if (section.level == 1)
-                printSectionRecursive(section,"    ");
+                printSectionRecursive(shadow,"    ");
         }
         strings.push("Figures:\n");
         for (var figure = figures.list.first; figure != null; figure = figure.next) {
@@ -749,15 +777,15 @@ var Outline_examinePrintLayout;
         }
         return strings.join("");
 
-        function printSectionRecursive(section,indent)
+        function printSectionRecursive(shadow,indent)
         {
-            var titleNode = section.getTitleNode(false);
+            var titleNode = shadow.item.getTitleNode(false);
             var content = getNodeText(titleNode);
             if (isWhitespaceString(content))
                 content = "[empty]";
-            strings.push(indent+content+" ("+section.id+")\n");
-            for (var i = 0; i < section.children.length; i++)
-                printSectionRecursive(section.children[i],indent+"    ");
+            strings.push(indent+content+" ("+shadow.item.id+")\n");
+            for (var i = 0; i < shadow.children.length; i++)
+                printSectionRecursive(shadow.children[i],indent+"    ");
         }
     });
 
@@ -786,11 +814,11 @@ var Outline_examinePrintLayout;
     });
 
     // private
-    var getOutlineItemNodes = trace(function getOutlineItemNodes(section,result)
+    var getShadowNodes = trace(function getShadowNodes(structure,shadow,result)
     {
-        var endOutlineItem = section.outerNext();
-        var endNode = endOutlineItem ? endOutlineItem.node : null;
-        for (var n = section.node; (n != null) && (n != endNode); n = n.nextSibling)
+        var endShadow = shadow.outerNext(structure);
+        var endNode = endShadow ? endShadow.item.node : null;
+        for (var n = shadow.item.node; (n != null) && (n != endNode); n = n.nextSibling)
             result.push(n);
     });
 
@@ -799,23 +827,31 @@ var Outline_examinePrintLayout;
     {
         Selection_preserveWhileExecuting(function() {
             updateStructure(); // make sure pointers are valid
+            // FIXME: I don't think we'll need the updateStructure() call now that we have
+            // discoverStructure(). In fact this function is a perfect illustration of why
+            // waiting till after the postponed action has been performed before relying on the
+            // pointer validity was a problem.
+
+
+            var structure = discoverStructure();
 
             var node = document.getElementById(sectionId);
             var section = itemsByNode.get(node);
+            var shadow = structure.shadowsByNode.get(node);
 
             // FIXME: We should throw an exception if a parentId or nextId which does not exist
             // in the document is specified. However there are currently some tests (like
             // moveSection-nested*) which rely us interpreting such parameters as null.
             var parentNode = parentId ? document.getElementById(parentId) : null;
             var nextNode = nextId ? document.getElementById(nextId) : null;
-            var parent = parentNode ? itemsByNode.get(parentNode) : null;
-            var next = nextNode ? itemsByNode.get(nextNode) : null;
+            var parent = parentNode ? structure.shadowsByNode.get(parentNode) : null;
+            var next = nextNode ? structure.shadowsByNode.get(nextNode) : null;
 
             var sectionNodes = new Array();
-            getOutlineItemNodes(section,sectionNodes);
+            getShadowNodes(structure,shadow,sectionNodes);
 
             if ((next == null) && (parent != null))
-                next = parent.outerNext();
+                next = parent.outerNext(structure);
 
             if (next == null) {
                 for (var i = 0; i < sectionNodes.length; i++)
@@ -823,7 +859,7 @@ var Outline_examinePrintLayout;
             }
             else {
                 for (var i = 0; i < sectionNodes.length; i++)
-                    DOM_insertBefore(next.node.parentNode,sectionNodes[i],next.node);
+                    DOM_insertBefore(next.item.node.parentNode,sectionNodes[i],next.item.node);
             }
         });
 
@@ -833,12 +869,14 @@ var Outline_examinePrintLayout;
     // public
     Outline_deleteItem = trace(function deleteItem(itemId)
     {
+        var structure = discoverStructure();
         Selection_preserveWhileExecuting(function() {
             var node = document.getElementById(itemId);
             var item = itemsByNode.get(node);
+            var shadow = structure.shadowsByNode.get(item.node);
             if (item.type == "section") {
                 var sectionNodes = new Array();
-                getOutlineItemNodes(item,sectionNodes);
+                getShadowNodes(structure,shadow,sectionNodes);
                 for (var i = 0; i < sectionNodes.length; i++)
                     DOM_deleteNode(sectionNodes[i]);
             }
