@@ -174,7 +174,8 @@ var Outline_examinePrintLayout;
         DOM_setNodeValue(this.textNodes[id],title);
     });
 
-    TOC.prototype.updateStructure = trace(function updateStructure(structure,toplevelShadows)
+    TOC.prototype.updateStructure = trace(function updateStructure(structure,toplevelShadows,
+                                                                   pageNumbers)
     {
         var toc = this;
         DOM_deleteAllChildren(this.node);
@@ -208,10 +209,11 @@ var Outline_examinePrintLayout;
                     DOM_appendChild(leftSpan,DOM_createTextNode(document,
                                                                 shadow.getFullNumber()+" "));
                 DOM_appendChild(leftSpan,toc.textNodes[item.id]);
-                if (item.pageNo == null)
+                var pageNo = pageNumbers ? pageNumbers.get(item.node) : null;
+                if (pageNo == null)
                     DOM_appendChild(rightSpan,DOM_createTextNode(document,"XXXX"));
                 else
-                    DOM_appendChild(rightSpan,DOM_createTextNode(document,item.pageNo));
+                    DOM_appendChild(rightSpan,DOM_createTextNode(document,pageNo));
 
                 recurse(shadow.children,li);
             }
@@ -235,8 +237,6 @@ var Outline_examinePrintLayout;
         this.node = node;
         this.title = null;
         this.numberSpan = null;
-        this.nextChildSectionNumber = null;
-        this.pageNo = null;
 
         this.prev = null;
         this.next = null;
@@ -670,7 +670,7 @@ var Outline_examinePrintLayout;
         return structure;
     });
 
-    var updateStructureReal = trace(function updateStructureReal()
+    var updateStructureReal = trace(function updateStructureReal(pageNumbers)
     {
         var structure = discoverStructure();
 
@@ -693,13 +693,13 @@ var Outline_examinePrintLayout;
         }
 
         sections.tocs.forEach(function (node,toc) {
-            toc.updateStructure(structure,structure.toplevelSections);
+            toc.updateStructure(structure,structure.toplevelSections,pageNumbers);
         });
         figures.tocs.forEach(function (node,toc) {
-            toc.updateStructure(structure,structure.toplevelFigures);
+            toc.updateStructure(structure,structure.toplevelFigures,pageNumbers);
         });
         tables.tocs.forEach(function (node,toc) {
-            toc.updateStructure(structure,structure.toplevelTables);
+            toc.updateStructure(structure,structure.toplevelTables,pageNumbers);
         });
 
         var encSections = new Array();
@@ -917,6 +917,7 @@ var Outline_examinePrintLayout;
     });
 
     // private
+    // FIXME: prevent a TOC from being inserted inside a heading, figure, or table
     var insertTOC = trace(function insertTOC(key,initialText)
     {
         var div = DOM_createElement(document,"NAV");
@@ -967,16 +968,19 @@ var Outline_examinePrintLayout;
     Outline_examinePrintLayout = trace(function examinePrintLayout(pageHeight)
     {
         var result = new Object();
+        var structure = discoverStructure();
+        var pageNumbers = new NodeMap();
 
         result.destsByPage = new Object();
         result.linksByPage = new Object();
         result.leafRectsByPage = new Object();
 
         itemsByNode.forEach(function(node,item) {
-            var rect = item.node.getBoundingClientRect();
+            var rect = node.getBoundingClientRect();
             var pageNo = 1+Math.floor(rect.top/pageHeight);
             var pageTop = (pageNo-1)*pageHeight;
-            item.pageNo = pageNo;
+            var id = node.getAttribute("id");
+            pageNumbers.put(node,pageNo);
 
             if (result.destsByPage[pageNo] == null)
                 result.destsByPage[pageNo] = new Array();
@@ -1013,7 +1017,7 @@ var Outline_examinePrintLayout;
 
         recurse(document.body);
 
-        scheduleUpdateStructure();
+        updateStructureReal(pageNumbers);
         return result;
 
 
