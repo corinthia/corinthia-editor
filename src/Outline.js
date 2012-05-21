@@ -234,8 +234,6 @@ var Outline_examinePrintLayout;
         this.type = type;
         this.node = node;
         this.title = null;
-        this.level = node ? parseInt(DOM_upperName(node).substring(1)) : 0;
-        this.isRoot = (this.level == 0);
         this.numberSpan = null;
         this.referenceText = null;
         this.nextChildSectionNumber = null;
@@ -243,18 +241,9 @@ var Outline_examinePrintLayout;
 
         this.prev = null;
         this.next = null;
-        this.references = new NodeSet();
         this.modificationListener = function(event) { itemModified(item); }
 
         itemsByNode.put(this.node,this);
-
-        this.spanClass = null;
-        if (type == "section")
-            this.spanClass = Keys.HEADING_NUMBER;
-        else if (type == "figure")
-            this.spanClass = Keys.FIGURE_NUMBER;
-        else if (type == "table")
-            this.spanClass = Keys.TABLE_NUMBER;
 
         Object.seal(this);
         return;
@@ -275,10 +264,18 @@ var Outline_examinePrintLayout;
             return;
         var titleNode = this.getTitleNode(true);
 
+        var spanClass = null;
+        if (this.type == "section")
+            spanClass = Keys.HEADING_NUMBER;
+        else if (this.type == "figure")
+            spanClass = Keys.FIGURE_NUMBER;
+        else if (this.type == "table")
+            spanClass = Keys.TABLE_NUMBER;
+
         var item = this;
         UndoManager_disableWhileExecuting(function() {
             item.numberSpan = DOM_createElement(document,"SPAN");
-            DOM_setAttribute(item.numberSpan,"class",item.spanClass);
+            DOM_setAttribute(item.numberSpan,"class",spanClass);
             DOM_insertBefore(titleNode,item.numberSpan,titleNode.firstChild);
             DOM_appendChild(item.numberSpan,DOM_createTextNode(document,""));
         });
@@ -548,7 +545,7 @@ var Outline_examinePrintLayout;
     {
         this.node = node;
         this.item = itemsByNode.get(node);
-        this.level = this.item.level;
+        this.level = parseInt(DOM_upperName(node).substring(1));
         this.children = [];
         this.parent = null;
     }
@@ -765,7 +762,7 @@ var Outline_examinePrintLayout;
         strings.push("Sections:\n");
         for (var section = sections.list.first; section != null; section = section.next) {
             var shadow = structure.shadowsByNode.get(section.node);
-            if (section.level == 1)
+            if (shadow.level == 1)
                 printSectionRecursive(shadow,"    ");
         }
         strings.push("Figures:\n");
