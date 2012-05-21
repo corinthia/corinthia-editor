@@ -394,7 +394,6 @@ var Outline_examinePrintLayout;
     // private
     var refInserted = trace(function refInserted(node)
     {
-        debug("refInserted: "+nodeString(node)+" "+node.getAttribute("href"));
         var href = node.getAttribute("href");
         if (href.charAt(0) != "#")
             throw new Error("refInserted: not a # reference");
@@ -972,17 +971,11 @@ var Outline_examinePrintLayout;
         result.destsByPage = new Object();
         result.linksByPage = new Object();
         result.leafRectsByPage = new Object();
-        debug("examinePrintLayout 1");
 
         itemsByNode.forEach(function(node,item) {
-//            debug("examinePrintLayout 1.1: item "+item.id);
             var rect = item.node.getBoundingClientRect();
-//            debug("examinePrintLayout 1.2: rect "+rect);
             var pageNo = 1+Math.floor(rect.top/pageHeight);
-//            debug("examinePrintLayout 1.3: pageNo "+pageNo);
             var pageTop = (pageNo-1)*pageHeight;
-//            debug("examinePrintLayout 1.4: pageTop "+pageTop);
-            debug("item "+item.id+" ("+JSON.stringify(item.title)+") is on page "+pageNo);
             item.pageNo = pageNo;
 
             if (result.destsByPage[pageNo] == null)
@@ -992,7 +985,6 @@ var Outline_examinePrintLayout;
                                               y: rect.top - pageTop});
         });
 
-        debug("examinePrintLayout 2");
         var links = document.getElementsByTagName("A");
         for (var i = 0; i < links.length; i++) {
             var a = links[i];
@@ -1021,7 +1013,6 @@ var Outline_examinePrintLayout;
 
         recurse(document.body);
 
-        debug("examinePrintLayout 3");
         scheduleUpdateStructure();
         return result;
 
