@@ -122,11 +122,12 @@ var Outline_examinePrintLayout;
             if (item.numberSpan != null) {
                 DOM_deleteNode(item.numberSpan);
             }
-            if ((item.titleNode != null) &&
+            var titleNode = item.getTitleNode(false);
+            if ((titleNode != null) &&
                 ((item.type == "figure") || (item.type == "table")) &&
-                (item.titleNode.firstChild == null) &&
-                (item.titleNode.lastChild == null)) {
-                DOM_deleteNode(item.titleNode);
+                (titleNode.firstChild == null) &&
+                (titleNode.lastChild == null)) {
+                DOM_deleteNode(titleNode);
             }
         });
         scheduleUpdateStructure();
@@ -236,7 +237,6 @@ var Outline_examinePrintLayout;
         this.children = new Array();
         this.isRoot = (this.level == 0);
         this.numberSpan = null;
-        this.titleNode = null;
         this.referenceText = null;
         this.nextChildSectionNumber = null;
         this.pageNo = null;
@@ -249,7 +249,6 @@ var Outline_examinePrintLayout;
         itemsByNode.put(this.node,this);
 
         this.spanClass = null;
-        this.titleNode = this.getTitleNode(false);
         if (type == "section")
             this.spanClass = Keys.HEADING_NUMBER;
         else if (type == "figure")
@@ -274,13 +273,13 @@ var Outline_examinePrintLayout;
     {
         if (this.numberSpan != null)
             return;
-        this.titleNode = this.getTitleNode(true);
+        var titleNode = this.getTitleNode(true);
 
         var item = this;
         UndoManager_disableWhileExecuting(function() {
             item.numberSpan = DOM_createElement(document,"SPAN");
             DOM_setAttribute(item.numberSpan,"class",item.spanClass);
-            DOM_insertBefore(item.titleNode,item.numberSpan,item.titleNode.firstChild);
+            DOM_insertBefore(titleNode,item.numberSpan,titleNode.firstChild);
             DOM_appendChild(item.numberSpan,DOM_createTextNode(document,""));
         });
         scheduleUpdateStructure();
@@ -455,10 +454,11 @@ var Outline_examinePrintLayout;
 
     OutlineItem.prototype.updateItemTitle = trace(function updateItemTitle()
     {
+        var titleNode = this.getTitleNode(false);
         if (this.numberSpan != null)
             newTitle = normalizeWhitespace(getNodeTextAfter(this.numberSpan));
-        else if (this.titleNode != null)
-            newTitle = normalizeWhitespace(getNodeText(this.titleNode));
+        else if (titleNode != null)
+            newTitle = normalizeWhitespace(getNodeText(titleNode));
         else
             newTitle = "";
 
@@ -737,19 +737,22 @@ var Outline_examinePrintLayout;
         }
         strings.push("Figures:\n");
         for (var figure = figures.list.first; figure != null; figure = figure.next) {
-            var title = figure.titleNode ? getNodeText(figure.titleNode) : "[no caption]";
+            var titleNode = figure.getTitleNode(false);
+            var title = titleNode ? getNodeText(titleNode) : "[no caption]";
             strings.push("    "+title+" ("+figure.id+")\n");
         }
         strings.push("Tables:\n");
         for (var table = tables.list.first; table != null; table = table.next) {
-            var title = table.titleNode ? getNodeText(table.titleNode) : "[no caption]";
+            var titleNode = table.getTitleNode(false);
+            var title = titleNode ? getNodeText(titleNode) : "[no caption]";
             strings.push("    "+title+" ("+table.id+")\n");
         }
         return strings.join("");
 
         function printSectionRecursive(section,indent)
         {
-            var content = getNodeText(section.titleNode);
+            var titleNode = section.getTitleNode(false);
+            var content = getNodeText(titleNode);
             if (isWhitespaceString(content))
                 content = "[empty]";
             strings.push(indent+content+" ("+section.id+")\n");
