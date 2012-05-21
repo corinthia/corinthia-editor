@@ -119,8 +119,15 @@ var Outline_examinePrintLayout;
         this.tocs.forEach(function(node,toc) { toc.removeOutlineItem(item.id); });
         item.node.removeEventListener("DOMSubtreeModified",item.modificationListener);
         UndoManager_disableWhileExecuting(function() {
-            if (item.numberSpan != null)
+            if (item.numberSpan != null) {
                 DOM_deleteNode(item.numberSpan);
+            }
+            if ((item.titleNode != null) &&
+                ((item.type == "figure") || (item.type == "table")) &&
+                (item.titleNode.firstChild == null) &&
+                (item.titleNode.lastChild == null)) {
+                DOM_deleteNode(item.titleNode);
+            }
         });
         scheduleUpdateStructure();
     });
@@ -281,40 +288,45 @@ var Outline_examinePrintLayout;
 
     OutlineItem.prototype.disableNumbering = function()
     {
-        if (this.numberSpan == null)
+        var item = this;
+
+        if (item.numberSpan == null)
             return;
 
-        var item = this;
         UndoManager_disableWhileExecuting(function() {
             DOM_deleteNode(item.numberSpan);
             item.numberSpan = null;
-        });
 
-        var titleNode = this.getTitleNode(false);
-        if ((titleNode != null) && !nodeHasContent(titleNode))
-            DOM_deleteNode(titleNode);
+            var titleNode = item.getTitleNode(false);
+            if ((titleNode != null) && !nodeHasContent(titleNode)) {
+                DOM_deleteNode(titleNode);
+            }
+        });
 
         scheduleUpdateStructure();
     }
 
     OutlineItem.prototype.getTitleNode = function(create)
     {
-        if (this.type == "section") {
-            return this.node;
+        var item = this;
+        if (item.type == "section") {
+            return item.node;
         }
-        else if (this.type == "figure") {
-            var titleNode = findChild(this.node,"FIGCAPTION");
+        else if (item.type == "figure") {
+            var titleNode = findChild(item.node,"FIGCAPTION");
             if ((titleNode == null) && create) {
                 titleNode = DOM_createElement(document,"FIGCAPTION");
-                DOM_appendChild(this.node,titleNode);
+                DOM_appendChild(item.node,titleNode);
             }
             return titleNode;
         }
-        else if (this.type == "table") {
-            var titleNode = findChild(this.node,"CAPTION");
+        else if (item.type == "table") {
+            var titleNode = findChild(item.node,"CAPTION");
             if ((titleNode == null) && create) {
-                titleNode = DOM_createElement(document,"CAPTION");
-                DOM_insertBefore(this.node,titleNode,this.node.firstChild);
+                UndoManager_disableWhileExecuting(function() {
+                    titleNode = DOM_createElement(document,"CAPTION");
+                    DOM_insertBefore(item.node,titleNode,item.node.firstChild);
+                });
             }
             return titleNode;
         }
