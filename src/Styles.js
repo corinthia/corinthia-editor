@@ -39,6 +39,8 @@ var Styles_init;
         "FIGCAPTION": "Figure Caption",
     };
 
+    var latentStyleGroups = null;
+
     function Style(styleId,displayName,rules)
     {
         this.styleId = styleId;
@@ -323,15 +325,6 @@ var Styles_init;
         Styles_scheduleApplyCSSTextChanges();
     });
 
-    var latentStyleGroups = {
-        "td-paragraph-margins": ["td > *:first-child", "td > *:last-child"],
-        "th-paragraph-margins": ["th > *:first-child", "th > *:last-child"],
-        "table-borders": ["table", "td", "th"],
-        "table-caption": ["caption"],
-        "figure": ["figure"],
-        "section-toc": [".uxwrite-section-toc li",".uxwrite-toc-title",".uxwrite-toc-pageno"],
-    };
-
     // public
     Styles_addDefaultRuleCategory = trace(function addDefaultRuleCategory(category)
     {
@@ -427,6 +420,15 @@ var Styles_init;
     // public
     Styles_init = trace(function init()
     {
+        latentStyleGroups = {
+            "td-paragraph-margins": ["td > *:first-child", "td > *:last-child"],
+            "th-paragraph-margins": ["th > *:first-child", "th > *:last-child"],
+            "table-borders": ["table", "td", "th"],
+            "table-caption": ["caption"],
+            "figure": ["figure"],
+            "section-toc": ["."+Keys.SECTION_TOC+" li",".uxwrite-toc-title",".uxwrite-toc-pageno"],
+        };
+
         stylesById = new Object();
 
         // Add the default styles first, because we mark some of them as initially being latent
@@ -474,7 +476,7 @@ var Styles_init;
         // "table-caption"
         defaultStyle("caption","special",true,{"caption-side": "bottom"});
 
-        defaultStyle(".uxwrite-section-toc li","special",true,
+        defaultStyle("."+Keys.SECTION_TOC+" li","special",true,
                      { "border-bottom": "2px dotted black",
                        "list-style-type": "none",
                        "height": "1em",

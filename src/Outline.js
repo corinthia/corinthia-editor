@@ -174,21 +174,22 @@ var Outline_examinePrintLayout;
         DOM_setNodeValue(this.textNodes[id],title);
     });
 
-    TOC.prototype.updateStructure = trace(function updateStructure(toplevelItems)
+    TOC.prototype.updateStructure = trace(function updateStructure(structure,toplevelShadows)
     {
         var toc = this;
         DOM_deleteAllChildren(this.node);
 
         Styles_addDefaultRuleCategory("section-toc");
 
-        recurse(toplevelItems,this.node);
+        recurse(toplevelShadows,this.node);
 
-        function recurse(items,parent)
+        function recurse(shadows,parent)
         {
             var ul = DOM_createElement(document,"UL");
             DOM_appendChild(parent,ul);
-            for (var i = 0; i < items.length; i++) {
-                var item = items[i];
+            for (var i = 0; i < shadows.length; i++) {
+                var shadow = shadows[i];
+                var item = shadow.item;
                 var li = DOM_createElement(document,"LI");
                 DOM_setAttribute(li,"class",Keys.SECTION_TOC);
                 DOM_appendChild(ul,li);
@@ -204,14 +205,15 @@ var Outline_examinePrintLayout;
 
                 // FIXME: item -> shadow
                 if (item.numberSpan != null)
-                    DOM_appendChild(leftSpan,DOM_createTextNode(document,item.getFullNumber()+" "));
+                    DOM_appendChild(leftSpan,DOM_createTextNode(document,
+                                                                shadow.getFullNumber()+" "));
                 DOM_appendChild(leftSpan,toc.textNodes[item.id]);
                 if (item.pageNo == null)
                     DOM_appendChild(rightSpan,DOM_createTextNode(document,"XXXX"));
                 else
                     DOM_appendChild(rightSpan,DOM_createTextNode(document,item.pageNo));
 
-                recurse(item.children,li);
+                recurse(shadow.children,li);
             }
         }
     });
@@ -233,9 +235,6 @@ var Outline_examinePrintLayout;
         this.node = node;
         this.title = null;
         this.level = node ? parseInt(DOM_upperName(node).substring(1)) : 0;
-//        this.index = null; // FIXME: refs
-//        this.parent = null; // FIXME: refs
-//        this.children = new Array(); // FIXME: refs
         this.isRoot = (this.level == 0);
         this.numberSpan = null;
         this.referenceText = null;
@@ -479,7 +478,7 @@ var Outline_examinePrintLayout;
             else if (isRefNode(node))
                 refInserted(node);
 
-            if (DOM_upperName(node) == "DIV") {
+            if (DOM_upperName(node) == "NAV") {
                 var cls = node.getAttribute("class");
                 if (cls == Keys.SECTION_TOC)
                     sections.addTOC(node);
@@ -512,7 +511,7 @@ var Outline_examinePrintLayout;
             else if (isRefNode(node))
                 refRemoved(node);
 
-            if (DOM_upperName(node) == "DIV") {
+            if (DOM_upperName(node) == "NAV") {
                 var cls = node.getAttribute("class");
                 if (cls == Keys.SECTION_TOC)
                     sections.removeTOC(node);
@@ -717,9 +716,15 @@ var Outline_examinePrintLayout;
             shadow.item.setReferenceText("Table "+shadow.getFullNumber());
         }
 
-        sections.tocs.forEach(function (node,toc) { toc.updateStructure(structure.toplevelSections); });
-        figures.tocs.forEach(function (node,toc) { toc.updateStructure(structure.toplevelFigures); });
-        tables.tocs.forEach(function (node,toc) { toc.updateStructure(structure.toplevelTables); });
+        sections.tocs.forEach(function (node,toc) {
+            toc.updateStructure(structure,structure.toplevelSections);
+        });
+        figures.tocs.forEach(function (node,toc) {
+            toc.updateStructure(structure,structure.toplevelFigures);
+        });
+        tables.tocs.forEach(function (node,toc) {
+            toc.updateStructure(structure,structure.toplevelTables);
+        });
 
         var encSections = new Array();
         var encFigures = new Array();
@@ -926,10 +931,9 @@ var Outline_examinePrintLayout;
     // private
     var insertTOC = trace(function insertTOC(key,initialText)
     {
-        var div = DOM_createElement(document,"DIV");
+        var div = DOM_createElement(document,"NAV");
         DOM_setAttribute(div,"class",key);
         Clipboard_pasteNodes([div]);
-        DOM_setAttribute(div,"style","border: 1px solid red");
     });
 
     // public
