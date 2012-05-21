@@ -235,7 +235,6 @@ var Outline_examinePrintLayout;
         this.node = node;
         this.title = null;
         this.numberSpan = null;
-        this.referenceText = null;
         this.nextChildSectionNumber = null;
         this.pageNo = null;
 
@@ -356,22 +355,6 @@ var Outline_examinePrintLayout;
         }
     });
 
-    OutlineItem.prototype.setReferenceText = trace(function setReferenceText(referenceText)
-    {
-        if (this.referenceText == referenceText)
-            return; // don't waste time updating refs
-
-        this.referenceText = referenceText;
-
-        var refs = refsById[this.id];
-        if (refs != null) {
-            for (var i = 0; i < refs.length; i++) {
-                DOM_deleteAllChildren(refs[i]);
-                DOM_appendChild(refs[i],DOM_createTextNode(document,referenceText));
-            }
-        }
-    });
-
     OutlineItem.prototype.updateItemTitle = trace(function updateItemTitle()
     {
         var titleNode = this.getTitleNode(false);
@@ -411,6 +394,7 @@ var Outline_examinePrintLayout;
     // private
     var refInserted = trace(function refInserted(node)
     {
+        debug("refInserted: "+nodeString(node)+" "+node.getAttribute("href"));
         var href = node.getAttribute("href");
         if (href.charAt(0) != "#")
             throw new Error("refInserted: not a # reference");
@@ -420,11 +404,7 @@ var Outline_examinePrintLayout;
             refsById[id] = new Array();
         refsById[id].push(node);
 
-        var item = itemsByNode.get(node);
-        if ((item != null) && (item.referenceText != null)) {
-            DOM_deleteAllChildren(node);
-            DOM_appendChild(node,DOM_createTextNode(document,item.referenceText));
-        }
+        scheduleUpdateStructure();
     });
 
     // private
@@ -698,19 +678,19 @@ var Outline_examinePrintLayout;
         for (var section = sections.list.first; section != null; section = section.next) {
             var shadow = structure.shadowsByNode.get(section.node);
             shadow.updateItemNumbering();
-            shadow.item.setReferenceText("Section "+shadow.getFullNumber());
+            setReferenceText(section.node,"Section "+shadow.getFullNumber());
         }
 
         for (var figure = figures.list.first; figure != null; figure = figure.next) {
             var shadow = structure.shadowsByNode.get(figure.node);
             shadow.updateItemNumbering();
-            shadow.item.setReferenceText("Figure "+shadow.getFullNumber());
+            setReferenceText(figure.node,"Figure "+shadow.getFullNumber());
         }
 
         for (var table = tables.list.first; table != null; table = table.next) {
             var shadow = structure.shadowsByNode.get(table.node);
             shadow.updateItemNumbering();
-            shadow.item.setReferenceText("Table "+shadow.getFullNumber());
+            setReferenceText(table.node,"Table "+shadow.getFullNumber());
         }
 
         sections.tocs.forEach(function (node,toc) {
@@ -751,6 +731,18 @@ var Outline_examinePrintLayout;
                         number: shadow.getFullNumber(),
                         children: encChildren };
             result.push(obj);
+        }
+
+        function setReferenceText(node,referenceText)
+        {
+            var id = node.getAttribute("id");
+            var refs = refsById[id];
+            if (refs != null) {
+                for (var i = 0; i < refs.length; i++) {
+                    DOM_deleteAllChildren(refs[i]);
+                    DOM_appendChild(refs[i],DOM_createTextNode(document,referenceText));
+                }
+            }
         }
     });
 
