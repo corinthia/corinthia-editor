@@ -270,7 +270,7 @@ var Outline_examinePrintLayout;
         }
     }
 
-    OutlineItem.prototype.enableNumbering = function()
+    OutlineItem.prototype.enableNumbering = trace(function enableNumbering()
     {
         if (this.numberSpan != null)
             return;
@@ -284,9 +284,9 @@ var Outline_examinePrintLayout;
             DOM_appendChild(item.numberSpan,DOM_createTextNode(document,""));
         });
         scheduleUpdateStructure();
-    }
+    });
 
-    OutlineItem.prototype.disableNumbering = function()
+    OutlineItem.prototype.disableNumbering = trace(function disableNumbering()
     {
         var item = this;
 
@@ -304,9 +304,9 @@ var Outline_examinePrintLayout;
         });
 
         scheduleUpdateStructure();
-    }
+    });
 
-    OutlineItem.prototype.getTitleNode = function(create)
+    OutlineItem.prototype.getTitleNode = trace(function getTitleNode(create)
     {
         var item = this;
         if (item.type == "section") {
@@ -339,9 +339,9 @@ var Outline_examinePrintLayout;
             }
             return null;
         }
-    }
+    });
 
-    OutlineItem.prototype.setNumberedUsingAdjacent = function()
+    OutlineItem.prototype.setNumberedUsingAdjacent = trace(function setNumberedUsingAdjacent()
     {
         // Enable numbering for the specified outline numbered if there are either no other
         // items of its type, or either the preceding or following item of that type has
@@ -358,17 +358,17 @@ var Outline_examinePrintLayout;
                 this.disableNumbering();
             }
         }
-    }
+    });
 
-    OutlineItem.prototype.last = function()
+    OutlineItem.prototype.last = trace(function last()
     {
         if (this.children.length == 0)
             return this;
         else
             return this.children[this.children.length-1].last();
-    }
+    });
 
-    OutlineItem.prototype.outerNext = function()
+    OutlineItem.prototype.outerNext = trace(function outerNext()
     {
         var last = this.last();
         if (last == null)
@@ -377,9 +377,9 @@ var Outline_examinePrintLayout;
             return null;
         else
             return last.next;
-    }
+    });
 
-    OutlineItem.prototype.toString = function()
+    OutlineItem.prototype.toString = trace(function toString()
     {
         if (this.isRoot)
             return "(root)";
@@ -389,18 +389,18 @@ var Outline_examinePrintLayout;
             str += " "+JSON.stringify(getNodeText(this.node));
         str += " (level "+this.level+")";
         return str;
-    }
+    });
 
-    OutlineItem.prototype.print = function(indent)
+    OutlineItem.prototype.print = trace(function print(indent)
     {
         if (indent == null)
             indent = "";
         debug(indent+this);
         for (var i = 0; i < this.children.length; i++)
             this.children[i].print(indent+"    ");
-    }
+    });
 
-    OutlineItem.prototype.getFullNumber = function()
+    OutlineItem.prototype.getFullNumber = trace(function getFullNumber()
     {
         if (this.numberSpan == null)
             return "";
@@ -411,9 +411,9 @@ var Outline_examinePrintLayout;
             fullNumber = item.index+"."+fullNumber;
         }
         return fullNumber;
-    }
+    });
 
-    OutlineItem.prototype.setReferenceText = function(referenceText)
+    OutlineItem.prototype.setReferenceText = trace(function setReferenceText(referenceText)
     {
         if (this.referenceText == referenceText)
             return; // don't waste time updating refs
@@ -427,9 +427,9 @@ var Outline_examinePrintLayout;
                 DOM_appendChild(refs[i],DOM_createTextNode(document,referenceText));
             }
         }
-    }
+    });
 
-    OutlineItem.prototype.updateItemNumbering = function()
+    OutlineItem.prototype.updateItemNumbering = trace(function updateItemNumbering()
     {
         var item = this;
         if (item.title == null)
@@ -451,9 +451,9 @@ var Outline_examinePrintLayout;
             }
             DOM_setNodeValue(item.numberSpan.firstChild,spanText);
         }
-    }
+    });
 
-    OutlineItem.prototype.updateItemTitle = function()
+    OutlineItem.prototype.updateItemTitle = trace(function updateItemTitle()
     {
         if (this.numberSpan != null)
             newTitle = normalizeWhitespace(getNodeTextAfter(this.numberSpan));
@@ -478,7 +478,7 @@ var Outline_examinePrintLayout;
                 text += getNodeText(child);
             return text;
         }
-    }
+    });
 
     // private
     var itemModified = trace(function itemModified(item)
