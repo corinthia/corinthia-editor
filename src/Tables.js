@@ -196,6 +196,8 @@ var Tables_regionFromRange;
         Selection_hideWhileExecuting(function() {
             Selection_set(pos.node,pos.offset,pos.node,pos.offset);
         });
+
+        PostponedActions_add(UndoManager_newGroup);
     });
 
     // private
