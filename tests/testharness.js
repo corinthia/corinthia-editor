@@ -238,6 +238,7 @@ function runAllTests()
 
     var passes = 0;
     var failures = 0;
+    var startTime = new Date();
 
     setLeftTitle("Working area");
     setRightTitle("");
@@ -252,7 +253,10 @@ function runAllTests()
     {
         var statistics = document.getElementById("statistics");
         DOM_deleteAllChildren(statistics);
-        var str = "Passes: "+passes+", Failures: "+failures;
+        var now = new Date();
+        var elapsed = now - startTime;
+        var str = "Passes: "+passes+", Failures: "+failures+
+            ", Elapsed time "+(elapsed/1000)+" seconds";
         DOM_appendChild(statistics,DOM_createTextNode(document,str));
     }
 
