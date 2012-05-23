@@ -64,6 +64,14 @@ var DOM_Listener;
             UndoManager_addAction.apply(null,arrayCopy(arguments));
     }
 
+    function disableUndoWhileExecuting(fun)
+    {
+        if (window.undoSupported)
+            return UndoManager_disableWhileExecuting(fun);
+        else
+            return fun();
+    }
+
     function assignNodeId(node)
     {
         if (node._nodeId != null)
@@ -196,7 +204,9 @@ var DOM_Listener;
             addUndoAction(insertBeforeInternal,oldParent,newChild,oldNext);
         }
 
-        parent.insertBefore(newChild,refChild); // check-ok
+        disableUndoWhileExecuting(function() {
+            parent.insertBefore(newChild,refChild); // check-ok
+        });
     }
 
     function deleteNodeInternal(node,deleteDescendantData)
@@ -205,16 +215,18 @@ var DOM_Listener;
 
         addUndoAction(insertBeforeInternal,node.parentNode,node,node.nextSibling);
 
-        node.parentNode.removeChild(node); // check-ok
+        disableUndoWhileExecuting(function() {
+            node.parentNode.removeChild(node); // check-ok
 
-        // Delete all data associated with the node. This is not preserved across undo/redo;
-        // currently the only thing we are using this data for is tracked positions, and we
-        // are going to be recording undo information for the selection separately, so this is
-        // not a problem.
-        if (deleteDescendantData)
-            deleteNodeDataRecursive(node);
-        else
-            deleteNodeData(node);
+            // Delete all data associated with the node. This is not preserved across undo/redo;
+            // currently the only thing we are using this data for is tracked positions, and we
+            // are going to be recording undo information for the selection separately, so this is
+            // not a problem.
+            if (deleteDescendantData)
+                deleteNodeDataRecursive(node);
+            else
+                deleteNodeData(node);
+        });
 
         return;
 

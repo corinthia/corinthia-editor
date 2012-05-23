@@ -3,10 +3,6 @@
 // FIXME: The TOC/ItemList stuff won't work with Undo, because we're making DOM mutations in
 // response to other DOM mutations, so at undo time the changes will be made twice
 
-// Any DOM manipulations performed by this class in response to other DOM events (insertion or
-// removal of a node) must be wrapped in a call to UndoManager_disableWhileExecuting(), to avoid
-// duplicate numberSpans and the like from appearing in the document if an undo + redo occurs.
-
 var Outline_init;
 var Outline_removeListeners;
 var Outline_moveSection;
@@ -47,7 +43,10 @@ var Outline_examinePrintLayout;
 
     Category.prototype.add = trace(function add(node)
     {
-        var item = new OutlineItem(this,node);
+        var item = itemsByNode.get(node);
+        if (item == null)
+            item = new OutlineItem(this,node);
+
         var prevItem = findPrevItemOfType(node,this.nodeFilter);
         this.list.insertAfter(item,prevItem);
         Editor_addOutlineItem(item.id,this.type);
@@ -118,18 +117,17 @@ var Outline_examinePrintLayout;
         Editor_removeOutlineItem(item.id);
         this.tocs.forEach(function(node,toc) { toc.removeOutlineItem(item.id); });
         item.node.removeEventListener("DOMSubtreeModified",item.modificationListener);
-        UndoManager_disableWhileExecuting(function() {
-            if (item.numberSpan != null) {
-                DOM_deleteNode(item.numberSpan);
-            }
-            var titleNode = item.getTitleNode(false);
-            if ((titleNode != null) &&
-                ((item.type == "figure") || (item.type == "table")) &&
-                (titleNode.firstChild == null) &&
-                (titleNode.lastChild == null)) {
-                DOM_deleteNode(titleNode);
-            }
-        });
+        if (item.numberSpan != null) {
+            DOM_deleteNode(item.numberSpan);
+            item.numberSpan = null;
+        }
+        var titleNode = item.getTitleNode(false);
+        if ((titleNode != null) &&
+            ((item.type == "figure") || (item.type == "table")) &&
+            (titleNode.firstChild == null) &&
+            (titleNode.lastChild == null)) {
+            DOM_deleteNode(titleNode);
+        }
         scheduleUpdateStructure();
     });
 
@@ -236,7 +234,27 @@ var Outline_examinePrintLayout;
         this.type = type;
         this.node = node;
         this.title = null;
+
+        // numberSpan
         this.numberSpan = null;
+        this.spareSpan = DOM_createElement(document,"SPAN");
+        DOM_appendChild(this.spareSpan,DOM_createTextNode(document,""));
+        var spanClass = null;
+        if (this.type == "section")
+            spanClass = Keys.HEADING_NUMBER;
+        else if (this.type == "figure")
+            spanClass = Keys.FIGURE_NUMBER;
+        else if (this.type == "table")
+            spanClass = Keys.TABLE_NUMBER;
+            DOM_setAttribute(this.spareSpan,"class",spanClass);
+
+        // titleNode
+        if (this.type == "figure") {
+            this.spareTitle = DOM_createElement(document,"FIGCAPTION");
+        }
+        else if (this.type == "table") {
+            this.spareTitle = DOM_createElement(document,"CAPTION");
+        }
 
         this.prev = null;
         this.next = null;
@@ -257,27 +275,24 @@ var Outline_examinePrintLayout;
         }
     }
 
+    OutlineItem.prototype.info = trace(function info()
+    {
+        if (this.numberSpan == null)
+            return nodeString(this.node)+" (numberSpan null)";
+        else
+            return nodeString(this.node)+" (numberSpan "+nodeString(this.numberSpan)+
+            ", parent "+nodeString(this.numberSpan.parentNode)+")";
+    });
+
     OutlineItem.prototype.enableNumbering = trace(function enableNumbering()
     {
         if (this.numberSpan != null)
             return;
         var titleNode = this.getTitleNode(true);
 
-        var spanClass = null;
-        if (this.type == "section")
-            spanClass = Keys.HEADING_NUMBER;
-        else if (this.type == "figure")
-            spanClass = Keys.FIGURE_NUMBER;
-        else if (this.type == "table")
-            spanClass = Keys.TABLE_NUMBER;
-
         var item = this;
-        UndoManager_disableWhileExecuting(function() {
-            item.numberSpan = DOM_createElement(document,"SPAN");
-            DOM_setAttribute(item.numberSpan,"class",spanClass);
-            DOM_insertBefore(titleNode,item.numberSpan,titleNode.firstChild);
-            DOM_appendChild(item.numberSpan,DOM_createTextNode(document,""));
-        });
+        item.numberSpan = item.spareSpan;
+        DOM_insertBefore(titleNode,item.numberSpan,titleNode.firstChild);
         scheduleUpdateStructure();
     });
 
@@ -288,15 +303,12 @@ var Outline_examinePrintLayout;
         if (item.numberSpan == null)
             return;
 
-        UndoManager_disableWhileExecuting(function() {
-            DOM_deleteNode(item.numberSpan);
-            item.numberSpan = null;
+        DOM_deleteNode(item.numberSpan);
+        item.numberSpan = null;
 
-            var titleNode = item.getTitleNode(false);
-            if ((titleNode != null) && !nodeHasContent(titleNode)) {
-                DOM_deleteNode(titleNode);
-            }
-        });
+        var titleNode = item.getTitleNode(false);
+        if ((titleNode != null) && !nodeHasContent(titleNode))
+            DOM_deleteNode(titleNode);
 
         scheduleUpdateStructure();
     });
@@ -310,7 +322,7 @@ var Outline_examinePrintLayout;
         else if (item.type == "figure") {
             var titleNode = findChild(item.node,"FIGCAPTION");
             if ((titleNode == null) && create) {
-                titleNode = DOM_createElement(document,"FIGCAPTION");
+                titleNode = item.spareTitle;
                 DOM_appendChild(item.node,titleNode);
             }
             return titleNode;
@@ -318,10 +330,8 @@ var Outline_examinePrintLayout;
         else if (item.type == "table") {
             var titleNode = findChild(item.node,"CAPTION");
             if ((titleNode == null) && create) {
-                UndoManager_disableWhileExecuting(function() {
-                    titleNode = DOM_createElement(document,"CAPTION");
-                    DOM_insertBefore(item.node,titleNode,item.node.firstChild);
-                });
+                titleNode = item.spareTitle;
+                DOM_insertBefore(item.node,titleNode,item.node.firstChild);
             }
             return titleNode;
         }
@@ -517,7 +527,7 @@ var Outline_examinePrintLayout;
         if (!outlineDirty)
             return;
         outlineDirty = false;
-        UndoManager_disableWhileExecuting(updateStructureReal);
+        updateStructureReal();
     });
 
     function Shadow(node)
@@ -910,10 +920,12 @@ var Outline_examinePrintLayout;
         var oldNumbered = (item.numberSpan != null);
         UndoManager_addAction(Outline_setNumbered,itemId,oldNumbered);
 
-        if (numbered)
-            item.enableNumbering();
-        else
-            item.disableNumbering();
+        UndoManager_disableWhileExecuting(function() {
+            if (numbered)
+                item.enableNumbering();
+            else
+                item.disableNumbering();
+        });
     });
 
     // private

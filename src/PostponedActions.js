@@ -6,11 +6,17 @@ var PostponedActions_performImmediately = false;
 
 (function() {
 
+    function PostponedAction(fun,undoDisabled)
+    {
+        this.fun = fun;
+        this.undoDisabled = undoDisabled;
+    }
+
     var actions = new Array();
 
     PostponedActions_add = function(action)
     {
-        actions.push(action);
+        actions.push(new PostponedAction(action,UndoManager_isDisabled()));
         if (PostponedActions_performImmediately)
             PostponedActions_perform();
     }
@@ -23,8 +29,13 @@ var PostponedActions_performImmediately = false;
                 throw new Error("Too many postponed actions");
             var actionsToPerform = actions;
             actions = new Array();
-            for (var i = 0; i < actionsToPerform.length; i++)
-                actionsToPerform[i]();
+            for (var i = 0; i < actionsToPerform.length; i++) {
+                var action = actionsToPerform[i];
+                if (action.undoDisabled)
+                    UndoManager_disableWhileExecuting(action.fun);
+                else
+                    action.fun();
+            }
             Selection_updateSelectionDisplay();
             count++;
         }
