@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="UndoTests.js"></script>
+<script>
+
+function placeCursorAfterElement(id)
+{
+    var element = document.getElementById(id);
+    Selection_hideWhileExecuting(function() {
+        var node = element.parentNode;
+        var offset = DOM_nodeOffset(element)+1;
+        Selection_set(node,offset,node,offset);
+    });
+}
+
+function performTest()
+{
+    Outline_init();
+    Styles_init();
+    PostponedActions_perform();
+
+    var versions = new Array();
+
+    var body = document.body;
+    versions.push(DOM_cloneNode(body,true));
+
+    Figures_insertFigure("first.png","100%",true,"First table");
+    PostponedActions_perform();
+    versions.push(DOM_cloneNode(body,true));
+
+    placeCursorAfterElement("item1");
+    Figures_insertFigure("second.png","90%",true,"Second table");
+    PostponedActions_perform();
+    versions.push(DOM_cloneNode(body,true));
+
+    placeCursorAfterElement("item1");
+
+    Figures_insertFigure("third.png","80%",true,"Third table");
+    PostponedActions_perform();
+    versions.push(DOM_cloneNode(body,true));
+
+    placeCursorAfterElement("item2");
+    Figures_insertFigure("fourth.png","70%",true,"Fourth table");
+    PostponedActions_perform();
+    versions.push(DOM_cloneNode(body,true));
+
+    testUndo(versions,body);
+}
+</script>
+</head>
+<body>
+[]
+</body>
+</html>
