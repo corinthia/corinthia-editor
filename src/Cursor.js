@@ -210,7 +210,7 @@ var Cursor_replacePrecedingWord;
     });
 
     // public
-    Cursor_positionCursor = trace(function positionCursor(x,y)
+    Cursor_positionCursor = trace(function positionCursor(x,y,wordBoundary)
     {
         if (UndoManager_groupType() != "Cursor movement")
             UndoManager_newGroup("Cursor movement");
@@ -225,6 +225,20 @@ var Cursor_replacePrecedingWord;
             var samePosition = ((selectionRange != null) && selectionRange.isEmpty() &&
                                 (position.node == selectionRange.start.node) &&
                                 (position.offset == selectionRange.start.offset));
+
+            if (wordBoundary) {
+                var startOfWord = Selection_posAtStartOfWord(position);
+                var endOfWord = Selection_posAtEndOfWord(position);
+                if ((startOfWord.node != position.node) || (startOfWord.node != position.node))
+                    throw new Error("Word boundary in different node");
+                var distanceBefore = position.offset - startOfWord.offset;
+                var distanceAfter = endOfWord.offset - position.offset;
+                if (distanceBefore <= distanceAfter)
+                    position = startOfWord;
+                else
+                    position = endOfWord;
+            }
+
             Selection_set(position.node,position.offset,position.node,position.offset);
             Cursor_ensureCursorVisible();
             return samePosition;

@@ -24,6 +24,8 @@ var Selection_deleteSelectionContents;
 var Selection_clearSelection;
 var Selection_hideWhileExecuting;
 var Selection_preserveWhileExecuting;
+var Selection_posAtStartOfWord;
+var Selection_posAtEndOfWord;
 
 (function() {
 
@@ -483,6 +485,96 @@ var Selection_preserveWhileExecuting;
     var reWordOtherEnd = new RegExp("[^"+wsPunctuation+"]*["+wsPunctuation+"]*$");
     var reWordOtherStart = new RegExp("^["+wsPunctuation+"]*[^"+wsPunctuation+"]*");
 
+    var reWordStart = new RegExp("^[^"+wsPunctuation+"]+");
+    var reWordEnd = new RegExp("[^"+wsPunctuation+"]+$");
+
+    Selection_posAtStartOfWord = trace(function posAtStartOfWord(pos)
+    {
+        var node = pos.node;
+        var offset = pos.offset;
+
+        if (node.nodeType == Node.TEXT_NODE) {
+            var before = node.nodeValue.substring(0,offset);
+            var matches = before.match(reWordEnd);
+            if (matches) {
+                var wordStart = offset - matches[0].length;
+                return new Position(node,wordStart);
+            }
+        }
+
+        return pos;
+    });
+
+    Selection_posAtEndOfWord = trace(function posAtEndOfWord(pos)
+    {
+        var node = pos.node;
+        var offset = pos.offset;
+
+        if (node.nodeType == Node.TEXT_NODE) {
+            var after = node.nodeValue.substring(offset);
+            var matches = after.match(reWordStart);
+            if (matches) {
+                var wordEnd = offset + matches[0].length;
+                return new Position(node,wordEnd);
+            }
+        }
+
+        return pos;
+    });
+
+    var rangeOfWordAtPos = trace(function rangeOfWordAtPos(pos)
+    {
+        var node = pos.node;
+        var offset = pos.offset;
+
+        if (node.nodeType == Node.TEXT_NODE) {
+            var before = node.nodeValue.substring(0,offset);
+            var after = node.nodeValue.substring(offset);
+
+            var otherBefore = before.match(reOtherEnd)[0];
+            var otherAfter = after.match(reOtherStart)[0];
+
+            var wordOtherBefore = before.match(reWordOtherEnd)[0];
+            var wordOtherAfter = after.match(reWordOtherStart)[0];
+
+            var startOffset = offset;
+            var endOffset = offset;
+
+            var haveWordBefore = (wordOtherBefore.length != otherBefore.length);
+            var haveWordAfter = (wordOtherAfter.length != otherAfter.length);
+
+            if ((otherBefore.length == 0) && (otherAfter.length == 0)) {
+                startOffset = offset - wordOtherBefore.length;
+                endOffset = offset + wordOtherAfter.length;
+            }
+            else if (haveWordBefore && !haveWordAfter) {
+                startOffset = offset - wordOtherBefore.length;
+            }
+            else if (haveWordAfter && !haveWordBefore) {
+                endOffset = offset + wordOtherAfter.length;
+            }
+            else if (otherBefore.length <= otherAfter.length) {
+                startOffset = offset - wordOtherBefore.length;
+            }
+            else {
+                endOffset = offset + wordOtherAfter.length;
+            }
+
+            return new Range(node,startOffset,node,endOffset);
+        }
+        else if (node.nodeType == Node.ELEMENT_NODE) {
+            var nodeBefore = node.childNodes[offset-1];
+            var nodeAfter = node.childNodes[offset];
+
+            if ((nodeBefore != null) && !isWhitespaceTextNode(nodeBefore))
+                return new Range(node,offset-1,node,offset);
+            else if ((nodeAfter != null) && !isWhitespaceTextNode(nodeAfter))
+                return new Range(node,offset,node,offset+1);
+        }
+
+        return null;
+    });
+
     // public
     Selection_selectWordAtCursor = trace(function selectWordAtCursor()
     {
@@ -492,53 +584,9 @@ var Selection_preserveWhileExecuting;
 
         Selection_hideWhileExecuting(function() {
             var pos = Cursor_closestPositionBackwards(selRange.end);
-            var node = pos.node;
-            var offset = pos.offset;
-
-            if (node.nodeType == Node.TEXT_NODE) {
-                var before = node.nodeValue.substring(0,offset);
-                var after = node.nodeValue.substring(offset);
-
-                var otherBefore = before.match(reOtherEnd)[0];
-                var otherAfter = after.match(reOtherStart)[0];
-
-                var wordOtherBefore = before.match(reWordOtherEnd)[0];
-                var wordOtherAfter = after.match(reWordOtherStart)[0];
-
-                var startOffset = offset;
-                var endOffset = offset;
-
-                var haveWordBefore = (wordOtherBefore.length != otherBefore.length);
-                var haveWordAfter = (wordOtherAfter.length != otherAfter.length);
-
-                if ((otherBefore.length == 0) && (otherAfter.length == 0)) {
-                    startOffset = offset - wordOtherBefore.length;
-                    endOffset = offset + wordOtherAfter.length;
-                }
-                else if (haveWordBefore && !haveWordAfter) {
-                    startOffset = offset - wordOtherBefore.length;
-                }
-                else if (haveWordAfter && !haveWordBefore) {
-                    endOffset = offset + wordOtherAfter.length;
-                }
-                else if (otherBefore.length <= otherAfter.length) {
-                    startOffset = offset - wordOtherBefore.length;
-                }
-                else {
-                    endOffset = offset + wordOtherAfter.length;
-                }
-
-                Selection_set(node,startOffset,node,endOffset);
-            }
-            else if (node.nodeType == Node.ELEMENT_NODE) {
-                var nodeBefore = node.childNodes[offset-1];
-                var nodeAfter = node.childNodes[offset];
-
-                if ((nodeBefore != null) && !isWhitespaceTextNode(nodeBefore))
-                    Selection_set(node,offset-1,node,offset);
-                else if ((nodeAfter != null) && !isWhitespaceTextNode(nodeAfter))
-                    Selection_set(node,offset,node,offset+1);
-            }
+            var range = rangeOfWordAtPos(pos);
+            if (range != null)
+                Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
         });
     });
 
@@ -574,7 +622,7 @@ var Selection_preserveWhileExecuting;
     });
 
     // public
-    Selection_dragSelectionUpdate = trace(function dragSelectionUpdate(x,y)
+    Selection_dragSelectionUpdate = trace(function dragSelectionUpdate(x,y,selectWord)
     {
         // It is possible that when the user first double-tapped, there was no point at that
         // position, i.e. the pos == null case in dragSelectionBegin(). So we just try to begin
@@ -598,12 +646,20 @@ var Selection_preserveWhileExecuting;
                 }
                 else if (!startToPos.isForwards()) {
                     // Position comes before the start
+                    if (selectWord) {
+                        posToEnd.start = Selection_posAtStartOfWord(posToEnd.start);
+                        posToEnd.end = Selection_posAtEndOfWord(posToEnd.end);
+                    }
                     Selection_set(posToEnd.start.node,posToEnd.start.offset,
                                   posToEnd.end.node,posToEnd.end.offset);
                     return "start";
                 }
                 else if (!posToEnd.isForwards()) {
                     // Position comes after the end
+                    if (selectWord) {
+                        startToPos.start = Selection_posAtStartOfWord(startToPos.start);
+                        startToPos.end = Selection_posAtEndOfWord(startToPos.end);
+                    }
                     Selection_set(startToPos.start.node,startToPos.start.offset,
                                   startToPos.end.node,startToPos.end.offset);
                     return "end";
