@@ -9,6 +9,8 @@ var Figures_setProperties;
     // public
     Figures_insertFigure = trace(function insertFigure(filename,width,numbered,caption)
     {
+        UndoManager_newGroup("Insert figure");
+
         Styles_addDefaultRuleCategory("figure");
 
         var figure = DOM_createElement(document,"FIGURE");
@@ -29,6 +31,16 @@ var Figures_setProperties;
         // have noticed it and added an id attribute, as well as a caption giving the
         // table number.
         Outline_setNumbered(figure.getAttribute("id"),numbered);
+
+        // Place the cursor directly after the figure
+        var offset = DOM_nodeOffset(figure);
+        var pos = new Position(figure.parentNode,offset);
+        pos = Cursor_closestPositionForwards(pos);
+        Selection_hideWhileExecuting(function() {
+            Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+        });
+
+        PostponedActions_add(UndoManager_newGroup);
     });
 
     // private
