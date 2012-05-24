@@ -220,12 +220,16 @@ var UndoManager_deleteProperty;
 
     UndoManager_setProperty = trace(function setProperty(obj,name,value)
     {
+        if (obj.hasOwnProperty(name) && (obj[name] == value))
+            return; // no point in adding an undo action
         saveProperty(obj,name);
         obj[name] = value;
     });
 
     UndoManager_deleteProperty = trace(function setProperty(obj,name)
     {
+        if (!obj.hasOwnProperty(name))
+            return; // no point in adding an undo action
         saveProperty(obj,name);
         delete obj[name];
     });
