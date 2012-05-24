@@ -19,6 +19,8 @@ var UndoManager_deleteProperty;
 
 (function() {
 
+    var UNDO_LIMIT = 50;
+
     function UndoGroup(type)
     {
         this.type = type;
@@ -156,8 +158,11 @@ var UndoManager_deleteProperty;
 
         // Only add a group to the undo stack one it has at least one action, to avoid having
         // empty groups present.
-        if (currentGroup.actions.length == 0)
+        if (currentGroup.actions.length == 0) {
+            if (!inUndo && !inRedo && (stack.length == UNDO_LIMIT))
+                stack.shift();
             stack.push(currentGroup);
+        }
 
         currentGroup.actions.push(new UndoAction(fun,args));
     });
