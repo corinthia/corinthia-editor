@@ -230,7 +230,7 @@ var Selection_preserveWhileExecuting;
         DOM_appendChild(document.body,div);
         selectionDivs.push(div);
 
-        Editor_setTableSelection(x,y,width,height);
+        setEditorHandles({ type: "table", x: x, y: y, width: width, height: height });
 
         return true;
     });
@@ -263,6 +263,9 @@ var Selection_preserveWhileExecuting;
         }
         else if (info.type == "none") {
             Editor_clearSelectionHandlesAndCursor();
+        }
+        else if (info.type == "table") {
+            Editor_setTableSelection(info.x,info.y,info.width,info.height);
         }
         else {
             throw new Error("setEditorHandles: unknown type "+type);
