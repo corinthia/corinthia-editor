@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="UndoTests.js"></script>
+<script>
+
+function insertHeading(numbered,title)
+{
+    UndoManager_newGroup("Insert heading");
+    var h1 = DOM_createElement(document,"H1");
+    DOM_appendChild(h1,DOM_createTextNode(document,title));
+    Clipboard_pasteNodes([h1]);
+    Outline_setNumbered(h1.getAttribute("id"),numbered);
+
+
+    // Place the cursor directly after the heading
+    var offset = DOM_nodeOffset(h1);
+    var pos = new Position(h1.parentNode,offset);
+    pos = Cursor_closestPositionForwards(pos);
+    Selection_hideWhileExecuting(function() {
+        Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+    });
+
+    UndoManager_newGroup();
+}
+
+function placeCursorAfterElement(id)
+{
+    var element = document.getElementById(id);
+    Selection_hideWhileExecuting(function() {
+        var node = element.parentNode;
+        var offset = DOM_nodeOffset(element)+1;
+        Selection_set(node,offset,node,offset);
+    });
+}
+
+function performTest()
+{
+    Outline_init();
+    Styles_init();
+    PostponedActions_perform();
+
+    var versions = new Array();
+
+    var body = document.body;
+    versions.push(DOM_cloneNode(body,true));
+
+    insertHeading(true,"First heading");
+    PostponedActions_perform();
+    versions.push(DOM_cloneNode(body,true));
+
+    placeCursorAfterElement("item1");
+    insertHeading(true,"Second heading");
+    PostponedActions_perform();
+    versions.push(DOM_cloneNode(body,true));
+
+    placeCursorAfterElement("item1");
+
+    insertHeading(true,"Third heading");
+    PostponedActions_perform();
+    versions.push(DOM_cloneNode(body,true));
+
+    placeCursorAfterElement("item2");
+    insertHeading(true,"Fourth heading");
+    PostponedActions_perform();
+    versions.push(DOM_cloneNode(body,true));
+
+    testUndo(versions,body);
+}
+</script>
+</head>
+<body>
+[]
+</body>
+</html>

@@ -31,12 +31,14 @@ var PostponedActions_performImmediately = false;
             actions = new Array();
             for (var i = 0; i < actionsToPerform.length; i++) {
                 var action = actionsToPerform[i];
+//                debug("PostponedActions: before executing "+action.fun.wrappedName);
                 if (action.undoDisabled)
                     UndoManager_disableWhileExecuting(action.fun);
                 else
                     action.fun();
+//                debug("PostponedActions: after executing "+action.fun.wrappedName);
             }
-            Selection_updateSelectionDisplay();
+//            Selection_updateSelectionDisplay();
             count++;
         }
     }

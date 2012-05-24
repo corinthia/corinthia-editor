@@ -56,6 +56,24 @@ var Selection_preserveWhileExecuting;
         {
             if (selectionVisible)
                 throw new Error("Attempt to set selection while visible");
+
+/*
+            if (startNode == null) {
+                UndoManager_addAction(function() {
+                    Selection_hideWhileExecuting(function() {
+                        Selection_clear();
+                    });
+                });
+            }
+            else {
+                UndoManager_addAction(function() {
+                    Selection_hideWhileExecuting(function() {
+                        Selection_set(startNode,startOffset,endNode,endOffset);
+                    });
+                });
+            }
+*/
+
             var range = new Range(newStartNode,newStartOffset,newEndNode,newEndOffset);
             if (range.isForwards()) {
                 startNode = newStartNode;
@@ -104,6 +122,9 @@ var Selection_preserveWhileExecuting;
         var offset = selRange.end.offset;
 
         if (node.nodeType == Node.ELEMENT_NODE) {
+            if (offset > node.childNodes.length)
+                throw new Error("Invalid offset: "+offset+" of "+node.childNodes.length);
+
             // Cursor is immediately before table -> return table rect
             if ((offset > 0) && (DOM_upperName(node.childNodes[offset-1]) == "TABLE")) {
                 var rect = node.childNodes[offset-1].getBoundingClientRect();
