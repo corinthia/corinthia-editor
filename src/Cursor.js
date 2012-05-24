@@ -18,6 +18,8 @@ var Cursor_beginInsertion;
 var Cursor_updateInsertion;
 var Cursor_deleteCharacter;
 var Cursor_enterPressed;
+var Cursor_getPrecedingWord;
+var Cursor_replacePrecedingWord;
 
 (function() {
 
@@ -428,14 +430,14 @@ var Cursor_enterPressed;
     });
 
     // public
-    Cursor_insertCharacter = trace(function insertCharacter(character)
+    Cursor_insertCharacter = trace(function insertCharacter(character,allowInvalidPos)
     {
-        Cursor_beginInsertion();
+        Cursor_beginInsertion(allowInvalidPos);
         Cursor_updateInsertion(character);
     });
 
     // public
-    Cursor_beginInsertion = trace(function beginInsertion()
+    Cursor_beginInsertion = trace(function beginInsertion(allowInvalidPos)
     {
         Selection_hideWhileExecuting(function() {
             var selRange = Selection_get();
@@ -446,7 +448,9 @@ var Cursor_enterPressed;
                 Selection_deleteContents();
                 selRange = Selection_get();
             }
-            var pos = Cursor_closestPositionForwards(selRange.start);
+            var pos = selRange.start;
+            if (!allowInvalidPos)
+                pos = Cursor_closestPositionForwards(selRange.start);
             var node = pos.node;
             var offset = pos.offset;
 
@@ -648,6 +652,39 @@ var Cursor_enterPressed;
             else
                 return false;
         }
+    });
+
+    Cursor_getPrecedingWord = trace(function getPrecedingWord() {
+        var selRange = Selection_get();
+        if ((selRange == null) && !selRange.isEmpty())
+            return;
+
+        var node = selRange.start.node;
+        var offset = selRange.start.offset;
+        if (node.nodeType != Node.TEXT_NODE)
+            return node;
+
+        return node.nodeValue.substring(0,offset);
+    });
+
+    Cursor_replacePrecedingWord = trace(function replacePrecedingWord(numChars,replacement) {
+        var selRange = Selection_get();
+        if ((selRange == null) && !selRange.isEmpty())
+            return;
+
+        var node = selRange.start.node;
+        var offset = selRange.start.offset;
+        if (node.nodeType != Node.TEXT_NODE)
+            return node;
+
+        UndoManager_newGroup("Auto-correct");
+        DOM_deleteCharacters(node,offset-numChars,offset);
+        DOM_insertCharacters(node,offset-numChars,replacement);
+        var newOffset = offset - numChars + replacement.length;
+        Selection_hideWhileExecuting(function() {
+            Selection_set(node,newOffset,node,newOffset);
+        });
+        UndoManager_newGroup();
     });
 
 })();
