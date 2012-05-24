@@ -51,41 +51,36 @@ var Selection_preserveWhileExecuting;
                 return new Range(startNode,startOffset,endNode,endOffset);
         });
 
+        var setInternal = trace(function setInternal(newStartNode,newStartOffset,
+                                                     newEndNode,newEndOffset) {
+            var oldStartNode = startNode;
+            var oldStartOffset = startOffset;
+            var oldEndNode = endNode;
+            var oldEndOffset = endOffset;
+            UndoManager_addAction(function() {
+                setInternal(oldStartNode,oldStartOffset,oldEndNode,oldEndOffset);
+                selectionVisible = false;
+                Selection_show(true);
+            });
+
+            startNode = newStartNode;
+            startOffset = newStartOffset;
+            endNode = newEndNode;
+            endOffset = newEndOffset;
+        });
+
         // public
         Selection_set = trace(function set(newStartNode,newStartOffset,newEndNode,newEndOffset)
         {
             if (selectionVisible)
                 throw new Error("Attempt to set selection while visible");
 
-/*
-            if (startNode == null) {
-                UndoManager_addAction(function() {
-                    Selection_hideWhileExecuting(function() {
-                        Selection_clear();
-                    });
-                });
-            }
-            else {
-                UndoManager_addAction(function() {
-                    Selection_hideWhileExecuting(function() {
-                        Selection_set(startNode,startOffset,endNode,endOffset);
-                    });
-                });
-            }
-*/
-
             var range = new Range(newStartNode,newStartOffset,newEndNode,newEndOffset);
             if (range.isForwards()) {
-                startNode = newStartNode;
-                startOffset = newStartOffset;
-                endNode = newEndNode;
-                endOffset = newEndOffset;
+                setInternal(newStartNode,newStartOffset,newEndNode,newEndOffset);
             }
             else {
-                startNode = newEndNode;
-                startOffset = newEndOffset;
-                endNode = newStartNode;
-                endOffset = newStartOffset;
+                setInternal(newEndNode,newEndOffset,newStartNode,newStartOffset);
             }
         });
 
@@ -94,10 +89,7 @@ var Selection_preserveWhileExecuting;
         {
             if (selectionVisible)
                 throw new Error("Attempt to clear selection while visible");
-            startNode = null;
-            startOffset = null;
-            endNode = null;
-            endOffset = null;
+            setInternal(null,null,null,null);
         });
     })();
 
@@ -254,14 +246,16 @@ var Selection_preserveWhileExecuting;
     });
 
     // public
-    Selection_hide = trace(function hide()
+    Selection_hide = trace(function hide(onlyUpdateEditor)
     {
         if (!selectionVisible)
             throw new Error("Selection is already hidden");
-        selectionVisible = false;
-        for (var i = 0; i < selectionDivs.length; i++)
-            DOM_deleteNode(selectionDivs[i]);
-        selectionDivs = new Array();
+        if (!onlyUpdateEditor) {
+            selectionVisible = false;
+            for (var i = 0; i < selectionDivs.length; i++)
+                DOM_deleteNode(selectionDivs[i]);
+            selectionDivs = new Array();
+        }
     });
 
     // public
@@ -272,7 +266,7 @@ var Selection_preserveWhileExecuting;
         Selection_show();
     });
 
-    Selection_show = trace(function show()
+    Selection_show = trace(function show(onlyUpdateEditor)
     {
         if (selectionVisible)
             throw new Error("Selection is already visible");
@@ -310,43 +304,45 @@ var Selection_preserveWhileExecuting;
             var boundsTop = null;
             var boundsBottom = null
 
-            for (var i = 0; i < rects.length; i++) {
-                var div = DOM_createElement(document,"DIV");
-                DOM_setAttribute(div,"class",Keys.SELECTION_HIGHLIGHT);
-                DOM_setStyleProperties(div,{"position": "absolute"});
+            if (!onlyUpdateEditor) {
+                for (var i = 0; i < rects.length; i++) {
+                    var div = DOM_createElement(document,"DIV");
+                    DOM_setAttribute(div,"class",Keys.SELECTION_HIGHLIGHT);
+                    DOM_setStyleProperties(div,{"position": "absolute"});
 
-                var left = rects[i].left + window.scrollX;
-                var top = rects[i].top + window.scrollY;
-                var width = rects[i].width;
-                var height = rects[i].height;
-                var right = left + width;
-                var bottom = top + height;
+                    var left = rects[i].left + window.scrollX;
+                    var top = rects[i].top + window.scrollY;
+                    var width = rects[i].width;
+                    var height = rects[i].height;
+                    var right = left + width;
+                    var bottom = top + height;
 
-                if (boundsLeft == null) {
-                    boundsLeft = left;
-                    boundsTop = top;
-                    boundsRight = right;
-                    boundsBottom = bottom;
-                }
-                else {
-                    if (boundsLeft > left)
+                    if (boundsLeft == null) {
                         boundsLeft = left;
-                    if (boundsRight < right)
-                        boundsRight = right;
-                    if (boundsTop > top)
                         boundsTop = top;
-                    if (boundsBottom < bottom)
+                        boundsRight = right;
                         boundsBottom = bottom;
-                }
+                    }
+                    else {
+                        if (boundsLeft > left)
+                            boundsLeft = left;
+                        if (boundsRight < right)
+                            boundsRight = right;
+                        if (boundsTop > top)
+                            boundsTop = top;
+                        if (boundsBottom < bottom)
+                            boundsBottom = bottom;
+                    }
 
-                DOM_setStyleProperties(div,{ "left": left+"px",
-                                             "top": top+"px",
-                                             "width": width+"px",
-                                             "height": height+"px",
-                                             "background-color": "rgb(201,221,238)",
-                                             "z-index": -1 });
-                DOM_appendChild(document.body,div);
-                selectionDivs.push(div);
+                    DOM_setStyleProperties(div,{ "left": left+"px",
+                                                 "top": top+"px",
+                                                 "width": width+"px",
+                                                 "height": height+"px",
+                                                 "background-color": "rgb(201,221,238)",
+                                                 "z-index": -1 });
+                    DOM_appendChild(document.body,div);
+                    selectionDivs.push(div);
+                }
             }
 
             var firstRect = rects[0];

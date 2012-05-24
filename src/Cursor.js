@@ -210,6 +210,7 @@ var Cursor_enterPressed;
     // public
     Cursor_positionCursor = trace(function positionCursor(x,y)
     {
+        UndoManager_newGroup("Typing");
         return Selection_hideWhileExecuting(function() {
             var position = Cursor_closestPositionForwards(positionAtPoint(x,y));
             if ((position != null) && isOpaqueNode(position.node))
@@ -517,6 +518,7 @@ var Cursor_enterPressed;
     // public
     Cursor_enterPressed = trace(function enterPressed()
     {
+        UndoManager_newGroup("Typing");
         Selection_hideWhileExecuting(function() {
             var selRange = Selection_get();
             if (selRange == null)

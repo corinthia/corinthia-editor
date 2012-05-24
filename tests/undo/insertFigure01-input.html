@@ -4,21 +4,12 @@
 <script src="UndoTests.js"></script>
 <script>
 
-function placeCursorAfterElement(id)
-{
-    var element = document.getElementById(id);
-    Selection_hideWhileExecuting(function() {
-        var node = element.parentNode;
-        var offset = DOM_nodeOffset(element)+1;
-        Selection_set(node,offset,node,offset);
-    });
-}
-
 function performTest()
 {
     Outline_init();
     Styles_init();
     PostponedActions_perform();
+    UndoManager_clear();
 
     var versions = new Array();
 
