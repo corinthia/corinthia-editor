@@ -13,6 +13,7 @@ var UndoManager_newGroup;
 var UndoManager_groupType;
 var UndoManager_disableWhileExecuting;
 var UndoManager_isDisabled;
+var UndoManager_clear;
 
 (function() {
 
@@ -195,6 +196,11 @@ var UndoManager_isDisabled;
 
     UndoManager_isDisabled = trace(function isDisabled() {
         return (disabled > 0);
+    });
+
+    UndoManager_clear = trace(function clear() {
+        undoStack.length = 0;
+        redoStack.length = 0;
     });
 
 })();

@@ -241,6 +241,7 @@ var Tables_regionFromRange;
     // public
     Tables_insertRowAbove = trace(function insertRowAbove()
     {
+        UndoManager_newGroup("Insert row above");
         var region = Tables_regionFromRange(Selection_get(),true);
         if (region != null) {
             Selection_preserveWhileExecuting(function() {
@@ -251,11 +252,13 @@ var Tables_regionFromRange;
                 populateNewRow(region.structure,newTR,region.top-1,region.top);
             });
         }
+        UndoManager_newGroup();
     });
 
     // public
     Tables_insertRowBelow = trace(function insertRowBelow()
     {
+        UndoManager_newGroup("Insert row below");
         var region = Tables_regionFromRange(Selection_get(),true);
         if (region != null) {
             Selection_preserveWhileExecuting(function() {
@@ -266,6 +269,7 @@ var Tables_regionFromRange;
                 populateNewRow(region.structure,newTR,region.bottom+1,region.bottom);
             });
         }
+        UndoManager_newGroup();
     });
 
     // private
@@ -430,6 +434,7 @@ var Tables_regionFromRange;
     // public
     Tables_insertColumnLeft = trace(function insertColumnLeft()
     {
+        UndoManager_newGroup("Insert column at left");
         var region = Tables_regionFromRange(Selection_get(),true);
         if (region != null) {
             Selection_preserveWhileExecuting(function() {
@@ -437,11 +442,13 @@ var Tables_regionFromRange;
                 addColumnCells(region.structure,region.left,false);
             });
         }
+        UndoManager_newGroup();
     });
 
     // public
     Tables_insertColumnRight = trace(function insertColumnRight()
     {
+        UndoManager_newGroup("Insert column at right");
         var region = Tables_regionFromRange(Selection_get(),true);
         if (region != null) {
             Selection_preserveWhileExecuting(function() {
@@ -449,6 +456,7 @@ var Tables_regionFromRange;
                 addColumnCells(region.structure,region.right,true);
             });
         }
+        UndoManager_newGroup();
     });
 
     // private
