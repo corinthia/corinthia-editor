@@ -212,7 +212,8 @@ var Cursor_replacePrecedingWord;
     // public
     Cursor_positionCursor = trace(function positionCursor(x,y)
     {
-        UndoManager_newGroup("Typing");
+        if (UndoManager_groupType() != "Cursor movement")
+            UndoManager_newGroup("Cursor movement");
         return Selection_hideWhileExecuting(function() {
             var position = Cursor_closestPositionForwards(positionAtPoint(x,y));
             if ((position != null) && isOpaqueNode(position.node))
@@ -432,6 +433,8 @@ var Cursor_replacePrecedingWord;
     // public
     Cursor_insertCharacter = trace(function insertCharacter(character,allowInvalidPos)
     {
+        if (UndoManager_groupType() != "Insert text")
+            UndoManager_newGroup("Insert text");
         Cursor_beginInsertion(allowInvalidPos);
         Cursor_updateInsertion(character);
     });
@@ -498,6 +501,8 @@ var Cursor_replacePrecedingWord;
     // public
     Cursor_deleteCharacter = trace(function deleteCharacter()
     {
+        if (UndoManager_groupType() != "Delete text")
+            UndoManager_newGroup("Delete text");
         Selection_hideWhileExecuting(function() {
             var selRange = Selection_get();
             if (selRange == null)
@@ -522,7 +527,7 @@ var Cursor_replacePrecedingWord;
     // public
     Cursor_enterPressed = trace(function enterPressed()
     {
-        UndoManager_newGroup("Typing");
+        UndoManager_newGroup("New paragraph");
         Selection_hideWhileExecuting(function() {
             var selRange = Selection_get();
             if (selRange == null)
