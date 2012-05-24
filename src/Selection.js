@@ -127,10 +127,11 @@ var Selection_preserveWhileExecuting;
             // Cursor is between two elements. We don't want to use the rect of either element,
             // since its height may not reflect that of the current text size. Temporarily add a
             /// new character, and set the cursor's location and height based on this.
+            var result;
             UndoManager_disableWhileExecuting(function() {
                 var tempNode = DOM_createTextNode(document,"X");
                 DOM_insertBefore(node,tempNode,node.childNodes[offset]);
-                var result = rectAtLeftOfRange(new Range(tempNode,0,tempNode,0));
+                result = rectAtLeftOfRange(new Range(tempNode,0,tempNode,0));
                 DOM_deleteNode(tempNode);
             });
             return result;
