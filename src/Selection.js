@@ -37,34 +37,16 @@ var Selection_preserveWhileExecuting;
 
     (function() {
 
-        var startNode = null;
-        var startOffset = null;
-        var endNode = null;
-        var endOffset = null;
+        var selection = new Object();
 
         // public
         Selection_get = trace(function get()
         {
-            if (startNode == null)
+            if (selection.value == null)
                 return null;
             else
-                return new Range(startNode,startOffset,endNode,endOffset);
-        });
-
-        var setInternal = trace(function setInternal(newStartNode,newStartOffset,
-                                                     newEndNode,newEndOffset) {
-            var oldStartNode = startNode;
-            var oldStartOffset = startOffset;
-            var oldEndNode = endNode;
-            var oldEndOffset = endOffset;
-            UndoManager_addAction(function() {
-                setInternal(oldStartNode,oldStartOffset,oldEndNode,oldEndOffset);
-            });
-
-            startNode = newStartNode;
-            startOffset = newStartOffset;
-            endNode = newEndNode;
-            endOffset = newEndOffset;
+                return new Range(selection.value.startNode,selection.value.startOffset,
+                                 selection.value.endNode,selection.value.endOffset);
         });
 
         // public
@@ -75,10 +57,19 @@ var Selection_preserveWhileExecuting;
 
             var range = new Range(newStartNode,newStartOffset,newEndNode,newEndOffset);
             if (range.isForwards()) {
-                setInternal(newStartNode,newStartOffset,newEndNode,newEndOffset);
+                UndoManager_setProperty(selection,"value",
+                                        { startNode: newStartNode,
+                                          startOffset: newStartOffset,
+                                          endNode: newEndNode,
+                                          endOffset: newEndOffset });
             }
             else {
-                setInternal(newEndNode,newEndOffset,newStartNode,newStartOffset);
+                UndoManager_setProperty(selection,"value",
+                                        { startNode: newEndNode,
+                                          startOffset: newEndOffset,
+                                          endNode: newStartNode,
+                                          endOffset: newStartOffset
+                                        });
             }
         });
 
@@ -87,7 +78,7 @@ var Selection_preserveWhileExecuting;
         {
             if (selectionVisible)
                 throw new Error("Attempt to clear selection while visible");
-            setInternal(null,null,null,null);
+            UndoManager_setProperty(selection,"value",null);
         });
     })();
 

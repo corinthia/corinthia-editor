@@ -14,6 +14,8 @@ var UndoManager_groupType;
 var UndoManager_disableWhileExecuting;
 var UndoManager_isDisabled;
 var UndoManager_clear;
+var UndoManager_setProperty;
+var UndoManager_deleteProperty;
 
 (function() {
 
@@ -201,6 +203,26 @@ var UndoManager_clear;
     UndoManager_clear = trace(function clear() {
         undoStack.length = 0;
         redoStack.length = 0;
+    });
+
+    function saveProperty(obj,name)
+    {
+        if (obj.hasOwnProperty(name))
+            UndoManager_addAction(UndoManager_setProperty,obj,name,obj[name]);
+        else
+            UndoManager_addAction(UndoManager_deleteProperty,obj,name);
+    }
+
+    UndoManager_setProperty = trace(function setProperty(obj,name,value)
+    {
+        saveProperty(obj,name);
+        obj[name] = value;
+    });
+
+    UndoManager_deleteProperty = trace(function setProperty(obj,name)
+    {
+        saveProperty(obj,name);
+        delete obj[name];
     });
 
 })();
