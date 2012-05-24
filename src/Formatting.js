@@ -372,7 +372,7 @@ var Formatting_applyFormattingChanges;
                 if (firstInParagraph)
                     commonProperties["uxwrite-shift"] = "true";
             }
-            if (strBeforeCursor.match(/\.\s+$/))
+            if (strBeforeCursor.match(/\.\s*$/))
                 commonProperties["uxwrite-shift"] = "true";
             if (strBeforeCursor.match(/\([^\)]*$/))
                 commonProperties["uxwrite-in-brackets"] = "true";
