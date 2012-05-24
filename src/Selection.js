@@ -59,8 +59,6 @@ var Selection_preserveWhileExecuting;
             var oldEndOffset = endOffset;
             UndoManager_addAction(function() {
                 setInternal(oldStartNode,oldStartOffset,oldEndNode,oldEndOffset);
-                selectionVisible = false;
-                Selection_show(true);
             });
 
             startNode = newStartNode;
@@ -245,17 +243,50 @@ var Selection_preserveWhileExecuting;
         return true;
     });
 
+    function addSelectionVisibilityAction()
+    {
+        var oldSelectionVisible = selectionVisible;
+        var oldSelectionDivs = arrayCopy(selectionDivs);
+        UndoManager_addAction(function() {
+            selectionVisible = oldSelectionVisible;
+            selectionDivs = oldSelectionDivs;
+        });
+    }
+
+    var editorHandles = { type: "none" };
+    var setEditorHandles = trace(function setEditorHandles(info)
+    {
+        var oldEditorHandles = editorHandles;
+        editorHandles = info;
+        UndoManager_addAction(function() {
+            setEditorHandles(oldEditorHandles);
+        });
+        if (info.type == "cursor") {
+            Editor_setCursor(info.left,info.top,info.width,info.height);
+        }
+        else if (info.type == "selection") {
+            Editor_setSelectionHandles(info.x1,info.y1,info.height1,info.x2,info.y2,info.height2);
+            Editor_setSelectionBounds(info.boundsLeft,info.boundsTop,
+                                      info.boundsRight,info.boundsBottom);
+        }
+        else if (info.type == "none") {
+            Editor_clearSelectionHandlesAndCursor();
+        }
+        else {
+            throw new Error("setEditorHandles: unknown type "+type);
+        }
+    });
+
     // public
-    Selection_hide = trace(function hide(onlyUpdateEditor)
+    Selection_hide = trace(function hide()
     {
         if (!selectionVisible)
             throw new Error("Selection is already hidden");
-        if (!onlyUpdateEditor) {
-            selectionVisible = false;
-            for (var i = 0; i < selectionDivs.length; i++)
-                DOM_deleteNode(selectionDivs[i]);
-            selectionDivs = new Array();
-        }
+        addSelectionVisibilityAction();
+        selectionVisible = false;
+        for (var i = 0; i < selectionDivs.length; i++)
+            DOM_deleteNode(selectionDivs[i]);
+        selectionDivs = new Array();
     });
 
     // public
@@ -266,10 +297,11 @@ var Selection_preserveWhileExecuting;
         Selection_show();
     });
 
-    Selection_show = trace(function show(onlyUpdateEditor)
+    Selection_show = trace(function show()
     {
         if (selectionVisible)
             throw new Error("Selection is already visible");
+        addSelectionVisibilityAction();
         selectionVisible = true;
         var rects = null;
 
@@ -287,10 +319,20 @@ var Selection_preserveWhileExecuting;
                 var top = rect.top + window.scrollY;
                 var height = rect.height;
                 var width = rect.width ? rect.width : 2;
-                Editor_setCursor(left,top,width,height);
+                setEditorHandles({ type: "cursor",
+                                   left: left,
+                                   top: top,
+                                   width: width,
+                                   height: height});
             }
             else {
-                Editor_setCursor(0,0,300,300);
+                // Represents an invalid position - this should never actually occur
+                // FIXME: maybe throw an exception here?
+                setEditorHandles({ type: "cursor",
+                                   left: 0,
+                                   top: 0,
+                                   width: 300,
+                                   height: 300});
             }
             return;
         }
@@ -304,45 +346,43 @@ var Selection_preserveWhileExecuting;
             var boundsTop = null;
             var boundsBottom = null
 
-            if (!onlyUpdateEditor) {
-                for (var i = 0; i < rects.length; i++) {
-                    var div = DOM_createElement(document,"DIV");
-                    DOM_setAttribute(div,"class",Keys.SELECTION_HIGHLIGHT);
-                    DOM_setStyleProperties(div,{"position": "absolute"});
+            for (var i = 0; i < rects.length; i++) {
+                var div = DOM_createElement(document,"DIV");
+                DOM_setAttribute(div,"class",Keys.SELECTION_HIGHLIGHT);
+                DOM_setStyleProperties(div,{"position": "absolute"});
 
-                    var left = rects[i].left + window.scrollX;
-                    var top = rects[i].top + window.scrollY;
-                    var width = rects[i].width;
-                    var height = rects[i].height;
-                    var right = left + width;
-                    var bottom = top + height;
+                var left = rects[i].left + window.scrollX;
+                var top = rects[i].top + window.scrollY;
+                var width = rects[i].width;
+                var height = rects[i].height;
+                var right = left + width;
+                var bottom = top + height;
 
-                    if (boundsLeft == null) {
-                        boundsLeft = left;
-                        boundsTop = top;
-                        boundsRight = right;
-                        boundsBottom = bottom;
-                    }
-                    else {
-                        if (boundsLeft > left)
-                            boundsLeft = left;
-                        if (boundsRight < right)
-                            boundsRight = right;
-                        if (boundsTop > top)
-                            boundsTop = top;
-                        if (boundsBottom < bottom)
-                            boundsBottom = bottom;
-                    }
-
-                    DOM_setStyleProperties(div,{ "left": left+"px",
-                                                 "top": top+"px",
-                                                 "width": width+"px",
-                                                 "height": height+"px",
-                                                 "background-color": "rgb(201,221,238)",
-                                                 "z-index": -1 });
-                    DOM_appendChild(document.body,div);
-                    selectionDivs.push(div);
+                if (boundsLeft == null) {
+                    boundsLeft = left;
+                    boundsTop = top;
+                    boundsRight = right;
+                    boundsBottom = bottom;
                 }
+                else {
+                    if (boundsLeft > left)
+                        boundsLeft = left;
+                    if (boundsRight < right)
+                        boundsRight = right;
+                    if (boundsTop > top)
+                        boundsTop = top;
+                    if (boundsBottom < bottom)
+                        boundsBottom = bottom;
+                }
+
+                DOM_setStyleProperties(div,{ "left": left+"px",
+                                             "top": top+"px",
+                                             "width": width+"px",
+                                             "height": height+"px",
+                                             "background-color": "rgb(201,221,238)",
+                                             "z-index": -1 });
+                DOM_appendChild(document.body,div);
+                selectionDivs.push(div);
             }
 
             var firstRect = rects[0];
@@ -355,12 +395,21 @@ var Selection_preserveWhileExecuting;
             var y2 = lastRect.top + window.scrollY;
             var height2 = lastRect.height;
 
-            Editor_setSelectionHandles(x1,y1,height1,x2,y2,height2);
-            Editor_setSelectionBounds(boundsLeft,boundsTop,
-                                      boundsRight,boundsBottom);
+            setEditorHandles({ type: "selection",
+                               x1: x1,
+                               y1: y1,
+                               height1: height1,
+                               x2: x2,
+                               y2: y2,
+                               height2: height2,
+                               boundsLeft: boundsLeft,
+                               boundsTop: boundsTop,
+                               boundsRight: boundsRight,
+                               boundsBottom: boundsBottom });;
+
         }
         else {
-            Editor_clearSelectionHandlesAndCursor();
+            setEditorHandles({ type: "none" });
         }
 
         function getAbsoluteOffset(node)
