@@ -215,7 +215,24 @@ var Cursor_replacePrecedingWord;
         if (UndoManager_groupType() != "Cursor movement")
             UndoManager_newGroup("Cursor movement");
         return Selection_hideWhileExecuting(function() {
-            var position = Cursor_closestPositionForwards(positionAtPoint(x,y));
+            var result = null;
+            var position = positionAtPoint(x,y);
+
+            var node = position.closestActualNode();
+            for (; node != null; node = node.parentNode) {
+                if ((DOM_upperName(node) == "A") && (result == null)) {
+                    var href = node.getAttribute("href");
+                    if ((href != null) && (href.charAt(0) == "#"))
+                        result = "inreference";
+                    else
+                        result = "inlink";
+                }
+                else if ((DOM_upperName(node) == "FIGURE") && (result == null)) {
+                    result = "infigure";
+                }
+            }
+
+            var position = Cursor_closestPositionForwards(position);
             if ((position != null) && isOpaqueNode(position.node))
                 position = nextCursorPosition(position);
             if (position == null)
@@ -225,6 +242,8 @@ var Cursor_replacePrecedingWord;
             var samePosition = ((selectionRange != null) && selectionRange.isEmpty() &&
                                 (position.node == selectionRange.start.node) &&
                                 (position.offset == selectionRange.start.offset));
+            if (samePosition && (result == null))
+                result = "same";
 
             if (wordBoundary) {
                 var startOfWord = Selection_posAtStartOfWord(position);
@@ -241,7 +260,7 @@ var Cursor_replacePrecedingWord;
 
             Selection_set(position.node,position.offset,position.node,position.offset);
             Cursor_ensureCursorVisible();
-            return samePosition;
+            return result;
         });
     });
 
