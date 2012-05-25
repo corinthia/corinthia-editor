@@ -898,9 +898,15 @@ var Outline_examinePrintLayout;
             window.scrollTo(0);
         }
         else {
+            var node = document.getElementById(itemId);
+            var position = new Position(node,0);
+            position = Cursor_closestPositionForwards(position);
+            Selection_hideWhileExecuting(function() {
+                Selection_set(position.node,position.offset,position.node,position.offset);
+            });
+
             var section = document.getElementById(itemId);
-            var location = webkitConvertPointFromNodeToPage(section,
-                                                            new WebKitPoint(0,0));
+            var location = webkitConvertPointFromNodeToPage(section,new WebKitPoint(0,0));
             window.scrollTo(0,location.y);
         }
     });
