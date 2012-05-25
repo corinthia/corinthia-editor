@@ -16,6 +16,7 @@ var Outline_insertFigureTOC;
 var Outline_insertTableTOC;
 var Outline_preparePrintMargins;
 var Outline_examinePrintLayout;
+var Outline_setReferenceTarget;
 
 (function() {
 
@@ -527,7 +528,9 @@ var Outline_examinePrintLayout;
         if (!outlineDirty)
             return;
         outlineDirty = false;
-        updateStructureReal();
+        Selection_preserveWhileExecuting(function() {
+            updateStructureReal();
+        });
     });
 
     function Shadow(node)
@@ -1063,6 +1066,14 @@ var Outline_examinePrintLayout;
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
         }
+    });
+
+    Outline_setReferenceTarget = trace(function setReferenceTarget(node,itemId) {
+        Selection_preserveWhileExecuting(function() {
+            refRemoved(node);
+            DOM_setAttribute(node,"href","#"+itemId);
+            refInserted(node);
+        });
     });
 
 })();

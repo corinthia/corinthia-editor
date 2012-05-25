@@ -22,6 +22,7 @@ var Cursor_getPrecedingWord;
 var Cursor_replacePrecedingWord;
 var Cursor_getLinkProperties;
 var Cursor_setLinkProperties;
+var Cursor_setReferenceTarget;
 
 (function() {
 
@@ -763,6 +764,13 @@ var Cursor_setLinkProperties;
             DOM_deleteAllChildren(a);
             DOM_appendChild(a,DOM_createTextNode(document,properties.text));
         });
+    });
+
+    Cursor_setReferenceTarget = trace(function setReferenceTarget(itemId)
+    {
+        var a = getPreceding(function (node) { return (DOM_upperName(node) == "A"); });
+        if (a != null)
+            Outline_setReferenceTarget(a,itemId);
     });
 
 })();
