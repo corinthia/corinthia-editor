@@ -117,14 +117,7 @@ function positionAtPoint(x,y)
     if (range == null)
         return null;
 
-    var element = document.elementFromPoint(x,y);
-    if ((range.startContainer.nodeType == Node.TEXT_NODE) &&
-        (element != range.startContainer.parentNode)) {
-        return null;
-    }
-
-    var position = new Position(range.startContainer,range.startOffset);
-    return position;
+    return new Position(range.startContainer,range.startOffset);
 
     function findLastTextRect()
     {
