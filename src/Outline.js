@@ -690,19 +690,19 @@ var Outline_setReferenceTarget;
         for (var section = sections.list.first; section != null; section = section.next) {
             var shadow = structure.shadowsByNode.get(section.node);
             shadow.updateItemNumbering();
-            setReferenceText(section.node,"Section "+shadow.getFullNumber());
+            setReferenceText(section.node,shadow.getFullNumber());
         }
 
         for (var figure = figures.list.first; figure != null; figure = figure.next) {
             var shadow = structure.shadowsByNode.get(figure.node);
             shadow.updateItemNumbering();
-            setReferenceText(figure.node,"Figure "+shadow.getFullNumber());
+            setReferenceText(figure.node,shadow.getFullNumber());
         }
 
         for (var table = tables.list.first; table != null; table = table.next) {
             var shadow = structure.shadowsByNode.get(table.node);
             shadow.updateItemNumbering();
-            setReferenceText(table.node,"Table "+shadow.getFullNumber());
+            setReferenceText(table.node,shadow.getFullNumber());
         }
 
         sections.tocs.forEach(function (node,toc) {
