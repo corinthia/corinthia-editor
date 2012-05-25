@@ -20,6 +20,8 @@ var Cursor_deleteCharacter;
 var Cursor_enterPressed;
 var Cursor_getPrecedingWord;
 var Cursor_replacePrecedingWord;
+var Cursor_getLinkProperties;
+var Cursor_setLinkProperties;
 
 (function() {
 
@@ -723,6 +725,44 @@ var Cursor_replacePrecedingWord;
             Selection_set(node,newOffset,node,newOffset);
         });
         UndoManager_newGroup();
+    });
+
+    function getPreceding(match)
+    {
+        var selRange = Selection_get();
+        var position = selRange.start;
+        while (position != null) {
+            var node = position.closestActualNode();
+            for (; node != null; node = node.parentNode) {
+                if (match(node))
+                    return node;
+            }
+            position = position.prev();
+        }
+        return null;
+    }
+
+    Cursor_getLinkProperties = trace(function getLinkProperties()
+    {
+        var a = getPreceding(function (node) { return (DOM_upperName(node) == "A"); });
+        if (a == null)
+            return null;
+
+        return { href: a.getAttribute("href"),
+                 text: getNodeText(a) };
+    });
+
+    Cursor_setLinkProperties = trace(function setLinkProperties(properties)
+    {
+        var a = getPreceding(function (node) { return (DOM_upperName(node) == "A"); });
+        if (a == null)
+            return null;
+
+        Selection_preserveWhileExecuting(function() {
+            DOM_setAttribute(a,"href",properties.href);
+            DOM_deleteAllChildren(a);
+            DOM_appendChild(a,DOM_createTextNode(document,properties.text));
+        });
     });
 
 })();
