@@ -20,6 +20,7 @@ var Cursor_deleteCharacter;
 var Cursor_enterPressed;
 var Cursor_getPrecedingWord;
 var Cursor_replacePrecedingWord;
+var Cursor_getAdjacentNodeWithName;
 var Cursor_getLinkProperties;
 var Cursor_setLinkProperties;
 var Cursor_setReferenceTarget;
@@ -728,24 +729,24 @@ var Cursor_setReferenceTarget;
         UndoManager_newGroup();
     });
 
-    function getPreceding(match)
+    Cursor_getAdjacentNodeWithName = trace(function getAdjacentNodeWithName(name)
     {
         var selRange = Selection_get();
         var position = selRange.start;
         while (position != null) {
             var node = position.closestActualNode();
             for (; node != null; node = node.parentNode) {
-                if (match(node))
+                if (DOM_upperName(node) == name)
                     return node;
             }
             position = position.prev();
         }
         return null;
-    }
+    });
 
     Cursor_getLinkProperties = trace(function getLinkProperties()
     {
-        var a = getPreceding(function (node) { return (DOM_upperName(node) == "A"); });
+        var a = Cursor_getAdjacentNodeWithName("A");
         if (a == null)
             return null;
 
@@ -755,7 +756,7 @@ var Cursor_setReferenceTarget;
 
     Cursor_setLinkProperties = trace(function setLinkProperties(properties)
     {
-        var a = getPreceding(function (node) { return (DOM_upperName(node) == "A"); });
+        var a = Cursor_getAdjacentNodeWithName("A");
         if (a == null)
             return null;
 
@@ -768,7 +769,7 @@ var Cursor_setReferenceTarget;
 
     Cursor_setReferenceTarget = trace(function setReferenceTarget(itemId)
     {
-        var a = getPreceding(function (node) { return (DOM_upperName(node) == "A"); });
+        var a = Cursor_getAdjacentNodeWithName("A");
         if (a != null)
             Outline_setReferenceTarget(a,itemId);
     });
