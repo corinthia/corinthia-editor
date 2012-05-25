@@ -8,6 +8,7 @@ var Outline_removeListeners;
 var Outline_moveSection;
 var Outline_deleteItem;
 var Outline_goToItem;
+var Outline_setTitle;
 var Outline_setNumbered;
 var Outline_getItemElement;
 var Outline_plainText;
@@ -934,6 +935,24 @@ var Outline_setReferenceTarget;
                 item.enableNumbering();
             else
                 item.disableNumbering();
+        });
+    });
+
+    // public
+    Outline_setTitle = trace(function setTitle(itemId,title)
+    {
+        var node = document.getElementById(itemId);
+        var item = itemsByNode.get(node);
+        Selection_preserveWhileExecuting(function() {
+            var titleNode = item.getTitleNode(true);
+            if (item.numberSpan != null) {
+                while (item.numberSpan.nextSibling != null)
+                    DOM_deleteNode(item.numberSpan.nextSibling);
+            }
+            else {
+                DOM_deleteAllChildren(titleNode);
+            }
+            DOM_appendChild(titleNode,DOM_createTextNode(document,title));
         });
     });
 

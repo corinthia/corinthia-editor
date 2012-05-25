@@ -1,6 +1,7 @@
 // Copyright (c) 2012 UX Productivity Pty Ltd. All rights reserved.
 
 var Figures_insertFigure;
+var Figures_getSelectedFigureId;
 var Figures_getProperties;
 var Figures_setProperties;
 
@@ -43,40 +44,38 @@ var Figures_setProperties;
         PostponedActions_add(UndoManager_newGroup);
     });
 
-    // private
-    var getSelectedFigureElement = trace(function getSelectedFigureElement()
+    Figures_getSelectedFigureId = trace(function getAdjacentFigureId()
     {
-        var selectionRange = Selection_get();
-        if (selectionRange == null)
-            return;
-        var matches = selectionRange.findMatchingNodes(isFigureNode);
-        if (matches.length > 0)
-            return matches[0];
-        else
+        var element = Cursor_getAdjacentNodeWithName("FIGURE");
+        if (element == null)
             return null;
+        else
+            return element.getAttribute("id");
     });
 
     // public
-    Figures_getProperties = trace(function getProperties()
+    Figures_getProperties = trace(function getProperties(itemId)
     {
-        var figure = getSelectedFigureElement();
+        var figure = document.getElementById(itemId);
         if (figure == null)
             return null;
-        var result = { width: null, src: null, itemId: null };
+        var rect = figure.getBoundingClientRect();
+        var result = { width: null, src: null };
         for (var child = figure.firstChild; child != null; child = child.nextSibling) {
             if (DOM_upperName(child) == "IMG") {
                 result.src = child.getAttribute("src");
                 result.width = child.style.width;
             }
         }
-        result.itemId = figure.getAttribute("id");
         return result;
     });
 
     // public
     Figures_setProperties = trace(function setProperties(itemId,width,src)
     {
-        var figure = Outline_getItemElement(itemId);
+        var figure = document.getElementById(itemId);
+        if (figure == null)
+            return null;
         for (var child = figure.firstChild; child != null; child = child.nextSibling) {
             if (DOM_upperName(child) == "IMG") {
                 if (src == null)
