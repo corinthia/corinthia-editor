@@ -180,29 +180,33 @@ var Outline_setReferenceTarget;
         var toc = this;
         DOM_deleteAllChildren(this.node);
 
-        Styles_addDefaultRuleCategory("section-toc");
+        Styles_addDefaultRuleCategory("toc");
 
-        recurse(toplevelShadows,this.node);
+        recurse(toplevelShadows,this.node,1);
 
-        function recurse(shadows,parent)
+        var brk = DOM_createElement(document,"DIV");
+        DOM_setStyleProperties(brk,{ "clear": "both" });
+        DOM_appendChild(this.node,brk);
+
+        function recurse(shadows,parent,level)
         {
-            var ul = DOM_createElement(document,"UL");
-            DOM_appendChild(parent,ul);
+            if (level > 3)
+                return;
             for (var i = 0; i < shadows.length; i++) {
                 var shadow = shadows[i];
                 var item = shadow.item;
-                var li = DOM_createElement(document,"LI");
-                DOM_setAttribute(li,"class",Keys.SECTION_TOC);
-                DOM_appendChild(ul,li);
+                var div = DOM_createElement(document,"DIV");
+                DOM_setAttribute(div,"class","toc"+level);
+                DOM_appendChild(parent,div);
 
                 var leftSpan = DOM_createElement(document,"SPAN");
-                DOM_setAttribute(leftSpan,"class","uxwrite-toc-title");
+                DOM_setAttribute(leftSpan,"class","toctitle");
 
                 var rightSpan = DOM_createElement(document,"SPAN");
-                DOM_setAttribute(rightSpan,"class","uxwrite-toc-pageno");
+                DOM_setAttribute(rightSpan,"class","tocpageno");
 
-                DOM_appendChild(li,leftSpan);
-                DOM_appendChild(li,rightSpan);
+                DOM_appendChild(div,leftSpan);
+                DOM_appendChild(div,rightSpan);
 
                 // FIXME: item -> shadow
                 if (item.numberSpan != null)
@@ -215,7 +219,8 @@ var Outline_setReferenceTarget;
                 else
                     DOM_appendChild(rightSpan,DOM_createTextNode(document,pageNo));
 
-                recurse(shadow.children,li);
+
+                recurse(shadow.children,parent,level+1);
             }
         }
     });
