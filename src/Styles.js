@@ -490,10 +490,10 @@ var Styles_init;
                        "margin-bottom": "6pt",
                        "clear": "both",
                        "height": "1em",
-                       "font-weight": "bold",
-//                       "border-bottom-width": "2px",
-//                       "border-bottom-style": "dotted",
-//                       "border-bottom-color": "black",
+//                       "font-weight": "bold",
+                       "border-bottom-width": "2px",
+                       "border-bottom-style": "dotted",
+                       "border-bottom-color": "black",
                      }).hidden = true;
         defaultStyle(".toc2","special",true,
                      { "margin-left": "24pt",
@@ -522,6 +522,7 @@ var Styles_init;
         defaultStyle(".tocpageno","special",true,
                      { "float": "right",
                        "background-color": "white",
+                       "text-align": "right",
                        "width": "36pt",}).hidden = true;
 
         // Now that we've added the built-in styles, discover any styles explicitly defined
