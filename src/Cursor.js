@@ -522,6 +522,13 @@ var Cursor_setReferenceTarget;
     // public
     Cursor_updateInsertion = trace(function updateInsertion(str)
     {
+        if (str == "-") {
+            var preceding = Cursor_getPrecedingWord();
+            if (preceding.match(/[0-9]\s*$/))
+                str = String.fromCharCode(0x2013); // en dash
+            else if (preceding.match(/\s+$/))
+                str = String.fromCharCode(0x2014); // em dash
+        }
         Selection_hideWhileExecuting(function() {
             DOM_setNodeValue(insertionNode,insertionTextBefore+str+insertionTextAfter);
 
@@ -699,12 +706,12 @@ var Cursor_setReferenceTarget;
     Cursor_getPrecedingWord = trace(function getPrecedingWord() {
         var selRange = Selection_get();
         if ((selRange == null) && !selRange.isEmpty())
-            return;
+            return "";
 
         var node = selRange.start.node;
         var offset = selRange.start.offset;
         if (node.nodeType != Node.TEXT_NODE)
-            return node;
+            return "";
 
         return node.nodeValue.substring(0,offset);
     });

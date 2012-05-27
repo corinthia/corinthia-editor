@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+function performTest()
+{
+    Cursor_insertCharacter(" ",true);
+    Cursor_insertCharacter("-",true);
+    var text = getNodeText(document.body).replace(/\s+$/,"");
+    var charCode = text.charCodeAt(text.length-1);
+    DOM_appendChild(document.body,DOM_createTextNode(document,"charCode = "+charCode));
+    showSelection();
+}
+</script>
+</head>
+<body>
+En dash: 3[]
+</body>
+</html>
