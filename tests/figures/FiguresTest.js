@@ -6,7 +6,7 @@ function figurePropertiesString(index)
     Selection_hideWhileExecuting(function() {
         Selection_set(parent,offset,parent,offset+1);
     });
-    var properties = Figures_getProperties();
+    var properties = Figures_getProperties(Figures_getSelectedFigureId());
     var strings = new Array();
     var names = Object.getOwnPropertyNames(properties).sort();
     for (var i = 0; i < names.length; i++) {
