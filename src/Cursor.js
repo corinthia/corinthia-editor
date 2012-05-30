@@ -500,14 +500,6 @@ var Cursor_setReferenceTarget;
                 offset = 0;
             }
 
-            var range = new Range(node,offset,node,offset);
-            range.trackWhileExecuting(function() {
-                Cursor_updateBRAtEndOfParagraph(node);
-            });
-            Selection_set(range.start.node,range.start.offset,
-                          range.end.node,range.end.offset);
-            Cursor_ensureCursorVisible();
-
             DOM_insertCharacters(node,offset,str);
 
             offset += str.length;
