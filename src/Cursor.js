@@ -14,8 +14,6 @@ var Cursor_closestPositionBackwards;
 var Cursor_insertReference;
 var Cursor_insertLink;
 var Cursor_insertCharacter;
-var Cursor_beginInsertion;
-var Cursor_updateInsertion;
 var Cursor_deleteCharacter;
 var Cursor_enterPressed;
 var Cursor_getPrecedingWord;
@@ -26,10 +24,6 @@ var Cursor_setLinkProperties;
 var Cursor_setReferenceTarget;
 
 (function() {
-
-    var insertionNode = null;
-    var insertionTextBefore = null;
-    var insertionTextAfter = null;
 
     // public
     Cursor_ensureCursorVisible = trace(function ensureCursorVisible()
@@ -468,17 +462,19 @@ var Cursor_setReferenceTarget;
     });
 
     // public
-    Cursor_insertCharacter = trace(function insertCharacter(character,allowInvalidPos)
+    Cursor_insertCharacter = trace(function insertCharacter(str,allowInvalidPos)
     {
         if (UndoManager_groupType() != "Insert text")
             UndoManager_newGroup("Insert text");
-        Cursor_beginInsertion(allowInvalidPos);
-        Cursor_updateInsertion(character);
-    });
 
-    // public
-    Cursor_beginInsertion = trace(function beginInsertion(allowInvalidPos)
-    {
+        if (str == "-") {
+            var preceding = Cursor_getPrecedingWord();
+            if (preceding.match(/[0-9]\s*$/))
+                str = String.fromCharCode(0x2013); // en dash
+            else if (preceding.match(/\s+$/))
+                str = String.fromCharCode(0x2014); // em dash
+        }
+
         Selection_hideWhileExecuting(function() {
             var selRange = Selection_get();
             if (selRange == null)
@@ -504,10 +500,6 @@ var Cursor_setReferenceTarget;
                 offset = 0;
             }
 
-            insertionNode = node;
-            insertionTextBefore = insertionNode.nodeValue.slice(0,offset);
-            insertionTextAfter = insertionNode.nodeValue.slice(offset);
-
             var range = new Range(node,offset,node,offset);
             range.trackWhileExecuting(function() {
                 Cursor_updateBRAtEndOfParagraph(node);
@@ -515,25 +507,10 @@ var Cursor_setReferenceTarget;
             Selection_set(range.start.node,range.start.offset,
                           range.end.node,range.end.offset);
             Cursor_ensureCursorVisible();
-            return insertionTextBefore;
-        });
-    });
 
-    // public
-    Cursor_updateInsertion = trace(function updateInsertion(str)
-    {
-        if (str == "-") {
-            var preceding = Cursor_getPrecedingWord();
-            if (preceding.match(/[0-9]\s*$/))
-                str = String.fromCharCode(0x2013); // en dash
-            else if (preceding.match(/\s+$/))
-                str = String.fromCharCode(0x2014); // em dash
-        }
-        Selection_hideWhileExecuting(function() {
-            DOM_setNodeValue(insertionNode,insertionTextBefore+str+insertionTextAfter);
+            DOM_insertCharacters(node,offset,str);
 
-            var node = insertionNode;
-            var offset = (insertionTextBefore+str).length;
+            offset += str.length;
             Selection_set(node,offset,node,offset);
             Selection_get().trackWhileExecuting(function() {
                 Cursor_updateBRAtEndOfParagraph(node);
