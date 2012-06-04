@@ -993,8 +993,8 @@ var Formatting_applyFormattingChanges;
 
         // The current cursor position may no longer be valid, e.g. if a heading span was inserted
         // and the cursor is at a position that is now immediately before the span.
-        var start = Cursor_closestPositionForwards(selectionRange.start);
-        var end = Cursor_closestPositionForwards(selectionRange.end);
+        var start = Cursor_closestPositionForwards(selectionRange.start,true);
+        var end = Cursor_closestPositionForwards(selectionRange.end,true);
         Selection_hideWhileExecuting(function() {
             Selection_set(start.node,start.offset,end.node,end.offset);
         });

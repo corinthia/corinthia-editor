@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+function performTest()
+{
+    Cursor_insertCharacter("a");
+    Formatting_applyFormattingChanges(null,{"font-style": "italic"});
+    Cursor_insertCharacter("b");
+    Formatting_applyFormattingChanges(null,{"font-style": null});
+    Cursor_insertCharacter("c");
+    showSelection();
+}
+</script>
+</head>
+<body>
+[]
+</body>
+</html>

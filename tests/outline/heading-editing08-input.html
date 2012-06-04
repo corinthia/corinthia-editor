@@ -11,11 +11,9 @@ function performTest()
         Cursor_deleteCharacter();
         PostponedActions_perform();
     }
-    Cursor_beginInsertion();
-    Cursor_updateInsertion("One");
+    Cursor_insertCharacter("One");
     Cursor_enterPressed();
-    Cursor_beginInsertion();
-    Cursor_updateInsertion("Two");
+    Cursor_insertCharacter("Two");
 }
 </script>
 </head>
