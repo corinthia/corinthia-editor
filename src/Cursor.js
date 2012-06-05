@@ -541,7 +541,7 @@ var Cursor_setReferenceTarget;
                 if (prevPos != null) {
                     Selection_set(prevPos.node,prevPos.offset,
                                   selRange.end.node,selRange.end.offset)
-                    Selection_deleteContents();
+                    Selection_deleteContents(true);
                 }
             }
         });
