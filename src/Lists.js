@@ -260,16 +260,15 @@ var Lists_setOrderedList;
         }
 
         var nodes = new Array();
+        var nodeSet = new NodeSet();
 
         // If, after moving up the tree until dca is a container node, a single node is selected,
         // check if it is wholly contained within a single list item. If so, select just that
         // list item.
         if ((ds == de) || ((ds != null) && (ds.nextSibling == null) && (de == null))) {
             for (var ancestor = dca; ancestor != null; ancestor = ancestor.parentNode) {
-                if (DOM_upperName(ancestor) == "LI") {
-                    nodes.push(ancestor);
-                    return nodes;
-                }
+                if (DOM_upperName(ancestor) == "LI")
+                    return [ancestor];
             }
         }
 
@@ -279,7 +278,7 @@ var Lists_setOrderedList;
             if ((DOM_upperName(child) == "UL") || (DOM_upperName(child) == "OL")) {
                 for (var gc = child.firstChild; gc != null; gc = gc.nextSibling) {
                     if (!isWhitespaceTextNode(gc))
-                        nodes.push(gc);
+                        addNode(gc);
                 }
             }
             else if ((DOM_upperName(child) == "DIV") &&
@@ -288,10 +287,20 @@ var Lists_setOrderedList;
             }
             else {
                 if (!isWhitespaceTextNode(child))
-                    nodes.push(child);
+                    addNode(child);
             }
         }
         return nodes;
+
+        function addNode(node)
+        {
+            while (isInlineNode(node) && node.parentNode != document.body)
+                node = node.parentNode;
+            if (!nodeSet.contains(node)) {
+                nodeSet.add(node);
+                nodes.push(node);
+            }
+        }
     });
 
     // public
@@ -301,6 +310,7 @@ var Lists_setOrderedList;
             var range = Selection_get();
             if (range == null)
                 return;
+            range.ensureRangeInlineNodesInParagraph();
 
             var nodes = getListOperationNodes(range);
 
@@ -330,25 +340,40 @@ var Lists_setOrderedList;
                         insertionPoint = secondList;
                     }
 
-                    while (li.firstChild != null) {
-                        if (isWhitespaceTextNode(li.firstChild)) {
-                            DOM_deleteNode(li.firstChild);
+                    var parent = null;
+                    var child = li.firstChild;
+                    while (child != null) {
+                        var next = child.nextSibling;
+                        if (isInlineNode(child) && !isWhitespaceTextNode(child)) {
+                            child = Hierarchy_wrapInlineNodesInParagraph(child);
+                            next = child.nextSibling;
                         }
-                        else if (isInlineNode(li.firstChild)) {
-                            var p = DOM_createElement(document,"p");
-                            DOM_appendChild(p,li.firstChild);
-                            DOM_insertBefore(list.parentNode,p,insertionPoint);
-                        }
-                        else {
-                            DOM_insertBefore(list.parentNode,li.firstChild,insertionPoint);
-                        }
+                        child = next;
                     }
-
-                    DOM_deleteNode(li);
+                    DOM_insertBefore(list.parentNode,li,insertionPoint);
+                    DOM_removeNodeButKeepChildren(li);
 
                     if (list.firstChild == null)
                         DOM_deleteNode(list);
                 }
+            }
+        });
+
+        Selection_hideWhileExecuting(function() {
+            var range = Selection_get();
+            if (range == null)
+                return;
+            if (range.isEmpty() &&
+                (range.start.node.nodeType == Node.ELEMENT_NODE) &&
+                (isContainerNode(range.start.node))) {
+
+                var p = DOM_createElement(document,"P");
+
+                var next = range.start.node.childNodes[range.start.offset+1];
+                DOM_insertBefore(range.start.node,p,next);
+
+                Cursor_updateBRAtEndOfParagraph(p);
+                Selection_set(p,0,p,0);
             }
         });
     });
