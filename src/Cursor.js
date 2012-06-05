@@ -4,6 +4,8 @@ var Cursor_ensureCursorVisible;
 var Cursor_isValidCursorPosition;
 var Cursor_positionCursor;
 var Cursor_getCursorPosition;
+var Cursor_prevCursorPosition;
+var Cursor_nextCursorPosition;
 var Cursor_moveLeft;
 var Cursor_moveRight;
 var Cursor_moveToStartOfDocument;
@@ -240,7 +242,7 @@ var Cursor_setReferenceTarget;
 
             var position = Cursor_closestPositionForwards(position);
             if ((position != null) && isOpaqueNode(position.node))
-                position = nextCursorPosition(position);
+                position = Cursor_nextCursorPosition(position);
             if (position == null)
                 return false;
 
@@ -283,7 +285,7 @@ var Cursor_setReferenceTarget;
         return { x: left, y: top, width: 0, height: height };
     });
 
-    var prevCursorPosition = trace(function prevCursorPosition(pos,insertion)
+    Cursor_prevCursorPosition = trace(function prevCursorPosition(pos,insertion)
     {
         do {
             pos = pos.prev();
@@ -291,7 +293,7 @@ var Cursor_setReferenceTarget;
         return pos;
     });
 
-    var nextCursorPosition = trace(function nextCursorPosition(pos,insertion)
+    Cursor_nextCursorPosition = trace(function nextCursorPosition(pos,insertion)
     {
         do {
             pos = pos.next();
@@ -307,7 +309,7 @@ var Cursor_setReferenceTarget;
             if (range == null)
                 return;
 
-            var pos = prevCursorPosition(range.start);
+            var pos = Cursor_prevCursorPosition(range.start);
 
             if (pos != null) {
                 Selection_set(pos.node,pos.offset,pos.node,pos.offset);
@@ -324,7 +326,7 @@ var Cursor_setReferenceTarget;
             if (range == null)
                 return;
 
-            var pos = nextCursorPosition(range.start);
+            var pos = Cursor_nextCursorPosition(range.start);
 
             if (pos != null) {
                 Selection_set(pos.node,pos.offset,pos.node,pos.offset);
@@ -419,11 +421,11 @@ var Cursor_setReferenceTarget;
         if (Cursor_isValidCursorPosition(pos,insertion))
             return pos;
 
-        var next = nextCursorPosition(pos,insertion);
+        var next = Cursor_nextCursorPosition(pos,insertion);
         if (next != null)
             return next;
 
-        var prev = prevCursorPosition(pos,insertion);
+        var prev = Cursor_prevCursorPosition(pos,insertion);
         if (prev != null)
             return prev;
 
@@ -441,11 +443,11 @@ var Cursor_setReferenceTarget;
         if (Cursor_isValidCursorPosition(pos,insertion))
             return pos;
 
-        var prev = prevCursorPosition(pos,insertion);
+        var prev = Cursor_prevCursorPosition(pos,insertion);
         if (prev != null)
             return prev;
 
-        var next = nextCursorPosition(pos,insertion);
+        var next = Cursor_nextCursorPosition(pos,insertion);
         if (next != null)
             return next;
 
@@ -535,7 +537,7 @@ var Cursor_setReferenceTarget;
             }
             else {
                 var currentPos = selRange.start;
-                var prevPos = prevCursorPosition(currentPos);
+                var prevPos = Cursor_prevCursorPosition(currentPos);
                 if (prevPos != null) {
                     Selection_set(prevPos.node,prevPos.offset,
                                   selRange.end.node,selRange.end.offset)

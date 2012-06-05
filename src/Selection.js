@@ -15,6 +15,10 @@ var Selection_selectParagraph;
 var Selection_selectWordAtCursor;
 var Selection_dragSelectionBegin;
 var Selection_dragSelectionUpdate;
+var Selection_moveStartLeft;
+var Selection_moveStartRight;
+var Selection_moveEndLeft;
+var Selection_moveEndRight;
 var Selection_setSelectionStartAtCoords;
 var Selection_setSelectionEndAtCoords;
 var Selection_setTableSelectionEdgeAtCoords;
@@ -671,6 +675,60 @@ var Selection_posAtEndOfWord;
             }
             return "none";
         });
+    });
+
+    var moveBoundary = trace(function moveBoundary(command)
+    {
+        return Selection_hideWhileExecuting(function() {
+            var range = Selection_get();
+            if (range == null)
+                return;
+
+            var pos = null;
+            if (command == "start-left")
+                range.start = pos = Cursor_prevCursorPosition(range.start);
+            else if (command == "start-right")
+                range.start = pos = Cursor_nextCursorPosition(range.start);
+            else if (command == "end-left")
+                range.end = pos = Cursor_prevCursorPosition(range.end);
+            else if (command == "end-right")
+                range.end = pos = Cursor_nextCursorPosition(range.end);
+
+            if ((range.start != null) && (range.end != null)) {
+                var result;
+                range = range.forwards();
+                Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
+                if (range.end == pos)
+                    return "end";
+                else if (range.end == pos)
+                    return "start";
+            }
+            return null;
+        });
+    });
+
+    // public
+    Selection_moveStartLeft = trace(function moveStartLeft()
+    {
+        return moveBoundary("start-left");
+    });
+
+    // public
+    Selection_moveStartRight = trace(function moveStartRight()
+    {
+        return moveBoundary("start-right");
+    });
+
+    // public
+    Selection_moveEndLeft = trace(function moveEndLeft()
+    {
+        return moveBoundary("end-left");
+    });
+
+    // public
+    Selection_moveEndRight = trace(function moveEndRight()
+    {
+        return moveBoundary("end-right");
     });
 
     // public
