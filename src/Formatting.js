@@ -616,8 +616,8 @@ var Formatting_applyFormattingChanges;
                 paragraph = DOM_replaceElement(paragraph,"P");
         }
         else if (style.charAt(0) == ".") {
-            if (DOM_upperName(paragraph) != "P")
-                paragraph = DOM_replaceElement(paragraph,"P");
+            if (DOM_upperName(paragraph) != "DIV")
+                paragraph = DOM_replaceElement(paragraph,"DIV");
             DOM_setAttribute(paragraph,"class",style.slice(1));
         }
         else {
