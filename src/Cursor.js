@@ -221,6 +221,8 @@ var Cursor_setReferenceTarget;
         return Selection_hideWhileExecuting(function() {
             var result = null;
             var position = positionAtPoint(x,y);
+            if (position == null)
+                return null;
 
             var node = position.closestActualNode();
             for (; node != null; node = node.parentNode) {
