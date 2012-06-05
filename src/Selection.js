@@ -596,6 +596,10 @@ var Selection_posAtEndOfWord;
     // public
     Selection_dragSelectionBegin = trace(function dragSelectionBegin(x,y,selectWord)
     {
+        var range = Selection_get();
+        if ((range != null) && !range.isEmpty())
+            return Selection_dragSelectionUpdate(x,y,selectWord);
+
         originalDragStart = null;
         originalDragEnd = null;
 
