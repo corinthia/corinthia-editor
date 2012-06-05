@@ -276,8 +276,13 @@ var Styles_init;
 
     function canonicaliseSelector(selector)
     {
-        // FIXME: are class names case sensitive?
-        return selector.toLowerCase().replace(/\s+/g," ");
+        // Class names are case sensitive. So we split the string into .-separated components,
+        // and convert only the first portion (the element name, if present) to lower case
+        selector = selector.replace(/\s+/g," ");
+        var parts = selector.split(/\./);
+        if (parts.length >= 0)
+            parts[0] = parts[0].toLowerCase();
+        return parts.join(".");
     }
 
     // private
