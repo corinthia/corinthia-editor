@@ -157,6 +157,7 @@ var Cursor_setReferenceTarget;
                          (DOM_upperName(node.previousSibling) == "BR") ||
                          (isParagraphNode(node.previousSibling)) ||
                          (getNodeText(node.previousSibling).match(/\s$/)) ||
+                         isItemNumber(node.previousSibling) ||
                          ((precedingText.length > 0))));
             }
 
