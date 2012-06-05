@@ -338,10 +338,11 @@ var Formatting_applyFormattingChanges;
         for (var i = 0; i < outermost.length; i++) {
             findLeafNodes(outermost[i],leafNodes);
         }
+        var empty = range.isEmpty();
 
         var commonProperties = null;
         for (var i = 0; i < leafNodes.length; i++) {
-            if (!isWhitespaceTextNode(leafNodes[i])) {
+            if (!isWhitespaceTextNode(leafNodes[i]) || empty) {
                 var leafNodeProperties = getAllProperties(leafNodes[i]);
                 if (leafNodeProperties["uxwrite-style"] == null)
                     leafNodeProperties["uxwrite-style"] = Keys.NONE_STYLE;
