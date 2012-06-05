@@ -552,7 +552,8 @@ var Formatting_applyFormattingChanges;
                 inlineChildren.push(child);
         for (var i = 0; i < inlineChildren.length; i++) {
             if (inlineChildren[i].parentNode == parent) { // may already have been moved
-                Hierarchy_wrapInlineNodesInParagraph(inlineChildren[i]);
+                if (!isWhitespaceTextNode(inlineChildren[i]))
+                    Hierarchy_wrapInlineNodesInParagraph(inlineChildren[i]);
             }
         }
     });
@@ -997,6 +998,7 @@ var Formatting_applyFormattingChanges;
         var end = Cursor_closestPositionBackwards(selectionRange.end,true);
         var tempRange = new Range(start.node,start.offset,end.node,end.offset);
         tempRange = tempRange.forwards();
+        tempRange.ensureRangeValidHierarchy();
         start = tempRange.start;
         end = tempRange.end;
         Selection_hideWhileExecuting(function() {

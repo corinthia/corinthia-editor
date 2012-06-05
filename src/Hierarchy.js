@@ -80,7 +80,14 @@ var Hierarchy_wrapInlineNodesInParagraph;
             if (count > 20)
                 throw new Error("ensureValidHierarchy: too many iterations");
 
-            if (isContainerNode(node) || isParagraphNode(node)) {
+            if (isHeadingNode(node) && (node.parentNode != document.body)) {
+                var offset = DOM_nodeOffset(node);
+                Formatting_moveFollowing(node.parentNode,offset+1,function() { return false; });
+                Formatting_movePreceding(node.parentNode,offset,function() { return false; });
+                DOM_removeNodeButKeepChildren(node.parentNode);
+                continue;
+            }
+            else if (isContainerNode(node) || isParagraphNode(node)) {
                 var invalidNesting = !isContainerNode(node.parentNode);
                 if (isParagraphNode(node) && (DOM_upperName(node.parentNode) == "DIV"))
                     invalidNesting = false; // this case is ok
