@@ -487,6 +487,7 @@ var Lists_setOrderedList;
                     }
                 }
             });
+            range.ensureRangeValidHierarchy();
             Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
         });
     });
