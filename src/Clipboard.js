@@ -240,8 +240,10 @@ var Clipboard_pasteNodes;
     // public
     Clipboard_cut = trace(function cut()
     {
+        UndoManager_newGroup("Cut");
         var content = Clipboard_copy();
         Selection_hideWhileExecuting(Selection_deleteContents);
+        UndoManager_newGroup();
         return content;
     });
 
@@ -313,6 +315,7 @@ var Clipboard_pasteNodes;
     // public
     Clipboard_pasteNodes = trace(function pasteNodes(nodes)
     {
+        UndoManager_newGroup("Paste");
         if ((nodes.length == 0) && isTableNode(nodes[0])) {
             // FIXME: this won't work; selectionRange is not defined
             var fromRegion = Tables_getTableRegionFromTable(nodes[0]);
@@ -413,6 +416,7 @@ var Clipboard_pasteNodes;
 
             Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
         });
+        UndoManager_newGroup();
     });
 
     function pasteImage(href)
