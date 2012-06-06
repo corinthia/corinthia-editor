@@ -1055,12 +1055,9 @@ var Selection_posAtEndOfWord;
     Selection_hideWhileExecuting = trace(function hideWhileExecuting(fun)
     {
         Selection_hide();
-        try {
-            return fun();
-        }
-        finally {
-            Selection_show();
-        }
+        var result = fun();
+        Selection_show();
+        return result;
     });
 
     // public
