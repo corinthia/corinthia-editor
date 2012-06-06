@@ -295,7 +295,9 @@ var Clipboard_pasteNodes;
     {
         var converter = new Showdown.converter();
         var html = converter.makeHtml(text);
+        UndoManager_newGroup("Paste");
         Clipboard_pasteHTML(html);
+        UndoManager_newGroup();
     });
 
     // public
@@ -325,13 +327,14 @@ var Clipboard_pasteNodes;
         for (var child = div.firstChild; child != null; child = child.nextSibling)
             nodes.push(child);
 
+        UndoManager_newGroup("Paste");
         Clipboard_pasteNodes(nodes);
+        UndoManager_newGroup();
     });
 
     // public
     Clipboard_pasteNodes = trace(function pasteNodes(nodes)
     {
-        UndoManager_newGroup("Paste");
         if ((nodes.length == 0) && isTableNode(nodes[0])) {
             // FIXME: this won't work; selectionRange is not defined
             var fromRegion = Tables_getTableRegionFromTable(nodes[0]);
@@ -432,7 +435,6 @@ var Clipboard_pasteNodes;
 
             Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
         });
-        UndoManager_newGroup();
     });
 
     function pasteImage(href)
