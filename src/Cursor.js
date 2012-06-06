@@ -705,13 +705,22 @@ var Cursor_setReferenceTarget;
         if (node.nodeType != Node.TEXT_NODE)
             return node;
 
+        var original = node.nodeValue.substring(offset-numChars,offset);
+
         UndoManager_newGroup("Auto-correct");
-        DOM_deleteCharacters(node,offset-numChars,offset);
-        DOM_insertCharacters(node,offset-numChars,replacement);
-        var newOffset = offset - numChars + replacement.length;
-        Selection_hideWhileExecuting(function() {
-            Selection_set(node,newOffset,node,newOffset);
+        Selection_preserveWhileExecuting(function() {
+            var before = node.nodeValue.substring(0,offset-numChars);
+            var beforeText = DOM_createTextNode(document,before);
+            var replacementText = DOM_createTextNode(document,replacement);
+            var span = DOM_createElement(document,"SPAN");
+            DOM_setAttribute(span,"class",Keys.AUTOCORRECT_CLASS);
+            DOM_setAttribute(span,"original",original);
+            DOM_appendChild(span,replacementText);
+            DOM_insertBefore(node.parentNode,beforeText,node);
+            DOM_insertBefore(node.parentNode,span,node);
+            DOM_deleteCharacters(node,0,offset);
         });
+        Styles_addDefaultRuleCategory("autocorrect");
         UndoManager_newGroup();
     });
 

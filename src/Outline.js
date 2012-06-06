@@ -475,6 +475,8 @@ var Outline_setReferenceTarget;
                 tables.add(node);
             else if (isRefNode(node))
                 refInserted(node);
+            else if (isAutoCorrectNode(node)) // done here to avoid a second listener
+                AutoCorrect_addCorrection(node);
 
             if (DOM_upperName(node) == "NAV") {
                 var cls = node.getAttribute("class");
@@ -513,6 +515,8 @@ var Outline_setReferenceTarget;
                 tables.remove(node);
             else if (isRefNode(node))
                 refRemoved(node);
+            else if (isAutoCorrectNode(node)) // done here to avoid a second listener
+                AutoCorrect_removeCorrection(node);
 
             if (DOM_upperName(node) == "NAV") {
                 var cls = node.getAttribute("class");

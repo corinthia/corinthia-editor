@@ -432,6 +432,7 @@ var Styles_init;
             "table-caption": ["caption"],
             "figure": ["figure"],
             "toc": [".toc1", ".toc2", ".toc3", ".toctitle",".tocpageno"],
+            "autocorrect": [".uxwrite-autocorrect"],
         };
 
         stylesById = new Object();
@@ -529,6 +530,8 @@ var Styles_init;
                        "background-color": "white",
                        "text-align": "right",
                        "width": "36pt",}).hidden = true;
+        defaultStyle(".uxwrite-autocorrect","special",true,
+                     {"background-color": "#c0ffc0"}).hidden = true;
 
         // Now that we've added the built-in styles, discover any styles explicitly defined
         // in the document. Any that are found will be marked as non-latent, because we want

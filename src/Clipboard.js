@@ -265,6 +265,7 @@ var Clipboard_pasteNodes;
             var div = DOM_createElement(document,"DIV");
             for (var i = 0; i < nodes.length; i++)
                 DOM_appendChild(div,nodes[i]);
+            removeCorrections(div);
 
             html = div.innerHTML;
             text = Clipboard_htmlToText(div);
@@ -272,6 +273,21 @@ var Clipboard_pasteNodes;
 
         return { "text/html": html,
                  "text/plain": text };
+
+        function removeCorrections(node) {
+            if ((DOM_upperName(node) == "SPAN") &&
+                (node.getAttribute("class") == Keys.AUTOCORRECT_CLASS)) {
+                debug("copy: removing correction "+getNodeText(node));
+                DOM_removeNodeButKeepChildren(node);
+            }
+            else {
+                var next;
+                for (var child = node.firstChild; child != null; child = next) {
+                    next = child.nextSibling;
+                    removeCorrections(child);
+                }
+            }
+        }
     });
 
     // public

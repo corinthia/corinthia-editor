@@ -71,6 +71,7 @@ var Keys = {
     AUTOCORRECT_ENTRY: "uxwrite-autocorrect-entry",
     UXWRITE_PREFIX: "uxwrite-",
     NONE_STYLE: "__none",
+    AUTOCORRECT_CLASS: "uxwrite-autocorrect",
 };
 
 var ITEM_NUMBER_CLASSES = {
@@ -189,4 +190,10 @@ function isOpaqueNode(node)
         }
     }
     return isOpaqueNode(node.parentNode);
+}
+
+function isAutoCorrectNode(node)
+{
+    return ((DOM_upperName(node) == "SPAN") &&
+            (node.getAttribute("class") == Keys.AUTOCORRECT_CLASS));
 }
