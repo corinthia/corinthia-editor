@@ -456,9 +456,14 @@ var Outline_setReferenceTarget;
     // private
     var docNodeInserted = trace(function docNodeInserted(event)
     {
-        if (!acceptNode(event.target))
-            return;
-        recurse(event.target);
+        try {
+            if (!acceptNode(event.target))
+                return;
+            recurse(event.target);
+        }
+        catch (e) {
+            Editor_error(e);
+        }
 
         function recurse(node)
         {
@@ -489,9 +494,14 @@ var Outline_setReferenceTarget;
     // private
     var docNodeRemoved = trace(function docNodeRemoved(event)
     {
-        if (!acceptNode(event.target))
-            return;
-        recurse(event.target);
+        try {
+            if (!acceptNode(event.target))
+                return;
+            recurse(event.target);
+        }
+        catch (e) {
+            Editor_error(e);
+        }
 
         function recurse(node)
         {
