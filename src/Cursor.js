@@ -152,6 +152,9 @@ var Cursor_setReferenceTarget;
                 return false;
             }
 
+            if (insertion)
+                return true;
+
             if (isWhitespaceString(precedingText)) {
                 return (haveNextChar &&
                         ((node.previousSibling == null) ||
@@ -490,12 +493,12 @@ var Cursor_setReferenceTarget;
                 return;
 
             if (!selRange.isEmpty()) {
-                Selection_deleteContents();
+                Selection_deleteContents(true);
                 selRange = Selection_get();
             }
             var pos = selRange.start;
             if (!allowInvalidPos && !Cursor_isValidCursorPosition(pos,true))
-                pos = Cursor_closestPositionForwards(selRange.start);
+                pos = Cursor_closestPositionForwards(selRange.start,true);
             var node = pos.node;
             var offset = pos.offset;
 
