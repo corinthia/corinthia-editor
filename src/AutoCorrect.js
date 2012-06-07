@@ -158,10 +158,13 @@ var AutoCorrect_replaceLatest;
 
         UndoManager_newGroup("Replace");
         var correction = correctionList[correctionList.length-1];
-        var text = DOM_createTextNode(document,replacement);
-        DOM_insertBefore(correction.span.parentNode,text,correction.span);
-        DOM_deleteNode(correction.span);
-        Formatting_mergeWithNeighbours(text,{});
+
+        Selection_preserveWhileExecuting(function() {
+            var text = DOM_createTextNode(document,replacement);
+            DOM_insertBefore(correction.span.parentNode,text,correction.span);
+            DOM_deleteNode(correction.span);
+            Formatting_mergeWithNeighbours(text,{});
+        });
         UndoManager_newGroup();
     });
 
