@@ -11,7 +11,7 @@ function performTest()
     Styles_addDefaultRuleCategory("table-borders");
     PostponedActions_perform();
 
-    Selection_deleteSelectionContents();
+    Selection_hideWhileExecuting(Selection_deleteContents);
     showSelection();
 }
 </script>

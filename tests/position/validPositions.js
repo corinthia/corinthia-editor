@@ -5,7 +5,7 @@ function oldInsertCharacter(character)
         return;
 
     if (!selectionRange.isEmpty())
-        Selection_deleteSelectionContents();
+        Selection_hideWhileExecuting(Selection_deleteContents);
     var pos = selectionRange.start;
     var node = pos.node;
     var offset = pos.offset;

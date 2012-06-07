@@ -24,7 +24,6 @@ var Selection_setSelectionEndAtCoords;
 var Selection_setTableSelectionEdgeAtCoords;
 var Selection_setEmptySelectionAt;
 var Selection_deleteContents;
-var Selection_deleteSelectionContents;
 var Selection_clearSelection;
 var Selection_hideWhileExecuting;
 var Selection_preserveWhileExecuting;
@@ -913,23 +912,6 @@ var Selection_posAtEndOfWord;
         });
 
         Selection_set(range.start.node,range.start.offset,range.start.node,range.start.offset);
-    });
-
-    // public
-    Selection_deleteSelectionContents = trace(function deleteSelectionContents()
-    {
-        if (!selectionVisible)
-            throw new Error("deleteSelectionContents while selection hidden");
-        Selection_hideWhileExecuting(function() {
-            Selection_deleteContents();
-            var selRange = Selection_get();
-            if (selRange != null) {
-                var pos = Cursor_closestPositionForwards(selRange.start);
-                var node = pos.node;
-                var offset = pos.offset;
-                Selection_set(node,offset,node,offset);
-            }
-        });
     });
 
     // private

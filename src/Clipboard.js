@@ -242,7 +242,16 @@ var Clipboard_pasteNodes;
     {
         UndoManager_newGroup("Cut");
         var content = Clipboard_copy();
-        Selection_deleteSelectionContents();
+
+        Selection_hideWhileExecuting(function() {
+            Selection_deleteContents();
+            var selRange = Selection_get();
+            if (selRange != null) {
+                var pos = Cursor_closestPositionForwards(selRange.start);
+                Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+            }
+        });
+
         UndoManager_newGroup();
         return content;
     });
