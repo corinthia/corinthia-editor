@@ -562,7 +562,7 @@ var Cursor_setReferenceTarget;
                 selRange.ensureRangeInlineNodesInParagraph();
                 selRange.ensureRangeValidHierarchy();
                 if (!selRange.isEmpty())
-                    Selection_deleteContents();
+                    Selection_deleteContents(true);
             });
 
             var pos = selRange.start;
