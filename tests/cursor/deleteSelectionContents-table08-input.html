@@ -8,8 +8,8 @@ function performTest()
     var offset = DOM_nodeOffset(tr);
     Selection_hideWhileExecuting(function() {
         Selection_set(tr.parentNode,offset,tr.parentNode,offset+1);
-        Selection_deleteContents();
     });
+    Selection_deleteSelectionContents();
     showSelection();
 }
 </script>

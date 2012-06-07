@@ -10,8 +10,8 @@ function performTest()
     var tableOffset = DOM_nodeOffset(table);
     Selection_hideWhileExecuting(function() {
         Selection_set(table.parentNode,tableOffset,tr.parentNode,trOffset+1);
-        Selection_deleteContents();
     });
+    Selection_deleteSelectionContents();
     showSelection();
 }
 </script>
