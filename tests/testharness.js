@@ -23,6 +23,7 @@ function loadCode()
 {
     // Sync with Editor.m
     var javascriptFiles = ["../src/first.js", // must be first
+                           "../src/AutoCorrect.js",
                            "../src/Clipboard.js",
                            "../src/Cursor.js",
                            "../src/DOM.js",
@@ -60,17 +61,29 @@ function loadTestIndex()
     window.eval(readFile("index.js"));
 }
 
+function doPerformTest()
+{
+    var resultText = leftArea.contentWindow.performTest();
+    leftArea.contentWindow.Selection_clearSelection();
+    if (resultText == null)
+        resultText = PrettyPrinter.getHTML(leftArea.contentDocument.documentElement)
+    var messages = JSON.parse(leftArea.contentWindow.Editor_getBackMessages());
+    for (var i = 0; i < messages.length; i++) {
+        var message = messages[i];
+        if (message[0] == "error")
+            throw new Error(message[1]);
+    }
+
+    return resultText;
+}
+
 function showTest(dir,name)
 {
     leftLoadedContinuation = function() {
         setLeftTitle("Working area");
         setRightTitle("Result");
-        var resultText = leftArea.contentWindow.performTest();
-        leftArea.contentWindow.Selection_clearSelection();
-        if (resultText != null)
-            setPanelText(rightArea,resultText);
-        else
-            setPanelText(rightArea,PrettyPrinter.getHTML(leftArea.contentDocument.documentElement));
+        var resultText = doPerformTest();
+        setPanelText(rightArea,resultText);
     }
     leftArea.src = dir+"/"+name+"-input.html";
 }
@@ -267,12 +280,7 @@ function runAllTests()
 
             var actual;
             try {
-                var resultText = leftArea.contentWindow.performTest();
-                leftArea.contentWindow.Selection_clearSelection();
-                if (resultText != null)
-                    actual = resultText;
-                else
-                    actual = PrettyPrinter.getHTML(leftArea.contentDocument.documentElement);
+                actual = doPerformTest();
             }
             catch (e) {
                 actual = e.toString();
