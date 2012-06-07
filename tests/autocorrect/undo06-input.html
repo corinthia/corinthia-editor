@@ -11,6 +11,7 @@ function performTest()
     Styles_init();
     Outline_init();
     Styles_addDefaultRuleCategory("autocorrect");
+    AutoCorrect_init();
     PostponedActions_perform();
 
     UndoManager_clear();

@@ -218,6 +218,7 @@ var Main_init;
             Outline_init();
             Styles_init();
             Viewport_init();
+            AutoCorrect_init();
 
             return true;
         }

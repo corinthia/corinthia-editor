@@ -1,3 +1,4 @@
+var AutoCorrect_init;
 var AutoCorrect_addCorrection;
 var AutoCorrect_removeCorrection;
 var AutoCorrect_getCorrections;
@@ -36,21 +37,15 @@ var AutoCorrect_replaceLatest;
 
     var correctionsByNode = null;
     var correctionList = null;
-    var initDone = false;
 
-    var checkInit = trace(function checkInit()
+    AutoCorrect_init = trace(function init()
     {
-        if (initDone)
-            return;
-        initDone = true;
         correctionsByNode = new NodeMap();
         correctionList = new Array();
     });
 
     AutoCorrect_addCorrection = trace(function addCorrection(span)
     {
-        checkInit();
-
         var correction = new Correction(span);
         correctionsByNode.put(span,correction);
         correctionList.push(correction);
@@ -60,7 +55,6 @@ var AutoCorrect_replaceLatest;
 
     AutoCorrect_removeCorrection = trace(function removeCorrection(span)
     {
-        checkInit();
         var correction = correctionsByNode.get(span);
         if (correction == null)
             throw new Error("No autocorrect entry for "+JSON.stringify(getNodeText(span)));
@@ -82,7 +76,6 @@ var AutoCorrect_replaceLatest;
 
     AutoCorrect_getCorrections = trace(function getCorrections()
     {
-        checkInit();
         var result = new Array();
         for (var i = 0; i < correctionList.length; i++) {
             var correction = correctionList[i];
