@@ -343,7 +343,7 @@ var Clipboard_pasteNodes;
             }
         }
         Selection_hideWhileExecuting(function() {
-            Selection_deleteContents(true);
+            Selection_deleteContents();
             var range = Selection_get();
             if (range == null)
                 return;

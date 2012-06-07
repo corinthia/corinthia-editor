@@ -493,7 +493,7 @@ var Cursor_setReferenceTarget;
                 return;
 
             if (!selRange.isEmpty()) {
-                Selection_deleteContents(true);
+                Selection_deleteContents();
                 selRange = Selection_get();
             }
             var pos = selRange.start;
@@ -534,7 +534,7 @@ var Cursor_setReferenceTarget;
                 return;
 
             if (!selRange.isEmpty()) {
-                Selection_deleteContents(true);
+                Selection_deleteContents();
                 return;
             }
             else {
@@ -543,7 +543,7 @@ var Cursor_setReferenceTarget;
                 if (prevPos != null) {
                     Selection_set(prevPos.node,prevPos.offset,
                                   selRange.end.node,selRange.end.offset)
-                    Selection_deleteContents(true);
+                    Selection_deleteContents();
                 }
             }
         });
@@ -562,7 +562,7 @@ var Cursor_setReferenceTarget;
                 selRange.ensureRangeInlineNodesInParagraph();
                 selRange.ensureRangeValidHierarchy();
                 if (!selRange.isEmpty())
-                    Selection_deleteContents(true);
+                    Selection_deleteContents();
             });
 
             var pos = selRange.start;
