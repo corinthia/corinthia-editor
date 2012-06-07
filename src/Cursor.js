@@ -531,7 +531,7 @@ var Cursor_setReferenceTarget;
                 return;
 
             if (!selRange.isEmpty()) {
-                Selection_deleteContents();
+                Selection_deleteContents(true);
                 return;
             }
             else {
