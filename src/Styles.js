@@ -336,10 +336,17 @@ var Styles_init;
         var selectors = latentStyleGroups[category];
         if (selectors == null)
             throw new Error("No default rule category \""+category+"\"");
-        for (var i = 0; i < selectors.length; i++)
-            styleForId(selectors[i]).latent = false;
+        var changed = false;
+        for (var i = 0; i < selectors.length; i++) {
+            var style = styleForId(selectors[i]);
+            if (style.latent) {
+                style.latent = false;
+                changed = true;
+            }
+        }
 
-        Styles_scheduleApplyCSSTextChanges();
+        if (changed)
+            Styles_scheduleApplyCSSTextChanges();
     });
 
     // private

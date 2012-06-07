@@ -721,7 +721,9 @@ var Cursor_setReferenceTarget;
             DOM_deleteCharacters(node,0,offset);
         });
         Styles_addDefaultRuleCategory("autocorrect");
-        UndoManager_newGroup();
+        // Add the new group in a postponed action, so that the change to the style element
+        // is not counted as a separate action
+        PostponedActions_add(UndoManager_newGroup);
     });
 
     Cursor_getAdjacentNodeWithName = trace(function getAdjacentNodeWithName(name)

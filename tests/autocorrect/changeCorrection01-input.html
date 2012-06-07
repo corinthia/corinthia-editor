@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="AutoCorrectTests.js"></script>
+<script>
+function performTest()
+{
+    Styles_init();
+    Outline_init();
+    PostponedActions_perform();
+
+    Cursor_insertCharacter("one");
+    Cursor_insertCharacter(" twox");
+    Cursor_replacePrecedingWord(4,"two");
+    Cursor_insertCharacter(" three");
+    Cursor_insertCharacter(" fourx");
+    Cursor_replacePrecedingWord(5,"four");
+    Cursor_insertCharacter(" five");
+    PostponedActions_perform();
+    showSelection();
+
+    var text = findTextMatching(/two/);
+    text.nodeValue = "a";
+    PostponedActions_perform();
+
+    return showCorrections();
+}
+</script>
+</head>
+<body>
+[]
+</body>
+</html>

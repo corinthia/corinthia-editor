@@ -1,0 +1,47 @@
+<html>
+  <head>
+    <style type="text/css">
+.uxwrite-autocorrect {
+    background-color: #c0ffc0;
+}
+    </style>
+  </head>
+  <body>
+    ==================== Version 0 ====================
+    <body>
+      one
+      <span class="uxwrite-autocorrect" original="twox">two</span>
+      three
+      <span class="uxwrite-autocorrect" original="fourx">four</span>
+      five
+      <span class="uxwrite-autocorrect" original="sixx">six</span>
+      seven[]
+    </body>
+    ==================== Version 1 ====================
+    <body>
+      one
+      <span class="uxwrite-autocorrect" original="twox">two</span>
+      three
+      <span class="uxwrite-autocorrect" original="fourx">four</span>
+      five six seven[]
+    </body>
+    ==================== Version 2 ====================
+    <body>
+      one
+      <span class="uxwrite-autocorrect" original="twox">two</span>
+      three four five six seven[]
+    </body>
+    ==================== Version 3 ====================
+    <body>one two three four five six seven[]</body>
+    ===================================================
+    First undo to version 2: OK
+    First undo to version 1: OK
+    First undo to version 0: OK
+    Redo to version 1: OK
+    Redo to version 2: OK
+    Redo to version 3: OK
+    Second undo to version 2: OK
+    Second undo to version 1: OK
+    Second undo to version 0: OK
+  </body>
+</html>
