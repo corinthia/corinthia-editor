@@ -242,7 +242,7 @@ var Clipboard_pasteNodes;
     {
         UndoManager_newGroup("Cut");
         var content = Clipboard_copy();
-        Selection_hideWhileExecuting(Selection_deleteContents);
+        Selection_deleteSelectionContents();
         UndoManager_newGroup();
         return content;
     });
