@@ -277,7 +277,6 @@ var Clipboard_pasteNodes;
         function removeCorrections(node) {
             if ((DOM_upperName(node) == "SPAN") &&
                 (node.getAttribute("class") == Keys.AUTOCORRECT_CLASS)) {
-                debug("copy: removing correction "+getNodeText(node));
                 DOM_removeNodeButKeepChildren(node);
             }
             else {

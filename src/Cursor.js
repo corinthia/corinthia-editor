@@ -19,7 +19,6 @@ var Cursor_insertCharacter;
 var Cursor_deleteCharacter;
 var Cursor_enterPressed;
 var Cursor_getPrecedingWord;
-var Cursor_replacePrecedingWord;
 var Cursor_getAdjacentNodeWithName;
 var Cursor_getLinkProperties;
 var Cursor_setLinkProperties;
@@ -693,37 +692,6 @@ var Cursor_setReferenceTarget;
             return "";
 
         return node.nodeValue.substring(0,offset);
-    });
-
-    Cursor_replacePrecedingWord = trace(function replacePrecedingWord(numChars,replacement) {
-        var selRange = Selection_get();
-        if ((selRange == null) && !selRange.isEmpty())
-            return;
-
-        var node = selRange.start.node;
-        var offset = selRange.start.offset;
-        if (node.nodeType != Node.TEXT_NODE)
-            return node;
-
-        var original = node.nodeValue.substring(offset-numChars,offset);
-
-        UndoManager_newGroup("Auto-correct");
-        Selection_preserveWhileExecuting(function() {
-            var before = node.nodeValue.substring(0,offset-numChars);
-            var beforeText = DOM_createTextNode(document,before);
-            var replacementText = DOM_createTextNode(document,replacement);
-            var span = DOM_createElement(document,"SPAN");
-            DOM_setAttribute(span,"class",Keys.AUTOCORRECT_CLASS);
-            DOM_setAttribute(span,"original",original);
-            DOM_appendChild(span,replacementText);
-            DOM_insertBefore(node.parentNode,beforeText,node);
-            DOM_insertBefore(node.parentNode,span,node);
-            DOM_deleteCharacters(node,0,offset);
-        });
-        Styles_addDefaultRuleCategory("autocorrect");
-        // Add the new group in a postponed action, so that the change to the style element
-        // is not counted as a separate action
-        PostponedActions_add(UndoManager_newGroup);
     });
 
     Cursor_getAdjacentNodeWithName = trace(function getAdjacentNodeWithName(name)

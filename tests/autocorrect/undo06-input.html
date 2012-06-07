@@ -20,13 +20,13 @@ function performTest()
     Cursor_insertCharacter("one");
     Cursor_insertCharacter(" twox");
     versions.push(DOM_cloneNode(p,true));
-    Cursor_replacePrecedingWord(4,"two");
+    AutoCorrect_correctPrecedingWord(4,"two");
     PostponedActions_perform();
     versions.push(DOM_cloneNode(p,true));
     Cursor_insertCharacter(" three");
     Cursor_insertCharacter(" fourx");
     versions.push(DOM_cloneNode(p,true));
-    Cursor_replacePrecedingWord(5,"four");
+    AutoCorrect_correctPrecedingWord(5,"four");
     PostponedActions_perform();
     versions.push(DOM_cloneNode(p,true));
     Cursor_insertCharacter(" five");

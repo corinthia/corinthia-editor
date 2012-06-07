@@ -2,6 +2,7 @@ var AutoCorrect_addCorrection;
 var AutoCorrect_removeCorrection;
 var AutoCorrect_getCorrections;
 
+var AutoCorrect_correctPrecedingWord;
 var AutoCorrect_getLatest;
 var AutoCorrect_acceptLatest;
 var AutoCorrect_revertLatest;
@@ -89,6 +90,38 @@ var AutoCorrect_replaceLatest;
                           replacement: getNodeText(correction.span)});
         }
         return result;
+    });
+
+    AutoCorrect_correctPrecedingWord = trace(function correctPrecedingWord(numChars,replacement)
+    {
+        var selRange = Selection_get();
+        if ((selRange == null) && !selRange.isEmpty())
+            return;
+
+        var node = selRange.start.node;
+        var offset = selRange.start.offset;
+        if (node.nodeType != Node.TEXT_NODE)
+            return node;
+
+        var original = node.nodeValue.substring(offset-numChars,offset);
+
+        UndoManager_newGroup("Auto-correct");
+        Selection_preserveWhileExecuting(function() {
+            var before = node.nodeValue.substring(0,offset-numChars);
+            var beforeText = DOM_createTextNode(document,before);
+            var replacementText = DOM_createTextNode(document,replacement);
+            var span = DOM_createElement(document,"SPAN");
+            DOM_setAttribute(span,"class",Keys.AUTOCORRECT_CLASS);
+            DOM_setAttribute(span,"original",original);
+            DOM_appendChild(span,replacementText);
+            DOM_insertBefore(node.parentNode,beforeText,node);
+            DOM_insertBefore(node.parentNode,span,node);
+            DOM_deleteCharacters(node,0,offset);
+        });
+        Styles_addDefaultRuleCategory("autocorrect");
+        // Add the new group in a postponed action, so that the change to the style element
+        // is not counted as a separate action
+        PostponedActions_add(UndoManager_newGroup);
     });
 
     AutoCorrect_getLatest = trace(function getLatest()
