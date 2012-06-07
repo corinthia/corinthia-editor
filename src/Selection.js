@@ -896,42 +896,39 @@ var Selection_posAtEndOfWord;
         Cursor_updateBRAtEndOfParagraph(selRange.singleNode());
     });
 
-    Selection_deleteContents = trace(function deleteContents(allowInvalidPos)
+    Selection_deleteContents = trace(function deleteContents()
     {
         if (selectionVisible)
             throw new Error("deleteContents while selection visible");
-        var selRange = Selection_get();
-        if (selRange == null)
+        var range = Selection_get();
+        if (range == null)
             return;
 
-        selRange.trackWhileExecuting(function() {
-            var region = Tables_regionFromRange(selRange);
+        range.trackWhileExecuting(function() {
+            var region = Tables_regionFromRange(range);
             if (region != null)
                 Tables_deleteRegion(region);
             else
-                deleteTextSelection(selRange);
+                deleteTextSelection(range);
         });
 
-        if (allowInvalidPos) {
-            var node = selRange.start.node;
-            var offset = selRange.start.offset;
-            Selection_set(node,offset,node,offset);
-        }
-        else {
-            var pos = Cursor_closestPositionForwards(selRange.start);
-            var node = pos.node;
-            var offset = pos.offset;
-            Selection_set(node,offset,node,offset);
-        }
+        Selection_set(range.start.node,range.start.offset,range.start.node,range.start.offset);
     });
 
     // public
-    Selection_deleteSelectionContents = trace(function deleteSelectionContents(allowInvalidPos)
+    Selection_deleteSelectionContents = trace(function deleteSelectionContents()
     {
         if (!selectionVisible)
             throw new Error("deleteSelectionContents while selection hidden");
         Selection_hideWhileExecuting(function() {
-            Selection_deleteContents(allowInvalidPos);
+            Selection_deleteContents();
+            var selRange = Selection_get();
+            if (selRange != null) {
+                var pos = Cursor_closestPositionForwards(selRange.start);
+                var node = pos.node;
+                var offset = pos.offset;
+                Selection_set(node,offset,node,offset);
+            }
         });
     });
 
