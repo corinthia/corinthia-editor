@@ -10,6 +10,7 @@ var Editor_setCursor;
 var Editor_setSelectionHandles;
 var Editor_clearSelectionHandlesAndCursor;
 var Editor_setSelectionBounds;
+var Editor_updateAutoCorrect;
 var Editor_error;
 var debug;
 
@@ -83,6 +84,11 @@ var debug;
     Editor_clearSelectionHandlesAndCursor = function()
     {
         addBackMessage("clearSelectionHandlesAndCursor");
+    };
+
+    Editor_updateAutoCorrect = function()
+    {
+        addBackMessage("updateAutoCorrect");
     };
 
     debug = Editor_debug;

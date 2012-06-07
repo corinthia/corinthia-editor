@@ -51,6 +51,7 @@ var AutoCorrect_replaceLatest;
         var correction = new Correction(span);
         correctionsByNode.put(span,correction);
         correctionList.push(correction);
+        Editor_updateAutoCorrect();
 
         span.addEventListener("DOMSubtreeModified",correction.modificationListener);
     });
@@ -71,6 +72,7 @@ var AutoCorrect_replaceLatest;
         if (index == null)
             throw new Error("Correction "+correction+" not found in correctionList");
         correctionList.splice(index,1);
+        Editor_updateAutoCorrect();
 
         span.removeEventListener("DOMSubtreeModified",correction.modificationListener);
         correctionsByNode.remove(span);
