@@ -13,10 +13,12 @@ var AutoCorrect_replaceLatest;
 
     var removeCorrectionSpan = trace(function removeCorrectionSpan(span)
     {
-        var firstChild = span.firstChild;
-        DOM_removeNodeButKeepChildren(span);
-        if (firstChild != null)
-            Formatting_mergeWithNeighbours(firstChild,{});
+        Selection_preserveWhileExecuting(function() {
+            var firstChild = span.firstChild;
+            DOM_removeNodeButKeepChildren(span);
+            if (firstChild != null)
+                Formatting_mergeWithNeighbours(firstChild,{});
+        });
     });
 
     function Correction(span)
