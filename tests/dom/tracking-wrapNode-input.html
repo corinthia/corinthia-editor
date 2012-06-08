@@ -6,8 +6,8 @@
 
 function performTest()
 {
-    // DOM_wrapNode() should not affect any positions, because the node itself remains in the
-    // tree unmodified.
+    // DOM_wrapNode() should only affect positions which come directly
+    // before or after the node.
 
     var result = comparePositionsBeforeAndAfter(function() {
         DOM_wrapNode(document.getElementById("p2"),"DIV");

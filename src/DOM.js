@@ -523,12 +523,7 @@ var DOM_Listener;
     // public
     function wrapNode(node,elementName)
     {
-        var wrapper = DOM_createElement(document,elementName);
-
-        insertBeforeInternal(node.parentNode,wrapper,node);
-        appendChildInternal(wrapper,node);
-
-        return wrapper;
+        return DOM_wrapSiblings(node,node,elementName);
     }
 
     function wrapSiblings(first,last,elementName)
@@ -567,6 +562,7 @@ var DOM_Listener;
             appendChildInternal(wrapper,current);
             current = next;
         }
+        return wrapper;
     }
 
     // public
