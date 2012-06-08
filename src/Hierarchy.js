@@ -144,14 +144,7 @@ var Hierarchy_wrapInlineNodesInParagraph;
         while ((end.nextSibling != null) && isInlineNode(end.nextSibling))
             end = end.nextSibling;
 
-        var p = DOM_createElement(document,"P");
-        // DOM_setStyleProperties(p,{"border": "4px dashed red"}); // debug
-        DOM_insertBefore(node.parentNode,p,start);
-
-        var stop = end.nextSibling;
-        while (p.nextSibling != stop)
-            DOM_insertBefore(p,p.nextSibling,null);
-        return p;
+        return DOM_wrapSiblings(start,end,"P");
     });
 
 })();
