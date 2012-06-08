@@ -1,19 +1,13 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
 var Cursor_ensureCursorVisible;
-var Cursor_isInsertionPosition;
-var Cursor_isMovementPosition;
 var Cursor_positionCursor;
 var Cursor_getCursorPosition;
-var Cursor_prevCursorPosition;
-var Cursor_nextCursorPosition;
 var Cursor_moveLeft;
 var Cursor_moveRight;
 var Cursor_moveToStartOfDocument;
 var Cursor_moveToEndOfDocument;
 var Cursor_updateBRAtEndOfParagraph;
-var Cursor_closestPositionForwards;
-var Cursor_closestPositionBackwards;
 var Cursor_insertReference;
 var Cursor_insertLink;
 var Cursor_insertCharacter;
@@ -47,183 +41,6 @@ var Cursor_setReferenceTarget;
         }
     });
 
-    // private
-    var nodeCausesLineBreak = trace(function nodeCausesLineBreak(node)
-    {
-        return ((DOM_upperName(node) == "BR") || !isInlineNode(node));
-    });
-
-    // private
-    var spacesUntilNextContent = trace(function spacesUntilNextContent(node)
-    {
-        var spaces = 0;
-        while (1) {
-            if (node.firstChild) {
-                node = node.firstChild;
-            }
-            else if (node.nextSibling) {
-                node = node.nextSibling;
-            }
-            else {
-                while ((node.parentNode != null) && (node.parentNode.nextSibling == null)) {
-                    node = node.parentNode;
-                    if (nodeCausesLineBreak(node))
-                        return null;
-                }
-                if (node.parentNode == null)
-                    node = null;
-                else
-                    node = node.parentNode.nextSibling;
-            }
-
-            if ((node == null) || nodeCausesLineBreak(node))
-                return null;
-            if (isOpaqueNode(node))
-                return spaces;
-            if (node.nodeType == Node.TEXT_NODE) {
-                if (isWhitespaceTextNode(node)) {
-                    spaces += node.nodeValue.length;
-                }
-                else {
-                    var matches = node.nodeValue.match(/^\s+/);
-                    if (matches == null)
-                        return spaces;
-                    spaces += matches[0].length;
-                    return spaces;
-                }
-            }
-        }
-    });
-
-    // public
-    Cursor_isInsertionPosition = trace(function isMovementPosition(pos)
-    {
-        return Cursor_isMovementPosition(pos,true);
-    });
-
-    // public
-    Cursor_isMovementPosition = trace(function isMovementPosition(pos,insertion)
-    {
-        var node = pos.node;
-        var offset = pos.offset;
-
-        if (isOpaqueNode(node))
-            return false;
-
-        if (node.nodeType == Node.TEXT_NODE) {
-            var value = node.nodeValue;
-
-            // If there are multiple adjacent text nodes, consider them as one (adjusting the
-            // offset appropriately)
-
-            var firstNode = node;
-            var lastNode = node;
-
-            while ((firstNode.previousSibling != null) && isTextNode(firstNode.previousSibling)) {
-                firstNode = firstNode.previousSibling;
-                value = firstNode.nodeValue + value;
-                offset += firstNode.nodeValue.length;
-            }
-
-            while ((lastNode.nextSibling != null) && isTextNode(lastNode.nextSibling)) {
-                lastNode = lastNode.nextSibling;
-                value += lastNode.nodeValue;
-            }
-
-            var prevPrevChar = value.charAt(offset-2);
-            var prevChar = value.charAt(offset-1);
-            var nextChar = value.charAt(offset);
-            var havePrevChar = ((prevChar != null) && !isWhitespaceString(prevChar));
-            var haveNextChar = ((nextChar != null) && !isWhitespaceString(nextChar));
-            var precedingText = value.substring(0,offset);
-            var followingText = value.substring(offset);
-
-            if (isWhitespaceString(value)) {
-                if (offset == 0) {
-                    if ((node == firstNode) &&
-                        (firstNode.previousSibling == null) && (lastNode.nextSibling == null))
-                        return true;
-                    if ((node.nextSibling != null) && (DOM_upperName(node.nextSibling) == "BR"))
-                        return true;
-                    if ((node.firstChild == null) &&
-                        (node.previousSibling == null) &&
-                        (node.nextSibling == null)) {
-                        return true;
-                    }
-                    if (insertion && (node.previousSibling != null) &&
-                        isInlineNode(node.previousSibling) &&
-                        !isOpaqueNode(node.previousSibling) &&
-                        (DOM_upperName(node.previousSibling) != "BR"))
-                        return true;
-                }
-                return false;
-            }
-
-            if (insertion)
-                return true;
-
-            if (isWhitespaceString(precedingText)) {
-                return (haveNextChar &&
-                        ((node.previousSibling == null) ||
-                         (DOM_upperName(node.previousSibling) == "BR") ||
-                         (isParagraphNode(node.previousSibling)) ||
-                         (getNodeText(node.previousSibling).match(/\s$/)) ||
-                         isItemNumber(node.previousSibling) ||
-                         ((precedingText.length > 0))));
-            }
-
-            if (isWhitespaceString(followingText)) {
-                return (havePrevChar &&
-                        ((node.nextSibling == null) ||
-                         (followingText.length > 0) ||
-                         (spacesUntilNextContent(node) != 0)));
-            }
-
-            return (havePrevChar || haveNextChar);
-        }
-        else if (node.nodeType == Node.ELEMENT_NODE) {
-            if ((node.firstChild == null) &&
-                (isParagraphNode(node) || isListItemNode(node) || isTableCell(node)))
-                return true;
-
-            var prevNode = node.childNodes[offset-1];
-            var nextNode = node.childNodes[offset];
-
-            if ((prevNode == null) && (nextNode == null) &&
-                (CONTAINER_ELEMENTS_ALLOWING_CONTENT[DOM_upperName(node)] ||
-                (isInlineNode(node) && !isOpaqueNode(node) && (DOM_upperName(node) != "BR"))))
-                return true;
-
-            if ((prevNode != null) && isTableNode(prevNode))
-                return true;
-            if ((nextNode != null) && isTableNode(nextNode))
-                return true;
-
-            if ((nextNode != null) && isItemNumber(nextNode))
-                return false;
-            if ((prevNode != null) && isItemNumber(prevNode))
-                return ((nextNode == null) || isWhitespaceTextNode(nextNode));
-
-            if ((nextNode != null) && (DOM_upperName(nextNode) == "BR"))
-                return ((prevNode == null) || !isTextNode(prevNode));
-
-            if ((prevNode != null) && (isOpaqueNode(prevNode) || isTableNode(prevNode))) {
-                return ((nextNode == null) ||
-                        isOpaqueNode(nextNode) ||
-                        isTextNode(nextNode) ||
-                        isTableNode(nextNode));
-            }
-            if ((nextNode != null) && (isOpaqueNode(nextNode) || isTableNode(nextNode))) {
-                return ((prevNode == null) ||
-                        isOpaqueNode(prevNode) ||
-                        isTextNode(prevNode) ||
-                        isTableNode(prevNode));
-            }
-        }
-
-        return false;
-    });
-
     // public
     Cursor_positionCursor = trace(function positionCursor(x,y,wordBoundary)
     {
@@ -252,9 +69,9 @@ var Cursor_setReferenceTarget;
                 }
             }
 
-            var position = Cursor_closestPositionForwards(position,Cursor_isValidPosition);
+            var position = Position_closestMatchForwards(position,Cursor_isValidPosition);
             if ((position != null) && isOpaqueNode(position.node))
-                position = Cursor_nextCursorPosition(position,Cursor_isMovementPosition);
+                position = Position_nextMatch(position,Position_okForMovement);
             if (position == null)
                 return false;
 
@@ -297,22 +114,6 @@ var Cursor_setReferenceTarget;
         return { x: left, y: top, width: 0, height: height };
     });
 
-    Cursor_prevCursorPosition = trace(function prevCursorPosition(pos,fun)
-    {
-        do {
-            pos = pos.prev();
-        } while ((pos != null) && !fun(pos));
-        return pos;
-    });
-
-    Cursor_nextCursorPosition = trace(function nextCursorPosition(pos,fun)
-    {
-        do {
-            pos = pos.next();
-        } while ((pos != null) && !fun(pos));
-        return pos;
-    });
-
     // public
     Cursor_moveLeft = trace(function moveLeft()
     {
@@ -321,7 +122,7 @@ var Cursor_setReferenceTarget;
             if (range == null)
                 return;
 
-            var pos = Cursor_prevCursorPosition(range.start,Cursor_isMovementPosition);
+            var pos = Position_prevMatch(range.start,Position_okForMovement);
 
             if (pos != null) {
                 Selection_set(pos.node,pos.offset,pos.node,pos.offset);
@@ -338,7 +139,7 @@ var Cursor_setReferenceTarget;
             if (range == null)
                 return;
 
-            var pos = Cursor_nextCursorPosition(range.start,Cursor_isMovementPosition);
+            var pos = Position_nextMatch(range.start,Position_okForMovement);
 
             if (pos != null) {
                 Selection_set(pos.node,pos.offset,pos.node,pos.offset);
@@ -351,7 +152,7 @@ var Cursor_setReferenceTarget;
     {
         Selection_hideWhileExecuting(function() {
             var pos = new Position(document.body,0);
-            pos = Cursor_closestPositionBackwards(pos,Cursor_isMovementPosition);
+            pos = Position_closestMatchBackwards(pos,Position_okForMovement);
             Selection_set(pos.node,pos.offset,pos.node,pos.offset);
             Cursor_ensureCursorVisible();
         });
@@ -361,7 +162,7 @@ var Cursor_setReferenceTarget;
     {
         Selection_hideWhileExecuting(function() {
             var pos = new Position(document.body,document.body.childNodes.length);
-            pos = Cursor_closestPositionForwards(pos,Cursor_isValidPosition);
+            pos = Position_closestMatchForwards(pos,Cursor_isValidPosition);
             Selection_set(pos.node,pos.offset,pos.node,pos.offset);
             Cursor_ensureCursorVisible();
         });
@@ -402,67 +203,6 @@ var Cursor_setReferenceTarget;
                 }
             }
         }
-    });
-
-    var findEquivalentValidPosition = trace(function findEquivalentValidPosition(pos)
-    {
-        if ((pos.node.nodeType == Node.TEXT_NODE) &&
-            isWhitespaceString(pos.node.nodeValue.slice(pos.offset))) {
-            var str = pos.node.nodeValue;
-            var whitespace = str.match(/\s+$/);
-            if (whitespace) {
-                var adjusted = new Position(pos.node,
-                                            str.length - whitespace[0].length + 1);
-                return adjusted;
-            }
-        }
-        return pos;
-    });
-
-    // public
-    Cursor_closestPositionForwards = trace(function closestPositionForwards(pos,fun)
-    {
-        if (pos == null)
-            return null;
-
-        if (!fun(pos))
-            pos = findEquivalentValidPosition(pos);
-
-        if (fun(pos))
-            return pos;
-
-        var next = Cursor_nextCursorPosition(pos,fun);
-        if (next != null)
-            return next;
-
-        var prev = Cursor_prevCursorPosition(pos,fun);
-        if (prev != null)
-            return prev;
-
-        return new Position(document.body,document.body.childNodes.length);
-    });
-
-    // public
-    Cursor_closestPositionBackwards = trace(function closestPositionBackwards(pos,fun)
-    {
-        if (pos == null)
-            return null;
-
-        if (!fun(pos))
-            pos = findEquivalentValidPosition(pos);
-
-        if (fun(pos))
-            return pos;
-
-        var prev = Cursor_prevCursorPosition(pos,fun);
-        if (prev != null)
-            return prev;
-
-        var next = Cursor_nextCursorPosition(pos,fun);
-        if (next != null)
-            return next;
-
-        return new Position(document.body,0);
     });
 
     // public
@@ -506,8 +246,8 @@ var Cursor_setReferenceTarget;
                 selRange = Selection_get();
             }
             var pos = selRange.start;
-            if (!allowInvalidPos && !Cursor_isMovementPosition(pos,true))
-                pos = Cursor_closestPositionForwards(selRange.start,Cursor_isInsertionPosition);
+            if (!allowInvalidPos && !Position_okForMovement(pos,true))
+                pos = Position_closestMatchForwards(selRange.start,Position_okForInsertion);
             var node = pos.node;
             var offset = pos.offset;
 
@@ -548,7 +288,7 @@ var Cursor_setReferenceTarget;
             }
             else {
                 var currentPos = selRange.start;
-                var prevPos = Cursor_prevCursorPosition(currentPos,Cursor_isMovementPosition);
+                var prevPos = Position_prevMatch(currentPos,Position_okForMovement);
                 if (prevPos != null) {
                     Selection_set(prevPos.node,prevPos.offset,
                                   selRange.end.node,selRange.end.offset)

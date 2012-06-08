@@ -923,7 +923,7 @@ var Outline_setReferenceTarget;
         else {
             var node = document.getElementById(itemId);
             var position = new Position(node,0);
-            position = Cursor_closestPositionForwards(position,Cursor_isMovementPosition);
+            position = Position_closestMatchForwards(position,Position_okForMovement);
             Selection_hideWhileExecuting(function() {
                 Selection_set(position.node,position.offset,position.node,position.offset);
             });

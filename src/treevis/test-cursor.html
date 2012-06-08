@@ -91,7 +91,7 @@ function traversePositions(root)
         for (var i = 0; i < allPositions.length; i++) {
             var pos = allPositions[i];
 
-            if (Cursor_isMovementPosition(pos)) {
+            if (Position_okForMovement(pos)) {
                 Selection_hideWhileExecuting(function() {
                     Selection_set(pos.node,pos.offset,pos.node,pos.offset);
                 });
