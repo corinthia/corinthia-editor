@@ -36,7 +36,7 @@ var Figures_setProperties;
         // Place the cursor directly after the figure
         var offset = DOM_nodeOffset(figure);
         var pos = new Position(figure.parentNode,offset);
-        pos = Cursor_closestPositionForwards(pos);
+        pos = Cursor_closestPositionForwards(pos,Cursor_isValidCursorPosition);
         Selection_hideWhileExecuting(function() {
             Selection_set(pos.node,pos.offset,pos.node,pos.offset);
         });

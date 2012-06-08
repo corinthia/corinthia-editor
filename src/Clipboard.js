@@ -247,7 +247,7 @@ var Clipboard_pasteNodes;
             Selection_deleteContents();
             var selRange = Selection_get();
             if (selRange != null) {
-                var pos = Cursor_closestPositionForwards(selRange.start);
+                var pos = Cursor_closestPositionForwards(selRange.start,Cursor_isValidCursorPosition);
                 Selection_set(pos.node,pos.offset,pos.node,pos.offset);
             }
         });

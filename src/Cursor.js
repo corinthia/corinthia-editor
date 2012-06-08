@@ -1,6 +1,7 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
 var Cursor_ensureCursorVisible;
+var Cursor_isValidInsertionPosition;
 var Cursor_isValidCursorPosition;
 var Cursor_positionCursor;
 var Cursor_getCursorPosition;
@@ -92,6 +93,12 @@ var Cursor_setReferenceTarget;
                 }
             }
         }
+    });
+
+    // public
+    Cursor_isValidInsertionPosition = trace(function isValidCursorPosition(pos)
+    {
+        return Cursor_isValidCursorPosition(pos,true);
     });
 
     // public
@@ -245,9 +252,9 @@ var Cursor_setReferenceTarget;
                 }
             }
 
-            var position = Cursor_closestPositionForwards(position);
+            var position = Cursor_closestPositionForwards(position,Cursor_isValidPosition);
             if ((position != null) && isOpaqueNode(position.node))
-                position = Cursor_nextCursorPosition(position);
+                position = Cursor_nextCursorPosition(position,Cursor_isValidCursorPosition);
             if (position == null)
                 return false;
 
@@ -290,19 +297,19 @@ var Cursor_setReferenceTarget;
         return { x: left, y: top, width: 0, height: height };
     });
 
-    Cursor_prevCursorPosition = trace(function prevCursorPosition(pos,insertion)
+    Cursor_prevCursorPosition = trace(function prevCursorPosition(pos,fun)
     {
         do {
             pos = pos.prev();
-        } while ((pos != null) && !Cursor_isValidCursorPosition(pos,insertion));
+        } while ((pos != null) && !fun(pos));
         return pos;
     });
 
-    Cursor_nextCursorPosition = trace(function nextCursorPosition(pos,insertion)
+    Cursor_nextCursorPosition = trace(function nextCursorPosition(pos,fun)
     {
         do {
             pos = pos.next();
-        } while ((pos != null) && !Cursor_isValidCursorPosition(pos,insertion));
+        } while ((pos != null) && !fun(pos));
         return pos;
     });
 
@@ -314,7 +321,7 @@ var Cursor_setReferenceTarget;
             if (range == null)
                 return;
 
-            var pos = Cursor_prevCursorPosition(range.start);
+            var pos = Cursor_prevCursorPosition(range.start,Cursor_isValidCursorPosition);
 
             if (pos != null) {
                 Selection_set(pos.node,pos.offset,pos.node,pos.offset);
@@ -331,7 +338,7 @@ var Cursor_setReferenceTarget;
             if (range == null)
                 return;
 
-            var pos = Cursor_nextCursorPosition(range.start);
+            var pos = Cursor_nextCursorPosition(range.start,Cursor_isValidCursorPosition);
 
             if (pos != null) {
                 Selection_set(pos.node,pos.offset,pos.node,pos.offset);
@@ -344,7 +351,7 @@ var Cursor_setReferenceTarget;
     {
         Selection_hideWhileExecuting(function() {
             var pos = new Position(document.body,0);
-            pos = Cursor_closestPositionBackwards(pos);
+            pos = Cursor_closestPositionBackwards(pos,Cursor_isValidCursorPosition);
             Selection_set(pos.node,pos.offset,pos.node,pos.offset);
             Cursor_ensureCursorVisible();
         });
@@ -354,7 +361,7 @@ var Cursor_setReferenceTarget;
     {
         Selection_hideWhileExecuting(function() {
             var pos = new Position(document.body,document.body.childNodes.length);
-            pos = Cursor_closestPositionForwards(pos);
+            pos = Cursor_closestPositionForwards(pos,Cursor_isValidPosition);
             Selection_set(pos.node,pos.offset,pos.node,pos.offset);
             Cursor_ensureCursorVisible();
         });
@@ -397,11 +404,8 @@ var Cursor_setReferenceTarget;
         }
     });
 
-    var findEquivalentValidPosition = trace(function findEquivalentValidPosition(pos,insertion)
+    var findEquivalentValidPosition = trace(function findEquivalentValidPosition(pos)
     {
-        if (Cursor_isValidCursorPosition(pos,insertion))
-            return pos;
-
         if ((pos.node.nodeType == Node.TEXT_NODE) &&
             isWhitespaceString(pos.node.nodeValue.slice(pos.offset))) {
             var str = pos.node.nodeValue;
@@ -416,21 +420,22 @@ var Cursor_setReferenceTarget;
     });
 
     // public
-    Cursor_closestPositionForwards = trace(function closestPositionForwards(pos,insertion)
+    Cursor_closestPositionForwards = trace(function closestPositionForwards(pos,fun)
     {
         if (pos == null)
             return null;
 
-        pos = findEquivalentValidPosition(pos,insertion);
+        if (!fun(pos))
+            pos = findEquivalentValidPosition(pos);
 
-        if (Cursor_isValidCursorPosition(pos,insertion))
+        if (fun(pos))
             return pos;
 
-        var next = Cursor_nextCursorPosition(pos,insertion);
+        var next = Cursor_nextCursorPosition(pos,fun);
         if (next != null)
             return next;
 
-        var prev = Cursor_prevCursorPosition(pos,insertion);
+        var prev = Cursor_prevCursorPosition(pos,fun);
         if (prev != null)
             return prev;
 
@@ -438,21 +443,22 @@ var Cursor_setReferenceTarget;
     });
 
     // public
-    Cursor_closestPositionBackwards = trace(function closestPositionBackwards(pos,insertion)
+    Cursor_closestPositionBackwards = trace(function closestPositionBackwards(pos,fun)
     {
         if (pos == null)
             return null;
 
-        pos = findEquivalentValidPosition(pos,insertion);
+        if (!fun(pos))
+            pos = findEquivalentValidPosition(pos);
 
-        if (Cursor_isValidCursorPosition(pos,insertion))
+        if (fun(pos))
             return pos;
 
-        var prev = Cursor_prevCursorPosition(pos,insertion);
+        var prev = Cursor_prevCursorPosition(pos,fun);
         if (prev != null)
             return prev;
 
-        var next = Cursor_nextCursorPosition(pos,insertion);
+        var next = Cursor_nextCursorPosition(pos,fun);
         if (next != null)
             return next;
 
@@ -501,7 +507,7 @@ var Cursor_setReferenceTarget;
             }
             var pos = selRange.start;
             if (!allowInvalidPos && !Cursor_isValidCursorPosition(pos,true))
-                pos = Cursor_closestPositionForwards(selRange.start,true);
+                pos = Cursor_closestPositionForwards(selRange.start,Cursor_isValidInsertionPosition);
             var node = pos.node;
             var offset = pos.offset;
 
@@ -542,7 +548,7 @@ var Cursor_setReferenceTarget;
             }
             else {
                 var currentPos = selRange.start;
-                var prevPos = Cursor_prevCursorPosition(currentPos);
+                var prevPos = Cursor_prevCursorPosition(currentPos,Cursor_isValidCursorPosition);
                 if (prevPos != null) {
                     Selection_set(prevPos.node,prevPos.offset,
                                   selRange.end.node,selRange.end.offset)

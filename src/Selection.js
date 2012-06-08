@@ -462,8 +462,8 @@ var Selection_posAtEndOfWord;
 
             var startPos = new Position(startNode.parentNode,DOM_nodeOffset(startNode));
             var endPos = new Position(endNode.parentNode,DOM_nodeOffset(endNode)+1);
-            startPos = Cursor_closestPositionForwards(startPos);
-            endPos = Cursor_closestPositionBackwards(endPos);
+            startPos = Cursor_closestPositionForwards(startPos,Cursor_isValidCursorPosition);
+            endPos = Cursor_closestPositionBackwards(endPos,Cursor_isValidCursorPosition);
 
             Selection_set(startPos.node,startPos.offset,endPos.node,endPos.offset);
         });
@@ -597,7 +597,7 @@ var Selection_posAtEndOfWord;
             return;
 
         Selection_hideWhileExecuting(function() {
-            var pos = Cursor_closestPositionBackwards(selRange.end);
+            var pos = Cursor_closestPositionBackwards(selRange.end,Cursor_isValidCursorPosition);
             var range = rangeOfWordAtPos(pos);
             if (range != null)
                 Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
@@ -618,7 +618,7 @@ var Selection_posAtEndOfWord;
         originalDragEnd = null;
 
         var result = Selection_hideWhileExecuting(function() {
-            var pos = Cursor_closestPositionForwards(positionAtPoint(x,y));
+            var pos = Cursor_closestPositionForwards(positionAtPoint(x,y),Cursor_isValidCursorPosition);
             if (pos == null) {
                 Selection_clear();
                 return "error";
@@ -649,7 +649,7 @@ var Selection_posAtEndOfWord;
             return Selection_dragSelectionBegin(x,y,false); // FIXME: what about selectWord?
 
         return Selection_hideWhileExecuting(function() {
-            var pos = Cursor_closestPositionForwards(positionAtPoint(x,y));
+            var pos = Cursor_closestPositionForwards(positionAtPoint(x,y),Cursor_isValidCursorPosition);
             if (pos != null) {
 
                 var startToPos = new Range(originalDragStart.node,originalDragStart.offset,
@@ -696,13 +696,17 @@ var Selection_posAtEndOfWord;
 
             var pos = null;
             if (command == "start-left")
-                range.start = pos = Cursor_prevCursorPosition(range.start);
+                range.start = pos = Cursor_prevCursorPosition(range.start,
+                                                              Cursor_isValidCursorPosition);
             else if (command == "start-right")
-                range.start = pos = Cursor_nextCursorPosition(range.start);
+                range.start = pos = Cursor_nextCursorPosition(range.start,
+                                                              Cursor_isValidCursorPosition);
             else if (command == "end-left")
-                range.end = pos = Cursor_prevCursorPosition(range.end);
+                range.end = pos = Cursor_prevCursorPosition(range.end,
+                                                            Cursor_isValidCursorPosition);
             else if (command == "end-right")
-                range.end = pos = Cursor_nextCursorPosition(range.end);
+                range.end = pos = Cursor_nextCursorPosition(range.end,
+                                                            Cursor_isValidCursorPosition);
 
             if ((range.start != null) && (range.end != null)) {
                 var result;
@@ -745,9 +749,9 @@ var Selection_posAtEndOfWord;
     Selection_setSelectionStartAtCoords = trace(function setSelectionStartAtCoords(x,y)
     {
         Selection_hideWhileExecuting(function() {
-            var position = Cursor_closestPositionForwards(positionAtPoint(x,y));
+            var position = Cursor_closestPositionForwards(positionAtPoint(x,y),Cursor_isValidCursorPosition);
             if (position != null) {
-                position = Cursor_closestPositionBackwards(position);
+                position = Cursor_closestPositionBackwards(position,Cursor_isValidCursorPosition);
                 var selRange = Selection_get();
                 var newRange = new Range(position.node,position.offset,
                                          selRange.end.node,selRange.end.offset);
@@ -763,9 +767,9 @@ var Selection_posAtEndOfWord;
     Selection_setSelectionEndAtCoords = trace(function setSelectionEndAtCoords(x,y)
     {
         Selection_hideWhileExecuting(function() {
-            var position = Cursor_closestPositionForwards(positionAtPoint(x,y));
+            var position = Cursor_closestPositionForwards(positionAtPoint(x,y),Cursor_isValidCursorPosition);
             if (position != null) {
-                position = Cursor_closestPositionBackwards(position);
+                position = Cursor_closestPositionBackwards(position,Cursor_isValidCursorPosition);
                 var selRange = Selection_get();
                 var newRange = new Range(selRange.start.node,selRange.start.offset,
                                          position.node,position.offset);
