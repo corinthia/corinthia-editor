@@ -29,6 +29,7 @@ var DOM_shallowCopyElement;
 var DOM_removeNodeButKeepChildren;
 var DOM_replaceElement;
 var DOM_wrapNode;
+var DOM_wrapSiblings;
 var DOM_mergeWithNextSibling;
 var DOM_nodesMergeable;
 var DOM_addTrackedPosition;
@@ -530,6 +531,44 @@ var DOM_Listener;
         return wrapper;
     }
 
+    function wrapSiblings(first,last,elementName)
+    {
+        var parent = first.parentNode;
+        var wrapper = DOM_createElement(document,elementName);
+
+        if (first.parentNode != last.parentNode)
+            throw new Error("first and last are not siblings");
+        var firstOffset = DOM_nodeOffset(first);
+        var lastOffset = DOM_nodeOffset(last);
+        var nodeCount = lastOffset - firstOffset + 1;
+        debug("firstOffset = "+firstOffset);
+        debug("lastOffset = "+lastOffset);
+        debug("nodeCount = "+nodeCount);
+        debug("first = "+first.outerHTML);
+        debug("last = "+last.outerHTML);
+        trackedPositionsForNode(parent).forEach(function (position) {
+            if ((position.offset >= firstOffset) && (position.offset <= lastOffset+1)) {
+                var old = position.toString();
+                position.node = wrapper;
+                position.offset -= firstOffset;
+                var nw = position.toString();
+                debug("Changed "+old+" to "+nw);
+            }
+            else if (position.offset > lastOffset+1) {
+                position.offset -= (nodeCount-1);
+            }
+        });
+
+        insertBeforeInternal(parent,wrapper,first);
+        var end = last.nextSibling;
+        var current = first;
+        while (current != end) {
+            var next = current.nextSibling;
+            appendChildInternal(wrapper,current);
+            current = next;
+        }
+    }
+
     // public
     function mergeWithNextSibling(current,whiteList)
     {
@@ -836,6 +875,7 @@ var DOM_Listener;
     DOM_removeNodeButKeepChildren = trace(removeNodeButKeepChildren);
     DOM_replaceElement = trace(replaceElement);
     DOM_wrapNode = trace(wrapNode);
+    DOM_wrapSiblings = trace(wrapSiblings);
     DOM_mergeWithNextSibling = trace(mergeWithNextSibling);
     DOM_nodesMergeable = trace(nodesMergeable);
     DOM_addTrackedPosition = trace(addTrackedPosition);
