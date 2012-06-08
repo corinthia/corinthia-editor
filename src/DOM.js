@@ -536,18 +536,10 @@ var DOM_Listener;
         var firstOffset = DOM_nodeOffset(first);
         var lastOffset = DOM_nodeOffset(last);
         var nodeCount = lastOffset - firstOffset + 1;
-        debug("firstOffset = "+firstOffset);
-        debug("lastOffset = "+lastOffset);
-        debug("nodeCount = "+nodeCount);
-        debug("first = "+first.outerHTML);
-        debug("last = "+last.outerHTML);
         trackedPositionsForNode(parent).forEach(function (position) {
             if ((position.offset >= firstOffset) && (position.offset <= lastOffset+1)) {
-                var old = position.toString();
                 position.node = wrapper;
                 position.offset -= firstOffset;
-                var nw = position.toString();
-                debug("Changed "+old+" to "+nw);
             }
             else if (position.offset > lastOffset+1) {
                 position.offset -= (nodeCount-1);
