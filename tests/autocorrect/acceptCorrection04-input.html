@@ -2,7 +2,6 @@
 <html>
 <head>
 <script src="AutoCorrectTests.js"></script>
-<script src="../undo/UndoTests.js"></script>
 <script>
 function performTest()
 {
@@ -24,16 +23,15 @@ function performTest()
     PostponedActions_perform();
     showSelection();
 
-    UndoManager_clear();
-    var versions = new Array();
-    versions.push(DOM_cloneNode(document.body,true));
-    for (var i = 0; i < 3; i++) {
-        AutoCorrect_acceptLatest();
-        PostponedActions_perform();
-        versions.push(DOM_cloneNode(document.body,true));
-    }
+    var text = findTextMatching("four");
+    Selection_hideWhileExecuting(function() {
+        Selection_set(text,0,text,0);
+    });
 
-    testUndo(versions,document.body);
+    AutoCorrect_acceptCorrection();
+    PostponedActions_perform();
+
+    return showCorrections();
 }
 </script>
 </head>

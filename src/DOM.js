@@ -40,6 +40,8 @@ var DOM_documentHead;
 var DOM_ensureUniqueIds;
 var DOM_nodeOffset;
 var DOM_maxChildOffset;
+var DOM_ignoreMutationsWhileExecuting;
+var DOM_getIgnoreMutations;
 var DOM_addListener;
 var DOM_removeListener;
 var DOM_Listener;
@@ -51,6 +53,7 @@ var DOM_Listener;
     var prefix = Math.random()+":";
     var nextNodeId = 0;
     var nodeData = new Object();
+    var ignoreMutations = 0;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                            //
@@ -761,6 +764,24 @@ var DOM_Listener;
     }
 
     // public
+    function ignoreMutationsWhileExecuting(fun)
+    {
+        ignoreMutations++;
+        try {
+            return fun();
+        }
+        finally {
+            ignoreMutations--;
+        }
+    }
+
+    // public
+    function getIgnoreMutations()
+    {
+        return ignoreMutations;
+    }
+
+    // public
     function addListener(node,listener)
     {
         var data = getDataForNode(node,true);
@@ -826,6 +847,8 @@ var DOM_Listener;
     DOM_ensureUniqueIds = trace(ensureUniqueIds);
     DOM_nodeOffset = trace(nodeOffset);
     DOM_maxChildOffset = trace(maxChildOffset);
+    DOM_ignoreMutationsWhileExecuting = trace(ignoreMutationsWhileExecuting);
+    DOM_getIgnoreMutations = trace(getIgnoreMutations);
     DOM_addListener = trace(addListener);
     DOM_removeListener = trace(removeListener);
     DOM_Listener = Listener;

@@ -2,7 +2,6 @@
 <html>
 <head>
 <script src="AutoCorrectTests.js"></script>
-<script src="../undo/UndoTests.js"></script>
 <script>
 function performTest()
 {
@@ -18,22 +17,13 @@ function performTest()
     Cursor_insertCharacter(" fourx");
     AutoCorrect_correctPrecedingWord(5,"four");
     Cursor_insertCharacter(" five");
-    Cursor_insertCharacter(" sixx");
-    AutoCorrect_correctPrecedingWord(4,"six");
-    Cursor_insertCharacter(" seven");
     PostponedActions_perform();
     showSelection();
 
-    UndoManager_clear();
-    var versions = new Array();
-    versions.push(DOM_cloneNode(document.body,true));
-    for (var i = 0; i < 3; i++) {
-        AutoCorrect_replaceLatest("r"+(i+1));
-        PostponedActions_perform();
-        versions.push(DOM_cloneNode(document.body,true));
-    }
+    AutoCorrect_acceptCorrection();
+    PostponedActions_perform();
 
-    testUndo(versions,document.body);
+    return showCorrections();
 }
 </script>
 </head>

@@ -20,8 +20,8 @@ function performTest()
     PostponedActions_perform();
     showSelection();
 
-    AutoCorrect_revertLatest();
-    AutoCorrect_revertLatest();
+    AutoCorrect_replaceCorrection("A");
+    AutoCorrect_replaceCorrection("B");
     PostponedActions_perform();
 
     return showCorrections();

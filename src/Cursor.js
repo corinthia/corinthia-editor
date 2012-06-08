@@ -240,6 +240,9 @@ var Cursor_setReferenceTarget;
                 else if ((DOM_upperName(node) == "FIGURE") && (result == null)) {
                     result = "infigure";
                 }
+                else if (isAutoCorrectNode(node) && (result == null)) {
+                    result = "incorrection";
+                }
             }
 
             var position = Cursor_closestPositionForwards(position);

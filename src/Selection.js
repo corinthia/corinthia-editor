@@ -6,6 +6,7 @@ var Selection_get;
 var Selection_set;
 var Selection_clear;
 
+var Selection_getPositionRect;
 var Selection_getCursorRect;
 var Selection_hide;
 var Selection_updateSelectionDisplay;
@@ -96,16 +97,10 @@ var Selection_posAtEndOfWord;
     var selectionDivs = new Array();
     var tableSelection = null;
 
-    // public
-    Selection_getCursorRect = trace(function getCursorRect()
+    Selection_getPositionRect = trace(function getPositionRect(pos)
     {
-        var selRange = Selection_get();
-        if (selRange == null)
-            return null;
-
-        var pos = selRange.end;
-        var node = selRange.end.node;
-        var offset = selRange.end.offset;
+        var node = pos.node;
+        var offset = pos.offset;
 
         if (node.nodeType == Node.ELEMENT_NODE) {
             if (offset > node.childNodes.length)
@@ -134,17 +129,19 @@ var Selection_posAtEndOfWord;
             /// new character, and set the cursor's location and height based on this.
             var result;
             UndoManager_disableWhileExecuting(function() {
-                var tempNode = DOM_createTextNode(document,"X");
-                DOM_insertBefore(node,tempNode,node.childNodes[offset]);
-                result = rectAtLeftOfRange(new Range(tempNode,0,tempNode,0));
-                DOM_deleteNode(tempNode);
+                DOM_ignoreMutationsWhileExecuting(function() {
+                    var tempNode = DOM_createTextNode(document,"X");
+                    DOM_insertBefore(node,tempNode,node.childNodes[offset]);
+                    result = rectAtLeftOfRange(new Range(tempNode,0,tempNode,0));
+                    DOM_deleteNode(tempNode);
+                });
             });
             return result;
         }
         else if (node.nodeType == Node.TEXT_NODE) {
             // First see if the client rects returned by the range gives us a valid value. This
             // won't be the case if the cursor is surrounded by both sides on whitespace.
-            var result = rectAtRightOfRange(selRange);
+            var result = rectAtRightOfRange(new Range(node,offset,node,offset));
             if (result != null)
                 return result;
 
@@ -157,10 +154,14 @@ var Selection_posAtEndOfWord;
 
             // Temporarily add a new character, and set the cursor's location to the place
             // that would go.
-            var oldNodeValue = node.nodeValue;
-            node.nodeValue = node.nodeValue.slice(0,offset) + "X" + node.nodeValue.slice(offset);
-            var result = rectAtLeftOfRange(new Range(node,offset,node,offset));
-            node.nodeValue = oldNodeValue;
+            var result;
+            DOM_ignoreMutationsWhileExecuting(function() {
+                var oldNodeValue = node.nodeValue;
+                node.nodeValue = node.nodeValue.slice(0,offset) + "X" +
+                                 node.nodeValue.slice(offset);
+                result = rectAtLeftOfRange(new Range(node,offset,node,offset));
+                node.nodeValue = oldNodeValue;
+            });
             return result;
         }
         else {
@@ -191,6 +192,16 @@ var Selection_posAtEndOfWord;
                      width: 0,
                      height: rect.height };
         }
+    });
+
+    // public
+    Selection_getCursorRect = trace(function getCursorRect()
+    {
+        var selRange = Selection_get();
+        if (selRange != null)
+            return Selection_getPositionRect(selRange.end);
+        else
+            return null;
     });
 
     // private

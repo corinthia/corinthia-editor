@@ -4,10 +4,11 @@ var AutoCorrect_removeCorrection;
 var AutoCorrect_getCorrections;
 
 var AutoCorrect_correctPrecedingWord;
-var AutoCorrect_getLatest;
-var AutoCorrect_acceptLatest;
-var AutoCorrect_revertLatest;
-var AutoCorrect_replaceLatest;
+var AutoCorrect_getCorrection;
+var AutoCorrect_getCorrectionCoords;
+var AutoCorrect_acceptCorrection;
+var AutoCorrect_revertCorrection;
+var AutoCorrect_replaceCorrection;
 
 (function() {
 
@@ -23,9 +24,15 @@ var AutoCorrect_replaceLatest;
 
     function Correction(span)
     {
+        var done = false;
         this.span = span;
-        this.modificationListener = function() {
+        this.modificationListener = function(event) {
+            if (DOM_getIgnoreMutations())
+                return;
             PostponedActions_add(function() {
+                if (done)
+                    return;
+                done = true;
                 // This will trigger a removeCorrection() call
                 removeCorrectionSpan(span);
             });
@@ -121,44 +128,78 @@ var AutoCorrect_replaceLatest;
         PostponedActions_add(UndoManager_newGroup);
     });
 
-    AutoCorrect_getLatest = trace(function getLatest()
+    AutoCorrect_getCorrection = trace(function getCorrection()
     {
-        if (correctionList.length == 0)
+        var correction = getCurrent();
+        if (correction == null)
             return null;
 
-        var correction = correctionList[correctionList.length-1];
         return { original: correction.span.getAttribute("original"),
                  replacement: getNodeText(correction.span) };
     });
 
-    AutoCorrect_acceptLatest = trace(function acceptLatest()
+    AutoCorrect_getCorrectionCoords = trace(function getCorrectionCoords()
     {
-        if (correctionList.length == 0)
+        var correction = getCurrent();
+        if (correction == null)
             return null;
 
+        var textNode = correction.span.firstChild;
+        if ((textNode == null) || (textNode.nodeType != Node.TEXT_NODE))
+            return null;
+
+        var pos = new Position(textNode,Math.floor(textNode.nodeValue.length/2));
+        var rect = Selection_getPositionRect(pos);
+        if (rect == null)
+            return null;
+
+        return { x: rect.left, y: rect.top };
+    });
+
+    var getCurrent = trace(function getCurrent()
+    {
+        var range = Selection_get();
+        if (range != null) {
+            var endNode = range.end.closestActualNode();
+            for (; endNode != null; endNode = endNode.parentNode) {
+                if (isAutoCorrectNode(endNode))
+                    return correctionsByNode.get(endNode);
+            }
+        }
+
+        if (correctionList.length > 0)
+            return correctionList[correctionList.length-1];
+
+        return null;
+    });
+
+    AutoCorrect_acceptCorrection = trace(function acceptCorrection()
+    {
+        var correction = getCurrent();
+        if (correction == null)
+            return;
+
         UndoManager_newGroup("Accept");
-        var correction = correctionList[correctionList.length-1];
         removeCorrectionSpan(correction.span);
         UndoManager_newGroup();
     });
 
-    AutoCorrect_revertLatest = trace(function revertLatest()
+    AutoCorrect_revertCorrection = trace(function revertCorrection()
     {
-        if (correctionList.length == 0)
-            return null;
+        var correction = getCurrent();
+        if (correction == null)
+            return;
 
-        var correction = correctionList[correctionList.length-1];
-        AutoCorrect_replaceLatest(correction.span.getAttribute("original"));
+        AutoCorrect_replaceCorrection(correction.span.getAttribute("original"));
     });
 
-    AutoCorrect_replaceLatest = trace(function replaceLatest(replacement)
+    AutoCorrect_replaceCorrection = trace(function replaceCorrection(replacement)
     {
-        if (correctionList.length == 0)
-            return null;
+        var correction = getCurrent();
+        if (correction == null)
+            return;
 
         UndoManager_newGroup("Replace");
-        var correction = correctionList[correctionList.length-1];
-
         Selection_preserveWhileExecuting(function() {
             var text = DOM_createTextNode(document,replacement);
             DOM_insertBefore(correction.span.parentNode,text,correction.span);

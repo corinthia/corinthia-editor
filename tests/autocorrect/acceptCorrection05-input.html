@@ -17,10 +17,18 @@ function performTest()
     Cursor_insertCharacter(" fourx");
     AutoCorrect_correctPrecedingWord(5,"four");
     Cursor_insertCharacter(" five");
+    Cursor_insertCharacter(" sixx");
+    AutoCorrect_correctPrecedingWord(4,"six");
+    Cursor_insertCharacter(" seven");
     PostponedActions_perform();
     showSelection();
 
-    AutoCorrect_replaceLatest("a");
+    var text = findTextMatching("six");
+    Selection_hideWhileExecuting(function() {
+        Selection_set(text,0,text,0);
+    });
+
+    AutoCorrect_acceptCorrection();
     PostponedActions_perform();
 
     return showCorrections();
