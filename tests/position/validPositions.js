@@ -31,7 +31,7 @@ function showValidPositions()
     var validPositions = new Array();
     var pos = new Position(document.body,0);
     while (pos != null) {
-        if (Cursor_isValidCursorPosition(pos)) {
+        if (Cursor_isMovementPosition(pos)) {
 //            debug("Valid position: "+pos);
             validPositions.push(pos);
         }

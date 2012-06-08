@@ -1003,8 +1003,8 @@ var Formatting_applyFormattingChanges;
 
         // The current cursor position may no longer be valid, e.g. if a heading span was inserted
         // and the cursor is at a position that is now immediately before the span.
-        var start = Cursor_closestPositionForwards(selectionRange.start,Cursor_isValidInsertionPosition);
-        var end = Cursor_closestPositionBackwards(selectionRange.end,Cursor_isValidInsertionPosition);
+        var start = Cursor_closestPositionForwards(selectionRange.start,Cursor_isInsertionPosition);
+        var end = Cursor_closestPositionBackwards(selectionRange.end,Cursor_isInsertionPosition);
         var tempRange = new Range(start.node,start.offset,end.node,end.offset);
         tempRange = tempRange.forwards();
         tempRange.ensureRangeValidHierarchy();
