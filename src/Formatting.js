@@ -903,13 +903,28 @@ var Formatting_applyFormattingChanges;
         if (selectionRange == null)
             return;
 
+        // If we're applying formatting properties to an empty selection, and the node of the
+        // selection start & end is an element, add an empty text node so that we have something
+        // to apply the formatting to.
+        if (selectionRange.isEmpty() && (selectionRange.start.node.nodeType == Node.ELEMENT_NODE)) {
+            Selection_hideWhileExecuting(function() {
+                var node = selectionRange.start.node;
+                var offset = selectionRange.start.offset;
+                var text = DOM_createTextNode(document,"");
+                DOM_insertBefore(node,text,node.childNodes[offset]);
+                Selection_set(text,0,text,0);
+                selectionRange = Selection_get();
+            });
+        }
+
         // If the cursor is in a container (such as BODY OR FIGCAPTION), and not inside a paragraph,
         // put it in one so we can set a paragraph style
-        if (selectionRange.isEmpty()) {
+
+        if ((style != null) && selectionRange.isEmpty()) {
             var node = selectionRange.singleNode();
             while (isInlineNode(node))
                 node = node.parentNode;
-            if (isContainerNode(node) && containsOnlyWhitespace(node)) {
+            if (isContainerNode(node) && containsOnlyInlineChildren(node)) {
                 var p = DOM_createElement(document,"P");
                 DOM_appendChild(node,p);
                 while (node.firstChild != p)
@@ -940,14 +955,6 @@ var Formatting_applyFormattingChanges;
                 paragraphs = getParagraphs(outermost);
             else
                 paragraphs = getParagraphs([range.singleNode()]);
-
-            // For applying inline properties, we need at least one node
-            if ((outermost.length == 0) && (range.end.node.nodeType == Node.ELEMENT_NODE)) {
-                var text = DOM_createTextNode(document,"");
-                var nextSibling = range.end.node.childNodes[range.end.offset];
-                DOM_insertBefore(range.end.node,text,nextSibling);
-                outermost = [text];
-            }
 
             // Push down inline properties
             Formatting_pushDownInlineProperties(outermost);
@@ -1013,6 +1020,15 @@ var Formatting_applyFormattingChanges;
         Selection_hideWhileExecuting(function() {
             Selection_set(start.node,start.offset,end.node,end.offset);
         });
+
+        function containsOnlyInlineChildren(node)
+        {
+            for (var child = node.firstChild; child != null; child = child.nextSibling) {
+                if (!isInlineNode(child))
+                    return false;
+            }
+            return true;
+        }
     });
 
     Formatting_MERGEABLE_INLINE = {
