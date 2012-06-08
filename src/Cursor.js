@@ -69,7 +69,7 @@ var Cursor_setReferenceTarget;
                 }
             }
 
-            var position = Position_closestMatchForwards(position,Cursor_isValidPosition);
+            var position = Position_closestMatchForwards(position,Position_okForMovement);
             if ((position != null) && isOpaqueNode(position.node))
                 position = Position_nextMatch(position,Position_okForMovement);
             if (position == null)
@@ -162,7 +162,7 @@ var Cursor_setReferenceTarget;
     {
         Selection_hideWhileExecuting(function() {
             var pos = new Position(document.body,document.body.childNodes.length);
-            pos = Position_closestMatchForwards(pos,Cursor_isValidPosition);
+            pos = Position_closestMatchForwards(pos,Position_okForMovement);
             Selection_set(pos.node,pos.offset,pos.node,pos.offset);
             Cursor_ensureCursorVisible();
         });
