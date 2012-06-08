@@ -941,6 +941,14 @@ var Formatting_applyFormattingChanges;
             else
                 paragraphs = getParagraphs([range.singleNode()]);
 
+            // For applying inline properties, we need at least one node
+            if ((outermost.length == 0) && (range.end.node.nodeType == Node.ELEMENT_NODE)) {
+                var text = DOM_createTextNode(document,"");
+                var nextSibling = range.end.node.childNodes[range.end.offset];
+                DOM_insertBefore(range.end.node,text,nextSibling);
+                outermost = [text];
+            }
+
             // Push down inline properties
             Formatting_pushDownInlineProperties(outermost);
 
