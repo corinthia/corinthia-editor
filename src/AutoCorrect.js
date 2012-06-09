@@ -1,4 +1,5 @@
 var AutoCorrect_init;
+var AutoCorrect_removeListeners;
 var AutoCorrect_addCorrection;
 var AutoCorrect_removeCorrection;
 var AutoCorrect_getCorrections;
@@ -47,10 +48,57 @@ var AutoCorrect_replaceCorrection;
     var correctionsByNode = null;
     var correctionList = null;
 
+    // private
+    var docNodeInserted = trace(function docNodeInserted(event)
+    {
+        try {
+            recurse(event.target);
+        }
+        catch (e) {
+            Editor_error(e);
+        }
+
+        function recurse(node)
+        {
+            if (isAutoCorrectNode(node))
+                AutoCorrect_addCorrection(node);
+            for (var child = node.firstChild; child != null; child = child.nextSibling)
+                recurse(child);
+        }
+    });
+
+    // private
+    var docNodeRemoved = trace(function docNodeRemoved(event)
+    {
+        try {
+            recurse(event.target);
+        }
+        catch (e) {
+            Editor_error(e);
+        }
+
+        function recurse(node)
+        {
+            if (isAutoCorrectNode(node))
+                AutoCorrect_removeCorrection(node);
+            for (var child = node.firstChild; child != null; child = child.nextSibling)
+                recurse(child);
+        }
+    });
+
     AutoCorrect_init = trace(function init()
     {
         correctionsByNode = new NodeMap();
         correctionList = new Array();
+        document.addEventListener("DOMNodeInserted",docNodeInserted);
+        document.addEventListener("DOMNodeRemoved",docNodeRemoved);
+    });
+
+    // public (for the undo tests, when they report results)
+    AutoCorrect_removeListeners = trace(function removeListeners()
+    {
+        document.removeEventListener("DOMNodeInserted",docNodeInserted);
+        document.removeEventListener("DOMNodeRemoved",docNodeRemoved);
     });
 
     AutoCorrect_addCorrection = trace(function addCorrection(span)

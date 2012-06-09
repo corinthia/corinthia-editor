@@ -47,6 +47,7 @@ function testUndo(versions,node)
     Array.prototype.push.apply(versions,back2);
 
     Outline_removeListeners(); // prevent it from adding number spans etc.
+    AutoCorrect_removeListeners();
     DOM_deleteAllChildren(document.body);
     for (var i = 0; i < versions.length; i++) {
         if (i < initialLength) {
