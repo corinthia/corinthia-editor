@@ -1,5 +1,6 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
+var Styles_getCSSText;
 var Styles_scheduleApplyCSSTextChanges;
 var Styles_getAllStyles;
 var Styles_setStyle;
@@ -202,6 +203,66 @@ var Styles_init;
         return lines.join("");
     });
 
+    Styles_getCSSText = trace(function getCSSText(exclude)
+    {
+        var excludeSet = new Object();
+        if (exclude != null) {
+            for (var i = 0; i < exclude.length; i++)
+                excludeSet[exclude[i]] = true;
+        }
+
+        var cssTextArray = new Array();
+
+        var individualRules = new Array();
+
+        for (var styleId in stylesById) {
+            var style = stylesById[styleId];
+            if (!style.latent) {
+                var ruleIds = Object.getOwnPropertyNames(style.rules).sort();
+                for (var ruleIndex = 0; ruleIndex < ruleIds.length; ruleIndex++) {
+                    var rule = style.rules[ruleIds[ruleIndex]];
+                    var content = propertyListText(rule.properties);
+                    if ((content != "") || !rule.nilTextIfEmpty) {
+                        individualRules.push({selector: rule.selector,
+                                              content: content});
+                    }
+                }
+            }
+        }
+
+        var selectorsByContent = new Object();
+        for (var i = 0; i < individualRules.length; i++) {
+            if (!excludeSet[individualRules[i].selector]) {
+                var selectors = selectorsByContent[individualRules[i].content];
+                if (selectors == null)
+                    selectors = selectorsByContent[individualRules[i].content] = new Array();
+                selectors.push(individualRules[i].selector);
+            }
+        }
+
+        var groupedRules = new Array();
+        for (var content in selectorsByContent) {
+            groupedRules.push({selectors: selectorsByContent[content].sort().join(", "),
+                               content: content});
+        }
+        groupedRules.sort(compareBySelectors);
+
+        for (var i = 0; i < groupedRules.length; i++)
+            cssTextArray.push(groupedRules[i].selectors+" {\n"+groupedRules[i].content+"}\n");
+
+        return cssTextArray.join("");
+
+        function compareBySelectors(a,b)
+        {
+            if (a.selectors < b.selectors)
+                return -1;
+            else if (a.selectors > b.selectors)
+                return 1;
+            else
+                return 0;
+        }
+    });
+
     // Unfortunately, modifying the CSS stylesheet object associated with a style element
     // does not cause its text content to be updated. Thus, we have to do it ourselves.
     // To avoid doing this multiple times for a single editing operation, call the
@@ -214,57 +275,10 @@ var Styles_init;
             cssTextDirty = false;
 
             var styleElement = getOrCreateStyleElement();
-            var cssTextArray = new Array();
-
-            var individualRules = new Array();
-
-            for (var styleId in stylesById) {
-                var style = stylesById[styleId];
-                if (!style.latent) {
-                    var ruleIds = Object.getOwnPropertyNames(style.rules).sort();
-                    for (var ruleIndex = 0; ruleIndex < ruleIds.length; ruleIndex++) {
-                        var rule = style.rules[ruleIds[ruleIndex]];
-                        var content = propertyListText(rule.properties);
-                        if ((content != "") || !rule.nilTextIfEmpty) {
-                            individualRules.push({selector: rule.selector,
-                                            content: content});
-                        }
-                    }
-                }
-            }
-
-            var selectorsByContent = new Object();
-            for (var i = 0; i < individualRules.length; i++) {
-                var selectors = selectorsByContent[individualRules[i].content];
-                if (selectors == null)
-                    selectors = selectorsByContent[individualRules[i].content] = new Array();
-                selectors.push(individualRules[i].selector);
-            }
-
-            var groupedRules = new Array();
-            for (var content in selectorsByContent) {
-                groupedRules.push({selectors: selectorsByContent[content].sort().join(", "),
-                                   content: content});
-            }
-            groupedRules.sort(compareBySelectors);
-
-            for (var i = 0; i < groupedRules.length; i++)
-                cssTextArray.push(groupedRules[i].selectors+" {\n"+groupedRules[i].content+"}\n");
-
-            var allCSSText = cssTextArray.join("");
+            var allCSSText = Styles_getCSSText();
 
             DOM_deleteAllChildren(styleElement);
             DOM_appendChild(styleElement,DOM_createTextNode(document,allCSSText));
-
-            function compareBySelectors(a,b)
-            {
-                if (a.selectors < b.selectors)
-                    return -1;
-                else if (a.selectors > b.selectors)
-                    return 1;
-                else
-                    return 0;
-            }
         }
     });
 

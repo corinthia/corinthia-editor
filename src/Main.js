@@ -183,6 +183,11 @@ var Main_init;
                  (node.getAttribute("name").toLowerCase() == "viewport")) {
             DOM_deleteNode(node);
         }
+        else if (DOM_upperName(node) == "STYLE") {
+            var cssText = Styles_getCSSText(["."+Keys.AUTOCORRECT_CLASS]);
+            DOM_deleteAllChildren(node);
+            DOM_appendChild(node,DOM_createTextNode(document,cssText));
+        }
         else {
             var next;
             for (var child = node.firstChild; child != null; child = next) {
