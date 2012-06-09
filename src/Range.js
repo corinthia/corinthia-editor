@@ -399,62 +399,53 @@ var Range;
 
     function cloneContents()
     {
-        var range = this;
+        var cloneMap = new NodeMap();
         var detail = this.detail();
+        var cloneRoot = DOM_cloneNode(detail.commonAncestor,false);
+        cloneMap.put(detail.commonAncestor,cloneRoot);
         var outermost = this.getOutermostNodes();
-
-        var outermostSet = new NodeSet();
-        var outermostAncestors = new NodeSet();
         for (var i = 0; i < outermost.length; i++) {
-            outermostSet.add(outermost[i]);
-            for (var node = outermost[i]; node != null; node = node.parentNode)
-                outermostAncestors.add(node);
+
+            var node = outermost[i];
+            if (node.nodeType == Node.TEXT_NODE) {
+                // FIXME: do this without modifying nodeValue
+                var saved = node.nodeValue;
+                if ((node == this.start.node) && (node == this.end.node)) {
+                    node.nodeValue = node.nodeValue.slice(this.start.offset,this.end.offset);
+                }
+                else if (node == this.start.node) {
+                    node.nodeValue = node.nodeValue.slice(this.start.offset);
+                }
+                else if (node == this.end.node) {
+                    node.nodeValue = node.nodeValue.slice(0,this.end.offset);
+                }
+                add(outermost[i],true);
+                node.nodeValue = saved;
+            }
+            else {
+                add(outermost[i],true);
+            }
         }
 
-        var result = recurse(detail.commonAncestor);
+        var result = new Array();
+        for (var child = cloneRoot.firstChild; child != null; child = child.nextSibling)
+            result.push(child);
 
-        var ancestor = detail.commonAncestor;
-        while (ancestor != document.body) {
-            ancestor = ancestor.parentNode;
-            var clone = DOM_cloneNode(ancestor,false);
-            DOM_appendChild(clone,result);
-            result = clone;
-        }
+        return result;
 
-        var array = new Array();
-        for (var child = result.firstChild; child != null; child = child.nextSibling)
-            array.push(child);
-        return array;
-
-        function recurse(node)
+        function add(node,deep)
         {
-            var clone = DOM_cloneNode(node,false)
-            for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                if (outermostSet.contains(child)) {
-                    if ((child.nodeType == Node.TEXT_NODE) &&
-                        (child == range.start.node) &&
-                        (child == range.end.node)) {
-                        var substring = child.nodeValue.substring(range.start.offset,
-                                                                  range.end.offset);
-                        DOM_appendChild(clone,DOM_createTextNode(document,substring));
-                    }
-                    else if ((child.nodeType == Node.TEXT_NODE) &&
-                             (child == range.start.node)) {
-                        var substring = child.nodeValue.substring(range.start.offset);
-                        DOM_appendChild(clone,DOM_createTextNode(document,substring));
-                    }
-                    else if ((child.nodeType == Node.TEXT_NODE) &&
-                             (child == range.end.node)) {
-                        var substring = child.nodeValue.substring(0,range.end.offset);
-                        DOM_appendChild(clone,DOM_createTextNode(document,substring));
-                    }
-                    else {
-                        DOM_appendChild(clone,DOM_cloneNode(child,true));
-                    }
-                }
-                else if (outermostAncestors.contains(child)) {
-                    DOM_appendChild(clone,recurse(child));
-                }
+            if (cloneMap.containsKey(node))
+                return cloneMap.get(node);
+
+            var clone = DOM_cloneNode(node,deep);
+            cloneMap.put(node,clone);
+            if (node.parentNode == detail.commonAncestor) {
+                DOM_appendChild(cloneRoot,clone);
+            }
+            else {
+                var parentClone = add(node.parentNode,false);
+                DOM_appendChild(parentClone,clone);
             }
             return clone;
         }
