@@ -170,7 +170,8 @@ var Main_init;
         if ((DOM_upperName(node) == "SPAN") &&
             ((node.getAttribute("class") == Keys.HEADING_NUMBER) ||
              (node.getAttribute("class") == Keys.FIGURE_NUMBER) ||
-             (node.getAttribute("class") == Keys.TABLE_NUMBER))) {
+             (node.getAttribute("class") == Keys.TABLE_NUMBER) ||
+             (node.getAttribute("class") == Keys.AUTOCORRECT_CLASS))) {
             DOM_removeNodeButKeepChildren(node);
         }
         else if ((DOM_upperName(node) == "DIV") &&
