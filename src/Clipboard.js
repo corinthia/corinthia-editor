@@ -266,10 +266,14 @@ var Clipboard_pasteNodes;
         if (range != null) {
             var nodes;
             var region = Tables_regionFromRange(range);
-            if (region != null)
-                nodes = [Tables_cloneRegion(region)];
-            else
-                nodes = range.cloneContents();
+            Selection_hideWhileExecuting(function() {
+                if (region != null) {
+                    nodes = [Tables_cloneRegion(region)];
+                }
+                else {
+                    nodes = range.cloneContents();
+                };
+            });
 
             var div = DOM_createElement(document,"DIV");
             for (var i = 0; i < nodes.length; i++)

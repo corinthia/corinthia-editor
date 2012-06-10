@@ -411,10 +411,7 @@ var Range;
                 ancestorSet.add(node);
         }
 
-        var clone;
-        Selection_hideWhileExecuting(function() {
-            clone = recurse(detail.commonAncestor);
-        });
+        var clone = recurse(detail.commonAncestor);
 
         var ancestor = detail.commonAncestor;
         while (isInlineNode(ancestor)) {
@@ -424,10 +421,12 @@ var Range;
             clone = ancestorClone;
         }
 
-        var result = new Array();
+        var childArray = new Array();
         for (var child = clone.firstChild; child != null; child = child.nextSibling)
-            result.push(child);
-        return result;
+            childArray.push(child);
+        Formatting_pushDownInlineProperties(childArray);
+
+        return childArray;
 
         function recurse(parent)
         {
