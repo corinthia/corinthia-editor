@@ -464,26 +464,34 @@ var Range;
 
     function hasContent()
     {
-        var start = this.start;
-        var end = this.end;
-
+        var range = this;
         var outermost = this.getOutermostNodes();
         for (var i = 0; i < outermost.length; i++) {
-
-            if ((outermost[i].nodeType == Node.TEXT_NODE) && (outermost == start.node)) {
-                if (!isWhitespaceString(start.node.nodeValue.substring(start.offset)))
-                    return true;
+            var node = outermost[i];
+            if (node.nodeType == Node.TEXT_NODE) {
+                var value = node.nodeValue;
+                if ((node == this.start.node) && (node == this.end.node)) {
+                    if (!isWhitespaceString(value.substring(this.start.offset,this.end.offset)))
+                        return true;
+                }
+                else if (node == this.start.node) {
+                    if (!isWhitespaceString(value.substring(this.start.offset)))
+                        return true;
+                }
+                else if (node == this.end.node) {
+                    if (!isWhitespaceString(value.substring(0,this.end.offset)))
+                        return true;
+                }
+                else {
+                    if (!isWhitespaceString(value))
+                        return true;
+                }
             }
-            else if ((outermost[i].nodeType == Node.TEXT_NODE) && (outermost == end.node)) {
-                if (!isWhitespaceString(end.node.nodeValue.substring(0,end.node.offset)))
-                    return true;
-            }
-            else {
-                if (nodeHasContent(outermost[i]))
+            else if (node.nodeType == Node.ELEMENT_NODE) {
+                if (nodeHasContent(node))
                     return true;
             }
         }
-
         return false;
     }
 

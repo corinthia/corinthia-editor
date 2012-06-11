@@ -271,6 +271,33 @@ var Clipboard_pasteNodes;
                     nodes = [Tables_cloneRegion(region)];
                 }
                 else {
+                    var startInLI = null;
+                    for (var node = range.start.node; node != null; node = node.parentNode) {
+                        if (DOM_upperName(node) == "LI")
+                            startInLI = node;
+                    }
+
+                    var endInLI = null;
+                    for (var node = range.end.node; node != null; node = node.parentNode) {
+                        if (DOM_upperName(node) == "LI")
+                            endInLI = node;
+                    }
+
+                    if ((startInLI != null) && (startInLI == endInLI)) {
+                        var beforeRange = new Range(startInLI,0,
+                                                    range.start.node,range.start.offset);
+                        var afterRange = new Range(range.end.node,range.end.offset,
+                                                   endInLI,DOM_maxChildOffset(endInLI));
+                        var contentBefore = beforeRange.hasContent();
+                        var contentAfter = afterRange.hasContent();
+
+                        if (!contentBefore && !contentAfter) {
+                            var li = startInLI;
+                            var offset = DOM_nodeOffset(li);
+                            range = new Range(li.parentNode,offset,li.parentNode,offset+1);
+                        }
+                    }
+
                     nodes = range.cloneContents();
                 };
             });
