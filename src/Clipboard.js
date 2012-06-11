@@ -231,76 +231,54 @@ var Clipboard_pasteNodes;
 
 (function() {
 
-    // public (FIXME: temp: for testing)
-    Clipboard_htmlToText = trace(function htmlToText(node)
+    var expandRangeForCopy = trace(function expandRangeForCopy(range)
     {
-        return Markdown_htmlToMarkdown(node);
-    });
+        if (range == null)
+            return range;
 
-    // public
-    Clipboard_cut = trace(function cut()
-    {
-        UndoManager_newGroup("Cut");
-        var content = Clipboard_copy();
+        var startInLI = null;
+        for (var node = range.start.node; node != null; node = node.parentNode) {
+            if (DOM_upperName(node) == "LI")
+                startInLI = node;
+        }
 
-        Selection_hideWhileExecuting(function() {
-            Selection_deleteContents();
-            var selRange = Selection_get();
-            if (selRange != null) {
-                var pos = Position_closestMatchForwards(selRange.start,Position_okForMovement);
-                Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+        var endInLI = null;
+        for (var node = range.end.node; node != null; node = node.parentNode) {
+            if (DOM_upperName(node) == "LI")
+                endInLI = node;
+        }
+
+        if ((startInLI != null) && (startInLI == endInLI)) {
+            var beforeRange = new Range(startInLI,0,
+                                        range.start.node,range.start.offset);
+            var afterRange = new Range(range.end.node,range.end.offset,
+                                       endInLI,DOM_maxChildOffset(endInLI));
+            var contentBefore = beforeRange.hasContent();
+            var contentAfter = afterRange.hasContent();
+
+            if (!contentBefore && !contentAfter) {
+                var li = startInLI;
+                var offset = DOM_nodeOffset(li);
+                range = new Range(li.parentNode,offset,li.parentNode,offset+1);
             }
-        });
-
-        UndoManager_newGroup();
-        return content;
+        }
+        return range;
     });
 
-    // public
-    Clipboard_copy = trace(function copy()
+    var copyRange = trace(function copyRange(range)
     {
-        var range = Selection_get();
         var html = "";
         var text = "";
 
         if (range != null) {
             var nodes;
             var region = Tables_regionFromRange(range);
-            Selection_hideWhileExecuting(function() {
-                if (region != null) {
-                    nodes = [Tables_cloneRegion(region)];
-                }
-                else {
-                    var startInLI = null;
-                    for (var node = range.start.node; node != null; node = node.parentNode) {
-                        if (DOM_upperName(node) == "LI")
-                            startInLI = node;
-                    }
-
-                    var endInLI = null;
-                    for (var node = range.end.node; node != null; node = node.parentNode) {
-                        if (DOM_upperName(node) == "LI")
-                            endInLI = node;
-                    }
-
-                    if ((startInLI != null) && (startInLI == endInLI)) {
-                        var beforeRange = new Range(startInLI,0,
-                                                    range.start.node,range.start.offset);
-                        var afterRange = new Range(range.end.node,range.end.offset,
-                                                   endInLI,DOM_maxChildOffset(endInLI));
-                        var contentBefore = beforeRange.hasContent();
-                        var contentAfter = afterRange.hasContent();
-
-                        if (!contentBefore && !contentAfter) {
-                            var li = startInLI;
-                            var offset = DOM_nodeOffset(li);
-                            range = new Range(li.parentNode,offset,li.parentNode,offset+1);
-                        }
-                    }
-
-                    nodes = range.cloneContents();
-                };
-            });
+            if (region != null) {
+                nodes = [Tables_cloneRegion(region)];
+            }
+            else {
+                nodes = range.cloneContents();
+            };
 
             var div = DOM_createElement(document,"DIV");
             for (var i = 0; i < nodes.length; i++)
@@ -327,6 +305,46 @@ var Clipboard_pasteNodes;
                 }
             }
         }
+    });
+
+    // public (FIXME: temp: for testing)
+    Clipboard_htmlToText = trace(function htmlToText(node)
+    {
+        return Markdown_htmlToMarkdown(node);
+    });
+
+    // public
+    Clipboard_cut = trace(function cut()
+    {
+        UndoManager_newGroup("Cut");
+        var content;
+
+        Selection_hideWhileExecuting(function() {
+            var range = Selection_get();
+            range = expandRangeForCopy(range);
+            content = copyRange(range);
+
+            Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
+            Selection_deleteContents();
+            var selRange = Selection_get();
+            if (selRange != null) {
+                var pos = Position_closestMatchForwards(selRange.start,Position_okForMovement);
+                Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+            }
+        });
+
+        UndoManager_newGroup();
+        return content;
+    });
+
+    // public
+    Clipboard_copy = trace(function copy()
+    {
+        return Selection_hideWhileExecuting(function() {
+            var range = Selection_get();
+            range = expandRangeForCopy(range);
+            return copyRange(range);
+        });
     });
 
     // public
