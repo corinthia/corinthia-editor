@@ -841,7 +841,7 @@ var Selection_posAtEndOfWord;
     });
 
     // private
-    deleteTextSelection = trace(function deleteTextSelection(selRange)
+    var deleteTextSelection = trace(function deleteTextSelection(selRange)
     {
         var nodes = selRange.getOutermostNodes();
         for (var i = 0; i < nodes.length; i++) {
