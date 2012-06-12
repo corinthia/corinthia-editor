@@ -466,8 +466,18 @@ var Clipboard_pasteNodes;
             }
 
             var prevLI = null;
+            var inItem = false;
+            var inList = false;
 
-            if (isListItemNode(parent)) {
+            for (var temp = parent; temp != null; temp = temp.parentNode) {
+                if (isContainerNode(temp)) {
+                    inItem = isListItemNode(temp);
+                    inList = isListNode(temp);
+                    break;
+                }
+            }
+
+            if (inItem) {
                 for (var i = 0; i < nodes.length; i++) {
                     var child = nodes[i];
 
@@ -490,7 +500,7 @@ var Clipboard_pasteNodes;
                     }
                 }
             }
-            else if (isListNode(parent)) {
+            else if (inList) {
                 for (var i = 0; i < nodes.length; i++) {
                     var child = nodes[i];
 
