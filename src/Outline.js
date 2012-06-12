@@ -118,6 +118,7 @@ var Outline_setReferenceTarget;
         this.list.remove(item);
         Editor_removeOutlineItem(item.id);
         this.tocs.forEach(function(node,toc) { toc.removeOutlineItem(item.id); });
+        item.title = null;
         item.node.removeEventListener("DOMSubtreeModified",item.modificationListener);
         if (item.numberSpan != null) {
             DOM_deleteNode(item.numberSpan);
