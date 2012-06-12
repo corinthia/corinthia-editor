@@ -572,7 +572,7 @@ var Clipboard_pasteNodes;
             pos = Position_closestMatchBackwards(pos,Position_okForInsertion);
 
             Selection_set(pos.node,pos.offset,pos.node,pos.offset);
-
+            Cursor_ensureCursorVisible();
         });
     });
 
