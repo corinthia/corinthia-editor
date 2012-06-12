@@ -328,6 +328,29 @@ var Clipboard_pasteNodes;
             Selection_deleteContents();
             var selRange = Selection_get();
             if (selRange != null) {
+                selRange.trackWhileExecuting(function() {
+                    var node = selRange.start.closestActualNode();
+                    while (node != null) {
+                        var parent = node.parentNode;
+                        if (isListItemNode(node)) {
+                            if (!nodeHasContent(node))
+                                DOM_deleteNode(node);
+                        }
+                        else if (isListNode(node)) {
+                            var haveLI = false;
+                            for (var c = node.firstChild; c != null; c = c.nextSibling) {
+                                if (isListItemNode(c)) {
+                                    haveLI = true;
+                                    break;
+                                }
+                            }
+                            if (!haveLI)
+                                DOM_deleteNode(node);
+                        }
+                        node = parent;
+                    }
+                });
+
                 var pos = Position_closestMatchForwards(selRange.start,Position_okForMovement);
                 Selection_set(pos.node,pos.offset,pos.node,pos.offset);
             }
