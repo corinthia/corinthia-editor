@@ -46,7 +46,9 @@ function showRangeAsBrackets(range)
 
 function showSelection()
 {
-    showRangeAsBrackets(Selection_get());
+    var range = Selection_get();
+    if (range != null)
+        showRangeAsBrackets(range);
 }
 
 function removeIds()

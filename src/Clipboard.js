@@ -389,6 +389,23 @@ var Clipboard_pasteNodes;
         UndoManager_newGroup();
     });
 
+    function nodeOffsetInParent(child,parent)
+    {
+        if (child == null)
+            return DOM_maxChildOffset(parent);
+        else
+            return DOM_nodeOffset(child);
+    }
+
+    function insertChildrenBefore(parent,child,nextSibling)
+    {
+        var next;
+        for (var grandChild = child.firstChild; grandChild != null; grandChild = next) {
+            next = grandChild.nextSibling;
+            DOM_insertBefore(parent,grandChild,nextSibling);
+        }
+    }
+
     // public
     Clipboard_pasteNodes = trace(function pasteNodes(nodes)
     {
@@ -409,88 +426,97 @@ var Clipboard_pasteNodes;
             if (nodes.length == 0)
                 return;
 
-            var pos = range.start;
-            var node = pos.node;
-            var offset = pos.offset;
-
             var parent;
             var previousSibling;
             var nextSibling;
-            if (node.nodeType == Node.ELEMENT_NODE) {
-                parent = node;
-                nextSibling = node.childNodes[offset];
-                previousSibling = node.childNodes[offset-1];
+
+            if (range.start.node.nodeType == Node.ELEMENT_NODE) {
+                parent = range.start.node;
+                nextSibling = range.start.node.childNodes[range.start.offset];
+                previousSibling = range.start.node.childNodes[range.start.offset-1];
             }
             else {
-                Formatting_splitTextBefore(node,offset);
-                parent = node.parentNode;
-                nextSibling = node;
-                previousSibling = node.previousSibling;
+                Formatting_splitTextBefore(range.start.node,range.start.offset);
+                parent = range.start.node.parentNode;
+                nextSibling = range.start.node;
+                previousSibling = range.start.node.previousSibling;
             }
 
-            var pasteList = new Array();
+            var prevLI = null;
 
-            if ((DOM_upperName(parent) == "UL") || (DOM_upperName(parent) == "OL")) {
+            if (isListItemNode(parent)) {
                 for (var i = 0; i < nodes.length; i++) {
-                    if (DOM_upperName(nodes[i]) == "LI") {
-                        pasteList.push(nodes[i]);
+                    var child = nodes[i];
+
+                    var offset = nodeOffsetInParent(nextSibling,parent);
+
+                    if (isListNode(child)) {
+                        Formatting_movePreceding(parent,
+                                                 offset,
+                                                 function(x) { return (x == parent.parentNode); });
+                        insertChildrenBefore(parent.parentNode,child,parent);
                     }
-                    else if (DOM_upperName(nodes[i]) == DOM_upperName(parent)) {
-                        for (var child = nodes[i].firstChild;
-                             child != null;
-                             child = child.nextSibling) {
-                            pasteList.push(child);
-                        }
+                    else if (isListItemNode(child)) {
+                        Formatting_movePreceding(parent,
+                                                 offset,
+                                                 function(x) { return (x == parent.parentNode); });
+                        DOM_insertBefore(parent.parentNode,child,parent);
                     }
-                    else if (!isWhitespaceTextNode(nodes[i])) {
-                        var li = DOM_createElement(document,"LI");
-                        DOM_appendChild(li,nodes[i]);
-                        pasteList.push(li);
+                    else {
+                        DOM_insertBefore(parent,child,nextSibling);
+                    }
+                }
+            }
+            else if (isListNode(parent)) {
+                for (var i = 0; i < nodes.length; i++) {
+                    var child = nodes[i];
+
+                    var offset = nodeOffsetInParent(nextSibling,parent);
+                    
+                    if (isListNode(child)) {
+                        insertChildrenBefore(parent,child,nextSibling);
+                        prevLI = null;
+                    }
+                    else if (isListItemNode(child)) {
+                        DOM_insertBefore(parent,child,nextSibling);
+                        prevLI = null;
+                    }
+                    else if (!isWhitespaceTextNode(child)) {
+                        if (prevLI == null)
+                            prevLI = DOM_createElement(document,"LI");
+                        DOM_appendChild(prevLI,child);
+                        DOM_insertBefore(parent,prevLI,nextSibling);
                     }
                 }
             }
             else {
-                for (var i = 0; i < nodes.length; i++)
-                    pasteList.push(nodes[i]);
-            }
-
-            for (var i = 0; i < pasteList.length; i++)
-                DOM_insertBefore(parent,pasteList[i],nextSibling);
-
-            if (pasteList.length == 0) {
-                Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
-                return;
-            }
-
-            var firstNode = pasteList[0];
-            var lastNode = pasteList[pasteList.length-1];
-            var pastedRange = new Range(firstNode.parentNode,DOM_nodeOffset(firstNode),
-                                        lastNode.parentNode,DOM_nodeOffset(lastNode)+1);
-            pastedRange.trackWhileExecuting(function() {
-
-                if (nodes.length > 0) {
-                    var offset;
-                    if (nextSibling != null)
-                        offset = DOM_nodeOffset(nextSibling);
-                    else
-                        offset = parent.childNodes.length;
-                    range = new Range(parent,offset,parent,offset);
-                    Selection_set(range.start.node,range.start.offset,
-                                  range.end.node,range.end.offset);
+                for (var i = 0; i < nodes.length; i++) {
+                    var child = nodes[i];
+                    DOM_insertBefore(parent,child,nextSibling);
                 }
-                range.trackWhileExecuting(function() {
-                    if (previousSibling != null)
-                        Formatting_mergeWithNeighbours(previousSibling,Formatting_MERGEABLE_INLINE);
-                    if (nextSibling != null)
-                        Formatting_mergeWithNeighbours(nextSibling,Formatting_MERGEABLE_INLINE);
+            }
 
-                    Cursor_updateBRAtEndOfParagraph(parent);
+            var prevOffset;
+            if (previousSibling == null)
+                prevOffset = 0;
+            else
+                prevOffset = DOM_nodeOffset(previousSibling);
+            var nextOffset = nodeOffsetInParent(nextSibling,parent);
 
-                    pastedRange.ensureRangeValidHierarchy(true);
-                });
+            var pastedRange = new Range(parent,prevOffset,parent,nextOffset);
+            pastedRange.trackWhileExecuting(function() {
+                if (previousSibling != null)
+                    Formatting_mergeWithNeighbours(previousSibling,Formatting_MERGEABLE_INLINE);
+                if (nextSibling != null)
+                    Formatting_mergeWithNeighbours(nextSibling,Formatting_MERGEABLE_INLINE);
+
+                Cursor_updateBRAtEndOfParagraph(parent);
+
+                pastedRange.ensureRangeValidHierarchy(true);
             });
 
-            Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
+            Selection_set(pastedRange.end.node,pastedRange.end.offset,
+                          pastedRange.end.node,pastedRange.end.offset);
         });
     });
 
