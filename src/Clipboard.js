@@ -466,13 +466,17 @@ var Clipboard_pasteNodes;
             }
 
             var prevLI = null;
-            var inItem = false;
-            var inList = false;
+            var inItem = null;
+            var inList = null;
+            var containerParent = null;
 
             for (var temp = parent; temp != null; temp = temp.parentNode) {
                 if (isContainerNode(temp)) {
-                    inItem = isListItemNode(temp);
-                    inList = isListNode(temp);
+                    if (isListItemNode(temp))
+                        inItem = temp;
+                    if (isListNode(temp))
+                        inList = temp;
+                    containerParent = temp.parentNode;
                     break;
                 }
             }
@@ -486,14 +490,14 @@ var Clipboard_pasteNodes;
                     if (isListNode(child)) {
                         Formatting_movePreceding(parent,
                                                  offset,
-                                                 function(x) { return (x == parent.parentNode); });
-                        insertChildrenBefore(parent.parentNode,child,parent);
+                                                 function(x) { return (x == containerParent); });
+                        insertChildrenBefore(inItem.parentNode,child,inItem);
                     }
                     else if (isListItemNode(child)) {
                         Formatting_movePreceding(parent,
                                                  offset,
-                                                 function(x) { return (x == parent.parentNode); });
-                        DOM_insertBefore(parent.parentNode,child,parent);
+                                                 function(x) { return (x == containerParent); });
+                        DOM_insertBefore(inItem.parentNode,child,inItem);
                     }
                     else {
                         DOM_insertBefore(parent,child,nextSibling);
@@ -548,8 +552,27 @@ var Clipboard_pasteNodes;
                 pastedRange.ensureRangeValidHierarchy(true);
             });
 
-            Selection_set(pastedRange.end.node,pastedRange.end.offset,
-                          pastedRange.end.node,pastedRange.end.offset);
+            var pos = new Position(pastedRange.end.node,pastedRange.end.offset);
+            Position.trackWhileExecuting(pos,function() {
+                while (true) {
+                    if (pos.node == document.body)
+                        break;
+                    if (isContainerNode(pos.node) && !isListItemNode(pos.node))
+                        break;
+                    if (!nodeHasContent(pos.node)) {
+                        var oldNode = pos.node;
+                        pos = new Position(pos.node.parentNode,DOM_nodeOffset(pos.node));
+                        DOM_deleteNode(oldNode);
+                    }
+                    else
+                        break;
+                }
+            });
+
+            pos = Position_closestMatchBackwards(pos,Position_okForInsertion);
+
+            Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+
         });
     });
 
