@@ -356,6 +356,39 @@ var Formatting_applyFormattingChanges;
         if (commonProperties == null)
             commonProperties = {"uxwrite-style": Keys.NONE_STYLE};
 
+        for (var i = 0; i < leafNodes.length; i++) {
+            var leaf = leafNodes[i];
+            if (isListItemNode(leaf)) {
+                if (DOM_upperName(leaf.parentNode) == "UL")
+                    commonProperties["uxwrite-in-ul"] = "true";
+                else if (DOM_upperName(leaf.parentNode) == "OL")
+                    commonProperties["uxwrite-in-ol"] = "true";
+            }
+            else {
+                for (var ancestor = leaf;
+                     ancestor.parentNode != null;
+                     ancestor = ancestor.parentNode) {
+
+                    if (isListItemNode(ancestor.parentNode)) {
+                        var havePrev = false;
+                        for (var c = ancestor.previousSibling; c != null; c = c.previousSibling) {
+                            if (!isWhitespaceTextNode(c)) {
+                                havePrev = true;
+                                break;
+                            }
+                        }
+                        if (!havePrev) {
+                            var listNode = ancestor.parentNode.parentNode;
+                            if (DOM_upperName(listNode) == "UL")
+                                commonProperties["uxwrite-in-ul"] = "true";
+                            else if (DOM_upperName(listNode) == "OL")
+                                commonProperties["uxwrite-in-ol"] = "true";
+                        }
+                    }
+                }
+            }
+        }
+
         getFlags(range.start,commonProperties);
 
         return commonProperties;
@@ -468,12 +501,6 @@ var Formatting_applyFormattingChanges;
             }
             else if (DOM_upperName(node) == "TABLE") {
                 properties["uxwrite-in-table"] = "true";
-            }
-            else if (DOM_upperName(node) == "UL") {
-                properties["uxwrite-in-ul"] = "true";
-            }
-            else if (DOM_upperName(node) == "OL") {
-                properties["uxwrite-in-ol"] = "true";
             }
             else if ((DOM_upperName(node) == "A") && node.hasAttribute("href")) {
                 var href = node.getAttribute("href");
