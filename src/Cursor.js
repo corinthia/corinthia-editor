@@ -290,12 +290,29 @@ var Cursor_setReferenceTarget;
                 var currentPos = selRange.start;
                 var prevPos = Position_prevMatch(currentPos,Position_okForMovement);
                 if (prevPos != null) {
-                    Selection_set(prevPos.node,prevPos.offset,
-                                  selRange.end.node,selRange.end.offset)
-                    Selection_deleteContents();
+                    var startBlock = firstBlockAncestor(prevPos.closestActualNode());
+                    var endBlock = firstBlockAncestor(selRange.end.closestActualNode());
+                    if ((startBlock != endBlock) &&
+                        isParagraphNode(startBlock) && !nodeHasContent(startBlock)) {
+                        DOM_deleteNode(startBlock);
+                        Selection_set(selRange.end.node,selRange.end.offset,
+                                      selRange.end.node,selRange.end.offset)
+                    }
+                    else {
+                        Selection_set(prevPos.node,prevPos.offset,
+                                      selRange.end.node,selRange.end.offset);
+                        Selection_deleteContents();
+                    }
                 }
             }
         });
+
+        function firstBlockAncestor(node)
+        {
+            while (isInlineNode(node))
+                node = node.parentNode;
+            return node;
+        }
     });
 
     // public
