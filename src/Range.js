@@ -422,9 +422,14 @@ var Range;
         }
 
         var childArray = new Array();
-        for (var child = clone.firstChild; child != null; child = child.nextSibling)
-            childArray.push(child);
-        Formatting_pushDownInlineProperties(childArray);
+        if (isListNode(clone)) {
+            childArray.push(clone);
+        }
+        else {
+            for (var child = clone.firstChild; child != null; child = child.nextSibling)
+                childArray.push(child);
+            Formatting_pushDownInlineProperties(childArray);
+        }
 
         return childArray;
 
