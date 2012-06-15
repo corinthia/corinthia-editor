@@ -3,6 +3,7 @@
 // FIXME: cursor does not display correctly if it is after a space at the end of the line
 
 var Selection_get;
+var Selection_getWhileVisible;
 var Selection_set;
 var Selection_clear;
 
@@ -45,17 +46,30 @@ var Selection_posAtEndOfWord;
 
         var selection = new Object();
 
+        function getInternal()
+        {
+            if (selection.value == null)
+                return null;
+            else
+                return new Range(selection.value.startNode,selection.value.startOffset,
+                                 selection.value.endNode,selection.value.endOffset);
+        }
+
         // public
         Selection_get = trace(function get()
         {
             if (selectionVisible)
                 throw new Error("Attempt to get selection while visible");
 
-            if (selection.value == null)
-                return null;
-            else
-                return new Range(selection.value.startNode,selection.value.startOffset,
-                                 selection.value.endNode,selection.value.endOffset);
+            return getInternal();
+        });
+
+        Selection_getWhileVisible = trace(function getWhileVisible()
+        {
+            if (!selectionVisible)
+                throw new Error("Attempt to get visible selection while invisible");
+
+            return getInternal();
         });
 
         // public
@@ -200,7 +214,7 @@ var Selection_posAtEndOfWord;
     // public
     Selection_getCursorRect = trace(function getCursorRect()
     {
-        var selRange = Selection_get();
+        var selRange = Selection_getWhileVisible();
         if (selRange != null)
             return Selection_getPositionRect(selRange.end);
         else
@@ -208,9 +222,8 @@ var Selection_posAtEndOfWord;
     });
 
     // private
-    updateTableSelection = trace(function updateTableSelection()
+    updateTableSelection = trace(function updateTableSelection(selRange)
     {
-        var selRange = Selection_get();
         tableSelection = Tables_regionFromRange(selRange);
         if (tableSelection == null)
             return false;
@@ -318,6 +331,7 @@ var Selection_posAtEndOfWord;
         addSelectionVisibilityAction();
 
         var selRange = Selection_get();
+        selectionVisible = true;
 
         var rects = null;
         if (selRange != null)
@@ -352,7 +366,7 @@ var Selection_posAtEndOfWord;
             return;
         }
 
-        if (updateTableSelection()) {
+        if (updateTableSelection(selRange)) {
             selectionVisible = true;
             return;
         }
@@ -428,7 +442,6 @@ var Selection_posAtEndOfWord;
         else {
             setEditorHandles({ type: "none" });
         }
-        selectionVisible = true;
         return;
 
         function getAbsoluteOffset(node)
@@ -618,7 +631,7 @@ var Selection_posAtEndOfWord;
     // public
     Selection_dragSelectionBegin = trace(function dragSelectionBegin(x,y,selectWord)
     {
-        var range = Selection_get();
+        var range = Selection_getWhileVisible();
         if ((range != null) && !range.isEmpty())
             return Selection_dragSelectionUpdate(x,y,selectWord);
 
@@ -640,9 +653,11 @@ var Selection_posAtEndOfWord;
             Selection_selectWordAtCursor();
 
         if (result != "error") {
-            var selRange = Selection_get();
-            originalDragStart = new Position(selRange.start.node,selRange.start.offset);
-            originalDragEnd = new Position(selRange.end.node,selRange.end.offset);
+            Selection_hideWhileExecuting(function() {
+                var selRange = Selection_get();
+                originalDragStart = new Position(selRange.start.node,selRange.start.offset);
+                originalDragEnd = new Position(selRange.end.node,selRange.end.offset);
+            });
         }
         return result;
     });

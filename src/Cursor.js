@@ -46,7 +46,7 @@ var Cursor_setReferenceTarget;
     {
         if (UndoManager_groupType() != "Cursor movement")
             UndoManager_newGroup("Cursor movement");
-        return Selection_hideWhileExecuting(function() {
+        var res = Selection_hideWhileExecuting(function() {
             var result = null;
             var position = positionAtPoint(x,y);
             if (position == null)
@@ -96,9 +96,10 @@ var Cursor_setReferenceTarget;
             }
 
             Selection_set(position.node,position.offset,position.node,position.offset);
-            Cursor_ensureCursorVisible();
             return result;
         });
+        Cursor_ensureCursorVisible();
+        return res;
     });
 
     // public
@@ -124,11 +125,10 @@ var Cursor_setReferenceTarget;
 
             var pos = Position_prevMatch(range.start,Position_okForMovement);
 
-            if (pos != null) {
+            if (pos != null)
                 Selection_set(pos.node,pos.offset,pos.node,pos.offset);
-                Cursor_ensureCursorVisible();
-            }
         });
+        Cursor_ensureCursorVisible();
     });
 
     // public
@@ -141,11 +141,10 @@ var Cursor_setReferenceTarget;
 
             var pos = Position_nextMatch(range.start,Position_okForMovement);
 
-            if (pos != null) {
+            if (pos != null)
                 Selection_set(pos.node,pos.offset,pos.node,pos.offset);
-                Cursor_ensureCursorVisible();
-            }
         });
+        Cursor_ensureCursorVisible();
     });
 
     Cursor_moveToStartOfDocument = trace(function moveToStartOfDocument()
@@ -154,8 +153,8 @@ var Cursor_setReferenceTarget;
             var pos = new Position(document.body,0);
             pos = Position_closestMatchBackwards(pos,Position_okForMovement);
             Selection_set(pos.node,pos.offset,pos.node,pos.offset);
-            Cursor_ensureCursorVisible();
         });
+        Cursor_ensureCursorVisible();
     });
 
     Cursor_moveToEndOfDocument = trace(function moveToEndOfDocument()
@@ -164,8 +163,8 @@ var Cursor_setReferenceTarget;
             var pos = new Position(document.body,document.body.childNodes.length);
             pos = Position_closestMatchForwards(pos,Position_okForMovement);
             Selection_set(pos.node,pos.offset,pos.node,pos.offset);
-            Cursor_ensureCursorVisible();
         });
+        Cursor_ensureCursorVisible();
     });
 
     // An empty paragraph does not get shown and cannot be edited. We can fix this by adding
@@ -268,8 +267,8 @@ var Cursor_setReferenceTarget;
             Selection_get().trackWhileExecuting(function() {
                 Cursor_updateBRAtEndOfParagraph(node);
             });
-            Cursor_ensureCursorVisible();
         });
+        Cursor_ensureCursorVisible();
     });
 
     // public
@@ -421,9 +420,7 @@ var Cursor_setReferenceTarget;
                           selRange.end.node,selRange.end.offset);
         });
 
-        Selection_hideWhileExecuting(function() {
-            Cursor_ensureCursorVisible();
-        });
+        Cursor_ensureCursorVisible();
 
         function enterPressedFilter(node)
         {
