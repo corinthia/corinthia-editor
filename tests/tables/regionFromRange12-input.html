@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<script src="TableTests.js"></script>
 <script>
 function performTest()
 {
@@ -13,7 +14,7 @@ function performTest()
 
     showSelection();
 
-    var region = Tables_regionFromRange(Selection_get());
+    var region = getSelectedTableRegion();
     for (var row = region.top; row <= region.bottom; row++) {
         for (var col = region.left; col <= region.right; col++) {
             var cell = region.structure.get(row,col);
