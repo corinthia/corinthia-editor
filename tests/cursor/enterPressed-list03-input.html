@@ -5,9 +5,8 @@
 function performTest()
 {
     Cursor_enterPressed();
-    var range = Selection_get();
-    range.trackWhileExecuting(showEmptyTextNodes);
-    showRangeAsBrackets(range)
+    Selection_preserveWhileExecuting(showEmptyTextNodes);
+    showSelection();
 }
 </script>
 </head>

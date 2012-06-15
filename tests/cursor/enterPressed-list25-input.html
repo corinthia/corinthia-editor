@@ -5,15 +5,14 @@
 function performTest()
 {
     Cursor_enterPressed();
-    var range = Selection_get();
-    range.trackWhileExecuting(showEmptyTextNodes);
-
-    var u = document.getElementsByTagName("U")[0];
     Selection_hideWhileExecuting(function() {
+        var range = Selection_get();
+        range.trackWhileExecuting(showEmptyTextNodes);
+        var u = document.getElementsByTagName("U")[0];
         Selection_set(u,0,u,0);
     });
     Cursor_insertCharacter("X");
-    showRangeAsBrackets(Selection_get())
+    showSelection();
 }
 </script>
 </head>
