@@ -4,8 +4,7 @@
 <script>
 function performTest()
 {
-    var range = Selection_get();
-    var properties = Formatting_getFormatting(range);
+    var properties = Formatting_getFormatting();
     delete properties["uxwrite-shift"];
     Selection_clearSelection();
 
