@@ -4,12 +4,10 @@
 <script>
 function performTest()
 {
-    var p = document.getElementsByTagName("P")[0];
-    var selectionRange = Selection_get();
-    selectionRange.trackWhileExecuting(function() {
-        DOM_deleteNode(p);
+    Selection_preserveWhileExecuting(function() {
+        DOM_deleteNode(document.getElementsByTagName("P")[0]);
     });
-    showRangeAsBrackets(selectionRange);
+    showSelection();
 }
 </script>
 </head>
