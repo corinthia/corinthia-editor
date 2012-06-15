@@ -4,9 +4,10 @@
 <script>
 function performTest()
 {
-    PostponedActions_performImmediately = true;
     Outline_init();
+    PostponedActions_perform();
     setNumbering(true);
+    PostponedActions_perform();
 }
 </script>
 </head>
