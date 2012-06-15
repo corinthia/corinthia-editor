@@ -4,10 +4,12 @@
 <script>
 function performTest()
 {
-    var range = Selection_get();
-    Formatting_splitAroundSelection(range);
-    var outermost = range.getOutermostNodes();
-    Formatting_pushDownInlineProperties(outermost);
+    Selection_preserveWhileExecuting(function() {
+        var range = Selection_get();
+        Formatting_splitAroundSelection(range);
+        var outermost = range.getOutermostNodes();
+        Formatting_pushDownInlineProperties(outermost);
+    });
 }
 </script>
 </head>

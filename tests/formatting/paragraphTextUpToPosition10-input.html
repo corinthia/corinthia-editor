@@ -5,8 +5,10 @@
 
 function performTest()
 {
-    var selectionRange = Selection_get();
-    return Formatting_paragraphTextUpToPosition(selectionRange.start);
+    return Selection_hideWhileExecuting(function() {
+        var selectionRange = Selection_get();
+        return Formatting_paragraphTextUpToPosition(selectionRange.start);
+    });
 }
 </script>
 </head>

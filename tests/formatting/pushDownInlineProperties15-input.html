@@ -4,12 +4,14 @@
 <script>
 function performTest()
 {
-    var range = Selection_get();
-    range.trackWhileExecuting(function() {
-        removeWhitespaceAndCommentNodes(document.body);
+    Selection_preserveWhileExecuting(function() {
+        var range = Selection_get();
+        range.trackWhileExecuting(function() {
+            removeWhitespaceAndCommentNodes(document.body);
+        });
+        var outermost = range.getOutermostNodes();
+        Formatting_pushDownInlineProperties(outermost);
     });
-    var outermost = range.getOutermostNodes();
-    Formatting_pushDownInlineProperties(outermost);
 }
 </script>
 </head>
