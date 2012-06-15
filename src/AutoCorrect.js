@@ -146,19 +146,19 @@ var AutoCorrect_replaceCorrection;
 
     AutoCorrect_correctPrecedingWord = trace(function correctPrecedingWord(numChars,replacement)
     {
-        var selRange = Selection_get();
-        if ((selRange == null) && !selRange.isEmpty())
-            return;
-
-        var node = selRange.start.node;
-        var offset = selRange.start.offset;
-        if (node.nodeType != Node.TEXT_NODE)
-            return node;
-
-        var original = node.nodeValue.substring(offset-numChars,offset);
-
         UndoManager_newGroup("Auto-correct");
         Selection_preserveWhileExecuting(function() {
+            var selRange = Selection_get();
+            if ((selRange == null) && !selRange.isEmpty())
+                return;
+
+            var node = selRange.start.node;
+            var offset = selRange.start.offset;
+            if (node.nodeType != Node.TEXT_NODE)
+                return;
+
+            var original = node.nodeValue.substring(offset-numChars,offset);
+
             var before = node.nodeValue.substring(0,offset-numChars);
             var beforeText = DOM_createTextNode(document,before);
             var replacementText = DOM_createTextNode(document,replacement);
@@ -169,11 +169,11 @@ var AutoCorrect_replaceCorrection;
             DOM_insertBefore(node.parentNode,beforeText,node);
             DOM_insertBefore(node.parentNode,span,node);
             DOM_deleteCharacters(node,0,offset);
+            Styles_addDefaultRuleCategory("autocorrect");
+            // Add the new group in a postponed action, so that the change to the style element
+            // is not counted as a separate action
+            PostponedActions_add(UndoManager_newGroup);
         });
-        Styles_addDefaultRuleCategory("autocorrect");
-        // Add the new group in a postponed action, so that the change to the style element
-        // is not counted as a separate action
-        PostponedActions_add(UndoManager_newGroup);
     });
 
     AutoCorrect_getCorrection = trace(function getCorrection()
@@ -206,28 +206,30 @@ var AutoCorrect_replaceCorrection;
 
     var getCurrent = trace(function getCurrent()
     {
-        var range = Selection_get();
-        if (range != null) {
-            var endNode = range.end.closestActualNode();
-            for (; endNode != null; endNode = endNode.parentNode) {
-                if (isAutoCorrectNode(endNode))
-                    return correctionsByNode.get(endNode);
+        return Selection_hideWhileExecuting(function() {
+            var range = Selection_get();
+            if (range != null) {
+                var endNode = range.end.closestActualNode();
+                for (; endNode != null; endNode = endNode.parentNode) {
+                    if (isAutoCorrectNode(endNode))
+                        return correctionsByNode.get(endNode);
+                }
             }
-        }
 
-        if (correctionList.length > 0)
-            return correctionList[correctionList.length-1];
+            if (correctionList.length > 0)
+                return correctionList[correctionList.length-1];
 
-        return null;
+            return null;
+        });
     });
 
     AutoCorrect_acceptCorrection = trace(function acceptCorrection()
     {
+        UndoManager_newGroup("Accept");
         var correction = getCurrent();
         if (correction == null)
             return;
 
-        UndoManager_newGroup("Accept");
         removeCorrectionSpan(correction.span);
         UndoManager_newGroup();
     });
@@ -243,11 +245,11 @@ var AutoCorrect_replaceCorrection;
 
     AutoCorrect_replaceCorrection = trace(function replaceCorrection(replacement)
     {
+        UndoManager_newGroup("Replace");
         var correction = getCurrent();
         if (correction == null)
             return;
 
-        UndoManager_newGroup("Replace");
         Selection_preserveWhileExecuting(function() {
             var text = DOM_createTextNode(document,replacement);
             DOM_insertBefore(correction.span.parentNode,text,correction.span);

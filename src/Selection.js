@@ -48,6 +48,9 @@ var Selection_posAtEndOfWord;
         // public
         Selection_get = trace(function get()
         {
+            if (selectionVisible)
+                throw new Error("Attempt to get selection while visible");
+
             if (selection.value == null)
                 return null;
             else
@@ -313,10 +316,10 @@ var Selection_posAtEndOfWord;
         if (selectionVisible)
             throw new Error("Selection is already visible");
         addSelectionVisibilityAction();
-        selectionVisible = true;
-        var rects = null;
 
         var selRange = Selection_get();
+
+        var rects = null;
         if (selRange != null)
             rects = selRange.getClientRects();
 
@@ -345,11 +348,14 @@ var Selection_posAtEndOfWord;
                                    width: 300,
                                    height: 300});
             }
+            selectionVisible = true;
             return;
         }
 
-        if (updateTableSelection())
+        if (updateTableSelection()) {
+            selectionVisible = true;
             return;
+        }
 
         if ((rects != null) && (rects.length > 0)) {
             var boundsLeft = null;
@@ -422,6 +428,8 @@ var Selection_posAtEndOfWord;
         else {
             setEditorHandles({ type: "none" });
         }
+        selectionVisible = true;
+        return;
 
         function getAbsoluteOffset(node)
         {
@@ -448,10 +456,10 @@ var Selection_posAtEndOfWord;
     // public
     Selection_selectParagraph = trace(function selectParagraph()
     {
-        var selRange = Selection_get();
-        if (selRange == null)
-            return;
         Selection_hideWhileExecuting(function() {
+            var selRange = Selection_get();
+            if (selRange == null)
+                return;
             var startNode = selRange.start.closestActualNode();
             while (!isParagraphNode(startNode) && !isContainerNode(startNode))
                 startNode = startNode.parentNode;
@@ -592,11 +600,11 @@ var Selection_posAtEndOfWord;
     // public
     Selection_selectWordAtCursor = trace(function selectWordAtCursor()
     {
-        var selRange = Selection_get();
-        if (selRange == null)
-            return;
-
         Selection_hideWhileExecuting(function() {
+            var selRange = Selection_get();
+            if (selRange == null)
+                return;
+
             var pos = Position_closestMatchBackwards(selRange.end,Position_okForMovement);
             var range = rangeOfWordAtPos(pos);
             if (range != null)

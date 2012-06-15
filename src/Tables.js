@@ -242,16 +242,16 @@ var Tables_regionFromRange;
     Tables_insertRowAbove = trace(function insertRowAbove()
     {
         UndoManager_newGroup("Insert row above");
-        var region = Tables_regionFromRange(Selection_get(),true);
-        if (region != null) {
-            Selection_preserveWhileExecuting(function() {
+        Selection_preserveWhileExecuting(function() {
+            var region = Tables_regionFromRange(Selection_get(),true);
+            if (region != null) {
                 var cell = region.structure.get(region.top,region.left);
                 var oldTR = cell.element.parentNode;
                 var newTR = DOM_createElement(document,"TR");
                 DOM_insertBefore(oldTR.parentNode,newTR,oldTR);
                 populateNewRow(region.structure,newTR,region.top-1,region.top);
-            });
-        }
+            }
+        });
         UndoManager_newGroup();
     });
 
@@ -259,16 +259,16 @@ var Tables_regionFromRange;
     Tables_insertRowBelow = trace(function insertRowBelow()
     {
         UndoManager_newGroup("Insert row below");
-        var region = Tables_regionFromRange(Selection_get(),true);
-        if (region != null) {
-            Selection_preserveWhileExecuting(function() {
+        Selection_preserveWhileExecuting(function() {
+            var region = Tables_regionFromRange(Selection_get(),true);
+            if (region != null) {
                 var cell = region.structure.get(region.bottom,region.left);
                 var oldTR = cell.element.parentNode;
                 var newTR = DOM_createElement(document,"TR");
                 DOM_insertBefore(oldTR.parentNode,newTR,oldTR.nextSibling);
                 populateNewRow(region.structure,newTR,region.bottom+1,region.bottom);
-            });
-        }
+            }
+        });
         UndoManager_newGroup();
     });
 
@@ -435,13 +435,13 @@ var Tables_regionFromRange;
     Tables_insertColumnLeft = trace(function insertColumnLeft()
     {
         UndoManager_newGroup("Insert column at left");
-        var region = Tables_regionFromRange(Selection_get(),true);
-        if (region != null) {
-            Selection_preserveWhileExecuting(function() {
+        Selection_preserveWhileExecuting(function() {
+            var region = Tables_regionFromRange(Selection_get(),true);
+            if (region != null) {
                 addColElement(region.structure,region.left,region.left-1);
                 addColumnCells(region.structure,region.left,false);
-            });
-        }
+            }
+        });
         UndoManager_newGroup();
     });
 
@@ -449,13 +449,13 @@ var Tables_regionFromRange;
     Tables_insertColumnRight = trace(function insertColumnRight()
     {
         UndoManager_newGroup("Insert column at right");
-        var region = Tables_regionFromRange(Selection_get(),true);
-        if (region != null) {
-            Selection_preserveWhileExecuting(function() {
+        Selection_preserveWhileExecuting(function() {
+            var region = Tables_regionFromRange(Selection_get(),true);
+            if (region != null) {
                 addColElement(region.structure,region.right,region.right+1);
                 addColumnCells(region.structure,region.right,true);
-            });
-        }
+            }
+        });
         UndoManager_newGroup();
     });
 
@@ -539,70 +539,70 @@ var Tables_regionFromRange;
     // public
     Tables_mergeCells = trace(function mergeCells()
     {
-        debug("mergeCells()");
-        var region = Tables_regionFromRange(Selection_get());
-        if (region == null)
-            return;
+        Selection_preserveWhileExecuting(function() {
+            var region = Tables_regionFromRange(Selection_get());
+            if (region == null)
+                return;
 
-        var structure = region.structure;
+            var structure = region.structure;
 
-        // FIXME: handle the case of missing cells
-        // (or even better, add cells where there are some missing)
+            // FIXME: handle the case of missing cells
+            // (or even better, add cells where there are some missing)
 
-        for (var row = region.top; row <= region.bottom; row++) {
-            for (var col = region.left; col <= region.right; col++) {
-                var cell = structure.get(row,col);
-                var cellFirstRow = cell.row;
-                var cellLastRow = cell.row + cell.rowspan - 1;
-                var cellFirstCol = cell.col;
-                var cellLastCol = cell.col + cell.colspan - 1;
+            for (var row = region.top; row <= region.bottom; row++) {
+                for (var col = region.left; col <= region.right; col++) {
+                    var cell = structure.get(row,col);
+                    var cellFirstRow = cell.row;
+                    var cellLastRow = cell.row + cell.rowspan - 1;
+                    var cellFirstCol = cell.col;
+                    var cellLastCol = cell.col + cell.colspan - 1;
 
-                if ((cellFirstRow < region.top) || (cellLastRow > region.bottom) ||
-                    (cellFirstCol < region.left) || (cellLastCol > region.right)) {
-                    debug("Can't merge this table: cell at "+row+","+col+" goes outside bounds "+
-                          "of selection");
-                    return;
+                    if ((cellFirstRow < region.top) || (cellLastRow > region.bottom) ||
+                        (cellFirstCol < region.left) || (cellLastCol > region.right)) {
+                        debug("Can't merge this table: cell at "+row+","+col+
+                              " goes outside bounds of selection");
+                        return;
+                    }
                 }
             }
-        }
 
-        var mergedCell = structure.get(region.top,region.left);
+            var mergedCell = structure.get(region.top,region.left);
 
-        for (var row = region.top; row <= region.bottom; row++) {
-            for (var col = region.left; col <= region.right; col++) {
-                var cell = structure.get(row,col);
-                // parentNode will be null if we've already done this cell
-                if ((cell != mergedCell) && (cell.element.parentNode != null)) {
-                    while (cell.element.firstChild != null)
-                        DOM_appendChild(mergedCell.element,cell.element.firstChild);
-
-//                    DOM_deleteAllChildren(cell.element); // FIXME: temp
-
-                    DOM_deleteNode(cell.element);
+            for (var row = region.top; row <= region.bottom; row++) {
+                for (var col = region.left; col <= region.right; col++) {
+                    var cell = structure.get(row,col);
+                    // parentNode will be null if we've already done this cell
+                    if ((cell != mergedCell) && (cell.element.parentNode != null)) {
+                        while (cell.element.firstChild != null)
+                            DOM_appendChild(mergedCell.element,cell.element.firstChild);
+                        DOM_deleteNode(cell.element);
+                    }
                 }
             }
-        }
 
-        var totalRows = region.bottom - region.top + 1;
-        var totalCols = region.right - region.left + 1;
-        if (totalRows == 1)
-            DOM_removeAttribute(mergedCell.element,"rowspan");
-        else
-            DOM_setAttribute(mergedCell.element,"rowspan",totalRows);
-        if (totalCols == 1)
-            DOM_removeAttribute(mergedCell.element,"colspan");
-        else
-            DOM_setAttribute(mergedCell.element,"colspan",totalCols);
+            var totalRows = region.bottom - region.top + 1;
+            var totalCols = region.right - region.left + 1;
+            if (totalRows == 1)
+                DOM_removeAttribute(mergedCell.element,"rowspan");
+            else
+                DOM_setAttribute(mergedCell.element,"rowspan",totalRows);
+            if (totalCols == 1)
+                DOM_removeAttribute(mergedCell.element,"colspan");
+            else
+                DOM_setAttribute(mergedCell.element,"colspan",totalCols);
+        });
     });
 
     // public
     Tables_splitSelection = trace(function splitSelection()
     {
-        var range = Selection_get();
-        range.trackWhileExecuting(function() {
-            var region = Tables_regionFromRange(range,true);
-            if (region != null)
-                splitCellsInRegion(region);
+        Selection_preserveWhileExecuting(function() {
+            var range = Selection_get();
+            range.trackWhileExecuting(function() {
+                var region = Tables_regionFromRange(range,true);
+                if (region != null)
+                    splitCellsInRegion(region);
+            });
         });
     });
 

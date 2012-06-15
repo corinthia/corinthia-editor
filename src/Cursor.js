@@ -421,7 +421,9 @@ var Cursor_setReferenceTarget;
                           selRange.end.node,selRange.end.offset);
         });
 
-        Cursor_ensureCursorVisible();
+        Selection_hideWhileExecuting(function() {
+            Cursor_ensureCursorVisible();
+        });
 
         function enterPressedFilter(node)
         {
@@ -451,31 +453,35 @@ var Cursor_setReferenceTarget;
     });
 
     Cursor_getPrecedingWord = trace(function getPrecedingWord() {
-        var selRange = Selection_get();
-        if ((selRange == null) && !selRange.isEmpty())
-            return "";
+        return Selection_hideWhileExecuting(function() {
+            var selRange = Selection_get();
+            if ((selRange == null) && !selRange.isEmpty())
+                return "";
 
-        var node = selRange.start.node;
-        var offset = selRange.start.offset;
-        if (node.nodeType != Node.TEXT_NODE)
-            return "";
+            var node = selRange.start.node;
+            var offset = selRange.start.offset;
+            if (node.nodeType != Node.TEXT_NODE)
+                return "";
 
-        return node.nodeValue.substring(0,offset);
+            return node.nodeValue.substring(0,offset);
+        });
     });
 
     Cursor_getAdjacentNodeWithName = trace(function getAdjacentNodeWithName(name)
     {
-        var selRange = Selection_get();
-        var position = selRange.start;
-        while (position != null) {
-            var node = position.closestActualNode();
-            for (; node != null; node = node.parentNode) {
-                if (DOM_upperName(node) == name)
-                    return node;
+        return Selection_hideWhileExecuting(function() {
+            var selRange = Selection_get();
+            var position = selRange.start;
+            while (position != null) {
+                var node = position.closestActualNode();
+                for (; node != null; node = node.parentNode) {
+                    if (DOM_upperName(node) == name)
+                        return node;
+                }
+                position = position.prev();
             }
-            position = position.prev();
-        }
-        return null;
+            return null;
+        });
     });
 
     Cursor_getLinkProperties = trace(function getLinkProperties()

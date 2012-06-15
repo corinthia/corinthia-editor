@@ -46,9 +46,11 @@ function showRangeAsBrackets(range)
 
 function showSelection()
 {
-    var range = Selection_get();
-    if (range != null)
-        showRangeAsBrackets(range);
+    Selection_hideWhileExecuting(function() {
+        var range = Selection_get();
+        if (range != null)
+            showRangeAsBrackets(range);
+    });
 }
 
 function removeIds()

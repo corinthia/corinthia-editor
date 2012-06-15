@@ -323,8 +323,7 @@ var Formatting_applyFormattingChanges;
         }
     });
 
-    // public
-    Formatting_getFormatting = trace(function getFormatting()
+    var getFormattingWrapped = trace(function getFormattingWrapped()
     {
         // FIXME: implement a more efficient version of this algorithm which avoids duplicate checks
 
@@ -434,6 +433,14 @@ var Formatting_applyFormattingChanges;
                     findLeafNodes(child,result);
             }
         }
+    });
+
+    // public
+    Formatting_getFormatting = trace(function getFormatting()
+    {
+        return Selection_hideWhileExecuting(function() {
+            return getFormattingWrapped();
+        });
     });
 
     // private
@@ -907,8 +914,7 @@ var Formatting_applyFormattingChanges;
         return true;
     });
 
-    // public
-    Formatting_applyFormattingChanges = trace(function applyFormattingChanges(style,properties)
+    var applyFormattingChanges2 = trace(function applyFormattingChanges2(style,properties)
     {
         if (properties == null)
             properties = new Object();
@@ -934,14 +940,12 @@ var Formatting_applyFormattingChanges;
         // selection start & end is an element, add an empty text node so that we have something
         // to apply the formatting to.
         if (selectionRange.isEmpty() && (selectionRange.start.node.nodeType == Node.ELEMENT_NODE)) {
-            Selection_hideWhileExecuting(function() {
-                var node = selectionRange.start.node;
-                var offset = selectionRange.start.offset;
-                var text = DOM_createTextNode(document,"");
-                DOM_insertBefore(node,text,node.childNodes[offset]);
-                Selection_set(text,0,text,0);
-                selectionRange = Selection_get();
-            });
+            var node = selectionRange.start.node;
+            var offset = selectionRange.start.offset;
+            var text = DOM_createTextNode(document,"");
+            DOM_insertBefore(node,text,node.childNodes[offset]);
+            Selection_set(text,0,text,0);
+            selectionRange = Selection_get();
         }
 
         // If the cursor is in a container (such as BODY OR FIGCAPTION), and not inside a paragraph,
@@ -1044,9 +1048,7 @@ var Formatting_applyFormattingChanges;
         tempRange.ensureRangeValidHierarchy();
         start = tempRange.start;
         end = tempRange.end;
-        Selection_hideWhileExecuting(function() {
-            Selection_set(start.node,start.offset,end.node,end.offset);
-        });
+        Selection_set(start.node,start.offset,end.node,end.offset);
 
         function containsOnlyInlineChildren(node)
         {
@@ -1056,6 +1058,14 @@ var Formatting_applyFormattingChanges;
             }
             return true;
         }
+    });
+
+    // public
+    Formatting_applyFormattingChanges = trace(function applyFormattingChanges(style,properties)
+    {
+        Selection_hideWhileExecuting(function() {
+            applyFormattingChanges2(style,properties);
+        });
     });
 
     Formatting_MERGEABLE_INLINE = {
