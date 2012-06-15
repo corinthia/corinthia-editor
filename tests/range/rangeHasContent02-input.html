@@ -4,8 +4,10 @@
 <script>
 function performTest()
 {
-    var range = Selection_get();
-    return ""+range.hasContent();
+    return Selection_hideWhileExecuting(function() {
+        var range = Selection_get();
+        return ""+range.hasContent();
+    });
 }
 </script>
 </head>
