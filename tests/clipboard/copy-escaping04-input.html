@@ -5,7 +5,11 @@
 function performTest()
 {
     var pre = document.getElementsByTagName("PRE")[0];
-    pre.lastChild.nodeValue += " [Daring Fireball](http://daringfireball.net)";
+    var text = pre;
+    while (text.lastChild != null) // will be wrapped in a selection span
+        text = text.lastChild;
+    var str = " [Daring Fireball](http://daringfireball.net)";
+    DOM_insertCharacters(text,text.nodeValue.length,str);
     return showClipboard(Clipboard_copy());
 }
 </script>

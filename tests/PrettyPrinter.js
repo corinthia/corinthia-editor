@@ -3,6 +3,7 @@
     function getHTML(root)
     {
         var copy = DOM_cloneNode(root,true);
+        removeSelectionSpans(copy);
         for (var body = copy.firstChild; body != null; body = body.nextSibling) {
             if (body.nodeName == "BODY") {
                 DOM_removeAttribute(body,"style");
@@ -13,6 +14,33 @@
         var builder = { str : "" };
         prettyPrint(builder,copy,"");
         return builder.str;
+    }
+
+    function removeSelectionSpans(root)
+    {
+        var checkMerge = new Array();
+        recurse(root);
+
+        for (var i = 0; i < checkMerge.length; i++) {
+            if (checkMerge[i].parentNode != null) { // if not already merged
+                Formatting_mergeWithNeighbours(checkMerge[i],{});
+            }
+        }
+
+        function recurse(node) {
+            if (isSelectionSpan(node)) {
+                checkMerge.push(node.firstChild);
+                checkMerge.push(node.lastChild);
+                DOM_removeNodeButKeepChildren(node);
+            }
+            else {
+                var next;
+                for (var child = node.firstChild; child != null; child = next) {
+                    next = child.nextSibling;
+                    recurse(child);
+                }
+            }
+        }
     }
 
     function trim(str)

@@ -297,6 +297,9 @@ var Clipboard_pasteNodes;
                 (node.getAttribute("class") == Keys.AUTOCORRECT_CLASS)) {
                 DOM_removeNodeButKeepChildren(node);
             }
+            else if (isSelectionSpan(node)) {
+                DOM_removeNodeButKeepChildren(node);
+            }
             else {
                 var next;
                 for (var child = node.firstChild; child != null; child = next) {

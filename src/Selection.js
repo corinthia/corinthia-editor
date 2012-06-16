@@ -58,16 +58,16 @@ var Selection_posAtEndOfWord;
         // public
         Selection_get = trace(function get()
         {
-            if (selectionVisible)
-                throw new Error("Attempt to get selection while visible");
+//            if (selectionVisible)
+//                throw new Error("Attempt to get selection while visible");
 
             return getInternal();
         });
 
         Selection_getWhileVisible = trace(function getWhileVisible()
         {
-            if (!selectionVisible)
-                throw new Error("Attempt to get visible selection while invisible");
+//            if (!selectionVisible)
+//                throw new Error("Attempt to get visible selection while invisible");
 
             return getInternal();
         });
@@ -112,6 +112,7 @@ var Selection_posAtEndOfWord;
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     var selectionDivs = new Array();
+    var selectionSpans = new Array();
     var tableSelection = null;
 
     Selection_getPositionRect = trace(function getPositionRect(pos)
@@ -324,6 +325,185 @@ var Selection_posAtEndOfWord;
         Selection_show();
     });
 
+    var getPrevSpanText = trace(function getPrevSpanText(node)
+    {
+        if ((node.previousSibling != null) &&
+            isSelectionSpan(node.previousSibling) &&
+            (node.previousSibling.lastChild != null) &&
+            (node.previousSibling.lastChild.nodeType == Node.TEXT_NODE))
+            return node.previousSibling.lastChild;
+        else
+            return null;
+    });
+
+    var getNextSpanText = trace(function getNextSpanText(node)
+    {
+        if ((node.nextSibling != null) &&
+            isSelectionSpan(node.nextSibling) &&
+            (node.nextSibling.firstChild != null) &&
+            (node.nextSibling.firstChild.nodeType == Node.TEXT_NODE))
+            return node.nextSibling.firstChild;
+        else
+            return null;
+    });
+
+    var insertTextBefore = trace(function insertTextBefore(str,node)
+    {
+        var prev = node.previousSibling;
+        if ((prev != null) && (prev.nodeType == Node.TEXT_NODE)) {
+            DOM_insertCharacters(prev,prev.nodeValue.length,str);
+        }
+        else {
+            var text = DOM_createTextNode(document,str);
+            DOM_insertBefore(node.parentNode,text,node);
+        }
+    });
+
+    var insertTextAfter = trace(function insertTextAfter(str,node)
+    {
+        var next = node.nextSibling;
+        if ((next != null) && (next.nodeType == Node.TEXT_NODE)) {
+            DOM_insertCharacters(next,0,str);
+        }
+        else {
+            var text = DOM_createTextNode(document,str);
+            DOM_insertBefore(node.parentNode,text,node.nextSibling);
+        }
+    });
+
+    var createSelectionSpans = trace(function createSelectionSpans(selRange)
+    {
+        var skipped = 0;
+        var reused = 0;
+        var nodes = selRange.getAllNodes();
+        for (var i = 0; i < nodes.length; i++) {
+            var node = nodes[i];
+
+            if (node.nodeType != Node.TEXT_NODE)
+                continue;
+
+            if (isSelectionSpan(node.parentNode)) {
+                skipped++;
+
+                if ((node == selRange.end.node) && (node.nodeValue.length > selRange.end.offset)) {
+                    var notSelected = node.nodeValue.substring(selRange.end.offset);
+                    DOM_deleteCharacters(node,selRange.end.offset,node.nodeValue.length);
+                    insertTextAfter(notSelected,node.parentNode);
+                }
+                if ((node == selRange.start.node) && (selRange.start.offset > 0)) {
+                    var notSelected = node.nodeValue.substring(0,selRange.start.offset);
+                    DOM_deleteCharacters(node,0,selRange.start.offset);
+                    insertTextBefore(notSelected,node.parentNode);
+                }
+
+                continue;
+            }
+
+            var anext;
+            for (var a = node; a != null; a = anext) {
+                anext = a.parentNode;
+                if (isSelectionSpan(a))
+                    DOM_removeNodeButKeepChildren(a);
+            }
+
+            if (node == selRange.end.node) {
+                var prevText = getPrevSpanText(node);
+                if (prevText != null) {
+                    var substring = node.nodeValue.substring(0,selRange.end.offset);
+                    DOM_insertCharacters(prevText,prevText.nodeValue.length,substring);
+                    DOM_deleteCharacters(node,0,selRange.end.offset);
+                    continue;
+                }
+                else {
+                    Formatting_splitTextAfter(node,selRange.end.offset,
+                                              function() { return true; });
+                }
+            }
+
+            if (node == selRange.start.node) {
+                var nextText = getNextSpanText(node);
+                if (nextText != null) {
+                    var substring = node.nodeValue.substring(selRange.start.offset);
+                    DOM_insertCharacters(nextText,0,substring);
+                    DOM_deleteCharacters(node,selRange.start.offset,node.nodeValue.length);
+                    continue;
+                }
+                else {
+                    Formatting_splitTextBefore(node,selRange.start.offset,
+                                              function() { return true; });
+                }
+            }
+
+            var prevText = getPrevSpanText(node);
+            var nextText = getNextSpanText(node);
+
+            if (prevText != null) {
+                DOM_insertCharacters(prevText,prevText.nodeValue.length,node.nodeValue);
+                DOM_deleteNode(node);
+            }
+            else if (nextText != null) {
+                DOM_insertCharacters(nextText,0,node.nodeValue);
+                DOM_deleteNode(node);
+            }
+            else if (!isWhitespaceTextNode(node)) {
+                var wrapped = DOM_wrapNode(node,"SPAN");
+                DOM_setAttribute(wrapped,"class",Keys.SELECTION_CLASS);
+                selectionSpans.push(wrapped);
+            }
+        }
+    });
+
+    var removeSelectionSpans = trace(function removeSelectionSpans(selRange,force)
+    {
+        var selectedSet = new NodeSet();
+        var nodes = selRange.getAllNodes();
+        for (var i = 0; i < nodes.length; i++)
+            selectedSet.add(nodes[i]);
+        var remainingSpans = new Array();
+        var checkMerge = new Array();
+        for (var i = 0; i < selectionSpans.length; i++) {
+            var span = selectionSpans[i];
+            if ((span.parentNode != null) && (force || !containsSelection(span))) {
+                if (span.firstChild != null)
+                    checkMerge.push(span.firstChild);
+                if (span.lastChild != null)
+                    checkMerge.push(span.lastChild);
+
+                var prev = span.previousSibling;
+                var next = span.nextSibling;
+
+                DOM_removeNodeButKeepChildren(span);
+
+                if ((prev != null) && (next != null) &&
+                    (prev.nodeType == Node.TEXT_NODE) && (next.nodeType == Node.TEXT_NODE)) {
+                    DOM_mergeWithNextSibling(prev,{});
+                }
+            }
+            else if (span.parentNode != null) {
+                remainingSpans.push(span);
+            }
+        }
+        selectionSpans = remainingSpans;
+
+        for (var i = 0; i < checkMerge.length; i++) {
+            // if not already merged
+            if ((checkMerge[i] != null) && (checkMerge[i].parentNode != null)) {
+                Formatting_mergeWithNeighbours(checkMerge[i],{});
+            }
+        }
+
+        function containsSelection(node)
+        {
+            if (selectedSet.contains(node))
+                return true;
+            for (var child = node.firstChild; child != null; child = child.nextSibling) {
+                if (containsSelection(child))
+                    return true;
+            }
+            return false;
+        }
+    });
+
     Selection_show = trace(function show()
     {
         if (selectionVisible)
@@ -339,6 +519,17 @@ var Selection_posAtEndOfWord;
 
         if ((selRange != null) && selRange.isEmpty()) {
             // We just have a cursor
+
+            selRange.trackWhileExecuting(function() {
+                DOM_ignoreMutationsWhileExecuting(function() {
+                    removeSelectionSpans(selRange);
+                });
+            });
+            // Selection may have changed as a result of removeSelectionSpans()
+            selectionVisible = false;
+            Selection_set(selRange.start.node,selRange.start.offset,
+                          selRange.end.node,selRange.end.offset);
+            selectionVisible = true;
 
             var rect = Selection_getCursorRect();
 
@@ -378,10 +569,6 @@ var Selection_posAtEndOfWord;
             var boundsBottom = null
 
             for (var i = 0; i < rects.length; i++) {
-                var div = DOM_createElement(document,"DIV");
-                DOM_setAttribute(div,"class",Keys.SELECTION_HIGHLIGHT);
-                DOM_setStyleProperties(div,{"position": "absolute"});
-
                 var left = rects[i].left + window.scrollX;
                 var top = rects[i].top + window.scrollY;
                 var width = rects[i].width;
@@ -405,16 +592,22 @@ var Selection_posAtEndOfWord;
                     if (boundsBottom < bottom)
                         boundsBottom = bottom;
                 }
-
-                DOM_setStyleProperties(div,{ "left": left+"px",
-                                             "top": top+"px",
-                                             "width": width+"px",
-                                             "height": height+"px",
-                                             "background-color": "rgb(201,221,238)",
-                                             "z-index": -1 });
-                DOM_appendChild(document.body,div);
-                selectionDivs.push(div);
             }
+
+            Styles_addDefaultRuleCategory("selection");
+
+            selRange.trackWhileExecuting(function() {
+                DOM_ignoreMutationsWhileExecuting(function() {
+                    createSelectionSpans(selRange);
+                    removeSelectionSpans(selRange);
+                });
+            });
+
+            // Selection may have changed as a result of create/removeSelectionSpans()
+            selectionVisible = false;
+            Selection_set(selRange.start.node,selRange.start.offset,
+                          selRange.end.node,selRange.end.offset);
+            selectionVisible = true;
 
             var firstRect = rects[0];
             var lastRect = rects[rects.length-1];
@@ -635,6 +828,10 @@ var Selection_posAtEndOfWord;
         if ((range != null) && !range.isEmpty())
             return Selection_dragSelectionUpdate(x,y,selectWord);
 
+        if (originalDragStart != null)
+            Position_untrack(originalDragStart);
+        if (originalDragEnd != null)
+            Position_untrack(originalDragEnd);
         originalDragStart = null;
         originalDragEnd = null;
 
@@ -657,6 +854,8 @@ var Selection_posAtEndOfWord;
                 var selRange = Selection_get();
                 originalDragStart = new Position(selRange.start.node,selRange.start.offset);
                 originalDragEnd = new Position(selRange.end.node,selRange.end.offset);
+                Position_track(originalDragStart);
+                Position_track(originalDragEnd);
             });
         }
         return result;
@@ -938,6 +1137,10 @@ var Selection_posAtEndOfWord;
             return;
 
         range.trackWhileExecuting(function() {
+            DOM_ignoreMutationsWhileExecuting(function() {
+                removeSelectionSpans(range,true);
+            });
+
             var region = Tables_regionFromRange(range);
             if (region != null)
                 Tables_deleteRegion(region);
@@ -949,7 +1152,7 @@ var Selection_posAtEndOfWord;
     });
 
     // private
-    removeParagraphDescendants = trace(function removeParagraphDescendants(parent)
+    var removeParagraphDescendants = trace(function removeParagraphDescendants(parent)
     {
         var next;
         for (var child = parent.firstChild; child != null; child = next) {
@@ -961,7 +1164,7 @@ var Selection_posAtEndOfWord;
     });
 
     // private
-    findFirstParagraph = trace(function findFirstParagraph(node)
+    var findFirstParagraph = trace(function findFirstParagraph(node)
     {
         if (isParagraphNode(node))
             return node;
@@ -998,7 +1201,7 @@ var Selection_posAtEndOfWord;
     });
 
     // private
-    prepareForMerge = trace(function prepareForMerge(detail)
+    var prepareForMerge = trace(function prepareForMerge(detail)
     {
         if (isParagraphNode(detail.startAncestor) && isInlineNode(detail.endAncestor)) {
             var name = detail.startAncestor.nodeName; // check-ok

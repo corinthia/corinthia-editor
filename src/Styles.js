@@ -9,8 +9,11 @@ var Styles_deleteStyleWithId;
 var Styles_addDefaultRuleCategory;
 var Styles_discoverStyles;
 var Styles_init;
+var Styles_removeSelectionRule;
 
 (function() {
+
+    var doneInit = false;
 
     // FIXME: We should have a separate HTML style element for each style, so we only have to
     // update that one style each time we make a change. We should measure the performance benefit
@@ -347,6 +350,11 @@ var Styles_init;
     // public
     Styles_addDefaultRuleCategory = trace(function addDefaultRuleCategory(category)
     {
+        if (!doneInit) {
+            // This function is called by the selection code, but in some of the tests,
+            // Styles_init is not called. So we skipp trying to add the style if this is the case.
+            return;
+        }
         var selectors = latentStyleGroups[category];
         if (selectors == null)
             throw new Error("No default rule category \""+category+"\"");
@@ -454,6 +462,7 @@ var Styles_init;
             "figure": ["figure"],
             "toc": [".toc1", ".toc2", ".toc3", ".toctitle",".tocpageno"],
             "autocorrect": [".uxwrite-autocorrect"],
+            "selection": [".uxwrite-selection"],
         };
 
         stylesById = new Object();
@@ -553,12 +562,28 @@ var Styles_init;
                        "width": "36pt",}).hidden = true;
         defaultStyle(".uxwrite-autocorrect","special",true,
                      {"background-color": "#c0ffc0"}).hidden = true;
+        defaultStyle(".uxwrite-selection","special",true,
+                     {"background-color": "rgb(201,221,238)"}).hidden = true;
 
         // Now that we've added the built-in styles, discover any styles explicitly defined
         // in the document. Any that are found will be marked as non-latent, because we want
         // to preserve them when re-generating the stylesheet text.
 
         Styles_discoverStyles();
+        doneInit = true;
+    });
+
+    // Used only for tests - avoids .uxwrite-selection showing up in results
+    Styles_removeSelectionRule = trace(function removeSelectionRule()
+    {
+        if (doneInit) {
+            var selectionStyle = styleForId(".uxwrite-selection");
+            if (!selectionStyle.latent) {
+                selectionStyle.latent = true;
+                cssTextDirty = true;
+                applyCSSTextChanges();
+            }
+        }
     });
 
 })();

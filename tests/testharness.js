@@ -64,6 +64,7 @@ function loadTestIndex()
 function doPerformTest()
 {
     var resultText = leftArea.contentWindow.performTest();
+    leftArea.contentWindow.Styles_removeSelectionRule();
     leftArea.contentWindow.Selection_clearSelection();
     if (resultText == null)
         resultText = PrettyPrinter.getHTML(leftArea.contentDocument.documentElement)

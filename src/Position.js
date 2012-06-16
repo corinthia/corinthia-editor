@@ -8,6 +8,8 @@ var Position_prevMatch;
 var Position_nextMatch;
 var Position_closestMatchForwards;
 var Position_closestMatchBackwards;
+var Position_track;
+var Position_untrack;
 
 (function() {
 
@@ -537,6 +539,16 @@ var Position_closestMatchBackwards;
             return next;
 
         return new Position(document.body,0);
+    });
+
+    Position_track = trace(function track(pos)
+    {
+        startTracking(pos.self);
+    });
+
+    Position_untrack = trace(function untrack(pos)
+    {
+        stopTracking(pos.self);
     });
 
 })();

@@ -771,6 +771,7 @@ var Formatting_applyFormattingChanges;
 
         if ((Object.getOwnPropertyNames(inlineProperties).length > 0) &&
             ((target.nodeType != Node.ELEMENT_NODE) ||
+             isSpecialSpan(target) ||
              (DOM_upperName(target) == "B") ||
              (DOM_upperName(target) == "I") ||
              (DOM_upperName(target) == "U"))) {
@@ -896,13 +897,14 @@ var Formatting_applyFormattingChanges;
             DOM_removeNodeButKeepChildren(node);
         else if (remaining != null)
             remaining.push(node);
-
-        function isSpecialSpan(span)
-        {
-            return (span.hasAttribute("class") &&
-                    (span.getAttribute("class").indexOf(Keys.UXWRITE_PREFIX) == 0));
-        }
     });
+
+    function isSpecialSpan(span)
+    {
+        return ((DOM_upperName(span) == "SPAN") &&
+                span.hasAttribute("class") &&
+                (span.getAttribute("class").indexOf(Keys.UXWRITE_PREFIX) == 0));
+    }
 
     // private
     var containsOnlyWhitespace = trace(function containsOnlyWhitespace(ancestor)

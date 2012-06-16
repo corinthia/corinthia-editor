@@ -72,6 +72,7 @@ var Keys = {
     UXWRITE_PREFIX: "uxwrite-",
     NONE_STYLE: "__none",
     AUTOCORRECT_CLASS: "uxwrite-autocorrect",
+    SELECTION_CLASS: "uxwrite-selection",
 };
 
 var ITEM_NUMBER_CLASSES = {
@@ -196,4 +197,10 @@ function isAutoCorrectNode(node)
 {
     return ((DOM_upperName(node) == "SPAN") &&
             (node.getAttribute("class") == Keys.AUTOCORRECT_CLASS));
+}
+
+function isSelectionSpan(node)
+{
+    return ((DOM_upperName(node) == "SPAN") &&
+            (node.getAttribute("class") == Keys.SELECTION_CLASS));
 }
