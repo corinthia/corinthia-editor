@@ -18,6 +18,7 @@ var Cursor_getAdjacentNodeWithName;
 var Cursor_getLinkProperties;
 var Cursor_setLinkProperties;
 var Cursor_setReferenceTarget;
+var Cursor_makeContainerInsertionPoint;
 
 (function() {
 
@@ -509,6 +510,61 @@ var Cursor_setReferenceTarget;
         var a = Cursor_getAdjacentNodeWithName("A");
         if (a != null)
             Outline_setReferenceTarget(a,itemId);
+    });
+
+    // Deletes the current selection contents and ensures that the cursor is located directly
+    // inside the nearest container element, i.e. not inside a paragraph or inline node. This
+    // is intended for preventing things like inserting a table of contants inside a heading
+    Cursor_makeContainerInsertionPoint = trace(function makeContainerInsertionPoint()
+    {
+        Selection_hideWhileExecuting(function() {
+            var selRange = Selection_get();
+            if (selRange == null)
+                return;
+
+            if (!selRange.isEmpty()) {
+                Selection_deleteContents();
+                selRange = Selection_get();
+            }
+
+            var parent;
+            var previousSibling;
+            var nextSibling;
+
+            if (selRange.start.node.nodeType == Node.ELEMENT_NODE) {
+                parent = selRange.start.node;
+                nextSibling = selRange.start.node.childNodes[selRange.start.offset];
+            }
+            else {
+                Formatting_splitTextBefore(selRange.start.node,selRange.start.offset);
+                parent = selRange.start.node.parentNode;
+                nextSibling = selRange.start.node;
+            }
+
+            if (isContainerNode(parent)) {
+                var offset = DOM_nodeOffset(nextSibling);
+                Selection_set(parent,offset,parent,offset);
+                return;
+            }
+
+            var offset = DOM_nodeOffset(nextSibling)
+
+            if ((offset > 0) && isItemNumber(parent.childNodes[offset-1]))
+                offset--;
+
+            Formatting_moveFollowing(parent,offset,isContainerNode);
+            Formatting_movePreceding(parent,offset,isContainerNode);
+
+            offset = 0;
+            while (!isContainerNode(parent)) {
+                var old = parent;
+                offset = DOM_nodeOffset(parent);
+                parent = parent.parentNode;
+                DOM_deleteNode(old);
+            }
+
+            Selection_set(parent,offset,parent,offset);
+        });
     });
 
 })();
