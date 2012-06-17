@@ -457,6 +457,8 @@ var Outline_setReferenceTarget;
     // private
     var docNodeInserted = trace(function docNodeInserted(event)
     {
+        if (DOM_getIgnoreMutations())
+            return;
         try {
             if (!acceptNode(event.target))
                 return;
@@ -468,6 +470,13 @@ var Outline_setReferenceTarget;
 
         function recurse(node)
         {
+            if (!doneInit && isHeadingNode(node) && isWhitespaceString(getNodeText(node))) {
+                DOM_ignoreMutationsWhileExecuting(function() {
+                    DOM_deleteNode(node);
+                });
+                return;
+            }
+
             if (isHeadingNode(node))
                 sections.add(node);
             else if (isFigureNode(node))
@@ -487,14 +496,19 @@ var Outline_setReferenceTarget;
                     tables.addTOC(node);
             }
 
-            for (var child = node.firstChild; child != null; child = child.nextSibling)
+            var next;
+            for (var child = node.firstChild; child != null; child = next) {
+                next = child.nextSibling;
                 recurse(child);
+            }
         }
     });
 
     // private
     var docNodeRemoved = trace(function docNodeRemoved(event)
     {
+        if (DOM_getIgnoreMutations())
+            return;
         try {
             if (!acceptNode(event.target))
                 return;
