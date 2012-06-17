@@ -187,7 +187,8 @@ var Main_init;
             DOM_deleteNode(node);
         }
         else if (DOM_upperName(node) == "STYLE") {
-            var cssText = Styles_getCSSText(["."+Keys.AUTOCORRECT_CLASS]);
+            var cssText = Styles_getCSSText(["."+Keys.AUTOCORRECT_CLASS,
+                                             "."+Keys.SELECTION_CLASS]);
             DOM_deleteAllChildren(node);
             DOM_appendChild(node,DOM_createTextNode(document,cssText));
         }
@@ -228,6 +229,9 @@ var Main_init;
             Styles_init();
             Viewport_init();
             AutoCorrect_init();
+
+            Styles_addDefaultRuleCategory("selection");
+            PostponedActions_perform();
 
             return true;
         }

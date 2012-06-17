@@ -594,8 +594,6 @@ var Selection_posAtEndOfWord;
                 }
             }
 
-            Styles_addDefaultRuleCategory("selection");
-
             selRange.trackWhileExecuting(function() {
                 DOM_ignoreMutationsWhileExecuting(function() {
                     createSelectionSpans(selRange);
