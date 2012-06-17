@@ -790,15 +790,29 @@ var DOM_Listener;
             throw new Error("maxOffset: invalid node type ("+node.nodeType+")");
     }
 
+    function incIgnoreMutations()
+    {
+        UndoManager_addAction(decIgnoreMutations);
+        ignoreMutations++;
+    }
+
+    function decIgnoreMutations()
+    {
+        UndoManager_addAction(incIgnoreMutations);
+        ignoreMutations--;
+        if (ignoreMutations < 0)
+            throw new Error("ignoreMutations is now negative");
+    }
+
     // public
     function ignoreMutationsWhileExecuting(fun)
     {
-        ignoreMutations++;
+        incIgnoreMutations();
         try {
             return fun();
         }
         finally {
-            ignoreMutations--;
+            decIgnoreMutations();
         }
     }
 
