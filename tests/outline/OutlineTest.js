@@ -66,6 +66,18 @@ function createTestFigures(count)
     PostponedActions_perform();
 }
 
+function createTestTables(count)
+{
+    for (var i = 0; i < count; i++) {
+        Selection_hideWhileExecuting(function() {
+            var offset = document.body.childNodes.length;
+            Selection_set(document.body,offset,document.body,offset);
+        });
+        Tables_insertTable(1,1,"100%",true,"Test table "+String.fromCharCode(65+i));
+    }
+    PostponedActions_perform();
+}
+
 function removeOutlineHTML(node)
 {
     if ((node.nodeName == "SPAN") &&

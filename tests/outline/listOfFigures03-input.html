@@ -20,8 +20,8 @@ function performTest()
     PostponedActions_perform();
 
     // Modify the second figure caption, to verify that the change is reflected in the LOF
-    var heading = document.getElementsByTagName("figcaption")[1];
-    DOM_insertCharacters(heading.lastChild,2,"XYZ");
+    var figcaption = document.getElementsByTagName("figcaption")[1];
+    DOM_insertCharacters(figcaption.lastChild,2,"XYZ");
     PostponedActions_perform();
 }
 </script>
