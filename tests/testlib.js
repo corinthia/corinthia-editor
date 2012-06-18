@@ -153,7 +153,7 @@ function setNumbering(enabled)
 
     function recurse(node,enabled)
     {
-        if (isHeadingNode(node) || isFigureNode(node) || isTableNode(node)) {
+        if ((isHeadingNode(node) || isFigureNode(node) || isTableNode(node)) && !isInTOC(node)) {
             Outline_setNumbered(node.getAttribute("id"),enabled);
         }
         else {

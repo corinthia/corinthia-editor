@@ -183,6 +183,11 @@ var Outline_setReferenceTarget;
         var toc = this;
         DOM_deleteAllChildren(this.node);
 
+        var heading = DOM_createElement(document,"H1");
+        var headingText = "Contents";
+        DOM_appendChild(heading,DOM_createTextNode(document,headingText));
+        DOM_appendChild(this.node,heading);
+
         if (printMode)
             Styles_addDefaultRuleCategory("toc-print");
         else
@@ -523,7 +528,7 @@ var Outline_setReferenceTarget;
                 return;
             }
 
-            if (isHeadingNode(node))
+            if (isHeadingNode(node) && !isInTOC(node))
                 sections.add(node);
             else if (isFigureNode(node))
                 figures.add(node);
@@ -566,7 +571,7 @@ var Outline_setReferenceTarget;
 
         function recurse(node)
         {
-            if (isHeadingNode(node))
+            if (isHeadingNode(node) && !isInTOC(node))
                 sections.remove(node);
             else if (isFigureNode(node))
                 figures.remove(node);
