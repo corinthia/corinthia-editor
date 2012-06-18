@@ -5,11 +5,12 @@
 <script>
 function performTest()
 {
+    Outline_init();
     Styles_init();
     PostponedActions_perform();
 
     // Create a series of headings
-    setupOutline([2,[2,2]]);
+    createTestSections([2,[2,2]]);
 
     // Add a table of contents
     Selection_hideWhileExecuting(function() {
@@ -18,7 +19,7 @@ function performTest()
     Outline_insertSectionTOC();
     PostponedActions_perform();
 
-    // Delete the rest of the document
+    // Delete all sections
     var current = document.getElementsByTagName("h1")[1];
     var next;
     for (; current != null; current = next) {

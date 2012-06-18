@@ -5,9 +5,14 @@
 <script>
 function performTest()
 {
+    Outline_init();
     Styles_init();
     PostponedActions_perform();
-    setupOutline([2,[2,2]]);
+
+    // Create a series of headings
+    createTestSections([2,[2,2]]);
+
+    // Add a table of contents
     Selection_hideWhileExecuting(function() {
         Selection_set(document.body,0,document.body,0);
     });

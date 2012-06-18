@@ -9,12 +9,12 @@ function performTest()
     Styles_init();
     PostponedActions_perform();
 
+    // Add a table of contents
     Selection_hideWhileExecuting(function() {
         Selection_set(document.body,0,document.body,0);
     });
     Outline_insertSectionTOC();
     PostponedActions_perform();
-
 }
 </script>
 </head>

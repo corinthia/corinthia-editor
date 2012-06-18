@@ -5,17 +5,24 @@
 <script>
 function performTest()
 {
+    Outline_init();
     Styles_init();
     PostponedActions_perform();
-    setupOutline([2,[2,2]]);
+
+    // Create a series of headings
+    createTestSections([2,[2,2]]);
+
+    // Add a table of contents
     Selection_hideWhileExecuting(function() {
         Selection_set(document.body,0,document.body,0);
     });
     Outline_insertSectionTOC();
     PostponedActions_perform();
 
+    // Modify the second heading, to verify that the change is reflected in the TOC
     var heading = document.getElementsByTagName("h1")[2];
     DOM_insertCharacters(heading.lastChild,2,"XYZ");
+    PostponedActions_perform();
 }
 </script>
 </head>

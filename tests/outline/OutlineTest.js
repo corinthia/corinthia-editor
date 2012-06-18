@@ -1,9 +1,6 @@
-function setupOutline(topChildren)
+function createTestSections(topChildren)
 {
     var index = 1;
-
-    Outline_init();
-    PostponedActions_perform();
 
     processChildren(1,topChildren);
 
@@ -45,7 +42,14 @@ function setupOutline(topChildren)
     }
 }
 
-function setupFigures(count)
+function setupOutline(topChildren)
+{
+    Outline_init();
+    PostponedActions_perform();
+    createTestSections(topChildren);
+}
+
+function createTestFigures(count)
 {
     for (var i = 0; i < count; i++) {
         var figure = DOM_createElement(document,"FIGURE");

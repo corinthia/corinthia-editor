@@ -15,6 +15,8 @@ function performTest()
     Outline_init();
     Styles_init();
     PostponedActions_perform();
+
+    // Add a list of figures
     Selection_hideWhileExecuting(function() {
         Selection_set(document.body,0,document.body,0);
     });
