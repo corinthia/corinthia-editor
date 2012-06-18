@@ -204,3 +204,17 @@ function isSelectionSpan(node)
     return ((DOM_upperName(node) == "SPAN") &&
             (node.getAttribute("class") == Keys.SELECTION_CLASS));
 }
+
+function isInTOC(node)
+{
+    if (DOM_upperName(node) == "NAV") {
+        var cls = node.getAttribute("class");
+        if ((cls == Keys.SECTION_TOC) ||
+            (cls == Keys.FIGURE_TOC) ||
+            (cls == Keys.TABLE_TOC))
+            return true;
+    }
+    if (node.parentNode != null)
+        return isInTOC(node.parentNode);
+    return false;
+}

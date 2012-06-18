@@ -536,18 +536,18 @@ var Cursor_makeContainerInsertionPoint;
                 nextSibling = selRange.start.node.childNodes[selRange.start.offset];
             }
             else {
-                Formatting_splitTextBefore(selRange.start.node,selRange.start.offset);
+                if (selRange.start.offset > 0)
+                    Formatting_splitTextBefore(selRange.start.node,selRange.start.offset);
                 parent = selRange.start.node.parentNode;
                 nextSibling = selRange.start.node;
             }
 
+            var offset = DOM_nodeOffset(nextSibling,parent);
+
             if (isContainerNode(parent)) {
-                var offset = DOM_nodeOffset(nextSibling);
                 Selection_set(parent,offset,parent,offset);
                 return;
             }
-
-            var offset = DOM_nodeOffset(nextSibling)
 
             if ((offset > 0) && isItemNumber(parent.childNodes[offset-1]))
                 offset--;

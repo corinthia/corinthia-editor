@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript" src="OutlineTest.js"></script>
+<script>
+function performTest()
+{
+    Styles_init();
+    PostponedActions_perform();
+
+    // Create a series of headings
+    setupOutline([2,[2,2]]);
+
+    // Turn numbering off for all headings
+    setNumbering(false);
+    PostponedActions_perform();
+
+    // Add a table of contents
+    Selection_hideWhileExecuting(function() {
+        Selection_set(document.body,0,document.body,0);
+    });
+    Outline_insertSectionTOC();
+    PostponedActions_perform();
+
+    // Turn numbering on for all H1s
+    var h1s = document.getElementsByTagName("h1");
+    Outline_setNumbered(h1s[0].getAttribute("id"),true);
+    Outline_setNumbered(h1s[1].getAttribute("id"),true);
+    PostponedActions_perform();
+}
+</script>
+</head>
+<body>
+</body>
+</html>

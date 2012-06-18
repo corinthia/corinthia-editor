@@ -15,6 +15,7 @@ var Outline_plainText;
 var Outline_insertSectionTOC;
 var Outline_insertFigureTOC;
 var Outline_insertTableTOC;
+var Outline_setPrintMode;
 var Outline_preparePrintMargins;
 var Outline_examinePrintLayout;
 var Outline_setReferenceTarget;
@@ -33,6 +34,7 @@ var Outline_setReferenceTarget;
     var figures = null;
     var tables = null;
     var doneInit = false;
+    var printMode = false;
 
     function Category(type,nodeFilter,numberRegex)
     {
@@ -181,45 +183,86 @@ var Outline_setReferenceTarget;
         var toc = this;
         DOM_deleteAllChildren(this.node);
 
-        Styles_addDefaultRuleCategory("toc");
+        if (printMode)
+            Styles_addDefaultRuleCategory("toc-print");
+        else
+            Styles_addDefaultRuleCategory("toc");
 
-        recurse(toplevelShadows,this.node,1);
+        if (toplevelShadows.length == 0) {
+            createEmptyTOC(this.node);
+        }
+        else {
+            recurse(toplevelShadows,this.node,1);
+        }
 
-        var brk = DOM_createElement(document,"DIV");
-        DOM_setStyleProperties(brk,{ "clear": "both" });
-        DOM_appendChild(this.node,brk);
+        if (printMode) {
+            var brk = DOM_createElement(document,"DIV");
+            DOM_setStyleProperties(brk,{ "clear": "both" });
+            DOM_appendChild(this.node,brk);
+        }
+
+        function createEmptyTOC(parent)
+        {
+            if (!printMode) {
+                var str = "[No sections defined]";
+                var text = DOM_createTextNode(document,str);
+
+                var div = DOM_createElement(document,"DIV");
+                DOM_setAttribute(div,"class","toc1");
+                DOM_appendChild(div,text);
+                DOM_appendChild(parent,div);
+            }
+        }
 
         function recurse(shadows,parent,level)
         {
             if (level > 3)
                 return;
+
             for (var i = 0; i < shadows.length; i++) {
                 var shadow = shadows[i];
                 var item = shadow.item;
-                var div = DOM_createElement(document,"DIV");
-                DOM_setAttribute(div,"class","toc"+level);
-                DOM_appendChild(parent,div);
 
-                var leftSpan = DOM_createElement(document,"SPAN");
-                DOM_setAttribute(leftSpan,"class","toctitle");
+                if (printMode) {
+                    var div = DOM_createElement(document,"DIV");
+                    DOM_setAttribute(div,"class","toc"+level+"-print");
+                    DOM_appendChild(parent,div);
 
-                var rightSpan = DOM_createElement(document,"SPAN");
-                DOM_setAttribute(rightSpan,"class","tocpageno");
+                    var leftSpan = DOM_createElement(document,"SPAN");
+                    DOM_setAttribute(leftSpan,"class","toctitle");
 
-                DOM_appendChild(div,leftSpan);
-                DOM_appendChild(div,rightSpan);
+                    var rightSpan = DOM_createElement(document,"SPAN");
+                    DOM_setAttribute(rightSpan,"class","tocpageno");
 
-                // FIXME: item -> shadow
-                if (item.numberSpan != null)
-                    DOM_appendChild(leftSpan,DOM_createTextNode(document,
-                                                                shadow.getFullNumber()+" "));
-                DOM_appendChild(leftSpan,toc.textNodes[item.id]);
-                var pageNo = pageNumbers ? pageNumbers.get(item.node) : null;
-                if (pageNo == null)
-                    DOM_appendChild(rightSpan,DOM_createTextNode(document,"XXXX"));
-                else
-                    DOM_appendChild(rightSpan,DOM_createTextNode(document,pageNo));
+                    DOM_appendChild(div,leftSpan);
+                    DOM_appendChild(div,rightSpan);
 
+                    // FIXME: item -> shadow
+                    if (item.numberSpan != null)
+                        DOM_appendChild(leftSpan,DOM_createTextNode(document,
+                                                                    shadow.getFullNumber()+" "));
+                    DOM_appendChild(leftSpan,toc.textNodes[item.id]);
+                    var pageNo = pageNumbers ? pageNumbers.get(item.node) : null;
+                    if (pageNo == null)
+                        DOM_appendChild(rightSpan,DOM_createTextNode(document,"XXXX"));
+                    else
+                        DOM_appendChild(rightSpan,DOM_createTextNode(document,pageNo));
+                }
+                else {
+                    var div = DOM_createElement(document,"DIV");
+                    DOM_setAttribute(div,"class","toc"+level);
+                    DOM_appendChild(parent,div);
+
+                    var a = DOM_createElement(document,"A");
+                    DOM_setAttribute(a,"href","#"+item.id);
+                    DOM_appendChild(div,a);
+
+                    if (item.numberSpan != null) {
+                        var numText = shadow.getFullNumber()+" ";
+                        DOM_appendChild(a,DOM_createTextNode(document,numText));
+                    }
+                    DOM_appendChild(a,toc.textNodes[item.id]);
+                }
 
                 recurse(shadow.children,parent,level+1);
             }
@@ -311,8 +354,11 @@ var Outline_setReferenceTarget;
         if (item.numberSpan == null)
             return;
 
-        DOM_deleteNode(item.numberSpan);
+        // Set item.numberSpan to null before the deleting node, so that updateItemTitle gets the
+        // correct text for the title
+        var numberSpan = item.numberSpan;
         item.numberSpan = null;
+        DOM_deleteNode(numberSpan);
 
         var titleNode = item.getTitleNode(false);
         if ((titleNode != null) && !nodeHasContent(titleNode))
@@ -483,7 +529,7 @@ var Outline_setReferenceTarget;
                 figures.add(node);
             else if (isTableNode(node))
                 tables.add(node);
-            else if (isRefNode(node))
+            else if (isRefNode(node) && !isInTOC(node))
                 refInserted(node);
 
             if (DOM_upperName(node) == "NAV") {
@@ -526,7 +572,7 @@ var Outline_setReferenceTarget;
                 figures.remove(node);
             else if (isTableNode(node))
                 tables.remove(node);
-            else if (isRefNode(node))
+            else if (isRefNode(node) && !isInTOC(node))
                 refRemoved(node);
 
             if (DOM_upperName(node) == "NAV") {
@@ -992,6 +1038,7 @@ var Outline_setReferenceTarget;
     {
         var div = DOM_createElement(document,"NAV");
         DOM_setAttribute(div,"class",key);
+        Cursor_makeContainerInsertionPoint();
         Clipboard_pasteNodes([div]);
     });
 
@@ -1011,6 +1058,13 @@ var Outline_setReferenceTarget;
     Outline_insertTableTOC = trace(function insertTableTOC()
     {
         insertTOC(Keys.TABLE_TOC);
+    });
+
+    // public
+    Outline_setPrintMode = trace(function setPrintMode(newPrintMode)
+    {
+        printMode = newPrintMode;
+        scheduleUpdateStructure();
     });
 
     // public

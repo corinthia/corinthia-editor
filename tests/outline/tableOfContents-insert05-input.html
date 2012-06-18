@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript" src="OutlineTest.js"></script>
+<script>
+function performTest()
+{
+    Outline_init();
+    Styles_init();
+    PostponedActions_perform();
+
+    var h1 = document.getElementsByTagName("h1")[0];
+    Selection_hideWhileExecuting(function() {
+        Selection_set(h1,2,h1,2);
+    });
+    Outline_insertSectionTOC();
+    PostponedActions_perform();
+}
+</script>
+</head>
+<body>
+<h1>4 First</h1>
+<h1>4 Section 1</h1>
+<h1>4 Section 2</h1>
+<h1>4 Section 3</h1>
+</body>
+</html>

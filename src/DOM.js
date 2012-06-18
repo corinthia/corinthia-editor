@@ -771,8 +771,10 @@ var DOM_Listener;
     }
 
     // public
-    function nodeOffset(node)
+    function nodeOffset(node,parent)
     {
+        if ((node == null) && (parent != null))
+            return DOM_maxChildOffset(parent);
         var offset = 0;
         for (var n = node.parentNode.firstChild; n != node; n = n.nextSibling)
             offset++;

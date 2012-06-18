@@ -460,7 +460,8 @@ var Styles_removeSelectionRule;
             "table-borders": ["table", "td", "th"],
             "table-caption": ["caption"],
             "figure": ["figure"],
-            "toc": [".toc1", ".toc2", ".toc3", ".toctitle",".tocpageno"],
+            "toc-print": [".toc1-print", ".toc2-print", ".toc3-print", ".toctitle",".tocpageno"],
+            "toc": [".toc1", ".toc2", ".toc3"],
             "autocorrect": [".uxwrite-autocorrect"],
             "selection": [".uxwrite-selection"],
         };
@@ -520,7 +521,24 @@ var Styles_removeSelectionRule;
                        "clear": "both"}).hidden = true;
 */
 
+
         defaultStyle(".toc1","special",true,
+                     { "margin-left": "0pt",
+                       "margin-top": "12pt",
+                       "margin-bottom": "6pt",
+                     }).hidden = true;
+        defaultStyle(".toc2","special",true,
+                     { "margin-left": "24pt",
+                       "margin-top": "6pt",
+                       "margin-bottom": "6pt",
+                     }).hidden = true;
+        defaultStyle(".toc3","special",true,
+                     { "margin-left": "48pt",
+                       "margin-top": "6pt",
+                       "margin-bottom": "6pt",
+                     }).hidden = true;
+
+        defaultStyle(".toc1-print","special",true,
                      { "margin-left": "0pt",
                        "margin-top": "12pt",
                        "margin-bottom": "6pt",
@@ -531,7 +549,7 @@ var Styles_removeSelectionRule;
                        "border-bottom-style": "dotted",
                        "border-bottom-color": "black",
                      }).hidden = true;
-        defaultStyle(".toc2","special",true,
+        defaultStyle(".toc2-print","special",true,
                      { "margin-left": "24pt",
                        "margin-top": "6pt",
                        "margin-bottom": "6pt",
@@ -541,7 +559,7 @@ var Styles_removeSelectionRule;
                        "border-bottom-style": "dotted",
                        "border-bottom-color": "black",
                      }).hidden = true;
-        defaultStyle(".toc3","special",true,
+        defaultStyle(".toc3-print","special",true,
                      { "margin-left": "48pt",
                        "margin-top": "6pt",
                        "margin-bottom": "6pt",

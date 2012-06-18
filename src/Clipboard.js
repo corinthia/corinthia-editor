@@ -415,14 +415,6 @@ var Clipboard_pasteNodes;
         UndoManager_newGroup();
     });
 
-    function nodeOffsetInParent(child,parent)
-    {
-        if (child == null)
-            return DOM_maxChildOffset(parent);
-        else
-            return DOM_nodeOffset(child);
-    }
-
     function insertChildrenBefore(parent,child,nextSibling)
     {
         var next;
@@ -488,7 +480,7 @@ var Clipboard_pasteNodes;
                 for (var i = 0; i < nodes.length; i++) {
                     var child = nodes[i];
 
-                    var offset = nodeOffsetInParent(nextSibling,parent);
+                    var offset = DOM_nodeOffset(nextSibling,parent);
 
                     if (isListNode(child)) {
                         Formatting_movePreceding(parent,
@@ -511,7 +503,7 @@ var Clipboard_pasteNodes;
                 for (var i = 0; i < nodes.length; i++) {
                     var child = nodes[i];
 
-                    var offset = nodeOffsetInParent(nextSibling,parent);
+                    var offset = DOM_nodeOffset(nextSibling,parent);
                     
                     if (isListNode(child)) {
                         insertChildrenBefore(parent,child,nextSibling);
@@ -541,7 +533,7 @@ var Clipboard_pasteNodes;
                 prevOffset = 0;
             else
                 prevOffset = DOM_nodeOffset(previousSibling);
-            var nextOffset = nodeOffsetInParent(nextSibling,parent);
+            var nextOffset = DOM_nodeOffset(nextSibling,parent);
 
             var pastedRange = new Range(parent,prevOffset,parent,nextOffset);
             pastedRange.trackWhileExecuting(function() {
