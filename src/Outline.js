@@ -12,9 +12,9 @@ var Outline_setTitle;
 var Outline_setNumbered;
 var Outline_getItemElement;
 var Outline_plainText;
-var Outline_insertSectionTOC;
-var Outline_insertFigureTOC;
-var Outline_insertTableTOC;
+var Outline_insertTableOfContents;
+var Outline_insertListOfFigures;
+var Outline_insertListOfTables;
 var Outline_setPrintMode;
 var Outline_preparePrintMargins;
 var Outline_examinePrintLayout;
@@ -1067,19 +1067,19 @@ var Outline_setReferenceTarget;
     });
 
     // public
-    Outline_insertSectionTOC = trace(function insertSectionTOC()
+    Outline_insertTableOfContents = trace(function insertTableOfContents()
     {
         insertTOC(Keys.SECTION_TOC);
     });
 
     // public
-    Outline_insertFigureTOC = trace(function insertFigureTOC()
+    Outline_insertListOfFigures = trace(function insertListOfFigures()
     {
         insertTOC(Keys.FIGURE_TOC);
     });
 
     // public
-    Outline_insertTableTOC = trace(function insertTableTOC()
+    Outline_insertListOfTables = trace(function insertListOfTables()
     {
         insertTOC(Keys.TABLE_TOC);
     });

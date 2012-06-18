@@ -16,7 +16,7 @@ function performTest()
     Selection_hideWhileExecuting(function() {
         Selection_set(document.body,0,document.body,0);
     });
-    Outline_insertSectionTOC();
+    Outline_insertTableOfContents();
     PostponedActions_perform();
 
     // Modify the second heading, to verify that the change is reflected in the TOC
