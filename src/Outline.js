@@ -65,7 +65,10 @@ var Outline_setReferenceTarget;
         // top of the file. If we find a match, we mark the item as being numbered.
         // The actual number given in the node content is irrelevant; we assign our own number
         // based on the position of the item in the overall structurel.
-        var firstText = findFirstTextDescendant(node);
+        var firstText = null;
+        var titleNode = item.getTitleNode();
+        if (titleNode != null)
+            firstText = findFirstTextDescendant(titleNode);
         if (firstText != null) {
             var regex = this.numberRegex;
             var str = firstText.nodeValue;
@@ -183,8 +186,16 @@ var Outline_setReferenceTarget;
         var toc = this;
         DOM_deleteAllChildren(this.node);
 
+        var headingText;
+        var cls = this.node.getAttribute("class");
+        if (cls == Keys.SECTION_TOC)
+            headingText = "Contents";
+        else if (cls == Keys.FIGURE_TOC)
+            headingText = "List of Figures";
+        else if (cls == Keys.TABLE_TOC)
+            headingText = "List of Tables";
+
         var heading = DOM_createElement(document,"H1");
-        var headingText = "Contents";
         DOM_appendChild(heading,DOM_createTextNode(document,headingText));
         DOM_appendChild(this.node,heading);
 
@@ -209,7 +220,15 @@ var Outline_setReferenceTarget;
         function createEmptyTOC(parent)
         {
             if (!printMode) {
-                var str = "[No sections defined]";
+                var str;
+
+                if (cls == Keys.SECTION_TOC)
+                    str = "[No sections defined]";
+                else if (cls == Keys.FIGURE_TOC)
+                    str = "[No figures defined]";
+                else if (cls == Keys.TABLE_TOC)
+                    str = "[No tables defined]";
+
                 var text = DOM_createTextNode(document,str);
 
                 var div = DOM_createElement(document,"DIV");

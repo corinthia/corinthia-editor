@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+figure {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+</style>
+<script type="text/javascript" src="OutlineTest.js"></script>
+<script>
+function performTest()
+{
+    Outline_init();
+    Styles_init();
+    PostponedActions_perform();
+    Selection_hideWhileExecuting(function() {
+        Selection_set(document.body,0,document.body,0);
+    });
+    Outline_insertFigureTOC();
+    PostponedActions_perform();
+}
+</script>
+</head>
+<body>
+<figure>
+(figure content)
+<figcaption>Test figure A</figcaption>
+</figure>
+<figure>
+(figure content)
+<figcaption>Test figure B</figcaption>
+</figure>
+<figure>
+(figure content)
+<figcaption>Test figure C</figcaption>
+</figure>
+<figure>
+(figure content)
+<figcaption>Test figure D</figcaption>
+</figure>
+</body>
+</html>

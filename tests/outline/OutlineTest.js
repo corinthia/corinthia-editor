@@ -45,6 +45,23 @@ function setupOutline(topChildren)
     }
 }
 
+function setupFigures(count)
+{
+    for (var i = 0; i < count; i++) {
+        var figure = DOM_createElement(document,"FIGURE");
+        var figcaption = DOM_createElement(document,"FIGCAPTION");
+        var content = DOM_createTextNode(document,"(figure content)");
+        var text = DOM_createTextNode(document,"Test figure "+String.fromCharCode(65+i));
+        DOM_appendChild(figcaption,text);
+        DOM_appendChild(figure,content);
+        DOM_appendChild(figure,figcaption);
+        DOM_appendChild(document.body,figure);
+    }
+
+    Styles_addDefaultRuleCategory("figure");
+    PostponedActions_perform();
+}
+
 function removeOutlineHTML(node)
 {
     if ((node.nodeName == "SPAN") &&

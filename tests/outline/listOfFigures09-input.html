@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript" src="OutlineTest.js"></script>
+<script>
+function performTest()
+{
+    Outline_init();
+    Styles_init();
+    PostponedActions_perform();
+
+    // Create a series of figures
+    setupFigures(4);
+
+    // Turn numbering off for all figures
+    setNumbering(false);
+    PostponedActions_perform();
+
+    // Add a list of figures
+    Selection_hideWhileExecuting(function() {
+        Selection_set(document.body,0,document.body,0);
+    });
+    Outline_insertFigureTOC();
+    PostponedActions_perform();
+
+    // Turn numbering on for the last two figures
+    var figcaptions = document.getElementsByTagName("figure");
+    Outline_setNumbered(figcaptions[2].getAttribute("id"),true);
+    Outline_setNumbered(figcaptions[3].getAttribute("id"),true);
+    PostponedActions_perform();
+}
+</script>
+</head>
+<body>
+</body>
+</html>
