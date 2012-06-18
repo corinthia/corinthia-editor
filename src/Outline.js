@@ -477,6 +477,9 @@ var Outline_setReferenceTarget;
         if (ignoreModifications > 0)
             return;
         item.updateItemTitle();
+        var numbered = (item.numberSpan != null);
+        if (!numbered)
+            setReferenceText(item.node,item.title);
     });
 
     // private
@@ -698,6 +701,11 @@ var Outline_setReferenceTarget;
             }
             DOM_setNodeValue(item.numberSpan.firstChild,spanText);
         }
+
+        var refText = shadow.getFullNumber();
+        if (refText == "")
+            refText = shadow.item.title;
+        setReferenceText(shadow.item.node,refText);
     });
 
     function Structure()
@@ -791,19 +799,16 @@ var Outline_setReferenceTarget;
         for (var section = sections.list.first; section != null; section = section.next) {
             var shadow = structure.shadowsByNode.get(section.node);
             shadow.updateItemNumbering();
-            setReferenceText(section.node,shadow.getFullNumber());
         }
 
         for (var figure = figures.list.first; figure != null; figure = figure.next) {
             var shadow = structure.shadowsByNode.get(figure.node);
             shadow.updateItemNumbering();
-            setReferenceText(figure.node,shadow.getFullNumber());
         }
 
         for (var table = tables.list.first; table != null; table = table.next) {
             var shadow = structure.shadowsByNode.get(table.node);
             shadow.updateItemNumbering();
-            setReferenceText(table.node,shadow.getFullNumber());
         }
 
         sections.tocs.forEach(function (node,toc) {
@@ -846,18 +851,19 @@ var Outline_setReferenceTarget;
             result.push(obj);
         }
 
-        function setReferenceText(node,referenceText)
-        {
-            var id = node.getAttribute("id");
-            var refs = refsById[id];
-            if (refs != null) {
-                for (var i = 0; i < refs.length; i++) {
-                    DOM_deleteAllChildren(refs[i]);
-                    DOM_appendChild(refs[i],DOM_createTextNode(document,referenceText));
-                }
+    });
+
+    function setReferenceText(node,referenceText)
+    {
+        var id = node.getAttribute("id");
+        var refs = refsById[id];
+        if (refs != null) {
+            for (var i = 0; i < refs.length; i++) {
+                DOM_deleteAllChildren(refs[i]);
+                DOM_appendChild(refs[i],DOM_createTextNode(document,referenceText));
             }
         }
-    });
+    }
 
     Outline_plainText = trace(function plainText()
     {
