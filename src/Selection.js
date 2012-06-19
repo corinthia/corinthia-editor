@@ -24,6 +24,7 @@ var Selection_setSelectionStartAtCoords;
 var Selection_setSelectionEndAtCoords;
 var Selection_setTableSelectionEdgeAtCoords;
 var Selection_setEmptySelectionAt;
+var Selection_deleteRangeContents;
 var Selection_deleteContents;
 var Selection_clearSelection;
 var Selection_hideWhileExecuting;
@@ -38,6 +39,8 @@ var Selection_posAtEndOfWord;
     //                                 Selection getter and setter                                //
     //                                                                                            //
     ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    var Selection_setInternal;
 
     (function() {
 
@@ -54,7 +57,8 @@ var Selection_posAtEndOfWord;
         });
 
         // public
-        Selection_set = trace(function set(newStartNode,newStartOffset,newEndNode,newEndOffset)
+        Selection_setInternal =
+            trace(function setInternal(newStartNode,newStartOffset,newEndNode,newEndOffset)
         {
             var range = new Range(newStartNode,newStartOffset,newEndNode,newEndOffset);
             if (range.isForwards()) {
@@ -74,10 +78,17 @@ var Selection_posAtEndOfWord;
             }
         });
 
+        Selection_set = trace(function set(newStartNode,newStartOffset,newEndNode,newEndOffset)
+        {
+            Selection_setInternal(newStartNode,newStartOffset,newEndNode,newEndOffset);
+            Selection_show();
+        });
+
         // public
         Selection_clear = trace(function clear()
         {
             UndoManager_setProperty(selection,"value",null);
+            Selection_show();
         });
     })();
 
@@ -279,7 +290,6 @@ var Selection_posAtEndOfWord;
     // public
     Selection_update = trace(function update()
     {
-        Selection_show();
     });
 
     var getPrevSpanText = trace(function getPrevSpanText(node)
@@ -372,6 +382,8 @@ var Selection_posAtEndOfWord;
                     continue;
                 }
                 else {
+                    if (isWhitespaceString(node.nodeValue.substring(selRange.end.offset)))
+                        continue;
                     Formatting_splitTextAfter(node,selRange.end.offset,
                                               function() { return true; });
                 }
@@ -386,6 +398,8 @@ var Selection_posAtEndOfWord;
                     continue;
                 }
                 else {
+                    if (isWhitespaceString(node.nodeValue.substring(0,selRange.end.offset)))
+                        continue;
                     Formatting_splitTextBefore(node,selRange.start.offset,
                                               function() { return true; });
                 }
@@ -483,8 +497,8 @@ var Selection_posAtEndOfWord;
                 });
             });
             // Selection may have changed as a result of removeSelectionSpans()
-            Selection_set(selRange.start.node,selRange.start.offset,
-                          selRange.end.node,selRange.end.offset);
+            Selection_setInternal(selRange.start.node,selRange.start.offset,
+                                  selRange.end.node,selRange.end.offset);
 
             var rect = Selection_getCursorRect();
 
@@ -554,8 +568,8 @@ var Selection_posAtEndOfWord;
             });
 
             // Selection may have changed as a result of create/removeSelectionSpans()
-            Selection_set(selRange.start.node,selRange.start.offset,
-                          selRange.end.node,selRange.end.offset);
+            Selection_setInternal(selRange.start.node,selRange.start.offset,
+                                  selRange.end.node,selRange.end.offset);
 
             var firstRect = rects[0];
             var lastRect = rects[rects.length-1];
@@ -1069,12 +1083,8 @@ var Selection_posAtEndOfWord;
         Cursor_updateBRAtEndOfParagraph(selRange.singleNode());
     });
 
-    Selection_deleteContents = trace(function deleteContents()
+    Selection_deleteRangeContents = trace(function deleteRangeContents(range)
     {
-        var range = Selection_get();
-        if (range == null)
-            return;
-
         range.trackWhileExecuting(function() {
             DOM_ignoreMutationsWhileExecuting(function() {
                 removeSelectionSpans(range,true);
@@ -1088,6 +1098,14 @@ var Selection_posAtEndOfWord;
         });
 
         Selection_set(range.start.node,range.start.offset,range.start.node,range.start.offset);
+    });
+
+    Selection_deleteContents = trace(function deleteContents()
+    {
+        var range = Selection_get();
+        if (range == null)
+            return;
+        Selection_deleteRangeContents(range);
     });
 
     // private

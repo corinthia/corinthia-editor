@@ -382,9 +382,8 @@ var Cursor_makeContainerInsertionPoint;
                                   selRange.end.node,selRange.end.offset)
                 }
                 else {
-                    Selection_set(prevPos.node,prevPos.offset,
-                                  selRange.end.node,selRange.end.offset);
-                    Selection_deleteContents();
+                    Selection_deleteRangeContents(new Range(prevPos.node,prevPos.offset,
+                                                            selRange.end.node,selRange.end.offset));
                 }
             }
         }
