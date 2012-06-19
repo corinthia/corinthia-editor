@@ -108,6 +108,21 @@ function isHeadingNode(node)
     return HEADING_ELEMENTS[DOM_upperName(node)];
 }
 
+function isTableCaptionNode(node)
+{
+    return (DOM_upperName(node) == "CAPTION");
+}
+
+function isFigureCaptionNode(node)
+{
+    return (DOM_upperName(node) == "FIGCAPTION");
+}
+
+function isOutlineItemTitleNode(node)
+{
+    return (isHeadingNode(node) || isFigureCaptionNode(node) || isTableCaptionNode(node));
+}
+
 function isBlockNode(node)
 {
     return (isContainerNode(node) || isParagraphNode(node));

@@ -189,10 +189,57 @@ var Position_untrack;
         }
     }
 
+    function positionSpecial(pos,forwards,backwards)
+    {
+        var node = pos.node;
+        var offset = pos.offset;
+
+        var prev = node.childNodes[offset-1];
+        var next = node.childNodes[offset];
+
+        // Moving left from the start of a caption - go to the end of the table
+        if (isTableCaptionNode(node) && backwards && (prev == null))
+            return new Position(node.parentNode,node.parentNode.childNodes.length);
+
+        // Moving right from the end of a caption - go after the table
+        if (isTableCaptionNode(node) && forwards && (next == null))
+            return new Position(node.parentNode.parentNode,DOM_nodeOffset(node.parentNode)+1);
+
+        // Moving left from just after a table - go to the end of the caption (if there is one)
+        if ((prev != null) && isTableNode(prev) && backwards) {
+            var firstChild = firstChildElement(prev);
+            if (isTableCaptionNode(firstChild))
+                return new Position(firstChild,firstChild.childNodes.length);
+        }
+
+        // Moving right from just before a table - bypass the the caption (if there is one)
+        if ((next != null) && isTableNode(next) && forwards) {
+            var firstChild = firstChildElement(next);
+            if (isTableCaptionNode(firstChild))
+                return new Position(next,DOM_nodeOffset(firstChild)+1);
+        }
+
+        // Moving right from the end of a table - go to the start of the caption (if there is one)
+        if (isTableNode(node) && (next == null) && forwards) {
+            var firstChild = firstChildElement(node);
+            if (isTableCaptionNode(firstChild))
+                return new Position(firstChild,0);
+        }
+
+        // Moving left just after a caption node - skip the caption
+        if ((prev != null) && isTableCaptionNode(prev) && backwards)
+            return new Position(node,offset-1);
+
+        return null;
+    }
+
     // public
     Position.prototype.prev = function()
     {
         if (this.node.nodeType == Node.ELEMENT_NODE) {
+            var r = positionSpecial(this,false,true);
+            if (r != null)
+                return r;
             if (this.offset == 0) {
                 return upAndBack(this);
             }
@@ -224,6 +271,9 @@ var Position_untrack;
     Position.prototype.next = function()
     {
         if (this.node.nodeType == Node.ELEMENT_NODE) {
+            var r = positionSpecial(this,true,false);
+            if (r != null)
+                return r;
             if (this.offset == this.node.childNodes.length)
                 return upAndForwards(this);
             else
