@@ -312,9 +312,6 @@ var Selection_posAtEndOfWord;
             throw new Error("Selection is already hidden");
         addSelectionVisibilityAction();
         selectionVisible = false;
-        for (var i = 0; i < selectionDivs.length; i++)
-            DOM_deleteNode(selectionDivs[i]);
-        selectionDivs = new Array();
     });
 
     // public
@@ -509,6 +506,11 @@ var Selection_posAtEndOfWord;
         if (selectionVisible)
             throw new Error("Selection is already visible");
         addSelectionVisibilityAction();
+
+        // Remove table selection DIVs
+        for (var i = 0; i < selectionDivs.length; i++)
+            DOM_deleteNode(selectionDivs[i]);
+        selectionDivs = new Array();
 
         var selRange = Selection_get();
         selectionVisible = true;
