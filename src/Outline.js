@@ -1065,6 +1065,7 @@ var Outline_setReferenceTarget;
                 DOM_deleteAllChildren(titleNode);
             }
             DOM_appendChild(titleNode,DOM_createTextNode(document,title));
+            item.updateItemTitle();
         });
     });
 
