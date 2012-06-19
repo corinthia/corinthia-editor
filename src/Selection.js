@@ -9,7 +9,6 @@ var Selection_clear;
 var Selection_getPositionRect;
 var Selection_getCursorRect;
 var Selection_update;
-var Selection_show;
 var Selection_selectAll;
 var Selection_selectParagraph;
 var Selection_selectWordAtCursor;
@@ -79,14 +78,14 @@ var Selection_posAtEndOfWord;
         Selection_set = trace(function set(newStartNode,newStartOffset,newEndNode,newEndOffset)
         {
             Selection_setInternal(newStartNode,newStartOffset,newEndNode,newEndOffset);
-            Selection_show();
+            Selection_update();
         });
 
         // public
         Selection_clear = trace(function clear()
         {
             UndoManager_setProperty(selection,"value",null);
-            Selection_show();
+            Selection_update();
         });
     })();
 
@@ -280,12 +279,6 @@ var Selection_posAtEndOfWord;
         }
     });
 
-    // public
-    Selection_update = trace(function update()
-    {
-        Selection_show();
-    });
-
     var getPrevSpanText = trace(function getPrevSpanText(node)
     {
         if ((node.previousSibling != null) &&
@@ -469,7 +462,7 @@ var Selection_posAtEndOfWord;
         }
     });
 
-    Selection_show = trace(function show()
+    Selection_update = trace(function update()
     {
         // Remove table selection DIVs
         for (var i = 0; i < selectionDivs.length; i++)
