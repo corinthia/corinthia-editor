@@ -304,6 +304,13 @@ var Position_untrack;
         if (isOpaqueNode(node))
             return false;
 
+        for (var ancestor = node; ancestor != document.body; ancestor = ancestor.parentNode) {
+            if (DOM_upperName(node) == "FIGCAPTION")
+                break;
+            if (isFigureNode(node))
+                return false;
+        }
+
         if (node.nodeType == Node.TEXT_NODE) {
             var value = node.nodeValue;
 
@@ -388,9 +395,9 @@ var Position_untrack;
                 (isInlineNode(node) && !isOpaqueNode(node) && (DOM_upperName(node) != "BR"))))
                 return true;
 
-            if ((prevNode != null) && isTableNode(prevNode))
+            if ((prevNode != null) && (isTableNode(prevNode) || isFigureNode(prevNode)))
                 return true;
-            if ((nextNode != null) && isTableNode(nextNode))
+            if ((nextNode != null) && (isTableNode(nextNode) || isFigureNode(nextNode)))
                 return true;
 
             if ((nextNode != null) && isItemNumber(nextNode))

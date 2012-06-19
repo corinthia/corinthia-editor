@@ -53,6 +53,19 @@ var Cursor_makeContainerInsertionPoint;
             if (position == null)
                 return null;
 
+            if (DOM_upperName(position.node) == "FIGURE") {
+                var prev = position.node.childNodes[position.offset-1];
+                var next = position.node.childNodes[position.offset];
+                if ((prev != null) && isImageNode(prev)) {
+                    position = new Position(position.node.parentNode,
+                                            DOM_nodeOffset(position.node)+1);
+                }
+                else if ((next != null) && isImageNode(next)) {
+                    position = new Position(position.node.parentNode,
+                                            DOM_nodeOffset(position.node));
+                }
+            }
+
             var node = position.closestActualNode();
             for (; node != null; node = node.parentNode) {
                 if ((DOM_upperName(node) == "A") && (result == null)) {
@@ -67,8 +80,13 @@ var Cursor_makeContainerInsertionPoint;
                         result = "inlink";
                     }
                 }
-                else if ((DOM_upperName(node) == "FIGURE") && (result == null)) {
-                    result = "infigure";
+                else if ((DOM_upperName(node) == "IMG") && (result == null)) {
+                    for (var anc = node; anc != document.body; anc = anc.parentNode) {
+                        if (DOM_upperName(anc) == "FIGURE") {
+                            result = "infigure";
+                            break;
+                        }
+                    }
                 }
                 else if (isAutoCorrectNode(node) && (result == null)) {
                     result = "incorrection";
