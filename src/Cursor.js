@@ -57,10 +57,15 @@ var Cursor_makeContainerInsertionPoint;
             for (; node != null; node = node.parentNode) {
                 if ((DOM_upperName(node) == "A") && (result == null)) {
                     var href = node.getAttribute("href");
-                    if ((href != null) && (href.charAt(0) == "#"))
-                        result = "inreference";
-                    else
+                    if ((href != null) && (href.charAt(0) == "#")) {
+                        if (isInTOC(node))
+                            result = "intocreference-"+href.substring(1);
+                        else
+                            result = "inreference";
+                    }
+                    else {
                         result = "inlink";
+                    }
                 }
                 else if ((DOM_upperName(node) == "FIGURE") && (result == null)) {
                     result = "infigure";
