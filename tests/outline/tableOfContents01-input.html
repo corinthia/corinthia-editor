@@ -13,9 +13,7 @@ function performTest()
     createTestSections([2,[2,2]]);
 
     // Add a table of contents
-    Selection_hideWhileExecuting(function() {
-        Selection_set(document.body,0,document.body,0);
-    });
+    Selection_set(document.body,0,document.body,0);
     Outline_insertTableOfContents();
     PostponedActions_perform();
 }

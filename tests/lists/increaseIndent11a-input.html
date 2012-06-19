@@ -6,9 +6,7 @@ function performTest()
 {
     var test = document.getElementById("test");
     DOM_deleteAllChildren(test);
-    Selection_hideWhileExecuting(function() {
-        Selection_set(test,0,test,0);
-    });
+    Selection_set(test,0,test,0);
     Lists_increaseIndent();
     showSelection();
 }

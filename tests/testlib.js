@@ -46,11 +46,9 @@ function showRangeAsBrackets(range)
 
 function showSelection()
 {
-    Selection_hideWhileExecuting(function() {
-        var range = Selection_get();
-        if (range != null)
-            showRangeAsBrackets(range);
-    });
+    var range = Selection_get();
+    if (range != null)
+        showRangeAsBrackets(range);
 }
 
 function removeIds()
@@ -70,9 +68,7 @@ function removeIds()
 function selectNode(node)
 {
     var offset = DOM_nodeOffset(node);
-    Selection_hideWhileExecuting(function() {
-        Selection_set(node.parentNode,offset,node.parentNode,offset+1);
-    });
+    Selection_set(node.parentNode,offset,node.parentNode,offset+1);
 }
 
 function removeWhitespaceAndCommentNodes(node)

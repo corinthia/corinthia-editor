@@ -10,9 +10,7 @@ function performTest()
     PostponedActions_perform();
 
     var h1 = document.getElementsByTagName("h1")[0];
-    Selection_hideWhileExecuting(function() {
-        Selection_set(h1.lastChild,0,h1.lastChild,0);
-    });
+    Selection_set(h1.lastChild,0,h1.lastChild,0);
     Outline_insertTableOfContents();
     PostponedActions_perform();
 }

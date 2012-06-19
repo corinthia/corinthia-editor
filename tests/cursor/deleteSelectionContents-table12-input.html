@@ -8,10 +8,8 @@ function performTest()
     var p = document.getElementsByTagName("P")[1];
     var trOffset = DOM_nodeOffset(tr);
     var pOffset = DOM_nodeOffset(p);
-    Selection_hideWhileExecuting(function() {
-        Selection_set(p.parentNode,pOffset,tr.parentNode,trOffset+1);
-        Selection_deleteContents();
-    });
+    Selection_set(p.parentNode,pOffset,tr.parentNode,trOffset+1);
+    Selection_deleteContents();
     showSelection();
 }
 </script>

@@ -24,9 +24,7 @@ function performTest()
     showSelection();
 
     var text = findTextMatching("four");
-    Selection_hideWhileExecuting(function() {
-        Selection_set(text,0,text,0);
-    });
+    Selection_set(text,0,text,0);
 
     AutoCorrect_replaceCorrection("A");
     PostponedActions_perform();

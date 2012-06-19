@@ -34,9 +34,7 @@ function performTest()
     delete Styles_getAllStyles()["th"].rules.base.properties["border-image"];
 
     // Add a list of tables
-    Selection_hideWhileExecuting(function() {
-        Selection_set(document.body,0,document.body,0);
-    });
+    Selection_set(document.body,0,document.body,0);
     Outline_insertListOfTables();
     PostponedActions_perform();
 }

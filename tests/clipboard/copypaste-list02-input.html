@@ -6,9 +6,7 @@ function performTest()
 {
     var dest = document.getElementById("dest");
     var clip = Clipboard_cut();
-    Selection_hideWhileExecuting(function() {
-        Selection_set(dest,dest.childNodes.length,dest,dest.childNodes.length);
-    });
+    Selection_set(dest,dest.childNodes.length,dest,dest.childNodes.length);
     Clipboard_pasteHTML(clip["text/html"]);
     Cursor_insertCharacter("X");
     showSelection();

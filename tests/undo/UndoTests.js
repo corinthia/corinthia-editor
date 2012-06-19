@@ -66,10 +66,8 @@ function placeCursorAfterElement(id)
 {
     UndoManager_disableWhileExecuting(function() {
         var element = document.getElementById(id);
-        Selection_hideWhileExecuting(function() {
-            var node = element.parentNode;
-            var offset = DOM_nodeOffset(element)+1;
-            Selection_set(node,offset,node,offset);
-        });
+        var node = element.parentNode;
+        var offset = DOM_nodeOffset(element)+1;
+        Selection_set(node,offset,node,offset);
     });
 }

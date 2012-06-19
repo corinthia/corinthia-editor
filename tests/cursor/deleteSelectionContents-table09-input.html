@@ -8,10 +8,8 @@ function performTest()
     var table = document.getElementsByTagName("TABLE")[0];
     var trOffset = DOM_nodeOffset(tr);
     var tableOffset = DOM_nodeOffset(table);
-    Selection_hideWhileExecuting(function() {
-        Selection_set(tr.parentNode,trOffset,table.parentNode,tableOffset+1);
-        Selection_deleteContents();
-    });
+    Selection_set(tr.parentNode,trOffset,table.parentNode,tableOffset+1);
+    Selection_deleteContents();
 }
 </script>
 </head>

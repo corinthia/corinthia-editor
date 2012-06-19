@@ -8,7 +8,6 @@ var Selection_clear;
 
 var Selection_getPositionRect;
 var Selection_getCursorRect;
-var Selection_hide;
 var Selection_update;
 var Selection_show;
 var Selection_selectAll;
@@ -27,7 +26,6 @@ var Selection_setEmptySelectionAt;
 var Selection_deleteRangeContents;
 var Selection_deleteContents;
 var Selection_clearSelection;
-var Selection_hideWhileExecuting;
 var Selection_preserveWhileExecuting;
 var Selection_posAtStartOfWord;
 var Selection_posAtEndOfWord;
@@ -280,11 +278,6 @@ var Selection_posAtEndOfWord;
         else {
             throw new Error("setEditorHandles: unknown type "+type);
         }
-    });
-
-    // public
-    Selection_hide = trace(function hide()
-    {
     });
 
     // public
@@ -1208,15 +1201,6 @@ var Selection_posAtEndOfWord;
     Selection_clearSelection = trace(function clearSelection()
     {
         Selection_clear();
-    });
-
-    // public
-    Selection_hideWhileExecuting = trace(function hideWhileExecuting(fun)
-    {
-        Selection_hide();
-        var result = fun();
-        Selection_show();
-        return result;
     });
 
     // public

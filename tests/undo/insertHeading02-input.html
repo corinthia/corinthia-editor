@@ -17,9 +17,7 @@ function insertHeading(numbered,title)
     var offset = DOM_nodeOffset(h1);
     var pos = new Position(h1.parentNode,offset);
     pos = Position_closestMatchForwards(pos,Position_okForMovement);
-    Selection_hideWhileExecuting(function() {
-        Selection_set(pos.node,pos.offset,pos.node,pos.offset);
-    });
+    Selection_set(pos.node,pos.offset,pos.node,pos.offset);
 
     UndoManager_newGroup();
 }

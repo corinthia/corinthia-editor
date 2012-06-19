@@ -5,9 +5,7 @@
 function performTest()
 {
     var p = document.getElementsByTagName("P")[2];
-    Selection_hideWhileExecuting(function() {
-        Selection_set(p.firstChild,3,p.firstChild,9);
-    });
+    Selection_set(p.firstChild,3,p.firstChild,9);
     DOM_replaceElement(p,"DIV");
     showSelection();
 }

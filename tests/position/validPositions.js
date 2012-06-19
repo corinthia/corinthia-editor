@@ -1,31 +1,29 @@
 function oldInsertCharacter(character)
 {
-    Selection_hideWhileExecuting(function() {
-        var selectionRange = Selection_get();
-        if (selectionRange == null)
-            return;
+    var selectionRange = Selection_get();
+    if (selectionRange == null)
+        return;
 
-        if (!selectionRange.isEmpty())
-            Selection_deleteContents();
-        var pos = selectionRange.start;
-        var node = pos.node;
-        var offset = pos.offset;
+    if (!selectionRange.isEmpty())
+        Selection_deleteContents();
+    var pos = selectionRange.start;
+    var node = pos.node;
+    var offset = pos.offset;
 
-        if (node.nodeType == Node.ELEMENT_NODE) {
-            var prev = node.childNodes[offset-1];
-            var next = node.childNodes[offset];
-            var emptyTextNode = DOM_createTextNode(document,"");
-            if (offset >= node.childNodes.length)
-                DOM_appendChild(node,emptyTextNode);
-            else
-                DOM_insertBefore(node,emptyTextNode,node.childNodes[offset]);
-            node = emptyTextNode;
-            offset = 0;
-        }
+    if (node.nodeType == Node.ELEMENT_NODE) {
+        var prev = node.childNodes[offset-1];
+        var next = node.childNodes[offset];
+        var emptyTextNode = DOM_createTextNode(document,"");
+        if (offset >= node.childNodes.length)
+            DOM_appendChild(node,emptyTextNode);
+        else
+            DOM_insertBefore(node,emptyTextNode,node.childNodes[offset]);
+        node = emptyTextNode;
+        offset = 0;
+    }
 
-        DOM_insertCharacters(node,offset,character);
-        Selection_set(node,offset+1,node,offset+1);
-    });
+    DOM_insertCharacters(node,offset,character);
+    Selection_set(node,offset+1,node,offset+1);
 }
 
 function showValidPositions()

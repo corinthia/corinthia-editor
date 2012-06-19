@@ -5,9 +5,7 @@
 function performTest()
 {
     var lip = document.getElementsByTagName("P")[1];
-    Selection_hideWhileExecuting(function() {
-        Selection_set(lip,0,lip,0);
-    });
+    Selection_set(lip,0,lip,0);
     Cursor_deleteCharacter();
     showSelection();
 }

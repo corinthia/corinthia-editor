@@ -4,15 +4,13 @@
 <script>
 function performTest()
 {
-    Selection_hideWhileExecuting(function() {
-        var selectionRange = Selection_get();
-        var clonedElements = selectionRange.cloneContents();
-        Selection_clear();
-        DOM_deleteAllChildren(document.body);
+    var selectionRange = Selection_get();
+    var clonedElements = selectionRange.cloneContents();
+    Selection_clear();
+    DOM_deleteAllChildren(document.body);
 
-        for (var i = 0; i < clonedElements.length; i++)
-            DOM_appendChild(document.body,clonedElements[i]);
-    });
+    for (var i = 0; i < clonedElements.length; i++)
+        DOM_appendChild(document.body,clonedElements[i]);
 }
 </script>
 </head>

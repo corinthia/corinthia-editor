@@ -32,9 +32,7 @@ function performTest()
     versions.push(DOM_cloneNode(p,true));
     Cursor_insertCharacter(" five");
 
-    Selection_hideWhileExecuting(function() {
-        Selection_set(p,0,p,p.childNodes.length);
-    });
+    Selection_set(p,0,p,p.childNodes.length);
     versions.push(DOM_cloneNode(p,true));
     var clip = Clipboard_cut();
     versions.push(DOM_cloneNode(p,true));

@@ -6,7 +6,7 @@ function performTest()
 {
     var node = document.getElementsByTagName("H1")[0];
     DOM_deleteAllChildren(node);
-    Selection_hideWhileExecuting(function() { Selection_set(node,0,node,0); });
+    Selection_set(node,0,node,0);
     var properties = Formatting_getFormatting();
     delete properties["uxwrite-shift"];
     Selection_clearSelection();

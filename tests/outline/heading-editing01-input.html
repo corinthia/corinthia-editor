@@ -8,9 +8,7 @@ function performTest()
     Outline_init();
     PostponedActions_perform();
     var heading = document.getElementsByTagName("H1")[0];
-    Selection_hideWhileExecuting(function() {
-        Selection_set(heading.lastChild,0,heading.lastChild,heading.lastChild.nodeValue.length);
-    });
+    Selection_set(heading.lastChild,0,heading.lastChild,heading.lastChild.nodeValue.length);
     Cursor_insertCharacter("d");
     PostponedActions_perform();
     showSelection();
