@@ -111,7 +111,27 @@ function positionAtPoint(x,y)
     if (range == null)
         return null;
 
-    return new Position(range.startContainer,range.startOffset);
+    var pos = new Position(range.startContainer,range.startOffset);
+
+    if (pos.node.nodeType == Node.ELEMENT_NODE) {
+        var prev = pos.node.childNodes[pos.offset-1];
+        var next = pos.node.childNodes[pos.offset];
+
+        if ((prev != null) && isImageNode(prev) && elementContainsPoint(prev,x,y))
+            return new Position(prev,0);
+
+        if ((next != null) && isImageNode(next) && elementContainsPoint(next,x,y))
+            return new Position(next,0);
+    }
+
+    return pos;
+
+    function elementContainsPoint(element,x,y)
+    {
+        var rect = element.getBoundingClientRect();
+        return ((x >= rect.left) && (x <= rect.right) &&
+                (y >= rect.top) && (y <= rect.bottom));
+    }
 
     function findLastTextRect()
     {
