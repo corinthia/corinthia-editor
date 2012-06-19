@@ -80,7 +80,10 @@ var Hierarchy_wrapInlineNodesInParagraph;
             if (count > 20)
                 throw new Error("ensureValidHierarchy: too many iterations");
 
-            if (isHeadingNode(node) && (node.parentNode != document.body)) {
+            if (isHeadingNode(node) &&
+                (node.parentNode != document.body) &&
+                (DOM_upperName(node.parentNode) != "NAV")) {
+
                 var offset = DOM_nodeOffset(node);
                 Formatting_moveFollowing(node.parentNode,offset+1,function() { return false; });
                 Formatting_movePreceding(node.parentNode,offset,function() { return false; });
@@ -88,6 +91,7 @@ var Hierarchy_wrapInlineNodesInParagraph;
                 continue;
             }
             else if (isContainerNode(node) || isParagraphNode(node)) {
+
                 var invalidNesting = !isContainerNode(node.parentNode);
                 if (isParagraphNode(node) && (DOM_upperName(node.parentNode) == "DIV"))
                     invalidNesting = false; // this case is ok

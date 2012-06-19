@@ -18,6 +18,7 @@ var CONTAINER_ELEMENTS = {
     "COL": true,
     "FIGURE": true,
     "FIGCAPTION": true,
+    "NAV": true,
 };
 
 var PARAGRAPH_ELEMENTS = {
@@ -58,6 +59,7 @@ var CONTAINER_ELEMENTS_ALLOWING_CONTENT = {
     "TD": true,
     "FIGURE": true,
     "FIGCAPTION": true,
+    "NAV": true,
 };
 
 var Keys = {
