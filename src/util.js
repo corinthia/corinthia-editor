@@ -100,14 +100,8 @@ function positionAtPoint(x,y)
     if (boundaryRect != null) {
         var boundaryY = boundaryRect.top + boundaryRect.height/2;
         var range = document.caretRangeFromPoint(x,boundaryY);
-        if (range != null) {
-            var position;
-            if (range != null)
-                position = new Position(range.startContainer,range.startOffset);
-            else
-                position = new Position(node,node.nodeValue.length);
-            return position;
-        }
+        if (range != null)
+            return new Position(range.startContainer,range.startOffset);
     }
 
     // We get here if the coordinates are inside the document's bounding rect, or if getting the
