@@ -47,10 +47,7 @@ var Figures_setProperties;
     Figures_getSelectedFigureId = trace(function getAdjacentFigureId()
     {
         var element = Cursor_getAdjacentNodeWithName("FIGURE");
-        if (element == null)
-            return null;
-        else
-            return element.getAttribute("id");
+        return element ? element.getAttribute("id") : null;
     });
 
     // public

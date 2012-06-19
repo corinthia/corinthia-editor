@@ -14,6 +14,9 @@ var Tables_analyseStructure;
 var Tables_findContainingCell;
 var Tables_findContainingTable;
 var Tables_regionFromRange;
+var Tables_getSelectedTableId;
+var Tables_getProperties;
+var Tables_setProperties;
 
 (function() {
 
@@ -795,6 +798,31 @@ var Tables_regionFromRange;
                 }
             }
         } while (!boundariesOk);
+    });
+
+    Tables_getSelectedTableId = trace(function getSelectedTableId()
+    {
+        var element = Cursor_getAdjacentNodeWithName("TABLE");
+        return element ? element.getAttribute("id") : null;
+    });
+
+    Tables_getProperties = trace(function getProperties(itemId)
+    {
+        var table = document.getElementById(itemId);
+        if (table == null)
+            return null;
+        var width = table.style.width;
+        return { width: width };
+    });
+
+    Tables_setProperties = trace(function setProperties(itemId,width)
+    {
+        var table = document.getElementById(itemId);
+        if (table == null)
+            return null;
+        Selection_hideWhileExecuting(function() { // ensure cursor/selection drawn in correct pos
+            DOM_setStyleProperties(table,{ width: width });
+        });
     });
 
 })();

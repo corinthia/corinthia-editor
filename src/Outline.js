@@ -1051,6 +1051,12 @@ var Outline_setReferenceTarget;
         var item = itemsByNode.get(node);
         Selection_preserveWhileExecuting(function() {
             var titleNode = item.getTitleNode(true);
+            var oldEmpty = (item.title == "");
+            var newEmpty = (title == "");
+            if (oldEmpty != newEmpty) {
+                // Add or remove the : at the end of table and figure numbers
+                scheduleUpdateStructure();
+            }
             if (item.numberSpan != null) {
                 while (item.numberSpan.nextSibling != null)
                     DOM_deleteNode(item.numberSpan.nextSibling);
