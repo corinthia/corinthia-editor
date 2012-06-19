@@ -3,7 +3,6 @@
 // FIXME: cursor does not display correctly if it is after a space at the end of the line
 
 var Selection_get;
-var Selection_getWhileVisible;
 var Selection_set;
 var Selection_clear;
 
@@ -34,8 +33,6 @@ var Selection_posAtEndOfWord;
 
 (function() {
 
-    var selectionVisible = true;
-
     ////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                            //
     //                                 Selection getter and setter                                //
@@ -46,38 +43,19 @@ var Selection_posAtEndOfWord;
 
         var selection = new Object();
 
-        function getInternal()
+        // public
+        Selection_get = trace(function get()
         {
             if (selection.value == null)
                 return null;
             else
                 return new Range(selection.value.startNode,selection.value.startOffset,
                                  selection.value.endNode,selection.value.endOffset);
-        }
-
-        // public
-        Selection_get = trace(function get()
-        {
-//            if (selectionVisible)
-//                throw new Error("Attempt to get selection while visible");
-
-            return getInternal();
-        });
-
-        Selection_getWhileVisible = trace(function getWhileVisible()
-        {
-//            if (!selectionVisible)
-//                throw new Error("Attempt to get visible selection while invisible");
-
-            return getInternal();
         });
 
         // public
         Selection_set = trace(function set(newStartNode,newStartOffset,newEndNode,newEndOffset)
         {
-            if (selectionVisible)
-                throw new Error("Attempt to set selection while visible");
-
             var range = new Range(newStartNode,newStartOffset,newEndNode,newEndOffset);
             if (range.isForwards()) {
                 UndoManager_setProperty(selection,"value",
@@ -99,8 +77,6 @@ var Selection_posAtEndOfWord;
         // public
         Selection_clear = trace(function clear()
         {
-            if (selectionVisible)
-                throw new Error("Attempt to clear selection while visible");
             UndoManager_setProperty(selection,"value",null);
         });
     })();
@@ -215,7 +191,7 @@ var Selection_posAtEndOfWord;
     // public
     Selection_getCursorRect = trace(function getCursorRect()
     {
-        var selRange = Selection_getWhileVisible();
+        var selRange = Selection_get();
         if (selRange != null)
             return Selection_getPositionRect(selRange.end);
         else
@@ -268,16 +244,6 @@ var Selection_posAtEndOfWord;
         return true;
     });
 
-    function addSelectionVisibilityAction()
-    {
-        var oldSelectionVisible = selectionVisible;
-        var oldSelectionDivs = arrayCopy(selectionDivs);
-        UndoManager_addAction(function() {
-            selectionVisible = oldSelectionVisible;
-            selectionDivs = oldSelectionDivs;
-        });
-    }
-
     var editorHandles = { type: "none" };
     var setEditorHandles = trace(function setEditorHandles(info)
     {
@@ -308,17 +274,11 @@ var Selection_posAtEndOfWord;
     // public
     Selection_hide = trace(function hide()
     {
-        if (!selectionVisible)
-            throw new Error("Selection is already hidden");
-        addSelectionVisibilityAction();
-        selectionVisible = false;
     });
 
     // public
     Selection_updateSelectionDisplay = trace(function updateSelectionDisplay()
     {
-        if (selectionVisible)
-            Selection_hide();
         Selection_show();
     });
 
@@ -503,17 +463,12 @@ var Selection_posAtEndOfWord;
 
     Selection_show = trace(function show()
     {
-        if (selectionVisible)
-            throw new Error("Selection is already visible");
-        addSelectionVisibilityAction();
-
         // Remove table selection DIVs
         for (var i = 0; i < selectionDivs.length; i++)
             DOM_deleteNode(selectionDivs[i]);
         selectionDivs = new Array();
 
         var selRange = Selection_get();
-        selectionVisible = true;
 
         var rects = null;
         if (selRange != null)
@@ -528,10 +483,8 @@ var Selection_posAtEndOfWord;
                 });
             });
             // Selection may have changed as a result of removeSelectionSpans()
-            selectionVisible = false;
             Selection_set(selRange.start.node,selRange.start.offset,
                           selRange.end.node,selRange.end.offset);
-            selectionVisible = true;
 
             var rect = Selection_getCursorRect();
 
@@ -555,14 +508,11 @@ var Selection_posAtEndOfWord;
                                    width: 300,
                                    height: 300});
             }
-            selectionVisible = true;
             return;
         }
 
-        if (updateTableSelection(selRange)) {
-            selectionVisible = true;
+        if (updateTableSelection(selRange))
             return;
-        }
 
         if ((rects != null) && (rects.length > 0)) {
             var boundsLeft = null;
@@ -604,10 +554,8 @@ var Selection_posAtEndOfWord;
             });
 
             // Selection may have changed as a result of create/removeSelectionSpans()
-            selectionVisible = false;
             Selection_set(selRange.start.node,selRange.start.offset,
                           selRange.end.node,selRange.end.offset);
-            selectionVisible = true;
 
             var firstRect = rects[0];
             var lastRect = rects[rects.length-1];
@@ -824,7 +772,7 @@ var Selection_posAtEndOfWord;
     // public
     Selection_dragSelectionBegin = trace(function dragSelectionBegin(x,y,selectWord)
     {
-        var range = Selection_getWhileVisible();
+        var range = Selection_get();
         if ((range != null) && !range.isEmpty())
             return Selection_dragSelectionUpdate(x,y,selectWord);
 
@@ -1130,8 +1078,6 @@ var Selection_posAtEndOfWord;
 
     Selection_deleteContents = trace(function deleteContents()
     {
-        if (selectionVisible)
-            throw new Error("deleteContents while selection visible");
         var range = Selection_get();
         if (range == null)
             return;
