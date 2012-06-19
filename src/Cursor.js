@@ -120,8 +120,6 @@ var Cursor_makeContainerInsertionPoint;
         }
 
         Selection_set(position.node,position.offset,position.node,position.offset);
-
-        Selection_update();
         Cursor_ensureCursorVisible();
         return result;
     });
@@ -149,8 +147,6 @@ var Cursor_makeContainerInsertionPoint;
         var pos = Position_prevMatch(range.start,Position_okForMovement);
         if (pos != null)
             Selection_set(pos.node,pos.offset,pos.node,pos.offset);
-
-        Selection_update();
         Cursor_ensureCursorVisible();
     });
 
@@ -164,8 +160,6 @@ var Cursor_makeContainerInsertionPoint;
         var pos = Position_nextMatch(range.start,Position_okForMovement);
         if (pos != null)
             Selection_set(pos.node,pos.offset,pos.node,pos.offset);
-
-        Selection_update();
         Cursor_ensureCursorVisible();
     });
 
@@ -174,7 +168,6 @@ var Cursor_makeContainerInsertionPoint;
         var pos = new Position(document.body,0);
         pos = Position_closestMatchBackwards(pos,Position_okForMovement);
         Selection_set(pos.node,pos.offset,pos.node,pos.offset);
-        Selection_update();
         Cursor_ensureCursorVisible();
     });
 
@@ -183,7 +176,6 @@ var Cursor_makeContainerInsertionPoint;
         var pos = new Position(document.body,document.body.childNodes.length);
         pos = Position_closestMatchForwards(pos,Position_okForMovement);
         Selection_set(pos.node,pos.offset,pos.node,pos.offset);
-        Selection_update();
         Cursor_ensureCursorVisible();
     });
 
@@ -427,7 +419,6 @@ var Cursor_makeContainerInsertionPoint;
             DOM_insertBefore(detail.startParent,li,detail.startChild);
 
             Selection_set(li,0,li,0);
-            Selection_update();
             Cursor_ensureCursorVisible();
             return;
         }
@@ -508,8 +499,6 @@ var Cursor_makeContainerInsertionPoint;
 
         Selection_set(selRange.start.node,selRange.start.offset,
                       selRange.end.node,selRange.end.offset);
-
-        Selection_update();
         Cursor_ensureCursorVisible();
 
         function enterPressedFilter(node)
@@ -630,7 +619,6 @@ var Cursor_makeContainerInsertionPoint;
 
         if (isContainerNode(parent)) {
             Selection_set(parent,offset,parent,offset);
-            Selection_update();
             return;
         }
 
@@ -649,7 +637,6 @@ var Cursor_makeContainerInsertionPoint;
         }
 
         Selection_set(parent,offset,parent,offset);
-        Selection_update();
     });
 
 })();

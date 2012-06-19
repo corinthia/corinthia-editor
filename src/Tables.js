@@ -197,7 +197,6 @@ var Tables_setProperties;
         var pos = new Position(firstTD,0);
         pos = Position_closestMatchForwards(pos,Position_okForMovement);
         Selection_set(pos.node,pos.offset,pos.node,pos.offset);
-        Selection_update();
 
         PostponedActions_add(UndoManager_newGroup);
     });

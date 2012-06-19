@@ -1045,7 +1045,6 @@ var Formatting_applyFormattingChanges;
         start = tempRange.start;
         end = tempRange.end;
         Selection_set(start.node,start.offset,end.node,end.offset);
-        Selection_update();
 
         function containsOnlyInlineChildren(node)
         {

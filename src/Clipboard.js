@@ -357,7 +357,6 @@ var Clipboard_pasteNodes;
             Selection_set(pos.node,pos.offset,pos.node,pos.offset);
         }
 
-        Selection_update();
         Cursor_ensureCursorVisible();
 
         UndoManager_newGroup();
@@ -566,7 +565,6 @@ var Clipboard_pasteNodes;
         pos = Position_closestMatchBackwards(pos,Position_okForInsertion);
 
         Selection_set(pos.node,pos.offset,pos.node,pos.offset);
-        Selection_update();
         Cursor_ensureCursorVisible();
     });
 

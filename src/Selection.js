@@ -290,6 +290,7 @@ var Selection_posAtEndOfWord;
     // public
     Selection_update = trace(function update()
     {
+        Selection_show();
     });
 
     var getPrevSpanText = trace(function getPrevSpanText(node)
@@ -617,7 +618,6 @@ var Selection_posAtEndOfWord;
     Selection_selectAll = trace(function selectAll()
     {
         Selection_set(document.body,0,document.body,document.body.childNodes.length);
-        Selection_update();
     });
 
     // public
@@ -640,7 +640,6 @@ var Selection_posAtEndOfWord;
         endPos = Position_closestMatchBackwards(endPos,Position_okForMovement);
 
         Selection_set(startPos.node,startPos.offset,endPos.node,endPos.offset);
-        Selection_update();
     });
 
     // private
@@ -774,7 +773,6 @@ var Selection_posAtEndOfWord;
         var range = rangeOfWordAtPos(pos);
         if (range != null) {
             Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
-            Selection_update();
         }
     });
 
@@ -799,12 +797,10 @@ var Selection_posAtEndOfWord;
         var pos = Position_closestMatchForwards(positionAtPoint(x,y),Position_okForMovement);
         if (pos == null) {
             Selection_clear();
-            Selection_update();
             result = "error";
         }
         else {
             Selection_set(pos.node,pos.offset,pos.node,pos.offset);
-            Selection_update();
             result = "end";
         }
 
@@ -841,7 +837,6 @@ var Selection_posAtEndOfWord;
                 // Position is within the original selection
                 Selection_set(originalDragStart.node,originalDragStart.offset,
                               originalDragEnd.node,originalDragEnd.offset)
-                Selection_update();
             }
             else if (!startToPos.isForwards()) {
                 // Position comes before the start
@@ -851,7 +846,6 @@ var Selection_posAtEndOfWord;
                 }
                 Selection_set(posToEnd.start.node,posToEnd.start.offset,
                               posToEnd.end.node,posToEnd.end.offset);
-                Selection_update();
                 return "start";
             }
             else if (!posToEnd.isForwards()) {
@@ -862,7 +856,6 @@ var Selection_posAtEndOfWord;
                 }
                 Selection_set(startToPos.start.node,startToPos.start.offset,
                               startToPos.end.node,startToPos.end.offset);
-                Selection_update();
                 return "end";
             }
         }
@@ -889,7 +882,6 @@ var Selection_posAtEndOfWord;
             var result;
             range = range.forwards();
             Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
-            Selection_update();
             if (range.end == pos)
                 return "end";
             else if (range.end == pos)
@@ -934,7 +926,6 @@ var Selection_posAtEndOfWord;
             if (newRange.isForwards()) {
                 Selection_set(newRange.start.node,newRange.start.offset,
                               newRange.end.node,newRange.end.offset);
-                Selection_update();
             }
         }
     });
@@ -951,7 +942,6 @@ var Selection_posAtEndOfWord;
             if (newRange.isForwards()) {
                 Selection_set(newRange.start.node,newRange.start.offset,
                               newRange.end.node,newRange.end.offset);
-                Selection_update();
             }
         }
     });
@@ -990,7 +980,6 @@ var Selection_posAtEndOfWord;
         var bottomRightOffset = DOM_nodeOffset(bottomRightCell.element)+1;
 
         Selection_set(topLeftNode,topLeftOffset,bottomRightNode,bottomRightOffset);
-        Selection_update();
 
         // FIXME: this could possibly be optimised
         function findCellInTable(structure,x,y)
@@ -1014,7 +1003,6 @@ var Selection_posAtEndOfWord;
     Selection_setEmptySelectionAt = trace(function setEmptySelectionAt(node,offset)
     {
         Selection_set(node,offset,node,offset);
-        Selection_update();
     });
 
     // private
@@ -1220,7 +1208,6 @@ var Selection_posAtEndOfWord;
     Selection_clearSelection = trace(function clearSelection()
     {
         Selection_clear();
-        Selection_update();
     });
 
     // public
@@ -1242,12 +1229,10 @@ var Selection_posAtEndOfWord;
         if (range == null) {
             result = fun();
             Selection_clear();
-            Selection_update();
         }
         else {
             result = range.trackWhileExecuting(fun);
             Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
-            Selection_update();
         }
         return result;
     });

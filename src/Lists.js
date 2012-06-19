@@ -373,7 +373,6 @@ var Lists_setOrderedList;
 
             Cursor_updateBRAtEndOfParagraph(p);
             Selection_set(p,0,p,0);
-            Selection_update();
         }
     });
 
@@ -511,7 +510,6 @@ var Lists_setOrderedList;
         });
         range.ensureRangeValidHierarchy();
         Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
-        Selection_update();
     });
 
     // public
