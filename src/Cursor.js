@@ -245,11 +245,50 @@ var Cursor_makeContainerInsertionPoint;
         Clipboard_pasteNodes([a]);
     });
 
+    var nbsp = String.fromCharCode(160);
+
+    var spaceToNbsp = trace(function spaceToNbsp(pos)
+    {
+        var node = pos.node;
+        var offset = pos.offset;
+
+        if ((node.nodeType == Node.TEXT_NODE) && (offset > 0) &&
+            (isWhitespaceString(node.nodeValue.charAt(offset-1)))) {
+            // Insert first, to preserve any tracked positions
+            DOM_insertCharacters(node,offset-1,nbsp);
+            DOM_deleteCharacters(node,offset,offset+1);
+        }
+    });
+
+    var nbspToSpace = trace(function nbspToSpace(pos)
+    {
+        var node = pos.node;
+        var offset = pos.offset;
+
+        if ((node.nodeType == Node.TEXT_NODE) && (offset > 0) &&
+            (node.nodeValue.charAt(offset-1) == nbsp)) {
+            // Insert first, to preserve any tracked positions
+            DOM_insertCharacters(node,offset-1," ");
+            DOM_deleteCharacters(node,offset,offset+1);
+        }
+    });
+
+    var checkNbsp = trace(function insertFinished()
+    {
+        Selection_preserveWhileExecuting(function() {
+            var selRange = Selection_get();
+            if (selRange != null)
+                nbspToSpace(selRange.end);
+        });
+    });
+
     // public
     Cursor_insertCharacter = trace(function insertCharacter(str,allowInvalidPos)
     {
-        if (UndoManager_groupType() != "Insert text")
-            UndoManager_newGroup("Insert text");
+        var firstInsertion = (UndoManager_groupType() != "Insert text");
+
+        if (firstInsertion)
+            UndoManager_newGroup("Insert text",checkNbsp);
 
         if (str == "-") {
             var preceding = Cursor_getPrecedingWord();
@@ -274,6 +313,26 @@ var Cursor_makeContainerInsertionPoint;
             var node = pos.node;
             var offset = pos.offset;
 
+            if ((str == " ") &&
+                !firstInsertion &&
+                (node.nodeType == Node.TEXT_NODE) &&
+                (offset > 0) &&
+                (node.nodeValue.charAt(offset-1) == nbsp)) {
+
+                if (!node.nodeValue.substring(0,offset).match(/\.\s+$/)) {
+                    DOM_deleteCharacters(node,offset-1,offset);
+                    DOM_insertCharacters(node,offset-1,".");
+                }
+            }
+
+            if (isWhitespaceString(str) && (node.nodeType == Node.TEXT_NODE) && (offset > 0)) {
+                var prevChar = node.nodeValue.charAt(offset-1);
+                if (isWhitespaceString(prevChar) || (prevChar == nbsp))
+                    return;
+            }
+
+            nbspToSpace(pos);
+
             if (node.nodeType == Node.ELEMENT_NODE) {
                 var emptyTextNode = DOM_createTextNode(document,"");
                 if (offset >= node.childNodes.length)
@@ -284,7 +343,10 @@ var Cursor_makeContainerInsertionPoint;
                 offset = 0;
             }
 
-            DOM_insertCharacters(node,offset,str);
+            if (str == " ")
+                DOM_insertCharacters(node,offset,nbsp);
+            else
+                DOM_insertCharacters(node,offset,str);
 
             offset += str.length;
             Selection_set(node,offset,node,offset);
@@ -299,7 +361,7 @@ var Cursor_makeContainerInsertionPoint;
     Cursor_deleteCharacter = trace(function deleteCharacter()
     {
         if (UndoManager_groupType() != "Delete text")
-            UndoManager_newGroup("Delete text");
+            UndoManager_newGroup("Delete text",checkNbsp);
         Selection_hideWhileExecuting(function() {
             var selRange = Selection_get();
             if (selRange == null)
@@ -307,7 +369,6 @@ var Cursor_makeContainerInsertionPoint;
 
             if (!selRange.isEmpty()) {
                 Selection_deleteContents();
-                return;
             }
             else {
                 var currentPos = selRange.start;
@@ -328,6 +389,10 @@ var Cursor_makeContainerInsertionPoint;
                     }
                 }
             }
+            
+            selRange = Selection_get();
+            if (selRange != null)
+                spaceToNbsp(selRange.end);
         });
 
         function firstBlockAncestor(node)

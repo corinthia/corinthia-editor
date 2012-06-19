@@ -45,31 +45,22 @@
 
     function trim(str)
     {
-        var start = 0;
-        var end = str.length;
+        str = str.replace(/^\s+/,"");
+        str = str.replace(/\s+$/,"");
+        return str;
+    }
 
-        while ((start < str.length) &&
-               ((str.charAt(start) == " ") ||
-                (str.charAt(start) == "\t") ||
-                (str.charAt(start) == "\r") ||
-                (str.charAt(start) == "\n")))
-            start++;
-
-        while ((end > start) &&
-               ((str.charAt(end-1) == " ") ||
-                (str.charAt(end-1) == "\t") ||
-                (str.charAt(end-1) == "\r") ||
-                (str.charAt(end-1) == "\n")))
-            end--;
-
-        return str.slice(start,end);
+    function entityFix(str)
+    {
+        return str.replace(/\u00a0/g,"&nbsp;");
     }
 
     function singleDescendents(node)
     {
         var count = 0;
         for (var child = node.firstChild; child != null; child = child.nextSibling) {
-            if ((child.nodeType == Node.TEXT_NODE) && (trim(child.nodeValue).length == 0))
+            if ((child.nodeType == Node.TEXT_NODE) &&
+                (trim(entityFix(child.nodeValue)).length == 0))
                 continue;
             count++;
             if (count > 1)
@@ -127,13 +118,13 @@
             }
         }
         else if (node.nodeType == Node.TEXT_NODE) {
-            var value = trim(node.nodeValue);
+            var value = trim(entityFix(node.nodeValue));
 //            var value = JSON.stringify(node.nodeValue);
             if (value.length > 0)
                 builder.str += value;
         }
         else if (node.nodeType == Node.COMMENT_NODE) {
-            builder.str += "<!--" + node.nodeValue + "-->\n";
+            builder.str += "<!--" + entityFix(node.nodeValue) + "-->\n";
         }
     }
 
@@ -165,13 +156,13 @@
             }
         }
         else if (node.nodeType == Node.TEXT_NODE) {
-            var value = trim(node.nodeValue);
+            var value = trim(entityFix(node.nodeValue));
 //            var value = JSON.stringify(node.nodeValue);
             if (value.length > 0)
                 builder.str += indent + value + "\n";
         }
         else if (node.nodeType == Node.COMMENT_NODE) {
-            builder.str += indent + "<!--" + node.nodeValue + "-->\n";
+            builder.str += indent + "<!--" + entityFix(node.nodeValue) + "-->\n";
         }
     }
 

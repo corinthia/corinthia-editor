@@ -22,9 +22,10 @@ var UndoManager_groupType;
 
     var UNDO_LIMIT = 50;
 
-    function UndoGroup(type)
+    function UndoGroup(type,onClose)
     {
         this.type = type;
+        this.onClose = onClose;
         this.actions = new Array();
     }
 
@@ -111,10 +112,17 @@ var UndoManager_groupType;
         debug("");
     });
 
+    var closeCurrentGroup = trace(function closeCurrentGroup()
+    {
+        if ((currentGroup != null) && (currentGroup.onClose != null))
+            currentGroup.onClose();
+        currentGroup = null;
+    });
+
     // public
     UndoManager_undo = trace(function undo()
     {
-        currentGroup = null;
+        closeCurrentGroup();
         if (undoStack.length > 0) {
             var group = undoStack.pop();
             inUndo = true;
@@ -122,13 +130,13 @@ var UndoManager_groupType;
                 group.actions[i].fun.apply(null,group.actions[i].args);
             inUndo = false;
         }
-        currentGroup = null;
+        closeCurrentGroup();
     });
 
     // public
     UndoManager_redo = trace(function redo()
     {
-        currentGroup = null;
+        closeCurrentGroup();
         if (redoStack.length > 0) {
             var group = redoStack.pop();
             inRedo = true;
@@ -136,7 +144,7 @@ var UndoManager_groupType;
                 group.actions[i].fun.apply(null,group.actions[i].args);
             inRedo = false;
         }
-        currentGroup = null;
+        closeCurrentGroup();
     });
 
     // public
@@ -169,10 +177,12 @@ var UndoManager_groupType;
     });
 
     // public
-    UndoManager_newGroup = trace(function newGroup(type)
+    UndoManager_newGroup = trace(function newGroup(type,onClose)
     {
         if (disabled > 0)
             return;
+
+        closeCurrentGroup();
 
         // We don't actually add the group to the undo stack until the first request to add an
         // action to it. This way we don't end up with empty groups in the undo stack, which
@@ -180,7 +190,7 @@ var UndoManager_groupType;
 
         if ((type == null) || (type == ""))
             type = "Anonymous";
-        currentGroup = new UndoGroup(type);
+        currentGroup = new UndoGroup(type,onClose);
     });
 
     // public

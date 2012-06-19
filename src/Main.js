@@ -1,6 +1,7 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
 var Main_isEmptyDocument;
+var Main_prepareForSave;
 var Main_getHTML;
 var Main_getErrorReportingInfo;
 var Main_removeUnsupportedInput;
@@ -58,6 +59,14 @@ var Main_init;
     Main_isEmptyDocument = trace(function isEmptyDocument()
     {
         return !nodeHasContent(document.body);
+    });
+
+    // public
+    Main_prepareForSave = trace(function prepareForSave()
+    {
+        // Force any end-of-group actions to be performed
+        UndoManager_newGroup();
+        return true;
     });
 
     // public
