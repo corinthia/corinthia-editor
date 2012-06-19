@@ -1,5 +1,6 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
+var Main_setGenerator;
 var Main_isEmptyDocument;
 var Main_prepareForSave;
 var Main_getHTML;
@@ -53,6 +54,27 @@ var Main_init;
             DOM_setAttribute(meta,"content","text/html; charset=utf-8");
             DOM_insertBefore(head,meta,head.firstChild);
         }
+    });
+
+    // public
+    Main_setGenerator = trace(function setGenerator(generator)
+    {
+        UndoManager_disableWhileExecuting(function() {
+            var head = DOM_documentHead(document);
+            for (var child = head.firstChild; child != null; child = child.nextSibling) {
+                if ((DOM_upperName(child) == "META") &&
+                    child.hasAttribute("name") &&
+                    (child.getAttribute("name").toLowerCase() == "generator")) {
+                    DOM_setAttribute(child,"content",generator);
+                    return;
+                }
+            }
+
+            var meta = DOM_createElement(document,"META");
+            DOM_setAttribute(meta,"name","generator");
+            DOM_setAttribute(meta,"content",generator);
+            DOM_insertBefore(head,meta,head.firstChild);
+        });
     });
 
     // public
