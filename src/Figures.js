@@ -37,9 +37,8 @@ var Figures_setProperties;
         var offset = DOM_nodeOffset(figure);
         var pos = new Position(figure.parentNode,offset);
         pos = Position_closestMatchForwards(pos,Position_okForMovement);
-        Selection_hideWhileExecuting(function() {
-            Selection_set(pos.node,pos.offset,pos.node,pos.offset);
-        });
+        Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+        Selection_update();
 
         PostponedActions_add(UndoManager_newGroup);
     });

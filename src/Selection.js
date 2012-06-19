@@ -9,7 +9,7 @@ var Selection_clear;
 var Selection_getPositionRect;
 var Selection_getCursorRect;
 var Selection_hide;
-var Selection_updateSelectionDisplay;
+var Selection_update;
 var Selection_show;
 var Selection_selectAll;
 var Selection_selectParagraph;
@@ -277,7 +277,7 @@ var Selection_posAtEndOfWord;
     });
 
     // public
-    Selection_updateSelectionDisplay = trace(function updateSelectionDisplay()
+    Selection_update = trace(function update()
     {
         Selection_show();
     });
@@ -602,33 +602,31 @@ var Selection_posAtEndOfWord;
     // public
     Selection_selectAll = trace(function selectAll()
     {
-        Selection_hideWhileExecuting(function() {
-            Selection_set(document.body,0,document.body,document.body.childNodes.length);
-        });
+        Selection_set(document.body,0,document.body,document.body.childNodes.length);
+        Selection_update();
     });
 
     // public
     Selection_selectParagraph = trace(function selectParagraph()
     {
-        Selection_hideWhileExecuting(function() {
-            var selRange = Selection_get();
-            if (selRange == null)
-                return;
-            var startNode = selRange.start.closestActualNode();
-            while (!isParagraphNode(startNode) && !isContainerNode(startNode))
-                startNode = startNode.parentNode;
+        var selRange = Selection_get();
+        if (selRange == null)
+            return;
+        var startNode = selRange.start.closestActualNode();
+        while (!isParagraphNode(startNode) && !isContainerNode(startNode))
+            startNode = startNode.parentNode;
 
-            var endNode = selRange.end.closestActualNode();
-            while (!isParagraphNode(endNode) && !isContainerNode(endNode))
-                endNode = endNode.parentNode;
+        var endNode = selRange.end.closestActualNode();
+        while (!isParagraphNode(endNode) && !isContainerNode(endNode))
+            endNode = endNode.parentNode;
 
-            var startPos = new Position(startNode.parentNode,DOM_nodeOffset(startNode));
-            var endPos = new Position(endNode.parentNode,DOM_nodeOffset(endNode)+1);
-            startPos = Position_closestMatchForwards(startPos,Position_okForMovement);
-            endPos = Position_closestMatchBackwards(endPos,Position_okForMovement);
+        var startPos = new Position(startNode.parentNode,DOM_nodeOffset(startNode));
+        var endPos = new Position(endNode.parentNode,DOM_nodeOffset(endNode)+1);
+        startPos = Position_closestMatchForwards(startPos,Position_okForMovement);
+        endPos = Position_closestMatchBackwards(endPos,Position_okForMovement);
 
-            Selection_set(startPos.node,startPos.offset,endPos.node,endPos.offset);
-        });
+        Selection_set(startPos.node,startPos.offset,endPos.node,endPos.offset);
+        Selection_update();
     });
 
     // private
@@ -754,16 +752,16 @@ var Selection_posAtEndOfWord;
     // public
     Selection_selectWordAtCursor = trace(function selectWordAtCursor()
     {
-        Selection_hideWhileExecuting(function() {
-            var selRange = Selection_get();
-            if (selRange == null)
-                return;
+        var selRange = Selection_get();
+        if (selRange == null)
+            return;
 
-            var pos = Position_closestMatchBackwards(selRange.end,Position_okForMovement);
-            var range = rangeOfWordAtPos(pos);
-            if (range != null)
-                Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
-        });
+        var pos = Position_closestMatchBackwards(selRange.end,Position_okForMovement);
+        var range = rangeOfWordAtPos(pos);
+        if (range != null) {
+            Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
+            Selection_update();
+        }
     });
 
     var originalDragStart = null;
@@ -783,28 +781,28 @@ var Selection_posAtEndOfWord;
         originalDragStart = null;
         originalDragEnd = null;
 
-        var result = Selection_hideWhileExecuting(function() {
-            var pos = Position_closestMatchForwards(positionAtPoint(x,y),Position_okForMovement);
-            if (pos == null) {
-                Selection_clear();
-                return "error";
-            }
-
+        var result;
+        var pos = Position_closestMatchForwards(positionAtPoint(x,y),Position_okForMovement);
+        if (pos == null) {
+            Selection_clear();
+            Selection_update();
+            result = "error";
+        }
+        else {
             Selection_set(pos.node,pos.offset,pos.node,pos.offset);
-            return "end";
-        });
+            Selection_update();
+            result = "end";
+        }
 
         if (selectWord)
             Selection_selectWordAtCursor();
 
         if (result != "error") {
-            Selection_hideWhileExecuting(function() {
-                var selRange = Selection_get();
-                originalDragStart = new Position(selRange.start.node,selRange.start.offset);
-                originalDragEnd = new Position(selRange.end.node,selRange.end.offset);
-                Position_track(originalDragStart);
-                Position_track(originalDragEnd);
-            });
+            var selRange = Selection_get();
+            originalDragStart = new Position(selRange.start.node,selRange.start.offset);
+            originalDragEnd = new Position(selRange.end.node,selRange.end.offset);
+            Position_track(originalDragStart);
+            Position_track(originalDragEnd);
         }
         return result;
     });
@@ -818,73 +816,72 @@ var Selection_posAtEndOfWord;
         if ((originalDragStart == null) || (originalDragEnd == null))
             return Selection_dragSelectionBegin(x,y,false); // FIXME: what about selectWord?
 
-        return Selection_hideWhileExecuting(function() {
-            var pos = Position_closestMatchForwards(positionAtPoint(x,y),Position_okForMovement);
-            if (pos != null) {
+        var pos = Position_closestMatchForwards(positionAtPoint(x,y),Position_okForMovement);
+        if (pos != null) {
+            var startToPos = new Range(originalDragStart.node,originalDragStart.offset,
+                                       pos.node,pos.offset);
+            var posToEnd = new Range(pos.node,pos.offset,
+                                     originalDragEnd.node,originalDragEnd.offset);
 
-                var startToPos = new Range(originalDragStart.node,originalDragStart.offset,
-                                           pos.node,pos.offset);
-                var posToEnd = new Range(pos.node,pos.offset,
-                                         originalDragEnd.node,originalDragEnd.offset);
-
-                if (startToPos.isForwards() && posToEnd.isForwards()) {
-                    // Position is within the original selection
-                    Selection_set(originalDragStart.node,originalDragStart.offset,
-                                  originalDragEnd.node,originalDragEnd.offset)
-                }
-                else if (!startToPos.isForwards()) {
-                    // Position comes before the start
-                    if (selectWord) {
-                        posToEnd.start = Selection_posAtStartOfWord(posToEnd.start);
-                        posToEnd.end = Selection_posAtEndOfWord(posToEnd.end);
-                    }
-                    Selection_set(posToEnd.start.node,posToEnd.start.offset,
-                                  posToEnd.end.node,posToEnd.end.offset);
-                    return "start";
-                }
-                else if (!posToEnd.isForwards()) {
-                    // Position comes after the end
-                    if (selectWord) {
-                        startToPos.start = Selection_posAtStartOfWord(startToPos.start);
-                        startToPos.end = Selection_posAtEndOfWord(startToPos.end);
-                    }
-                    Selection_set(startToPos.start.node,startToPos.start.offset,
-                                  startToPos.end.node,startToPos.end.offset);
-                    return "end";
-                }
+            if (startToPos.isForwards() && posToEnd.isForwards()) {
+                // Position is within the original selection
+                Selection_set(originalDragStart.node,originalDragStart.offset,
+                              originalDragEnd.node,originalDragEnd.offset)
+                Selection_update();
             }
-            return "none";
-        });
+            else if (!startToPos.isForwards()) {
+                // Position comes before the start
+                if (selectWord) {
+                    posToEnd.start = Selection_posAtStartOfWord(posToEnd.start);
+                    posToEnd.end = Selection_posAtEndOfWord(posToEnd.end);
+                }
+                Selection_set(posToEnd.start.node,posToEnd.start.offset,
+                              posToEnd.end.node,posToEnd.end.offset);
+                Selection_update();
+                return "start";
+            }
+            else if (!posToEnd.isForwards()) {
+                // Position comes after the end
+                if (selectWord) {
+                    startToPos.start = Selection_posAtStartOfWord(startToPos.start);
+                    startToPos.end = Selection_posAtEndOfWord(startToPos.end);
+                }
+                Selection_set(startToPos.start.node,startToPos.start.offset,
+                              startToPos.end.node,startToPos.end.offset);
+                Selection_update();
+                return "end";
+            }
+        }
+        return "none";
     });
 
     var moveBoundary = trace(function moveBoundary(command)
     {
-        return Selection_hideWhileExecuting(function() {
-            var range = Selection_get();
-            if (range == null)
-                return;
+        var range = Selection_get();
+        if (range == null)
+            return;
 
-            var pos = null;
-            if (command == "start-left")
-                range.start = pos = Position_prevMatch(range.start,Position_okForMovement);
-            else if (command == "start-right")
-                range.start = pos = Position_nextMatch(range.start,Position_okForMovement);
-            else if (command == "end-left")
-                range.end = pos = Position_prevMatch(range.end,Position_okForMovement);
-            else if (command == "end-right")
-                range.end = pos = Position_nextMatch(range.end,Position_okForMovement);
+        var pos = null;
+        if (command == "start-left")
+            range.start = pos = Position_prevMatch(range.start,Position_okForMovement);
+        else if (command == "start-right")
+            range.start = pos = Position_nextMatch(range.start,Position_okForMovement);
+        else if (command == "end-left")
+            range.end = pos = Position_prevMatch(range.end,Position_okForMovement);
+        else if (command == "end-right")
+            range.end = pos = Position_nextMatch(range.end,Position_okForMovement);
 
-            if ((range.start != null) && (range.end != null)) {
-                var result;
-                range = range.forwards();
-                Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
-                if (range.end == pos)
-                    return "end";
-                else if (range.end == pos)
-                    return "start";
-            }
-            return null;
-        });
+        if ((range.start != null) && (range.end != null)) {
+            var result;
+            range = range.forwards();
+            Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
+            Selection_update();
+            if (range.end == pos)
+                return "end";
+            else if (range.end == pos)
+                return "start";
+        }
+        return null;
     });
 
     // public
@@ -914,37 +911,35 @@ var Selection_posAtEndOfWord;
     // public
     Selection_setSelectionStartAtCoords = trace(function setSelectionStartAtCoords(x,y)
     {
-        Selection_hideWhileExecuting(function() {
-            var position = Position_closestMatchForwards(positionAtPoint(x,y),Position_okForMovement);
-            if (position != null) {
-                position = Position_closestMatchBackwards(position,Position_okForMovement);
-                var selRange = Selection_get();
-                var newRange = new Range(position.node,position.offset,
-                                         selRange.end.node,selRange.end.offset);
-                if (newRange.isForwards()) {
-                    Selection_set(newRange.start.node,newRange.start.offset,
-                                  newRange.end.node,newRange.end.offset);
-                }
+        var position = Position_closestMatchForwards(positionAtPoint(x,y),Position_okForMovement);
+        if (position != null) {
+            position = Position_closestMatchBackwards(position,Position_okForMovement);
+            var selRange = Selection_get();
+            var newRange = new Range(position.node,position.offset,
+                                     selRange.end.node,selRange.end.offset);
+            if (newRange.isForwards()) {
+                Selection_set(newRange.start.node,newRange.start.offset,
+                              newRange.end.node,newRange.end.offset);
+                Selection_update();
             }
-        });
+        }
     });
 
     // public
     Selection_setSelectionEndAtCoords = trace(function setSelectionEndAtCoords(x,y)
     {
-        Selection_hideWhileExecuting(function() {
-            var position = Position_closestMatchForwards(positionAtPoint(x,y),Position_okForMovement);
-            if (position != null) {
-                position = Position_closestMatchBackwards(position,Position_okForMovement);
-                var selRange = Selection_get();
-                var newRange = new Range(selRange.start.node,selRange.start.offset,
-                                         position.node,position.offset);
-                if (newRange.isForwards()) {
-                    Selection_set(newRange.start.node,newRange.start.offset,
-                                  newRange.end.node,newRange.end.offset);
-                }
+        var position = Position_closestMatchForwards(positionAtPoint(x,y),Position_okForMovement);
+        if (position != null) {
+            position = Position_closestMatchBackwards(position,Position_okForMovement);
+            var selRange = Selection_get();
+            var newRange = new Range(selRange.start.node,selRange.start.offset,
+                                     position.node,position.offset);
+            if (newRange.isForwards()) {
+                Selection_set(newRange.start.node,newRange.start.offset,
+                              newRange.end.node,newRange.end.offset);
+                Selection_update();
             }
-        });
+        }
     });
 
     // public
@@ -958,31 +953,30 @@ var Selection_posAtEndOfWord;
         if (pointInfo == null)
             return;
 
-        Selection_hideWhileExecuting(function() {
-            if (edge == "topLeft") {
-                if (pointInfo.row <= tableSelection.bottom)
-                    tableSelection.top = pointInfo.row;
-                if (pointInfo.col <= tableSelection.right)
-                    tableSelection.left = pointInfo.col;
-            }
-            else if (edge == "bottomRight") {
-                if (pointInfo.row >= tableSelection.top)
-                    tableSelection.bottom = pointInfo.row;
-                if (pointInfo.col >= tableSelection.left)
-                    tableSelection.right = pointInfo.col;
-            }
+        if (edge == "topLeft") {
+            if (pointInfo.row <= tableSelection.bottom)
+                tableSelection.top = pointInfo.row;
+            if (pointInfo.col <= tableSelection.right)
+                tableSelection.left = pointInfo.col;
+        }
+        else if (edge == "bottomRight") {
+            if (pointInfo.row >= tableSelection.top)
+                tableSelection.bottom = pointInfo.row;
+            if (pointInfo.col >= tableSelection.left)
+                tableSelection.right = pointInfo.col;
+        }
 
-            // FIXME: handle the case where there is no cell at the specified row and column
-            var topLeftCell = structure.get(tableSelection.top,tableSelection.left);
-            var bottomRightCell = structure.get(tableSelection.bottom,tableSelection.right);
+        // FIXME: handle the case where there is no cell at the specified row and column
+        var topLeftCell = structure.get(tableSelection.top,tableSelection.left);
+        var bottomRightCell = structure.get(tableSelection.bottom,tableSelection.right);
 
-            var topLeftNode = topLeftCell.element.parentNode;
-            var topLeftOffset = DOM_nodeOffset(topLeftCell.element);
-            var bottomRightNode = bottomRightCell.element.parentNode;
-            var bottomRightOffset = DOM_nodeOffset(bottomRightCell.element)+1;
+        var topLeftNode = topLeftCell.element.parentNode;
+        var topLeftOffset = DOM_nodeOffset(topLeftCell.element);
+        var bottomRightNode = bottomRightCell.element.parentNode;
+        var bottomRightOffset = DOM_nodeOffset(bottomRightCell.element)+1;
 
-            Selection_set(topLeftNode,topLeftOffset,bottomRightNode,bottomRightOffset);
-        });
+        Selection_set(topLeftNode,topLeftOffset,bottomRightNode,bottomRightOffset);
+        Selection_update();
 
         // FIXME: this could possibly be optimised
         function findCellInTable(structure,x,y)
@@ -1005,9 +999,8 @@ var Selection_posAtEndOfWord;
     // public
     Selection_setEmptySelectionAt = trace(function setEmptySelectionAt(node,offset)
     {
-        Selection_hideWhileExecuting(function() {
-            Selection_set(node,offset,node,offset);
-        });
+        Selection_set(node,offset,node,offset);
+        Selection_update();
     });
 
     // private
@@ -1208,9 +1201,8 @@ var Selection_posAtEndOfWord;
     // public
     Selection_clearSelection = trace(function clearSelection()
     {
-        Selection_hideWhileExecuting(function() {
-            Selection_clear();
-        });
+        Selection_clear();
+        Selection_update();
     });
 
     // public
@@ -1225,22 +1217,21 @@ var Selection_posAtEndOfWord;
     // public
     Selection_preserveWhileExecuting = trace(function preserveWhileExecuting(fun)
     {
-        return Selection_hideWhileExecuting(function () {
-            var range = Selection_get();
+        var range = Selection_get();
 
-            // Since the selection may have changed as a result of changes to the document, we
-            // have to call clear() or set() so that undo history is saved
-            if (range == null) {
-                result = fun();
-                Selection_clear();
-            }
-            else {
-                result = range.trackWhileExecuting(fun);
-                Selection_set(range.start.node,range.start.offset,
-                              range.end.node,range.end.offset);
-            }
-            return result;
-        });
+        // Since the selection may have changed as a result of changes to the document, we
+        // have to call clear() or set() so that undo history is saved
+        if (range == null) {
+            result = fun();
+            Selection_clear();
+            Selection_update();
+        }
+        else {
+            result = range.trackWhileExecuting(fun);
+            Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
+            Selection_update();
+        }
+        return result;
     });
 
 })();

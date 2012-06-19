@@ -1011,9 +1011,8 @@ var Outline_setReferenceTarget;
             var node = document.getElementById(itemId);
             var position = new Position(node,0);
             position = Position_closestMatchForwards(position,Position_okForMovement);
-            Selection_hideWhileExecuting(function() {
-                Selection_set(position.node,position.offset,position.node,position.offset);
-            });
+            Selection_set(position.node,position.offset,position.node,position.offset);
+            Selection_update();
 
             var section = document.getElementById(itemId);
             var location = webkitConvertPointFromNodeToPage(section,new WebKitPoint(0,0));

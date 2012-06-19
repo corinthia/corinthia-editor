@@ -323,7 +323,8 @@ var Formatting_applyFormattingChanges;
         }
     });
 
-    var getFormattingWrapped = trace(function getFormattingWrapped()
+    // public
+    Formatting_getFormatting = trace(function getFormatting()
     {
         // FIXME: implement a more efficient version of this algorithm which avoids duplicate checks
 
@@ -433,14 +434,6 @@ var Formatting_applyFormattingChanges;
                     findLeafNodes(child,result);
             }
         }
-    });
-
-    // public
-    Formatting_getFormatting = trace(function getFormatting()
-    {
-        return Selection_hideWhileExecuting(function() {
-            return getFormattingWrapped();
-        });
     });
 
     // private
@@ -916,7 +909,8 @@ var Formatting_applyFormattingChanges;
         return true;
     });
 
-    var applyFormattingChanges2 = trace(function applyFormattingChanges2(style,properties)
+    // public
+    Formatting_applyFormattingChanges = trace(function applyFormattingChanges(style,properties)
     {
         if (properties == null)
             properties = new Object();
@@ -1051,6 +1045,7 @@ var Formatting_applyFormattingChanges;
         start = tempRange.start;
         end = tempRange.end;
         Selection_set(start.node,start.offset,end.node,end.offset);
+        Selection_update();
 
         function containsOnlyInlineChildren(node)
         {
@@ -1060,14 +1055,6 @@ var Formatting_applyFormattingChanges;
             }
             return true;
         }
-    });
-
-    // public
-    Formatting_applyFormattingChanges = trace(function applyFormattingChanges(style,properties)
-    {
-        Selection_hideWhileExecuting(function() {
-            applyFormattingChanges2(style,properties);
-        });
     });
 
     Formatting_MERGEABLE_INLINE = {

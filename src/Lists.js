@@ -359,162 +359,159 @@ var Lists_setOrderedList;
             }
         });
 
-        Selection_hideWhileExecuting(function() {
-            var range = Selection_get();
-            if (range == null)
-                return;
-            if (range.isEmpty() &&
-                (range.start.node.nodeType == Node.ELEMENT_NODE) &&
-                (isContainerNode(range.start.node))) {
+        var range = Selection_get();
+        if (range == null)
+            return;
+        if (range.isEmpty() &&
+            (range.start.node.nodeType == Node.ELEMENT_NODE) &&
+            (isContainerNode(range.start.node))) {
 
-                var p = DOM_createElement(document,"P");
+            var p = DOM_createElement(document,"P");
 
-                var next = range.start.node.childNodes[range.start.offset+1];
-                DOM_insertBefore(range.start.node,p,next);
+            var next = range.start.node.childNodes[range.start.offset+1];
+            DOM_insertBefore(range.start.node,p,next);
 
-                Cursor_updateBRAtEndOfParagraph(p);
-                Selection_set(p,0,p,0);
-            }
-        });
+            Cursor_updateBRAtEndOfParagraph(p);
+            Selection_set(p,0,p,0);
+            Selection_update();
+        }
     });
 
     // private
     var setList = trace(function setList(type)
     {
-        var range;
-        Selection_hideWhileExecuting(function() {
-            range = Selection_get();
-            if (range == null)
-                return;
+        var range = Selection_get();
+        if (range == null)
+            return;
 
-            var nodes = getListOperationNodes(range);
+        var nodes = getListOperationNodes(range);
 
-            if (nodes.length == 0) {
-                var text;
-                if (range.start.node.nodeType == Node.TEXT_NODE) {
-                    text = range.start.node;
-                }
-                else if (range.start.node.nodeType == Node.ELEMENT_NODE) {
-                    text = DOM_createTextNode(document,"");
-                    DOM_insertBefore(range.start.node,
-                                     text,
-                                     range.start.node[range.start.offset+1]);
-                }
-                nodes = [text];
-
-                var offset = DOM_nodeOffset(text);
-                Selection_set(text,0,text,0);
-                range = Selection_get();
+        if (nodes.length == 0) {
+            var text;
+            if (range.start.node.nodeType == Node.TEXT_NODE) {
+                text = range.start.node;
             }
+            else if (range.start.node.nodeType == Node.ELEMENT_NODE) {
+                text = DOM_createTextNode(document,"");
+                DOM_insertBefore(range.start.node,
+                                 text,
+                                 range.start.node[range.start.offset+1]);
+            }
+            nodes = [text];
 
-            range.trackWhileExecuting(function () {
-                // Set list to UL or OL
+            var offset = DOM_nodeOffset(text);
+            Selection_set(text,0,text,0);
+            range = Selection_get();
+        }
 
-                for (var i = 0; i < nodes.length; i++) {
-                    var node = nodes[i];
-                    var next;
-                    var prev;
-                    var li = null;
-                    var oldList = null;
-                    var listInsertionPoint;
+        range.trackWhileExecuting(function () {
+            // Set list to UL or OL
 
-                    if ((DOM_upperName(node) == "LI") && (DOM_upperName(node.parentNode) == type)) {
-                        // Already in the correct type of list; don't need to do anything
-                        continue;
-                    }
+            for (var i = 0; i < nodes.length; i++) {
+                var node = nodes[i];
+                var next;
+                var prev;
+                var li = null;
+                var oldList = null;
+                var listInsertionPoint;
 
-                    if ((DOM_upperName(node) == "LI")) {
-                        li = node;
-                        var list = li.parentNode;
-
-                        DOM_removeAdjacentWhitespace(list);
-                        prev = list.previousSibling;
-                        next = list.nextSibling;
-
-
-                        DOM_removeAdjacentWhitespace(li);
-
-                        if (li.previousSibling == null) {
-                            listInsertionPoint = list;
-                            next = null;
-                        }
-                        else if (li.nextSibling == null) {
-                            listInsertionPoint = list.nextSibling;
-                            prev = null;
-                        }
-                        else {
-                            var secondList = DOM_shallowCopyElement(list);
-                            DOM_insertBefore(list.parentNode,secondList,list.nextSibling);
-                            while (li.nextSibling != null) {
-                                DOM_insertBefore(secondList,li.nextSibling,null);
-                                DOM_removeAdjacentWhitespace(li);
-                            }
-
-                            listInsertionPoint = secondList;
-
-                            prev = null;
-                            next = null;
-                        }
-
-                        node = list;
-                        oldList = list;
-                    }
-                    else {
-                        DOM_removeAdjacentWhitespace(node);
-                        prev = node.previousSibling;
-                        next = node.nextSibling;
-                        listInsertionPoint = node;
-                    }
-
-                    var list;
-                    var itemInsertionPoint;
-
-                    if ((prev != null) &&
-                        (DOM_upperName(prev) == type)) {
-                        list = prev;
-                        itemInsertionPoint = null;
-                    }
-                    else if ((next != null) &&
-                             (DOM_upperName(next) == type)) {
-                        list = next;
-                        itemInsertionPoint = list.firstChild;
-                    }
-                    else {
-                        list = DOM_createElement(document,type);
-                        DOM_insertBefore(node.parentNode,list,listInsertionPoint);
-                        itemInsertionPoint = null;
-                    }
-
-                    if (li != null) {
-                        DOM_insertBefore(list,li,itemInsertionPoint);
-                    }
-                    else {
-                        var li = DOM_createElement(document,"LI");
-                        DOM_insertBefore(list,li,itemInsertionPoint);
-                        DOM_insertBefore(li,node,null);
-                    }
-
-
-                    if ((oldList != null) && (oldList.firstChild == null))
-                        DOM_deleteNode(oldList);
-
-                    // Merge with adjacent list
-                    DOM_removeAdjacentWhitespace(list);
-                    if ((list.nextSibling != null) && (DOM_upperName(list.nextSibling) == type)) {
-                        var followingList = list.nextSibling;
-                        while (followingList.firstChild != null) {
-                            if (isWhitespaceTextNode(followingList.firstChild))
-                                DOM_deleteNode(followingList.firstChild);
-                            else
-                                DOM_insertBefore(list,followingList.firstChild,null);
-                        }
-                        DOM_deleteNode(followingList);
-                    }
+                if ((DOM_upperName(node) == "LI") && (DOM_upperName(node.parentNode) == type)) {
+                    // Already in the correct type of list; don't need to do anything
+                    continue;
                 }
-            });
-            range.ensureRangeValidHierarchy();
-            Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
+
+                if ((DOM_upperName(node) == "LI")) {
+                    li = node;
+                    var list = li.parentNode;
+
+                    DOM_removeAdjacentWhitespace(list);
+                    prev = list.previousSibling;
+                    next = list.nextSibling;
+
+
+                    DOM_removeAdjacentWhitespace(li);
+
+                    if (li.previousSibling == null) {
+                        listInsertionPoint = list;
+                        next = null;
+                    }
+                    else if (li.nextSibling == null) {
+                        listInsertionPoint = list.nextSibling;
+                        prev = null;
+                    }
+                    else {
+                        var secondList = DOM_shallowCopyElement(list);
+                        DOM_insertBefore(list.parentNode,secondList,list.nextSibling);
+                        while (li.nextSibling != null) {
+                            DOM_insertBefore(secondList,li.nextSibling,null);
+                            DOM_removeAdjacentWhitespace(li);
+                        }
+
+                        listInsertionPoint = secondList;
+
+                        prev = null;
+                        next = null;
+                    }
+
+                    node = list;
+                    oldList = list;
+                }
+                else {
+                    DOM_removeAdjacentWhitespace(node);
+                    prev = node.previousSibling;
+                    next = node.nextSibling;
+                    listInsertionPoint = node;
+                }
+
+                var list;
+                var itemInsertionPoint;
+
+                if ((prev != null) &&
+                    (DOM_upperName(prev) == type)) {
+                    list = prev;
+                    itemInsertionPoint = null;
+                }
+                else if ((next != null) &&
+                         (DOM_upperName(next) == type)) {
+                    list = next;
+                    itemInsertionPoint = list.firstChild;
+                }
+                else {
+                    list = DOM_createElement(document,type);
+                    DOM_insertBefore(node.parentNode,list,listInsertionPoint);
+                    itemInsertionPoint = null;
+                }
+
+                if (li != null) {
+                    DOM_insertBefore(list,li,itemInsertionPoint);
+                }
+                else {
+                    var li = DOM_createElement(document,"LI");
+                    DOM_insertBefore(list,li,itemInsertionPoint);
+                    DOM_insertBefore(li,node,null);
+                }
+
+
+                if ((oldList != null) && (oldList.firstChild == null))
+                    DOM_deleteNode(oldList);
+
+                // Merge with adjacent list
+                DOM_removeAdjacentWhitespace(list);
+                if ((list.nextSibling != null) && (DOM_upperName(list.nextSibling) == type)) {
+                    var followingList = list.nextSibling;
+                    while (followingList.firstChild != null) {
+                        if (isWhitespaceTextNode(followingList.firstChild))
+                            DOM_deleteNode(followingList.firstChild);
+                        else
+                            DOM_insertBefore(list,followingList.firstChild,null);
+                    }
+                    DOM_deleteNode(followingList);
+                }
+            }
         });
+        range.ensureRangeValidHierarchy();
+        Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
+        Selection_update();
     });
 
     // public

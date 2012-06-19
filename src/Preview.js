@@ -95,19 +95,19 @@ var Preview_showForStyle;
 
             Selection_selectAll();
             Formatting_applyFormattingChanges(styleId,null);
-            Selection_hideWhileExecuting(Selection_clear);
+            Selection_clear();
         }
         else if ((styleId == "table") || (styleId == "caption")) {
             Selection_selectAll();
             Tables_insertTable(3,3,"66%",true,"Table caption");
-            Selection_hideWhileExecuting(Selection_clear);
+            Selection_clear();
             var table = document.getElementsByTagName("TABLE")[0];
             setTableCellContents(table);
         }
         else if ((styleId == "figure") || (styleId == "figcaption")) {
             Selection_selectAll();
             Figures_insertFigure("SampleFigure.svg","75%",true,"TCP 3-way handshake");
-            Selection_hideWhileExecuting(Selection_clear);
+            Selection_clear();
         }
         else if (styleId == "body") {
             // We use BR here instead of separate paragraphs, since we don't want the properties

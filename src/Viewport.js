@@ -38,7 +38,7 @@ var Viewport_setTextScale;
         viewportHeight = height;
         DOM_setAttribute(viewportMetaElement,"content","width = "+width+", user-scalable = no");
 
-        Selection_updateSelectionDisplay();
+        Selection_update();
         Cursor_ensureCursorVisible();
     });
 
@@ -60,7 +60,7 @@ var Viewport_setTextScale;
         var pct = Math.floor(textScale*100)+"%";
         DOM_setStyleProperties(document.documentElement,{"-webkit-text-size-adjust": pct});
 
-        Selection_updateSelectionDisplay();
+        Selection_update();
         Cursor_ensureCursorVisible();
     });
 

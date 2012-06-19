@@ -196,9 +196,8 @@ var Tables_setProperties;
         // Place the cursor at the start of the first cell on the first row
         var pos = new Position(firstTD,0);
         pos = Position_closestMatchForwards(pos,Position_okForMovement);
-        Selection_hideWhileExecuting(function() {
-            Selection_set(pos.node,pos.offset,pos.node,pos.offset);
-        });
+        Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+        Selection_update();
 
         PostponedActions_add(UndoManager_newGroup);
     });
@@ -820,9 +819,8 @@ var Tables_setProperties;
         var table = document.getElementById(itemId);
         if (table == null)
             return null;
-        Selection_hideWhileExecuting(function() { // ensure cursor/selection drawn in correct pos
-            DOM_setStyleProperties(table,{ width: width });
-        });
+        DOM_setStyleProperties(table,{ width: width });
+        Selection_update(); // ensure cursor/selection drawn in correct pos
     });
 
 })();

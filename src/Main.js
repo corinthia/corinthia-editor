@@ -115,37 +115,35 @@ var Main_init;
 
         function htmlWithSelection()
         {
-            Selection_hideWhileExecuting(function() {
-                var selectionRange = Selection_get();
-                if (selectionRange != null) {
-                    selectionRange = selectionRange.forwards();
-                    var startSave = new Object();
-                    var endSave = new Object();
+            var selectionRange = Selection_get();
+            if (selectionRange != null) {
+                selectionRange = selectionRange.forwards();
+                var startSave = new Object();
+                var endSave = new Object();
 
-                    var html = null;
+                var html = null;
 
-                    selectionRange.trackWhileExecuting(function() {
-                        // We use the strings @@^^ and ^^@@ to represent the selection
-                        // start and end, respectively. The reason for this is that after we have
-                        // cloned the tree, all text will be removed. We keeping the @ and ^
-                        // characters so we have some way to identifiy the selection markers;
-                        // leaving these in is not going to reveal any confidential information.
+                selectionRange.trackWhileExecuting(function() {
+                    // We use the strings @@^^ and ^^@@ to represent the selection
+                    // start and end, respectively. The reason for this is that after we have
+                    // cloned the tree, all text will be removed. We keeping the @ and ^
+                    // characters so we have some way to identifiy the selection markers;
+                    // leaving these in is not going to reveal any confidential information.
 
-                        addPositionMarker(selectionRange.end,"^^@@",endSave);
-                        addPositionMarker(selectionRange.start,"@@^^",startSave);
+                    addPositionMarker(selectionRange.end,"^^@@",endSave);
+                    addPositionMarker(selectionRange.start,"@@^^",startSave);
 
-                        html = DOM_cloneNode(document.documentElement,true);
+                    html = DOM_cloneNode(document.documentElement,true);
 
-                        removePositionMarker(selectionRange.start,startSave);
-                        removePositionMarker(selectionRange.end,endSave);
-                    });
+                    removePositionMarker(selectionRange.start,startSave);
+                    removePositionMarker(selectionRange.end,endSave);
+                });
 
-                    return html;
-                }
-                else {
-                    return DOM_cloneNode(document.documentElement,true);
-                }
-            });
+                return html;
+            }
+            else {
+                return DOM_cloneNode(document.documentElement,true);
+            }
         }
 
         function addPositionMarker(pos,name,save)

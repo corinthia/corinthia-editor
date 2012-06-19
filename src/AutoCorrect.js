@@ -206,21 +206,19 @@ var AutoCorrect_replaceCorrection;
 
     var getCurrent = trace(function getCurrent()
     {
-        return Selection_hideWhileExecuting(function() {
-            var range = Selection_get();
-            if (range != null) {
-                var endNode = range.end.closestActualNode();
-                for (; endNode != null; endNode = endNode.parentNode) {
-                    if (isAutoCorrectNode(endNode))
-                        return correctionsByNode.get(endNode);
-                }
+        var range = Selection_get();
+        if (range != null) {
+            var endNode = range.end.closestActualNode();
+            for (; endNode != null; endNode = endNode.parentNode) {
+                if (isAutoCorrectNode(endNode))
+                    return correctionsByNode.get(endNode);
             }
+        }
 
-            if (correctionList.length > 0)
-                return correctionList[correctionList.length-1];
+        if (correctionList.length > 0)
+            return correctionList[correctionList.length-1];
 
-            return null;
-        });
+        return null;
     });
 
     AutoCorrect_acceptCorrection = trace(function acceptCorrection()

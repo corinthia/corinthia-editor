@@ -322,42 +322,43 @@ var Clipboard_pasteNodes;
         UndoManager_newGroup("Cut");
         var content;
 
-        Selection_hideWhileExecuting(function() {
-            var range = Selection_get();
-            range = expandRangeForCopy(range);
-            content = copyRange(range);
+        var range = Selection_get();
+        range = expandRangeForCopy(range);
+        content = copyRange(range);
 
-            Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
-            Selection_deleteContents();
-            var selRange = Selection_get();
-            if (selRange != null) {
-                selRange.trackWhileExecuting(function() {
-                    var node = selRange.start.closestActualNode();
-                    while (node != null) {
-                        var parent = node.parentNode;
-                        if (isListItemNode(node)) {
-                            if (!nodeHasContent(node))
-                                DOM_deleteNode(node);
-                        }
-                        else if (isListNode(node)) {
-                            var haveLI = false;
-                            for (var c = node.firstChild; c != null; c = c.nextSibling) {
-                                if (isListItemNode(c)) {
-                                    haveLI = true;
-                                    break;
-                                }
-                            }
-                            if (!haveLI)
-                                DOM_deleteNode(node);
-                        }
-                        node = parent;
+        Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
+        Selection_deleteContents();
+        var selRange = Selection_get();
+        if (selRange != null) {
+            selRange.trackWhileExecuting(function() {
+                var node = selRange.start.closestActualNode();
+                while (node != null) {
+                    var parent = node.parentNode;
+                    if (isListItemNode(node)) {
+                        if (!nodeHasContent(node))
+                            DOM_deleteNode(node);
                     }
-                });
+                    else if (isListNode(node)) {
+                        var haveLI = false;
+                        for (var c = node.firstChild; c != null; c = c.nextSibling) {
+                            if (isListItemNode(c)) {
+                                haveLI = true;
+                                break;
+                            }
+                        }
+                        if (!haveLI)
+                            DOM_deleteNode(node);
+                    }
+                    node = parent;
+                }
+            });
 
-                var pos = Position_closestMatchForwards(selRange.start,Position_okForMovement);
-                Selection_set(pos.node,pos.offset,pos.node,pos.offset);
-            }
-        });
+            var pos = Position_closestMatchForwards(selRange.start,Position_okForMovement);
+            Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+        }
+
+        Selection_update();
+        Cursor_ensureCursorVisible();
 
         UndoManager_newGroup();
         return content;
@@ -366,11 +367,9 @@ var Clipboard_pasteNodes;
     // public
     Clipboard_copy = trace(function copy()
     {
-        return Selection_hideWhileExecuting(function() {
-            var range = Selection_get();
-            range = expandRangeForCopy(range);
-            return copyRange(range);
-        });
+        var range = Selection_get();
+        range = expandRangeForCopy(range);
+        return copyRange(range);
     });
 
     // public
@@ -435,140 +434,140 @@ var Clipboard_pasteNodes;
                 return;
             }
         }
-        Selection_hideWhileExecuting(function() {
-            Selection_deleteContents();
-            var range = Selection_get();
-            if (range == null)
-                return;
 
-            if (nodes.length == 0)
-                return;
+        Selection_deleteContents();
+        var range = Selection_get();
+        if (range == null)
+            return;
 
-            var parent;
-            var previousSibling;
-            var nextSibling;
+        if (nodes.length == 0)
+            return;
 
-            if (range.start.node.nodeType == Node.ELEMENT_NODE) {
-                parent = range.start.node;
-                nextSibling = range.start.node.childNodes[range.start.offset];
-                previousSibling = range.start.node.childNodes[range.start.offset-1];
+        var parent;
+        var previousSibling;
+        var nextSibling;
+
+        if (range.start.node.nodeType == Node.ELEMENT_NODE) {
+            parent = range.start.node;
+            nextSibling = range.start.node.childNodes[range.start.offset];
+            previousSibling = range.start.node.childNodes[range.start.offset-1];
+        }
+        else {
+            Formatting_splitTextBefore(range.start.node,range.start.offset);
+            parent = range.start.node.parentNode;
+            nextSibling = range.start.node;
+            previousSibling = range.start.node.previousSibling;
+        }
+
+        var prevLI = null;
+        var inItem = null;
+        var inList = null;
+        var containerParent = null;
+
+        for (var temp = parent; temp != null; temp = temp.parentNode) {
+            if (isContainerNode(temp)) {
+                if (isListItemNode(temp))
+                    inItem = temp;
+                if (isListNode(temp))
+                    inList = temp;
+                containerParent = temp.parentNode;
+                break;
             }
-            else {
-                Formatting_splitTextBefore(range.start.node,range.start.offset);
-                parent = range.start.node.parentNode;
-                nextSibling = range.start.node;
-                previousSibling = range.start.node.previousSibling;
-            }
+        }
 
-            var prevLI = null;
-            var inItem = null;
-            var inList = null;
-            var containerParent = null;
+        if (inItem) {
+            for (var i = 0; i < nodes.length; i++) {
+                var child = nodes[i];
 
-            for (var temp = parent; temp != null; temp = temp.parentNode) {
-                if (isContainerNode(temp)) {
-                    if (isListItemNode(temp))
-                        inItem = temp;
-                    if (isListNode(temp))
-                        inList = temp;
-                    containerParent = temp.parentNode;
-                    break;
+                var offset = DOM_nodeOffset(nextSibling,parent);
+
+                if (isListNode(child)) {
+                    Formatting_movePreceding(parent,
+                                             offset,
+                                             function(x) { return (x == containerParent); });
+                    insertChildrenBefore(inItem.parentNode,child,inItem);
                 }
-            }
-
-            if (inItem) {
-                for (var i = 0; i < nodes.length; i++) {
-                    var child = nodes[i];
-
-                    var offset = DOM_nodeOffset(nextSibling,parent);
-
-                    if (isListNode(child)) {
-                        Formatting_movePreceding(parent,
-                                                 offset,
-                                                 function(x) { return (x == containerParent); });
-                        insertChildrenBefore(inItem.parentNode,child,inItem);
-                    }
-                    else if (isListItemNode(child)) {
-                        Formatting_movePreceding(parent,
-                                                 offset,
-                                                 function(x) { return (x == containerParent); });
-                        DOM_insertBefore(inItem.parentNode,child,inItem);
-                    }
-                    else {
-                        DOM_insertBefore(parent,child,nextSibling);
-                    }
+                else if (isListItemNode(child)) {
+                    Formatting_movePreceding(parent,
+                                             offset,
+                                             function(x) { return (x == containerParent); });
+                    DOM_insertBefore(inItem.parentNode,child,inItem);
                 }
-            }
-            else if (inList) {
-                for (var i = 0; i < nodes.length; i++) {
-                    var child = nodes[i];
-
-                    var offset = DOM_nodeOffset(nextSibling,parent);
-                    
-                    if (isListNode(child)) {
-                        insertChildrenBefore(parent,child,nextSibling);
-                        prevLI = null;
-                    }
-                    else if (isListItemNode(child)) {
-                        DOM_insertBefore(parent,child,nextSibling);
-                        prevLI = null;
-                    }
-                    else if (!isWhitespaceTextNode(child)) {
-                        if (prevLI == null)
-                            prevLI = DOM_createElement(document,"LI");
-                        DOM_appendChild(prevLI,child);
-                        DOM_insertBefore(parent,prevLI,nextSibling);
-                    }
-                }
-            }
-            else {
-                for (var i = 0; i < nodes.length; i++) {
-                    var child = nodes[i];
+                else {
                     DOM_insertBefore(parent,child,nextSibling);
                 }
             }
+        }
+        else if (inList) {
+            for (var i = 0; i < nodes.length; i++) {
+                var child = nodes[i];
 
-            var prevOffset;
-            if (previousSibling == null)
-                prevOffset = 0;
-            else
-                prevOffset = DOM_nodeOffset(previousSibling);
-            var nextOffset = DOM_nodeOffset(nextSibling,parent);
-
-            var pastedRange = new Range(parent,prevOffset,parent,nextOffset);
-            pastedRange.trackWhileExecuting(function() {
-                if (previousSibling != null)
-                    Formatting_mergeWithNeighbours(previousSibling,Formatting_MERGEABLE_INLINE);
-                if (nextSibling != null)
-                    Formatting_mergeWithNeighbours(nextSibling,Formatting_MERGEABLE_INLINE);
-
-                Cursor_updateBRAtEndOfParagraph(parent);
-
-                pastedRange.ensureRangeValidHierarchy(true);
-            });
-
-            var pos = new Position(pastedRange.end.node,pastedRange.end.offset);
-            Position.trackWhileExecuting(pos,function() {
-                while (true) {
-                    if (pos.node == document.body)
-                        break;
-                    if (isContainerNode(pos.node) && !isListItemNode(pos.node))
-                        break;
-                    if (!nodeHasContent(pos.node)) {
-                        var oldNode = pos.node;
-                        pos = new Position(pos.node.parentNode,DOM_nodeOffset(pos.node));
-                        DOM_deleteNode(oldNode);
-                    }
-                    else
-                        break;
+                var offset = DOM_nodeOffset(nextSibling,parent);
+                
+                if (isListNode(child)) {
+                    insertChildrenBefore(parent,child,nextSibling);
+                    prevLI = null;
                 }
-            });
+                else if (isListItemNode(child)) {
+                    DOM_insertBefore(parent,child,nextSibling);
+                    prevLI = null;
+                }
+                else if (!isWhitespaceTextNode(child)) {
+                    if (prevLI == null)
+                        prevLI = DOM_createElement(document,"LI");
+                    DOM_appendChild(prevLI,child);
+                    DOM_insertBefore(parent,prevLI,nextSibling);
+                }
+            }
+        }
+        else {
+            for (var i = 0; i < nodes.length; i++) {
+                var child = nodes[i];
+                DOM_insertBefore(parent,child,nextSibling);
+            }
+        }
 
-            pos = Position_closestMatchBackwards(pos,Position_okForInsertion);
+        var prevOffset;
+        if (previousSibling == null)
+            prevOffset = 0;
+        else
+            prevOffset = DOM_nodeOffset(previousSibling);
+        var nextOffset = DOM_nodeOffset(nextSibling,parent);
 
-            Selection_set(pos.node,pos.offset,pos.node,pos.offset);
-            Cursor_ensureCursorVisible();
+        var pastedRange = new Range(parent,prevOffset,parent,nextOffset);
+        pastedRange.trackWhileExecuting(function() {
+            if (previousSibling != null)
+                Formatting_mergeWithNeighbours(previousSibling,Formatting_MERGEABLE_INLINE);
+            if (nextSibling != null)
+                Formatting_mergeWithNeighbours(nextSibling,Formatting_MERGEABLE_INLINE);
+
+            Cursor_updateBRAtEndOfParagraph(parent);
+
+            pastedRange.ensureRangeValidHierarchy(true);
         });
+
+        var pos = new Position(pastedRange.end.node,pastedRange.end.offset);
+        Position.trackWhileExecuting(pos,function() {
+            while (true) {
+                if (pos.node == document.body)
+                    break;
+                if (isContainerNode(pos.node) && !isListItemNode(pos.node))
+                    break;
+                if (!nodeHasContent(pos.node)) {
+                    var oldNode = pos.node;
+                    pos = new Position(pos.node.parentNode,DOM_nodeOffset(pos.node));
+                    DOM_deleteNode(oldNode);
+                }
+                else
+                    break;
+            }
+        });
+
+        pos = Position_closestMatchBackwards(pos,Position_okForInsertion);
+
+        Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+        Selection_update();
+        Cursor_ensureCursorVisible();
     });
 
     function pasteImage(href)
