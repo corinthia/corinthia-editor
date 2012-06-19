@@ -315,7 +315,6 @@ var Styles_removeSelectionRule;
             }
         }
         documentStyleElement = DOM_createElement(document,"STYLE");
-        DOM_setAttribute(documentStyleElement,"type","text/css");
         DOM_appendChild(head,documentStyleElement);
         return documentStyleElement;
     });
