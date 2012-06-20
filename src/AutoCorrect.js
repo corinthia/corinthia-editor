@@ -144,9 +144,9 @@ var AutoCorrect_replaceCorrection;
         return result;
     });
 
-    AutoCorrect_correctPrecedingWord = trace(function correctPrecedingWord(numChars,replacement)
+    AutoCorrect_correctPrecedingWord = 
+        trace(function correctPrecedingWord(numChars,replacement,confirmed)
     {
-        UndoManager_newGroup("Auto-correct");
         Selection_preserveWhileExecuting(function() {
             var selRange = Selection_get();
             if ((selRange == null) && !selRange.isEmpty())
@@ -159,6 +159,12 @@ var AutoCorrect_replaceCorrection;
 
             var original = node.nodeValue.substring(offset-numChars,offset);
 
+            if (confirmed) {
+                DOM_replaceCharacters(node,offset-numChars,offset,replacement);
+                return;
+            }
+
+            UndoManager_newGroup("Auto-correct");
             var before = node.nodeValue.substring(0,offset-numChars);
             var beforeText = DOM_createTextNode(document,before);
             var replacementText = DOM_createTextNode(document,replacement);

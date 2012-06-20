@@ -32,6 +32,7 @@ var DOM_wrapNode;
 var DOM_wrapSiblings;
 var DOM_mergeWithNextSibling;
 var DOM_nodesMergeable;
+var DOM_replaceCharacters;
 var DOM_addTrackedPosition;
 var DOM_removeTrackedPosition;
 var DOM_removeAdjacentWhitespace;
@@ -662,6 +663,16 @@ var DOM_Listener;
     }
 
     // public
+    function replaceCharacters(textNode,startOffset,endOffset,replacement)
+    {
+        // Note that we do the insertion *before* the deletion so that the position is properly
+        // maintained, and ends up at the end of the replacement (unless it was previously at
+        // startOffset, in which case it will stay the same)
+        DOM_insertCharacters(textNode,startOffset,replacement);
+        DOM_deleteCharacters(textNode,startOffset+replacement.length,endOffset+replacement.length);
+    }
+
+    // public
     function addTrackedPosition(position)
     {
         var data = getDataForNode(position.node,true);
@@ -882,6 +893,7 @@ var DOM_Listener;
     DOM_wrapSiblings = trace(wrapSiblings);
     DOM_mergeWithNextSibling = trace(mergeWithNextSibling);
     DOM_nodesMergeable = trace(nodesMergeable);
+    DOM_replaceCharacters = trace(replaceCharacters);
     DOM_addTrackedPosition = trace(addTrackedPosition);
     DOM_removeTrackedPosition = trace(removeTrackedPosition);
     DOM_removeAdjacentWhitespace = trace(removeAdjacentWhitespace);
