@@ -407,24 +407,24 @@ var Styles_removeSelectionRule;
     // public
     Styles_discoverStyles = trace(function discoverStyles()
     {
-        for (var i = 0; i < document.styleSheets.length; i++) {
-            var sheet = document.styleSheets[i];
+        for (var sheetNo = 0; sheetNo < document.styleSheets.length; sheetNo++) {
+            var sheet = document.styleSheets[sheetNo];
             var str = "";
             for (name in sheet)
                 str += name+"\n";
-            for (var j = 0; j < sheet.cssRules.length; j++) {
-                var rule = sheet.cssRules[j];
+            for (var ruleNo = 0; ruleNo < sheet.cssRules.length; ruleNo++) {
+                var rule = sheet.cssRules[ruleNo];
                 if ((rule.type == CSSRule.STYLE_RULE) || (rule.type == CSSRule.PAGE_RULE)) {
                     var properties = new Object();
-                    for (k = 0; k < rule.style.length; k++) {
-                        var name = rule.style[k];
+                    for (var propertyNo = 0; propertyNo < rule.style.length; propertyNo++) {
+                        var name = rule.style[propertyNo];
                         var value = rule.style.getPropertyValue(name);
                         properties[name] = value;
                     }
 
                     var individualSelectors = rule.selectorText.split(/\s*,\s*/);
-                    for (var i = 0; i < individualSelectors.length; i++) {
-                        var selector = individualSelectors[i];
+                    for (var selNo = 0; selNo < individualSelectors.length; selNo++) {
+                        var selector = individualSelectors[selNo];
                         var style = styleForId(selector,properties);
                         // If there was already a built-in style for this selector, it might be
                         // marked as latent. Set latent to false to make sure it's included in the
