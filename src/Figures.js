@@ -16,7 +16,7 @@ var Figures_setProperties;
 
         var figure = DOM_createElement(document,"FIGURE");
         var img = DOM_createElement(document,"IMG");
-        DOM_setAttribute(img,"src",filename);
+        DOM_setAttribute(img,"src",encodeURI(filename));
         DOM_setStyleProperties(img,{"width": width});
         DOM_appendChild(figure,img);
 
@@ -58,7 +58,7 @@ var Figures_setProperties;
         var result = { width: null, src: null };
         for (var child = figure.firstChild; child != null; child = child.nextSibling) {
             if (DOM_upperName(child) == "IMG") {
-                result.src = child.getAttribute("src");
+                result.src = decodeURI(child.getAttribute("src"));
                 result.width = child.style.width;
             }
         }
@@ -76,7 +76,7 @@ var Figures_setProperties;
                 if (src == null)
                     DOM_removeAttribute(child,"src");
                 else
-                    DOM_setAttribute(child,"src",src);
+                    DOM_setAttribute(child,"src",encodeURI(src));
 
                 DOM_setStyleProperties(child,{"width": width});
                 if (child.getAttribute("style") == "")
