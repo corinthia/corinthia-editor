@@ -430,15 +430,7 @@ var Selection_posAtEndOfWord;
                 if (span.lastChild != null)
                     checkMerge.push(span.lastChild);
 
-                var prev = span.previousSibling;
-                var next = span.nextSibling;
-
                 DOM_removeNodeButKeepChildren(span);
-
-                if ((prev != null) && (next != null) &&
-                    (prev.nodeType == Node.TEXT_NODE) && (next.nodeType == Node.TEXT_NODE)) {
-                    DOM_mergeWithNextSibling(prev,{});
-                }
             }
             else if (span.parentNode != null) {
                 remainingSpans.push(span);
