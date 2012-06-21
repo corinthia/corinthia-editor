@@ -414,7 +414,7 @@ var Styles_removeSelectionRule;
                 str += name+"\n";
             for (var j = 0; j < sheet.cssRules.length; j++) {
                 var rule = sheet.cssRules[j];
-                if (rule.type == CSSRule.STYLE_RULE) {
+                if ((rule.type == CSSRule.STYLE_RULE) || (rule.type == CSSRule.PAGE_RULE)) {
                     var properties = new Object();
                     for (k = 0; k < rule.style.length; k++) {
                         var name = rule.style[k];
