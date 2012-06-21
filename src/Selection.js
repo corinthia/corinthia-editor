@@ -414,9 +414,12 @@ var Selection_posAtEndOfWord;
     var removeSelectionSpans = trace(function removeSelectionSpans(selRange,force)
     {
         var selectedSet = new NodeSet();
-        var nodes = selRange.getAllNodes();
-        for (var i = 0; i < nodes.length; i++)
-            selectedSet.add(nodes[i]);
+        if (selRange != null) {
+            var nodes = selRange.getAllNodes();
+            for (var i = 0; i < nodes.length; i++)
+                selectedSet.add(nodes[i]);
+        }
+
         var remainingSpans = new Array();
         var checkMerge = new Array();
         for (var i = 0; i < selectionSpans.length; i++) {
@@ -470,6 +473,13 @@ var Selection_posAtEndOfWord;
         selectionDivs = new Array();
 
         var selRange = Selection_get();
+
+        if (selRange == null) {
+            DOM_ignoreMutationsWhileExecuting(function() {
+                removeSelectionSpans(null);
+            });
+            return;
+        }
 
         var rects = null;
         if (selRange != null)
