@@ -202,8 +202,10 @@ var AutoCorrect_replaceCorrection;
         if ((textNode == null) || (textNode.nodeType != Node.TEXT_NODE))
             return null;
 
-        var pos = new Position(textNode,Math.floor(textNode.nodeValue.length/2));
-        var rect = Selection_getPositionRect(pos);
+        var offset = Math.floor(textNode.nodeValue.length/2);
+        Selection_set(textNode,offset,textNode,offset);
+        Cursor_ensureCursorVisible();
+        var rect = Selection_getCursorRect();
         if (rect == null)
             return null;
 
