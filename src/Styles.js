@@ -454,8 +454,8 @@ var Styles_removeSelectionRule;
     Styles_init = trace(function init()
     {
         latentStyleGroups = {
-            "td-paragraph-margins": ["td > *:first-child", "td > *:last-child"],
-            "th-paragraph-margins": ["th > *:first-child", "th > *:last-child"],
+            "td-paragraph-margins": ["td > :first-child", "td > :last-child"],
+            "th-paragraph-margins": ["th > :first-child", "th > :last-child"],
             "table-borders": ["table", "td", "th"],
             "table-caption": ["caption"],
             "figure": ["figure"],
@@ -495,12 +495,12 @@ var Styles_removeSelectionRule;
         defaultStyle("@page","special",true,null).hidden = true;
 
         // "td-paragraph-margins"
-        defaultStyle("td > *:first-child","complex",true,{"margin-top": "0"});
-        defaultStyle("td > *:last-child","complex",true,{"margin-bottom": "0"});
+        defaultStyle("td > :first-child","complex",true,{"margin-top": "0"});
+        defaultStyle("td > :last-child","complex",true,{"margin-bottom": "0"});
 
         // "th-paragraph-margins"
-        defaultStyle("th > *:first-child","complex",true,{"margin-top": "0"});
-        defaultStyle("th > *:last-child","complex",true,{"margin-bottom": "0"});
+        defaultStyle("th > :first-child","complex",true,{"margin-top": "0"});
+        defaultStyle("th > :last-child","complex",true,{"margin-bottom": "0"});
 
         // "table-borders"
         defaultStyle("table","special",true,{"border-collapse": "collapse",
