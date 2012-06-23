@@ -12,6 +12,7 @@ var UndoManager_addAction;
 var UndoManager_newGroup;
 var UndoManager_groupType;
 var UndoManager_disableWhileExecuting;
+var UndoManager_isActive;
 var UndoManager_isDisabled;
 var UndoManager_clear;
 var UndoManager_setProperty;
@@ -210,6 +211,11 @@ var UndoManager_groupType;
         finally {
             disabled--;
         }
+    });
+
+    UndoManager_isActive = trace(function isActive()
+    {
+        return (inUndo || inRedo);
     });
 
     UndoManager_isDisabled = trace(function isDisabled() {

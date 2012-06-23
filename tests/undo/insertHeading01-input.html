@@ -19,7 +19,7 @@ function insertHeading(numbered,title)
     pos = Position_closestMatchForwards(pos,Position_okForMovement);
     Selection_set(pos.node,pos.offset,pos.node,pos.offset);
 
-    UndoManager_newGroup();
+    PostponedActions_add(UndoManager_newGroup);
 }
 
 function performTest()

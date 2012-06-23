@@ -359,7 +359,7 @@ var Clipboard_pasteNodes;
 
         Cursor_ensureCursorVisible();
 
-        UndoManager_newGroup();
+        PostponedActions_perform(UndoManager_newGroup);
         return content;
     });
 

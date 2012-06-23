@@ -530,6 +530,8 @@ var Outline_setReferenceTarget;
     // private
     var docNodeInserted = trace(function docNodeInserted(event)
     {
+        if (UndoManager_isActive())
+            return;
         if (DOM_getIgnoreMutations())
             return;
         try {
@@ -580,6 +582,8 @@ var Outline_setReferenceTarget;
     // private
     var docNodeRemoved = trace(function docNodeRemoved(event)
     {
+        if (UndoManager_isActive())
+            return;
         if (DOM_getIgnoreMutations())
             return;
         try {
@@ -620,6 +624,8 @@ var Outline_setReferenceTarget;
     // private
     var scheduleUpdateStructure = trace(function scheduleUpdateStructure()
     {
+        if (UndoManager_isActive())
+            return;
         if (!outlineDirty) {
             outlineDirty = true;
             PostponedActions_add(updateStructure);
@@ -632,6 +638,8 @@ var Outline_setReferenceTarget;
         if (!outlineDirty)
             return;
         outlineDirty = false;
+        if (UndoManager_isActive())
+            throw new Error("Structure update event while undo or redo active");
         Selection_preserveWhileExecuting(function() {
             updateStructureReal();
         });
@@ -1046,15 +1054,10 @@ var Outline_setReferenceTarget;
         var node = document.getElementById(itemId);
         var item = itemsByNode.get(node);
 
-        var oldNumbered = (item.numberSpan != null);
-        UndoManager_addAction(Outline_setNumbered,itemId,oldNumbered);
-
-        UndoManager_disableWhileExecuting(function() {
-            if (numbered)
-                item.enableNumbering();
-            else
-                item.disableNumbering();
-        });
+        if (numbered)
+            item.enableNumbering();
+        else
+            item.disableNumbering();
     });
 
     // public

@@ -1,0 +1,82 @@
+<html>
+  <head>
+  </head>
+  <body>
+    ==================== Version 0 ====================
+    <body>
+      <nav class="tableofcontents"/>
+      <h1>4 Test</h1>
+      <h1>4 Test</h1>
+      <h1>4 Test</h1>
+    </body>
+    ==================== Version 1 ====================
+    <body>
+      <nav class="tableofcontents">
+        <h1>Contents</h1>
+        <div class="toc1">
+          <a href="#item1">
+            1
+            Test
+          </a>
+        </div>
+        <div class="toc1">
+          <a href="#item2">
+            2
+            Test
+          </a>
+        </div>
+        <div class="toc1">
+          <a href="#item3">
+            3
+            Test
+          </a>
+        </div>
+      </nav>
+      <h1 id="item1">
+        <span class="uxwrite-heading-number">1</span>
+        Test
+      </h1>
+      <h1 id="item2">
+        <span class="uxwrite-heading-number">2</span>
+        Test
+      </h1>
+      <h1 id="item3">
+        <span class="uxwrite-heading-number">3</span>
+        Test
+      </h1>
+    </body>
+    ==================== Version 2 ====================
+    <body>
+      <nav class="tableofcontents">
+        <h1>Contents</h1>
+        <div class="toc1"><a href="#item1">1 Test</a></div>
+        <div class="toc1"><a href="#item2">2 Test</a></div>
+        <div class="toc1"><a href="#item3">3 Test</a></div>
+      </nav>
+      <h1 id="item1">
+        <span class="uxwrite-heading-number">1</span>
+        Test
+      </h1>
+      <h1 id="item2">
+        <span class="uxwrite-heading-number">2</span>
+        Test
+      </h1>
+      <h1 id="item3">
+        <span class="uxwrite-heading-number">3</span>
+        Test
+      </h1>
+    </body>
+    ==================== Version 3 ====================
+    <body/>
+    ===================================================
+    First undo to version 2: OK
+    First undo to version 1: OK
+    First undo to version 0: OK
+    Redo to version 1: OK
+    Redo to version 2: OK
+    Redo to version 3: OK
+    Second undo to version 2: OK
+    Second undo to version 1: OK
+    Second undo to version 0: OK
+  </body>
+</html>
