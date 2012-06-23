@@ -699,7 +699,8 @@ var Outline_setReferenceTarget;
                 if (item.title != "")
                     spanText += ": ";
             }
-            DOM_setNodeValue(item.numberSpan.firstChild,spanText);
+            DOM_deleteAllChildren(item.numberSpan);
+            DOM_appendChild(item.numberSpan,DOM_createTextNode(document,spanText));
         }
 
         var refText = shadow.getFullNumber();
