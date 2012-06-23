@@ -43,6 +43,11 @@ var debug;
 
     Editor_addOutlineItem = function(itemId,type)
     {
+        // FIXME: Temporary hack to prevent crashes, because we can't deal with sections being added
+        // back again after having being removed via an undo
+        if (!window.disableOutlineRedoHack)
+            UndoManager_clearRedoStack();
+
         addBackMessage("addOutlineItem",itemId,type);
     };
 
@@ -53,6 +58,11 @@ var debug;
 
     Editor_removeOutlineItem = function(itemId)
     {
+        // FIXME: Temporary hack to prevent crashes, because we can't deal with sections being added
+        // back again after having being removed via an undo
+        if (!window.disableOutlineRedoHack)
+            UndoManager_clearRedoStack();
+
         addBackMessage("removeOutlineItem",itemId);
     };
 

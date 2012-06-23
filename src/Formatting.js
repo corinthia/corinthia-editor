@@ -912,6 +912,8 @@ var Formatting_applyFormattingChanges;
     // public
     Formatting_applyFormattingChanges = trace(function applyFormattingChanges(style,properties)
     {
+        UndoManager_newGroup("Apply formatting changes");
+
         if (properties == null)
             properties = new Object();
 

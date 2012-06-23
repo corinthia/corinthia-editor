@@ -64,6 +64,7 @@ function loadTestIndex()
 function doPerformTest()
 {
     leftArea.contentWindow.keepSelectionSpans = false;
+    leftArea.contentWindow.disableOutlineRedoHack = true;
     var resultText = leftArea.contentWindow.performTest();
     if (!leftArea.contentWindow.keepSelectionSpans) {
         leftArea.contentWindow.Styles_removeSelectionRule();

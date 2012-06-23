@@ -479,6 +479,8 @@ var Outline_setReferenceTarget;
     // private
     var itemModified = trace(function itemModified(item)
     {
+        if (UndoManager_isActive())
+            return;
         if (ignoreModifications > 0)
             return;
         item.updateItemTitle();
@@ -820,6 +822,15 @@ var Outline_setReferenceTarget;
         return structure;
     });
 
+    var computedOutline = { sections: [], figures: [], tables: [] };
+
+    var setComputedOutline = trace(function setComputedOutline(outline)
+    {
+        UndoManager_addAction(setComputedOutline,computedOutline);
+        computedOutline = outline;
+        Editor_setOutline(outline);
+    });
+
     var updateStructureReal = trace(function updateStructureReal(pageNumbers)
     {
         var structure = discoverStructure();
@@ -860,10 +871,10 @@ var Outline_setReferenceTarget;
         for (var i = 0; i < structure.toplevelTables.length; i++)
             encodeShadow(structure.toplevelTables[i],encTables);
 
-        var arg = { sections: encSections,
-                    figures: encFigures,
-                    tables: encTables };
-        Editor_setOutline(arg);
+        var outline = { sections: encSections,
+                        figures: encFigures,
+                        tables: encTables };
+        setComputedOutline(outline);
         return;
 
 
