@@ -221,6 +221,8 @@ var DOM_Listener;
         addUndoAction(insertBeforeInternal,node.parentNode,node,node.nextSibling);
 
         disableUndoWhileExecuting(function() {
+            if (node.parentNode == null)
+                throw new Error("Undo delete "+nodeString(node)+": parent is null");
             node.parentNode.removeChild(node); // check-ok
 
             // Delete all data associated with the node. This is not preserved across undo/redo;
