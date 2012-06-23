@@ -678,6 +678,18 @@ var Outline_setReferenceTarget;
         return fullNumber;
     });
 
+    var firstTextDescendant = trace(function firstTextDescendant(node)
+    {
+        if (node.nodeType == Node.TEXT_NODE)
+            return node;
+        for (var child = node.firstChild; child != null; child = child.nextSibling) {
+            var result = firstTextDescendant(child);
+            if (result != null)
+                return result;
+        }
+        return null;
+    });
+
     Shadow.prototype.updateItemNumbering = trace(function updateItemNumbering()
     {
         var shadow = this;
@@ -699,8 +711,10 @@ var Outline_setReferenceTarget;
                 if (item.title != "")
                     spanText += ": ";
             }
-            DOM_deleteAllChildren(item.numberSpan);
-            DOM_appendChild(item.numberSpan,DOM_createTextNode(document,spanText));
+            var text = firstTextDescendant(item.numberSpan);
+            if (text == null)
+                throw new Error("no text in number span");
+            DOM_setNodeValue(text,spanText);
         }
 
         var refText = shadow.getFullNumber();
