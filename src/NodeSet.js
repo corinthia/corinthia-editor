@@ -31,7 +31,7 @@ NodeSet.prototype.toArray = function()
     var result = new Array();
     for (var id in this.members)
         result.push(members[id]);
-    return id;
+    return result;
 }
 
 NodeSet.prototype.forEach = function(fun)
