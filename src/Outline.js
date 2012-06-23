@@ -53,6 +53,7 @@ var Outline_setReferenceTarget;
 
         var prevItem = findPrevItemOfType(node,this.nodeFilter);
         this.list.insertAfter(item,prevItem);
+        UndoManager_addAction(Editor_removeOutlineItem,item.id);
         Editor_addOutlineItem(item.id,this.type);
         this.tocs.forEach(function(node,toc) { toc.addOutlineItem(item.id); });
 
@@ -121,6 +122,7 @@ var Outline_setReferenceTarget;
                             " item "+node.getAttribute("id"));
         }
         this.list.remove(item);
+        UndoManager_addAction(Editor_addOutlineItem,item.id,item.type);
         Editor_removeOutlineItem(item.id);
         this.tocs.forEach(function(node,toc) { toc.removeOutlineItem(item.id); });
         item.title = null;
@@ -454,8 +456,9 @@ var Outline_setReferenceTarget;
             newTitle = "";
 
         if (this.title != newTitle) {
+            UndoManager_addAction(Editor_updateOutlineItem,this.id,this.title);
+            Editor_updateOutlineItem(this.id,newTitle);
             this.title = newTitle;
-            Editor_updateOutlineItem(this.id,this.title);
             var item = this;
             this.category.tocs.forEach(function(node,toc) {
                 toc.updateOutlineItem(item.id,item.title);
