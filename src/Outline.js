@@ -1016,6 +1016,9 @@ var Outline_setReferenceTarget;
         });
 
         scheduleUpdateStructure();
+
+        // FIXME: temporary hack, because undo and redo don't work with section moves yet
+        PostponedActions_add(UndoManager_clear);
     });
 
     // public
