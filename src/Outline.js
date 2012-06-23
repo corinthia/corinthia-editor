@@ -45,6 +45,8 @@ var Outline_setReferenceTarget;
         this.tocs = new NodeMap();
     }
 
+    // FIMXE: need to make sure the structure is updated in the editor through undo/redo
+
     Category.prototype.add = trace(function add(node)
     {
         var item = itemsByNode.get(node);
@@ -1035,6 +1037,14 @@ var Outline_setReferenceTarget;
         }
         else {
             var node = document.getElementById(itemId);
+            if (node == null) {
+                // FIXME: this can happen if the user added some headings, pressed undo one or
+                // more times (in which case the editor's view of the outline structure fails to
+                // be updated), and then they click on an item. This is really an error but we
+                // handle it gracefully for now rather than causing a null pointer exception to
+                // be thrown.
+                return;
+            }
             var position = new Position(node,0);
             position = Position_closestMatchForwards(position,Position_okForMovement);
             Selection_set(position.node,position.offset,position.node,position.offset);
