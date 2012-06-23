@@ -63,11 +63,15 @@ function loadTestIndex()
 
 function doPerformTest()
 {
+    leftArea.contentWindow.keepSelectionSpans = false;
     var resultText = leftArea.contentWindow.performTest();
-    leftArea.contentWindow.Styles_removeSelectionRule();
-    leftArea.contentWindow.Selection_clearSelection();
+    if (!leftArea.contentWindow.keepSelectionSpans) {
+        leftArea.contentWindow.Styles_removeSelectionRule();
+        leftArea.contentWindow.Selection_clearSelection();
+    }
     if (resultText == null)
-        resultText = PrettyPrinter.getHTML(leftArea.contentDocument.documentElement)
+        resultText = PrettyPrinter.getHTML(leftArea.contentDocument.documentElement,
+                                           leftArea.contentWindow.keepSelectionSpans)
     var messages = JSON.parse(leftArea.contentWindow.Editor_getBackMessages());
     for (var i = 0; i < messages.length; i++) {
         var message = messages[i];

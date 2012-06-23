@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+function performTest()
+{
+    Styles_init();
+    Styles_addDefaultRuleCategory("selection");
+    PostponedActions_perform();
+
+    Selection_selectParagraph();
+    window.keepSelectionSpans = true;
+}
+</script>
+</head>
+<body>
+<p>First paragraph</p>
+<p>Second []paragraph</p>
+<p>Third paragraph</p>
+</body>
+</html>

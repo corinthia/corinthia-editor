@@ -1,9 +1,10 @@
 (function() {
 
-    function getHTML(root)
+    function getHTML(root,keepSelectionSpans)
     {
         var copy = DOM_cloneNode(root,true);
-        removeSelectionSpans(copy);
+        if (!keepSelectionSpans)
+            removeSelectionSpans(copy);
         for (var body = copy.firstChild; body != null; body = body.nextSibling) {
             if (body.nodeName == "BODY") {
                 DOM_removeAttribute(body,"style");

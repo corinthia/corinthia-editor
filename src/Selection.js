@@ -325,11 +325,18 @@ var Selection_posAtEndOfWord;
         }
     });
 
+    var setSelectionSpans = trace(function setSelectionSpans(spans)
+    {
+        UndoManager_addAction(setSelectionSpans,selectionSpans);
+        selectionSpans = spans;
+    });
+
     var createSelectionSpans = trace(function createSelectionSpans(selRange)
     {
         var skipped = 0;
         var reused = 0;
         var nodes = selRange.getAllNodes();
+        var newSpans = arrayCopy(selectionSpans);
         for (var i = 0; i < nodes.length; i++) {
             var node = nodes[i];
 
@@ -406,9 +413,10 @@ var Selection_posAtEndOfWord;
             else if (!isWhitespaceTextNode(node)) {
                 var wrapped = DOM_wrapNode(node,"SPAN");
                 DOM_setAttribute(wrapped,"class",Keys.SELECTION_CLASS);
-                selectionSpans.push(wrapped);
+                newSpans.push(wrapped);
             }
         }
+        setSelectionSpans(newSpans);
     });
 
     var removeSelectionSpans = trace(function removeSelectionSpans(selRange,force)
@@ -436,7 +444,7 @@ var Selection_posAtEndOfWord;
                 remainingSpans.push(span);
             }
         }
-        selectionSpans = remainingSpans;
+        setSelectionSpans(remainingSpans);
 
         for (var i = 0; i < checkMerge.length; i++) {
             // if not already merged
