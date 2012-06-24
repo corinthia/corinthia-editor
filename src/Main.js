@@ -262,6 +262,8 @@ var Main_init;
             Styles_addDefaultRuleCategory("selection");
             PostponedActions_perform();
 
+            UndoManager_clear();
+
             return true;
         }
         catch (e) {
