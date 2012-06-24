@@ -499,6 +499,27 @@ var Outline_setReferenceTarget;
             setReferenceText(item.node,item.title);
     });
 
+    var addRefForId = trace(function addRefForId(id,node)
+    {
+        UndoManager_addAction(removeRefForId,id,node);
+        if (refsById[id] == null)
+            refsById[id] = new Array();
+        refsById[id].push(node);
+    });
+
+    var removeRefForId = trace(function removeRefForId(id,node)
+    {
+        UndoManager_addAction(addRefForId,id,node);
+        if (refsById[id] == null)
+            throw new Error("refRemoved: refsById["+id+"] is null");
+        var index = refsById[id].indexOf(node);
+        if (index < 0)
+            throw new Error("refRemoved: refsById["+id+"] does not contain node");
+        refsById[id].splice(index,1);
+        if (refsById[id] == null)
+            delete refsById[id];
+    });
+
     // private
     var refInserted = trace(function refInserted(node)
     {
@@ -506,11 +527,7 @@ var Outline_setReferenceTarget;
         if (href.charAt(0) != "#")
             throw new Error("refInserted: not a # reference");
         var id = href.substring(1);
-
-        if (refsById[id] == null)
-            refsById[id] = new Array();
-        refsById[id].push(node);
-
+        addRefForId(id,node);
         scheduleUpdateStructure();
     });
 
@@ -521,15 +538,7 @@ var Outline_setReferenceTarget;
         if (href.charAt(0) != "#")
             throw new Error("refInserted: not a # reference");
         var id = href.substring(1);
-
-        if (refsById[id] == null)
-            throw new Error("refRemoved: refsById["+id+"] is null");
-        var index = refsById[id].indexOf(node);
-        if (index < 0)
-            throw new Error("refRemoved: refsById["+id+"] does not contain node");
-        refsById[id].splice(index,1);
-        if (refsById[id] == null)
-            delete refsById[id];
+        removeRefForId(id,node);
     });
 
     // private
