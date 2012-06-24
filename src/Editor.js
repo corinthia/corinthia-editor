@@ -5,7 +5,6 @@ var Editor_debug;
 var Editor_addOutlineItem;
 var Editor_updateOutlineItem;
 var Editor_removeOutlineItem;
-var Editor_setOutline;
 var Editor_setCursor;
 var Editor_setSelectionHandles;
 var Editor_clearSelectionHandlesAndCursor;
@@ -41,14 +40,9 @@ var debug;
         addBackMessage("error",error.toString());
     };    
 
-    Editor_addOutlineItem = function(itemId,type)
+    Editor_addOutlineItem = function(itemId,type,title)
     {
-        // FIXME: Temporary hack to prevent crashes, because we can't deal with sections being added
-        // back again after having being removed via an undo
-        if (!window.disableOutlineRedoHack)
-            UndoManager_clearRedoStack();
-
-        addBackMessage("addOutlineItem",itemId,type);
+        addBackMessage("addOutlineItem",itemId,type,title);
     };
 
     Editor_updateOutlineItem = function(itemId,title)
@@ -58,17 +52,7 @@ var debug;
 
     Editor_removeOutlineItem = function(itemId)
     {
-        // FIXME: Temporary hack to prevent crashes, because we can't deal with sections being added
-        // back again after having being removed via an undo
-        if (!window.disableOutlineRedoHack)
-            UndoManager_clearRedoStack();
-
         addBackMessage("removeOutlineItem",itemId);
-    };
-
-    Editor_setOutline = function(outline)
-    {
-        addBackMessage("setOutline",outline);
     };
     
     Editor_setCursor = function(x,y,width,height)

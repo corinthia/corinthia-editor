@@ -18,7 +18,6 @@ var UndoManager_clear;
 var UndoManager_setProperty;
 var UndoManager_deleteProperty;
 var UndoManager_groupType;
-var UndoManager_clearRedoStack;
 
 (function() {
 
@@ -258,14 +257,6 @@ var UndoManager_clearRedoStack;
             return null;
         else
             return undoStack[undoStack.length-1].type;
-    });
-
-    // FIXME: Temporary hack to prevent crashes, because we can't deal with sections being added
-    // back again after having being removed via an undo
-    UndoManager_clearRedoStack = trace(function clearRedoStack()
-    {
-        debug("UndoManager_clearRedoStack");
-        redoStack.length = 0;
     });
 
 })();

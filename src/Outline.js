@@ -11,6 +11,7 @@ var Outline_goToItem;
 var Outline_setTitle;
 var Outline_setNumbered;
 var Outline_getItemElement;
+var Outline_getOutline;
 var Outline_plainText;
 var Outline_insertTableOfContents;
 var Outline_insertListOfFigures;
@@ -45,7 +46,19 @@ var Outline_setReferenceTarget;
         this.tocs = new NodeMap();
     }
 
-    // FIMXE: need to make sure the structure is updated in the editor through undo/redo
+    function addItemInternal(category,item,prevItem,title)
+    {
+        UndoManager_addAction(removeItemInternal,category,item);
+        category.list.insertAfter(item,prevItem);
+        Editor_addOutlineItem(item.id,category.type,title);
+    }
+
+    function removeItemInternal(category,item)
+    {
+        UndoManager_addAction(addItemInternal,category,item,item.prev,item.title);
+        category.list.remove(item);
+        Editor_removeOutlineItem(item.id);
+    }
 
     Category.prototype.add = trace(function add(node)
     {
@@ -54,9 +67,7 @@ var Outline_setReferenceTarget;
             item = new OutlineItem(this,node);
 
         var prevItem = findPrevItemOfType(node,this.nodeFilter);
-        this.list.insertAfter(item,prevItem);
-        UndoManager_addAction(Editor_removeOutlineItem,item.id);
-        Editor_addOutlineItem(item.id,this.type);
+        addItemInternal(this,item,prevItem,null);
         this.tocs.forEach(function(node,toc) { toc.addOutlineItem(item.id); });
 
         // Register for notifications to changes to this item's node content. We may need to
@@ -123,9 +134,7 @@ var Outline_setReferenceTarget;
             throw new Error("Attempt to remove non-existant "+DOM_upperName(node)+
                             " item "+node.getAttribute("id"));
         }
-        this.list.remove(item);
-        UndoManager_addAction(Editor_addOutlineItem,item.id,item.type);
-        Editor_removeOutlineItem(item.id);
+        removeItemInternal(this,item);
         this.tocs.forEach(function(node,toc) { toc.removeOutlineItem(item.id); });
         item.title = null;
         item.node.removeEventListener("DOMSubtreeModified",item.modificationListener);
@@ -822,15 +831,6 @@ var Outline_setReferenceTarget;
         return structure;
     });
 
-    var computedOutline = { sections: [], figures: [], tables: [] };
-
-    var setComputedOutline = trace(function setComputedOutline(outline)
-    {
-        UndoManager_addAction(setComputedOutline,computedOutline);
-        computedOutline = outline;
-        Editor_setOutline(outline);
-    });
-
     var updateStructureReal = trace(function updateStructureReal(pageNumbers)
     {
         var structure = discoverStructure();
@@ -859,7 +859,11 @@ var Outline_setReferenceTarget;
         tables.tocs.forEach(function (node,toc) {
             toc.updateStructure(structure,structure.toplevelTables,pageNumbers);
         });
+    });
 
+    Outline_getOutline = trace(function getOutline()
+    {
+        var structure = discoverStructure();
         var encSections = new Array();
         var encFigures = new Array();
         var encTables = new Array();
@@ -871,12 +875,9 @@ var Outline_setReferenceTarget;
         for (var i = 0; i < structure.toplevelTables.length; i++)
             encodeShadow(structure.toplevelTables[i],encTables);
 
-        var outline = { sections: encSections,
-                        figures: encFigures,
-                        tables: encTables };
-        setComputedOutline(outline);
-        return;
-
+        return { sections: encSections,
+                 figures: encFigures,
+                 tables: encTables };
 
         function encodeShadow(shadow,result)
         {
@@ -889,7 +890,6 @@ var Outline_setReferenceTarget;
                         children: encChildren };
             result.push(obj);
         }
-
     });
 
     function setReferenceText(node,referenceText)
@@ -977,6 +977,7 @@ var Outline_setReferenceTarget;
     // public
     Outline_moveSection = trace(function moveSection(sectionId,parentId,nextId)
     {
+        UndoManager_newGroup("Move section");
         Selection_preserveWhileExecuting(function() {
             updateStructure(); // make sure pointers are valid
             // FIXME: I don't think we'll need the updateStructure() call now that we have
@@ -1016,14 +1017,13 @@ var Outline_setReferenceTarget;
         });
 
         scheduleUpdateStructure();
-
-        // FIXME: temporary hack, because undo and redo don't work with section moves yet
-        PostponedActions_add(UndoManager_clear);
+        PostponedActions_add(UndoManager_newGroup);
     });
 
     // public
     Outline_deleteItem = trace(function deleteItem(itemId)
     {
+        UndoManager_newGroup("Delete outline item");
         var structure = discoverStructure();
         Selection_preserveWhileExecuting(function() {
             var node = document.getElementById(itemId);
@@ -1041,6 +1041,7 @@ var Outline_setReferenceTarget;
         });
 
         scheduleUpdateStructure();
+        PostponedActions_add(UndoManager_newGroup);
     });
 
     // public
