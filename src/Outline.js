@@ -50,6 +50,7 @@ var Outline_setReferenceTarget;
     {
         UndoManager_addAction(removeItemInternal,category,item);
         category.list.insertAfter(item,prevItem);
+        item.title = title;
         Editor_addOutlineItem(item.id,category.type,title);
     }
 
