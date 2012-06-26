@@ -1,0 +1,19 @@
+<document>
+  <paragraph>
+    <props>
+      <font-size>12pt</font-size>
+      <color>blue</color>
+      <line-height>double</line-height>
+    </props>
+    <run>This is a test</run>
+  </paragraph>
+  <paragraph>
+    <props>
+      <font-size>14pt</font-size>
+      <color>red</color>
+      <line-height>single</line-height>
+    </props>
+    <run>A second paragraph</run>
+    <run>Other run</run>
+  </paragraph>
+</document>
