@@ -1096,6 +1096,8 @@ var Outline_setReferenceTarget;
             item.enableNumbering();
         else
             item.disableNumbering();
+
+        scheduleUpdateStructure();
     });
 
     // public
