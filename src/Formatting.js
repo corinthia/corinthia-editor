@@ -515,6 +515,10 @@ var Formatting_applyFormattingChanges;
                 else
                     properties["uxwrite-style"] = "p";
             }
+
+            if (isOutlineItemTitleNode(node) && node.hasAttribute("id")) {
+                properties["uxwrite-in-item-title"] = node.getAttribute("id");
+            }
         }
 
         return properties;
