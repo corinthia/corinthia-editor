@@ -158,3 +158,15 @@ function setNumbering(enabled)
         }
     }
 }
+
+function readXML(filename)
+{
+    var req = new XMLHttpRequest();
+    req.open("GET",filename,false);
+    req.send();         
+    var xml = req.responseXML;
+    if (xml == null)
+        return null;
+    DOM_assignNodeIds(xml.documentElement);
+    return xml;
+}
