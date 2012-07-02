@@ -54,7 +54,10 @@ function transform(a)
 {
 //    DOM_insertBefore(a,a.childNodes[5],a.childNodes[0]);
 //    debug(a.childNodes[1].firstChild.nodeValue);
-    DOM_setNodeValue(a.childNodes[1].firstChild,"The BBC");
+//    DOM_setNodeValue(a.childNodes[1].firstChild,"The BBC");
+
+    DOM_insertBefore(a,createListItem("Test 2"),a.childNodes[5]);
+    DOM_insertBefore(a,createListItem("Test 1"),a.childNodes[2]);
 }
 
 function main()

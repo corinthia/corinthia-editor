@@ -10,6 +10,13 @@ function Entry_get(c)
     return li;
 }
 
+function Entry_create(a,cdoc)
+{
+    var entry = DOM_createElement(cdoc,"entry");
+    entry.setAttribute("name",getNodeText(a));
+    return entry;
+}
+
 function Entry_put(a,c)
 {
     var getResult = Entry_get(c);
@@ -94,9 +101,24 @@ function Bookmarks_put(a,c)
     for (var i = 0; i < newList.length; i++)
         DOM_appendChild(c,newList[i]);
 
-    for (var achild = a.firstChild; achild != null; achild = achild.nextSibling) {
-        Entry_put(achild,achild._source);
+
+    var before = null;
+    for (var achild = a.lastChild; achild != null; achild = achild.previousSibling) {
+        if (achild._source != null) {
+            Entry_put(achild,achild._source);
+            before = achild._source;
+        }
+        else {
+            var element = Entry_create(achild,c.ownerDocument);
+            DOM_insertBefore(c,element,before);
+            before = element;
+        }
     }
+
+
+//    for (var achild = a.firstChild; achild != null; achild = achild.nextSibling) {
+//        Entry_put(achild,achild._source);
+//    }
 }
 
 function compare(node1,node2)
@@ -120,4 +142,11 @@ function bdtApply(bdt)
     var newAbstract = Bookmarks_get(bdt.concrete);;
     str += "\nnew abstract matches? "+compare(bdt.abstract,newAbstract);
     return str;
+}
+
+function createListItem(name)
+{
+    var li = DOM_createElement(document,"LI");
+    DOM_appendChild(li,DOM_createTextNode(document,name));
+    return li;
 }
