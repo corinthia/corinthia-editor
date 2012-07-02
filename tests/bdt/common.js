@@ -39,40 +39,51 @@ function findVisibleNodeBackwards(node)
     return node;
 }
 
+function entry(node)
+{
+    if (node == null)
+        return null;
+    else if (node.nodeName == "entry")
+        return JSON.stringify(node.getAttribute("name"));
+    else
+        return nodeString(node);
+}
+
 function Bookmarks_put(a,c)
 {
-    var moveList = new Array();
+    var present = new NodeSet();
+    for (var achild = a.firstChild; achild != null; achild = achild.nextSibling) {
+        if (achild._source != null)
+            present.add(achild._source);
+    }
 
-    for (var cchild = c.firstChild; cchild != null; cchild = cchild.nextSibling) {
-        if (isVisibleNode(cchild)) {
-            var oldNext = findVisibleNodeForwards(cchild.nextSibling);
-            var oldPrev = findVisibleNodeBackwards(cchild.previousSibling);
-            var newNext = null;
-            if (cchild._target.nextSibling != null)
-                newNext = cchild._target.nextSibling._source;
-            var newPrev = null;
-            if (cchild._target.previousSibling != null)
-                newPrev = cchild._target.previousSibling._source;
+    var next;
+    for (var cchild = c.firstChild; cchild != null; cchild = next) {
+        next = cchild.nextSibling;
+        if (isVisibleNode(cchild) && !present.contains(cchild))
+            DOM_deleteNode(cchild);
+    }
 
-            if (oldNext != newNext)
-                moveList.push({ node: cchild, prev: newPrev, next: newNext });
+    var newList = new Array();
+    for (var cchild = c.firstChild; (cchild != null) && !isVisibleNode(cchild);
+         cchild = cchild.nextSibling) {
+        newList.push(cchild);
+    }
+
+    for (var achild = a.firstChild; achild != null; achild = achild.nextSibling) {
+        if (achild._source != null) {
+            var cchild = achild._source;
+            newList.push(cchild);
+            cchild = cchild.nextSibling;
+            while ((cchild != null) && !isVisibleNode(cchild)) {
+                newList.push(cchild);
+                cchild = cchild.nextSibling;
+            }
         }
     }
 
-    for (var i = 0; i < moveList.length; i++) {
-        moveList[i].order = -DOM_nodeOffset(moveList[i].node._target,a);
-    }
-
-    moveList.sort(function (a,b) { return a.order - b.order; });
-
-    for (var i = 0; i < moveList.length; i++) {
-        if (findVisibleNodeForwards(moveList[i].node.nextSibling) !=
-            findVisibleNodeForwards(moveList[i].next)) {
-            DOM_insertBefore(moveList[i].node.parentNode,
-                             moveList[i].node,
-                             moveList[i].next);
-        }
-    }
+    for (var i = 0; i < newList.length; i++)
+        DOM_appendChild(c,newList[i]);
 }
 
 function compare(node1,node2)
