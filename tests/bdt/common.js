@@ -1,11 +1,20 @@
 function Entry_get(c)
 {
     var li = DOM_createElement(document,"LI");
-    var text = DOM_createTextNode(document,c.getAttribute("name"));
+    var name = c.getAttribute("name");
+    name = name.toUpperCase();
+    var text = DOM_createTextNode(document,name);
     DOM_appendChild(li,text);
     li._source = c;
     c._target = li;
     return li;
+}
+
+function Entry_put(a,c)
+{
+    var getResult = Entry_get(c);
+    if (!compare(a,getResult))
+        c.setAttribute("name",getNodeText(a));
 }
 
 function Bookmarks_get(c)
@@ -84,6 +93,10 @@ function Bookmarks_put(a,c)
 
     for (var i = 0; i < newList.length; i++)
         DOM_appendChild(c,newList[i]);
+
+    for (var achild = a.firstChild; achild != null; achild = achild.nextSibling) {
+        Entry_put(achild,achild._source);
+    }
 }
 
 function compare(node1,node2)

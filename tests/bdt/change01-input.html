@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="common.js"></script>
+<script>
+function performTest()
+{
+    var bdt = bdtSetup();
+    var a = bdt.abstract;
+
+    var result = PrettyPrinter.getHTML(a);
+
+    DOM_setNodeValue(a.childNodes[1].firstChild,"The BBC");
+
+    result += "\n";
+    result += PrettyPrinter.getHTML(a);
+    result += "\n";
+
+    Bookmarks_put(bdt.abstract,bdt.concrete);
+    result += PrettyPrinter.getHTML(bdt.concrete);
+    result += "\n";
+
+    var newAbstract = Bookmarks_get(bdt.concrete);;
+    result += PrettyPrinter.getHTML(newAbstract);
+
+    return result;
+}
+</script>
+</head>
+<body>
+</body>
+</html>

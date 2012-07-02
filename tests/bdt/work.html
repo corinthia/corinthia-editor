@@ -52,7 +52,9 @@ function debug(str)
 
 function transform(a)
 {
-    DOM_insertBefore(a,a.childNodes[7],a.childNodes[0]);
+//    DOM_insertBefore(a,a.childNodes[5],a.childNodes[0]);
+//    debug(a.childNodes[1].firstChild.nodeValue);
+    DOM_setNodeValue(a.childNodes[1].firstChild,"The BBC");
 }
 
 function main()
