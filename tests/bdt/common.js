@@ -33,16 +33,26 @@ EntryLens.prototype.isVisible = function(node)
     return (DOM_upperName(node) == "ENTRY");
 };
 
-function Bookmarks_get(c,lens)
+function BookmarkLens()
+{
+    this.entryLens = new EntryLens();
+}
+
+BookmarkLens.prototype.get = function(c)
 {
     var ul = DOM_createElement(document,"UL");
     ul._source = c;
     c._target = ul;
     for (var cchild = c.firstChild; cchild != null; cchild = cchild.nextSibling) {
-        if (lens.isVisible(cchild))
-            DOM_appendChild(ul,lens.get(cchild));
+        if (this.entryLens.isVisible(cchild))
+            DOM_appendChild(ul,this.entryLens.get(cchild));
     }
     return ul;
+}
+
+BookmarkLens.prototype.put = function(a,c)
+{
+    return BDT_Container_put(a,c,this.entryLens);
 }
 
 function compare(node1,node2)
@@ -52,20 +62,20 @@ function compare(node1,node2)
 
 function bdtSetup()
 {
-    var lens = new EntryLens();
+    var bmLens = new BookmarkLens();
     var result = new Object();
     result.concreteDocument = readXML("bookmarks.xml");;
     result.concrete = result.concreteDocument.documentElement;
-    result.abstract = Bookmarks_get(result.concrete,lens);;
+    result.abstract = bmLens.get(result.concrete);;
     return result;
 }
 
 function bdtApply(bdt)
 {
-    var lens = new EntryLens();
-    BDT_Container_put(bdt.abstract,bdt.concrete,lens);
+    var bmLens = new BookmarkLens();
+    bmLens.put(bdt.abstract,bdt.concrete);
     var str = PrettyPrinter.getHTML(bdt.concrete);
-    var newAbstract = Bookmarks_get(bdt.concrete,lens);;
+    var newAbstract = bmLens.get(bdt.concrete);;
     str += "\nnew abstract matches? "+compare(bdt.abstract,newAbstract);
     return str;
 }
