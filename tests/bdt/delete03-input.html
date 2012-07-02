@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="common.js"></script>
+<script>
+function performTest()
+{
+    var bdt = bdtSetup();
+    var a = bdt.abstract;
+    DOM_deleteNode(a.childNodes[2]);
+    return bdtApply(bdt);
+}
+</script>
+</head>
+<body>
+</body>
+</html>

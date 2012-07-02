@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="common.js"></script>
+<script>
+function performTest()
+{
+    var bdt = bdtSetup();
+    var a = bdt.abstract;
+    var children = arrayCopy(a.childNodes);
+    var before = a.childNodes[3];
+    DOM_insertBefore(a,children[0],before);
+    DOM_insertBefore(a,children[1],before);
+    return bdtApply(bdt);
+}
+</script>
+</head>
+<body>
+</body>
+</html>
