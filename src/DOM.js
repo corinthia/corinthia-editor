@@ -524,20 +524,24 @@ var DOM_Listener;
 
         if (first.parentNode != last.parentNode)
             throw new Error("first and last are not siblings");
-        var firstOffset = DOM_nodeOffset(first);
-        var lastOffset = DOM_nodeOffset(last);
-        var nodeCount = lastOffset - firstOffset + 1;
-        trackedPositionsForNode(parent).forEach(function (position) {
-            if ((position.offset >= firstOffset) && (position.offset <= lastOffset+1)) {
-                position.node = wrapper;
-                position.offset -= firstOffset;
-            }
-            else if (position.offset > lastOffset+1) {
-                position.offset -= (nodeCount-1);
-            }
-        });
 
-        insertBeforeInternal(parent,wrapper,first);
+        if (parent != null) {
+            var firstOffset = DOM_nodeOffset(first);
+            var lastOffset = DOM_nodeOffset(last);
+            var nodeCount = lastOffset - firstOffset + 1;
+            trackedPositionsForNode(parent).forEach(function (position) {
+                if ((position.offset >= firstOffset) && (position.offset <= lastOffset+1)) {
+                    position.node = wrapper;
+                    position.offset -= firstOffset;
+                }
+                else if (position.offset > lastOffset+1) {
+                    position.offset -= (nodeCount-1);
+                }
+            });
+
+            insertBeforeInternal(parent,wrapper,first);
+        }
+
         var end = last.nextSibling;
         var current = first;
         while (current != end) {
