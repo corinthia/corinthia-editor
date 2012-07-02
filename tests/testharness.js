@@ -24,6 +24,7 @@ function loadCode()
     // Sync with Editor.m
     var javascriptFiles = ["../src/first.js", // must be first
                            "../src/AutoCorrect.js",
+                           "../src/BDT.js",
                            "../src/Clipboard.js",
                            "../src/Cursor.js",
                            "../src/DOM.js",

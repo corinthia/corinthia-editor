@@ -5,6 +5,7 @@
 <script>
 function performTest()
 {
+    var lens = new EntryLens();
     var bdt = bdtSetup();
     var a = bdt.abstract;
 
@@ -16,11 +17,11 @@ function performTest()
     result += PrettyPrinter.getHTML(a);
     result += "\n";
 
-    Bookmarks_put(bdt.abstract,bdt.concrete);
+    BDT_Container_put(bdt.abstract,bdt.concrete,lens);
     result += PrettyPrinter.getHTML(bdt.concrete);
     result += "\n";
 
-    var newAbstract = Bookmarks_get(bdt.concrete);;
+    var newAbstract = Bookmarks_get(bdt.concrete,lens);
     result += PrettyPrinter.getHTML(newAbstract);
 
     return result;
