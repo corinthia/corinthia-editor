@@ -1,6 +1,6 @@
 (function() {
 
-    function getHTML(root,keepSelectionSpans)
+    function getHTML(root,keepSelectionSpans,options)
     {
         var copy = DOM_cloneNode(root,true);
         if (!keepSelectionSpans)
@@ -13,6 +13,10 @@
         }
 
         var builder = { str : "" };
+        if (options != null) {
+            for (var name in options)
+                builder[name] = options[name];
+        }
         prettyPrint(builder,copy,"");
         return builder.str;
     }
@@ -93,6 +97,10 @@
         var str = "";
         for (var i = 0; i < names.length; i++) {
             var name = names[i];
+
+            if (name.match(/^xmlns/))
+                continue;
+
             var value = node.getAttribute(name);
             if (name == "style")
                 value = sortCSSProperties(value);
@@ -107,7 +115,7 @@
     function prettyPrintOneLine(builder,node)
     {
         if ((node.nodeType == Node.ELEMENT_NODE) && (node.nodeName != "SCRIPT")) {
-            var name = node.nodeName.toLowerCase();
+            var name = builder.preserveCase ? node.nodeName : node.nodeName.toLowerCase();
             if (node.firstChild == null) {
                 builder.str += "<" + name + attributeString(node) + "/>";
             }
@@ -132,7 +140,7 @@
     function prettyPrint(builder,node,indent)
     {
         if ((node.nodeType == Node.ELEMENT_NODE) && (node.nodeName != "SCRIPT")) {
-            var name = node.nodeName.toLowerCase();
+            var name = builder.preserveCase ? node.nodeName : node.nodeName.toLowerCase();
             if (node.firstChild == null) {
                 builder.str += indent + "<" + name + attributeString(node) + "/>\n";
             }
