@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="WordTests.js"></script>
+<script>
+
+function performTest()
+{
+    return wordTest("alignment04",function(html) {
+        var body = html.firstChild;
+        var p = body.firstChild;
+        DOM_setStyleProperties(p,{"text-align": "left"});
+    });
+}
+
+</script>
+</head>
+<body>
+</body>
+</html>

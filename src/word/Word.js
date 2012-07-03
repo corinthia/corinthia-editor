@@ -1,4 +1,11 @@
 var Word_initWord;
+var Word_getHTML;
+var Word_putHTML;
+
+var Word_document;
+var Word_numbering;
+var Word_styles;
+
 var Word_documentXML;
 var Word_numberingXML;
 var Word_stylesXML;
@@ -6,23 +13,294 @@ var Word_stylesXML;
 (function() {
 
     var docx = new Object();
+    var documentLens;
 
     var WORD_NAMESPACE = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 
-    function isWordElement(node,name)
+    function Run_get(con)
     {
-        return (node.namespaceURI == WORD_NAMESPACE) && (node.localName == name);
+        var rPr = firstChildElement(con);
+        rPr = ((rPr != null) && rPr._isrPr) ? rPr : null;
+
+        var content = "";
+        for (var conChild = con.firstChild; conChild != null; conChild = conChild.nextSibling) {
+            if (conChild._ist)
+                content += getNodeText(conChild);
+        }
+
+        var node = DOM_createTextNode(document,content);
+
+        if ((rPr != null) && rPr._isrPr) {
+            if (rPr._childu)
+                node = DOM_wrapNode(node,"U");
+            if (rPr._childi)
+                node = DOM_wrapNode(node,"I");
+            if (rPr._childb)
+                node = DOM_wrapNode(node,"B");
+        }
+
+        return node;
     }
 
-    function getChild(node,name)
+    function Paragraph_getStyleProperties(con)
+    {
+        
+    }
+
+    function Paragraph_getStyleProperties(con)
+    {
+        var styleProperties = new Object();
+
+        // A pPr is optional, but if it is present, it is the first element
+        var first = firstChildElement(con);
+        if ((first != null) && (first._ispPr)) {
+            var pPr = first;
+            if (pPr._childpStyle != null) {
+                var val =  pPr._childpStyle.getAttributeNS(WORD_NAMESPACE,"val");
+                if (val == "Heading1")
+                    stylePropertes["uxwrite-style"] = "H1";
+                else if (val == "Heading2")
+                    stylePropertes["uxwrite-style"] = "H2";
+                else if (val == "Heading3")
+                    stylePropertes["uxwrite-style"] = "H3";
+                else if (val == "Heading4")
+                    stylePropertes["uxwrite-style"] = "H4";
+                else if (val == "Heading5")
+                    stylePropertes["uxwrite-style"] = "H5";
+                else if (val == "Heading6")
+                    stylePropertes["uxwrite-style"] = "H6";
+            }
+            if (pPr._childjc != null) {
+                var jc = pPr._childjc.getAttributeNS(WORD_NAMESPACE,"val");
+                if ((jc == "both") || (jc == "distribute"))
+                    styleProperties["text-align"] = "justify";
+                else if (jc == "center")
+                    styleProperties["text-align"] = "center";
+                else if ((jc == "start") || (jc == "left"))
+                    styleProperties["text-align"] = "left";
+                else if ((jc == "end") || (jc == "right"))
+                    styleProperties["text-align"] = "right";
+            }
+        }
+
+        return styleProperties;
+    }
+
+    var deleteIfNoChildElements = trace(function deleteIfNoChildElements(node)
+    {
+        if (node != null) {
+            for (var child = node.firstChild; child != null; child = child.nextSibling) {
+                if (child.nodeType == Node.ELEMENT_NODE)
+                    return;
+            }
+            DOM_deleteNode(node);
+        }
+    });
+
+    var getNamedChildNS = trace(function getNamedChildNS(parent,childNS,childQName,create)
+    {
+        var childLocalName = childQName.replace(/^.*:/,"");
+        for (var child = parent.firstChild; child != null; child = child.nextSibling) {
+            if ((child.namespaceURI == childNS) && (child.localName == childLocalName)) {
+                return child;
+            }
+        }
+        var child = DOM_createElementNS(parent.ownerDocument,childNS,childQName);
+        DOM_insertBefore(parent,child,parent.firstChild);
+        return child;
+    });
+
+    var setChildAttributeNS= trace(function setChildAttributeNS(parent,
+                                                                childNS,childQName,
+                                                                attrNS,attrQName,
+                                                                value)
+    {
+        var child = getNamedChildNS(parent,childNS,childQName,true);
+        DOM_setAttributeNS(child,attrNS,attrQName,value);
+    });
+
+    var removeChildAttributeNS = trace(function removeChildAttributeNS(parent,
+                                                                       childNS,childLocalName,
+                                                                       attrNS,attrLocalName,
+                                                                       deleteIfNoAttributes)
+    {
+        var child = getNamedChildNS(parent,childNS,childLocalName,false);
+        if (child != null) {
+            DOM_removeAttributeNS(child,attrNS,attrLocalName);
+            if (deleteIfNoAttributes && (child.attributes.length == 0))
+                DOM_deleteNode(child);
+        }
+    });
+
+    var Paragraph_get = trace(function Paragraph_get(con)
+    {
+        var styleProperties = Paragraph_getStyleProperties(con);
+
+
+        var nodeName = styleProperties["uxwrite-style"];
+        delete styleProperties["uxwrite-style"];
+        if (nodeName == null)
+            nodeName = "P";
+
+        var abs = DOM_createElement(document,nodeName);
+        abs._source = con;
+        //    if ((style != null) && (nodeName == "P"))
+        //        DOM_setAttribute(style,"class","style"); // FIXME: test
+        DOM_setStyleProperties(abs,styleProperties);
+
+        for (var conChild = con.firstChild; conChild != null; conChild = conChild.nextSibling) {
+            if (conChild._isr)
+                DOM_appendChild(abs,Run_get(conChild));
+        }
+
+
+        return abs;
+    });
+
+    var Paragraph_put = trace(function Paragraph_put(abs,con)
+    {
+        var absStyleProperties = DOM_getStyleProperties(abs);
+        var conStyleProperties = Paragraph_getStyleProperties(con);
+        var pPr = getNamedChildNS(con,WORD_NAMESPACE,"w:pPr",false);
+
+        if (absStyleProperties["text-align"] != conStyleProperties["text-align"]) {
+            var textAlign = absStyleProperties["text-align"];
+            if (textAlign == "left")
+                setpPrAttribute("jc","val","left");
+            else if (textAlign == "center")
+                setpPrAttribute("jc","val","center");
+            else if (textAlign == "right")
+                setpPrAttribute("jc","val","right");
+            else if (textAlign == "justify")
+                setpPrAttribute("jc","val","both");
+            else
+                removepPrAttribute("jc","val");
+        }
+
+        deleteIfNoChildElements(pPr);
+
+        function setpPrAttribute(elementName,attrName,value)
+        {
+            if (pPr == null)
+                pPr = getNamedChildNS(con,WORD_NAMESPACE,"w:pPr",true);
+            setChildAttributeNS(pPr,
+                                WORD_NAMESPACE,"w:"+elementName,
+                                WORD_NAMESPACE,"w:"+attrName,
+                                value);
+        }
+
+        function removepPrAttribute(elementName,attrName)
+        {
+            if (pPr != null) {
+                removeChildAttributeNS(pPr,
+                                       WORD_NAMESPACE,elementName,
+                                       WORD_NAMESPACE,attrName,
+                                       true);
+            }
+        }
+    });
+
+    function ContentLens()
+    {
+    }
+
+    ContentLens.prototype.get = trace(function ContentLens_get(con)
+    {
+        return Paragraph_get(con);
+    });
+
+    ContentLens.prototype.put = trace(function ContentLens_put(abs,con)
+    {
+        return Paragraph_put(abs,con);
+    });
+
+    ContentLens.prototype.isVisible = function(con)
+    {
+        return con._isp;
+    };
+
+    function BodyLens()
+    {
+        this.contentLens = new ContentLens();
+    }
+
+    BodyLens.prototype.get = trace(function BodyLens_get(con) {
+        var abs = DOM_createElement(document,"BODY");
+        abs._source = abs;
+
+        for (var cchild = con.firstChild; cchild != null; cchild = cchild.nextSibling) {
+            if (this.contentLens.isVisible(cchild))
+                DOM_appendChild(abs,this.contentLens.get(cchild));
+        }
+
+        return abs;
+    });
+
+    BodyLens.prototype.put = trace(function BodyLens_put(abs,con) {
+        BDT_Container_put(abs,con,this.contentLens);
+        // sectPr element has to go at end
+        if (con._childsectPr != null)
+            DOM_appendChild(con,con._childsectPr);
+    });
+
+    function DocumentLens()
+    {
+        this.bodyLens = new BodyLens();
+    }
+
+    DocumentLens.prototype.get = trace(function DocumentLens_get(con)
+    {
+        var abs = DOM_createElement(document,"HTML");
+        abs._source = con;
+        DOM_appendChild(abs,this.bodyLens.get(con._childbody));
+        return abs;
+    });
+
+    DocumentLens.prototype.put = trace(function DocumentLens_put(abs,con)
+    {
+        var htmlBody = null;
+        for (var absChild = abs.firstChild; absChild != null; absChild = absChild.nextSibling) {
+            if (DOM_upperName(absChild) == "BODY") {
+                htmlBody = absChild;
+            }
+        }
+        this.bodyLens.put(htmlBody,con._childbody);
+    });
+
+    function assignShorthandProperties(node)
     {
         for (var child = node.firstChild; child != null; child = child.nextSibling) {
-            if (isWordElement(child,name))
+            assignShorthandProperties(child);
+            if ((child.nodeType == Node.ELEMENT_NODE) &&
+                (child.namespaceURI == WORD_NAMESPACE)) {
+                node["_child"+child.localName] = child;
+            }
+        }
+        if ((node.nodeType == Node.ELEMENT_NODE) && (node.namespaceURI == WORD_NAMESPACE)) {
+            node["_is"+node.localName] = true;
+        }
+    }
+
+    function removeAttributes(node,names)
+    {
+        if (node.nodeType == Node.ELEMENT_NODE) {
+            for (var i = 0; i < names.length; i++)
+                node.removeAttribute(names[i]);
+            for (var child = node.firstChild; child != null; child = child.nextSibling)
+                removeAttributes(child,names);
+        }
+    }
+
+    function firstChildNamed(parent,name)
+    {
+        for (var child = parent.firstChild; child != null; child = child.nextSibling) {
+            if (child.nodeName == name)
                 return child;
         }
         return null;
     }
 
+/*
     function readFile(filename)
     {
         var req = new XMLHttpRequest("file:///read/"+filename);
@@ -38,136 +316,43 @@ var Word_stylesXML;
             DOM_assignNodeIds(doc);
         return doc;
     }
+*/
 
-    var parseT = trace(function parseT(wordT,htmlP)
+    function readFile(filename)
     {
-        for (var child = wordT.firstChild; child != null; child = child.nextSibling) {
-            if (child.nodeType == Node.TEXT_NODE) {
-                var htmlText = DOM_createTextNode(document,child.nodeValue);
-                DOM_appendChild(htmlP,htmlText);
-
-                var thisChild = child;
-
-                htmlText.addEventListener("DOMCharacterDataModified",function() {
-                    debug("Detected change in character data: "+htmlText.nodeValue);
-                    thisChild.nodeValue = htmlText.nodeValue;
-                });
-            }
-        }
-    });
-
-    var parseR = trace(function parseR(wordR,htmlP)
-    {
-        for (var child = wordR.firstChild; child != null; child = child.nextSibling) {
-            if (isWordElement(child,"t"))
-                parseT(child,htmlP);
-        }
-    });
-
-    function setWordPStyle(wordP,style)
-    {
-        debug("setWordPStyle "+style);
-        var pPr = getChild(wordP,"pPr");
-        debug("pPr = "+pPr);
-        if (pPr != null) {
-            var pStyle = getChild(pPr,"pStyle");
-            debug("pStyle = "+pStyle);
-            if (pStyle != null) {
-                DOM_setAttributeNS(pStyle,WORD_NAMESPACE,"val",style);
-            }
-        }
-        
+        var req = new XMLHttpRequest();
+        req.open("GET",filename,false);
+        req.send();         
+        var xml = req.responseXML;
+        if (xml == null)
+            return null;
+        DOM_assignNodeIds(xml.documentElement);
+        return xml;
     }
-
-    var parseP = trace(function parseP(wordP,htmlContainer)
-    {
-        var paragraphType = "P";
-
-        var pPr = getChild(wordP,"pPr");
-        debug("pPr = "+pPr);
-
-        if (pPr != null) {
-            var pStyle = getChild(pPr,"pStyle");
-            debug("pStyle = "+pStyle);
-            if (pStyle != null) {
-                var val = pStyle.getAttribute("val");
-                debug("paragraph style = "+val);
-                var val2 = pStyle.getAttributeNS(WORD_NAMESPACE,"val");
-                debug("paragraph style 2 = "+val2);
-
-                if (val2 == "Heading1")
-                    paragraphType = "H1";
-                else if (val2 == "Heading2")
-                    paragraphType = "H2";
-                else if (val2 == "Heading3")
-                    paragraphType = "H3";
-                else if (val2 == "Heading4")
-                    paragraphType = "H4";
-                else if (val2 == "Heading5")
-                    paragraphType = "H5";
-                else if (val2 == "Heading6")
-                    paragraphType = "H6";
-            }
-        }
-
-        var htmlP = DOM_createElement(document,paragraphType);
-        DOM_appendChild(htmlContainer,htmlP);
-
-        var listener = new DOM_Listener();
-        listener.afterReplaceElement = function(oldElement,newElement) {
-            debug("Detected replacement of "+DOM_upperName(oldElement)+
-                  " with "+DOM_upperName(newElement));
-
-            if (DOM_upperName(newElement) == "H1")
-                setWordPStyle(wordP,"Heading1");
-            else if (DOM_upperName(newElement) == "H2")
-                setWordPStyle(wordP,"Heading2");
-            else if (DOM_upperName(newElement) == "H3")
-                setWordPStyle(wordP,"Heading3");
-            else if (DOM_upperName(newElement) == "H4")
-                setWordPStyle(wordP,"Heading4");
-            else if (DOM_upperName(newElement) == "H5")
-                setWordPStyle(wordP,"Heading5");
-            else if (DOM_upperName(newElement) == "H6")
-                setWordPStyle(wordP,"Heading6");
-        };
-        DOM_addListener(htmlP,listener);
-
-        for (var child = wordP.firstChild; child != null; child = child.nextSibling) {
-            if (isWordElement(child,"r"))
-                parseR(child,htmlP);
-        }
-    });
-
-    var parseBody = trace(function parseBody(wordBody,htmlBody)
-    {
-        for (var child = wordBody.firstChild; child != null; child = child.nextSibling) {
-            if (isWordElement(child,"p"))
-                parseP(child,htmlBody);
-        }
-    });
-
-    var parseDocument = trace(function parseDocument(wordDocument,htmlBody)
-    {
-        for (var child = wordDocument.firstChild; child != null; child = child.nextSibling) {
-            if (isWordElement(child,"body"))
-                parseBody(child,htmlBody);
-        }
-    });
 
     // public
-    function initWord()
+    Word_initWord = trace(function initWord(filename)
     {
-        debug("This is Word_initWord()");
-        docx.document = readFile("word/document.xml");
-        docx.numbering = readFile("word/numbering.xml");
-        docx.styles = readFile("word/styles.xml");
-        debug("docx.document = "+docx.document);
-        debug("docx.numbering = "+docx.numbering);
-        debug("docx.styles = "+docx.styles);
+        if (filename == null)
+            filename = "word";
+        docx.document = readFile(filename+"/word/document.xml");
+        if (docx.document == null)
+            throw new Error("Cannot read "+filename+"/word/document.xml")
+        assignShorthandProperties(docx.document.documentElement);
+        docx.numbering = readFile(filename+"/numbering.xml");
+        docx.styles = readFile(filename+"/styles.xml");
+        documentLens = new DocumentLens();
+    });
 
-        parseDocument(docx.document.documentElement,document.body);
-    }
+    Word_getHTML = trace(function getHTML()
+    {
+        return documentLens.get(docx.document.documentElement);
+    });
+
+    Word_putHTML = trace(function putHTML(html)
+    {
+        documentLens.put(html,docx.document.documentElement);
+    });
 
     function serialize(xmlDocument)
     {
@@ -177,28 +362,34 @@ var Word_stylesXML;
             return new XMLSerializer().serializeToString(xmlDocument);
     }
 
-    // public
-    function documentXML()
-    {
-        debug("JS: documentXML");
-        return serialize(docx.document);
-    }
+    Word_document = function() {
+        return docx.document;
+    };
+
+    Word_numbering = function() {
+        return docx.numbering;
+    };
+
+    Word_styles = function() {
+        return docx.styles;
+    };
 
     // public
-    function numberingXML()
+    Word_documentXML = trace(function documentXML()
+    {
+        return serialize(docx.document);
+    });
+
+    // public
+    Word_numberingXML = trace(function numberingXML()
     {
         return serialize(docx.numbering);
-    }
+    });
 
     // public
-    function stylesXML()
+    Word_stylesXML = trace(function stylesXML()
     {
         return serialize(docx.styles);
-    }
-
-    Word_initWord = trace(initWord);
-    Word_documentXML = trace(documentXML);
-    Word_numberingXML = trace(numberingXML);
-    Word_stylesXML = trace(stylesXML);
+    });
 
 })();

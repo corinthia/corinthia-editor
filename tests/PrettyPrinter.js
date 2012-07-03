@@ -4,6 +4,7 @@
     // keepSelectionSpans (boolean)
     // preserveCase (boolean)
     // showNamespaceDetails (boolean)
+    // separateLines (boolean)
     
     function getHTML(root,options)
     {
@@ -101,8 +102,8 @@
         for (var i = 0; i < names.length; i++) {
             var name = names[i];
 
-            if (name.match(/^xmlns/))
-                continue;
+//            if (name.match(/^xmlns/))
+//                continue;
 
             var value = node.getAttribute(name);
             if (name == "style")
@@ -156,7 +157,7 @@
                         prettyPrint(output,options,child,"");
                     output.push(indent + "</" + name + ">\n");
                 }
-                else if (singleDescendents(node)) {
+                else if (!options.separateLines && singleDescendents(node)) {
                     output.push(indent);
                     prettyPrintOneLine(output,options,node);
                     output.push("\n");
