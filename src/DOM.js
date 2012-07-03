@@ -24,6 +24,7 @@ var DOM_deleteCharacters;
 var DOM_setNodeValue;
 
 // High-level DOM operations
+var DOM_getStyleProperties;
 var DOM_deleteAllChildren;
 var DOM_shallowCopyElement;
 var DOM_removeNodeButKeepChildren;
@@ -433,7 +434,19 @@ var DOM_Listener;
     // public
     function removeAttributeNS(element,namespaceURI,localName)
     {
-        DOM_setAttributeNS(element,namespaceURI,localName)
+        DOM_setAttributeNS(element,namespaceURI,localName,null)
+    }
+
+    // public
+    function getStyleProperties(element)
+    {
+        var properties = new Object();
+        for (var i = 0; i < element.style.length; i++) {
+            var name = element.style[i];
+            var value = element.style.getPropertyValue(name);
+            properties[name] = value;
+        }
+        return properties;
     }
 
     // public
@@ -879,6 +892,7 @@ var DOM_Listener;
     DOM_setNodeValue = trace(setNodeValue);
 
     // High-level DOM operations
+    DOM_getStyleProperties = trace(getStyleProperties);
     DOM_deleteAllChildren = trace(deleteAllChildren);
     DOM_shallowCopyElement = trace(shallowCopyElement);
     DOM_removeNodeButKeepChildren = trace(removeNodeButKeepChildren);
