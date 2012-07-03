@@ -71,9 +71,10 @@ function doPerformTest()
         leftArea.contentWindow.Styles_removeSelectionRule();
         leftArea.contentWindow.Selection_clearSelection();
     }
-    if (resultText == null)
-        resultText = PrettyPrinter.getHTML(leftArea.contentDocument.documentElement,
-                                           leftArea.contentWindow.keepSelectionSpans)
+    if (resultText == null) {
+        var options = { keepSelectionSpans: leftArea.contentWindow.keepSelectionSpans };
+        resultText = PrettyPrinter.getHTML(leftArea.contentDocument.documentElement,options)
+    }
     var messages = JSON.parse(leftArea.contentWindow.Editor_getBackMessages());
     for (var i = 0; i < messages.length; i++) {
         var message = messages[i];

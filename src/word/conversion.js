@@ -360,7 +360,7 @@ function main()
     var documentLens = new DocumentLens();
 
     var abs = documentLens.get(wordDocument.documentElement);
-    print(PrettyPrinter.getHTML(abs,false,printOptions));
+    print(PrettyPrinter.getHTML(abs,printOptions));
 
     transform(abs);
     print(PrettyPrinter.getHTML(abs));
@@ -370,5 +370,5 @@ function main()
     removeAttributes(wordDocument.documentElement,
                      ["w14:paraId","w14:textId","w:rsidP","w:rsidR","w:rsidRDefault",
                       "mc:Ignorable","w:rsidRPr","w:rsidSect"]);
-    print(PrettyPrinter.getHTML(wordDocument.documentElement,false,printOptions));
+    print(PrettyPrinter.getHTML(wordDocument.documentElement,printOptions));
 }

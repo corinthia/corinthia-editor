@@ -1,9 +1,11 @@
 (function() {
 
-    function getHTML(root,keepSelectionSpans,options)
+    function getHTML(root,options)
     {
+        if (options == null)
+            options = new Object();
         var copy = DOM_cloneNode(root,true);
-        if (!keepSelectionSpans)
+        if (!options.keepSelectionSpans)
             removeSelectionSpans(copy);
         for (var body = copy.firstChild; body != null; body = body.nextSibling) {
             if (body.nodeName == "BODY") {
@@ -12,13 +14,9 @@
             }
         }
 
-        var builder = { str : "" };
-        if (options != null) {
-            for (var name in options)
-                builder[name] = options[name];
-        }
-        prettyPrint(builder,copy,"");
-        return builder.str;
+        var output = new Array();
+        prettyPrint(output,options,copy,"");
+        return output.join("");
     }
 
     function removeSelectionSpans(root)
@@ -112,55 +110,55 @@
         return str;
     }
 
-    function prettyPrintOneLine(builder,node)
+    function prettyPrintOneLine(output,options,node)
     {
         if ((node.nodeType == Node.ELEMENT_NODE) && (node.nodeName != "SCRIPT")) {
-            var name = builder.preserveCase ? node.nodeName : node.nodeName.toLowerCase();
+            var name = options.preserveCase ? node.nodeName : node.nodeName.toLowerCase();
             if (node.firstChild == null) {
-                builder.str += "<" + name + attributeString(node) + "/>";
+                output.push("<" + name + attributeString(node) + "/>");
             }
             else {
-                builder.str += "<" + name + attributeString(node) + ">";
+                output.push("<" + name + attributeString(node) + ">");
                 for (var child = node.firstChild; child != null; child = child.nextSibling)
-                    prettyPrintOneLine(builder,child);
-                builder.str += "</" + name + ">";
+                    prettyPrintOneLine(output,options,child);
+                output.push("</" + name + ">");
             }
         }
         else if (node.nodeType == Node.TEXT_NODE) {
             var value = trim(entityFix(node.nodeValue));
 //            var value = JSON.stringify(node.nodeValue);
             if (value.length > 0)
-                builder.str += value;
+                output.push(value);
         }
         else if (node.nodeType == Node.COMMENT_NODE) {
-            builder.str += "<!--" + entityFix(node.nodeValue) + "-->\n";
+            output.push("<!--" + entityFix(node.nodeValue) + "-->\n");
         }
     }
 
-    function prettyPrint(builder,node,indent)
+    function prettyPrint(output,options,node,indent)
     {
         if ((node.nodeType == Node.ELEMENT_NODE) && (node.nodeName != "SCRIPT")) {
-            var name = builder.preserveCase ? node.nodeName : node.nodeName.toLowerCase();
+            var name = options.preserveCase ? node.nodeName : node.nodeName.toLowerCase();
             if (node.firstChild == null) {
-                builder.str += indent + "<" + name + attributeString(node) + "/>\n";
+                output.push(indent + "<" + name + attributeString(node) + "/>\n");
             }
             else {
                 if (DOM_upperName(node) == "STYLE") {
-                    builder.str += indent + "<" + name + attributeString(node) + ">\n";
+                    output.push(indent + "<" + name + attributeString(node) + ">\n");
                     for (var child = node.firstChild; child != null; child = child.nextSibling)
-                        prettyPrint(builder,child,"");
-                    builder.str += indent + "</" + name + ">\n";
+                        prettyPrint(output,options,child,"");
+                    output.push(indent + "</" + name + ">\n");
                 }
                 else if (singleDescendents(node)) {
-                    builder.str += indent;
-                    prettyPrintOneLine(builder,node);
-                    builder.str += "\n";
+                    output.push(indent);
+                    prettyPrintOneLine(output,options,node);
+                    output.push("\n");
                 }
                 else {
-                    builder.str += indent + "<" + name + attributeString(node) + ">\n";
+                    output.push(indent + "<" + name + attributeString(node) + ">\n");
                     for (var child = node.firstChild; child != null; child = child.nextSibling)
-                        prettyPrint(builder,child,indent+"  ");
-                    builder.str += indent + "</" + name + ">\n";
+                        prettyPrint(output,options,child,indent+"  ");
+                    output.push(indent + "</" + name + ">\n");
                 }
             }
         }
@@ -168,10 +166,10 @@
             var value = trim(entityFix(node.nodeValue));
 //            var value = JSON.stringify(node.nodeValue);
             if (value.length > 0)
-                builder.str += indent + value + "\n";
+                output.push(indent + value + "\n");
         }
         else if (node.nodeType == Node.COMMENT_NODE) {
-            builder.str += indent + "<!--" + entityFix(node.nodeValue) + "-->\n";
+            output.push(indent + "<!--" + entityFix(node.nodeValue) + "-->\n");
         }
     }
 
