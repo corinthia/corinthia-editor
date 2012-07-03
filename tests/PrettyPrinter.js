@@ -1,5 +1,10 @@
 (function() {
 
+    // Applicable options:
+    // keepSelectionSpans (boolean)
+    // preserveCase (boolean)
+    // showNamespaceDetails (boolean)
+    
     function getHTML(root,options)
     {
         if (options == null)
@@ -84,7 +89,7 @@
         return items.join("; ");
     }
 
-    function attributeString(node)
+    function attributeString(options,node)
     {
         // Make sure the attributes appear in a consistent order
         var names = new Array();
@@ -103,8 +108,10 @@
             if (name == "style")
                 value = sortCSSProperties(value);
             var attr = node.getAttributeNode(name);
-            if ((attr.namespaceURI != null) || (attr.prefix != null))
-                name = "{"+attr.namespaceURI+","+attr.prefix+","+attr.localName+"}"+name;
+            if (options.showNamespaceDetails) {
+                if ((attr.namespaceURI != null) || (attr.prefix != null))
+                    name = "{"+attr.namespaceURI+","+attr.prefix+","+attr.localName+"}"+name;
+            }
             str += " "+name+"=\""+value+"\"";
         }
         return str;
@@ -115,10 +122,10 @@
         if ((node.nodeType == Node.ELEMENT_NODE) && (node.nodeName != "SCRIPT")) {
             var name = options.preserveCase ? node.nodeName : node.nodeName.toLowerCase();
             if (node.firstChild == null) {
-                output.push("<" + name + attributeString(node) + "/>");
+                output.push("<" + name + attributeString(options,node) + "/>");
             }
             else {
-                output.push("<" + name + attributeString(node) + ">");
+                output.push("<" + name + attributeString(options,node) + ">");
                 for (var child = node.firstChild; child != null; child = child.nextSibling)
                     prettyPrintOneLine(output,options,child);
                 output.push("</" + name + ">");
@@ -140,11 +147,11 @@
         if ((node.nodeType == Node.ELEMENT_NODE) && (node.nodeName != "SCRIPT")) {
             var name = options.preserveCase ? node.nodeName : node.nodeName.toLowerCase();
             if (node.firstChild == null) {
-                output.push(indent + "<" + name + attributeString(node) + "/>\n");
+                output.push(indent + "<" + name + attributeString(options,node) + "/>\n");
             }
             else {
                 if (DOM_upperName(node) == "STYLE") {
-                    output.push(indent + "<" + name + attributeString(node) + ">\n");
+                    output.push(indent + "<" + name + attributeString(options,node) + ">\n");
                     for (var child = node.firstChild; child != null; child = child.nextSibling)
                         prettyPrint(output,options,child,"");
                     output.push(indent + "</" + name + ">\n");
@@ -155,7 +162,7 @@
                     output.push("\n");
                 }
                 else {
-                    output.push(indent + "<" + name + attributeString(node) + ">\n");
+                    output.push(indent + "<" + name + attributeString(options,node) + ">\n");
                     for (var child = node.firstChild; child != null; child = child.nextSibling)
                         prettyPrint(output,options,child,indent+"  ");
                     output.push(indent + "</" + name + ">\n");

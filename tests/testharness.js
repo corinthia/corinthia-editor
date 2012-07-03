@@ -64,18 +64,18 @@ function loadTestIndex()
 
 function doPerformTest()
 {
-    leftArea.contentWindow.keepSelectionSpans = false;
-    leftArea.contentWindow.disableOutlineRedoHack = true;
-    var resultText = leftArea.contentWindow.performTest();
-    if (!leftArea.contentWindow.keepSelectionSpans) {
-        leftArea.contentWindow.Styles_removeSelectionRule();
-        leftArea.contentWindow.Selection_clearSelection();
+    var testDocument = leftArea.contentDocument;
+    var testWindow = leftArea.contentWindow;
+    testWindow.outputOptions = new Object();
+    testWindow.disableOutlineRedoHack = true;
+    var resultText = testWindow.performTest();
+    if (!testWindow.outputOptions.keepSelectionSpans) {
+        testWindow.Styles_removeSelectionRule();
+        testWindow.Selection_clearSelection();
     }
-    if (resultText == null) {
-        var options = { keepSelectionSpans: leftArea.contentWindow.keepSelectionSpans };
-        resultText = PrettyPrinter.getHTML(leftArea.contentDocument.documentElement,options)
-    }
-    var messages = JSON.parse(leftArea.contentWindow.Editor_getBackMessages());
+    if (resultText == null)
+        resultText = PrettyPrinter.getHTML(testDocument.documentElement,testWindow.outputOptions)
+    var messages = JSON.parse(testWindow.Editor_getBackMessages());
     for (var i = 0; i < messages.length; i++) {
         var message = messages[i];
         if (message[0] == "error")
