@@ -50,7 +50,7 @@ function loadCode()
                            "../src/UndoManager.js",
                            "../src/util.js",
                            "../src/Viewport.js",
-                           "../src/word/Word.js",
+                           "../src/Word.js",
                            "testlib.js"]; // must be last
     var allCodeArray = new Array();
     for (var i = 0; i < javascriptFiles.length; i++)
