@@ -1,4 +1,7 @@
 var Word_initWord;
+
+var Word_updateFromHTML;
+
 var Word_getHTML;
 var Word_putHTML;
 
@@ -214,6 +217,24 @@ var Word_stylesXML;
         return Paragraph_put(abs,con);
     });
 
+    ContentLens.prototype.create = trace(function ContentLens_create(abs,conDocument)
+    {
+        if (abs.nodeType == Node.ELEMENT_NODE) {
+            debug("ContentLens create: conDocument = "+conDocument+
+                  ", abs = "+nodeString(abs)+" (content "+
+                  JSON.stringify(getNodeText(abs))+")");
+            var wp = DOM_createElementNS(conDocument,WORD_NAMESPACE,"w:p");
+            var wr = DOM_createElementNS(conDocument,WORD_NAMESPACE,"w:r");
+            var wt = DOM_createElementNS(conDocument,WORD_NAMESPACE,"w:t");
+            var text = DOM_createTextNode(conDocument,getNodeText(abs));
+            DOM_appendChild(wp,wr);
+            DOM_appendChild(wr,wt);
+            DOM_appendChild(wt,text);
+            return wp;
+        }
+        return null;
+    });
+
     ContentLens.prototype.isVisible = function(con)
     {
         return con._isp;
@@ -258,12 +279,15 @@ var Word_stylesXML;
 
     DocumentLens.prototype.put = trace(function DocumentLens_put(abs,con)
     {
+//        debug("DocumentLens.put: abs = "+nodeString(abs));
+//        debug("DocumentLens.put: con = "+nodeString(con));
         var htmlBody = null;
         for (var absChild = abs.firstChild; absChild != null; absChild = absChild.nextSibling) {
             if (DOM_upperName(absChild) == "BODY") {
                 htmlBody = absChild;
             }
         }
+//        debug("DocumentLens.put: htmlBody = "+nodeString(htmlBody));
         this.bodyLens.put(htmlBody,con._childbody);
     });
 
@@ -300,13 +324,12 @@ var Word_stylesXML;
         return null;
     }
 
-/*
-    function readFile(filename)
+    function readFileApp(filename)
     {
         var req = new XMLHttpRequest("file:///read/"+filename);
         req.open("POST","/read/"+encodeURI(filename),false);
         req.send();
-        debug("req.status = "+req.status);
+//        debug("req.status = "+req.status);
         if (req.status == 404)
             return null; // file not found
         else if ((req.status != 200) && (req.status != 0))
@@ -316,9 +339,8 @@ var Word_stylesXML;
             DOM_assignNodeIds(doc);
         return doc;
     }
-*/
 
-    function readFile(filename)
+    function readFileTest(filename)
     {
         var req = new XMLHttpRequest();
         req.open("GET",filename,false);
@@ -333,15 +355,52 @@ var Word_stylesXML;
     // public
     Word_initWord = trace(function initWord(filename)
     {
-        if (filename == null)
-            filename = "word";
-        docx.document = readFile(filename+"/word/document.xml");
+        var wordDir;
+        var readFun;
+        if (filename == null) {
+            wordDir = "word";
+            readFun = readFileApp;
+        }
+        else {
+            wordDir = filename+"/word";
+            readFun = readFileTest;
+        }
+        docx.document = readFun(wordDir+"/document.xml");
         if (docx.document == null)
-            throw new Error("Cannot read "+filename+"/word/document.xml")
+            throw new Error("Cannot read "+wordDir+"/document.xml")
         assignShorthandProperties(docx.document.documentElement);
-        docx.numbering = readFile(filename+"/numbering.xml");
-        docx.styles = readFile(filename+"/styles.xml");
+        docx.numbering = readFun(wordDir+"/numbering.xml");
+        docx.styles = readFun(wordDir+"/styles.xml");
         documentLens = new DocumentLens();
+        convertToHTML();
+    });
+
+    var convertToHTML = trace(function convertToHTML()
+    {
+        var html = documentLens.get(docx.document.documentElement);;
+        var body = html.firstChild;
+        var next;
+        for (var child = body.firstChild; child != null; child = next) {
+            next = child.nextSibling;
+            DOM_appendChild(document.body,child);
+        }
+        debug("------------------- convertToHTML BEGIN ----------------------");
+        printTree(document.documentElement);
+        debug("------------------- convertToHTML END ----------------------");
+        return true;
+    });
+
+    Word_updateFromHTML = trace(function updateFromHTML()
+    {
+        documentLens.put(document.documentElement,docx.document.documentElement);
+
+        debug("------------------- updateFromHTML BEGIN ----------------------");
+        printTree(document.documentElement);
+        debug("------------------- updateFromHTML END ----------------------");
+        debug("updateFromHTML: word document:");
+        debug(PrettyPrinter.getHTML(docx.document.documentElement,
+                                    { preserveCase: true, separateLines: true }));
+        return true;
     });
 
     Word_getHTML = trace(function getHTML()
