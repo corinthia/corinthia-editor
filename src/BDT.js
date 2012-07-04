@@ -47,13 +47,21 @@ var BDT_Container_put;
         var before = null;
         for (var achild = a.lastChild; achild != null; achild = achild.previousSibling) {
             if (achild._source != null) {
+                if (lens.put == null)
+                    throw new Error(nodeString(achild)+": "+lens.constructor.name+
+                                    " has no put method");
                 lens.put(achild,achild._source);
                 before = achild._source;
             }
             else {
+                if (lens.create == null)
+                    throw new Error(nodeString(achild)+": "+lens.constructor.name+
+                                    " has no create method");
                 var element = lens.create(achild,c.ownerDocument);
-                DOM_insertBefore(c,element,before);
-                before = element;
+                if (element != null) {
+                    DOM_insertBefore(c,element,before);
+                    before = element;
+                }
             }
         }
     });
