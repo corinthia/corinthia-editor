@@ -652,10 +652,11 @@ var Formatting_applyFormattingChanges;
             DOM_setAttribute(paragraph,"class",style.slice(1));
         }
         else {
-            if (!PARAGRAPH_ELEMENTS[style.toUpperCase()])
+            var elementName = style.toUpperCase();
+            if (!PARAGRAPH_ELEMENTS[elementName])
                 throw new Error(style+" is not a valid paragraph element");
-            if (DOM_upperName(paragraph) != style)
-                paragraph = DOM_replaceElement(paragraph,style);
+            if (DOM_upperName(paragraph) != elementName)
+                paragraph = DOM_replaceElement(paragraph,elementName);
         }
         var isHeading = isHeadingNode(paragraph);
         if (wasHeading && !isHeading)
