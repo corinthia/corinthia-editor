@@ -988,43 +988,47 @@ var Outline_setReferenceTarget;
     Outline_moveSection = trace(function moveSection(sectionId,parentId,nextId)
     {
         UndoManager_newGroup("Move section");
-        Selection_preserveWhileExecuting(function() {
-            updateStructure(); // make sure pointers are valid
-            // FIXME: I don't think we'll need the updateStructure() call now that we have
-            // discoverStructure(). In fact this function is a perfect illustration of why
-            // waiting till after the postponed action has been performed before relying on the
-            // pointer validity was a problem.
+        Selection_clear();
+
+        updateStructure(); // make sure pointers are valid
+        // FIXME: I don't think we'll need the updateStructure() call now that we have
+        // discoverStructure(). In fact this function is a perfect illustration of why
+        // waiting till after the postponed action has been performed before relying on the
+        // pointer validity was a problem.
 
 
-            var structure = discoverStructure();
+        var structure = discoverStructure();
 
-            var node = document.getElementById(sectionId);
-            var section = itemsByNode.get(node);
-            var shadow = structure.shadowsByNode.get(node);
+        var node = document.getElementById(sectionId);
+        var section = itemsByNode.get(node);
+        var shadow = structure.shadowsByNode.get(node);
 
-            // FIXME: We should throw an exception if a parentId or nextId which does not exist
-            // in the document is specified. However there are currently some tests (like
-            // moveSection-nested*) which rely us interpreting such parameters as null.
-            var parentNode = parentId ? document.getElementById(parentId) : null;
-            var nextNode = nextId ? document.getElementById(nextId) : null;
-            var parent = parentNode ? structure.shadowsByNode.get(parentNode) : null;
-            var next = nextNode ? structure.shadowsByNode.get(nextNode) : null;
+        // FIXME: We should throw an exception if a parentId or nextId which does not exist
+        // in the document is specified. However there are currently some tests (like
+        // moveSection-nested*) which rely us interpreting such parameters as null.
+        var parentNode = parentId ? document.getElementById(parentId) : null;
+        var nextNode = nextId ? document.getElementById(nextId) : null;
+        var parent = parentNode ? structure.shadowsByNode.get(parentNode) : null;
+        var next = nextNode ? structure.shadowsByNode.get(nextNode) : null;
 
-            var sectionNodes = new Array();
-            getShadowNodes(structure,shadow,sectionNodes);
+        var sectionNodes = new Array();
+        getShadowNodes(structure,shadow,sectionNodes);
 
-            if ((next == null) && (parent != null))
-                next = parent.outerNext(structure);
+        if ((next == null) && (parent != null))
+            next = parent.outerNext(structure);
 
-            if (next == null) {
-                for (var i = 0; i < sectionNodes.length; i++)
-                    DOM_appendChild(document.body,sectionNodes[i]);
-            }
-            else {
-                for (var i = 0; i < sectionNodes.length; i++)
-                    DOM_insertBefore(next.item.node.parentNode,sectionNodes[i],next.item.node);
-            }
-        });
+        if (next == null) {
+            for (var i = 0; i < sectionNodes.length; i++)
+                DOM_appendChild(document.body,sectionNodes[i]);
+        }
+        else {
+            for (var i = 0; i < sectionNodes.length; i++)
+                DOM_insertBefore(next.item.node.parentNode,sectionNodes[i],next.item.node);
+        }
+
+        var pos = new Position(node,0,node,0);
+        pos = Position_closestMatchForwards(pos,Position_okForInsertion);
+        Selection_set(pos.node,pos.offset,pos.node,pos.offset);
 
         scheduleUpdateStructure();
         PostponedActions_add(UndoManager_newGroup);

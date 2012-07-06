@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript" src="OutlineTest.js"></script>
+<script>
+
+function performTest()
+{
+    setupOutline(3);
+
+    Selection_selectAll();
+
+    Outline_moveSection("item3",null,"item2");
+
+    Selection_preserveWhileExecuting(cleanupOutline);
+    showSelection();
+}
+</script>
+</head>
+<body>
+</body>
+</html>
