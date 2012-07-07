@@ -252,3 +252,69 @@ DoublyLinkedList.prototype.remove = function(item)
     item.prev = null;
     item.next = null;
 };
+
+function diff(src,dest)
+{
+    var traces = new Array();
+
+    traces[1] = new DiffEntry(0,0,0,0,null);
+
+    for (var distance = 0; true; distance++) {
+        for (var k = -distance; k <= distance; k += 2) {
+            var srcEnd;
+            var prev;
+            
+            var del = traces[k-1];
+            var ins = traces[k+1];
+
+            if (((k == -distance) && ins) ||
+                ((k != distance) && ins && del && (del.srcEnd < ins.srcEnd))) {
+                // Down - insertion
+                prev = ins;
+                srcEnd = prev.srcEnd;
+            }
+            else if (del) {
+                // Right - deletion
+                prev = del;
+                srcEnd = prev.srcEnd+1;
+            }
+            else {
+                traces[k] = null;
+                continue;
+            }
+
+            destEnd = srcEnd - k;
+            var srcStart = srcEnd;
+            var destStart = destEnd;
+            while ((srcEnd < src.length) && (destEnd < dest.length) &&
+                   (src[srcEnd] == dest[destEnd])) {
+                srcEnd++;
+                destEnd++;
+            }
+            if ((srcEnd > src.length) || (destEnd > dest.length))
+                traces[k] = null;
+            else
+                traces[k] = new DiffEntry(srcStart,destStart,srcEnd,destEnd,prev);
+            if ((srcEnd >= src.length) && (destEnd >= dest.length)) {
+                return entryToArray(src,dest,traces[k]);
+            }
+        }
+    }
+
+    function DiffEntry(srcStart,destStart,srcEnd,destEnd,prev)
+    {
+        this.srcStart = srcStart;
+        this.destStart = destStart;
+        this.srcEnd = srcEnd;
+        this.destEnd = destEnd;
+        this.prev = prev;
+    }
+
+    function entryToArray(src,dest,entry)
+    {
+        var results = new Array();
+        for (; entry != null; entry = entry.prev)
+            results.push(entry);
+        return results.reverse();
+    }
+}
