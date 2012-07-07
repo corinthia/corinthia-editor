@@ -11,6 +11,7 @@ var Formatting_paragraphTextUpToPosition;
 var Formatting_getFormatting;
 var Formatting_pushDownInlineProperties;
 var Formatting_applyFormattingChanges;
+var Formatting_formatInlineNode;
 
 (function() {
 
@@ -1061,6 +1062,13 @@ var Formatting_applyFormattingChanges;
             }
             return true;
         }
+    });
+
+    Formatting_formatInlineNode = trace(function formatInlineNode(node,properties)
+    {
+        properties = clone(properties);
+        var special = extractSpecial(properties);
+        return applyInlineFormatting(node,properties,special,true);
     });
 
     Formatting_MERGEABLE_INLINE = {
