@@ -51,8 +51,10 @@ function nodeString(node)
         return id+JSON.stringify(node.nodeValue);
     else if ((node.nodeType == Node.ELEMENT_NODE) && (node.hasAttribute("id")))
         return id+DOM_upperName(node)+"#"+node.getAttribute("id");
-    else
+    else if (node.nodeType == Node.ELEMENT_NODE)
         return id+DOM_upperName(node);
+    else
+        return id+node.toString();
 }
 
 function clone(object)
