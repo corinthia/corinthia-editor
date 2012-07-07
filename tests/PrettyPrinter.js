@@ -52,13 +52,6 @@
         }
     }
 
-    function trim(str)
-    {
-        str = str.replace(/^\s+/,"");
-        str = str.replace(/\s+$/,"");
-        return str;
-    }
-
     function entityFix(str)
     {
         return str.replace(/\u00a0/g,"&nbsp;");
@@ -68,8 +61,7 @@
     {
         var count = 0;
         for (var child = node.firstChild; child != null; child = child.nextSibling) {
-            if ((child.nodeType == Node.TEXT_NODE) &&
-                (trim(entityFix(child.nodeValue)).length == 0))
+            if ((child.nodeType == Node.TEXT_NODE) && (textNodeDisplayValue(child).length == 0))
                 continue;
             count++;
             if (count > 1)
@@ -102,9 +94,6 @@
         for (var i = 0; i < names.length; i++) {
             var name = names[i];
 
-//            if (name.match(/^xmlns/))
-//                continue;
-
             var value = node.getAttribute(name);
             if (name == "style")
                 value = sortCSSProperties(value);
@@ -116,6 +105,15 @@
             str += " "+name+"=\""+value+"\"";
         }
         return str;
+    }
+
+    function textNodeDisplayValue(node)
+    {
+        var value = entityFix(node.nodeValue);
+        if ((node.parentNode != null) &&
+            (node.parentNode.getAttribute("xml:space") != "preserve"))
+            value = value.trim();
+        return value;
     }
 
     function prettyPrintOneLine(output,options,node)
@@ -133,8 +131,7 @@
             }
         }
         else if (node.nodeType == Node.TEXT_NODE) {
-            var value = trim(entityFix(node.nodeValue));
-//            var value = JSON.stringify(node.nodeValue);
+            var value = textNodeDisplayValue(node);
             if (value.length > 0)
                 output.push(value);
         }
@@ -171,7 +168,7 @@
             }
         }
         else if (node.nodeType == Node.TEXT_NODE) {
-            var value = trim(entityFix(node.nodeValue));
+            var value = textNodeDisplayValue(node);
 //            var value = JSON.stringify(node.nodeValue);
             if (value.length > 0)
                 output.push(indent + value + "\n");
@@ -183,6 +180,5 @@
 
     window.PrettyPrinter = new Object();
     window.PrettyPrinter.getHTML = getHTML;
-    window.PrettyPrinter.trim = trim;
 
 })();

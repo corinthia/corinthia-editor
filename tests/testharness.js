@@ -293,8 +293,8 @@ function runAllTests()
                 actual = e.toString();
             }
 
-            actual = PrettyPrinter.trim(actual);
-            expected = PrettyPrinter.trim(expected);
+            actual = actual.trim();
+            expected = expected.trim();
 
             var fullname = dirname+"-"+filename;
             var resultElement = document.getElementById("result-"+fullname);
