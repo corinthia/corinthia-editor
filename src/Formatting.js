@@ -559,6 +559,9 @@ var Formatting_formatInlineNode;
         "text-align": true,
         "line-height": true,
         "display": true,
+
+        "width": true,
+        "height": true,
     };
 
     var SPECIAL_PROPERTIES = {
