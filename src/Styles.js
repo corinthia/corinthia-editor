@@ -199,9 +199,12 @@ var Styles_removeSelectionRule;
         }
 
         var lines = new Array();
-        var keys = Object.getOwnPropertyNames(properties).sort();
-        for (var i = 0; i < keys.length; i++) {
-            lines.push("    "+keys[i]+": "+properties[keys[i]]+";\n");
+        var names = Object.getOwnPropertyNames(properties).sort();
+        for (var i = 0; i < names.length; i++) {
+            var name = names[i];
+            var value = properties[name];
+            if (value != null)
+                lines.push("    "+name+": "+value+";\n");
         }
         return lines.join("");
     });
