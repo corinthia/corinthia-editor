@@ -419,6 +419,8 @@ var Styles_removeSelectionRule;
                     for (var propertyNo = 0; propertyNo < rule.style.length; propertyNo++) {
                         var name = rule.style[propertyNo];
                         var value = rule.style.getPropertyValue(name);
+                        value = value.replace(/^['"]/,"");
+                        value = value.replace(/['"]$/,"");
                         properties[name] = value;
                     }
 
