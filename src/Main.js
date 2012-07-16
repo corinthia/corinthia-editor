@@ -17,16 +17,22 @@ var Main_init;
     // public
     Main_getLanguage = trace(function getLanguage()
     {
-        if (document.documentElement.hasAttribute("lang"))
-            return document.documentElement.getAttribute("lang");
-        else
-            return null;
+        var lang = document.documentElement.getAttribute("lang");
+        if (lang != null)
+            lang = lang.replace(/-/g,"_");
+        return lang;
     });
 
     // public
-    Main_setLanguage = trace(function setLanguage(language)
+    Main_setLanguage = trace(function setLanguage(lang)
     {
-        DOM_setAttribute(document.documentElement,"lang",language);
+        if ((lang == null) || (lang == "")) {
+            DOM_removeAttribute(document.documentElement,"lang");
+        }
+        else {
+            lang = lang.replace(/_/g,"-");
+            DOM_setAttribute(document.documentElement,"lang",lang);
+        }
     });
 
     // public
