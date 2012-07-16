@@ -1,5 +1,7 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
+var Main_getLanguage;
+var Main_setLanguage;
 var Main_setGenerator;
 var Main_isEmptyDocument;
 var Main_prepareForSave;
@@ -11,6 +13,21 @@ var Main_execute;
 var Main_init;
 
 (function() {
+
+    // public
+    Main_getLanguage = trace(function getLanguage()
+    {
+        if (document.documentElement.hasAttribute("lang"))
+            return document.documentElement.getAttribute("lang");
+        else
+            return null;
+    });
+
+    // public
+    Main_setLanguage = trace(function setLanguage(language)
+    {
+        DOM_setAttribute(document.documentElement,"lang",language);
+    });
 
     // public
     Main_removeUnsupportedInput = trace(function removeUnsupportedInput()
