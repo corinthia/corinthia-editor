@@ -465,6 +465,8 @@ var DOM_Listener;
     // public
     function removeNodeButKeepChildren(node)
     {
+        if (node.parentNode == null)
+            throw new Error("Node "+nodeString(node)+" has no parent");
         var offset = DOM_nodeOffset(node);
         var childCount = node.childNodes.length;
 

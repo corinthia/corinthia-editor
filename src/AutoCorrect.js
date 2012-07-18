@@ -15,6 +15,8 @@ var AutoCorrect_replaceCorrection;
 
     var removeCorrectionSpan = trace(function removeCorrectionSpan(span)
     {
+        if (span.parentNode == null)
+            return;
         Selection_preserveWhileExecuting(function() {
             var firstChild = span.firstChild;
             DOM_removeNodeButKeepChildren(span);
@@ -25,15 +27,11 @@ var AutoCorrect_replaceCorrection;
 
     function Correction(span)
     {
-        var done = false;
         this.span = span;
         this.modificationListener = function(event) {
             if (DOM_getIgnoreMutations())
                 return;
             PostponedActions_add(function() {
-                if (done)
-                    return;
-                done = true;
                 // This will trigger a removeCorrection() call
                 removeCorrectionSpan(span);
             });
