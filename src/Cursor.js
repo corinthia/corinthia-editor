@@ -220,12 +220,16 @@ var Cursor_makeContainerInsertionPoint;
             if (pos == null)
                 return;
 
-            var node = pos.node;
-            var offset = pos.offset;
+            if (pos.node.nodeType != Node.TEXT_NODE)
+                throw new Error("Not a text node");
 
+            var node = pos.node;
             var paragraph = Text_analyseParagraph(node);
             if (paragraph == null)
                 return; // FIXME: skip empty paragraphs
+
+            var run = Paragraph_runFromNode(paragraph,pos.node);
+            var offset = pos.offset + run.start;
 
             var before = paragraph.text.substring(0,offset);
             var beforeWord = before.replace(/[^\s]+$/,"");

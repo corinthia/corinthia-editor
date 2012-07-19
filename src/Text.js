@@ -3,6 +3,7 @@
 var Text_analyseParagraph;
 
 var Paragraph_runFromOffset;
+var Paragraph_runFromNode;
 
 (function() {
 
@@ -93,6 +94,15 @@ var Paragraph_runFromOffset;
             if ((i == paragraph.runs.length-1) && (offset == run.end))
                 return run;
         }
+    });
+
+    Paragraph_runFromNode = trace(function runFromNode(paragraph,node)
+    {
+        for (var i = 0; i < paragraph.runs.length; i++) {
+            if (paragraph.runs[i].node == node)
+                return paragraph.runs[i];
+        }
+        throw new Error("Run for node "+nodeString(node)+" not found");
     });
 
 })();
