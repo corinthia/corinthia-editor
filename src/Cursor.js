@@ -5,6 +5,14 @@ var Cursor_positionCursor;
 var Cursor_getCursorPosition;
 var Cursor_moveLeft;
 var Cursor_moveRight;
+var Cursor_moveUp;
+var Cursor_moveDown;
+var Cursor_moveToStartOfWord;
+var Cursor_moveToEndOfWord;
+var Cursor_moveToStartOfLine;
+var Cursor_moveToEndOfLine;
+var Cursor_moveToStartOfParagraph;
+var Cursor_moveToEndOfParagraph;
 var Cursor_moveToStartOfDocument;
 var Cursor_moveToEndOfDocument;
 var Cursor_updateBRAtEndOfParagraph;
@@ -163,6 +171,106 @@ var Cursor_makeContainerInsertionPoint;
         Cursor_ensureCursorVisible();
     });
 
+    Cursor_moveUp = trace(function moveUp()
+    {
+    });
+
+    Cursor_moveDown = trace(function moveDown()
+    {
+    });
+
+    var closestTextPositionBackwards = trace(function closestTextPositionBackwards(pos)
+    {
+        // FIXME
+        if (isNonWhitespaceTextNode(pos.node))
+            return pos;
+        var node;
+        if ((pos.node.nodeType == Node.ELEMENT_NODE) && (pos.offset > 0))
+            node = pos.node.childNodes[pos.offset-1];
+        else
+            node = pos.node;
+        while ((node != null) && (node != document.body) && !isNonWhitespaceTextNode(node))
+            node = prevNode(node);
+
+        if ((node == null) || (node == document.body))
+            return null;
+        else
+            return new Position(node,node.nodeValue.length);
+    });
+
+    var closestTextPositionForwards = trace(function closestTextPositionForwards(pos)
+    {
+        // FIXME
+    });
+
+    Cursor_moveToStartOfWord = trace(function moveToStartOfWord()
+    {
+        // FIXME: ensure it's a valid position (don't allow stepping into links etc. using this
+        // method)
+        // Actually.... maybe we should allow people to edit link text?
+        var range = Selection_get();
+        if (range == null)
+            return;
+
+        var pos = range.start;
+
+        while (true) {
+
+            var pos = closestTextPositionBackwards(pos);
+            if (pos == null)
+                return;
+
+            var node = pos.node;
+            var offset = pos.offset;
+
+            var paragraph = Text_analyseParagraph(node);
+            if (paragraph == null)
+                return; // FIXME: skip empty paragraphs
+
+            var before = paragraph.text.substring(0,offset);
+            var beforeWord = before.replace(/[^\s]+$/,"");
+
+            if (beforeWord.length == before.length) {
+                // Already at start of word; go to start of previous word in this paragraph
+                beforeWord = before.replace(/[^\s]+\s+$/,"");
+                if (beforeWord.length == before.length) {
+                    // Already at start of paragraph, go to previous non-empty paragraph, if any
+                    pos = new Position(node.parentNode,DOM_nodeOffset(node));
+                    continue;
+                }
+            }
+
+            var newOffset = beforeWord.length;
+            var run = Paragraph_runFromOffset(paragraph,newOffset);
+            if (run != null) {
+                var relOffset = newOffset - run.start;
+                Selection_set(run.node,relOffset,run.node,relOffset);
+            }
+            return;
+        }
+    });
+
+    Cursor_moveToEndOfWord = trace(function moveToEndOfWord()
+    {
+    });
+
+    Cursor_moveToStartOfLine = trace(function moveToStartOfLine()
+    {
+    });
+
+    Cursor_moveToEndOfLine = trace(function moveToEndOfLine()
+    {
+    });
+
+    Cursor_moveToStartOfParagraph = trace(function moveToStartOfParagraph()
+    {
+    });
+
+    Cursor_moveToEndOfParagraph = trace(function moveToEndOfParagraph()
+    {
+    });
+
+    // public
     Cursor_moveToStartOfDocument = trace(function moveToStartOfDocument()
     {
         var pos = new Position(document.body,0);
@@ -171,6 +279,7 @@ var Cursor_makeContainerInsertionPoint;
         Cursor_ensureCursorVisible();
     });
 
+    // public
     Cursor_moveToEndOfDocument = trace(function moveToEndOfDocument()
     {
         var pos = new Position(document.body,document.body.childNodes.length);

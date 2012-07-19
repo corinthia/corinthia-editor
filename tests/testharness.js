@@ -45,6 +45,7 @@ function loadCode()
                            "../src/StringBuilder.js",
                            "../src/Styles.js",
                            "../src/Tables.js",
+                           "../src/Text.js",
                            "../src/traversal.js",
                            "../src/types.js",
                            "../src/UndoManager.js",

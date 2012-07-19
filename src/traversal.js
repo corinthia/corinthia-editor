@@ -113,6 +113,13 @@ function isWhitespaceTextNode(node)
     return isWhitespaceString(node.nodeValue);
 }
 
+function isNonWhitespaceTextNode(node)
+{
+    if (node.nodeType != Node.TEXT_NODE)
+        return false;
+    return !isWhitespaceString(node.nodeValue);
+}
+
 function printTree(node,indent)
 {
     if (indent == null)

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+p { border: 1px solid red;
+font-size: 20px;
+font-family: monospace;
+width: 400px; }
+</style>
+<script>
+function performTest()
+{
+    for (var i = 0; i < 2; i++)
+        Cursor_moveToStartOfWord();
+    showSelection();
+}
+</script>
+</head>
+<body>
+
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean at
+vestibulum nisl.</p>
+
+<p>Sed nec lorem sit amet risus hen[]drerit mattis. Sed vitae semper
+diam.</p>
+
+<p>Sed ut metus quis erat porttitor facilisis. Duis velit libero,
+aliquet eu laoreet a, accumsan id dui.</p>
+
+</body>
+</html>
