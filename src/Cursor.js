@@ -185,10 +185,14 @@ var Cursor_makeContainerInsertionPoint;
         if (isNonWhitespaceTextNode(pos.node))
             return pos;
         var node;
-        if ((pos.node.nodeType == Node.ELEMENT_NODE) && (pos.offset > 0))
+        if ((pos.node.nodeType == Node.ELEMENT_NODE) && (pos.offset > 0)) {
             node = pos.node.childNodes[pos.offset-1];
-        else
+            while (node.lastChild != null)
+                node = node.lastChild;
+        }
+        else {
             node = pos.node;
+        }
         while ((node != null) && (node != document.body) && !isNonWhitespaceTextNode(node))
             node = prevNode(node);
 
