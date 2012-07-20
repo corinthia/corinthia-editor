@@ -179,34 +179,6 @@ var Cursor_makeContainerInsertionPoint;
     {
     });
 
-    var closestTextPositionBackwards = trace(function closestTextPositionBackwards(pos)
-    {
-        // FIXME
-        if (isNonWhitespaceTextNode(pos.node))
-            return pos;
-        var node;
-        if ((pos.node.nodeType == Node.ELEMENT_NODE) && (pos.offset > 0)) {
-            node = pos.node.childNodes[pos.offset-1];
-            while (node.lastChild != null)
-                node = node.lastChild;
-        }
-        else {
-            node = pos.node;
-        }
-        while ((node != null) && (node != document.body) && !isNonWhitespaceTextNode(node))
-            node = prevNode(node);
-
-        if ((node == null) || (node == document.body))
-            return null;
-        else
-            return new Position(node,node.nodeValue.length);
-    });
-
-    var closestTextPositionForwards = trace(function closestTextPositionForwards(pos)
-    {
-        // FIXME
-    });
-
     Cursor_moveToStartOfWord = trace(function moveToStartOfWord()
     {
         // FIXME: ensure it's a valid position (don't allow stepping into links etc. using this
@@ -216,50 +188,20 @@ var Cursor_makeContainerInsertionPoint;
         if (range == null)
             return;
 
-        var pos = range.start;
-
-        while (true) {
-
-            var pos = closestTextPositionBackwards(pos);
-            if (pos == null)
-                return;
-
-            if (pos.node.nodeType != Node.TEXT_NODE)
-                throw new Error("Not a text node");
-
-            var node = pos.node;
-            var paragraph = Text_analyseParagraph(node);
-            if (paragraph == null)
-                return; // FIXME: skip empty paragraphs
-
-            var run = Paragraph_runFromNode(paragraph,pos.node);
-            var offset = pos.offset + run.start;
-
-            var before = paragraph.text.substring(0,offset);
-            var beforeWord = before.replace(/[^\s]+$/,"");
-
-            if (beforeWord.length == before.length) {
-                // Already at start of word; go to start of previous word in this paragraph
-                beforeWord = before.replace(/[^\s]+\s+$/,"");
-                if (beforeWord.length == before.length) {
-                    // Already at start of paragraph, go to previous non-empty paragraph, if any
-                    pos = new Position(node.parentNode,DOM_nodeOffset(node));
-                    continue;
-                }
-            }
-
-            var newOffset = beforeWord.length;
-            var run = Paragraph_runFromOffset(paragraph,newOffset);
-            if (run != null) {
-                var relOffset = newOffset - run.start;
-                Selection_set(run.node,relOffset,run.node,relOffset);
-            }
-            return;
-        }
+        var newPos = Text_posAtStartOfWord(range.start);
+        if (newPos != null)
+            Selection_set(newPos.node,newPos.offset,newPos.node,newPos.offset);
     });
 
     Cursor_moveToEndOfWord = trace(function moveToEndOfWord()
     {
+        var range = Selection_get();
+        if (range == null)
+            return;
+
+        var newPos = Text_posAtEndOfWord(range.end);
+        if (newPos != null)
+            Selection_set(newPos.node,newPos.offset,newPos.node,newPos.offset);
     });
 
     Cursor_moveToStartOfLine = trace(function moveToStartOfLine()

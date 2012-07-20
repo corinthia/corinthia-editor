@@ -1,9 +1,12 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
 var Text_analyseParagraph;
+var Text_posAtStartOfWord;
+var Text_posAtEndOfWord;
 
 var Paragraph_runFromOffset;
 var Paragraph_runFromNode;
+var Paragraph_positionAtOffset;
 
 (function() {
 
@@ -83,6 +86,114 @@ var Paragraph_runFromNode;
         }
     });
 
+    var closestTextPositionBackwards = trace(function closestTextPositionBackwards(pos)
+    {
+        if (isNonWhitespaceTextNode(pos.node))
+            return pos;
+        var node;
+        if ((pos.node.nodeType == Node.ELEMENT_NODE) && (pos.offset > 0)) {
+            node = pos.node.childNodes[pos.offset-1];
+            while (node.lastChild != null)
+                node = node.lastChild;
+        }
+        else {
+            node = pos.node;
+        }
+        while ((node != null) && (node != document.body) && !isNonWhitespaceTextNode(node))
+            node = prevNode(node);
+
+        if ((node == null) || (node == document.body))
+            return null;
+        else
+            return new Position(node,node.nodeValue.length);
+    });
+
+    var closestTextPositionForwards = trace(function closestTextPositionForwards(pos)
+    {
+        if (isNonWhitespaceTextNode(pos.node))
+            return pos;
+        var node;
+        if ((pos.node.nodeType == Node.ELEMENT_NODE) && (pos.offset < pos.node.childNodes.length)) {
+            node = pos.node.childNodes[pos.offset];
+            while (node.firstChild != null)
+                node = node.firstChild;
+        }
+        else {
+            node = nextNodeAfter(pos.node);
+        }
+        while ((node != null) && !isNonWhitespaceTextNode(node)) {
+            var old = nodeString(node);
+            node = nextNode(node);
+        }
+
+        if (node == null)
+            return null;
+        else
+            return new Position(node,0);
+    });
+
+    Text_posAtStartOfWord = trace(function posAtStartOfWord(pos)
+    {
+        while (true) {
+            pos = closestTextPositionBackwards(pos);
+            if (pos == null)
+                return;
+
+            var paragraph = Text_analyseParagraph(pos.node);
+            if (paragraph == null)
+                return;
+
+            var run = Paragraph_runFromNode(paragraph,pos.node);
+            var offset = pos.offset + run.start;
+
+            var before = paragraph.text.substring(0,offset);
+            var beforeWord = before.replace(/[^\s]+$/,"");
+
+            if (beforeWord.length == before.length) {
+                // Already at start of word; go to start of previous word in this paragraph
+                beforeWord = before.replace(/[^\s]+\s+$/,"");
+                if (beforeWord.length == before.length) {
+                    // Already at start of paragraph, go to previous non-empty paragraph, if any
+                    pos = new Position(pos.node.parentNode,DOM_nodeOffset(pos.node));
+                    continue;
+                }
+            }
+
+            return Paragraph_positionAtOffset(paragraph,beforeWord.length);
+        }
+    });
+
+    Text_posAtEndOfWord = trace(function posAtEndOfWord(pos)
+    {
+        while (true) {
+            pos = closestTextPositionForwards(pos);
+            if (pos == null)
+                return;
+
+            var paragraph = Text_analyseParagraph(pos.node);
+            if (paragraph == null)
+                return;
+
+            var run = Paragraph_runFromNode(paragraph,pos.node);
+            var offset = pos.offset + run.start;
+
+            var after = paragraph.text.substring(offset);
+            var afterWord = after.replace(/^[^\s]+/,"");
+
+            if (afterWord.length == after.length) {
+                // Already at end of word; go to end of next word in this paragraph
+                afterWord = after.replace(/^\s+[^\s]+/,"");
+                if (afterWord.length == after.length) {
+                    // Already at end of paragraph, go to next non-empty paragraph, if any
+                    pos = new Position(pos.node.parentNode,DOM_nodeOffset(pos.node)+1);
+                    continue;
+                }
+            }
+
+            return Paragraph_positionAtOffset(paragraph,paragraph.text.length-afterWord.length);
+        }
+    });
+
     Paragraph_runFromOffset = trace(function runFromOffset(paragraph,offset)
     {
         if (paragraph.runs.length == 0)
@@ -103,6 +214,14 @@ var Paragraph_runFromNode;
                 return paragraph.runs[i];
         }
         throw new Error("Run for node "+nodeString(node)+" not found");
+    });
+
+    Paragraph_positionAtOffset = trace(function positionAtOffset(paragraph,offset)
+    {
+        var run = Paragraph_runFromOffset(paragraph,offset);
+        if (run == null)
+            throw new Error("Run at offset "+offset+" not found");
+        return new Position(run.node,offset-run.start);
     });
 
 })();
