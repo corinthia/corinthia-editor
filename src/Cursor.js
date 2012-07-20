@@ -27,8 +27,11 @@ var Cursor_getLinkProperties;
 var Cursor_setLinkProperties;
 var Cursor_setReferenceTarget;
 var Cursor_makeContainerInsertionPoint;
+var Cursor_set;
 
 (function() {
+
+    var cursorX = null;
 
     // public
     Cursor_ensureCursorVisible = trace(function ensureCursorVisible()
@@ -127,7 +130,7 @@ var Cursor_makeContainerInsertionPoint;
                 position = endOfWord;
         }
 
-        Selection_set(position.node,position.offset,position.node,position.offset);
+        Cursor_set(position.node,position.offset);
         Cursor_ensureCursorVisible();
         return result;
     });
@@ -154,7 +157,7 @@ var Cursor_makeContainerInsertionPoint;
 
         var pos = Position_prevMatch(range.start,Position_okForMovement);
         if (pos != null)
-            Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+            Cursor_set(pos.node,pos.offset);
         Cursor_ensureCursorVisible();
     });
 
@@ -167,12 +170,62 @@ var Cursor_makeContainerInsertionPoint;
 
         var pos = Position_nextMatch(range.start,Position_okForMovement);
         if (pos != null)
-            Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+            Cursor_set(pos.node,pos.offset);
         Cursor_ensureCursorVisible();
     });
 
+/*
+  // FIXME: temp - only here for debugging purposes
+
+    function addDiv(x,y,width,height,color)
+    {
+        var div = DOM_createElement(document,"DIV");
+        div.style.position = "absolute";
+        div.style.border = "1px solid "+color;
+        div.style.left = x+"px";
+        div.style.width = width+"px";
+        div.style.top = y+"px";
+        div.style.height = height+"px";
+        DOM_appendChild(document.body,div);
+    }
+
+    function showRects(rects,color)
+    {
+        for (var i = 0; i < rects.length; i++) {
+            debug("rect ("+rects[i].left+","+rects[i].top+") - ("+
+                  rects[i].right+","+rects[i].bottom+")");
+
+            addDiv(rects[i].left,
+                   rects[i].top,
+                   rects[i].width,
+                   rects[i].height,
+                   color);
+        }
+    }
+*/
+
     Cursor_moveUp = trace(function moveUp()
     {
+        var range = Selection_get();
+        if (range == null)
+            return;
+
+        var pos = Text_closestPosBackwards(range.start);
+        if (pos == null)
+            return;
+
+        var cursorRange = new Range(pos.node,pos.offset,pos.node,pos.offset);
+        var cursorRects = cursorRange.getClientRects();
+        if (cursorRects.length == 0)
+            return;
+
+        var cursorRect = cursorRects[0];
+        if (cursorX == null)
+            cursorX = cursorRects[0].left;
+
+        var newPos = Text_posAbove(pos,cursorRect,cursorX);
+        if (newPos != null)
+            Cursor_set(newPos.node,newPos.offset,true);
     });
 
     Cursor_moveDown = trace(function moveDown()
@@ -190,7 +243,7 @@ var Cursor_makeContainerInsertionPoint;
 
         var newPos = Text_posAtStartOfWord(range.start);
         if (newPos != null)
-            Selection_set(newPos.node,newPos.offset,newPos.node,newPos.offset);
+            Cursor_set(newPos.node,newPos.offset);
     });
 
     Cursor_moveToEndOfWord = trace(function moveToEndOfWord()
@@ -201,7 +254,7 @@ var Cursor_makeContainerInsertionPoint;
 
         var newPos = Text_posAtEndOfWord(range.end);
         if (newPos != null)
-            Selection_set(newPos.node,newPos.offset,newPos.node,newPos.offset);
+            Cursor_set(newPos.node,newPos.offset);
     });
 
     Cursor_moveToStartOfLine = trace(function moveToStartOfLine()
@@ -225,7 +278,7 @@ var Cursor_makeContainerInsertionPoint;
     {
         var pos = new Position(document.body,0);
         pos = Position_closestMatchBackwards(pos,Position_okForMovement);
-        Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+        Cursor_set(pos.node,pos.offset);
         Cursor_ensureCursorVisible();
     });
 
@@ -234,7 +287,7 @@ var Cursor_makeContainerInsertionPoint;
     {
         var pos = new Position(document.body,document.body.childNodes.length);
         pos = Position_closestMatchForwards(pos,Position_okForMovement);
-        Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+        Cursor_set(pos.node,pos.offset);
         Cursor_ensureCursorVisible();
     });
 
@@ -398,7 +451,7 @@ var Cursor_makeContainerInsertionPoint;
             DOM_insertCharacters(node,offset,str);
 
         offset += str.length;
-        Selection_set(node,offset,node,offset);
+        Cursor_set(node,offset);
         Selection_get().trackWhileExecuting(function() {
             Cursor_updateBRAtEndOfParagraph(node);
         });
@@ -429,8 +482,7 @@ var Cursor_makeContainerInsertionPoint;
                 if ((startBlock != endBlock) &&
                     isParagraphNode(startBlock) && !nodeHasContent(startBlock)) {
                     DOM_deleteNode(startBlock);
-                    Selection_set(selRange.end.node,selRange.end.offset,
-                                  selRange.end.node,selRange.end.offset)
+                    Cursor_set(selRange.end.node,selRange.end.offset)
                 }
                 else {
                     Selection_deleteRangeContents(new Range(prevPos.node,prevPos.offset,
@@ -477,7 +529,7 @@ var Cursor_makeContainerInsertionPoint;
             var li = DOM_createElement(document,"LI");
             DOM_insertBefore(detail.startParent,li,detail.startChild);
 
-            Selection_set(li,0,li,0);
+            Cursor_set(li,0);
             Cursor_ensureCursorVisible();
             return;
         }
@@ -504,7 +556,7 @@ var Cursor_makeContainerInsertionPoint;
             }
         });
 
-        Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+        Cursor_set(pos.node,pos.offset);
         selRange = Selection_get();
 
         selRange.trackWhileExecuting(function() {
@@ -558,6 +610,7 @@ var Cursor_makeContainerInsertionPoint;
 
         Selection_set(selRange.start.node,selRange.start.offset,
                       selRange.end.node,selRange.end.offset);
+        cursorX = null;
         Cursor_ensureCursorVisible();
 
         function enterPressedFilter(node)
@@ -677,7 +730,7 @@ var Cursor_makeContainerInsertionPoint;
         var offset = DOM_nodeOffset(nextSibling,parent);
 
         if (isContainerNode(parent)) {
-            Selection_set(parent,offset,parent,offset);
+            Cursor_set(parent,offset);
             return;
         }
 
@@ -695,7 +748,15 @@ var Cursor_makeContainerInsertionPoint;
             DOM_deleteNode(old);
         }
 
-        Selection_set(parent,offset,parent,offset);
+        Cursor_set(parent,offset);
+        cursorX = null;
+    });
+
+    Cursor_set = trace(function set(node,offset,keepCursorX)
+    {
+        Selection_set(node,offset,node,offset);
+        if (!keepCursorX)
+            cursorX = null;
     });
 
 })();
