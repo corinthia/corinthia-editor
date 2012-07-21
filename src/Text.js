@@ -138,13 +138,59 @@ var Paragraph_getRunRects;
                     return newPos;
             }
 
-            debug("still here!");
             pos = new Position(pos.node.parentNode,DOM_nodeOffset(pos.node));
         }
     });
 
-    Text_posBelow = trace(function posBelow(pos)
+    Text_posBelow = trace(function posBelow(pos,cursorRect,cursorX)
     {
+        while (true) {
+            pos = Text_closestPosForwards(pos);
+            if (pos == null)
+                return;
+
+            var paragraph = Text_analyseParagraph(pos.node);
+            if (paragraph == null)
+                return;
+
+            var rects = Paragraph_getRunRects(paragraph);
+
+            var top = null;
+            for (var i = 0; i < rects.length; i++) {
+                if (rects[i].top >= cursorRect.bottom) {
+                    if ((top == null) || (top > rects[i].top))
+                        top = rects[i].top;
+                }
+            }
+
+            for (var i = 0; i < rects.length; i++) {
+                if ((rects[i].top == top) &&
+                    (cursorX >= rects[i].left) &&
+                    (cursorX <= rects[i].right)) {
+
+                    var newPos = positionAtPoint(cursorX,rects[i].top + rects[i].height/2);
+                    if (newPos != null)
+                        return newPos;
+                }
+            }
+
+
+            var rightMost = null;
+            for (var i = 0; i < rects.length; i++) {
+                if (rects[i].top == top) {
+                    if ((rightMost == null) || (rightMost.right < rects[i].right))
+                        rightMost = rects[i];
+                }
+            }
+
+            if (rightMost != null) {
+                var newPos = positionAtPoint(rightMost.right,rightMost.top + rightMost.height/2);
+                if (newPos != null)
+                    return newPos;
+            }
+
+            pos = new Position(pos.node.parentNode,DOM_nodeOffset(pos.node)+1);
+        }
     });
 
     Text_posAtStartOfWord = trace(function posAtStartOfWord(pos)

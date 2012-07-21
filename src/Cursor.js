@@ -230,6 +230,26 @@ var Cursor_set;
 
     Cursor_moveDown = trace(function moveDown()
     {
+        var range = Selection_get();
+        if (range == null)
+            return;
+
+        var pos = Text_closestPosForwards(range.end);
+        if (pos == null)
+            return;
+
+        var cursorRange = new Range(pos.node,pos.offset,pos.node,pos.offset);
+        var cursorRects = cursorRange.getClientRects();
+        if (cursorRects.length == 0)
+            return;
+
+        var cursorRect = cursorRects[0];
+        if (cursorX == null)
+            cursorX = cursorRects[0].left;
+
+        var newPos = Text_posBelow(pos,cursorRect,cursorX);
+        if (newPos != null)
+            Cursor_set(newPos.node,newPos.offset,true);
     });
 
     Cursor_moveToStartOfWord = trace(function moveToStartOfWord()
