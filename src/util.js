@@ -57,6 +57,11 @@ function nodeString(node)
         return id+node.toString();
 }
 
+function rectString(rect)
+{
+    return "("+rect.left+","+rect.top+") - ("+rect.right+","+rect.bottom+")";
+}
+
 function clone(object)
 {
     var result = new Object();

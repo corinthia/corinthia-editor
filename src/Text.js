@@ -96,50 +96,94 @@ var Paragraph_getRunRects;
         while (true) {
             pos = Text_closestPosBackwards(pos);
             if (pos == null)
-                return;
+                return null;
 
             var paragraph = Text_analyseParagraph(pos.node);
             if (paragraph == null)
-                return;
+                return null;
 
             var rects = Paragraph_getRunRects(paragraph);
 
-            var bottom = null;
-            for (var i = 0; i < rects.length; i++) {
-                if (rects[i].bottom <= cursorRect.top) {
-                    if ((bottom == null) || (bottom < rects[i].bottom))
-                        bottom = rects[i].bottom;
-                }
+            rects = rects.filter(function (rect) {
+                return (rect.bottom <= cursorRect.top);
+            });
+
+
+
+            var bottom = findLowestBottom(rects);
+
+            rects = rects.filter(function (rect) { return (rect.bottom == bottom); });
+
+            // Scroll previous line into view, if necessary
+            var top = findHighestTop(rects);
+            if (top < 0) {
+                var offset = -top;
+                window.scrollBy(0,-offset);
+                rects = offsetRects(rects,0,offset);
             }
 
             for (var i = 0; i < rects.length; i++) {
-                if ((rects[i].bottom == bottom) &&
-                    (cursorX >= rects[i].left) &&
-                    (cursorX <= rects[i].right)) {
-
+                if ((cursorX >= rects[i].left) && (cursorX <= rects[i].right)) {
                     var newPos = positionAtPoint(cursorX,rects[i].top + rects[i].height/2);
                     if (newPos != null)
                         return newPos;
                 }
             }
 
-
-            var rightMost = null;
-            for (var i = 0; i < rects.length; i++) {
-                if (rects[i].bottom == bottom) {
-                    if ((rightMost == null) || (rightMost.right < rects[i].right))
-                        rightMost = rects[i];
-                }
-            }
-
+            var rightMost = findRightMostRect(rects);
             if (rightMost != null) {
                 var newPos = positionAtPoint(rightMost.right,rightMost.top + rightMost.height/2);
                 if (newPos != null)
                     return newPos;
             }
 
+
             pos = new Position(pos.node.parentNode,DOM_nodeOffset(pos.node));
         }
+    });
+
+    var findHighestTop = trace(function findHighestTop(rects)
+    {
+        var top = null;
+        for (var i = 0; i < rects.length; i++) {
+            if ((top == null) || (top > rects[i].top))
+                top = rects[i].top;
+        }
+        return top;
+    });
+
+    var findLowestBottom = trace(function findLowestBottom(rects)
+    {
+        var bottom = null;
+        for (var i = 0; i < rects.length; i++) {
+            if ((bottom == null) || (bottom < rects[i].bottom))
+                bottom = rects[i].bottom;
+        }
+        return bottom;
+    });
+
+    var findRightMostRect = trace(function findRightMost(rects)
+    {
+        var rightMost = null;
+        for (var i = 0; i < rects.length; i++) {
+            if ((rightMost == null) || (rightMost.right < rects[i].right))
+                rightMost = rects[i];
+        }
+        return rightMost;
+    });
+
+    var offsetRects = trace(function offsetRects(rects,offsetX,offsetY)
+    {
+        var result = new Array();
+        for (var i = 0; i < rects.length; i++) {
+            result.push({ top: rects[i].top + offsetY,
+                          bottom: rects[i].bottom + offsetY,
+                          left: rects[i].left + offsetX,
+                          right: rects[i].right + offsetX,
+                          width: rects[i].width,
+                          height: rects[i].height });
+        }
+        return result;
     });
 
     Text_posBelow = trace(function posBelow(pos,cursorRect,cursorX)
@@ -155,34 +199,31 @@ var Paragraph_getRunRects;
 
             var rects = Paragraph_getRunRects(paragraph);
 
-            var top = null;
-            for (var i = 0; i < rects.length; i++) {
-                if (rects[i].top >= cursorRect.bottom) {
-                    if ((top == null) || (top > rects[i].top))
-                        top = rects[i].top;
-                }
+            rects = rects.filter(function (rect) {
+                return (rect.top >= cursorRect.bottom);
+            });
+
+            var top = findHighestTop(rects);
+
+            rects = rects.filter(function (rect) { return (rect.top == top); });
+
+            // Scroll next line into view, if necessary
+            var bottom = findLowestBottom(rects);
+            if (bottom > window.innerHeight) {
+                var offset = window.innerHeight - bottom;
+                window.scrollBy(0,-offset);
+                rects = offsetRects(rects,0,offset);
             }
 
             for (var i = 0; i < rects.length; i++) {
-                if ((rects[i].top == top) &&
-                    (cursorX >= rects[i].left) &&
-                    (cursorX <= rects[i].right)) {
-
+                if ((cursorX >= rects[i].left) && (cursorX <= rects[i].right)) {
                     var newPos = positionAtPoint(cursorX,rects[i].top + rects[i].height/2);
                     if (newPos != null)
                         return newPos;
                 }
             }
 
-
-            var rightMost = null;
-            for (var i = 0; i < rects.length; i++) {
-                if (rects[i].top == top) {
-                    if ((rightMost == null) || (rightMost.right < rects[i].right))
-                        rightMost = rects[i];
-                }
-            }
-
+            var rightMost = findRightMostRect(rects);
             if (rightMost != null) {
                 var newPos = positionAtPoint(rightMost.right,rightMost.top + rightMost.height/2);
                 if (newPos != null)

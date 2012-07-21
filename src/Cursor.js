@@ -206,6 +206,7 @@ var Cursor_set;
 
     Cursor_moveUp = trace(function moveUp()
     {
+        // FIXME: call updateFormatting()?
         var range = Selection_get();
         if (range == null)
             return;
