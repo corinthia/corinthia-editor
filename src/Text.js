@@ -7,6 +7,8 @@ var Text_posAtStartOfWord;
 var Text_posAtEndOfWord;
 var Text_posAtStartOfLine;
 var Text_posAtEndOfLine;
+var Text_posAtStartOfParagraph;
+var Text_posAtEndOfParagraph;
 var Text_closestPosBackwards;
 var Text_closestPosForwards;
 
@@ -17,9 +19,11 @@ var Paragraph_getRunRects;
 
 (function() {
 
-    function Paragraph(node,runs,text)
+    function Paragraph(node,first,last,runs,text)
     {
         this.node = node;
+        this.first = first;
+        this.last = last;
         this.runs = runs;
         this.text = text;
     }
@@ -77,7 +81,7 @@ var Paragraph_getRunRects;
             recurse(cur);
 
         var text = strings.join("");
-        return new Paragraph(pair.first.parentNode,runs,text);
+        return new Paragraph(pair.first.parentNode,pair.first,pair.last,runs,text);
 
         function recurse(node)
         {
@@ -343,6 +347,40 @@ var Paragraph_getRunRects;
             if ((checkRect.bottom <= posRect.top) || (checkRect.top >= posRect.bottom))
                 return pos;
             pos = check;
+        }
+    });
+
+    Text_posAtStartOfParagraph = trace(function posAtStartOfParagraph(pos)
+    {
+        pos = Position_closestMatchForwards(pos,Position_okForMovement);
+        while (pos != null) {
+            var paragraph = Text_analyseParagraph(pos.node);
+            if (paragraph == null)
+                return null;
+
+            var newPos = new Position(paragraph.node,DOM_nodeOffset(paragraph.first));
+            newPos = Position_closestMatchForwards(newPos,Position_okForMovement);
+            if ((newPos.node != pos.node) || (newPos.offset != pos.offset))
+                return newPos;
+
+            pos = Position_prevMatch(pos,Position_okForMovement);
+        }
+    });
+
+    Text_posAtEndOfParagraph = trace(function posAtEndOfParagraph(pos)
+    {
+        pos = Position_closestMatchBackwards(pos,Position_okForMovement);
+        while (pos != null) {
+            var paragraph = Text_analyseParagraph(pos.node);
+            if (paragraph == null)
+                return null;
+
+            var newPos = new Position(paragraph.node,DOM_nodeOffset(paragraph.last)+1);
+            newPos = Position_closestMatchBackwards(newPos,Position_okForMovement);
+            if ((newPos.node != pos.node) || (newPos.offset != pos.offset))
+                return newPos;
+
+            pos = Position_nextMatch(pos,Position_okForMovement);
         }
     });
 

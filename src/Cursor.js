@@ -299,10 +299,12 @@ var Cursor_set;
 
     Cursor_moveToStartOfParagraph = trace(function moveToStartOfParagraph()
     {
+        moveCursor(Text_posAtStartOfParagraph,true);
     });
 
     Cursor_moveToEndOfParagraph = trace(function moveToEndOfParagraph()
     {
+        moveCursor(Text_posAtEndOfParagraph,false);
     });
 
     // public
