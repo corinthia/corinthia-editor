@@ -5,6 +5,8 @@ var Text_posAbove;
 var Text_posBelow;
 var Text_posAtStartOfWord;
 var Text_posAtEndOfWord;
+var Text_posAtStartOfLine;
+var Text_posAtEndOfLine;
 var Text_closestPosBackwards;
 var Text_closestPosForwards;
 
@@ -297,6 +299,50 @@ var Paragraph_getRunRects;
             var res = Paragraph_positionAtOffset(paragraph,paragraph.text.length-afterWord.length);
             res = Position_closestMatchForwards(res,Position_okForInsertion);
             return res;
+        }
+    });
+
+    Text_posAtStartOfLine = trace(function posAtStartOfLine(pos)
+    {
+        var posRect = Position_rectAtPos(pos);
+        if (posRect == null) {
+            pos = Text_closestPosBackwards(pos);
+            posRect = Position_rectAtPos(pos);
+            if (posRect == null) {
+                return null;
+            }
+        }
+
+        while (true) {
+            var check = Position_prevMatch(pos,Position_okForInsertion);
+            var checkRect = Position_rectAtPos(check); // handles check == null case
+            if (checkRect == null)
+                return pos;
+            if ((checkRect.bottom <= posRect.top) || (checkRect.top >= posRect.bottom))
+                return pos;
+            pos = check;
+        }
+    });
+
+    Text_posAtEndOfLine = trace(function posAtEndOfLine(pos)
+    {
+        var posRect = Position_rectAtPos(pos);
+        if (posRect == null) {
+            pos = Text_closestPosForwards(pos);
+            posRect = Position_rectAtPos(pos);
+            if (posRect == null) {
+                return null;
+            }
+        }
+
+        while (true) {
+            var check = Position_nextMatch(pos,Position_okForInsertion);
+            var checkRect = Position_rectAtPos(check); // handles check == null case
+            if (checkRect == null)
+                return pos;
+            if ((checkRect.bottom <= posRect.top) || (checkRect.top >= posRect.bottom))
+                return pos;
+            pos = check;
         }
     });
 

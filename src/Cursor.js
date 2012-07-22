@@ -289,10 +289,24 @@ var Cursor_set;
 
     Cursor_moveToStartOfLine = trace(function moveToStartOfLine()
     {
+        var range = Selection_get();
+        if (range == null)
+            return;
+
+        var newPos = Text_posAtStartOfLine(range.start);
+        if (newPos != null)
+            Cursor_set(newPos.node,newPos.offset);
     });
 
     Cursor_moveToEndOfLine = trace(function moveToEndOfLine()
     {
+        var range = Selection_get();
+        if (range == null)
+            return;
+
+        var newPos = Text_posAtEndOfLine(range.end);
+        if (newPos != null)
+            Cursor_set(newPos.node,newPos.offset);
     });
 
     Cursor_moveToStartOfParagraph = trace(function moveToStartOfParagraph()
