@@ -239,11 +239,11 @@ var Paragraph_getRunRects;
         while (true) {
             pos = Text_closestPosBackwards(pos);
             if (pos == null)
-                return;
+                return null;
 
             var paragraph = Text_analyseParagraph(pos.node);
             if (paragraph == null)
-                return;
+                return null;
 
             var run = Paragraph_runFromNode(paragraph,pos.node);
             var offset = pos.offset + run.start;
@@ -261,7 +261,9 @@ var Paragraph_getRunRects;
                 }
             }
 
-            return Paragraph_positionAtOffset(paragraph,beforeWord.length);
+            var res = Paragraph_positionAtOffset(paragraph,beforeWord.length);
+            res = Position_closestMatchBackwards(res,Position_okForInsertion);
+            return res;
         }
     });
 
@@ -270,11 +272,11 @@ var Paragraph_getRunRects;
         while (true) {
             pos = Text_closestPosForwards(pos);
             if (pos == null)
-                return;
+                return null;
 
             var paragraph = Text_analyseParagraph(pos.node);
             if (paragraph == null)
-                return;
+                return null;
 
             var run = Paragraph_runFromNode(paragraph,pos.node);
             var offset = pos.offset + run.start;
@@ -292,7 +294,9 @@ var Paragraph_getRunRects;
                 }
             }
 
-            return Paragraph_positionAtOffset(paragraph,paragraph.text.length-afterWord.length);
+            var res = Paragraph_positionAtOffset(paragraph,paragraph.text.length-afterWord.length);
+            res = Position_closestMatchForwards(res,Position_okForInsertion);
+            return res;
         }
     });
 
