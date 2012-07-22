@@ -273,8 +273,10 @@ var Cursor_set;
 
         var pos = start ? range.start : range.end;
         var newPos = fun(pos);
-        if (newPos != null)
+        if (newPos != null) {
             Cursor_set(newPos.node,newPos.offset);
+            Cursor_ensureCursorVisible();
+        }
     });
 
     Cursor_moveToStartOfWord = trace(function moveToStartOfWord()

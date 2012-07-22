@@ -28,8 +28,27 @@ var Selection_clearSelection;
 var Selection_preserveWhileExecuting;
 var Selection_posAtStartOfWord;
 var Selection_posAtEndOfWord;
+var Selection_selectLeft;
+var Selection_selectRight;
+var Selection_selectUp;
+var Selection_selectDown;
+var Selection_selectToStartOfWord;
+var Selection_selectToEndOfWord;
+var Selection_selectToStartOfLine;
+var Selection_selectToEndOfLine;
+var Selection_selectToStartOfParagraph;
+var Selection_selectToEndOfParagraph;
+var Selection_selectToStartOfDocument;
+var Selection_selectToEndOfDocument;
+
 
 (function() {
+
+    var HANDLE_NONE = 0;
+    var HANDLE_START = 1;
+    var HANDLE_END = 2;
+
+    var activeHandle = HANDLE_NONE;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                            //
@@ -75,10 +94,13 @@ var Selection_posAtEndOfWord;
             }
         });
 
-        Selection_set = trace(function set(newStartNode,newStartOffset,newEndNode,newEndOffset)
+        Selection_set = trace(function set(newStartNode,newStartOffset,newEndNode,newEndOffset,
+                                           keepActiveHandle)
         {
             Selection_setInternal(newStartNode,newStartOffset,newEndNode,newEndOffset);
             Selection_update();
+            if (!keepActiveHandle)
+                activeHandle = HANDLE_NONE;
         });
 
         // public
@@ -1222,6 +1244,122 @@ var Selection_posAtEndOfWord;
             Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
         }
         return result;
+    });
+
+    var adjustSelection = trace(function adjustSelection(fun)
+    {
+        var range = Selection_get();
+        if (range == null)
+            return;
+
+        if (activeHandle == HANDLE_START) {
+            var newStart = fun(range.start);
+            if (newStart != null) {
+                var range = new Range(newStart.node,newStart.offset,
+                                      range.end.node,range.end.offset);
+                if (!range.isForwards()) {
+                    debug("******* selection reversed 1");
+                    activeHandle = HANDLE_END;
+                }
+                Selection_set(newStart.node,newStart.offset,range.end.node,range.end.offset,true);
+            }
+        }
+        else if (activeHandle == HANDLE_END) {
+            var newEnd = fun(range.end);
+            if (newEnd != null) {
+                var range = new Range(range.start.node,range.start.offset,
+                                      newEnd.node,newEnd.offset,true);
+                if (!range.isForwards()) {
+                    debug("******* selection reversed 2");
+                    activeHandle = HANDLE_START;
+                }
+                Selection_set(range.start.node,range.start.offset,newEnd.node,newEnd.offset,true);
+            }
+        }
+    });
+
+    Selection_selectLeft = trace(function selectLeft()
+    {
+        if (activeHandle == HANDLE_NONE)
+            activeHandle = HANDLE_START;
+        // FIXME
+    });
+
+    Selection_selectRight = trace(function selectRight()
+    {
+        if (activeHandle == HANDLE_NONE)
+            activeHandle = HANDLE_END;
+        // FIXME
+    });
+
+    Selection_selectUp = trace(function selectUp()
+    {
+        if (activeHandle == HANDLE_NONE)
+            activeHandle = HANDLE_START;
+        // FIXME
+    });
+
+    Selection_selectDown = trace(function selectDown()
+    {
+        if (activeHandle == HANDLE_NONE)
+            activeHandle = HANDLE_END;
+        // FIXME
+    });
+
+    Selection_selectToStartOfWord = trace(function selectToStartOfWord()
+    {
+        if (activeHandle == HANDLE_NONE)
+            activeHandle = HANDLE_START;
+        adjustSelection(Text_posAtStartOfWord);
+    });
+
+    Selection_selectToEndOfWord = trace(function selectToEndOfWord()
+    {
+        if (activeHandle == HANDLE_NONE)
+            activeHandle = HANDLE_END;
+        adjustSelection(Text_posAtEndOfWord);
+    });
+
+    Selection_selectToStartOfLine = trace(function selectToStartOfLine()
+    {
+        if (activeHandle == HANDLE_NONE)
+            activeHandle = HANDLE_START;
+        adjustSelection(Text_posAtStartOfLine);
+    });
+
+    Selection_selectToEndOfLine = trace(function selectToEndOfLine()
+    {
+        if (activeHandle == HANDLE_NONE)
+            activeHandle = HANDLE_END;
+        adjustSelection(Text_posAtEndOfLine);
+    });
+
+    Selection_selectToStartOfParagraph = trace(function selectToStartOfParagraph()
+    {
+        if (activeHandle == HANDLE_NONE)
+            activeHandle = HANDLE_START;
+        adjustSelection(Text_posAtStartOfParagraph);
+    });
+
+    Selection_selectToEndOfParagraph = trace(function selectToEndOfParagraph()
+    {
+        if (activeHandle == HANDLE_NONE)
+            activeHandle = HANDLE_END;
+        adjustSelection(Text_posAtEndOfParagraph);
+    });
+
+    Selection_selectToStartOfDocument = trace(function selectToStartOfDocument()
+    {
+        if (activeHandle == HANDLE_NONE)
+            activeHandle = HANDLE_START;
+        // FIXME
+    });
+
+    Selection_selectToEndOfDocument = trace(function selectToEndOfDocument()
+    {
+        if (activeHandle == HANDLE_NONE)
+            activeHandle = HANDLE_END;
+        // FIXME
     });
 
 })();
