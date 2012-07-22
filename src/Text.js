@@ -314,7 +314,7 @@ var Paragraph_getRunRects;
         }
 
         while (true) {
-            var check = Position_prevMatch(pos,Position_okForInsertion);
+            var check = Position_prevMatch(pos,Position_okForMovement);
             var checkRect = Position_rectAtPos(check); // handles check == null case
             if (checkRect == null)
                 return pos;
@@ -336,7 +336,7 @@ var Paragraph_getRunRects;
         }
 
         while (true) {
-            var check = Position_nextMatch(pos,Position_okForInsertion);
+            var check = Position_nextMatch(pos,Position_okForMovement);
             var checkRect = Position_rectAtPos(check); // handles check == null case
             if (checkRect == null)
                 return pos;
