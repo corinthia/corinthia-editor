@@ -262,7 +262,7 @@ var Cursor_set;
             Cursor_set(newPos.node,newPos.offset,true);
     });
 
-    Cursor_moveToStartOfWord = trace(function moveToStartOfWord()
+    var moveCursor = trace(function moveCursor(fun,start)
     {
         // FIXME: ensure it's a valid position (don't allow stepping into links etc. using this
         // method)
@@ -271,42 +271,30 @@ var Cursor_set;
         if (range == null)
             return;
 
-        var newPos = Text_posAtStartOfWord(range.start);
+        var pos = start ? range.start : range.end;
+        var newPos = fun(pos);
         if (newPos != null)
             Cursor_set(newPos.node,newPos.offset);
+    });
+
+    Cursor_moveToStartOfWord = trace(function moveToStartOfWord()
+    {
+        moveCursor(Text_posAtStartOfWord,true);
     });
 
     Cursor_moveToEndOfWord = trace(function moveToEndOfWord()
     {
-        var range = Selection_get();
-        if (range == null)
-            return;
-
-        var newPos = Text_posAtEndOfWord(range.end);
-        if (newPos != null)
-            Cursor_set(newPos.node,newPos.offset);
+        moveCursor(Text_posAtEndOfWord,false);
     });
 
     Cursor_moveToStartOfLine = trace(function moveToStartOfLine()
     {
-        var range = Selection_get();
-        if (range == null)
-            return;
-
-        var newPos = Text_posAtStartOfLine(range.start);
-        if (newPos != null)
-            Cursor_set(newPos.node,newPos.offset);
+        moveCursor(Text_posAtStartOfLine,true);
     });
 
     Cursor_moveToEndOfLine = trace(function moveToEndOfLine()
     {
-        var range = Selection_get();
-        if (range == null)
-            return;
-
-        var newPos = Text_posAtEndOfLine(range.end);
-        if (newPos != null)
-            Cursor_set(newPos.node,newPos.offset);
+        moveCursor(Text_posAtEndOfLine,false);
     });
 
     Cursor_moveToStartOfParagraph = trace(function moveToStartOfParagraph()
