@@ -211,18 +211,19 @@ var Cursor_set;
         if (range == null)
             return;
 
-        var pos = Text_closestPosBackwards(range.start);
-        if (pos == null)
+        var pos = range.start;
+        var cursorRect = Position_rectAtPos(pos);
+
+        if (cursorRect == null) {
+            pos = Text_closestPosBackwards(pos);
+            cursorRect = Position_rectAtPos(pos);
+        }
+
+        if (cursorRect == null)
             return;
 
-        var cursorRange = new Range(pos.node,pos.offset,pos.node,pos.offset);
-        var cursorRects = cursorRange.getClientRects();
-        if (cursorRects.length == 0)
-            return;
-
-        var cursorRect = cursorRects[0];
         if (cursorX == null)
-            cursorX = cursorRects[0].left;
+            cursorX = cursorRect.left;
 
         var newPos = Text_posAbove(pos,cursorRect,cursorX);
         if (newPos != null)
@@ -235,18 +236,26 @@ var Cursor_set;
         if (range == null)
             return;
 
-        var pos = Text_closestPosForwards(range.end);
-        if (pos == null)
+        var pos = range.end;
+        var cursorRect = Position_rectAtPos(pos);
+
+        if (cursorRect == null) {
+            var element = pos.closestActualNode(true);
+            if (element.nodeType == Node.ELEMENT_NODE) {
+                cursorRect = element.getBoundingClientRect();
+            }
+        }
+
+        if (cursorRect == null) {
+            pos = Text_closestPosForwards(pos);
+            cursorRect = Position_rectAtPos(pos);
+        }
+
+        if (cursorRect == null)
             return;
 
-        var cursorRange = new Range(pos.node,pos.offset,pos.node,pos.offset);
-        var cursorRects = cursorRange.getClientRects();
-        if (cursorRects.length == 0)
-            return;
-
-        var cursorRect = cursorRects[0];
         if (cursorX == null)
-            cursorX = cursorRects[0].left;
+            cursorX = cursorRect.left;
 
         var newPos = Text_posBelow(pos,cursorRect,cursorX);
         if (newPos != null)

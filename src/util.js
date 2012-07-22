@@ -59,7 +59,10 @@ function nodeString(node)
 
 function rectString(rect)
 {
-    return "("+rect.left+","+rect.top+") - ("+rect.right+","+rect.bottom+")";
+    if (rect == null)
+        return null;
+    else
+        return "("+rect.left+","+rect.top+") - ("+rect.right+","+rect.bottom+")";
 }
 
 function clone(object)

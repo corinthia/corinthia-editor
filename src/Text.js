@@ -126,7 +126,7 @@ var Paragraph_getRunRects;
                 if ((cursorX >= rects[i].left) && (cursorX <= rects[i].right)) {
                     var newPos = positionAtPoint(cursorX,rects[i].top + rects[i].height/2);
                     if (newPos != null)
-                        return newPos;
+                        return Position_closestMatchBackwards(newPos,Position_okForInsertion);
                 }
             }
 
@@ -134,7 +134,7 @@ var Paragraph_getRunRects;
             if (rightMost != null) {
                 var newPos = positionAtPoint(rightMost.right,rightMost.top + rightMost.height/2);
                 if (newPos != null)
-                    return newPos;
+                    return Position_closestMatchBackwards(newPos,Position_okForInsertion);
             }
 
 
@@ -219,7 +219,7 @@ var Paragraph_getRunRects;
                 if ((cursorX >= rects[i].left) && (cursorX <= rects[i].right)) {
                     var newPos = positionAtPoint(cursorX,rects[i].top + rects[i].height/2);
                     if (newPos != null)
-                        return newPos;
+                        return Position_closestMatchForwards(newPos,Position_okForInsertion);
                 }
             }
 
@@ -227,7 +227,7 @@ var Paragraph_getRunRects;
             if (rightMost != null) {
                 var newPos = positionAtPoint(rightMost.right,rightMost.top + rightMost.height/2);
                 if (newPos != null)
-                    return newPos;
+                    return Position_closestMatchForwards(newPos,Position_okForInsertion);
             }
 
             pos = new Position(pos.node.parentNode,DOM_nodeOffset(pos.node)+1);

@@ -10,6 +10,7 @@ var Position_closestMatchForwards;
 var Position_closestMatchBackwards;
 var Position_track;
 var Position_untrack;
+var Position_rectAtPos;
 
 (function() {
 
@@ -606,6 +607,18 @@ var Position_untrack;
     Position_untrack = trace(function untrack(pos)
     {
         stopTracking(pos.self);
+    });
+
+    Position_rectAtPos = trace(function rectAtPos(pos)
+    {
+        if (pos == null)
+            return null;
+        var range = new Range(pos.node,pos.offset,pos.node,pos.offset);
+        var rects = range.getClientRects();
+        if (rects.length > 0)
+            return rects[0];
+        else
+            return null;
     });
 
 })();
