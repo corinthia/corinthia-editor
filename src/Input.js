@@ -24,6 +24,11 @@ var Input_characterRangeAtPoint;
 var Input_positionWithinRangeAtCharacterOffset;
 var Input_characterOffsetOfPositionWithinRange;
 
+var Input_isPositionAtBoundaryGranularityInDirection;
+var Input_isPositionWithinTextUnitInDirection;
+var Input_positionFromPositionToBoundaryInDirection;
+var Input_rangeEnclosingPositionWithGranularityInDirection;
+
 (function() {
 
     // void
@@ -177,6 +182,32 @@ var Input_characterOffsetOfPositionWithinRange;
         trace(function characterOffsetOfPositionWithinRange(posId,startId,endId)
     {
         throw new Error("characterOffsetOfPositionWithinRange: not implemented");
+    });
+
+    // UITextInputTokenizer methods
+
+    Input_isPositionAtBoundaryGranularityInDirection =
+        trace(function isPositionAtBoundaryGranularityInDirection(posId,granularity,direction)
+    {
+        throw new Error("isPositionAtBoundaryGranularityInDirection: not implemented");
+    });
+
+    Input_isPositionWithinTextUnitInDirection =
+        trace(function isPositionWithinTextUnitInDirection(posId,granularity,direction)
+    {
+        throw new Error("isPositionWithinTextUnitInDirection: not implemented");
+    });
+
+    Input_positionFromPositionToBoundaryInDirection =
+        trace(function positionFromPositionToBoundaryInDirection(posId,granularity,direction)
+    {
+        throw new Error("positionFromPositionToBoundaryInDirection: not implemented");
+    });
+
+    Input_rangeEnclosingPositionWithGranularityInDirection =
+        trace(function rangeEnclosingPositionWithGranularityInDirection(posId,granularity,direction)
+    {
+        throw new Error("rangeEnclosingPositionWithGranularityInDirection: not implemented");
     });
 
 })();
