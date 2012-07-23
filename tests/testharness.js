@@ -33,6 +33,7 @@ function loadCode()
                            "../src/Figures.js",
                            "../src/Formatting.js",
                            "../src/Hierarchy.js",
+                           "../src/Input.js",
                            "../src/Lists.js",
                            "../src/Main.js",
                            "../src/NodeSet.js",
