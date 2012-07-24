@@ -435,22 +435,12 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         else if (granularity == "word") {
             if (pos.node.nodeType == Node.TEXT_NODE) {
                 var offset = Paragraph_offsetAtPosition(paragraph,pos);
-                var before = paragraph.text.substring(0,offset);
-                var after = paragraph.text.substring(offset);
 
                 var text = paragraph.text;
-                if (isForward(direction)) {
-                    if ((offset < text.length) && (text.charAt(offset).match(letterRE)))
-                        return true;
-                    else
-                        return false;
-                }
-                else {
-                    if ((offset > 0) && (text.charAt(offset-1).match(letterRE)))
-                        return true;
-                    else
-                        return false;
-                }
+                if (isForward(direction))
+                    return !!((offset < text.length) && (text.charAt(offset).match(letterRE)));
+                else
+                    return !!((offset > 0) && (text.charAt(offset-1).match(letterRE)));
             }
             if (run == null)
                 return false;
@@ -475,22 +465,19 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
             return null;
 
         if (granularity == "word") {
+            pos = Text_closestPosInDirection(pos,direction);
+            if (pos == null)
+                return addPosition(null);
+            var paragraph = Text_analyseParagraph(pos.node);
+            if (paragraph == null)
+                return addPosition(null);
+            var run = Paragraph_runFromNode(paragraph,pos.node);
+            var offset = pos.offset + run.start;
+
             if (isForward(direction)) {
-                pos = Text_closestPosForwards(pos);
-                if (pos == null)
-                    return addPosition(null);
-
-                var paragraph = Text_analyseParagraph(pos.node);
-                if (paragraph == null)
-                    return addPosition(null);
-
-                var run = Paragraph_runFromNode(paragraph,pos.node);
-                var offset = pos.offset + run.start;
-
                 var remaining = paragraph.text.substring(offset);
                 var afterWord = remaining.replace(wordAtStartRE,"");
                 var afterNonWord = remaining.replace(nonWordAtStartRE,"");
-
 
                 if (remaining.length == 0) {
                     return addPosition(pos);
@@ -505,17 +492,6 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
                 }
             }
             else {
-                pos = Text_closestPosBackwards(pos);
-                if (pos == null)
-                    return addPosition(null);
-
-                var paragraph = Text_analyseParagraph(pos.node);
-                if (paragraph == null)
-                    return addPosition(null);
-
-                var run = Paragraph_runFromNode(paragraph,pos.node);
-                var offset = pos.offset + run.start;
-
                 var remaining = paragraph.text.substring(0,offset);
                 var beforeWord = remaining.replace(wordAtEndRE,"");
                 var beforeNonWord = remaining.replace(nonWordAtEndRE,"");
@@ -547,22 +523,41 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
             return null;
 
         if (granularity == "word") {
-            var start = Text_posAtStartOfWord(pos,true);
-            var end = Text_posAtEndOfWord(pos,true);
-            if ((start == null) || (end == null)) {
-//                if (start == null)
-//                    debug("    start is null");
-//                if (end == null)
-//                    debug("    end is null");
-                return null;
+            pos = Text_closestPosInDirection(pos,direction);
+            var paragraph = Text_analyseParagraph(pos.node);
+            if (pos == null)
+                return addPosition(null);
+            if (paragraph == null)
+                return addPosition(null);
+            var run = Paragraph_runFromNode(paragraph,pos.node);
+            var offset = pos.offset + run.start;
+
+            var before = paragraph.text.substring(0,offset);
+            var after = paragraph.text.substring(offset);
+            var beforeWord = before.replace(wordAtEndRE,"");
+            var afterWord = after.replace(wordAtStartRE,"");
+
+            var ok;
+
+            if (isForward(direction))
+                ok = (afterWord.length < after.length);
+            else
+                ok = (beforeWord.length < before.length);
+
+            if (ok) {
+                var charsBefore = (before.length - beforeWord.length);
+                var charsAfter = (after.length - afterWord.length);
+                var startOffset = offset - charsBefore;
+                var endOffset = offset + charsAfter;
+
+                var startPos = Paragraph_positionAtOffset(paragraph,startOffset);
+                var endPos = Paragraph_positionAtOffset(paragraph,endOffset);
+                return { startId: addPosition(startPos),
+                         endId: addPosition(endPos) };
             }
             else {
-                return { startId: addPosition(start),
-                         endId: addPosition(end) };
+                return null;
             }
-        }
-        else if ((granularity == "word") && (direction == "forward")) {
-            return addPosition(Text_posAtEndOfWord(pos,true));
         }
         else {
             throw new Error("rangeEnclosingPositionWithGranularityInDirection: not implemented");

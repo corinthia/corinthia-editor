@@ -438,10 +438,14 @@ var Paragraph_getRunRects;
 
     Text_closestPosInDirection = trace(function closestPosInDirection(pos,direction)
     {
-        if (direction == "forward")
+        if ((direction == "forward") ||
+            (direction == "right") ||
+            (direction == "down")) {
             return Text_closestPosForwards(pos);
-        else
+        }
+        else {
             return Text_closestPosBackwards(pos);
+        }
     });
 
     Paragraph_runFromOffset = trace(function runFromOffset(paragraph,offset)

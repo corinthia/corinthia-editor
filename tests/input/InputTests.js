@@ -63,3 +63,45 @@ function testPositionToBoundary(granularity,direction)
 
     return lines.join("");
 }
+
+function testRangeEnclosing(granularity,direction)
+{
+    var lines = new Array();
+    var start = new Position(document.body,0);
+    var end = new Position(document.body,document.body.childNodes.length);
+
+    start = Position_closestMatchForwards(start,Position_okForMovement);
+    end = Position_closestMatchBackwards(end,Position_okForMovement);
+
+    var pos = start;
+    while (pos != null) {
+
+        var oldBefore = textBetweenPositions(start,pos);
+        var oldAfter = textBetweenPositions(pos,end);
+        var oldTotal = oldBefore+"|"+oldAfter;
+
+        var resultIds =
+            Input_rangeEnclosingPositionWithGranularityInDirection(pos,granularity,direction);
+        if (resultIds != null) {
+            var startId = resultIds.startId;
+            var endId = resultIds.endId;
+            var rangeStart = Input_getPosition(startId);
+            var rangeEnd = Input_getPosition(endId);
+
+            var before = textBetweenPositions(start,rangeStart);
+            var middle = textBetweenPositions(rangeStart,rangeEnd);
+            var after = textBetweenPositions(rangeEnd,end);
+
+            var newTotal = before+"["+middle+"]"+after;
+
+            lines.push(JSON.stringify(oldTotal)+" -- "+JSON.stringify(newTotal)+"\n");
+        }
+        else {
+            lines.push(JSON.stringify(oldTotal)+" -- null\n");
+        }
+
+        pos = Position_nextMatch(pos,Position_okForMovement);
+    }
+
+    return lines.join("");
+}
