@@ -37,6 +37,7 @@ var Position_rectAtPos;
         self.offset = offset;
         self.origOffset = offset;
         self.tracking = 0;
+        this.posId = null;
 
         Object.defineProperty(this,"node",{
             get: function() { return this.self.node },
@@ -173,6 +174,7 @@ var Position_rectAtPos;
     Position.prototype.toString = function()
     {
         var self = this.self;
+        var result;
         if (self.node.nodeType == Node.TEXT_NODE) {
             var extra = "";
             if (self.offset > self.node.nodeValue.length) {
@@ -182,12 +184,15 @@ var Position_rectAtPos;
             var id = "";
             if (window.debugIds)
                 id = self.node._nodeId.replace(/^.*:/,"")+":";
-            return id+JSON.stringify(self.node.nodeValue.slice(0,self.offset)+extra+"|"+
-                                     self.node.nodeValue.slice(self.offset));
+            result = id+JSON.stringify(self.node.nodeValue.slice(0,self.offset)+extra+"|"+
+                                       self.node.nodeValue.slice(self.offset));
         }
         else {
-            return "("+nodeString(self.node)+","+self.offset+")";
+            result = "("+nodeString(self.node)+","+self.offset+")";
         }
+        if (this.posId != null)
+            result = "["+this.posId+"]"+result;
+        return result;
     }
 
     function positionSpecial(pos,forwards,backwards)
@@ -338,13 +343,13 @@ var Position_rectAtPos;
     }
 
     // public
-    Position_okForInsertion = trace(function isMovementPosition(pos)
+    Position_okForInsertion = trace(function okForInsertion(pos)
     {
         return Position_okForMovement(pos,true);
     });
 
     // public
-    Position_okForMovement = trace(function isMovementPosition(pos,insertion)
+    Position_okForMovement = trace(function okForMovement(pos,insertion)
     {
         var nodeCausesLineBreak = trace(nodeCausesLineBreak);
         var spacesUntilNextContent = trace(spacesUntilNextContent);
@@ -554,7 +559,7 @@ var Position_rectAtPos;
     });
 
     // public
-    Position_closestMatchForwards = trace(function closestPositionForwards(pos,fun)
+    Position_closestMatchForwards = trace(function closestMatchForwards(pos,fun)
     {
         if (pos == null)
             return null;
@@ -577,7 +582,7 @@ var Position_rectAtPos;
     });
 
     // public
-    Position_closestMatchBackwards = trace(function closestPositionBackwards(pos,fun)
+    Position_closestMatchBackwards = trace(function closestMatchBackwards(pos,fun)
     {
         if (pos == null)
             return null;

@@ -11,10 +11,12 @@ var Text_posAtStartOfParagraph;
 var Text_posAtEndOfParagraph;
 var Text_closestPosBackwards;
 var Text_closestPosForwards;
+var Text_closestPosInDirection;
 
 var Paragraph_runFromOffset;
 var Paragraph_runFromNode;
 var Paragraph_positionAtOffset;
+var Paragraph_offsetAtPosition;
 var Paragraph_getRunRects;
 
 (function() {
@@ -240,7 +242,7 @@ var Paragraph_getRunRects;
         }
     });
 
-    Text_posAtStartOfWord = trace(function posAtStartOfWord(pos)
+    Text_posAtStartOfWord = trace(function posAtStartOfWord(pos,noFurther)
     {
         while (true) {
             pos = Text_closestPosBackwards(pos);
@@ -259,6 +261,8 @@ var Paragraph_getRunRects;
 
             if (beforeWord.length == before.length) {
                 // Already at start of word; go to start of previous word in this paragraph
+                if (noFurther)
+                    return pos;
                 beforeWord = before.replace(/[^\s]+\s+$/,"");
                 if (beforeWord.length == before.length) {
                     // Already at start of paragraph, go to previous non-empty paragraph, if any
@@ -273,7 +277,7 @@ var Paragraph_getRunRects;
         }
     });
 
-    Text_posAtEndOfWord = trace(function posAtEndOfWord(pos)
+    Text_posAtEndOfWord = trace(function posAtEndOfWord(pos,noFurther)
     {
         while (true) {
             pos = Text_closestPosForwards(pos);
@@ -292,6 +296,8 @@ var Paragraph_getRunRects;
 
             if (afterWord.length == after.length) {
                 // Already at end of word; go to end of next word in this paragraph
+                if (noFurther)
+                    return pos;
                 afterWord = after.replace(/^\s+[^\s]+/,"");
                 if (afterWord.length == after.length) {
                     // Already at end of paragraph, go to next non-empty paragraph, if any
@@ -430,6 +436,14 @@ var Paragraph_getRunRects;
             return new Position(node,0);
     });
 
+    Text_closestPosInDirection = trace(function closestPosInDirection(pos,direction)
+    {
+        if (direction == "forward")
+            return Text_closestPosForwards(pos);
+        else
+            return Text_closestPosBackwards(pos);
+    });
+
     Paragraph_runFromOffset = trace(function runFromOffset(paragraph,offset)
     {
         if (paragraph.runs.length == 0)
@@ -458,6 +472,12 @@ var Paragraph_getRunRects;
         if (run == null)
             throw new Error("Run at offset "+offset+" not found");
         return new Position(run.node,offset-run.start);
+    });
+
+    Paragraph_offsetAtPosition = trace(function offsetAtPosition(paragraph,pos)
+    {
+        var run = Paragraph_runFromNode(paragraph,pos.node);
+        return run.start + pos.offset;
     });
 
     Paragraph_getRunRects = trace(function getRunRects(paragraph)

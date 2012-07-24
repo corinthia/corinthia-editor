@@ -1,4 +1,5 @@
 var Input_removePosition;
+var Input_getPosition;
 var Input_textInRange;
 var Input_replaceRange;
 var Input_selectedTextRange;
@@ -31,95 +32,248 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
 
 (function() {
 
+    function itrace(name)
+    {
+        var components = new Array();
+        for (var i = 1; i < arguments.length; i++)
+            components.push(""+arguments[i]);
+//        debug(name+"("+components.join(",")+")");
+    }
+
+    function idebug(str)
+    {
+        debug(str);
+    }
+
+    var positions = new Object();
+
+    var nextPosId = 1;
+
+    var addPosition = trace(function addPosition(pos)
+    {
+        if (pos == null)
+            return 0;
+//        itrace("addPosition",pos);
+        pos = new Position(pos.node,pos.offset);
+        pos.posId = nextPosId++;
+        positions[pos.posId] = pos;
+//        pos.track();
+        return pos.posId;
+    });
+
+    var getPosition = trace(function getPosition(posId)
+    {
+        if (posId instanceof Position) // for tests
+            return posId;
+        if (posId == 0)
+            return null;
+        if (positions[posId] == null)
+            throw new Error("No position for pos id "+posId);
+        return positions[posId];
+    });
+
+    Input_getPosition = getPosition;
+
     // void
     Input_removePosition = trace(function removePosition(posId)
     {
-        throw new Error("removePosition: not implemented");
+        var pos = positions[posId];
+//        itrace("removePosition",pos);
+        if (pos == null) {
+            throw new Error("no position for id "+posId);
+        }
+//        pos.untrack();
+        delete positions[posId];
     });
 
     // string
     Input_textInRange = trace(function textInRange(startId,endId)
     {
-        throw new Error("textInRange: not implemented");
+        var start = getPosition(startId);
+        var end = getPosition(endId);
+        itrace("textInRange",start,end);
+        if ((start == null) || (end == null))
+            return "";
+
+        var range = new Range(start.node,start.offset,end.node,end.offset);
+        var outermost = range.getOutermostNodes();
+        var components = new Array();
+        for (var i = 0; i < outermost.length; i++)
+            recurse(outermost[i]);
+        return components.join("").replace(/\s+/g," ");
+
+        function recurse(node)
+        {
+            if (node.nodeType == Node.TEXT_NODE) {
+                var str;
+                if ((node == start.node) && (node == end.node)) {
+                    str = node.nodeValue.substring(start.offset,end.offset);
+                }
+                else if (node == start.node) {
+                    str = node.nodeValue.substring(start.offset);
+                }
+                else if (node == end.node) {
+                    str = node.nodeValue.substring(0,end.offset);
+                }
+                else {
+                    str = node.nodeValue;
+                }
+                components.push(str);
+            }
+            else {
+                for (var child = node.firstChild; child != null; child = child.nextSibling)
+                    recurse(child);
+            }
+        }
     });
 
     // void
     Input_replaceRange = trace(function replaceRange(startId,endId,text)
     {
-        throw new Error("replaceRange: not implemented");
+        var start = getPosition(startId);
+        var end = getPosition(endId);
+        itrace("replaceRange",start,end,text);
+
+        var range = new Range(start.node,start.offset,end.node,end.offset);
+        range.trackWhileExecuting(function() {
+            Selection_deleteRangeContents(range);
+        });
+        var textNode = DOM_createTextNode(document,text);
+        var node = range.start.node;
+        var offset = range.start.offset;
+        if (node.nodeType == Node.ELEMENT_NODE) {
+            DOM_insertBefore(node,textNode,range.childNodes[range.offset]);
+        }
+        else {
+            DOM_insertBefore(node.parentNode,textNode,node.nextSibling);
+        }
     });
 
-    // { start, end }
+    // { startId, endId }
     Input_selectedTextRange = trace(function selectedTextRange()
     {
-        throw new Error("selectedTextRange: not implemented");
+        var range = Selection_get();
+        if (range == null) {
+            idebug("selectedTextRange: null");
+            return null;
+        }
+        else {
+            var startId = addPosition(range.start);
+            var endId = addPosition(range.end);
+            idebug("selectedTextRange: "+startId+", "+endId);
+            return { startId: startId,
+                     endId: endId };
+        }
     });
 
     // void
     Input_setSelectedTextRange = trace(function setSelectedTextRange(startId,endId)
     {
-        throw new Error("setSelectedTextRange: not implemented");
+        var start = getPosition(startId);
+        var end = getPosition(endId);
+        itrace("setSelectedTextRange",start,end);
+        Selection_set(start.node,start.offset,end.node,end.offset);
     });
 
-    // { start, end }
+    // { startId, endId }
     Input_markedTextRange = trace(function markedTextRange()
     {
-        throw new Error("markedTextRange: not implemented");
+        itrace("markedTextRange");
+//        throw new Error("markedTextRange: not implemented");
+        return null;
     });
 
     // void
     Input_setMarkedText = trace(function setMarkedText(text,startOffset,endOffset)
     {
+        itrace("setMarkedText",text,startOffset,endOffset);
         throw new Error("setMarkedText: not implemented");
     });
 
     // void
     Input_unmarkText = trace(function unmarkText()
     {
+        itrace("unmarkText");
         throw new Error("unmarkText: not implemented");
     });
 
     // boolean
     Input_forwardSelectionAffinity = trace(function forwardSelectionAffinity()
     {
+        itrace("forwardSelectionAffinity");
         throw new Error("forwardSelectionAffinity: not implemented");
     });
 
     // void
     Input_setForwardSelectionAffinity = trace(function setForwardSelectionAffinity(value)
     {
+        itrace("setForwardSelectionAffinity",value);
         throw new Error("setForwardSelectionAffinity: not implemented");
     });
 
     // posId
     Input_positionFromPositionOffset = trace(function positionFromPositionOffset(posId,offset)
     {
-        throw new Error("positionFromPositionOffset: not implemented");
+        var pos = getPosition(posId);
+        itrace("positionFromPositionOffset",pos,offset);
+        if (offset > 0) {
+            for (; offset > 0; offset--) {
+                pos = Position_nextMatch(pos,Position_okForMovement);
+                if (pos == null)
+                    return addPosition(pos);
+            }
+            return addPosition(pos);
+        }
+        else {
+            for (; offset < 0; offset++) {
+                pos = Position_prevMatch(pos,Position_okForMovement);
+                if (pos == null)
+                    return addPosition(pos);
+            }
+            return addPosition(pos);
+        }
     });
 
     // posId
     Input_positionFromPositionInDirectionOffset =
         trace(function positionFromPositionInDirectionOffset(posId,direction,offset)
     {
+        var pos = getPosition(posId);
+        itrace("positionFromPositionInDirectionOffset",pos,direction,offset);
         throw new Error("positionFromPositionInDirectionOffset: not implemented");
     });
 
     // posId
     Input_beginningOfDocument = trace(function beginningOfDocument()
     {
-        throw new Error("beginningOfDocument: not implemented");
+        itrace("beginningOfDocument");
+        var pos = new Position(document.body,0);
+        pos = Position_closestMatchForwards(pos,Position_okForMovement);
+        return addPosition(pos);
     });
 
     // posId
     Input_endOfDocument = trace(function endOfDocument()
     {
-        throw new Error("endOfDocument: not implemented");
+        itrace("endOfDocument");
+        var pos = new Position(document.body,document.body.childNodes.length);
+        pos = Position_closestMatchBackwards(pos,Position_okForMovement);
+        return addPosition(pos);
     });
 
     // int
     Input_comparePositionToPosition = trace(function comparePositionToPosition(posId1,posId2)
     {
-        throw new Error("comparePositionToPosition: not implemented");
+        var pos1 = getPosition(posId1);
+        var pos2 = getPosition(posId2);
+        itrace("comparePositionToPosition",pos1,pos2);
+        if ((pos1.node == pos2.node) && (pos1.offset == pos2.offset))
+            return 0;
+        var range = new Range(pos1.node,pos1.offset,pos2.node,pos2.offset);
+        if (range.isForwards())
+            return 1;
+        else
+            return -1;
     });
 
     // int
@@ -134,7 +288,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         throw new Error("positionWithinRangeFarthestInDirection: not implemented");
     });
 
-    // { start, end }
+    // { startId, endId }
     Input_characterRangeByExtendingPositionInDirection =
         trace(function characterRangeByExtendingPositionInDirection(posId,direction)
     {
@@ -143,12 +297,27 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
 
     Input_firstRectForRange = trace(function firstRectForRange(startId,endId)
     {
-        throw new Error("firstRectForRange: not implemented");
+        var start = getPosition(startId);
+        var end = getPosition(endId);
+        itrace("firstRectForRange",start,end);
+        var range = new Range(start.node,start.offset,end.node,end.offset);
+        var rects = range.getClientRects();
+        if (rects.length == 0)
+            return { x: 0, y: 0, width: 0, height: 0 };
+        else
+            return { x: rects[0].left, y: rects[0].top,
+                     width: rects[0].width, height: rects[0].height };
     });
 
     Input_caretRectForPosition = trace(function caretRectForPosition(posId)
     {
-        throw new Error("caretRectForPosition: not implemented");
+        var pos = getPosition(posId);
+        itrace("caretRectForPosition",pos);
+        var rect = Position_rectAtPos(pos);
+        if (rect == null)
+            return { x: 0, y: 0, width: 0, height: 0 };
+        else
+            return { x: rect.left, y: rect.top, width: rect.width, height: rect.height };
     });
 
     // posId
@@ -164,7 +333,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         throw new Error("closestPositionToPointWithinRange: not implemented");
     });
 
-    // { start, end }
+    // { startId, endId }
     Input_characterRangeAtPoint = trace(function characterRangeAtPoint(x,y)
     {
         throw new Error("characterRangeAtPoint: not implemented");
@@ -186,28 +355,218 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
 
     // UITextInputTokenizer methods
 
+    var punctuation = "!\"#%&',-/:;<=>@`~\\^\\$\\\\\\.\\*\\+\\?\\(\\)\\[\\]\\{\\}\\|";
+    var letterRE = new RegExp("[^\\s"+punctuation+"]");
+    var wordAtStartRE = new RegExp("^[^\\s"+punctuation+"]+");
+    var nonWordAtStartRE = new RegExp("^[\\s"+punctuation+"]+");
+    var wordAtEndRE = new RegExp("[^\\s"+punctuation+"]+$");
+    var nonWordAtEndRE = new RegExp("[\\s"+punctuation+"]+$");
+
+    function isForward(direction)
+    {
+        return ((direction == "forward") ||
+                (direction == "right") ||
+                (direction == "down"));
+    }
+
     Input_isPositionAtBoundaryGranularityInDirection =
         trace(function isPositionAtBoundaryGranularityInDirection(posId,granularity,direction)
     {
+        var pos = getPosition(posId);
+        itrace("isPositionAtBoundaryGranularityInDirection",pos,granularity,direction);
+        if (pos == null)
+            return false;
+
+        var paragraph = Text_analyseParagraph(pos.node);
+        if (paragraph == null)
+            return false;
+
+        if (granularity == "character") {
+            return true;
+        }
+        else if (granularity == "word") {
+            if (pos.node.nodeType == Node.TEXT_NODE) {
+                var offset = Paragraph_offsetAtPosition(paragraph,pos);
+                var before = paragraph.text.substring(0,offset);
+                var after = paragraph.text.substring(offset);
+                var text = paragraph.text;
+
+                var afterMatch = (offset < text.length) && (text.charAt(offset).match(letterRE));
+                var beforeMatch = (offset > 0) && (text.charAt(offset-1).match(letterRE));
+
+                // coerce to boolean
+                afterMatch = !!afterMatch;
+                beforeMatch = !!beforeMatch;
+
+                if (isForward(direction))
+                    return beforeMatch && !afterMatch;
+                else
+                    return !beforeMatch;
+            }
+            if (run == null)
+                return false;
+        }
+        else if (granularity == "sentence") {
+        }
+        else if (granularity == "paragraph") {
+        }
+        else if (granularity == "line") {
+        }
+        else if (granularity == "document") {
+        }
         throw new Error("isPositionAtBoundaryGranularityInDirection: not implemented");
     });
 
     Input_isPositionWithinTextUnitInDirection =
         trace(function isPositionWithinTextUnitInDirection(posId,granularity,direction)
     {
+        var pos = getPosition(posId);
+        itrace("isPositionWithinTextUnitInDirection",pos,granularity,direction);
+        if (pos == null)
+            return false;
+
+        var paragraph = Text_analyseParagraph(pos.node);
+        if (paragraph == null)
+            return false;
+
+        if (granularity == "character") {
+            return true;
+        }
+        else if (granularity == "word") {
+            if (pos.node.nodeType == Node.TEXT_NODE) {
+                var offset = Paragraph_offsetAtPosition(paragraph,pos);
+                var before = paragraph.text.substring(0,offset);
+                var after = paragraph.text.substring(offset);
+
+                var text = paragraph.text;
+                if (isForward(direction)) {
+                    if ((offset < text.length) && (text.charAt(offset).match(letterRE)))
+                        return true;
+                    else
+                        return false;
+                }
+                else {
+                    if ((offset > 0) && (text.charAt(offset-1).match(letterRE)))
+                        return true;
+                    else
+                        return false;
+                }
+            }
+            if (run == null)
+                return false;
+        }
+        else if (granularity == "sentence") {
+        }
+        else if (granularity == "paragraph") {
+        }
+        else if (granularity == "line") {
+        }
+        else if (granularity == "document") {
+        }
         throw new Error("isPositionWithinTextUnitInDirection: not implemented");
     });
 
     Input_positionFromPositionToBoundaryInDirection =
         trace(function positionFromPositionToBoundaryInDirection(posId,granularity,direction)
     {
-        throw new Error("positionFromPositionToBoundaryInDirection: not implemented");
+        var pos = getPosition(posId);
+        itrace("positionFromPositionToBoundaryInDirection",pos,granularity,direction);
+        if (pos == null)
+            return null;
+
+        if (granularity == "word") {
+            if (isForward(direction)) {
+                pos = Text_closestPosForwards(pos);
+                if (pos == null)
+                    return addPosition(null);
+
+                var paragraph = Text_analyseParagraph(pos.node);
+                if (paragraph == null)
+                    return addPosition(null);
+
+                var run = Paragraph_runFromNode(paragraph,pos.node);
+                var offset = pos.offset + run.start;
+
+                var remaining = paragraph.text.substring(offset);
+                var afterWord = remaining.replace(wordAtStartRE,"");
+                var afterNonWord = remaining.replace(nonWordAtStartRE,"");
+
+
+                if (remaining.length == 0) {
+                    return addPosition(pos);
+                }
+                else if (afterWord.length < remaining.length) {
+                    var newOffset = offset + (remaining.length - afterWord.length);
+                    return addPosition(Paragraph_positionAtOffset(paragraph,newOffset));
+                }
+                else {
+                    var newOffset = offset + (remaining.length - afterNonWord.length);
+                    return addPosition(Paragraph_positionAtOffset(paragraph,newOffset));
+                }
+            }
+            else {
+                pos = Text_closestPosBackwards(pos);
+                if (pos == null)
+                    return addPosition(null);
+
+                var paragraph = Text_analyseParagraph(pos.node);
+                if (paragraph == null)
+                    return addPosition(null);
+
+                var run = Paragraph_runFromNode(paragraph,pos.node);
+                var offset = pos.offset + run.start;
+
+                var remaining = paragraph.text.substring(0,offset);
+                var beforeWord = remaining.replace(wordAtEndRE,"");
+                var beforeNonWord = remaining.replace(nonWordAtEndRE,"");
+
+                if (remaining.length == 0) {
+                    return addPosition(pos);
+                }
+                else if (beforeWord.length < remaining.length) {
+                    var newOffset = offset - (remaining.length - beforeWord.length);
+                    return addPosition(Paragraph_positionAtOffset(paragraph,newOffset));
+                }
+                else {
+                    var newOffset = offset - (remaining.length - beforeNonWord.length);
+                    return addPosition(Paragraph_positionAtOffset(paragraph,newOffset));
+                }
+            }
+        }
+        else {
+            throw new Error("positionFromPositionToBoundaryInDirection: not implemented");
+        }
     });
 
     Input_rangeEnclosingPositionWithGranularityInDirection =
         trace(function rangeEnclosingPositionWithGranularityInDirection(posId,granularity,direction)
     {
-        throw new Error("rangeEnclosingPositionWithGranularityInDirection: not implemented");
+        var pos = getPosition(posId);
+        itrace("rangeEnclosingPositionWithGranularityInDirection",pos,granularity,direction);
+        if (pos == null)
+            return null;
+
+        if (granularity == "word") {
+            var start = Text_posAtStartOfWord(pos,true);
+            var end = Text_posAtEndOfWord(pos,true);
+            if ((start == null) || (end == null)) {
+//                if (start == null)
+//                    debug("    start is null");
+//                if (end == null)
+//                    debug("    end is null");
+                return null;
+            }
+            else {
+                return { startId: addPosition(start),
+                         endId: addPosition(end) };
+            }
+        }
+        else if ((granularity == "word") && (direction == "forward")) {
+            return addPosition(Text_posAtEndOfWord(pos,true));
+        }
+        else {
+            throw new Error("rangeEnclosingPositionWithGranularityInDirection: not implemented");
+        }
     });
 
 })();
