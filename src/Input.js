@@ -57,7 +57,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         pos = new Position(pos.node,pos.offset);
         pos.posId = nextPosId++;
         positions[pos.posId] = pos;
-//        pos.track();
+        Position_track(pos);
         return pos.posId;
     });
 
@@ -82,7 +82,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         if (pos == null) {
             throw new Error("no position for id "+posId);
         }
-//        pos.untrack();
+        Position_untrack(pos);
         delete positions[posId];
     });
 
