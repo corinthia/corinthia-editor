@@ -37,7 +37,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         var components = new Array();
         for (var i = 1; i < arguments.length; i++)
             components.push(""+arguments[i]);
-//        debug(name+"("+components.join(",")+")");
+        debug(name+"("+components.join(",")+")");
     }
 
     function idebug(str)
@@ -45,8 +45,8 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         debug(str);
     }
 
+    var forwardSelection = true;
     var positions = new Object();
-
     var nextPosId = 1;
 
     var addPosition = trace(function addPosition(pos)
@@ -201,14 +201,85 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     Input_forwardSelectionAffinity = trace(function forwardSelectionAffinity()
     {
         itrace("forwardSelectionAffinity");
-        throw new Error("forwardSelectionAffinity: not implemented");
+        return forwardSelection;
     });
 
     // void
     Input_setForwardSelectionAffinity = trace(function setForwardSelectionAffinity(value)
     {
         itrace("setForwardSelectionAffinity",value);
-        throw new Error("setForwardSelectionAffinity: not implemented");
+        forwardSelection = value;
+    });
+
+    var positionRight = trace(function positionRight(pos,offset)
+    {
+        if (offset > 0) {
+            for (; (offset > 0) && (pos != null); offset--)
+                pos = Position_nextMatch(pos,Position_okForMovement);
+        }
+        else {
+            for (; (offset < 0) && (pos != null); offset++)
+                pos = Position_prevMatch(pos,Position_okForMovement);
+        }
+        return pos;
+    });
+
+    var positionUpSingle = trace(function positionUpSingle(pos)
+    {
+        var cursorRect = Position_rectAtPos(pos);
+
+        if (cursorRect == null) {
+            pos = Text_closestPosBackwards(pos);
+            cursorRect = Position_rectAtPos(pos);
+        }
+
+        if (cursorRect == null)
+            return;
+
+//        if (cursorX == null)
+//            cursorX = cursorRect.left;
+        var cursorX = cursorRect.left;
+
+        return Text_posAbove(pos,cursorRect,cursorX);
+    });
+
+    var positionDownSingle = trace(function positionDownSingle(pos)
+    {
+        var cursorRect = Position_rectAtPos(pos);
+
+        if (cursorRect == null) {
+            var element = pos.closestActualNode(true);
+            if (element.nodeType == Node.ELEMENT_NODE) {
+                cursorRect = element.getBoundingClientRect();
+            }
+        }
+
+        if (cursorRect == null) {
+            pos = Text_closestPosForwards(pos);
+            cursorRect = Position_rectAtPos(pos);
+        }
+
+        if (cursorRect == null)
+            return;
+
+//        if (cursorX == null)
+//            cursorX = cursorRect.left;
+        var cursorX = cursorRect.left;
+
+        return Text_posBelow(pos,cursorRect,cursorX);
+    });
+
+    var positionDown = trace(function positionDown(pos,offset)
+    {
+        if (offset > 0) {
+            for (; (offset > 0) && (pos != null); offset--)
+                pos = positionDownSingle(pos);
+        }
+        else {
+            for (; (offset < 0) && (pos != null); offset++)
+                pos = positionUpSingle(pos);
+        }
+        return pos;
     });
 
     // posId
@@ -216,22 +287,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     {
         var pos = getPosition(posId);
         itrace("positionFromPositionOffset",pos,offset);
-        if (offset > 0) {
-            for (; offset > 0; offset--) {
-                pos = Position_nextMatch(pos,Position_okForMovement);
-                if (pos == null)
-                    return addPosition(pos);
-            }
-            return addPosition(pos);
-        }
-        else {
-            for (; offset < 0; offset++) {
-                pos = Position_prevMatch(pos,Position_okForMovement);
-                if (pos == null)
-                    return addPosition(pos);
-            }
-            return addPosition(pos);
-        }
+        return addPosition(positionRight(pos,offset));
     });
 
     // posId
@@ -240,7 +296,16 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     {
         var pos = getPosition(posId);
         itrace("positionFromPositionInDirectionOffset",pos,direction,offset);
-        throw new Error("positionFromPositionInDirectionOffset: not implemented");
+        if (direction == "left")
+            return addPosition(positionRight(pos,-offset));
+        else if (direction == "right")
+            return addPosition(positionRight(pos,offset));
+        else if (direction == "up")
+            return addPosition(positionDown(pos,-offset));
+        else if (direction == "down")
+            return addPosition(positionDown(pos,offset));
+        else
+            throw new Error("unknown direction: "+direction);
     });
 
     // posId
