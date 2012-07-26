@@ -471,17 +471,17 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
             if (run == null)
                 return false;
         }
-        else if (granularity == "sentence") {
-        }
         else if ((granularity == "paragraph") || (granularity == "line")) {
             if (isForward(direction))
                 return Position_equal(pos,Text_toEndOfBoundary(pos,granularity));
             else
                 return Position_equal(pos,Text_toStartOfBoundary(pos,granularity));
         }
+        else if (granularity == "sentence") {
+        }
         else if (granularity == "document") {
         }
-        throw new Error("isPositionAtBoundaryGranularityInDirection: not implemented");
+        throw new Error("unsupported granularity: "+granularity);
     });
 
     Input_isPositionWithinTextUnitInDirection =
@@ -500,17 +500,18 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
             return true;
         }
         else if (granularity == "word") {
-            if (pos.node.nodeType == Node.TEXT_NODE) {
+            var pos = Text_closestPosInDirection(pos,direction);
+            if ((pos != null) && (pos.node.nodeType == Node.TEXT_NODE)) {
                 var offset = Paragraph_offsetAtPosition(paragraph,pos);
-
                 var text = paragraph.text;
                 if (isForward(direction))
                     return !!((offset < text.length) && (text.charAt(offset).match(letterRE)));
                 else
                     return !!((offset > 0) && (text.charAt(offset-1).match(letterRE)));
             }
-            if (run == null)
+            else {
                 return false;
+            }
         }
         else if (granularity == "sentence") {
         }
@@ -528,11 +529,9 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
                         (Position_compare(pos,end) <= 0));
             }
         }
-//        else if (granularity == "line") {
-//        }
         else if (granularity == "document") {
         }
-        throw new Error("isPositionWithinTextUnitInDirection: not implemented");
+        throw new Error("unsupported granularity: "+granularity);
     });
 
     Input_positionFromPositionToBoundaryInDirection =
@@ -619,7 +618,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
             }
         }
         else {
-            throw new Error("positionFromPositionToBoundaryInDirection: not implemented");
+            throw new Error("unsupported granularity: "+granularity);
         }
     });
 
@@ -688,7 +687,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
                      endId: addPosition(end) };
         }
         else {
-            throw new Error("rangeEnclosingPositionWithGranularityInDirection: not implemented");
+            throw new Error("unsupported granularity: "+granularity);
         }
     });
 
