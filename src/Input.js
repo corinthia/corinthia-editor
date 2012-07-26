@@ -336,9 +336,9 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
             return 0;
         var range = new Range(pos1.node,pos1.offset,pos2.node,pos2.offset);
         if (range.isForwards())
-            return 1;
-        else
             return -1;
+        else
+            return 1;
     });
 
     // int
