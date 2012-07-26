@@ -626,4 +626,25 @@ var Position_rectAtPos;
             return null;
     });
 
+    Position_equal = trace(function equal(a,b)
+    {
+        if ((a == null) && (b == null))
+            return true;
+        if ((a != null) && (b != null) &&
+            (a.node == b.node) && (a.offset == b.offset))
+            return true;
+        return false;
+    });
+
+    Position_compare = trace(function compare(a,b)
+    {
+        if ((a.node == b.node) && (a.offset == b.offset))
+            return 0;
+        var range = new Range(a.node,a.offset,b.node,b.offset);
+        if (range.isForwards())
+            return -1;
+        else
+            return 1;
+    });
+
 })();

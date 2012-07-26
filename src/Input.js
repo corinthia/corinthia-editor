@@ -37,7 +37,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         var components = new Array();
         for (var i = 1; i < arguments.length; i++)
             components.push(""+arguments[i]);
-        debug(name+"("+components.join(",")+")");
+//        debug(name+"("+components.join(",")+")");
     }
 
     function idebug(str)
@@ -474,6 +474,10 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         else if (granularity == "sentence") {
         }
         else if (granularity == "paragraph") {
+            if (isForward(direction))
+                return Position_equal(pos,Text_toEndOfParagraph(pos));
+            else
+                return Position_equal(pos,Text_toStartOfParagraph(pos));
         }
         else if (granularity == "line") {
         }
@@ -513,6 +517,18 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         else if (granularity == "sentence") {
         }
         else if (granularity == "paragraph") {
+            var start = Text_toStartOfParagraph(pos);
+            var end = Text_toEndOfParagraph(pos);
+            start = start ? start : pos;
+            end = end ? end : pos;
+            if (isForward(direction)) {
+                return ((Position_compare(start,pos) <= 0) &&
+                        (Position_compare(pos,end) < 0));
+            }
+            else {
+                return ((Position_compare(start,pos) < 0) &&
+                        (Position_compare(pos,end) <= 0));
+            }
         }
         else if (granularity == "line") {
         }
@@ -574,6 +590,26 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
                 }
             }
         }
+        else if (granularity == "paragraph") {
+            if (isForward(direction)) {
+                var end = Text_toEndOfParagraph(pos);
+                if (Position_equal(pos,end)) {
+                    end = Position_nextMatch(end,Position_okForMovement);
+                    end = Text_toEndOfParagraph(end);
+                    end = Text_toStartOfParagraph(end);
+                }
+                return addPosition(end ? end : pos);
+            }
+            else {
+                var start = Text_toStartOfParagraph(pos);
+                if (Position_equal(pos,start)) {
+                    start = Position_prevMatch(start,Position_okForMovement);
+                    start = Text_toStartOfParagraph(start);
+                    start = Text_toEndOfParagraph(start);
+                }
+                return addPosition(start ? start : pos);
+            }
+        }
         else {
             throw new Error("positionFromPositionToBoundaryInDirection: not implemented");
         }
@@ -623,6 +659,23 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
             else {
                 return null;
             }
+        }
+        else if (granularity == "paragraph") {
+            var start = Text_toStartOfParagraph(pos);
+            var end = Text_toEndOfParagraph(pos);
+            start = start ? start : pos;
+            end = end ? end : pos;
+
+            if (isForward(direction)) {
+                if (Position_equal(pos,Text_toEndOfParagraph(pos)))
+                    return null;
+            }
+            else {
+                if (Position_equal(pos,Text_toStartOfParagraph(pos)))
+                    return null;
+            }
+            return { startId: addPosition(start),
+                     endId: addPosition(end) };
         }
         else {
             throw new Error("rangeEnclosingPositionWithGranularityInDirection: not implemented");

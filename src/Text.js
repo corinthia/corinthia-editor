@@ -1,5 +1,6 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
+var Text_findParagraphBoundaries;
 var Text_analyseParagraph;
 var Text_posAbove;
 var Text_posBelow;
@@ -7,6 +8,8 @@ var Text_posAtStartOfWord;
 var Text_posAtEndOfWord;
 var Text_posAtStartOfLine;
 var Text_posAtEndOfLine;
+var Text_toStartOfParagraph;
+var Text_toEndOfParagraph;
 var Text_posAtStartOfParagraph;
 var Text_posAtEndOfParagraph;
 var Text_closestPosBackwards;
@@ -43,7 +46,7 @@ var Paragraph_getRunRects;
     //
     // <p>...</p> Some <i>inline</i> nodes <p>...</p>
 
-    var findFirstAndLast = trace(function findFirstAndLast(initial)
+    Text_findParagraphBoundaries = trace(function findParagraphBoundaries(initial)
     {
         if (isInlineNode(initial)) {
             var topInline = initial;
@@ -75,7 +78,7 @@ var Paragraph_getRunRects;
         var runs = new Array();
         var offset = 0;
 
-        var pair = findFirstAndLast(initial);
+        var pair = Text_findParagraphBoundaries(initial);
         if (pair == null)
             return null;
 
@@ -354,6 +357,32 @@ var Paragraph_getRunRects;
                 return pos;
             pos = check;
         }
+    });
+
+    Text_toStartOfParagraph = trace(function posAtStartOfParagraph(pos)
+    {
+        pos = Position_closestMatchBackwards(pos,Position_okForMovement);
+        if (pos == null)
+            return null;
+        var paragraph = Text_analyseParagraph(pos.node);
+        if (paragraph == null)
+            return null;
+
+        var newPos = new Position(paragraph.node,DOM_nodeOffset(paragraph.first));
+        return Position_closestMatchForwards(newPos,Position_okForMovement);
+    });
+
+    Text_toEndOfParagraph = trace(function posAtEndOfParagraph(pos)
+    {
+        pos = Position_closestMatchForwards(pos,Position_okForMovement);
+        if (pos == null)
+            return null;
+        var paragraph = Text_analyseParagraph(pos.node);
+        if (paragraph == null)
+            return null;
+
+        var newPos = new Position(paragraph.node,DOM_nodeOffset(paragraph.last)+1);
+        return Position_closestMatchBackwards(newPos,Position_okForMovement);
     });
 
     Text_posAtStartOfParagraph = trace(function posAtStartOfParagraph(pos)
