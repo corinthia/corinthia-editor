@@ -179,7 +179,6 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     Input_markedTextRange = trace(function markedTextRange()
     {
         itrace("markedTextRange");
-//        throw new Error("markedTextRange: not implemented");
         return null;
     });
 
@@ -187,14 +186,12 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     Input_setMarkedText = trace(function setMarkedText(text,startOffset,endOffset)
     {
         itrace("setMarkedText",text,startOffset,endOffset);
-        throw new Error("setMarkedText: not implemented");
     });
 
     // void
     Input_unmarkText = trace(function unmarkText()
     {
         itrace("unmarkText");
-        throw new Error("unmarkText: not implemented");
     });
 
     // boolean
