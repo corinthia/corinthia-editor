@@ -7,12 +7,6 @@ var Cursor_moveLeft;
 var Cursor_moveRight;
 var Cursor_moveUp;
 var Cursor_moveDown;
-var Cursor_moveToStartOfWord;
-var Cursor_moveToEndOfWord;
-var Cursor_moveToStartOfLine;
-var Cursor_moveToEndOfLine;
-var Cursor_moveToStartOfParagraph;
-var Cursor_moveToEndOfParagraph;
 var Cursor_moveToStartOfDocument;
 var Cursor_moveToEndOfDocument;
 var Cursor_updateBRAtEndOfParagraph;
@@ -260,53 +254,6 @@ var Cursor_set;
         var newPos = Text_posBelow(pos,cursorRect,cursorX);
         if (newPos != null)
             Cursor_set(newPos.node,newPos.offset,true);
-    });
-
-    var moveCursor = trace(function moveCursor(fun,start)
-    {
-        // FIXME: ensure it's a valid position (don't allow stepping into links etc. using this
-        // method)
-        // Actually.... maybe we should allow people to edit link text?
-        var range = Selection_get();
-        if (range == null)
-            return;
-
-        var pos = start ? range.start : range.end;
-        var newPos = fun(pos);
-        if (newPos != null) {
-            Cursor_set(newPos.node,newPos.offset);
-            Cursor_ensureCursorVisible();
-        }
-    });
-
-    Cursor_moveToStartOfWord = trace(function moveToStartOfWord()
-    {
-        moveCursor(Text_posAtStartOfWord,true);
-    });
-
-    Cursor_moveToEndOfWord = trace(function moveToEndOfWord()
-    {
-        moveCursor(Text_posAtEndOfWord,false);
-    });
-
-    Cursor_moveToStartOfLine = trace(function moveToStartOfLine()
-    {
-        moveCursor(Text_posAtStartOfLine,true);
-    });
-
-    Cursor_moveToEndOfLine = trace(function moveToEndOfLine()
-    {
-        moveCursor(Text_posAtEndOfLine,false);
-    });
-
-    Cursor_moveToStartOfParagraph = trace(function moveToStartOfParagraph()
-    {
-        moveCursor(Text_posAtStartOfParagraph,true);
-    });
-
-    Cursor_moveToEndOfParagraph = trace(function moveToEndOfParagraph()
-    {
-        moveCursor(Text_posAtEndOfParagraph,false);
     });
 
     // public

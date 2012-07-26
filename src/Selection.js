@@ -28,18 +28,6 @@ var Selection_clearSelection;
 var Selection_preserveWhileExecuting;
 var Selection_posAtStartOfWord;
 var Selection_posAtEndOfWord;
-var Selection_selectLeft;
-var Selection_selectRight;
-var Selection_selectUp;
-var Selection_selectDown;
-var Selection_selectToStartOfWord;
-var Selection_selectToEndOfWord;
-var Selection_selectToStartOfLine;
-var Selection_selectToEndOfLine;
-var Selection_selectToStartOfParagraph;
-var Selection_selectToEndOfParagraph;
-var Selection_selectToStartOfDocument;
-var Selection_selectToEndOfDocument;
 
 
 (function() {
@@ -1276,90 +1264,6 @@ var Selection_selectToEndOfDocument;
                 Selection_set(range.start.node,range.start.offset,newEnd.node,newEnd.offset,true);
             }
         }
-    });
-
-    Selection_selectLeft = trace(function selectLeft()
-    {
-        if (activeHandle == HANDLE_NONE)
-            activeHandle = HANDLE_START;
-        // FIXME
-    });
-
-    Selection_selectRight = trace(function selectRight()
-    {
-        if (activeHandle == HANDLE_NONE)
-            activeHandle = HANDLE_END;
-        // FIXME
-    });
-
-    Selection_selectUp = trace(function selectUp()
-    {
-        if (activeHandle == HANDLE_NONE)
-            activeHandle = HANDLE_START;
-        // FIXME
-    });
-
-    Selection_selectDown = trace(function selectDown()
-    {
-        if (activeHandle == HANDLE_NONE)
-            activeHandle = HANDLE_END;
-        // FIXME
-    });
-
-    Selection_selectToStartOfWord = trace(function selectToStartOfWord()
-    {
-        if (activeHandle == HANDLE_NONE)
-            activeHandle = HANDLE_START;
-        adjustSelection(Text_posAtStartOfWord);
-    });
-
-    Selection_selectToEndOfWord = trace(function selectToEndOfWord()
-    {
-        if (activeHandle == HANDLE_NONE)
-            activeHandle = HANDLE_END;
-        adjustSelection(Text_posAtEndOfWord);
-    });
-
-    Selection_selectToStartOfLine = trace(function selectToStartOfLine()
-    {
-        if (activeHandle == HANDLE_NONE)
-            activeHandle = HANDLE_START;
-        adjustSelection(Text_posAtStartOfLine);
-    });
-
-    Selection_selectToEndOfLine = trace(function selectToEndOfLine()
-    {
-        if (activeHandle == HANDLE_NONE)
-            activeHandle = HANDLE_END;
-        adjustSelection(Text_posAtEndOfLine);
-    });
-
-    Selection_selectToStartOfParagraph = trace(function selectToStartOfParagraph()
-    {
-        if (activeHandle == HANDLE_NONE)
-            activeHandle = HANDLE_START;
-        adjustSelection(Text_posAtStartOfParagraph);
-    });
-
-    Selection_selectToEndOfParagraph = trace(function selectToEndOfParagraph()
-    {
-        if (activeHandle == HANDLE_NONE)
-            activeHandle = HANDLE_END;
-        adjustSelection(Text_posAtEndOfParagraph);
-    });
-
-    Selection_selectToStartOfDocument = trace(function selectToStartOfDocument()
-    {
-        if (activeHandle == HANDLE_NONE)
-            activeHandle = HANDLE_START;
-        // FIXME
-    });
-
-    Selection_selectToEndOfDocument = trace(function selectToEndOfDocument()
-    {
-        if (activeHandle == HANDLE_NONE)
-            activeHandle = HANDLE_END;
-        // FIXME
     });
 
 })();
