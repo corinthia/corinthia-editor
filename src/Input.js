@@ -475,9 +475,9 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         }
         else if (granularity == "paragraph") {
             if (isForward(direction))
-                return Position_equal(pos,Text_toEndOfParagraph(pos));
+                return Position_equal(pos,Text_toEndOfBoundary(pos,"paragraph"));
             else
-                return Position_equal(pos,Text_toStartOfParagraph(pos));
+                return Position_equal(pos,Text_toStartOfBoundary(pos,"paragraph"));
         }
         else if (granularity == "line") {
         }
@@ -517,8 +517,8 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         else if (granularity == "sentence") {
         }
         else if (granularity == "paragraph") {
-            var start = Text_toStartOfParagraph(pos);
-            var end = Text_toEndOfParagraph(pos);
+            var start = Text_toStartOfBoundary(pos,"paragraph");
+            var end = Text_toEndOfBoundary(pos,"paragraph");
             start = start ? start : pos;
             end = end ? end : pos;
             if (isForward(direction)) {
@@ -592,20 +592,20 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         }
         else if (granularity == "paragraph") {
             if (isForward(direction)) {
-                var end = Text_toEndOfParagraph(pos);
+                var end = Text_toEndOfBoundary(pos,"paragraph");
                 if (Position_equal(pos,end)) {
                     end = Position_nextMatch(end,Position_okForMovement);
-                    end = Text_toEndOfParagraph(end);
-                    end = Text_toStartOfParagraph(end);
+                    end = Text_toEndOfBoundary(end,"paragraph");
+                    end = Text_toStartOfBoundary(end,"paragraph");
                 }
                 return addPosition(end ? end : pos);
             }
             else {
-                var start = Text_toStartOfParagraph(pos);
+                var start = Text_toStartOfBoundary(pos,"paragraph");
                 if (Position_equal(pos,start)) {
                     start = Position_prevMatch(start,Position_okForMovement);
-                    start = Text_toStartOfParagraph(start);
-                    start = Text_toEndOfParagraph(start);
+                    start = Text_toStartOfBoundary(start,"paragraph");
+                    start = Text_toEndOfBoundary(start,"paragraph");
                 }
                 return addPosition(start ? start : pos);
             }
@@ -661,17 +661,17 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
             }
         }
         else if (granularity == "paragraph") {
-            var start = Text_toStartOfParagraph(pos);
-            var end = Text_toEndOfParagraph(pos);
+            var start = Text_toStartOfBoundary(pos,"paragraph");
+            var end = Text_toEndOfBoundary(pos,"paragraph");
             start = start ? start : pos;
             end = end ? end : pos;
 
             if (isForward(direction)) {
-                if (Position_equal(pos,Text_toEndOfParagraph(pos)))
+                if (Position_equal(pos,Text_toEndOfBoundary(pos,"paragraph")))
                     return null;
             }
             else {
-                if (Position_equal(pos,Text_toStartOfParagraph(pos)))
+                if (Position_equal(pos,Text_toStartOfBoundary(pos,"paragraph")))
                     return null;
             }
             return { startId: addPosition(start),

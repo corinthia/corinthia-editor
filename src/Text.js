@@ -8,8 +8,6 @@ var Text_posAtStartOfWord;
 var Text_posAtEndOfWord;
 var Text_posAtStartOfLine;
 var Text_posAtEndOfLine;
-var Text_toStartOfParagraph;
-var Text_toEndOfParagraph;
 var Text_posAtStartOfParagraph;
 var Text_posAtEndOfParagraph;
 var Text_closestPosBackwards;
@@ -21,6 +19,9 @@ var Paragraph_runFromNode;
 var Paragraph_positionAtOffset;
 var Paragraph_offsetAtPosition;
 var Paragraph_getRunRects;
+
+var Text_toStartOfBoundary;
+var Text_toEndOfBoundary;
 
 (function() {
 
@@ -359,32 +360,6 @@ var Paragraph_getRunRects;
         }
     });
 
-    Text_toStartOfParagraph = trace(function posAtStartOfParagraph(pos)
-    {
-        pos = Position_closestMatchBackwards(pos,Position_okForMovement);
-        if (pos == null)
-            return null;
-        var paragraph = Text_analyseParagraph(pos.node);
-        if (paragraph == null)
-            return null;
-
-        var newPos = new Position(paragraph.node,DOM_nodeOffset(paragraph.first));
-        return Position_closestMatchForwards(newPos,Position_okForMovement);
-    });
-
-    Text_toEndOfParagraph = trace(function posAtEndOfParagraph(pos)
-    {
-        pos = Position_closestMatchForwards(pos,Position_okForMovement);
-        if (pos == null)
-            return null;
-        var paragraph = Text_analyseParagraph(pos.node);
-        if (paragraph == null)
-            return null;
-
-        var newPos = new Position(paragraph.node,DOM_nodeOffset(paragraph.last)+1);
-        return Position_closestMatchBackwards(newPos,Position_okForMovement);
-    });
-
     Text_posAtStartOfParagraph = trace(function posAtStartOfParagraph(pos)
     {
         pos = Position_closestMatchForwards(pos,Position_okForMovement);
@@ -523,6 +498,48 @@ var Paragraph_getRunRects;
             Array.prototype.push.apply(rects,runRects);
         }
         return rects;
+    });
+
+    var toStartOfParagraph = trace(function posAtStartOfParagraph(pos)
+    {
+        pos = Position_closestMatchBackwards(pos,Position_okForMovement);
+        if (pos == null)
+            return null;
+        var paragraph = Text_analyseParagraph(pos.node);
+        if (paragraph == null)
+            return null;
+
+        var newPos = new Position(paragraph.node,DOM_nodeOffset(paragraph.first));
+        return Position_closestMatchForwards(newPos,Position_okForMovement);
+    });
+
+    var toEndOfParagraph = trace(function posAtEndOfParagraph(pos)
+    {
+        pos = Position_closestMatchForwards(pos,Position_okForMovement);
+        if (pos == null)
+            return null;
+        var paragraph = Text_analyseParagraph(pos.node);
+        if (paragraph == null)
+            return null;
+
+        var newPos = new Position(paragraph.node,DOM_nodeOffset(paragraph.last)+1);
+        return Position_closestMatchBackwards(newPos,Position_okForMovement);
+    });
+
+    Text_toStartOfBoundary = trace(function toStartOfBoundary(pos,boundary)
+    {
+        if (boundary == "paragraph")
+            return toStartOfParagraph(pos);
+        else
+            throw new Error("Unsupported boundary: "+boundary);
+    });
+
+    Text_toEndOfBoundary = trace(function toEndOfBoundary(pos,boundary)
+    {
+        if (boundary == "paragraph")
+            return toEndOfParagraph(pos);
+        else
+            throw new Error("Unsupported boundary: "+boundary);
     });
 
 })();
