@@ -526,10 +526,56 @@ var Text_toEndOfBoundary;
         return Position_closestMatchBackwards(newPos,Position_okForMovement);
     });
 
+    var toStartOfLine = trace(function toStartOfLine(pos)
+    {
+        var posRect = Position_rectAtPos(pos);
+        if (posRect == null) {
+            pos = Text_closestPosBackwards(pos);
+            posRect = Position_rectAtPos(pos);
+            if (posRect == null) {
+                return null;
+            }
+        }
+
+        while (true) {
+            var check = Position_prevMatch(pos,Position_okForMovement);
+            var checkRect = Position_rectAtPos(check); // handles check == null case
+            if (checkRect == null)
+                return pos;
+            if ((checkRect.bottom <= posRect.top) || (checkRect.top >= posRect.bottom))
+                return pos;
+            pos = check;
+        }
+    });
+
+    var toEndOfLine = trace(function toEndOfLine(pos)
+    {
+        var posRect = Position_rectAtPos(pos);
+        if (posRect == null) {
+            pos = Text_closestPosForwards(pos);
+            posRect = Position_rectAtPos(pos);
+            if (posRect == null) {
+                return null;
+            }
+        }
+
+        while (true) {
+            var check = Position_nextMatch(pos,Position_okForMovement);
+            var checkRect = Position_rectAtPos(check); // handles check == null case
+            if (checkRect == null)
+                return pos;
+            if ((checkRect.bottom <= posRect.top) || (checkRect.top >= posRect.bottom))
+                return pos;
+            pos = check;
+        }
+    });
+
     Text_toStartOfBoundary = trace(function toStartOfBoundary(pos,boundary)
     {
         if (boundary == "paragraph")
             return toStartOfParagraph(pos);
+        else if (boundary == "line")
+            return toStartOfLine(pos);
         else
             throw new Error("Unsupported boundary: "+boundary);
     });
@@ -538,6 +584,8 @@ var Text_toEndOfBoundary;
     {
         if (boundary == "paragraph")
             return toEndOfParagraph(pos);
+        else if (boundary == "line")
+            return toEndOfLine(pos);
         else
             throw new Error("Unsupported boundary: "+boundary);
     });

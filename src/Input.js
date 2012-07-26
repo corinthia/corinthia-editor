@@ -473,13 +473,11 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         }
         else if (granularity == "sentence") {
         }
-        else if (granularity == "paragraph") {
+        else if ((granularity == "paragraph") || (granularity == "line")) {
             if (isForward(direction))
-                return Position_equal(pos,Text_toEndOfBoundary(pos,"paragraph"));
+                return Position_equal(pos,Text_toEndOfBoundary(pos,granularity));
             else
-                return Position_equal(pos,Text_toStartOfBoundary(pos,"paragraph"));
-        }
-        else if (granularity == "line") {
+                return Position_equal(pos,Text_toStartOfBoundary(pos,granularity));
         }
         else if (granularity == "document") {
         }
@@ -516,9 +514,9 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         }
         else if (granularity == "sentence") {
         }
-        else if (granularity == "paragraph") {
-            var start = Text_toStartOfBoundary(pos,"paragraph");
-            var end = Text_toEndOfBoundary(pos,"paragraph");
+        else if ((granularity == "paragraph") || (granularity == "line")) {
+            var start = Text_toStartOfBoundary(pos,granularity);
+            var end = Text_toEndOfBoundary(pos,granularity);
             start = start ? start : pos;
             end = end ? end : pos;
             if (isForward(direction)) {
@@ -530,8 +528,8 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
                         (Position_compare(pos,end) <= 0));
             }
         }
-        else if (granularity == "line") {
-        }
+//        else if (granularity == "line") {
+//        }
         else if (granularity == "document") {
         }
         throw new Error("isPositionWithinTextUnitInDirection: not implemented");
@@ -592,21 +590,31 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         }
         else if (granularity == "paragraph") {
             if (isForward(direction)) {
-                var end = Text_toEndOfBoundary(pos,"paragraph");
+                var end = Text_toEndOfBoundary(pos,granularity);
                 if (Position_equal(pos,end)) {
                     end = Position_nextMatch(end,Position_okForMovement);
-                    end = Text_toEndOfBoundary(end,"paragraph");
-                    end = Text_toStartOfBoundary(end,"paragraph");
+                    end = Text_toEndOfBoundary(end,granularity);
+                    end = Text_toStartOfBoundary(end,granularity);
                 }
                 return addPosition(end ? end : pos);
             }
             else {
-                var start = Text_toStartOfBoundary(pos,"paragraph");
+                var start = Text_toStartOfBoundary(pos,granularity);
                 if (Position_equal(pos,start)) {
                     start = Position_prevMatch(start,Position_okForMovement);
-                    start = Text_toStartOfBoundary(start,"paragraph");
-                    start = Text_toEndOfBoundary(start,"paragraph");
+                    start = Text_toStartOfBoundary(start,granularity);
+                    start = Text_toEndOfBoundary(start,granularity);
                 }
+                return addPosition(start ? start : pos);
+            }
+        }
+        else if (granularity == "line") {
+            if (isForward(direction)) {
+                var end = Text_toEndOfBoundary(pos,granularity);
+                return addPosition(end ? end : pos);
+            }
+            else {
+                var start = Text_toStartOfBoundary(pos,granularity);
                 return addPosition(start ? start : pos);
             }
         }
@@ -660,19 +668,21 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
                 return null;
             }
         }
-        else if (granularity == "paragraph") {
-            var start = Text_toStartOfBoundary(pos,"paragraph");
-            var end = Text_toEndOfBoundary(pos,"paragraph");
+        else if ((granularity == "paragraph") || (granularity == "line")) {
+            var start = Text_toStartOfBoundary(pos,granularity);
+            var end = Text_toEndOfBoundary(pos,granularity);
             start = start ? start : pos;
             end = end ? end : pos;
 
-            if (isForward(direction)) {
-                if (Position_equal(pos,Text_toEndOfBoundary(pos,"paragraph")))
-                    return null;
-            }
-            else {
-                if (Position_equal(pos,Text_toStartOfBoundary(pos,"paragraph")))
-                    return null;
+            if ((granularity == "paragraph") || !isForward(direction)) {
+                if (isForward(direction)) {
+                    if (Position_equal(pos,Text_toEndOfBoundary(pos,granularity)))
+                        return null;
+                }
+                else {
+                    if (Position_equal(pos,Text_toStartOfBoundary(pos,granularity)))
+                        return null;
+                }
             }
             return { startId: addPosition(start),
                      endId: addPosition(end) };
