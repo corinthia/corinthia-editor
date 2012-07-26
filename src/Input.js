@@ -154,13 +154,13 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     {
         var range = Selection_get();
         if (range == null) {
-            idebug("selectedTextRange: null");
+//            idebug("selectedTextRange: null");
             return null;
         }
         else {
             var startId = addPosition(range.start);
             var endId = addPosition(range.end);
-            idebug("selectedTextRange: "+startId+", "+endId);
+//            idebug("selectedTextRange: "+startId+", "+endId);
             return { startId: startId,
                      endId: endId };
         }
@@ -629,6 +629,8 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
 
         if (granularity == "word") {
             pos = Text_closestPosInDirection(pos,direction);
+            if (pos == null)
+                return null;
             var paragraph = Text_analyseParagraph(pos.node);
             if (pos == null)
                 return addPosition(null);
