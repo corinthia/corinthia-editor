@@ -67,8 +67,9 @@ var Text_toEndOfBoundary;
         }
     });
 
-    Text_analyseParagraph = trace(function analyseParagraph(initial)
+    Text_analyseParagraph = trace(function analyseParagraph(pos)
     {
+        var initial = pos.node;
         var strings = new Array();
         var runs = new Array();
         var offset = 0;
@@ -104,7 +105,7 @@ var Text_toEndOfBoundary;
             if (pos == null)
                 return null;
 
-            var paragraph = Text_analyseParagraph(pos.node);
+            var paragraph = Text_analyseParagraph(pos);
             if (paragraph == null)
                 return null;
 
@@ -199,7 +200,7 @@ var Text_toEndOfBoundary;
             if (pos == null)
                 return;
 
-            var paragraph = Text_analyseParagraph(pos.node);
+            var paragraph = Text_analyseParagraph(pos);
             if (paragraph == null)
                 return;
 
@@ -351,7 +352,7 @@ var Text_toEndOfBoundary;
         pos = Position_closestMatchBackwards(pos,Position_okForMovement);
         if (pos == null)
             return null;
-        var paragraph = Text_analyseParagraph(pos.node);
+        var paragraph = Text_analyseParagraph(pos);
         if (paragraph == null)
             return null;
 
@@ -364,7 +365,7 @@ var Text_toEndOfBoundary;
         pos = Position_closestMatchForwards(pos,Position_okForMovement);
         if (pos == null)
             return null;
-        var paragraph = Text_analyseParagraph(pos.node);
+        var paragraph = Text_analyseParagraph(pos);
         if (paragraph == null)
             return null;
 

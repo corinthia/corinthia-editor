@@ -439,7 +439,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         if (pos == null)
             return false;
 
-        var paragraph = Text_analyseParagraph(pos.node);
+        var paragraph = Text_analyseParagraph(pos);
         if (paragraph == null)
             return false;
 
@@ -489,7 +489,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         if (pos == null)
             return false;
 
-        var paragraph = Text_analyseParagraph(pos.node);
+        var paragraph = Text_analyseParagraph(pos);
         if (paragraph == null)
             return false;
 
@@ -543,7 +543,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
             pos = Text_closestPosInDirection(pos,direction);
             if (pos == null)
                 return addPosition(null);
-            var paragraph = Text_analyseParagraph(pos.node);
+            var paragraph = Text_analyseParagraph(pos);
             if (paragraph == null)
                 return addPosition(null);
             var run = Paragraph_runFromNode(paragraph,pos.node);
@@ -631,7 +631,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
             pos = Text_closestPosInDirection(pos,direction);
             if (pos == null)
                 return null;
-            var paragraph = Text_analyseParagraph(pos.node);
+            var paragraph = Text_analyseParagraph(pos);
             if (pos == null)
                 return addPosition(null);
             if (paragraph == null)
