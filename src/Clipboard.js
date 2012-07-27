@@ -174,7 +174,7 @@ var Clipboard_pasteNodes;
             processChildren();
             md.buildParagraph.push("**");
         }
-        else if (DOM_upperName(node) == "A") {
+        else if ((DOM_upperName(node) == "A") && node.hasAttribute("href")) {
             md.buildParagraph.push("[");
             processChildren();
             md.buildParagraph.push("]("+node.getAttribute("href")+")");

@@ -73,7 +73,9 @@ var Cursor_set;
 
         var node = position.closestActualNode();
         for (; node != null; node = node.parentNode) {
-            if ((DOM_upperName(node) == "A") && (result == null)) {
+            if ((DOM_upperName(node) == "A") &&
+                (node.hasAttribute("href")) &&
+                (result == null)) {
                 var href = node.getAttribute("href");
                 if ((href != null) && (href.charAt(0) == "#")) {
                     if (isInTOC(node))

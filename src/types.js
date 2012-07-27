@@ -200,7 +200,7 @@ function isOpaqueNode(node)
         if (node.hasAttribute("class") && OPAQUE_NODE_CLASSES[node.getAttribute("class")]) {
             return true;
         }
-        else if (DOM_upperName(node) == "A") {
+        else if ((DOM_upperName(node) == "A") && node.hasAttribute("href")) {
             return true;
         }
         else if (isImageNode(node)) {
