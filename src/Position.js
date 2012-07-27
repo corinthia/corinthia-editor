@@ -619,10 +619,20 @@ var Position_rectAtPos;
         if (pos == null)
             return null;
         var range = new Range(pos.node,pos.offset,pos.node,pos.offset);
-        var rect = range.getClientRects()[0];
-        if (rectIsEmpty(rect) && isBlockNode(pos.node))
-            rect = pos.node.getBoundingClientRect();
-        return rect;
+        var rects = range.getClientRects();
+        if (rects.length > 0) {
+//            debug("rectAtPos "+pos+": "+rectString(rects[0]));
+            return rects[0];
+        }
+/*
+        if ((pos.node == Node.TEXT_NODE) && (pos.offset > 0)) {
+            range = new Range(pos.node,pos.offset-1,pos.node,pos.offset-1);
+            rects = range.getClientRects();
+            if (rects.length > 0)
+                return rects[0];
+        }
+*/
+        return null;
     });
 
     Position_equal = trace(function equal(a,b)
