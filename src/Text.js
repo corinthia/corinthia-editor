@@ -19,13 +19,22 @@ var Text_toEndOfBoundary;
 
 (function() {
 
-    function Paragraph(node,first,last,runs,text)
+    function Paragraph(node,startOffset,endOffset,runs,text)
     {
         this.node = node;
-        this.first = first;
-        this.last = last;
+        this.startOffset = startOffset;
+        this.endOffset = endOffset;
         this.runs = runs;
         this.text = text;
+
+        Object.defineProperty(this,"first",{
+            get: function() { throw new Error("Attempt to access first property of Position") },
+            set: function() {},
+            enumerable: true });
+        Object.defineProperty(this,"last",{
+            get: function() { throw new Error("Attempt to access last property of Position") },
+            set: function() {},
+            enumerable: true });
     }
 
     function Run(node,start,end)
@@ -80,11 +89,7 @@ var Text_toEndOfBoundary;
 
         var text = strings.join("");
 
-        // FIXME
-        var first = boundaries.node.childNodes[boundaries.startOffset];
-        var last = boundaries.node.childNodes[boundaries.endOffset-1];
-
-        return new Paragraph(boundaries.node,first,last,runs,text);
+        return new Paragraph(boundaries.node,boundaries.startOffset,boundaries.endOffset,runs,text);
 
         function recurse(node)
         {
@@ -358,7 +363,7 @@ var Text_toEndOfBoundary;
         if (paragraph == null)
             return null;
 
-        var newPos = new Position(paragraph.node,DOM_nodeOffset(paragraph.first));
+        var newPos = new Position(paragraph.node,paragraph.startOffset);
         return Position_closestMatchForwards(newPos,Position_okForMovement);
     });
 
@@ -371,7 +376,7 @@ var Text_toEndOfBoundary;
         if (paragraph == null)
             return null;
 
-        var newPos = new Position(paragraph.node,DOM_nodeOffset(paragraph.last)+1);
+        var newPos = new Position(paragraph.node,paragraph.endOffset);
         return Position_closestMatchBackwards(newPos,Position_okForMovement);
     });
 
