@@ -100,7 +100,7 @@ var Text_toEndOfBoundary;
     Text_posAbove = trace(function posAbove(pos,cursorRect,cursorX)
     {
         while (true) {
-            pos = Text_closestPosBackwards(pos);
+            pos = Position_closestMatchBackwards(pos,Position_okForMovement);
             if (pos == null)
                 return null;
 
@@ -108,7 +108,11 @@ var Text_toEndOfBoundary;
             if (paragraph == null)
                 return null;
 
-            var rects = Paragraph_getRunRects(paragraph);
+            var rects;
+            if (paragraph.runs.length == 0) // Empty paragraph
+                rects = [paragraph.node.getBoundingClientRect()];
+            else
+                rects = Paragraph_getRunRects(paragraph);
 
             rects = rects.filter(function (rect) {
                 return (rect.bottom <= cursorRect.top);
@@ -195,7 +199,7 @@ var Text_toEndOfBoundary;
     Text_posBelow = trace(function posBelow(pos,cursorRect,cursorX)
     {
         while (true) {
-            pos = Text_closestPosForwards(pos);
+            pos = Position_closestMatchForwards(pos,Position_okForMovement);
             if (pos == null)
                 return;
 
@@ -203,7 +207,11 @@ var Text_toEndOfBoundary;
             if (paragraph == null)
                 return;
 
-            var rects = Paragraph_getRunRects(paragraph);
+            var rects;
+            if (paragraph.runs.length == 0) // Empty paragraph
+                rects = [paragraph.node.getBoundingClientRect()];
+            else
+                rects = Paragraph_getRunRects(paragraph);
 
             rects = rects.filter(function (rect) {
                 return (rect.top >= cursorRect.bottom);

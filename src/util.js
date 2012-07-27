@@ -65,6 +65,11 @@ function rectString(rect)
         return "("+rect.left+","+rect.top+") - ("+rect.right+","+rect.bottom+")";
 }
 
+function rectIsEmpty(rect)
+{
+    return (rect == null) || (rect.width == 0) || (rect.height == 0);
+}
+
 function clone(object)
 {
     var result = new Object();
