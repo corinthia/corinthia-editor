@@ -41,30 +41,27 @@ var Text_toEndOfBoundary;
     //
     // <p>...</p> Some <i>inline</i> nodes <p>...</p>
 
-    Text_findParagraphBoundaries = trace(function findParagraphBoundaries(initial)
+    Text_findParagraphBoundaries = trace(function findParagraphBoundaries(pos)
     {
-        if (isInlineNode(initial)) {
-            var topInline = initial;
-            while ((topInline.parentNode != null) && isInlineNode(topInline.parentNode))
-                topInline = topInline.parentNode;
+        var startOffset = pos.offset;
+        var endOffset = pos.offset;
+        var node = pos.node;
 
-            var first = topInline;
-            var last = topInline;
-
-            while ((first.previousSibling != null) && isInlineNode(first.previousSibling))
-                first = first.previousSibling;
-
-            while ((last.nextSibling != null) && isInlineNode(last.nextSibling))
-                last = last.nextSibling;
-
-            return { first: first, last: last };
+        while (isInlineNode(node)) {
+            startOffset = DOM_nodeOffset(node);
+            endOffset = DOM_nodeOffset(node)+1;
+            node = node.parentNode;
         }
-        else if (initial.firstChild == null) {
-            return null;
-        }
-        else {
-            return { first: initial.firstChild, last: initial.lastChild };
-        }
+
+        if (node.nodeType != Node.ELEMENT_NODE)
+            throw new Error("Not an element node: "+nodeString(node));
+
+        while ((startOffset > 0) && isInlineNode(node.childNodes[startOffset-1]))
+            startOffset--;
+        while ((endOffset < node.childNodes.length) && isInlineNode(node.childNodes[endOffset]))
+            endOffset++;
+
+        return { node: node, startOffset: startOffset, endOffset: endOffset };
     });
 
     Text_analyseParagraph = trace(function analyseParagraph(pos)
@@ -74,15 +71,20 @@ var Text_toEndOfBoundary;
         var runs = new Array();
         var offset = 0;
 
-        var pair = Text_findParagraphBoundaries(initial);
-        if (pair == null)
+        var boundaries = Text_findParagraphBoundaries(pos);
+        if (boundaries == null)
             return null;
 
-        for (var cur = pair.first; cur != pair.last.nextSibling; cur = cur.nextSibling)
-            recurse(cur);
+        for (var off = boundaries.startOffset; off < boundaries.endOffset; off++)
+            recurse(boundaries.node.childNodes[off]);
 
         var text = strings.join("");
-        return new Paragraph(pair.first.parentNode,pair.first,pair.last,runs,text);
+
+        // FIXME
+        var first = boundaries.node.childNodes[boundaries.startOffset];
+        var last = boundaries.node.childNodes[boundaries.endOffset-1];
+
+        return new Paragraph(boundaries.node,first,last,runs,text);
 
         function recurse(node)
         {
@@ -198,11 +200,11 @@ var Text_toEndOfBoundary;
         while (true) {
             pos = Text_closestPosForwards(pos);
             if (pos == null)
-                return;
+                return null;
 
             var paragraph = Text_analyseParagraph(pos);
             if (paragraph == null)
-                return;
+                return null;
 
             var rects = Paragraph_getRunRects(paragraph);
 
