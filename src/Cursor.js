@@ -170,36 +170,6 @@ var Cursor_set;
         Cursor_ensureCursorVisible();
     });
 
-/*
-  // FIXME: temp - only here for debugging purposes
-
-    function addDiv(x,y,width,height,color)
-    {
-        var div = DOM_createElement(document,"DIV");
-        div.style.position = "absolute";
-        div.style.border = "1px solid "+color;
-        div.style.left = x+"px";
-        div.style.width = width+"px";
-        div.style.top = y+"px";
-        div.style.height = height+"px";
-        DOM_appendChild(document.body,div);
-    }
-
-    function showRects(rects,color)
-    {
-        for (var i = 0; i < rects.length; i++) {
-            debug("rect ("+rects[i].left+","+rects[i].top+") - ("+
-                  rects[i].right+","+rects[i].bottom+")");
-
-            addDiv(rects[i].left,
-                   rects[i].top,
-                   rects[i].width,
-                   rects[i].height,
-                   color);
-        }
-    }
-*/
-
     Cursor_moveUp = trace(function moveUp()
     {
         // FIXME: call updateFormatting()?
