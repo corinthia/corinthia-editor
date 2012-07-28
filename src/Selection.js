@@ -119,7 +119,7 @@ var Selection_posAtEndOfWord;
                 throw new Error("Invalid offset: "+offset+" of "+node.childNodes.length);
 
             // Cursor is immediately before table -> return table rect
-            if ((offset > 0) && (DOM_upperName(node.childNodes[offset-1]) == "TABLE")) {
+            if ((offset > 0) && isSpecialBlockNode(node.childNodes[offset-1])) {
                 var rect = node.childNodes[offset-1].getBoundingClientRect();
                 return { left: rect.left + rect.width,
                          top: rect.top,
@@ -128,7 +128,7 @@ var Selection_posAtEndOfWord;
             }
             // Cursor is immediately after table -> return table rect
             else if ((offset < node.childNodes.length) &&
-                     (DOM_upperName(node.childNodes[offset]) == "TABLE")) {
+                     isSpecialBlockNode(node.childNodes[offset])) {
                 var rect = node.childNodes[offset].getBoundingClientRect();
                 return { left: rect.left,
                          top: rect.top,

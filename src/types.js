@@ -235,3 +235,10 @@ function isInTOC(node)
         return isInTOC(node.parentNode);
     return false;
 }
+
+function isSpecialBlockNode(node)
+{
+    return ((DOM_upperName(node) == "TABLE") ||
+            (DOM_upperName(node) == "FIGURE") ||
+            ((DOM_upperName(node) == "NAV") && isInTOC(node)));
+}
