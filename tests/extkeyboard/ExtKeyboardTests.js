@@ -43,3 +43,14 @@ function testCursorMovement(movementFun)
 
     return lines.join("\n");
 }
+
+function testMovement(direction,count)
+{
+    Outline_init();
+    PostponedActions_perform();
+    var posId = Input_addPosition(Selection_get().start);
+    for (var i = 0; i < count; i++)
+        posId = Input_positionFromPositionInDirectionOffset(posId,direction,1);
+    Input_setSelectedTextRange(posId,posId);
+    showSelection();
+}

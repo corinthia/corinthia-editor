@@ -1,4 +1,5 @@
 var Input_removePosition;
+var Input_addPosition;
 var Input_getPosition;
 var Input_textInRange;
 var Input_replaceRange;
@@ -57,12 +58,16 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         if (pos == null)
             return 0;
 //        itrace("addPosition",pos);
-        pos = new Position(pos.node,pos.offset);
+        var copy = new Position(pos.node,pos.offset);
+        copy.targetX = pos.targetX;
+        pos = copy;
         pos.posId = nextPosId++;
         positions[pos.posId] = pos;
         Position_track(pos);
         return pos.posId;
     });
+
+    Input_addPosition = addPosition;
 
     var getPosition = trace(function getPosition(posId)
     {
