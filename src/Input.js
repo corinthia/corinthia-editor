@@ -32,7 +32,6 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
 
 // FIXME: ensure updateFormatting() is called after any cursor/selection changes
 // FIXME: test capitalisation of on-screen keyboard at start of sentence
-// FIXME: jsNotInitialised bug when deleting Objective C Position objects after document close
 
 (function() {
 
