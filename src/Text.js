@@ -108,6 +108,8 @@ var Text_toEndOfBoundary;
 
     Text_posAbove = trace(function posAbove(pos,cursorRect,cursorX)
     {
+        if (cursorX == null)
+            cursorX = pos.targetX;
         pos = Position_closestMatchBackwards(pos,Position_okForMovement);
         if (cursorRect == null) {
             cursorRect = Position_rectAtPos(pos);
@@ -151,16 +153,22 @@ var Text_toEndOfBoundary;
             for (var i = 0; i < rects.length; i++) {
                 if ((cursorX >= rects[i].left) && (cursorX <= rects[i].right)) {
                     var newPos = positionAtPoint(cursorX,rects[i].top + rects[i].height/2);
-                    if (newPos != null)
-                        return Position_closestMatchBackwards(newPos,Position_okForInsertion);
+                    if (newPos != null) {
+                        newPos = Position_closestMatchBackwards(newPos,Position_okForInsertion);
+                        newPos.targetX = cursorX;
+                        return newPos;
+                    }
                 }
             }
 
             var rightMost = findRightMostRect(rects);
             if (rightMost != null) {
                 var newPos = positionAtPoint(rightMost.right,rightMost.top + rightMost.height/2);
-                if (newPos != null)
-                    return Position_closestMatchBackwards(newPos,Position_okForInsertion);
+                if (newPos != null) {
+                    newPos = Position_closestMatchBackwards(newPos,Position_okForInsertion);
+                    newPos.targetX = cursorX;
+                    return newPos;
+                }
             }
 
 
@@ -254,6 +262,8 @@ var Text_toEndOfBoundary;
 
     Text_posBelow = trace(function posBelow(pos,cursorRect,cursorX)
     {
+        if (cursorX == null)
+            cursorX = pos.targetX;
         pos = Position_closestMatchForwards(pos,Position_okForMovement);
         if (cursorRect == null) {
             cursorRect = Position_rectAtPos(pos);
@@ -296,16 +306,22 @@ var Text_toEndOfBoundary;
             for (var i = 0; i < rects.length; i++) {
                 if ((cursorX >= rects[i].left) && (cursorX <= rects[i].right)) {
                     var newPos = positionAtPoint(cursorX,rects[i].top + rects[i].height/2);
-                    if (newPos != null)
-                        return Position_closestMatchForwards(newPos,Position_okForInsertion);
+                    if (newPos != null) {
+                        newPos = Position_closestMatchForwards(newPos,Position_okForInsertion);
+                        newPos.targetX = cursorX;
+                        return newPos;
+                    }
                 }
             }
 
             var rightMost = findRightMostRect(rects);
             if (rightMost != null) {
                 var newPos = positionAtPoint(rightMost.right,rightMost.top + rightMost.height/2);
-                if (newPos != null)
-                    return Position_closestMatchForwards(newPos,Position_okForInsertion);
+                if (newPos != null) {
+                    newPos = Position_closestMatchForwards(newPos,Position_okForInsertion);
+                    newPos.targetX = cursorX;
+                    return newPos;
+                }
             }
 
             pos = new Position(paragraph.node,paragraph.endOffset);

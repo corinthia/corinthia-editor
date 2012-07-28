@@ -38,6 +38,7 @@ var Position_rectAtPos;
         self.origOffset = offset;
         self.tracking = 0;
         this.posId = null;
+        this.targetX = null;
 
         Object.defineProperty(this,"node",{
             get: function() { return this.self.node },
