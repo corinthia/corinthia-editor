@@ -172,22 +172,16 @@ var Cursor_set;
 
     Cursor_moveUp = trace(function moveUp()
     {
-        // FIXME: call updateFormatting()?
         var range = Selection_get();
         if (range == null)
             return;
 
         var pos = range.start;
+
+        pos = Position_closestMatchBackwards(pos,Position_okForMovement);
         var cursorRect = Position_rectAtPos(pos);
-
-        if (cursorRect == null) {
-            pos = Text_closestPosBackwards(pos);
-            cursorRect = Position_rectAtPos(pos);
-        }
-
         if (cursorRect == null)
             return;
-
         if (cursorX == null)
             cursorX = cursorRect.left;
 
@@ -203,23 +197,11 @@ var Cursor_set;
             return;
 
         var pos = range.end;
+
+        pos = Position_closestMatchForwards(pos,Position_okForMovement);
         var cursorRect = Position_rectAtPos(pos);
-
-        if (cursorRect == null) {
-            var element = pos.closestActualNode(true);
-            if (element.nodeType == Node.ELEMENT_NODE) {
-                cursorRect = element.getBoundingClientRect();
-            }
-        }
-
-        if (cursorRect == null) {
-            pos = Text_closestPosForwards(pos);
-            cursorRect = Position_rectAtPos(pos);
-        }
-
         if (cursorRect == null)
             return;
-
         if (cursorX == null)
             cursorX = cursorRect.left;
 

@@ -157,7 +157,7 @@ var Range;
 
     function singleNode()
     {
-        return this.start.closestActualNode();
+        return this.start.closestActualNode(true);
     }
 
     function ensureRangeInlineNodesInParagraph()

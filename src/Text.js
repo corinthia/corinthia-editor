@@ -13,6 +13,7 @@ var Paragraph_runFromNode;
 var Paragraph_positionAtOffset;
 var Paragraph_offsetAtPosition;
 var Paragraph_getRunRects;
+var Paragraph_getRunOrFallbackRects;
 
 var Text_toStartOfBoundary;
 var Text_toEndOfBoundary;
@@ -107,8 +108,19 @@ var Text_toEndOfBoundary;
 
     Text_posAbove = trace(function posAbove(pos,cursorRect,cursorX)
     {
+        pos = Position_closestMatchBackwards(pos,Position_okForMovement);
+        if (cursorRect == null) {
+            cursorRect = Position_rectAtPos(pos);
+            if (cursorRect == null)
+                return null;
+        }
+
+        if (cursorX == null) {
+            cursorX = cursorRect.left;
+        }
+
         while (true) {
-            pos = Text_closestPosBackwards(pos);
+            pos = Position_closestMatchBackwards(pos,Position_okForMovement);
             if (pos == null)
                 return null;
 
@@ -116,7 +128,7 @@ var Text_toEndOfBoundary;
             if (paragraph == null)
                 return null;
 
-            var rects = Paragraph_getRunRects(paragraph);
+            var rects = Paragraph_getRunOrFallbackRects(paragraph,pos);
 
             rects = rects.filter(function (rect) {
                 return (rect.bottom <= cursorRect.top);
@@ -152,7 +164,8 @@ var Text_toEndOfBoundary;
             }
 
 
-            pos = new Position(pos.node.parentNode,DOM_nodeOffset(pos.node));
+            pos = new Position(paragraph.node,paragraph.startOffset);
+            pos = Position_prevMatch(pos,Position_okForMovement);
         }
     });
 
@@ -200,10 +213,61 @@ var Text_toEndOfBoundary;
         return result;
     });
 
+    // FIXME: temp: for debugging purposes
+/*
+    var addRect = trace(function addRect(rect,color)
+    {
+        if (color == null)
+            color = "blue";
+        var div = DOM_createElement(document,"DIV");
+        div.style.position = "absolute";
+        div.style.left = rect.left+"px";
+        div.style.top = rect.top+"px";
+        if (rect.width != null)
+            div.style.width = rect.width+"px";
+        if (rect.height != null)
+            div.style.height = rect.height+"px";
+        div.style.borderWidth = 2;
+        div.style.borderColor = color;
+        div.style.borderStyle = "solid";
+        DOM_appendChild(document.body,div);
+        return div;
+    });
+
+    var addRectWithAnnotation = trace(function addRectWithAnnotation(rect,annotation,color)
+    {
+        addRect(rect,color);
+        var annotationRect = {
+            left: rect.right + 10,
+            top: rect.top,
+            width: 50,
+        };
+        var annotationDiv = addRect(annotationRect,"black");
+        var textNode = DOM_createTextNode(document,annotation);
+        annotationDiv.style.fontFamily = "sans-serif";
+        annotationDiv.style.fontSize = "8pt";
+        annotationDiv.style.fontWeight = "bold";
+        annotationDiv.style.backgroundColor = "#f0f0f0";
+        DOM_appendChild(annotationDiv,textNode);
+    });
+*/
+
     Text_posBelow = trace(function posBelow(pos,cursorRect,cursorX)
     {
+        pos = Position_closestMatchForwards(pos,Position_okForMovement);
+        if (cursorRect == null) {
+            cursorRect = Position_rectAtPos(pos);
+            if (cursorRect == null)
+                return null;
+        }
+
+        if (cursorX == null) {
+            cursorX = cursorRect.left;
+        }
+
+
         while (true) {
-            pos = Text_closestPosForwards(pos);
+            pos = Position_closestMatchForwards(pos,Position_okForMovement);
             if (pos == null)
                 return null;
 
@@ -211,7 +275,7 @@ var Text_toEndOfBoundary;
             if (paragraph == null)
                 return null;
 
-            var rects = Paragraph_getRunRects(paragraph);
+            var rects = Paragraph_getRunOrFallbackRects(paragraph,pos);
 
             rects = rects.filter(function (rect) {
                 return (rect.top >= cursorRect.bottom);
@@ -244,7 +308,8 @@ var Text_toEndOfBoundary;
                     return Position_closestMatchForwards(newPos,Position_okForInsertion);
             }
 
-            pos = new Position(pos.node.parentNode,DOM_nodeOffset(pos.node)+1);
+            pos = new Position(paragraph.node,paragraph.endOffset);
+            pos = Position_nextMatch(pos,Position_okForMovement);
         }
     });
 
@@ -350,6 +415,29 @@ var Text_toEndOfBoundary;
             var runRange = new Range(run.node,0,run.node,run.node.nodeValue.length);
             var runRects = runRange.getClientRects();
             Array.prototype.push.apply(rects,runRects);
+        }
+        return rects;
+    });
+
+    Paragraph_getRunOrFallbackRects = trace(function getRunOrFallbackRects(paragraph,pos)
+    {
+        var rects = Paragraph_getRunRects(paragraph);
+        if ((rects.length == 0) && (paragraph.node.nodeType == Node.ELEMENT_NODE)) {
+            if (isBlockNode(paragraph.node) &&
+                (paragraph.startOffset == 0) &&
+                (paragraph.endOffset == paragraph.node.childNodes.length)) {
+                rects = [paragraph.node.getBoundingClientRect()];
+            }
+            else {
+                var beforeNode = paragraph.node.childNodes[paragraph.startOffset-1];
+                var afterNode = paragraph.node.childNodes[paragraph.endOffset];
+                if ((afterNode != null) && isBlockNode(afterNode)) {
+                    rects = [afterNode.getBoundingClientRect()];
+                }
+                else if ((beforeNode != null) && isBlockNode(beforeNode)) {
+                    rects = [beforeNode.getBoundingClientRect()];
+                }
+            }
         }
         return rects;
     });

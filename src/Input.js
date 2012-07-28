@@ -30,6 +30,10 @@ var Input_isPositionWithinTextUnitInDirection;
 var Input_positionFromPositionToBoundaryInDirection;
 var Input_rangeEnclosingPositionWithGranularityInDirection;
 
+// FIXME: ensure updateFormatting() is called after any cursor/selection changes
+// FIXME: test capitalisation of on-screen keyboard at start of sentence
+// FIXME: jsNotInitialised bug when deleting Objective C Position objects after document close
+
 (function() {
 
     function itrace(name)
@@ -221,60 +225,15 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         return pos;
     });
 
-    var positionUpSingle = trace(function positionUpSingle(pos)
-    {
-        var cursorRect = Position_rectAtPos(pos);
-
-        if (cursorRect == null) {
-            pos = Text_closestPosBackwards(pos);
-            cursorRect = Position_rectAtPos(pos);
-        }
-
-        if (cursorRect == null)
-            return;
-
-//        if (cursorX == null)
-//            cursorX = cursorRect.left;
-        var cursorX = cursorRect.left;
-
-        return Text_posAbove(pos,cursorRect,cursorX);
-    });
-
-    var positionDownSingle = trace(function positionDownSingle(pos)
-    {
-        var cursorRect = Position_rectAtPos(pos);
-
-        if (cursorRect == null) {
-            var element = pos.closestActualNode(true);
-            if (element.nodeType == Node.ELEMENT_NODE) {
-                cursorRect = element.getBoundingClientRect();
-            }
-        }
-
-        if (cursorRect == null) {
-            pos = Text_closestPosForwards(pos);
-            cursorRect = Position_rectAtPos(pos);
-        }
-
-        if (cursorRect == null)
-            return;
-
-//        if (cursorX == null)
-//            cursorX = cursorRect.left;
-        var cursorX = cursorRect.left;
-
-        return Text_posBelow(pos,cursorRect,cursorX);
-    });
-
     var positionDown = trace(function positionDown(pos,offset)
     {
         if (offset > 0) {
             for (; (offset > 0) && (pos != null); offset--)
-                pos = positionDownSingle(pos);
+                pos = Text_posBelow(pos);
         }
         else {
             for (; (offset < 0) && (pos != null); offset++)
-                pos = positionUpSingle(pos);
+                pos = Text_posAbove(pos);
         }
         return pos;
     });
