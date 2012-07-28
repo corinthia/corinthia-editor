@@ -181,6 +181,9 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         var end = getPosition(endId);
         itrace("setSelectedTextRange",start,end);
         Selection_set(start.node,start.offset,end.node,end.offset);
+
+        if (Position_equal(start,end))
+            Cursor_ensureCursorVisible();
     });
 
     // { startId, endId }
