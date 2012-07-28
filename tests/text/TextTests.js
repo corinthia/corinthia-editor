@@ -1,7 +1,7 @@
 function showRuns()
 {
     var range = Selection_get();
-    var paragraph = Text_analyseParagraph(range.start.closestActualNode());
+    var paragraph = Text_analyseParagraph(range.start);
     var runs = paragraph.runs;
     var lines = new Array();
     for (var i = 0; i < runs.length; i++) {
