@@ -5,8 +5,6 @@ var Cursor_positionCursor;
 var Cursor_getCursorPosition;
 var Cursor_moveLeft;
 var Cursor_moveRight;
-var Cursor_moveUp;
-var Cursor_moveDown;
 var Cursor_moveToStartOfDocument;
 var Cursor_moveToEndOfDocument;
 var Cursor_updateBRAtEndOfParagraph;
@@ -168,46 +166,6 @@ var Cursor_set;
         if (pos != null)
             Cursor_set(pos.node,pos.offset);
         Cursor_ensureCursorVisible();
-    });
-
-    Cursor_moveUp = trace(function moveUp()
-    {
-        var range = Selection_get();
-        if (range == null)
-            return;
-
-        var pos = range.start;
-
-        pos = Position_closestMatchBackwards(pos,Position_okForMovement);
-        var cursorRect = Position_rectAtPos(pos);
-        if (cursorRect == null)
-            return;
-        if (cursorX == null)
-            cursorX = cursorRect.left;
-
-        var newPos = Text_posAbove(pos,cursorRect,cursorX);
-        if (newPos != null)
-            Cursor_set(newPos.node,newPos.offset,true);
-    });
-
-    Cursor_moveDown = trace(function moveDown()
-    {
-        var range = Selection_get();
-        if (range == null)
-            return;
-
-        var pos = range.end;
-
-        pos = Position_closestMatchForwards(pos,Position_okForMovement);
-        var cursorRect = Position_rectAtPos(pos);
-        if (cursorRect == null)
-            return;
-        if (cursorX == null)
-            cursorX = cursorRect.left;
-
-        var newPos = Text_posBelow(pos,cursorRect,cursorX);
-        if (newPos != null)
-            Cursor_set(newPos.node,newPos.offset,true);
     });
 
     // public

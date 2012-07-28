@@ -1,3 +1,29 @@
+function getNodeArrayText(nodes)
+{
+    var strings = new Array();
+    for (var i = 0; i < nodes.length; i++)
+        strings.push(getNodeText(nodes[i]));
+    return strings.join("");
+}
+
+function textBetweenPositions(from,to)
+{
+    var range = new Range(from.node,from.offset,to.node,to.offset);
+    var contents = range.cloneContents();
+    return getNodeArrayText(contents);
+}
+
+function testMovement(direction,count)
+{
+    Outline_init();
+    PostponedActions_perform();
+    var posId = Input_addPosition(Selection_get().start);
+    for (var i = 0; i < count; i++)
+        posId = Input_positionFromPositionInDirectionOffset(posId,direction,1);
+    Input_setSelectedTextRange(posId,posId);
+    showSelection();
+}
+
 function testPositionFun(fun,granularity,direction)
 {
     var lines = new Array();
