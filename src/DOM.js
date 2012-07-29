@@ -20,6 +20,7 @@ var DOM_removeAttribute;
 var DOM_removeAttributeNS;
 var DOM_setStyleProperties;
 var DOM_insertCharacters;
+var DOM_moveCharacters;
 var DOM_deleteCharacters;
 var DOM_setNodeValue;
 
@@ -130,6 +131,7 @@ var DOM_Listener;
       * setStyleProperties(element,properties)
       * insertCharacters(textNode,offset,characters)
       * deleteCharacters(textNode,startOffset,endOffset)
+      * moveCharacters(srcTextNode,srcStartOffset,srcEndOffset,destTextNode,destOffset)
       * setNodeValue(textNode,value)
 
       These functions exist to allow us to record undo information. We can't use DOM mutation events
@@ -331,6 +333,48 @@ var DOM_Listener;
 
         textNode.nodeValue = textNode.nodeValue.slice(0,startOffset) +
                              textNode.nodeValue.slice(endOffset);
+    }
+
+    // public
+    function moveCharacters(srcTextNode,srcStartOffset,srcEndOffset,destTextNode,destOffset)
+    {
+        if (srcTextNode == destTextNode)
+            throw new Error("src and dest text nodes cannot be the same");
+        if (srcStartOffset > srcEndOffset)
+            throw new Error("Invalid src range "+srcStartOffset+" - "+srcEndOffset);
+        if (srcStartOffset < 0)
+            throw new Error("srcStartOffset < 0");
+        if (srcEndOffset > srcTextNode.nodeValue.length)
+            throw new Error("srcEndOffset beyond end of src length");
+        if (destOffset < 0)
+            throw new Error("destOffset < 0");
+        if (destOffset > destTextNode.nodeValue.length)
+            throw new Error("destOffset beyond end of dest length");
+
+        var length = srcEndOffset - srcStartOffset;
+
+        addUndoAction(moveCharacters,destTextNode,destOffset,destOffset+length,
+                      srcTextNode,srcStartOffset);
+
+        trackedPositionsForNode(destTextNode).forEach(function (pos) {
+            if (pos.offset >= destOffset)
+                pos.offset += length;
+        });
+        trackedPositionsForNode(srcTextNode).forEach(function (pos) {
+            if ((pos.offset >= srcStartOffset) && (pos.offset < srcEndOffset)) {
+                pos.node = destTextNode;
+                pos.offset = destOffset + (pos.offset - srcStartOffset);
+            }
+            else if (pos.offset >= srcEndOffset) {
+                pos.offset -= length;
+            }
+        });
+        var extract = srcTextNode.nodeValue.substring(srcStartOffset,srcEndOffset);
+        srcTextNode.nodeValue = srcTextNode.nodeValue.slice(0,srcStartOffset) +
+                                srcTextNode.nodeValue.slice(srcEndOffset);
+        destTextNode.nodeValue = destTextNode.nodeValue.slice(0,destOffset) +
+                                 extract +
+                                 destTextNode.nodeValue.slice(destOffset);
     }
 
     // public
@@ -890,6 +934,7 @@ var DOM_Listener;
     DOM_removeAttributeNS = trace(removeAttributeNS);
     DOM_setStyleProperties = trace(setStyleProperties);
     DOM_insertCharacters = trace(insertCharacters);
+    DOM_moveCharacters = moveCharacters;
     DOM_deleteCharacters = trace(deleteCharacters);
     DOM_setNodeValue = trace(setNodeValue);
 
