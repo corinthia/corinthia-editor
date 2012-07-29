@@ -441,13 +441,13 @@ var Cursor_set;
 
             if (positionAtStartOfHeading(pos)) {
                 var container = getContainerOrParagraph(pos.node);
-                pos = Formatting_movePreceding(container,0,enterPressedFilter,true);
+                pos = Formatting_movePreceding(new Position(container,0),enterPressedFilter,true);
             }
             else if (pos.node.nodeType == Node.TEXT_NODE) {
                 pos = Formatting_splitTextAfter(pos,enterPressedFilter,true);
             }
             else {
-                pos = Formatting_moveFollowing(pos.node,pos.offset,enterPressedFilter,true);
+                pos = Formatting_moveFollowing(pos,enterPressedFilter,true);
             }
         });
 
@@ -632,8 +632,8 @@ var Cursor_set;
         if ((offset > 0) && isItemNumber(parent.childNodes[offset-1]))
             offset--;
 
-        Formatting_moveFollowing(parent,offset,isContainerNode);
-        Formatting_movePreceding(parent,offset,isContainerNode);
+        Formatting_moveFollowing(new Position(parent,offset),isContainerNode);
+        Formatting_movePreceding(new Position(parent,offset),isContainerNode);
 
         offset = 0;
         while (!isContainerNode(parent)) {

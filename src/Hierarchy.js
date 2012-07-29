@@ -85,8 +85,10 @@ var Hierarchy_wrapInlineNodesInParagraph;
                 (DOM_upperName(node.parentNode) != "NAV")) {
 
                 var offset = DOM_nodeOffset(node);
-                Formatting_moveFollowing(node.parentNode,offset+1,function() { return false; });
-                Formatting_movePreceding(node.parentNode,offset,function() { return false; });
+                Formatting_moveFollowing(new Position(node.parentNode,offset+1),
+                                         function() { return false; });
+                Formatting_movePreceding(new Position(node.parentNode,offset),
+                                         function() { return false; });
                 DOM_removeNodeButKeepChildren(node.parentNode);
                 continue;
             }
@@ -99,8 +101,10 @@ var Hierarchy_wrapInlineNodesInParagraph;
                     DOM_removeAdjacentWhitespace(node);
 
                     var offset = DOM_nodeOffset(node);
-                    Formatting_moveFollowing(node.parentNode,offset+1,isContainerNode);
-                    Formatting_movePreceding(node.parentNode,offset,isContainerNode);
+                    Formatting_moveFollowing(new Position(node.parentNode,offset+1),
+                                             isContainerNode);
+                    Formatting_movePreceding(new Position(node.parentNode,offset),
+                                             isContainerNode);
 
                     var ancestors = new Array();
                     var child = node;

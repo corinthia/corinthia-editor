@@ -481,14 +481,12 @@ var Clipboard_pasteNodes;
                 var offset = DOM_nodeOffset(nextSibling,parent);
 
                 if (isListNode(child)) {
-                    Formatting_movePreceding(parent,
-                                             offset,
+                    Formatting_movePreceding(new Position(parent,offset),
                                              function(x) { return (x == containerParent); });
                     insertChildrenBefore(inItem.parentNode,child,inItem);
                 }
                 else if (isListItemNode(child)) {
-                    Formatting_movePreceding(parent,
-                                             offset,
+                    Formatting_movePreceding(new Position(parent,offset),
                                              function(x) { return (x == containerParent); });
                     DOM_insertBefore(inItem.parentNode,child,inItem);
                 }

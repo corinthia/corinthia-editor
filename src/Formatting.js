@@ -108,11 +108,12 @@ var Formatting_formatInlineNode;
                 range.start.offset = 0;
             }
             else if (range.start.node.nodeType == Node.ELEMENT_NODE) {
-                Formatting_movePreceding(range.start.node,range.start.offset,isBlockNode);
+                Formatting_movePreceding(range.start,isBlockNode);
             }
             else {
-                Formatting_movePreceding(range.start.node.parentNode,
-                                         DOM_nodeOffset(range.start.node),isBlockNode);
+                Formatting_movePreceding(new Position(range.start.node.parentNode,
+                                                      DOM_nodeOffset(range.start.node)),
+                                         isBlockNode);
             }
 
             // Save the start and end position of the range. The mutation listeners will move it
@@ -127,10 +128,11 @@ var Formatting_formatInlineNode;
                 Formatting_splitTextAfter(range.end);
             }
             else if (range.end.node.nodeType == Node.ELEMENT_NODE) {
-                Formatting_moveFollowing(range.end.node,range.end.offset,isBlockNode);
+                Formatting_moveFollowing(range.end,isBlockNode);
             }
             else {
-                Formatting_moveFollowing(range.end.node.parentNode,DOM_nodeOffset(range.end.node)+1,
+                Formatting_moveFollowing(new Position(range.end.node.parentNode,
+                                                      DOM_nodeOffset(range.end.node)+1),
                                          isBlockNode);
             }
 
@@ -201,7 +203,8 @@ var Formatting_formatInlineNode;
         DOM_insertBefore(node.parentNode,before,node);
         DOM_deleteCharacters(node,0,offset);
 
-        Formatting_movePreceding(node.parentNode,DOM_nodeOffset(node),parentCheckFn,force);
+        Formatting_movePreceding(new Position(node.parentNode,DOM_nodeOffset(node)),
+                                 parentCheckFn,force);
         return new Position(before,before.nodeValue.length);
     });
 
@@ -217,7 +220,8 @@ var Formatting_formatInlineNode;
         DOM_insertBefore(node.parentNode,after,node.nextSibling);
         DOM_deleteCharacters(node,offset);
 
-        Formatting_moveFollowing(node.parentNode,DOM_nodeOffset(node)+1,parentCheckFn,force);
+        Formatting_moveFollowing(new Position(node.parentNode,DOM_nodeOffset(node)+1),
+                                 parentCheckFn,force);
         return new Position(after,0);
     });
 
@@ -226,8 +230,10 @@ var Formatting_formatInlineNode;
     // index of a child, we pass the child itself (or null if the offset is equal to
     // childNodes.length)
     // public
-    Formatting_movePreceding = trace(function movePreceding(node,offset,parentCheckFn,force)
+    Formatting_movePreceding = trace(function movePreceding(pos,parentCheckFn,force)
     {
+        var node = pos.node;
+        var offset = pos.offset;
         if (parentCheckFn(node) || (node == document.body))
             return new Position(node,offset);
 
@@ -255,13 +261,16 @@ var Formatting_formatInlineNode;
             }
         }
 
-        Formatting_movePreceding(node.parentNode,DOM_nodeOffset(node),parentCheckFn,force);
+        Formatting_movePreceding(new Position(node.parentNode,DOM_nodeOffset(node)),
+                                 parentCheckFn,force);
         return result;
     });
 
     // public
-    Formatting_moveFollowing = trace(function moveFollowing(node,offset,parentCheckFn,force)
+    Formatting_moveFollowing = trace(function moveFollowing(pos,parentCheckFn,force)
     {
+        var node = pos.node;
+        var offset = pos.offset;
         if (parentCheckFn(node) || (node == document.body))
             return new Position(node,offset);
 
@@ -289,7 +298,8 @@ var Formatting_formatInlineNode;
             }
         }
 
-        Formatting_moveFollowing(node.parentNode,DOM_nodeOffset(node)+1,parentCheckFn,force);
+        Formatting_moveFollowing(new Position(node.parentNode,DOM_nodeOffset(node)+1),
+                                 parentCheckFn,force);
         return result;
     });
 
