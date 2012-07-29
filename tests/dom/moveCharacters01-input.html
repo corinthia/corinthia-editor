@@ -16,9 +16,6 @@ function performTest()
     var text1 = ps[0].firstChild;
     var text2 = ps[1].firstChild;
 
-    debug("text1 = "+nodeString(text1));
-    debug("text2 = "+nodeString(text2));
-
     var positions = new Array();
     for (var i = 0; i <= text1.nodeValue.length; i++)
         positions.push(new Position(text1,i));
