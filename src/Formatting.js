@@ -102,7 +102,7 @@ var Formatting_formatInlineNode;
 
             if ((range.start.node.nodeType == Node.TEXT_NODE) &&
                 (range.start.offset > 0)) {
-                Formatting_splitTextBefore(range.start.node,range.start.offset);
+                Formatting_splitTextBefore(range.start);
                 if (range.end.node == range.start.node)
                     range.end.offset -= range.start.offset;
                 range.start.offset = 0;
@@ -124,7 +124,7 @@ var Formatting_formatInlineNode;
 
             if ((range.end.node.nodeType == Node.TEXT_NODE) &&
                 (range.end.offset < range.end.node.nodeValue.length)) {
-                Formatting_splitTextAfter(range.end.node,range.end.offset);
+                Formatting_splitTextAfter(range.end);
             }
             else if (range.end.node.nodeType == Node.ELEMENT_NODE) {
                 Formatting_moveFollowing(range.end.node,range.end.offset,isBlockNode);
@@ -190,8 +190,10 @@ var Formatting_formatInlineNode;
     });
 
     // public (called from cursor.js)
-    Formatting_splitTextBefore = trace(function splitTextBefore(node,offset,parentCheckFn,force)
+    Formatting_splitTextBefore = trace(function splitTextBefore(pos,parentCheckFn,force)
     {
+        var node = pos.node;
+        var offset = pos.offset;
         if (parentCheckFn == null)
             parentCheckFn = isBlockNode;
         var before = DOM_createTextNode(document,node.nodeValue.slice(0,offset));
@@ -204,8 +206,10 @@ var Formatting_formatInlineNode;
     });
 
     // public
-    Formatting_splitTextAfter = trace(function splitTextAfter(node,offset,parentCheckFn,force)
+    Formatting_splitTextAfter = trace(function splitTextAfter(pos,parentCheckFn,force)
     {
+        var node = pos.node;
+        var offset = pos.offset;
         if (parentCheckFn == null)
             parentCheckFn = isBlockNode;
         var after = DOM_createTextNode(document,node.nodeValue.slice(offset));

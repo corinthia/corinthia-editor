@@ -444,7 +444,7 @@ var Cursor_set;
                 pos = Formatting_movePreceding(container,0,enterPressedFilter,true);
             }
             else if (pos.node.nodeType == Node.TEXT_NODE) {
-                pos = Formatting_splitTextAfter(pos.node,pos.offset,enterPressedFilter,true);
+                pos = Formatting_splitTextAfter(pos,enterPressedFilter,true);
             }
             else {
                 pos = Formatting_moveFollowing(pos.node,pos.offset,enterPressedFilter,true);
@@ -617,7 +617,7 @@ var Cursor_set;
         }
         else {
             if (selRange.start.offset > 0)
-                Formatting_splitTextBefore(selRange.start.node,selRange.start.offset);
+                Formatting_splitTextBefore(selRange.start);
             parent = selRange.start.node.parentNode;
             nextSibling = selRange.start.node;
         }

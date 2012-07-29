@@ -388,7 +388,7 @@ var Selection_posAtEndOfWord;
                 else {
                     if (isWhitespaceString(node.nodeValue.substring(0,selRange.end.offset)))
                         continue;
-                    Formatting_splitTextAfter(node,selRange.end.offset,
+                    Formatting_splitTextAfter(selRange.end,
                                               function() { return true; });
                 }
             }
@@ -404,7 +404,7 @@ var Selection_posAtEndOfWord;
                 else {
                     if (isWhitespaceString(node.nodeValue.substring(selRange.start.offset)))
                         continue;
-                    Formatting_splitTextBefore(node,selRange.start.offset,
+                    Formatting_splitTextBefore(selRange.start,
                                               function() { return true; });
                 }
             }

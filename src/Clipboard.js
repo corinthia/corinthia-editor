@@ -452,7 +452,7 @@ var Clipboard_pasteNodes;
             previousSibling = range.start.node.childNodes[range.start.offset-1];
         }
         else {
-            Formatting_splitTextBefore(range.start.node,range.start.offset);
+            Formatting_splitTextBefore(range.start);
             parent = range.start.node.parentNode;
             nextSibling = range.start.node;
             previousSibling = range.start.node.previousSibling;
