@@ -200,9 +200,9 @@ var Formatting_formatInlineNode;
             parentCheckFn = isBlockNode;
 
         if (force || (offset > 0)) {
-            var before = DOM_createTextNode(document,node.nodeValue.slice(0,offset));
+            var before = DOM_createTextNode(document,"");
             DOM_insertBefore(node.parentNode,before,node);
-            DOM_deleteCharacters(node,0,offset);
+            DOM_moveCharacters(node,0,offset,before,0,false,true);
             Formatting_movePreceding(new Position(node.parentNode,DOM_nodeOffset(node)),
                                      parentCheckFn,force);
             return new Position(before,before.nodeValue.length);
@@ -223,9 +223,9 @@ var Formatting_formatInlineNode;
             parentCheckFn = isBlockNode;
 
         if (force || (offset < pos.node.nodeValue.length)) {
-            var after = DOM_createTextNode(document,node.nodeValue.slice(offset));
+            var after = DOM_createTextNode(document,"");
             DOM_insertBefore(node.parentNode,after,node.nextSibling);
-            DOM_deleteCharacters(node,offset);
+            DOM_moveCharacters(node,offset,node.nodeValue.length,after,0,true,false);
             Formatting_moveFollowing(new Position(node.parentNode,DOM_nodeOffset(node)+1),
                                      parentCheckFn,force);
             return new Position(after,0);
