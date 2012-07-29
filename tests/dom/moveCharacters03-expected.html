@@ -6,7 +6,7 @@
 "one t|wo three"   ->   "four five t|wo six"   ->   "one t|wo three"
 "one tw|o three"   ->   "four five tw|o six"   ->   "one tw|o three"
 "one two| three"   ->   "four five two| six"   ->   "one two| three"
-"one two |three"   ->   "four five two |six"   ->   "one two |three"
+"one two |three"   ->   "one |three"           ->   "one two |three"
 "one two t|hree"   ->   "one t|hree"           ->   "one two t|hree"
 "one two th|ree"   ->   "one th|ree"           ->   "one two th|ree"
 "one two thr|ee"   ->   "one thr|ee"           ->   "one two thr|ee"
@@ -22,7 +22,7 @@
 "four fi|ve six"   ->   "four fi|ve two six"   ->   "four fi|ve six"
 "four fiv|e six"   ->   "four fiv|e two six"   ->   "four fiv|e six"
 "four five| six"   ->   "four five| two six"   ->   "four five| six"
-"four five |six"   ->   "four five two |six"   ->   "one two |three" ***
+"four five |six"   ->   "four five two |six"   ->   "four five |six"
 "four five s|ix"   ->   "four five two s|ix"   ->   "four five s|ix"
 "four five si|x"   ->   "four five two si|x"   ->   "four five si|x"
 "four five six|"   ->   "four five two six|"   ->   "four five six|"

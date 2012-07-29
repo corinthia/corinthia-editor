@@ -336,7 +336,8 @@ var DOM_Listener;
     }
 
     // public
-    function moveCharacters(srcTextNode,srcStartOffset,srcEndOffset,destTextNode,destOffset)
+    function moveCharacters(srcTextNode,srcStartOffset,srcEndOffset,destTextNode,destOffset,
+                            excludeStartPos,excludeEndPos)
     {
         if (srcTextNode == destTextNode)
             throw new Error("src and dest text nodes cannot be the same");
@@ -354,14 +355,22 @@ var DOM_Listener;
         var length = srcEndOffset - srcStartOffset;
 
         addUndoAction(moveCharacters,destTextNode,destOffset,destOffset+length,
-                      srcTextNode,srcStartOffset);
+                      srcTextNode,srcStartOffset,excludeStartPos,excludeEndPos);
 
         trackedPositionsForNode(destTextNode).forEach(function (pos) {
-            if (pos.offset >= destOffset)
+            var startMatch = excludeStartPos ? (pos.offset > destOffset)
+                                             : (pos.offset >= destOffset);
+            if (startMatch)
                 pos.offset += length;
         });
         trackedPositionsForNode(srcTextNode).forEach(function (pos) {
-            if ((pos.offset >= srcStartOffset) && (pos.offset < srcEndOffset)) {
+
+            var startMatch = excludeStartPos ? (pos.offset > srcStartOffset)
+                                             : (pos.offset >= srcStartOffset);
+            var endMatch = excludeEndPos ? (pos.offset < srcEndOffset)
+                                         : (pos.offset <= srcEndOffset);
+
+            if (startMatch && endMatch) {
                 pos.node = destTextNode;
                 pos.offset = destOffset + (pos.offset - srcStartOffset);
             }

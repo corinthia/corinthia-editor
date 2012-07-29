@@ -28,7 +28,7 @@ function performTest()
         origStrings.push(positions[i].toString());
 
     Position.trackWhileExecuting(positions,function() {
-        DOM_moveCharacters(text1,4,8,text2,10,false,false);
+        DOM_moveCharacters(text1,4,8,text2,10,false,true);
     });
 
     var movedStrings = new Array();
