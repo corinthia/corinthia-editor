@@ -198,14 +198,20 @@ var Formatting_formatInlineNode;
         var offset = pos.offset;
         if (parentCheckFn == null)
             parentCheckFn = isBlockNode;
-        var before = DOM_createTextNode(document,node.nodeValue.slice(0,offset));
 
-        DOM_insertBefore(node.parentNode,before,node);
-        DOM_deleteCharacters(node,0,offset);
-
-        Formatting_movePreceding(new Position(node.parentNode,DOM_nodeOffset(node)),
-                                 parentCheckFn,force);
-        return new Position(before,before.nodeValue.length);
+        if (force || (offset > 0)) {
+            var before = DOM_createTextNode(document,node.nodeValue.slice(0,offset));
+            DOM_insertBefore(node.parentNode,before,node);
+            DOM_deleteCharacters(node,0,offset);
+            Formatting_movePreceding(new Position(node.parentNode,DOM_nodeOffset(node)),
+                                     parentCheckFn,force);
+            return new Position(before,before.nodeValue.length);
+        }
+        else {
+            Formatting_movePreceding(new Position(node.parentNode,DOM_nodeOffset(node)),
+                                     parentCheckFn,force);
+            return pos;
+        }
     });
 
     // public
@@ -215,14 +221,20 @@ var Formatting_formatInlineNode;
         var offset = pos.offset;
         if (parentCheckFn == null)
             parentCheckFn = isBlockNode;
-        var after = DOM_createTextNode(document,node.nodeValue.slice(offset));
 
-        DOM_insertBefore(node.parentNode,after,node.nextSibling);
-        DOM_deleteCharacters(node,offset);
-
-        Formatting_moveFollowing(new Position(node.parentNode,DOM_nodeOffset(node)+1),
-                                 parentCheckFn,force);
-        return new Position(after,0);
+        if (force || (offset < pos.node.nodeValue.length)) {
+            var after = DOM_createTextNode(document,node.nodeValue.slice(offset));
+            DOM_insertBefore(node.parentNode,after,node.nextSibling);
+            DOM_deleteCharacters(node,offset);
+            Formatting_moveFollowing(new Position(node.parentNode,DOM_nodeOffset(node)+1),
+                                     parentCheckFn,force);
+            return new Position(after,0);
+        }
+        else {
+            Formatting_moveFollowing(new Position(node.parentNode,DOM_nodeOffset(node)+1),
+                                     parentCheckFn,force);
+            return pos;
+        }
     });
 
     // FIXME: movePreceding and moveNext could possibly be optimised by passing in a (parent,child)
