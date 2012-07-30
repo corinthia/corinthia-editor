@@ -1,6 +1,7 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
 var Cursor_ensureCursorVisible;
+var Cursor_scrollDocumentForY;
 var Cursor_positionCursor;
 var Cursor_getCursorPosition;
 var Cursor_moveLeft;
@@ -45,11 +46,27 @@ var Cursor_set;
         }
     });
 
+    Cursor_scrollDocumentForY = trace(function scrollDocumentForY(y)
+    {
+        var absY = window.scrollY + y;
+        if (absY-44 < window.scrollY) {
+            window.scrollTo(window.scrollX,absY-44);
+            y = absY - window.scrollY;
+        }
+        else if (absY+44 >= window.scrollY + window.innerHeight) {
+            window.scrollTo(window.scrollX,absY+44 - window.innerHeight);
+            y = absY - window.scrollY;
+        }
+        return y;
+    });
+
     // public
     Cursor_positionCursor = trace(function positionCursor(x,y,wordBoundary)
     {
         if (UndoManager_groupType() != "Cursor movement")
             UndoManager_newGroup("Cursor movement");
+
+        y = Cursor_scrollDocumentForY(y);
 
         var result = null;
         var position = positionAtPoint(x,y);
@@ -125,7 +142,6 @@ var Cursor_set;
         }
 
         Cursor_set(position.node,position.offset);
-        Cursor_ensureCursorVisible();
         return result;
     });
 

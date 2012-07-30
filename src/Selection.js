@@ -830,6 +830,8 @@ var Selection_posAtEndOfWord;
     // public
     Selection_dragSelectionUpdate = trace(function dragSelectionUpdate(x,y,selectWord)
     {
+        y = Cursor_scrollDocumentForY(y);
+
         var pos = Position_closestMatchForwards(positionAtPoint(x,y),Position_okForMovement);
         var selRange = Selection_get();
         if ((pos == null) || (selRange == null))
