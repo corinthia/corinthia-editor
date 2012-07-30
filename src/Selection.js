@@ -343,11 +343,12 @@ var Selection_posAtEndOfWord;
         selectionSpans = spans;
     });
 
-    var createSelectionSpans = trace(function createSelectionSpans(selRange)
+    var createSelectionSpans = trace(function createSelectionSpans(data)
     {
+        var selRange = data.range;
         var skipped = 0;
         var reused = 0;
-        var nodes = selRange.getAllNodes();
+        var nodes = data.nodes;//selRange.getAllNodes();
         var newSpans = arrayCopy(selectionSpans);
         for (var i = 0; i < nodes.length; i++) {
             var node = nodes[i];
@@ -386,51 +387,46 @@ var Selection_posAtEndOfWord;
             }
 
             if (node == selRange.end.node) {
-                var prevText = getPrevSpanText(node);
-                if ((prevText != null) && (node != selRange.start.node)) {
-                    DOM_moveCharacters(node,0,selRange.end.offset,
-                                       prevText,prevText.nodeValue.length,true,false);
+                if (isWhitespaceString(node.nodeValue.substring(0,selRange.end.offset)))
                     continue;
-                }
-                else {
-                    if (isWhitespaceString(node.nodeValue.substring(0,selRange.end.offset)))
-                        continue;
-                    Formatting_splitTextAfter(selRange.end,
-                                              function() { return true; });
-                }
+                Formatting_splitTextAfter(selRange.end,
+                                          function() { return true; });a
             }
 
 
             if (node == selRange.start.node) {
-                var nextText = getNextSpanText(node);
-                if ((nextText != null) && (node != selRange.end.node)) {
-                    DOM_moveCharacters(node,selRange.start.offset,node.nodeValue.length,
-                                       nextText,0);
-
+                if (isWhitespaceString(node.nodeValue.substring(selRange.start.offset)))
                     continue;
-                }
-                else {
-                    if (isWhitespaceString(node.nodeValue.substring(selRange.start.offset)))
-                        continue;
-                    Formatting_splitTextBefore(selRange.start,
-                                              function() { return true; });
-                }
+                Formatting_splitTextBefore(selRange.start,
+                                           function() { return true; });
             }
 
             var prevText = getPrevSpanText(node);
             var nextText = getNextSpanText(node);
 
-            if (prevText != null) {
+            if ((prevText != null) && containsSelection(data.nodeSet,prevText)) {
                 DOM_moveCharacters(node,0,node.nodeValue.length,
                                    prevText,prevText.nodeValue.length,true,false);
                 DOM_deleteNode(node);
             }
-            else if (nextText != null) {
+            else if ((nextText != null) && containsSelection(data.nodeSet,nextText)) {
                 DOM_moveCharacters(node,0,node.nodeValue.length,
                                    nextText,0,false,true);
                 DOM_deleteNode(node);
             }
             else if (!isWhitespaceTextNode(node)) {
+                // Call moveCharacters() with an empty range, to force any tracked positions
+                // that are at the end of prevText or the start of nextText to move into this
+                // node
+                if (prevText != null) {
+                    DOM_moveCharacters(prevText,
+                                       prevText.nodeValue.length,prevText.nodeValue.length,
+                                       node,0);
+                }
+                if (nextText != null) {
+                    DOM_moveCharacters(nextText,0,0,node,node.nodeValue.length);
+                }
+
                 var wrapped = DOM_wrapNode(node,"SPAN");
                 DOM_setAttribute(wrapped,"class",Keys.SELECTION_CLASS);
                 newSpans.push(wrapped);
@@ -439,20 +435,32 @@ var Selection_posAtEndOfWord;
         setSelectionSpans(newSpans);
     });
 
-    var removeSelectionSpans = trace(function removeSelectionSpans(selRange,force)
+    var getRangeData = trace(function getSelectionData(selRange)
     {
-        var selectedSet = new NodeSet();
+        var nodeSet = new NodeSet();
+        var nodes;
         if (selRange != null) {
             var nodes = selRange.getAllNodes();
             for (var i = 0; i < nodes.length; i++)
-                selectedSet.add(nodes[i]);
+                nodeSet.add(nodes[i]);
         }
+        else {
+            nodes = new Array();
+        }
+        return { range: selRange, nodeSet: nodeSet, nodes: nodes };
+    });
+
+    var removeSelectionSpans = trace(function removeSelectionSpans(data,force)
+    {
+        var selRange = data.range;
+        var selectedSet = data.nodeSet;
+        var nodes = data.nodes;
 
         var remainingSpans = new Array();
         var checkMerge = new Array();
         for (var i = 0; i < selectionSpans.length; i++) {
             var span = selectionSpans[i];
-            if ((span.parentNode != null) && (force || !containsSelection(span))) {
+            if ((span.parentNode != null) && (force || !containsSelection(selectedSet,span))) {
                 if (span.firstChild != null)
                     checkMerge.push(span.firstChild);
                 if (span.lastChild != null)
@@ -472,17 +480,17 @@ var Selection_posAtEndOfWord;
                 Formatting_mergeWithNeighbours(checkMerge[i],{});
             }
         }
+    });
 
-        function containsSelection(node)
-        {
-            if (selectedSet.contains(node))
+    var containsSelection = trace(function containsSelection(selectedSet,node)
+    {
+        if (selectedSet.contains(node))
+            return true;
+        for (var child = node.firstChild; child != null; child = child.nextSibling) {
+            if (containsSelection(selectedSet,child))
                 return true;
-            for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                if (containsSelection(child))
-                    return true;
-            }
-            return false;
         }
+        return false;
     });
 
     Selection_update = trace(function update()
@@ -496,7 +504,7 @@ var Selection_posAtEndOfWord;
 
         if (selRange == null) {
             DOM_ignoreMutationsWhileExecuting(function() {
-                removeSelectionSpans(null);
+                removeSelectionSpans(getRangeData(null));
             });
             return;
         }
@@ -510,7 +518,7 @@ var Selection_posAtEndOfWord;
 
             selRange.trackWhileExecuting(function() {
                 DOM_ignoreMutationsWhileExecuting(function() {
-                    removeSelectionSpans(selRange);
+                    removeSelectionSpans(getRangeData(selRange));
                 });
             });
             // Selection may have changed as a result of removeSelectionSpans()
@@ -579,8 +587,9 @@ var Selection_posAtEndOfWord;
 
             selRange.trackWhileExecuting(function() {
                 DOM_ignoreMutationsWhileExecuting(function() {
-                    createSelectionSpans(selRange);
-                    removeSelectionSpans(selRange);
+                    var data = getRangeData(selRange);
+                    createSelectionSpans(data);
+                    removeSelectionSpans(data);
                 });
             });
 
@@ -1091,7 +1100,7 @@ var Selection_posAtEndOfWord;
     {
         range.trackWhileExecuting(function() {
             DOM_ignoreMutationsWhileExecuting(function() {
-                removeSelectionSpans(range,true);
+                removeSelectionSpans(getRangeData(range),true);
             });
 
             var region = Tables_regionFromRange(range);
