@@ -406,7 +406,7 @@ var Text_toEndOfBoundary;
             if (paragraph.runs[i].node == node)
                 return paragraph.runs[i];
         }
-        throw new Error("Run for node "+nodeString(node)+" not found");
+        throw new Error("Run for text node not found");
     });
 
     Paragraph_positionAtOffset = trace(function positionAtOffset(paragraph,offset)
