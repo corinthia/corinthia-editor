@@ -311,27 +311,29 @@ var Selection_posAtEndOfWord;
             return null;
     });
 
-    var insertTextBefore = trace(function insertTextBefore(str,node)
+    var getTextNodeBefore = trace(function getTextNodeBefore(node)
     {
         var prev = node.previousSibling;
         if ((prev != null) && (prev.nodeType == Node.TEXT_NODE)) {
-            DOM_insertCharacters(prev,prev.nodeValue.length,str);
+            return prev;
         }
         else {
-            var text = DOM_createTextNode(document,str);
+            var text = DOM_createTextNode(document,"");
             DOM_insertBefore(node.parentNode,text,node);
+            return text;
         }
     });
 
-    var insertTextAfter = trace(function insertTextAfter(str,node)
+    var getTextNodeAfter = trace(function getTextNodeAfter(node)
     {
         var next = node.nextSibling;
         if ((next != null) && (next.nodeType == Node.TEXT_NODE)) {
-            DOM_insertCharacters(next,0,str);
+            return next;
         }
         else {
-            var text = DOM_createTextNode(document,str);
+            var text = DOM_createTextNode(document,"");
             DOM_insertBefore(node.parentNode,text,node.nextSibling);
+            return text;
         }
     });
 
@@ -357,14 +359,20 @@ var Selection_posAtEndOfWord;
                 skipped++;
 
                 if ((node == selRange.end.node) && (node.nodeValue.length > selRange.end.offset)) {
-                    var notSelected = node.nodeValue.substring(selRange.end.offset);
-                    DOM_deleteCharacters(node,selRange.end.offset,node.nodeValue.length);
-                    insertTextAfter(notSelected,node.parentNode);
+                    var destTextNode = getTextNodeAfter(node.parentNode);
+                    DOM_moveCharacters(node,
+                                       selRange.end.offset,
+                                       node.nodeValue.length,
+                                       destTextNode,0,
+                                       true,false);
                 }
                 if ((node == selRange.start.node) && (selRange.start.offset > 0)) {
-                    var notSelected = node.nodeValue.substring(0,selRange.start.offset);
-                    DOM_deleteCharacters(node,0,selRange.start.offset);
-                    insertTextBefore(notSelected,node.parentNode);
+                    var destTextNode = getTextNodeBefore(node.parentNode);
+                    DOM_moveCharacters(node,
+                                       0,
+                                       selRange.start.offset,
+                                       destTextNode,destTextNode.nodeValue.length,
+                                       false,true);
                 }
 
                 continue;
@@ -379,10 +387,9 @@ var Selection_posAtEndOfWord;
 
             if (node == selRange.end.node) {
                 var prevText = getPrevSpanText(node);
-                if (prevText != null) {
-                    var substring = node.nodeValue.substring(0,selRange.end.offset);
-                    DOM_insertCharacters(prevText,prevText.nodeValue.length,substring);
-                    DOM_deleteCharacters(node,0,selRange.end.offset);
+                if ((prevText != null) && (node != selRange.start.node)) {
+                    DOM_moveCharacters(node,0,selRange.end.offset,
+                                       prevText,prevText.nodeValue.length,true,false);
                     continue;
                 }
                 else {
@@ -393,12 +400,13 @@ var Selection_posAtEndOfWord;
                 }
             }
 
+
             if (node == selRange.start.node) {
                 var nextText = getNextSpanText(node);
-                if (nextText != null) {
-                    var substring = node.nodeValue.substring(selRange.start.offset);
-                    DOM_insertCharacters(nextText,0,substring);
-                    DOM_deleteCharacters(node,selRange.start.offset,node.nodeValue.length);
+                if ((nextText != null) && (node != selRange.end.node)) {
+                    DOM_moveCharacters(node,selRange.start.offset,node.nodeValue.length,
+                                       nextText,0);
+
                     continue;
                 }
                 else {
@@ -413,11 +421,13 @@ var Selection_posAtEndOfWord;
             var nextText = getNextSpanText(node);
 
             if (prevText != null) {
-                DOM_insertCharacters(prevText,prevText.nodeValue.length,node.nodeValue);
+                DOM_moveCharacters(node,0,node.nodeValue.length,
+                                   prevText,prevText.nodeValue.length,true,false);
                 DOM_deleteNode(node);
             }
             else if (nextText != null) {
-                DOM_insertCharacters(nextText,0,node.nodeValue);
+                DOM_moveCharacters(node,0,node.nodeValue.length,
+                                   nextText,0,false,true);
                 DOM_deleteNode(node);
             }
             else if (!isWhitespaceTextNode(node)) {
