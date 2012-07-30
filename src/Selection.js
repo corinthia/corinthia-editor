@@ -801,22 +801,12 @@ var Selection_posAtEndOfWord;
         }
     });
 
-    var originalDragStart = null;
-    var originalDragEnd = null;
-
     // public
     Selection_dragSelectionBegin = trace(function dragSelectionBegin(x,y,selectWord)
     {
         var range = Selection_get();
         if ((range != null) && !range.isEmpty())
             return Selection_dragSelectionUpdate(x,y,selectWord);
-
-        if (originalDragStart != null)
-            Position_untrack(originalDragStart);
-        if (originalDragEnd != null)
-            Position_untrack(originalDragEnd);
-        originalDragStart = null;
-        originalDragEnd = null;
 
         var result;
         var pos = Position_closestMatchForwards(positionAtPoint(x,y),Position_okForMovement);
@@ -832,59 +822,36 @@ var Selection_posAtEndOfWord;
         if (selectWord)
             Selection_selectWordAtCursor();
 
-        if (result != "error") {
-            var selRange = Selection_get();
-            originalDragStart = new Position(selRange.start.node,selRange.start.offset);
-            originalDragEnd = new Position(selRange.end.node,selRange.end.offset);
-            Position_track(originalDragStart);
-            Position_track(originalDragEnd);
-        }
         return result;
     });
+
+    var selectionHandleEnd = true;
 
     // public
     Selection_dragSelectionUpdate = trace(function dragSelectionUpdate(x,y,selectWord)
     {
-        // It is possible that when the user first double-tapped, there was no point at that
-        // position, i.e. the pos == null case in dragSelectionBegin(). So we just try to begin
-        // the selection again.
-        if ((originalDragStart == null) || (originalDragEnd == null))
-            return Selection_dragSelectionBegin(x,y,false); // FIXME: what about selectWord?
-
         var pos = Position_closestMatchForwards(positionAtPoint(x,y),Position_okForMovement);
-        if (pos != null) {
-            var startToPos = new Range(originalDragStart.node,originalDragStart.offset,
-                                       pos.node,pos.offset);
-            var posToEnd = new Range(pos.node,pos.offset,
-                                     originalDragEnd.node,originalDragEnd.offset);
+        var selRange = Selection_get();
+        if ((pos == null) || (selRange == null))
+            return "none";
 
-            if (startToPos.isForwards() && posToEnd.isForwards()) {
-                // Position is within the original selection
-                Selection_set(originalDragStart.node,originalDragStart.offset,
-                              originalDragEnd.node,originalDragEnd.offset)
-            }
-            else if (!startToPos.isForwards()) {
-                // Position comes before the start
-                if (selectWord) {
-                    posToEnd.start = Selection_posAtStartOfWord(posToEnd.start);
-                    posToEnd.end = Selection_posAtEndOfWord(posToEnd.end);
-                }
-                Selection_set(posToEnd.start.node,posToEnd.start.offset,
-                              posToEnd.end.node,posToEnd.end.offset);
-                return "start";
-            }
-            else if (!posToEnd.isForwards()) {
-                // Position comes after the end
-                if (selectWord) {
-                    startToPos.start = Selection_posAtStartOfWord(startToPos.start);
-                    startToPos.end = Selection_posAtEndOfWord(startToPos.end);
-                }
-                Selection_set(startToPos.start.node,startToPos.start.offset,
-                              startToPos.end.node,startToPos.end.offset);
-                return "end";
-            }
+        var start = selRange.start;
+        var end = selRange.end;
+
+        if (selectionHandleEnd) {
+            var range = new Range(start.node,start.offset,pos.node,pos.offset);
+            if (!range.isForwards())
+                selectionHandleEnd = false;
+            Selection_set(start.node,start.offset,pos.node,pos.offset);
         }
-        return "none";
+        else {
+            var range = new Range(pos.node,pos.offset,end.node,end.offset);
+            if (!range.isForwards())
+                selectionHandleEnd = true;
+            Selection_set(pos.node,pos.offset,end.node,end.offset);
+        }
+
+        return selectionHandleEnd ? "end" : "start";
     });
 
     var moveBoundary = trace(function moveBoundary(command)
