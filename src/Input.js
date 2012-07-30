@@ -405,15 +405,14 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         if (pos == null)
             return false;
 
-        var paragraph = Text_analyseParagraph(pos);
-        if (paragraph == null)
-            return false;
-
         if (granularity == "character") {
             return true;
         }
         else if (granularity == "word") {
             if (pos.node.nodeType == Node.TEXT_NODE) {
+                var paragraph = Text_analyseParagraph(pos);
+                if (paragraph == null)
+                    return false;
                 var offset = Paragraph_offsetAtPosition(paragraph,pos);
                 var before = paragraph.text.substring(0,offset);
                 var after = paragraph.text.substring(offset);
