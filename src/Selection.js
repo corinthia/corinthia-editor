@@ -1253,36 +1253,4 @@ var Selection_posAtEndOfWord;
         return result;
     });
 
-    var adjustSelection = trace(function adjustSelection(fun)
-    {
-        var range = Selection_get();
-        if (range == null)
-            return;
-
-        if (activeHandle == HANDLE_START) {
-            var newStart = fun(range.start);
-            if (newStart != null) {
-                var range = new Range(newStart.node,newStart.offset,
-                                      range.end.node,range.end.offset);
-                if (!range.isForwards()) {
-                    debug("******* selection reversed 1");
-                    activeHandle = HANDLE_END;
-                }
-                Selection_set(newStart.node,newStart.offset,range.end.node,range.end.offset,true);
-            }
-        }
-        else if (activeHandle == HANDLE_END) {
-            var newEnd = fun(range.end);
-            if (newEnd != null) {
-                var range = new Range(range.start.node,range.start.offset,
-                                      newEnd.node,newEnd.offset,true);
-                if (!range.isForwards()) {
-                    debug("******* selection reversed 2");
-                    activeHandle = HANDLE_START;
-                }
-                Selection_set(range.start.node,range.start.offset,newEnd.node,newEnd.offset,true);
-            }
-        }
-    });
-
 })();
