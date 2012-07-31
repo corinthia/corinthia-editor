@@ -1052,8 +1052,12 @@ var Selection_posAtEndOfWord;
 
         var detail = selRange.detail();
 
+        var sameTextNode = (selRange.start.node == selRange.end.node) &&
+                           (selRange.start.node.nodeType == Node.TEXT_NODE);
+
         if ((detail.startAncestor != null) && (detail.endAncestor != null) &&
-            (detail.startAncestor.nextSibling == detail.endAncestor)) {
+            (detail.startAncestor.nextSibling == detail.endAncestor) &&
+            !sameTextNode) {
             prepareForMerge(detail);
             DOM_mergeWithNextSibling(detail.startAncestor,
                                      Formatting_MERGEABLE_BLOCK_AND_INLINE);
