@@ -23,7 +23,7 @@ function performTest()
     for (var i = 0; i < positions.length; i++) {
         var pos = positions[i];
         Selection_set(pos.node,pos.offset,pos.node,pos.offset);
-        Cursor_insertCharacter(i+".");
+        Cursor_insertCharacter(i+".",false,true);
     }
 }
 </script>

@@ -294,7 +294,7 @@ var Cursor_set;
     });
 
     // public
-    Cursor_insertCharacter = trace(function insertCharacter(str,allowInvalidPos)
+    Cursor_insertCharacter = trace(function insertCharacter(str,allowInvalidPos,allowNoParagraph)
     {
         var firstInsertion = (UndoManager_groupType() != "Insert text");
 
@@ -356,10 +356,16 @@ var Cursor_set;
             offset = 0;
         }
 
+        var paragraph = Text_analyseParagraph(new Position(node,0));
+        var putInParagraph = ((paragraph != null) && isWhitespaceString(paragraph.text));
+
         if (str == " ")
             DOM_insertCharacters(node,offset,nbsp);
         else
             DOM_insertCharacters(node,offset,str);
+
+        if (putInParagraph && !allowNoParagraph) // must be done *after* inserting the text
+            Hierarchy_ensureInlineNodesInParagraph(node);
 
         offset += str.length;
         Cursor_set(node,offset);
