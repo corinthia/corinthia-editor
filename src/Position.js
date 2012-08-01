@@ -11,6 +11,8 @@ var Position_closestMatchBackwards;
 var Position_track;
 var Position_untrack;
 var Position_rectAtPos;
+var Position_preferTextPosition;
+var Position_preferElementPosition;
 
 (function() {
 
@@ -654,6 +656,34 @@ var Position_rectAtPos;
             return -1;
         else
             return 1;
+    });
+
+    Position_preferTextPosition = trace(function preferTextPosition(pos)
+    {
+        var node = pos.node;
+        var offset = pos.offset;
+        if (node.nodeType == Node.ELEMENT_NODE) {
+            var before = node.childNodes[offset-1];
+            var after = node.childNodes[offset];
+            if ((before != null) && (before.nodeType == Node.TEXT_NODE))
+                return new Position(before,before.nodeValue.length);
+            if ((after != null) && (after.nodeType == Node.TEXT_NODE))
+                return new Position(after,0);
+        }
+        return pos;
+    });
+
+    Position_preferElementPosition = trace(function preferElementPosition(pos)
+    {
+        if (pos.node.nodeType == Node.TEXT_NODE) {
+            if (pos.node.parentNode == null)
+                throw new Error("Position "+pos+" has no parent node");
+            if (pos.offset == 0)
+                return new Position(pos.node.parentNode,DOM_nodeOffset(pos.node));
+            if (pos.offset == pos.node.nodeValue.length)
+                return new Position(pos.node.parentNode,DOM_nodeOffset(pos.node)+1);
+        }
+        return pos;
     });
 
 })();
