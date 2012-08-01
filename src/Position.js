@@ -13,6 +13,7 @@ var Position_untrack;
 var Position_rectAtPos;
 var Position_preferTextPosition;
 var Position_preferElementPosition;
+var Position_compare;
 
 (function() {
 
@@ -701,6 +702,81 @@ var Position_preferElementPosition;
                 return new Position(pos.node.parentNode,DOM_nodeOffset(pos.node)+1);
         }
         return pos;
+    });
+
+    Position_compare = trace(function compare(first,second)
+    {
+        if ((first.node == second.node) && (first.offset == second.offset))
+            return 0;
+
+        var doc = first.node.ownerDocument;
+        if ((first.node.parentNode == null) && (first.node != doc.documentElement))
+            throw new Error("First node has been removed from document");
+        if ((second.node.parentNode == null) && (second.node != doc.documentElement))
+            throw new Error("Second node has been removed from document");
+
+        if ((first.node == second.node) && (first.node.nodeType == Node.TEXT_NODE)) {
+            if (first.offset <= second.offset)
+                return -1;
+            else
+                return 1;
+        }
+
+        var firstParent = null;
+        var firstChild = null;
+        var secondParent = null;
+        var secondChild = null;
+
+        if (second.node.nodeType == Node.ELEMENT_NODE) {
+            secondParent = second.node;
+            secondChild = second.node.childNodes[second.offset];
+        }
+        else {
+            secondParent = second.node.parentNode;
+            secondChild = second.node;
+        }
+
+        if (first.node.nodeType == Node.ELEMENT_NODE) {
+            firstParent = first.node;
+            firstChild = first.node.childNodes[first.offset];
+        }
+        else {
+            firstParent = first.node.parentNode;
+            firstChild = first.node;
+            if (firstChild == secondChild)
+                return 1;
+        }
+
+        var firstC = firstChild;
+        var firstP = firstParent;
+        while (firstP != null) {
+
+            var secondC = secondChild;
+            var secondP = secondParent;
+            while (secondP != null) {
+
+                if (firstP == secondC)
+                    return 1;
+
+                if (firstP == secondP) {
+                    // if secondC is last child, firstC must be secondC or come before it
+                    if (secondC == null) 
+                        return -1;
+                    for (var n = firstC; n != null; n = n.nextSibling) {
+                        if (n == secondC)
+                            return -1;
+                    }
+                    return 1;
+                }
+
+                secondC = secondP;
+                secondP = secondP.parentNode;
+            }
+
+            firstC = firstP;
+            firstP = firstP.parentNode;
+        }
+        throw new Error("Could not find common ancestor");
     });
 
 })();

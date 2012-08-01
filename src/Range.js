@@ -60,72 +60,7 @@ var Range;
 
     function isForwards()
     {
-        var doc = this.start.node.ownerDocument;
-        if ((this.start.node.parentNode == null) && (this.start.node != doc.documentElement))
-            throw new Error("Range.isForwards "+this+": start node has been removed from document");
-        if ((this.end.node.parentNode == null) && (this.end.node != doc.documentElement))
-            throw new Error("Range.isForwards "+this+": end node has been removed from document");
-
-        var start = this.start;
-        var end = this.end;
-
-        if ((start.node == end.node) && (start.node.nodeType == Node.TEXT_NODE))
-            return (end.offset >= start.offset);
-
-        var startParent = null;
-        var startChild = null;
-        var endParent = null;
-        var endChild = null;
-
-        if (end.node.nodeType == Node.ELEMENT_NODE) {
-            endParent = end.node;
-            endChild = end.node.childNodes[end.offset];
-        }
-        else {
-            endParent = end.node.parentNode;
-            endChild = end.node;
-        }
-
-        if (start.node.nodeType == Node.ELEMENT_NODE) {
-            startParent = start.node;
-            startChild = start.node.childNodes[start.offset];
-        }
-        else {
-            startParent = start.node.parentNode;
-            startChild = start.node;
-            if (startChild == endChild)
-                return false;
-        }
-
-        var startC = startChild;
-        var startP = startParent;
-        while (startP != null) {
-
-            var endC = endChild;
-            var endP = endParent;
-            while (endP != null) {
-
-                if (startP == endC)
-                    return false;
-
-                if (startP == endP) {
-                    if (endC == null) // endC is last child, so startC must be endC or come before it
-                        return true;
-                    for (var n = startC; n != null; n = n.nextSibling) {
-                        if (n == endC)
-                            return true;
-                    }
-                    return false;
-                }
-
-                endC = endP;
-                endP = endP.parentNode;
-            }
-
-            startC = startP;
-            startP = startP.parentNode;
-        }
-        throw new Error("Could not find common ancestor");
+        return (Position_compare(this.start,this.end) <= 0);
     }
 
     function getInlineNodes(atLeastOne)
