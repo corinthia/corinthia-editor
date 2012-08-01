@@ -26,8 +26,13 @@ var Input_characterRangeAtPoint;
 var Input_positionWithinRangeAtCharacterOffset;
 var Input_characterOffsetOfPositionWithinRange;
 
+var Input_isAtWordBoundary;
+var Input_isAtParagraphBoundary;
 var Input_isPositionAtBoundaryGranularityInDirection;
 var Input_isPositionWithinTextUnitInDirection;
+var Input_toWordBoundary;
+var Input_toParagraphBoundary;
+var Input_toLineBoundary;
 var Input_positionFromPositionToBoundaryInDirection;
 var Input_rangeEnclosingPositionWithGranularityInDirection;
 
@@ -403,6 +408,35 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
                 (direction == "down"));
     }
 
+    Input_isAtWordBoundary = trace(function isAtWordBoundary(pos,direction)
+    {
+        if (pos.node.nodeType != Node.TEXT_NODE)
+            return false;
+        var paragraph = Text_analyseParagraph(pos);
+        if (paragraph == null)
+            return false;
+        var offset = Paragraph_offsetAtPosition(paragraph,pos);
+        var before = paragraph.text.substring(0,offset);
+        var after = paragraph.text.substring(offset);
+        var text = paragraph.text;
+
+        var afterMatch = (offset < text.length) && (text.charAt(offset).match(letterRE));
+        var beforeMatch = (offset > 0) && (text.charAt(offset-1).match(letterRE));
+
+        // coerce to boolean
+        afterMatch = !!afterMatch;
+        beforeMatch = !!beforeMatch;
+
+        if (isForward(direction))
+            return beforeMatch && !afterMatch;
+        else
+            return !beforeMatch;
+    });
+
+    Input_isAtParagraphBoundary = trace(function isAtParagraphBoundary(pos,direction)
+    {
+    });
+
     Input_isPositionAtBoundaryGranularityInDirection =
         trace(function isPositionAtBoundaryGranularityInDirection(posId,granularity,direction)
     {
@@ -415,29 +449,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
             return true;
         }
         else if (granularity == "word") {
-            if (pos.node.nodeType == Node.TEXT_NODE) {
-                var paragraph = Text_analyseParagraph(pos);
-                if (paragraph == null)
-                    return false;
-                var offset = Paragraph_offsetAtPosition(paragraph,pos);
-                var before = paragraph.text.substring(0,offset);
-                var after = paragraph.text.substring(offset);
-                var text = paragraph.text;
-
-                var afterMatch = (offset < text.length) && (text.charAt(offset).match(letterRE));
-                var beforeMatch = (offset > 0) && (text.charAt(offset-1).match(letterRE));
-
-                // coerce to boolean
-                afterMatch = !!afterMatch;
-                beforeMatch = !!beforeMatch;
-
-                if (isForward(direction))
-                    return beforeMatch && !afterMatch;
-                else
-                    return !beforeMatch;
-            }
-            if (run == null)
-                return false;
+            return Input_isAtWordBoundary(pos,direction);
         }
         else if ((granularity == "paragraph") || (granularity == "line")) {
             if (isForward(direction))
@@ -501,6 +513,87 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         throw new Error("unsupported granularity: "+granularity);
     });
 
+    Input_toWordBoundary = trace(function toWordBoundary(pos,direction)
+    {
+        pos = Text_closestPosInDirection(pos,direction);
+        if (pos == null)
+            return null;
+        var paragraph = Text_analyseParagraph(pos);
+        if (paragraph == null)
+            return null;
+        var run = Paragraph_runFromNode(paragraph,pos.node);
+        var offset = pos.offset + run.start;
+
+        if (isForward(direction)) {
+            var remaining = paragraph.text.substring(offset);
+            var afterWord = remaining.replace(wordAtStartRE,"");
+            var afterNonWord = remaining.replace(nonWordAtStartRE,"");
+
+            if (remaining.length == 0) {
+                return pos;
+            }
+            else if (afterWord.length < remaining.length) {
+                var newOffset = offset + (remaining.length - afterWord.length);
+                return Paragraph_positionAtOffset(paragraph,newOffset);
+            }
+            else {
+                var newOffset = offset + (remaining.length - afterNonWord.length);
+                return Paragraph_positionAtOffset(paragraph,newOffset);
+            }
+        }
+        else {
+            var remaining = paragraph.text.substring(0,offset);
+            var beforeWord = remaining.replace(wordAtEndRE,"");
+            var beforeNonWord = remaining.replace(nonWordAtEndRE,"");
+
+            if (remaining.length == 0) {
+                return pos;
+            }
+            else if (beforeWord.length < remaining.length) {
+                var newOffset = offset - (remaining.length - beforeWord.length);
+                return Paragraph_positionAtOffset(paragraph,newOffset);
+            }
+            else {
+                var newOffset = offset - (remaining.length - beforeNonWord.length);
+                return Paragraph_positionAtOffset(paragraph,newOffset);
+            }
+        }
+    });
+
+    Input_toParagraphBoundary = trace(function toParagraphBoundary(pos,direction)
+    {
+        if (isForward(direction)) {
+            var end = Text_toEndOfBoundary(pos,"paragraph");
+            if (Position_equal(pos,end)) {
+                end = Position_nextMatch(end,Position_okForMovement);
+                end = Text_toEndOfBoundary(end,"paragraph");
+                end = Text_toStartOfBoundary(end,"paragraph");
+            }
+            return end ? end : pos;
+        }
+        else {
+            var start = Text_toStartOfBoundary(pos,"paragraph");
+            if (Position_equal(pos,start)) {
+                start = Position_prevMatch(start,Position_okForMovement);
+                start = Text_toStartOfBoundary(start,"paragraph");
+                start = Text_toEndOfBoundary(start,"paragraph");
+            }
+            return start ? start : pos;
+        }
+    });
+
+    Input_toLineBoundary = trace(function toLineBoundary(pos,direction)
+    {
+        if (isForward(direction)) {
+            var end = Text_toEndOfBoundary(pos,"line");
+            return end ? end : pos;
+        }
+        else {
+            var start = Text_toStartOfBoundary(pos,"line");
+            return start ? start : pos;
+        }
+    });
+
     Input_positionFromPositionToBoundaryInDirection =
         trace(function positionFromPositionToBoundaryInDirection(posId,granularity,direction)
     {
@@ -509,84 +602,14 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         if (pos == null)
             return null;
 
-        if (granularity == "word") {
-            pos = Text_closestPosInDirection(pos,direction);
-            if (pos == null)
-                return addPosition(null);
-            var paragraph = Text_analyseParagraph(pos);
-            if (paragraph == null)
-                return addPosition(null);
-            var run = Paragraph_runFromNode(paragraph,pos.node);
-            var offset = pos.offset + run.start;
-
-            if (isForward(direction)) {
-                var remaining = paragraph.text.substring(offset);
-                var afterWord = remaining.replace(wordAtStartRE,"");
-                var afterNonWord = remaining.replace(nonWordAtStartRE,"");
-
-                if (remaining.length == 0) {
-                    return addPosition(pos);
-                }
-                else if (afterWord.length < remaining.length) {
-                    var newOffset = offset + (remaining.length - afterWord.length);
-                    return addPosition(Paragraph_positionAtOffset(paragraph,newOffset));
-                }
-                else {
-                    var newOffset = offset + (remaining.length - afterNonWord.length);
-                    return addPosition(Paragraph_positionAtOffset(paragraph,newOffset));
-                }
-            }
-            else {
-                var remaining = paragraph.text.substring(0,offset);
-                var beforeWord = remaining.replace(wordAtEndRE,"");
-                var beforeNonWord = remaining.replace(nonWordAtEndRE,"");
-
-                if (remaining.length == 0) {
-                    return addPosition(pos);
-                }
-                else if (beforeWord.length < remaining.length) {
-                    var newOffset = offset - (remaining.length - beforeWord.length);
-                    return addPosition(Paragraph_positionAtOffset(paragraph,newOffset));
-                }
-                else {
-                    var newOffset = offset - (remaining.length - beforeNonWord.length);
-                    return addPosition(Paragraph_positionAtOffset(paragraph,newOffset));
-                }
-            }
-        }
-        else if (granularity == "paragraph") {
-            if (isForward(direction)) {
-                var end = Text_toEndOfBoundary(pos,granularity);
-                if (Position_equal(pos,end)) {
-                    end = Position_nextMatch(end,Position_okForMovement);
-                    end = Text_toEndOfBoundary(end,granularity);
-                    end = Text_toStartOfBoundary(end,granularity);
-                }
-                return addPosition(end ? end : pos);
-            }
-            else {
-                var start = Text_toStartOfBoundary(pos,granularity);
-                if (Position_equal(pos,start)) {
-                    start = Position_prevMatch(start,Position_okForMovement);
-                    start = Text_toStartOfBoundary(start,granularity);
-                    start = Text_toEndOfBoundary(start,granularity);
-                }
-                return addPosition(start ? start : pos);
-            }
-        }
-        else if (granularity == "line") {
-            if (isForward(direction)) {
-                var end = Text_toEndOfBoundary(pos,granularity);
-                return addPosition(end ? end : pos);
-            }
-            else {
-                var start = Text_toStartOfBoundary(pos,granularity);
-                return addPosition(start ? start : pos);
-            }
-        }
-        else {
+        if (granularity == "word")
+            return addPosition(Input_toWordBoundary(pos,direction));
+        else if (granularity == "paragraph")
+            return addPosition(Input_toParagraphBoundary(pos,direction));
+        else if (granularity == "line")
+            return addPosition(Input_toLineBoundary(pos,direction));
+        else
             throw new Error("unsupported granularity: "+granularity);
-        }
     });
 
     Input_rangeEnclosingPositionWithGranularityInDirection =
