@@ -432,10 +432,28 @@ var Cursor_set;
             return;
 
         selRange.trackWhileExecuting(function() {
-            selRange.ensureRangeInlineNodesInParagraph();
-            selRange.ensureRangeValidHierarchy();
             if (!selRange.isEmpty())
                 Selection_deleteContents();
+        });
+
+        var check = Position_preferElementPosition(selRange.start);
+        if (check.node.nodeType == Node.ELEMENT_NODE) {
+            var before = check.node.childNodes[check.offset-1];
+            var after = check.node.childNodes[check.offset];
+            if (((before != null) && isSpecialBlockNode(before)) ||
+                ((after != null) && isSpecialBlockNode(after))) {
+                var p = DOM_createElement(document,"P");
+                DOM_insertBefore(check.node,p,check.node.childNodes[check.offset]);
+                Cursor_updateBRAtEndOfParagraph(p);
+                Cursor_set(p,0);
+                Cursor_ensureCursorVisible();
+                return;
+            }
+        }
+
+        selRange.trackWhileExecuting(function() {
+            selRange.ensureRangeInlineNodesInParagraph();
+            selRange.ensureRangeValidHierarchy();
         });
 
         var pos = selRange.start;
