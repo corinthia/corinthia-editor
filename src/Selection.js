@@ -827,6 +827,20 @@ var Selection_preferElementPositions;
 
     var selectionHandleEnd = true;
 
+    var toStartOfWord = trace(function toStartOfWord(pos)
+    {
+        if (Input_isAtWordBoundary(pos,"backward"))
+            return pos;
+        return Input_toWordBoundary(pos,"backward");
+    });
+
+    var toEndOfWord = trace(function toEndOfWord(pos)
+    {
+        if (Input_isAtWordBoundary(pos,"forward"))
+            return pos;
+        return Input_toWordBoundary(pos,"forward");
+    });
+
     // public
     Selection_dragSelectionUpdate = trace(function dragSelectionUpdate(x,y,selectWord)
     {
@@ -841,15 +855,27 @@ var Selection_preferElementPositions;
         var end = selRange.end;
 
         if (selectionHandleEnd) {
-            var range = new Range(start.node,start.offset,pos.node,pos.offset);
-            if (!range.isForwards())
+            if (Position_compare(pos,start) < 0) {
+                if (selectWord)
+                    pos = toStartOfWord(pos);
                 selectionHandleEnd = false;
+            }
+            else {
+                if (selectWord)
+                    pos = toEndOfWord(pos);
+            }
             Selection_set(start.node,start.offset,pos.node,pos.offset);
         }
         else {
-            var range = new Range(pos.node,pos.offset,end.node,end.offset);
-            if (!range.isForwards())
+            if (Position_compare(pos,end) > 0) {
+                if (selectWord)
+                    pos = toEndOfWord(pos);
                 selectionHandleEnd = true;
+            }
+            else {
+                if (selectWord)
+                    pos = toStartOfWord(pos);
+            }
             Selection_set(pos.node,pos.offset,end.node,end.offset);
         }
 
