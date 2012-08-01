@@ -320,6 +320,7 @@ var Cursor_set;
             selRange = Selection_get();
         }
         var pos = selRange.start;
+        pos = Position_preferTextPosition(pos);
         if (!allowInvalidPos && !Position_okForMovement(pos,true))
             pos = Position_closestMatchForwards(selRange.start,Position_okForInsertion);
         var node = pos.node;
