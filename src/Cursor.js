@@ -455,7 +455,7 @@ var Cursor_set;
 
             // If we're directly in a container node, add a paragraph, so we have something to
             // split.
-            if (enterPressedFilter(pos.node) || (pos.node == document.body)) {
+            if (isContainerExceptLI(pos.node)) {
                 var p = DOM_createElement(document,"P");
                 DOM_insertBefore(pos.node,p,pos.node.childNodes[pos.offset]);
                 pos = new Position(p,0);
@@ -463,13 +463,13 @@ var Cursor_set;
 
             if (positionAtStartOfHeading(pos)) {
                 var container = getContainerOrParagraph(pos.node);
-                pos = Formatting_movePreceding(new Position(container,0),enterPressedFilter,true);
+                pos = Formatting_movePreceding(new Position(container,0),isContainerExceptLI,true);
             }
             else if (pos.node.nodeType == Node.TEXT_NODE) {
-                pos = Formatting_splitTextAfter(pos,enterPressedFilter,true);
+                pos = Formatting_splitTextAfter(pos,isContainerExceptLI,true);
             }
             else {
-                pos = Formatting_moveFollowing(pos,enterPressedFilter,true);
+                pos = Formatting_moveFollowing(pos,isContainerExceptLI,true);
             }
         });
 
@@ -530,7 +530,7 @@ var Cursor_set;
         cursorX = null;
         Cursor_ensureCursorVisible();
 
-        function enterPressedFilter(node)
+        function isContainerExceptLI(node)
         {
             return (isContainerNode(node) && (DOM_upperName(node) != "LI"));
         }
