@@ -296,7 +296,6 @@ var Cursor_set;
     // public
     Cursor_insertCharacter = trace(function insertCharacter(str,allowInvalidPos,allowNoParagraph)
     {
-        // FIXME: should merge with adjacent text nodes... see for example textBeforeFigure02
         var firstInsertion = (UndoManager_groupType() != "Insert text");
 
         if (firstInsertion)
@@ -371,9 +370,15 @@ var Cursor_set;
             Hierarchy_ensureInlineNodesInParagraph(node);
 
         offset += str.length;
-        Cursor_set(node,offset);
+
+        pos = new Position(node,offset);
+        Position.trackWhileExecuting([pos],function() {
+            Formatting_mergeWithNeighbours(pos.node,Formatting_MERGEABLE_INLINE);
+        });
+
+        Cursor_set(pos.node,pos.offset);
         Selection_get().trackWhileExecuting(function() {
-            Cursor_updateBRAtEndOfParagraph(node);
+            Cursor_updateBRAtEndOfParagraph(pos.node);
         });
 
         Selection_update();
