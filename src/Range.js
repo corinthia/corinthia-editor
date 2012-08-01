@@ -405,11 +405,17 @@ var Range;
         var outermost = this.getOutermostNodes();
         var range = this;
 
+        var haveContent = false;
         for (var i = 0; i < outermost.length; i++) {
+            if (!isWhitespaceTextNode(outermost[i]))
+                haveContent = true;
             nodeSet.add(outermost[i]);
             for (var node = outermost[i]; node != null; node = node.parentNode)
                 ancestorSet.add(node);
         }
+
+        if (!haveContent)
+            return new Array();
 
         var clone = recurse(detail.commonAncestor);
 

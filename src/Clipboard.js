@@ -413,11 +413,12 @@ var Clipboard_pasteNodes;
         UndoManager_newGroup();
     });
 
-    function insertChildrenBefore(parent,child,nextSibling)
+    function insertChildrenBefore(parent,child,nextSibling,pastedNodes)
     {
         var next;
         for (var grandChild = child.firstChild; grandChild != null; grandChild = next) {
             next = grandChild.nextSibling;
+            pastedNodes.push(grandChild);
             DOM_insertBefore(parent,grandChild,nextSibling);
         }
     }
@@ -474,7 +475,9 @@ var Clipboard_pasteNodes;
             }
         }
 
+        var pastedNodes;
         if (inItem) {
+            pastedNodes = new Array();
             for (var i = 0; i < nodes.length; i++) {
                 var child = nodes[i];
 
@@ -483,30 +486,34 @@ var Clipboard_pasteNodes;
                 if (isListNode(child)) {
                     Formatting_movePreceding(new Position(parent,offset),
                                              function(x) { return (x == containerParent); });
-                    insertChildrenBefore(inItem.parentNode,child,inItem);
+                    insertChildrenBefore(inItem.parentNode,child,inItem,pastedNodes);
                 }
                 else if (isListItemNode(child)) {
                     Formatting_movePreceding(new Position(parent,offset),
                                              function(x) { return (x == containerParent); });
                     DOM_insertBefore(inItem.parentNode,child,inItem);
+                    pastedNodes.push(child);
                 }
                 else {
                     DOM_insertBefore(parent,child,nextSibling);
+                    pastedNodes.push(child);
                 }
             }
         }
         else if (inList) {
+            pastedNodes = new Array();
             for (var i = 0; i < nodes.length; i++) {
                 var child = nodes[i];
 
                 var offset = DOM_nodeOffset(nextSibling,parent);
                 
                 if (isListNode(child)) {
-                    insertChildrenBefore(parent,child,nextSibling);
+                    insertChildrenBefore(parent,child,nextSibling,pastedNodes);
                     prevLI = null;
                 }
                 else if (isListItemNode(child)) {
                     DOM_insertBefore(parent,child,nextSibling);
+                    pastedNodes.push(child);
                     prevLI = null;
                 }
                 else if (!isWhitespaceTextNode(child)) {
@@ -514,10 +521,12 @@ var Clipboard_pasteNodes;
                         prevLI = DOM_createElement(document,"LI");
                     DOM_appendChild(prevLI,child);
                     DOM_insertBefore(parent,prevLI,nextSibling);
+                    pastedNodes.push(child);
                 }
             }
         }
         else {
+            pastedNodes = nodes;
             for (var i = 0; i < nodes.length; i++) {
                 var child = nodes[i];
                 DOM_insertBefore(parent,child,nextSibling);
@@ -531,7 +540,12 @@ var Clipboard_pasteNodes;
             prevOffset = DOM_nodeOffset(previousSibling);
         var nextOffset = DOM_nodeOffset(nextSibling,parent);
 
-        var pastedRange = new Range(parent,prevOffset,parent,nextOffset);
+        var origRange = new Range(parent,prevOffset,parent,nextOffset);
+
+        var firstPasted = pastedNodes[0];
+        var lastPasted = pastedNodes[pastedNodes.length-1];
+        var pastedRange = new Range(firstPasted,0,lastPasted,DOM_maxChildOffset(lastPasted));
+        origRange.trackWhileExecuting(function() {
         pastedRange.trackWhileExecuting(function() {
             if (previousSibling != null)
                 Formatting_mergeWithNeighbours(previousSibling,Formatting_MERGEABLE_INLINE);
@@ -541,9 +555,9 @@ var Clipboard_pasteNodes;
             Cursor_updateBRAtEndOfParagraph(parent);
 
             pastedRange.ensureRangeValidHierarchy(true);
-        });
+        })});
 
-        var pos = new Position(pastedRange.end.node,pastedRange.end.offset);
+        var pos = new Position(origRange.end.node,origRange.end.offset);
         Position.trackWhileExecuting(pos,function() {
             while (true) {
                 if (pos.node == document.body)
@@ -560,6 +574,9 @@ var Clipboard_pasteNodes;
             }
         });
 
+        pos = new Position(pastedRange.end.node,pastedRange.end.offset);
+        while (isOpaqueNode(pos.node))
+            pos = new Position(pos.node.parentNode,DOM_nodeOffset(pos.node)+1);
         pos = Position_closestMatchBackwards(pos,Position_okForInsertion);
 
         Selection_set(pos.node,pos.offset,pos.node,pos.offset);

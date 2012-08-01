@@ -28,7 +28,7 @@ var Selection_clearSelection;
 var Selection_preserveWhileExecuting;
 var Selection_posAtStartOfWord;
 var Selection_posAtEndOfWord;
-
+var Selection_preferElementPositions;
 
 (function() {
 
@@ -1224,6 +1224,17 @@ var Selection_posAtEndOfWord;
             Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
         }
         return result;
+    });
+
+    Selection_preferElementPositions = trace(function preferElementPositions()
+    {
+        var range = Selection_get();
+        if (range == null)
+            return;
+        range.start = Position_preferElementPosition(range.start);
+        range.end = Position_preferElementPosition(range.end);
+        Selection_set(range.start.node,range.start.offset,
+                      range.end.node,range.end.offset);
     });
 
 })();

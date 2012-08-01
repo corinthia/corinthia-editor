@@ -44,6 +44,7 @@ var Lists_setOrderedList;
     // public
     Lists_increaseIndent = trace(function increaseIndent()
     {
+        Selection_preferElementPositions();
         Selection_preserveWhileExecuting(function() {
             var range = Selection_get();
             if (range == null)
@@ -138,6 +139,7 @@ var Lists_setOrderedList;
     // public
     Lists_decreaseIndent = trace(function decreaseIndent()
     {
+        Selection_preferElementPositions();
         Selection_preserveWhileExecuting(function() {
             var range = Selection_get();
             if (range == null)
@@ -306,6 +308,7 @@ var Lists_setOrderedList;
     // public
     Lists_clearList = trace(function clearList()
     {
+        Selection_preferElementPositions();
         Selection_preserveWhileExecuting(function() {
             var range = Selection_get();
             if (range == null)

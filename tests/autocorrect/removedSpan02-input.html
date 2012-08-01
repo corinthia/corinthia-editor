@@ -15,7 +15,8 @@ function performTest()
     Cursor_insertCharacter(" ");
     PostponedActions_perform();
     Cursor_deleteCharacter();
-    Cursor_enterPressed();
+    PostponedActions_perform();
+    Cursor_deleteCharacter();
     PostponedActions_perform();
     showSelection();
 }

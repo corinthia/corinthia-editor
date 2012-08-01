@@ -546,8 +546,25 @@ var Position_preferElementPosition;
         return pos;
     });
 
-    var findEquivalentValidPosition = trace(function findEquivalentValidPosition(pos)
+    var findEquivalentValidPosition = trace(function findEquivalentValidPosition(pos,fun)
     {
+        var node = pos.node;
+        var offset = pos.offset;
+        if (node.nodeType == Node.ELEMENT_NODE) {
+            var before = node.childNodes[offset-1];
+            var after = node.childNodes[offset];
+            if ((before != null) && (before.nodeType == Node.TEXT_NODE)) {
+                var candidate = new Position(before,before.nodeValue.length);
+                if (fun(candidate))
+                    return candidate;
+            }
+            if ((after != null) && (after.nodeType == Node.TEXT_NODE)) {
+                var candidate = new Position(after,0);
+                if (fun(candidate))
+                    return candidate;
+            }
+        }
+
         if ((pos.node.nodeType == Node.TEXT_NODE) &&
             isWhitespaceString(pos.node.nodeValue.slice(pos.offset))) {
             var str = pos.node.nodeValue;
@@ -568,7 +585,7 @@ var Position_preferElementPosition;
             return null;
 
         if (!fun(pos))
-            pos = findEquivalentValidPosition(pos);
+            pos = findEquivalentValidPosition(pos,fun);
 
         if (fun(pos))
             return pos;
@@ -591,7 +608,7 @@ var Position_preferElementPosition;
             return null;
 
         if (!fun(pos))
-            pos = findEquivalentValidPosition(pos);
+            pos = findEquivalentValidPosition(pos,fun);
 
         if (fun(pos))
             return pos;

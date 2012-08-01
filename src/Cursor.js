@@ -296,10 +296,13 @@ var Cursor_set;
     // public
     Cursor_insertCharacter = trace(function insertCharacter(str,allowInvalidPos,allowNoParagraph)
     {
+        // FIXME: should merge with adjacent text nodes... see for example textBeforeFigure02
         var firstInsertion = (UndoManager_groupType() != "Insert text");
 
         if (firstInsertion)
             UndoManager_newGroup("Insert text",checkNbsp);
+
+        Selection_preferElementPositions();
 
         if (str == "-") {
             var preceding = Cursor_getPrecedingWord();
@@ -383,6 +386,7 @@ var Cursor_set;
         if (UndoManager_groupType() != "Delete text")
             UndoManager_newGroup("Delete text",checkNbsp);
 
+        Selection_preferElementPositions();
         var selRange = Selection_get();
         if (selRange == null)
             return;
@@ -392,6 +396,7 @@ var Cursor_set;
         }
         else {
             var currentPos = selRange.start;
+            currentPos = Position_preferTextPosition(currentPos);
             var prevPos = Position_prevMatch(currentPos,Position_okForMovement);
             if (prevPos != null) {
                 var startBlock = firstBlockAncestor(prevPos.closestActualNode());
@@ -427,6 +432,7 @@ var Cursor_set;
     {
         UndoManager_newGroup("New paragraph");
 
+        Selection_preferElementPositions();
         var selRange = Selection_get();
         if (selRange == null)
             return;
@@ -467,6 +473,11 @@ var Cursor_set;
             Cursor_set(li,0);
             Cursor_ensureCursorVisible();
             return;
+        }
+
+        if (isAutoCorrectNode(pos.node)) {
+            pos = Position_preferTextPosition(pos);
+            selRange.start = selRange.end = pos;
         }
 
         selRange.trackWhileExecuting(function() {

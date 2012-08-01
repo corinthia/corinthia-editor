@@ -225,8 +225,10 @@ function leftLoaded()
             });
         });
 
-        w.Selection_set(range.start.node,range.start.offset,
-                                             range.end.node,range.end.offset);
+        range.start = w.Position_preferTextPosition(range.start);
+        range.end = w.Position_preferTextPosition(range.end);
+
+        w.Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
     }
     continuation();
 
