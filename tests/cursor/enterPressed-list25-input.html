@@ -6,7 +6,7 @@ function performTest()
 {
     Cursor_enterPressed();
     var range = Selection_get();
-    range.trackWhileExecuting(showEmptyTextNodes);
+    Range_trackWhileExecuting(range,showEmptyTextNodes);
     var u = document.getElementsByTagName("U")[0];
     Selection_set(u,0,u,0);
     Cursor_insertCharacter("X");

@@ -4,7 +4,7 @@ function oldInsertCharacter(character)
     if (selectionRange == null)
         return;
 
-    if (!selectionRange.isEmpty())
+    if (!Range_isEmpty(selectionRange))
         Selection_deleteContents();
     var pos = selectionRange.start;
     var node = pos.node;
@@ -38,7 +38,7 @@ function showValidPositions()
         pos = pos.next();
     }
 
-    Position.trackWhileExecuting(validPositions,function() {
+    Position_trackWhileExecuting(validPositions,function() {
 //        for (var i = 0; i < validPositions.length; i++) {
         for (var i = validPositions.length-1; i >= 0; i--) {
             var pos = validPositions[i];

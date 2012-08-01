@@ -147,7 +147,7 @@ var AutoCorrect_replaceCorrection;
     {
         Selection_preserveWhileExecuting(function() {
             var selRange = Selection_get();
-            if ((selRange == null) && !selRange.isEmpty())
+            if ((selRange == null) && !Range_isEmpty(selRange))
                 return;
 
             var node = selRange.start.node;

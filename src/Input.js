@@ -109,7 +109,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
             return "";
 
         var range = new Range(start.node,start.offset,end.node,end.offset);
-        var outermost = range.getOutermostNodes();
+        var outermost = Range_getOutermostNodes(range);
         var components = new Array();
         for (var i = 0; i < outermost.length; i++)
             recurse(outermost[i]);
@@ -154,7 +154,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         itrace("replaceRange",start,end,text);
 
         var range = new Range(start.node,start.offset,end.node,end.offset);
-        range.trackWhileExecuting(function() {
+        Range_trackWhileExecuting(range,function() {
             Selection_deleteRangeContents(range);
         });
         var textNode = DOM_createTextNode(document,text);
@@ -309,7 +309,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         if ((pos1.node == pos2.node) && (pos1.offset == pos2.offset))
             return 0;
         var range = new Range(pos1.node,pos1.offset,pos2.node,pos2.offset);
-        if (range.isForwards())
+        if (Range_isForwards(range))
             return -1;
         else
             return 1;
@@ -340,7 +340,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         var end = getPosition(endId);
         itrace("firstRectForRange",start,end);
         var range = new Range(start.node,start.offset,end.node,end.offset);
-        var rects = range.getClientRects();
+        var rects = Range_getClientRects(range);
         if (rects.length == 0)
             return { x: 0, y: 0, width: 0, height: 0 };
         else

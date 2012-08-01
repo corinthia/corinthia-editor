@@ -162,13 +162,13 @@ var Main_init;
         {
             var selectionRange = Selection_get();
             if (selectionRange != null) {
-                selectionRange = selectionRange.forwards();
+                selectionRange = Range_forwards(selectionRange);
                 var startSave = new Object();
                 var endSave = new Object();
 
                 var html = null;
 
-                selectionRange.trackWhileExecuting(function() {
+                Range_trackWhileExecuting(selectionRange,function() {
                     // We use the strings @@^^ and ^^@@ to represent the selection
                     // start and end, respectively. The reason for this is that after we have
                     // cloned the tree, all text will be removed. We keeping the @ and ^

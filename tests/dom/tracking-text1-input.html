@@ -15,7 +15,7 @@ function performTest()
     for (var i = 0; i < positions.length; i++)
         messages.push("positions["+i+"] = "+positions[i]);
 
-    Position.trackWhileExecuting(positions,function() {
+    Position_trackWhileExecuting(positions,function() {
         DOM_deleteCharacters(text,8,13);
     });
 

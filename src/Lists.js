@@ -250,7 +250,7 @@ var Lists_setOrderedList;
     // public
     var getListOperationNodes = trace(function getListOperationNodes(range)
     {
-        var detail = range.detail();
+        var detail = Range_detail(range);
         var dca = detail.commonAncestor;
         var ds = detail.startAncestor;
         var de = detail.endAncestor;
@@ -313,7 +313,7 @@ var Lists_setOrderedList;
             var range = Selection_get();
             if (range == null)
                 return;
-            range.ensureRangeInlineNodesInParagraph();
+            Range_ensureInlineNodesInParagraph(range);
 
             var nodes = getListOperationNodes(range);
 
@@ -365,7 +365,7 @@ var Lists_setOrderedList;
         var range = Selection_get();
         if (range == null)
             return;
-        if (range.isEmpty() &&
+        if (Range_isEmpty(range) &&
             (range.start.node.nodeType == Node.ELEMENT_NODE) &&
             (isContainerNode(range.start.node))) {
 
@@ -406,7 +406,7 @@ var Lists_setOrderedList;
             range = Selection_get();
         }
 
-        range.trackWhileExecuting(function () {
+        Range_trackWhileExecuting(range,function () {
             // Set list to UL or OL
 
             for (var i = 0; i < nodes.length; i++) {
@@ -511,7 +511,7 @@ var Lists_setOrderedList;
                 }
             }
         });
-        range.ensureRangeValidHierarchy();
+        Range_ensureValidHierarchy(range);
         Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
     });
 

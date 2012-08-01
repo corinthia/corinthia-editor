@@ -34,7 +34,7 @@ function performTest()
 
             total++;
 
-            var actual = range.isForwards();
+            var actual = Range_isForwards(range);
             var expected = isForwardsSimple(range);
             if (actual == expected)
                 pass++;

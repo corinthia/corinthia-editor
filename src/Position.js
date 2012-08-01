@@ -2,6 +2,7 @@
 
 var Location;
 var Position;
+var Position_trackWhileExecuting;
 var Position_okForInsertion;
 var Position_okForMovement;
 var Position_prevMatch;
@@ -309,7 +310,7 @@ var Position_compare;
     }
 
     // public
-    Position.trackWhileExecuting = function(positions,fun)
+    Position_trackWhileExecuting = trace(function(positions,fun)
     {
         for (var i = 0; i < positions.length; i++)
             startTracking(positions[i].self);
@@ -320,7 +321,7 @@ var Position_compare;
             for (var i = 0; i < positions.length; i++)
                 stopTracking(positions[i].self);
         }
-    }
+    });
 
     // public
     Position.prototype.closestActualNode = function(preferElement)
@@ -640,7 +641,7 @@ var Position_compare;
         if (pos == null)
             return null;
         var range = new Range(pos.node,pos.offset,pos.node,pos.offset);
-        var rects = range.getClientRects();
+        var rects = Range_getClientRects(range);
 
         if ((rects.length > 0) && !rectIsEmpty(rects[0])) {
             return rects[0];
@@ -663,17 +664,6 @@ var Position_compare;
             (a.node == b.node) && (a.offset == b.offset))
             return true;
         return false;
-    });
-
-    Position_compare = trace(function compare(a,b)
-    {
-        if ((a.node == b.node) && (a.offset == b.offset))
-            return 0;
-        var range = new Range(a.node,a.offset,b.node,b.offset);
-        if (range.isForwards())
-            return -1;
-        else
-            return 1;
     });
 
     Position_preferTextPosition = trace(function preferTextPosition(pos)

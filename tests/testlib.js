@@ -35,7 +35,7 @@ function insertTextAtPosition(position,str)
 
 function showRangeAsBrackets(range)
 {
-    if (range.isEmpty()) {
+    if (Range_isEmpty(range)) {
         insertTextAtPosition(range.end,"[]",true);
     }
     else {

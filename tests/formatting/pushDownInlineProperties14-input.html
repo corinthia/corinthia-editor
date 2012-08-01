@@ -6,10 +6,10 @@ function performTest()
 {
     Selection_preserveWhileExecuting(function() {
         var range = Selection_get();
-        range.trackWhileExecuting(function() {
+        Range_trackWhileExecuting(range,function() {
             removeWhitespaceAndCommentNodes(document.body);
         });
-        var outermost = range.getOutermostNodes();
+        var outermost = Range_getOutermostNodes(range);
         Formatting_pushDownInlineProperties(outermost);
     });
 }

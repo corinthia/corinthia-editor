@@ -27,7 +27,7 @@ function performTest()
     for (var i = 0; i < positions.length; i++)
         origStrings.push(positions[i].toString());
 
-    Position.trackWhileExecuting(positions,function() {
+    Position_trackWhileExecuting(positions,function() {
         DOM_moveCharacters(text1,4,8,text2,10,true,false);
     });
 
@@ -35,7 +35,7 @@ function performTest()
     for (var i = 0; i < positions.length; i++)
         movedStrings.push(positions[i].toString());
 
-    Position.trackWhileExecuting(positions,function() {
+    Position_trackWhileExecuting(positions,function() {
         UndoManager_undo();
     });
     var undoneStrings = new Array();

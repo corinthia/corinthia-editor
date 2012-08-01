@@ -12,7 +12,7 @@ function performTest()
         for (var nodeOffset = 0; nodeOffset <= nodeCount; nodeOffset++) {
             var position = new Position(document.body,posOffset);
             var temp = DOM_createElement(document,"B");
-            Position.trackWhileExecuting([position],function() {
+            Position_trackWhileExecuting([position],function() {
                 var message = "posOffset "+posOffset+", nodeOffset "+nodeOffset+": "+position;
                 DOM_insertBefore(document.body,temp,document.body.childNodes[nodeOffset]);
                 message += " "+position;

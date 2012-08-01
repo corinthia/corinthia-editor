@@ -34,7 +34,7 @@ function performTest()
 
             total++;
 
-            var actual = range.getOutermostNodes();
+            var actual = Range_getOutermostNodes(range);
             var expected = getOutermostNodesSimple(range);
             if (arraysEqual(actual,expected))
                 pass++;

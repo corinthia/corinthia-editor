@@ -14,8 +14,8 @@ function performTest()
 
     var range = new Range(document.body,1,document.body,2);
 
-    range.trackWhileExecuting(function() {
-        range.ensureRangeInlineNodesInParagraph();
+    Range_trackWhileExecuting(range,function() {
+        Range_ensureInlineNodesInParagraph(range);
     });
     showRangeAsBrackets(range);
 }

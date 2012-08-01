@@ -253,8 +253,8 @@ var Clipboard_pasteNodes;
                                         range.start.node,range.start.offset);
             var afterRange = new Range(range.end.node,range.end.offset,
                                        endInLI,DOM_maxChildOffset(endInLI));
-            var contentBefore = beforeRange.hasContent();
-            var contentAfter = afterRange.hasContent();
+            var contentBefore = Range_hasContent(beforeRange);
+            var contentAfter = Range_hasContent(afterRange);
 
             if (!contentBefore && !contentAfter) {
                 var li = startInLI;
@@ -277,7 +277,7 @@ var Clipboard_pasteNodes;
                 nodes = [Tables_cloneRegion(region)];
             }
             else {
-                nodes = range.cloneContents();
+                nodes = Range_cloneContents(range);
             };
 
             var div = DOM_createElement(document,"DIV");
@@ -330,7 +330,7 @@ var Clipboard_pasteNodes;
         Selection_deleteContents();
         var selRange = Selection_get();
         if (selRange != null) {
-            selRange.trackWhileExecuting(function() {
+            Range_trackWhileExecuting(selRange,function() {
                 var node = selRange.start.closestActualNode();
                 while (node != null) {
                     var parent = node.parentNode;
@@ -545,8 +545,8 @@ var Clipboard_pasteNodes;
         var firstPasted = pastedNodes[0];
         var lastPasted = pastedNodes[pastedNodes.length-1];
         var pastedRange = new Range(firstPasted,0,lastPasted,DOM_maxChildOffset(lastPasted));
-        origRange.trackWhileExecuting(function() {
-        pastedRange.trackWhileExecuting(function() {
+        Range_trackWhileExecuting(origRange,function() {
+        Range_trackWhileExecuting(pastedRange,function() {
             if (previousSibling != null)
                 Formatting_mergeWithNeighbours(previousSibling,Formatting_MERGEABLE_INLINE);
             if (nextSibling != null)
@@ -554,11 +554,11 @@ var Clipboard_pasteNodes;
 
             Cursor_updateBRAtEndOfParagraph(parent);
 
-            pastedRange.ensureRangeValidHierarchy(true);
+            Range_ensureValidHierarchy(pastedRange,true);
         })});
 
         var pos = new Position(origRange.end.node,origRange.end.offset);
-        Position.trackWhileExecuting(pos,function() {
+        Position_trackWhileExecuting(pos,function() {
             while (true) {
                 if (pos.node == document.body)
                     break;

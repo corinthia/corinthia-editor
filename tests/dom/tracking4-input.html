@@ -8,7 +8,7 @@ function performTest()
     var pos1 = new Position(ps[0],0);
     var pos2 = new Position(ps[0],2);
 
-    Position.trackWhileExecuting([pos1,pos2],function() {
+    Position_trackWhileExecuting([pos1,pos2],function() {
         insertAtPosition(pos1,DOM_createElement(document,"b"));
         insertAtPosition(pos2,DOM_createElement(document,"i"));
     });

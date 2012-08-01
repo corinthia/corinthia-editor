@@ -18,7 +18,7 @@ function performTest()
     DOM_appendChild(document.body,p);
 
     var range = new Range(p,2,p,4);
-    range.trackWhileExecuting(function() {
+    Range_trackWhileExecuting(range,function() {
         Formatting_mergeWithNeighbours(text3,Formatting_MERGEABLE_INLINE);
     });
     showRangeAsBrackets(range);

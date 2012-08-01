@@ -10,7 +10,7 @@ function performTest()
 
     var range = new Range(p,1,p,6);
 
-    range.trackWhileExecuting(function() {
+    Range_trackWhileExecuting(range,function() {
        Formatting_mergeWithNeighbours(bs[1],Formatting_MERGEABLE_INLINE);
     });
     showRangeAsBrackets(range);

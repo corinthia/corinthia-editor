@@ -97,13 +97,13 @@ function positionTest(start1,end1,start2,end2)
     var origStrings = makeStringArray(positions);
     UndoManager_newGroup();
 
-    Position.trackWhileExecuting(positions,function() { selectRange(p,start1,end1); });
+    Position_trackWhileExecuting(positions,function() { selectRange(p,start1,end1); });
     setPositionList(positions);
     var strings1 = makeStringArray(positions);
 
     UndoManager_newGroup();
 
-    Position.trackWhileExecuting(positions,function() { selectRange(p,start2,end2); });
+    Position_trackWhileExecuting(positions,function() { selectRange(p,start2,end2); });
     setPositionList(positions);
     var strings2 = makeStringArray(positions);
 

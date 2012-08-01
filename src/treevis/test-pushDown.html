@@ -56,16 +56,16 @@ function updateForPosition(position)
     }
     state.startPosition = range.start;
     state.endPosition = range.end;
-    var outermost = range.getOutermostNodes();
+    var outermost = Range_getOutermostNodes(range);
 
 //    state.selected = NodeSet.fromArray(outermost).descendantOrSelf();
 
 
 
-    var outermostArray = range.getOutermostNodes();
+    var outermostArray = Range_getOutermostNodes(range);
     var outermostSet = NodeSet.fromArray(outermostArray);
 
-    var allArray = range.getAllNodes();
+    var allArray = Range_getAllNodes(range);
     var allSet = NodeSet.fromArray(allArray);
 
     state.selected = outermostSet.ancestorOrSelf().union(allSet);
@@ -90,8 +90,8 @@ function mouseUpPosition(position)
 {
     dragging = false;
     range = new Range(range.start.node,range.start.offset,range.end.node,range.end.offset);
-    range.expand();
-    Formatting_pushDownInlineProperties(range.getOutermostNodes());
+    Range_expand(range);
+    Formatting_pushDownInlineProperties(Range_getOutermostNodes(range));
     treeView.update();
 }
 

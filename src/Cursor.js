@@ -122,7 +122,7 @@ var Cursor_set;
             return false;
 
         var selectionRange = Selection_get();
-        var samePosition = ((selectionRange != null) && selectionRange.isEmpty() &&
+        var samePosition = ((selectionRange != null) && Range_isEmpty(selectionRange) &&
                             (position.node == selectionRange.start.node) &&
                             (position.offset == selectionRange.start.offset));
         if (samePosition && (result == null))
@@ -315,7 +315,7 @@ var Cursor_set;
         if (selRange == null)
             return;
 
-        if (!selRange.isEmpty()) {
+        if (!Range_isEmpty(selRange)) {
             Selection_deleteContents();
             selRange = Selection_get();
         }
@@ -372,12 +372,12 @@ var Cursor_set;
         offset += str.length;
 
         pos = new Position(node,offset);
-        Position.trackWhileExecuting([pos],function() {
+        Position_trackWhileExecuting([pos],function() {
             Formatting_mergeWithNeighbours(pos.node,Formatting_MERGEABLE_INLINE);
         });
 
         Cursor_set(pos.node,pos.offset);
-        Selection_get().trackWhileExecuting(function() {
+        Range_trackWhileExecuting(Selection_get(),function() {
             Cursor_updateBRAtEndOfParagraph(pos.node);
         });
 
@@ -396,7 +396,7 @@ var Cursor_set;
         if (selRange == null)
             return;
 
-        if (!selRange.isEmpty()) {
+        if (!Range_isEmpty(selRange)) {
             Selection_deleteContents();
         }
         else {
@@ -442,8 +442,8 @@ var Cursor_set;
         if (selRange == null)
             return;
 
-        selRange.trackWhileExecuting(function() {
-            if (!selRange.isEmpty())
+        Range_trackWhileExecuting(selRange,function() {
+            if (!Range_isEmpty(selRange))
                 Selection_deleteContents();
         });
 
@@ -462,14 +462,14 @@ var Cursor_set;
             }
         }
 
-        selRange.trackWhileExecuting(function() {
-            selRange.ensureRangeInlineNodesInParagraph();
-            selRange.ensureRangeValidHierarchy();
+        Range_trackWhileExecuting(selRange,function() {
+            Range_ensureInlineNodesInParagraph(selRange);
+            Range_ensureValidHierarchy(selRange);
         });
 
         var pos = selRange.start;
 
-        var detail = selRange.detail();
+        var detail = Range_detail(selRange);
         if ((DOM_upperName(detail.startParent) == "OL") ||
             (DOM_upperName(detail.startParent) == "UL")) {
             var li = DOM_createElement(document,"LI");
@@ -485,7 +485,7 @@ var Cursor_set;
             selRange.start = selRange.end = pos;
         }
 
-        selRange.trackWhileExecuting(function() {
+        Range_trackWhileExecuting(selRange,function() {
 
             // If we're directly in a container node, add a paragraph, so we have something to
             // split.
@@ -510,12 +510,12 @@ var Cursor_set;
         Cursor_set(pos.node,pos.offset);
         selRange = Selection_get();
 
-        selRange.trackWhileExecuting(function() {
+        Range_trackWhileExecuting(selRange,function() {
             if ((pos.node.nodeType == Node.TEXT_NODE) && (pos.node.nodeValue.length == 0)) {
                 DOM_deleteNode(pos.node);
             }
 
-            var detail = selRange.detail();
+            var detail = Range_detail(selRange);
 
             // If a preceding paragraph has become empty as a result of enter being pressed
             // while the cursor was in it, then update the BR at the end of the paragraph
@@ -556,7 +556,7 @@ var Cursor_set;
                 }
             }
 
-            Cursor_updateBRAtEndOfParagraph(selRange.singleNode());
+            Cursor_updateBRAtEndOfParagraph(Range_singleNode(selRange));
         });
 
         Selection_set(selRange.start.node,selRange.start.offset,
@@ -584,7 +584,7 @@ var Cursor_set;
                 if (isOpaqueNode(container.firstChild))
                     startOffset = 1;
                 var range = new Range(container,startOffset,pos.node,pos.offset);
-                return !range.hasContent();
+                return !Range_hasContent(range);
             }
             else
                 return false;
@@ -593,7 +593,7 @@ var Cursor_set;
 
     Cursor_getPrecedingWord = trace(function getPrecedingWord() {
         var selRange = Selection_get();
-        if ((selRange == null) && !selRange.isEmpty())
+        if ((selRange == null) && !Range_isEmpty(selRange))
             return "";
 
         var node = selRange.start.node;
@@ -658,7 +658,7 @@ var Cursor_set;
         if (selRange == null)
             return;
 
-        if (!selRange.isEmpty()) {
+        if (!Range_isEmpty(selRange)) {
             Selection_deleteContents();
             selRange = Selection_get();
         }

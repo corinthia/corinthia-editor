@@ -93,12 +93,10 @@ var Formatting_formatInlineNode;
     // public (for testing purposes only)
     Formatting_splitAroundSelection = trace(function splitAroundSelection(range,allowDirectInline)
     {
-        range.trackWhileExecuting(function() {
-
-//            range.omitEmptyTextSelection(); // FIXME: enable this again?
+        Range_trackWhileExecuting(range,function() {
             if (!allowDirectInline)
-                range.ensureRangeInlineNodesInParagraph();
-            range.ensureRangeValidHierarchy();
+                Range_ensureInlineNodesInParagraph(range);
+            Range_ensureValidHierarchy(range);
 
             if ((range.start.node.nodeType == Node.TEXT_NODE) &&
                 (range.start.offset > 0)) {
@@ -181,7 +179,7 @@ var Formatting_formatInlineNode;
     // public
     Formatting_mergeRange = trace(function mergeRange(range,whiteList)
     {
-        var nodes = range.getAllNodes();
+        var nodes = Range_getAllNodes(range);
         for (var i = 0; i < nodes.length; i++) {
             var next;
             for (var p = nodes[i]; p != null; p = next) {
@@ -359,13 +357,13 @@ var Formatting_formatInlineNode;
         if (range == null)
             return {};
 
-        var outermost = range.getOutermostNodes(true);
+        var outermost = Range_getOutermostNodes(range,true);
 
         var leafNodes = new Array();
         for (var i = 0; i < outermost.length; i++) {
             findLeafNodes(outermost[i],leafNodes);
         }
-        var empty = range.isEmpty();
+        var empty = Range_isEmpty(range);
 
         var commonProperties = null;
         for (var i = 0; i < leafNodes.length; i++) {
@@ -972,7 +970,8 @@ var Formatting_formatInlineNode;
         // If we're applying formatting properties to an empty selection, and the node of the
         // selection start & end is an element, add an empty text node so that we have something
         // to apply the formatting to.
-        if (selectionRange.isEmpty() && (selectionRange.start.node.nodeType == Node.ELEMENT_NODE)) {
+        if (Range_isEmpty(selectionRange) &&
+            (selectionRange.start.node.nodeType == Node.ELEMENT_NODE)) {
             var node = selectionRange.start.node;
             var offset = selectionRange.start.offset;
             var text = DOM_createTextNode(document,"");
@@ -984,8 +983,8 @@ var Formatting_formatInlineNode;
         // If the cursor is in a container (such as BODY OR FIGCAPTION), and not inside a paragraph,
         // put it in one so we can set a paragraph style
 
-        if ((style != null) && selectionRange.isEmpty()) {
-            var node = selectionRange.singleNode();
+        if ((style != null) && Range_isEmpty(selectionRange)) {
+            var node = Range_singleNode(selectionRange);
             while (isInlineNode(node))
                 node = node.parentNode;
             if (isContainerNode(node) && containsOnlyInlineChildren(node)) {
@@ -1004,21 +1003,21 @@ var Formatting_formatInlineNode;
                          range.start,range.end];
 
         var allowDirectInline = (style == null);
-        Position.trackWhileExecuting(positions,function() {
+        Position_trackWhileExecuting(positions,function() {
             Formatting_splitAroundSelection(range,allowDirectInline);
-            range.expand();
+            Range_expand(range);
             if (!allowDirectInline)
-                range.ensureRangeInlineNodesInParagraph();
-            range.ensureRangeValidHierarchy();
-            range.expand();
-            var outermost = range.getOutermostNodes();
+                Range_ensureInlineNodesInParagraph(range);
+            Range_ensureValidHierarchy(range);
+            Range_expand(range);
+            var outermost = Range_getOutermostNodes(range);
             var target = null;
 
             var paragraphs;
             if (outermost.length > 0)
                 paragraphs = getParagraphs(outermost);
             else
-                paragraphs = getParagraphs([range.singleNode()]);
+                paragraphs = getParagraphs([Range_singleNode(range)]);
 
             // Push down inline properties
             Formatting_pushDownInlineProperties(outermost);
@@ -1077,8 +1076,8 @@ var Formatting_formatInlineNode;
         var start = Position_closestMatchForwards(selectionRange.start,Position_okForInsertion);
         var end = Position_closestMatchBackwards(selectionRange.end,Position_okForInsertion);
         var tempRange = new Range(start.node,start.offset,end.node,end.offset);
-        tempRange = tempRange.forwards();
-        tempRange.ensureRangeValidHierarchy();
+        tempRange = Range_forwards(tempRange);
+        Range_ensureValidHierarchy(tempRange);
         start = tempRange.start;
         end = tempRange.end;
         Selection_set(start.node,start.offset,end.node,end.offset);

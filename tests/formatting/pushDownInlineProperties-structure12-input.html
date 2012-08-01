@@ -6,9 +6,9 @@ function performTest()
 {
     Selection_preserveWhileExecuting(function() {
         var range = Selection_get();
-        range.ensureRangeValidHierarchy();
+        Range_ensureValidHierarchy(range);
         Formatting_splitAroundSelection(range);
-        var outermost = range.getOutermostNodes();
+        var outermost = Range_getOutermostNodes(range);
         Formatting_pushDownInlineProperties(outermost);
     });
 }

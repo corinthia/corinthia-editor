@@ -2,6 +2,21 @@
 
 var Range;
 
+var Range_isEmpty;
+var Range_trackWhileExecuting;
+var Range_expand;
+var Range_isForwards;
+var Range_getAllNodes;
+var Range_singleNode;
+var Range_ensureInlineNodesInParagraph;
+var Range_ensureValidHierarchy;
+var Range_forwards;
+var Range_detail;
+var Range_getOutermostNodes;
+var Range_getClientRects;
+var Range_cloneContents;
+var Range_hasContent;
+
 (function() {
 
     Range = function(startNode,startOffset,endNode,endOffset)
@@ -10,74 +25,48 @@ var Range;
         this.end = new Position(endNode,endOffset);
     }
 
-    function copy()
+    Range_isEmpty = trace(function isEmpty(range)
     {
-        return new Range(this.start.node,this.start.offset,
-                         this.end.node,this.end.offset);
-    }
-
-
-    function isEmpty()
-    {
-        return ((this.start.node == this.end.node) &&
-                (this.start.offset == this.end.offset));
-    }
+        return ((range.start.node == range.end.node) &&
+                (range.start.offset == range.end.offset));
+    });
 
     Range.prototype.toString = function()
     {
         return this.start.toString() + " - " + this.end.toString();
     }
 
-    function trackWhileExecuting(fun)
+    Range_trackWhileExecuting = trace(function trackWhileExecuting(range,fun)
     {
-        Position.trackWhileExecuting([this.start,this.end],fun);
-    }
+        Position_trackWhileExecuting([range.start,range.end],fun);
+    });
 
-    function expand()
+    Range_expand = trace(function expand(range)
     {
-        var doc = this.start.node.ownerDocument;
-        while ((this.start.offset == 0) && (this.start.node != doc.body)) {
-            var offset = DOM_nodeOffset(this.start.node);
-            this.start.node = this.start.node.parentNode;
-            this.start.offset = offset;
+        var doc = range.start.node.ownerDocument;
+        while ((range.start.offset == 0) && (range.start.node != doc.body)) {
+            var offset = DOM_nodeOffset(range.start.node);
+            range.start.node = range.start.node.parentNode;
+            range.start.offset = offset;
         }
 
-        while ((this.end.offset == DOM_maxChildOffset(this.end.node)) &&
-               (this.end.node != doc.body)) {
-            var offset = DOM_nodeOffset(this.end.node);
-            this.end.node = this.end.node.parentNode;
-            this.end.offset = offset+1;
+        while ((range.end.offset == DOM_maxChildOffset(range.end.node)) &&
+               (range.end.node != doc.body)) {
+            var offset = DOM_nodeOffset(range.end.node);
+            range.end.node = range.end.node.parentNode;
+            range.end.offset = offset+1;
         }
-    }
+    });
 
-    function omitEmptyTextSelection()
+    Range_isForwards = trace(function isForwards(range)
     {
-        if (!this.start.moveBackwardIfAtStart())
-            this.start.moveForwardIfAtEnd()
-        if (!this.end.moveBackwardIfAtStart())
-            this.end.moveForwardIfAtEnd()
-    }
+        return (Position_compare(range.start,range.end) <= 0);
+    });
 
-    function isForwards()
-    {
-        return (Position_compare(this.start,this.end) <= 0);
-    }
-
-    function getInlineNodes(atLeastOne)
-    {
-        var all = this.getAllNodes(atLeastOne);
-        var result = new Array();
-        for (var i = 0; i < all.length; i++) {
-            if (isInlineNode(all[i]))
-                result.push(all[i]);
-        }
-        return result;
-    }
-
-    function getAllNodes(atLeastOne)
+    Range_getAllNodes = trace(function getAllNodes(range,atLeastOne)
     {
         var result = new Array();
-        var outermost = this.getOutermostNodes(atLeastOne);
+        var outermost = Range_getOutermostNodes(range,atLeastOne);
         for (var i = 0; i < outermost.length; i++)
             addRecursive(outermost[i]);
         return result;
@@ -88,58 +77,58 @@ var Range;
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 addRecursive(child);
         }
-    }
+    });
 
-    function singleNode()
+    Range_singleNode = trace(function singleNode(range)
     {
-        return this.start.closestActualNode(true);
-    }
+        return range.start.closestActualNode(true);
+    });
 
-    function ensureRangeInlineNodesInParagraph()
+    Range_ensureInlineNodesInParagraph = trace(function ensureInlineNodesInParagraph(range)
     {
-        var range = this;
-        this.trackWhileExecuting(function() {
-            var nodes = range.getAllNodes(true);
+        Range_trackWhileExecuting(range,function() {
+            var nodes = Range_getAllNodes(range,true);
             for (var i = 0; i < nodes.length; i++)
                 Hierarchy_ensureInlineNodesInParagraph(nodes[i]);
         });
-    }
+    });
 
-    function ensureRangeValidHierarchy(allowDirectInline)
+    Range_ensureValidHierarchy = trace(function ensureValidHierarchy(range,allowDirectInline)
     {
-        var range = this;
-        this.trackWhileExecuting(function() {
-            var nodes = range.getAllNodes(true);
+        Range_trackWhileExecuting(range,function() {
+            var nodes = Range_getAllNodes(range,true);
             for (var i = 0; i < nodes.length; i++)
                 Hierarchy_ensureValidHierarchy(nodes[i],true,allowDirectInline);
         });
-    };
+    });
 
-    function forwards()
+    Range_forwards = trace(function forwards(range)
     {
-        if (this.isForwards()) {
-            return this;
+        if (Range_isForwards(range)) {
+            return range;
         }
         else {
-            var reverse = new Range(this.end.node,this.end.offset,this.start.node,this.start.offset);
-            if (!reverse.isForwards())
-                throw new Error("Both range "+this+" and its reverse are not forwards");
+            var reverse = new Range(range.end.node,range.end.offset,
+                                    range.start.node,range.start.offset);
+            if (!Range_isForwards(reverse))
+                throw new Error("Both range "+range+" and its reverse are not forwards");
             return reverse;
         }
-    }
+    });
 
-    function detail()
+    Range_detail = trace(function detail(range)
     {
-        if (!this.isForwards()) {
-            var reverse = new Range(this.end.node,this.end.offset,this.start.node,this.start.offset);
-            if (!reverse.isForwards())
-                throw new Error("Both range "+this+" and its reverse are not forwards");
-            return reverse.detail();
+        if (!Range_isForwards(range)) {
+            var reverse = new Range(range.end.node,range.end.offset,
+                                    range.start.node,range.start.offset);
+            if (!Range_isForwards(reverse))
+                throw new Error("Both range "+range+" and its reverse are not forwards");
+            return Range_detail(reverse);
         }
 
         var detail = new Object();
-        var start = this.start;
-        var end = this.end;
+        var start = range.start;
+        var end = range.end;
 
         // Start location
         if (start.node.nodeType == Node.ELEMENT_NODE) {
@@ -186,9 +175,9 @@ var Range;
             startP = startP.parentNode;
         }
         throw new Error("Start and end of range have no common ancestor");
-    }
+    });
 
-    function getOutermostNodes(atLeastOne,info)
+    Range_getOutermostNodes = trace(function getOutermostNodes(range,atLeastOne,info)
     {
         var beforeNodes = new Array();
         var middleNodes = new Array();
@@ -200,8 +189,8 @@ var Range;
             info.end = afterNodes;
         }
 
-        if (this.isEmpty())
-            return atLeastOne ? [this.singleNode()] : [];
+        if (Range_isEmpty(range))
+            return atLeastOne ? [Range_singleNode(range)] : [];
 
         // Note: start and end are *points* - they are always *in between* nodes or characters, never
         // *at* a node or character.
@@ -212,9 +201,9 @@ var Range;
         // the child nodes in a container - in which case the child is null. The parent, however, is
         // always non-null;
 
-        var detail = this.detail();
+        var detail = Range_detail(range);
         if (detail.commonAncestor == null)
-            return atLeastOne ? [this.singleNode()] : [];
+            return atLeastOne ? [Range_singleNode(range)] : [];
         var startParent = detail.startParent;
         var startChild = detail.startChild;
         var endParent = detail.endParent;
@@ -275,7 +264,7 @@ var Range;
         Array.prototype.push.apply(result,afterNodes);
 
         if (result.length == 0)
-            return atLeastOne ? [this.singleNode()] : [];
+            return atLeastOne ? [Range_singleNode(range)] : [];
         else
             return result;
 
@@ -301,24 +290,24 @@ var Range;
             return ((descendantParent == ancestorParent) &&
                     (descendantChild == ancestorChild));
         }
-    }
+    });
 
-    function getClientRects()
+    Range_getClientRects = trace(function getClientRects(range)
     {
-        var nodes = this.getOutermostNodes(true);
+        var nodes = Range_getOutermostNodes(range,true);
 
         // WebKit in iOS 5.0 and 5.1 has a bug where if the selection spans multiple paragraphs,
         // the complete rect for paragraphs other than the first is returned, instead of just the
         // portions of it that are actually in the range. To get around this problem, we go through
         // each text node individually and collect all the rects.
         var result = new Array();
-        var doc = this.start.node.ownerDocument;
+        var doc = range.start.node.ownerDocument;
         var domRange = doc.createRange();
         for (var nodeIndex = 0; nodeIndex < nodes.length; nodeIndex++) {
             var node = nodes[nodeIndex];
             if (node.nodeType == Node.TEXT_NODE) {
-                var startOffset = (node == this.start.node) ? this.start.offset : 0;
-                var endOffset = (node == this.end.node) ? this.end.offset : node.nodeValue.length;
+                var startOffset = (node == range.start.node) ? range.start.offset : 0;
+                var endOffset = (node == range.end.node) ? range.end.offset : node.nodeValue.length;
                 domRange.setStart(node,startOffset);
                 domRange.setEnd(node,endOffset);
                 var rects = domRange.getClientRects();
@@ -330,15 +319,14 @@ var Range;
             }
         }
         return result;
-    }
+    });
 
-    function cloneContents()
+    Range_cloneContents = trace(function cloneContents(range)
     {
         var nodeSet = new NodeSet();
         var ancestorSet = new NodeSet();
-        var detail = this.detail();
-        var outermost = this.getOutermostNodes();
-        var range = this;
+        var detail = Range_detail(range);
+        var outermost = Range_getOutermostNodes(range);
 
         var haveContent = false;
         for (var i = 0; i < outermost.length; i++) {
@@ -406,26 +394,25 @@ var Range;
             }
             return clone;
         }
-    }
+    });
 
-    function hasContent()
+    Range_hasContent = trace(function hasContent(range)
     {
-        var range = this;
-        var outermost = this.getOutermostNodes();
+        var outermost = Range_getOutermostNodes(range);
         for (var i = 0; i < outermost.length; i++) {
             var node = outermost[i];
             if (node.nodeType == Node.TEXT_NODE) {
                 var value = node.nodeValue;
-                if ((node == this.start.node) && (node == this.end.node)) {
-                    if (!isWhitespaceString(value.substring(this.start.offset,this.end.offset)))
+                if ((node == range.start.node) && (node == range.end.node)) {
+                    if (!isWhitespaceString(value.substring(range.start.offset,range.end.offset)))
                         return true;
                 }
-                else if (node == this.start.node) {
-                    if (!isWhitespaceString(value.substring(this.start.offset)))
+                else if (node == range.start.node) {
+                    if (!isWhitespaceString(value.substring(range.start.offset)))
                         return true;
                 }
-                else if (node == this.end.node) {
-                    if (!isWhitespaceString(value.substring(0,this.end.offset)))
+                else if (node == range.end.node) {
+                    if (!isWhitespaceString(value.substring(0,range.end.offset)))
                         return true;
                 }
                 else {
@@ -439,47 +426,6 @@ var Range;
             }
         }
         return false;
-    }
-
-    function findMatchingNodes(predicate)
-    {
-        var resultArray = new Array();
-        var resultSet = new NodeSet();
-        var all = this.getAllNodes();
-        for (var i = 0; i < all.length; i++)
-            recurse(all[i]);
-        return resultArray;
-
-        // Process parents before children, ensuring nodes are in document order
-        function recurse(node)
-        {
-            if (node == null)
-                return;
-            recurse(node.parentNode);
-            if (!resultSet.contains(node) && predicate(node)) {
-                resultArray.push(node);
-                resultSet.add(node);
-            }
-        }
-    }
-
-    Range.prototype.copy = trace(copy);
-    Range.prototype.isEmpty = trace(isEmpty);
-    Range.prototype.trackWhileExecuting = trace(trackWhileExecuting);
-    Range.prototype.expand = trace(expand);
-    Range.prototype.omitEmptyTextSelection = trace(omitEmptyTextSelection);
-    Range.prototype.isForwards = trace(isForwards);
-    Range.prototype.getInlineNodes = trace(getInlineNodes);
-    Range.prototype.getAllNodes = trace(getAllNodes);
-    Range.prototype.singleNode = trace(singleNode);
-    Range.prototype.ensureRangeInlineNodesInParagraph = trace(ensureRangeInlineNodesInParagraph);
-    Range.prototype.ensureRangeValidHierarchy = trace(ensureRangeValidHierarchy);
-    Range.prototype.forwards = trace(forwards);
-    Range.prototype.detail = trace(detail);
-    Range.prototype.getOutermostNodes = trace(getOutermostNodes);
-    Range.prototype.getClientRects = trace(getClientRects);
-    Range.prototype.cloneContents = trace(cloneContents);
-    Range.prototype.hasContent = trace(hasContent);
-    Range.prototype.findMatchingNodes = trace(findMatchingNodes);
+    });
 
 })();

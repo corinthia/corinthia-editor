@@ -9,7 +9,7 @@ function performTest()
         positions[i] = new Position(document.body,i);
     var p = document.getElementsByTagName("P")[2];
 
-    Position.trackWhileExecuting(positions,function() {
+    Position_trackWhileExecuting(positions,function() {
         DOM_removeNodeButKeepChildren(p);
 
         for (var i = 0; i < positions.length; i++)

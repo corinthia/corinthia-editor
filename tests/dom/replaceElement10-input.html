@@ -7,7 +7,7 @@ function performTest()
     var p = document.getElementsByTagName("P")[2];
     var offset = DOM_nodeOffset(p);
     var range = new Range(document.body,offset,document.body,offset+1);
-    range.trackWhileExecuting(function() {
+    Range_trackWhileExecuting(range,function() {
         DOM_replaceElement(p,"DIV");
     });
     showRangeAsBrackets(range);

@@ -65,7 +65,7 @@ var Selection_preferElementPositions;
             trace(function setInternal(newStartNode,newStartOffset,newEndNode,newEndOffset)
         {
             var range = new Range(newStartNode,newStartOffset,newEndNode,newEndOffset);
-            if (range.isForwards()) {
+            if (Range_isForwards(range)) {
                 UndoManager_setProperty(selection,"value",
                                         { startNode: newStartNode,
                                           startOffset: newStartOffset,
@@ -182,7 +182,7 @@ var Selection_preferElementPositions;
 
         function rectAtRightOfRange(range)
         {
-            var rects = range.getClientRects();
+            var rects = Range_getClientRects(range);
             if ((rects == null) || (rects.length == 0) || (rects[rects.length-1].width == 0))
                 return null;
             var rect = rects[rects.length-1];
@@ -195,7 +195,7 @@ var Selection_preferElementPositions;
 
         function rectAtLeftOfRange(range)
         {
-            var rects = range.getClientRects();
+            var rects = Range_getClientRects(range);
             if ((rects == null) || (rects.length == 0))
                 return null;
             var rect = rects[0];
@@ -348,7 +348,7 @@ var Selection_preferElementPositions;
         var selRange = data.range;
         var skipped = 0;
         var reused = 0;
-        var nodes = data.nodes;//selRange.getAllNodes();
+        var nodes = data.nodes;
         var newSpans = arrayCopy(selectionSpans);
         for (var i = 0; i < nodes.length; i++) {
             var node = nodes[i];
@@ -440,7 +440,7 @@ var Selection_preferElementPositions;
         var nodeSet = new NodeSet();
         var nodes;
         if (selRange != null) {
-            var nodes = selRange.getAllNodes();
+            var nodes = Range_getAllNodes(selRange);
             for (var i = 0; i < nodes.length; i++)
                 nodeSet.add(nodes[i]);
         }
@@ -511,12 +511,12 @@ var Selection_preferElementPositions;
 
         var rects = null;
         if (selRange != null)
-            rects = selRange.getClientRects();
+            rects = Range_getClientRects(selRange);
 
-        if ((selRange != null) && selRange.isEmpty()) {
+        if ((selRange != null) && Range_isEmpty(selRange)) {
             // We just have a cursor
 
-            selRange.trackWhileExecuting(function() {
+            Range_trackWhileExecuting(selRange,function() {
                 DOM_ignoreMutationsWhileExecuting(function() {
                     removeSelectionSpans(getRangeData(selRange));
                 });
@@ -585,7 +585,7 @@ var Selection_preferElementPositions;
                 }
             }
 
-            selRange.trackWhileExecuting(function() {
+            Range_trackWhileExecuting(selRange,function() {
                 DOM_ignoreMutationsWhileExecuting(function() {
                     var data = getRangeData(selRange);
                     createSelectionSpans(data);
@@ -805,7 +805,7 @@ var Selection_preferElementPositions;
     Selection_dragSelectionBegin = trace(function dragSelectionBegin(x,y,selectWord)
     {
         var range = Selection_get();
-        if ((range != null) && !range.isEmpty())
+        if ((range != null) && !Range_isEmpty(range))
             return Selection_dragSelectionUpdate(x,y,selectWord);
 
         var result;
@@ -900,7 +900,7 @@ var Selection_preferElementPositions;
 
         if ((range.start != null) && (range.end != null)) {
             var result;
-            range = range.forwards();
+            range = Range_forwards(range);
             Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
             if (range.end == pos)
                 return "end";
@@ -943,7 +943,7 @@ var Selection_preferElementPositions;
             var selRange = Selection_get();
             var newRange = new Range(position.node,position.offset,
                                      selRange.end.node,selRange.end.offset);
-            if (newRange.isForwards()) {
+            if (Range_isForwards(newRange)) {
                 Selection_set(newRange.start.node,newRange.start.offset,
                               newRange.end.node,newRange.end.offset);
             }
@@ -959,7 +959,7 @@ var Selection_preferElementPositions;
             var selRange = Selection_get();
             var newRange = new Range(selRange.start.node,selRange.start.offset,
                                      position.node,position.offset);
-            if (newRange.isForwards()) {
+            if (Range_isForwards(newRange)) {
                 Selection_set(newRange.start.node,newRange.start.offset,
                               newRange.end.node,newRange.end.offset);
             }
@@ -1028,7 +1028,7 @@ var Selection_preferElementPositions;
     // private
     var deleteTextSelection = trace(function deleteTextSelection(selRange)
     {
-        var nodes = selRange.getOutermostNodes();
+        var nodes = Range_getOutermostNodes(selRange);
         for (var i = 0; i < nodes.length; i++) {
             var node = nodes[i];
 
@@ -1076,7 +1076,7 @@ var Selection_preferElementPositions;
             }
         }
 
-        var detail = selRange.detail();
+        var detail = Range_detail(selRange);
 
         var sameTextNode = (selRange.start.node == selRange.end.node) &&
                            (selRange.start.node.nodeType == Node.TEXT_NODE);
@@ -1092,12 +1092,12 @@ var Selection_preferElementPositions;
                 removeParagraphDescendants(detail.startAncestor);
         }
 
-        Cursor_updateBRAtEndOfParagraph(selRange.singleNode());
+        Cursor_updateBRAtEndOfParagraph(Range_singleNode(selRange));
     });
 
     Selection_deleteRangeContents = trace(function deleteRangeContents(range)
     {
-        range.trackWhileExecuting(function() {
+        Range_trackWhileExecuting(range,function() {
             DOM_ignoreMutationsWhileExecuting(function() {
                 removeSelectionSpans(getRangeData(range),true);
             });
@@ -1246,7 +1246,7 @@ var Selection_preferElementPositions;
             Selection_clear();
         }
         else {
-            result = range.trackWhileExecuting(fun);
+            result = Range_trackWhileExecuting(range,fun);
             Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
         }
         return result;

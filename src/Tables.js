@@ -599,7 +599,7 @@ var Tables_setProperties;
     {
         Selection_preserveWhileExecuting(function() {
             var range = Selection_get();
-            range.trackWhileExecuting(function() {
+            Range_trackWhileExecuting(range,function() {
                 var region = Tables_regionFromRange(range,true);
                 if (region != null)
                     splitCellsInRegion(region);

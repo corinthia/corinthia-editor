@@ -9,7 +9,7 @@ function getNodeArrayText(nodes)
 function textBetweenPositions(from,to)
 {
     var range = new Range(from.node,from.offset,to.node,to.offset);
-    var contents = range.cloneContents();
+    var contents = Range_cloneContents(range);
     return getNodeArrayText(contents);
 }
 

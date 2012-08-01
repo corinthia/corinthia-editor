@@ -39,7 +39,7 @@ function comparePositionsBeforeAndAfter(fun)
         positionStrings[i] = positions[i].toString();
     }
 
-    Position.trackWhileExecuting(positions,function() {
+    Position_trackWhileExecuting(positions,function() {
         fun();
 
     });
@@ -107,7 +107,7 @@ function getOutermostNodesSimple(range)
     if (!isForwardsSimple(range)) {
         var reverse = new Range(range.end.node,range.end.offset,
                                 range.start.node,range.start.offset);
-        if (!reverse.isForwards()) {
+        if (!Range_isForwards(reverse)) {
             var startIndex = getPositionIndex(range.start);
             var endIndex = getPositionIndex(range.end);
             debug("startIndex = "+startIndex+", endIndex = "+endIndex);

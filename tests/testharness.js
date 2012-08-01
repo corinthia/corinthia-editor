@@ -205,7 +205,7 @@ function leftLoaded()
     w.UndoManager_disableWhileExecuting(function() {
         start = extractPositionFromCharacter("[");
         track = (start == null) ? [] : [start];
-        w.Position.trackWhileExecuting(track,function() {
+        w.Position_trackWhileExecuting(track,function() {
             end = extractPositionFromCharacter("]");
         });
     });
@@ -219,7 +219,7 @@ function leftLoaded()
         var range = new w.Range(start.node,start.offset,end.node,end.offset);
 
         w.UndoManager_disableWhileExecuting(function() {
-            range.trackWhileExecuting(function() {
+            w.Range_trackWhileExecuting(range,function() {
                 positionMergeWithNeighbours(start);
                 positionMergeWithNeighbours(end);
             });
