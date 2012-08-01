@@ -108,7 +108,13 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         var components = new Array();
         for (var i = 0; i < outermost.length; i++)
             recurse(outermost[i]);
-        return components.join("").replace(/\s+/g," ");
+        var text = components.join("").replace(/\s+/g," ");
+        if (isWhitespaceString(text)) {
+            // No preceding text in this paragraph - return newline character to indicate we're
+            // at the start of a line. This causes the keyboard to go into shift mode.
+            return "\n";
+        }
+        return text;
 
         function recurse(node)
         {
