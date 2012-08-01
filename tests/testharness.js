@@ -146,28 +146,29 @@ function readJSCode(filename)
 
 function extractPositionFromCharacter(c)
 {
-    return recurse(leftArea.contentWindow.document.body);
+    var w = leftArea.contentWindow;
+    return recurse(w.document.body);
 
     function recurse(node)
     {
         if (node.nodeType == Node.TEXT_NODE) {
             var index = node.nodeValue.indexOf(c);
             if (index >= 0) {
-                var offsetInParent = leftArea.contentWindow.DOM_nodeOffset(node);
+                var offsetInParent = w.DOM_nodeOffset(node);
                 if (index == 0) {
                     node.nodeValue = node.nodeValue.substring(1);
-                    return new leftArea.contentWindow.Position(node.parentNode,offsetInParent);
+                    return new w.Position(node.parentNode,offsetInParent);
                 }
                 else if (index == node.nodeValue.length - 1) {
                     node.nodeValue = node.nodeValue.substring(0,node.nodeValue.length-1);
-                    return new leftArea.contentWindow.Position(node.parentNode,offsetInParent+1);
+                    return new w.Position(node.parentNode,offsetInParent+1);
                 }
                 else {
                     var rest = node.nodeValue.substring(index+1);
                     node.nodeValue = node.nodeValue.substring(0,index);
                     var restNode = DOM_createTextNode(document,rest);
                     DOM_insertBefore(node.parentNode,restNode,node.nextSibling);
-                    return new leftArea.contentWindow.Position(node.parentNode,offsetInParent+1);
+                    return new w.Position(node.parentNode,offsetInParent+1);
                 }
             }
         }
@@ -189,21 +190,22 @@ function leftLoaded()
     var continuation = leftLoadedContinuation;
     leftLoadedContinuation = null;
 
-    leftArea.contentWindow.eval(allCode);
-    leftArea.contentWindow.debug = function(str) { console.log(str); };
-    leftArea.contentWindow.PrettyPrinter = PrettyPrinter;
+    var w = leftArea.contentWindow;
+    w.eval(allCode);
+    w.debug = function(str) { console.log(str); };
+    w.PrettyPrinter = PrettyPrinter;
 
-    leftArea.contentWindow.DOM_assignNodeIds(leftArea.contentWindow.document);
+    w.DOM_assignNodeIds(w.document);
 
     var start;
     var track;
     var end;
 
 
-    leftArea.contentWindow.UndoManager_disableWhileExecuting(function() {
+    w.UndoManager_disableWhileExecuting(function() {
         start = extractPositionFromCharacter("[");
         track = (start == null) ? [] : [start];
-        leftArea.contentWindow.Position.trackWhileExecuting(track,function() {
+        w.Position.trackWhileExecuting(track,function() {
             end = extractPositionFromCharacter("]");
         });
     });
@@ -214,16 +216,16 @@ function leftLoaded()
         throw new Error("End of selection specified, but not start");
 
     if ((start != null) && (end != null)) {
-        var range = new leftArea.contentWindow.Range(start.node,start.offset,end.node,end.offset);
+        var range = new w.Range(start.node,start.offset,end.node,end.offset);
 
-        leftArea.contentWindow.UndoManager_disableWhileExecuting(function() {
+        w.UndoManager_disableWhileExecuting(function() {
             range.trackWhileExecuting(function() {
                 positionMergeWithNeighbours(start);
                 positionMergeWithNeighbours(end);
             });
         });
 
-        leftArea.contentWindow.Selection_set(range.start.node,range.start.offset,
+        w.Selection_set(range.start.node,range.start.offset,
                                              range.end.node,range.end.offset);
     }
     continuation();
@@ -234,7 +236,6 @@ function leftLoaded()
     {
         var node = pos.node;
         var offset = pos.offset;
-        var w = leftArea.contentWindow;
         if ((node.nodeType == Node.ELEMENT_NODE) && (offset < node.childNodes.length))
             w.Formatting_mergeWithNeighbours(node.childNodes[offset],w.Formatting_MERGEABLE_INLINE);
         else if ((node.nodeType == Node.ELEMENT_NODE) && (node.lastChild != null))
@@ -245,8 +246,8 @@ function leftLoaded()
 
     function getPosition(node)
     {
-        var offset = leftArea.contentWindow.DOM_nodeOffset(node);
-        return new leftArea.contentWindow.Position(node.parentNode,offset);
+        var offset = w.DOM_nodeOffset(node);
+        return new w.Position(node.parentNode,offset);
     }
 }
 
