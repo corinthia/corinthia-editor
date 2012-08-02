@@ -16,6 +16,7 @@ var Range_getOutermostNodes;
 var Range_getClientRects;
 var Range_cloneContents;
 var Range_hasContent;
+var Range_getText;
 
 (function() {
 
@@ -426,6 +427,50 @@ var Range_hasContent;
             }
         }
         return false;
+    });
+
+    Range_getText = trace(function getText(range)
+    {
+        var pos = range.start;
+        var prev = null;
+        var prevParagraph = null;
+        var result = "";
+        while (true) {
+            var paragraph = Text_analyseParagraph(pos);
+
+            var significantParagraph =
+                (paragraph != null) &&
+                (isParagraphNode(paragraph.node) ||
+                 !isWhitespaceString(paragraph.text));
+
+            if (significantParagraph) {
+                if (prev != null) {
+                    if ((pos.node == prev.node) &&
+                        (pos.node.nodeType == Node.TEXT_NODE) &&
+                        (pos.offset == prev.offset+1)) {
+                        var temp = prev.node.nodeValue.charAt(prev.offset);
+                        temp = temp.replace(/\n/g," ");
+                        result += temp;
+                    }
+                }
+
+                if ((paragraph != null) && (prevParagraph != null)) {
+                    if ((paragraph.node != prevParagraph.node) ||
+                        (paragraph.startOffset != prevParagraph.startOffset) ||
+                        (paragraph.endOffset != prevParagraph.endOffset)) {
+                        result += "\n";
+                    }
+                }
+            }
+
+
+            prev = pos;
+            prevParagraph = paragraph;
+            if ((pos.node == range.end.node) && (pos.offset == range.end.offset))
+                break;
+            pos = pos.next();
+        }
+        return result;
     });
 
 })();

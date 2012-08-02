@@ -109,41 +109,9 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
             return "";
 
         var range = new Range(start.node,start.offset,end.node,end.offset);
-        var outermost = Range_getOutermostNodes(range);
-        var components = new Array();
-        for (var i = 0; i < outermost.length; i++)
-            recurse(outermost[i]);
-        var text = components.join("").replace(/\s+/g," ");
-        if (isWhitespaceString(text)) {
-            // No preceding text in this paragraph - return newline character to indicate we're
-            // at the start of a line. This causes the keyboard to go into shift mode.
-            return "\n";
-        }
-        return text;
-
-        function recurse(node)
-        {
-            if (node.nodeType == Node.TEXT_NODE) {
-                var str;
-                if ((node == start.node) && (node == end.node)) {
-                    str = node.nodeValue.substring(start.offset,end.offset);
-                }
-                else if (node == start.node) {
-                    str = node.nodeValue.substring(start.offset);
-                }
-                else if (node == end.node) {
-                    str = node.nodeValue.substring(0,end.offset);
-                }
-                else {
-                    str = node.nodeValue;
-                }
-                components.push(str);
-            }
-            else {
-                for (var child = node.firstChild; child != null; child = child.nextSibling)
-                    recurse(child);
-            }
-        }
+        var result = Range_getText(range);
+//        debug("textInRange "+start+" - "+end+" = "+JSON.stringify(result));
+        return result;
     });
 
     // void
