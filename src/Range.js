@@ -431,11 +431,14 @@ var Range_getText;
 
     Range_getText = trace(function getText(range)
     {
-        var pos = range.start;
+        var start = range.start;
+        var end = range.end;
+        var pos = start;
         var prev = null;
         var prevParagraph = null;
-        var result = "";
+        var components = new Array();
         while (true) {
+//            debug("getText: pos = "+pos+", result = "+JSON.stringify(components.join("")));
             var paragraph = Text_analyseParagraph(pos);
 
             var significantParagraph =
@@ -444,21 +447,34 @@ var Range_getText;
                  !isWhitespaceString(paragraph.text));
 
             if (significantParagraph) {
-                if (prev != null) {
-                    if ((pos.node == prev.node) &&
-                        (pos.node.nodeType == Node.TEXT_NODE) &&
-                        (pos.offset == prev.offset+1)) {
-                        var temp = prev.node.nodeValue.charAt(prev.offset);
-                        temp = temp.replace(/\n/g," ");
-                        result += temp;
+
+                if (pos.node.nodeType == Node.TEXT_NODE) {
+                    var str;
+                    if ((pos.node == start.node) && (pos.node == end.node)) {
+                        str = pos.node.nodeValue.substring(start.offset,end.offset);
+                        pos = end;
                     }
+                    else if (pos.node == start.node) {
+                        str = pos.node.nodeValue.substring(start.offset);
+                        pos = new Position(pos.node,pos.node.nodeValue.length);
+                    }
+                    else if (pos.node == end.node) {
+                        str = pos.node.nodeValue.substring(0,end.offset);
+                        pos = end;
+                    }
+                    else {
+                        str = pos.node.nodeValue;
+                        pos = new Position(pos.node,pos.node.nodeValue.length);
+                    }
+                    str = str.replace(/\n/g," ");
+                    components.push(str);
                 }
 
                 if ((paragraph != null) && (prevParagraph != null)) {
                     if ((paragraph.node != prevParagraph.node) ||
                         (paragraph.startOffset != prevParagraph.startOffset) ||
                         (paragraph.endOffset != prevParagraph.endOffset)) {
-                        result += "\n";
+                        components.push("\n");
                     }
                 }
             }
@@ -466,11 +482,11 @@ var Range_getText;
 
             prev = pos;
             prevParagraph = paragraph;
-            if ((pos.node == range.end.node) && (pos.offset == range.end.offset))
+            if ((pos.node == end.node) && (pos.offset == end.offset))
                 break;
             pos = pos.next();
         }
-        return result;
+        return components.join("");
     });
 
 })();
