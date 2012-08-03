@@ -41,14 +41,6 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
 
 (function() {
 
-    function itrace(name)
-    {
-        var components = new Array();
-        for (var i = 1; i < arguments.length; i++)
-            components.push(""+arguments[i]);
-//        debug(name+"("+components.join(",")+")");
-    }
-
     function idebug(str)
     {
         debug(str);
@@ -62,7 +54,6 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     {
         if (pos == null)
             return 0;
-//        itrace("addPosition",pos);
         var copy = new Position(pos.node,pos.offset);
         copy.targetX = pos.targetX;
         pos = copy;
@@ -91,7 +82,6 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     Input_removePosition = trace(function removePosition(posId)
     {
         var pos = positions[posId];
-//        itrace("removePosition",pos);
         if (pos == null) {
             throw new Error("no position for id "+posId);
         }
@@ -104,7 +94,6 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     {
         var start = getPosition(startId);
         var end = getPosition(endId);
-        itrace("textInRange",start,end);
         if ((start == null) || (end == null))
             return "";
 
@@ -119,7 +108,6 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     {
         var start = getPosition(startId);
         var end = getPosition(endId);
-        itrace("replaceRange",start,end,text);
 
         var range = new Range(start.node,start.offset,end.node,end.offset);
         Range_trackWhileExecuting(range,function() {
@@ -158,7 +146,6 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     {
         var start = getPosition(startId);
         var end = getPosition(endId);
-        itrace("setSelectedTextRange",start,end);
         Selection_set(start.node,start.offset,end.node,end.offset);
 
         if (Position_equal(start,end))
@@ -168,33 +155,28 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     // { startId, endId }
     Input_markedTextRange = trace(function markedTextRange()
     {
-        itrace("markedTextRange");
         return null;
     });
 
     // void
     Input_setMarkedText = trace(function setMarkedText(text,startOffset,endOffset)
     {
-        itrace("setMarkedText",text,startOffset,endOffset);
     });
 
     // void
     Input_unmarkText = trace(function unmarkText()
     {
-        itrace("unmarkText");
     });
 
     // boolean
     Input_forwardSelectionAffinity = trace(function forwardSelectionAffinity()
     {
-        itrace("forwardSelectionAffinity");
         return forwardSelection;
     });
 
     // void
     Input_setForwardSelectionAffinity = trace(function setForwardSelectionAffinity(value)
     {
-        itrace("setForwardSelectionAffinity",value);
         forwardSelection = value;
     });
 
@@ -228,7 +210,6 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     Input_positionFromPositionOffset = trace(function positionFromPositionOffset(posId,offset)
     {
         var pos = getPosition(posId);
-        itrace("positionFromPositionOffset",pos,offset);
         return addPosition(positionRight(pos,offset));
     });
 
@@ -237,7 +218,6 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         trace(function positionFromPositionInDirectionOffset(posId,direction,offset)
     {
         var pos = getPosition(posId);
-        itrace("positionFromPositionInDirectionOffset",pos,direction,offset);
         if (direction == "left")
             return addPosition(positionRight(pos,-offset));
         else if (direction == "right")
@@ -253,7 +233,6 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     // posId
     Input_beginningOfDocument = trace(function beginningOfDocument()
     {
-        itrace("beginningOfDocument");
         var pos = new Position(document.body,0);
         pos = Position_closestMatchForwards(pos,Position_okForMovement);
         return addPosition(pos);
@@ -262,7 +241,6 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     // posId
     Input_endOfDocument = trace(function endOfDocument()
     {
-        itrace("endOfDocument");
         var pos = new Position(document.body,document.body.childNodes.length);
         pos = Position_closestMatchBackwards(pos,Position_okForMovement);
         return addPosition(pos);
@@ -273,7 +251,6 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     {
         var pos1 = getPosition(posId1);
         var pos2 = getPosition(posId2);
-        itrace("comparePositionToPosition",pos1,pos2);
         if ((pos1.node == pos2.node) && (pos1.offset == pos2.offset))
             return 0;
         var range = new Range(pos1.node,pos1.offset,pos2.node,pos2.offset);
@@ -306,7 +283,6 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     {
         var start = getPosition(startId);
         var end = getPosition(endId);
-        itrace("firstRectForRange",start,end);
         var range = new Range(start.node,start.offset,end.node,end.offset);
         var rects = Range_getClientRects(range);
         if (rects.length == 0)
@@ -319,7 +295,6 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     Input_caretRectForPosition = trace(function caretRectForPosition(posId)
     {
         var pos = getPosition(posId);
-        itrace("caretRectForPosition",pos);
         var rect = Position_rectAtPos(pos);
         if (rect == null)
             return { x: 0, y: 0, width: 0, height: 0 };
@@ -409,7 +384,6 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         trace(function isPositionAtBoundaryGranularityInDirection(posId,granularity,direction)
     {
         var pos = getPosition(posId);
-        itrace("isPositionAtBoundaryGranularityInDirection",pos,granularity,direction);
         if (pos == null)
             return false;
 
@@ -436,7 +410,6 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         trace(function isPositionWithinTextUnitInDirection(posId,granularity,direction)
     {
         var pos = getPosition(posId);
-        itrace("isPositionWithinTextUnitInDirection",pos,granularity,direction);
         if (pos == null)
             return false;
 
@@ -566,7 +539,6 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         trace(function positionFromPositionToBoundaryInDirection(posId,granularity,direction)
     {
         var pos = getPosition(posId);
-        itrace("positionFromPositionToBoundaryInDirection",pos,granularity,direction);
         if (pos == null)
             return null;
 
@@ -584,7 +556,6 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         trace(function rangeEnclosingPositionWithGranularityInDirection(posId,granularity,direction)
     {
         var pos = getPosition(posId);
-        itrace("rangeEnclosingPositionWithGranularityInDirection",pos,granularity,direction);
         if (pos == null)
             return null;
 
