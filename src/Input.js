@@ -418,6 +418,8 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         }
         else if (granularity == "word") {
             pos = Text_closestPosInDirection(pos,direction);
+            if (pos == null)
+                return false;
             var paragraph = Text_analyseParagraph(pos);
             if (paragraph == null)
                 return false;
