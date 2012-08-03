@@ -831,14 +831,16 @@ var Selection_preferElementPositions;
     {
         if (Input_isAtWordBoundary(pos,"backward"))
             return pos;
-        return Input_toWordBoundary(pos,"backward");
+        var boundary = Input_toWordBoundary(pos,"backward");
+        return (boundary != null) ? boundary : pos;
     });
 
     var toEndOfWord = trace(function toEndOfWord(pos)
     {
         if (Input_isAtWordBoundary(pos,"forward"))
             return pos;
-        return Input_toWordBoundary(pos,"forward");
+        var boundary = Input_toWordBoundary(pos,"forward");
+        return (boundary != null) ? boundary : pos;
     });
 
     // public
