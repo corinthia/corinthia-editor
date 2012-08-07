@@ -124,7 +124,10 @@ function printTree(node,indent)
 {
     if (indent == null)
         indent = "";
-    debug(indent+nodeString(node));
+    if ((node.nodeType == Node.ELEMENT_NODE) && node.hasAttribute("class"))
+        debug(indent+nodeString(node)+"."+node.getAttribute("class"));
+    else
+        debug(indent+nodeString(node));
     for (var child = node.firstChild; child != null; child = child.nextSibling)
         printTree(child,indent+"    ");
 }
