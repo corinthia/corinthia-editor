@@ -301,8 +301,6 @@ var Cursor_set;
         if (firstInsertion)
             UndoManager_newGroup("Insert text",checkNbsp);
 
-        Selection_preferElementPositions();
-
         if (str == "-") {
             var preceding = Cursor_getPrecedingWord();
             if (preceding.match(/[0-9]\s*$/))
@@ -321,8 +319,13 @@ var Cursor_set;
         }
         var pos = selRange.start;
         pos = Position_preferTextPosition(pos);
-        if (!allowInvalidPos && !Position_okForMovement(pos,true))
-            pos = Position_closestMatchForwards(selRange.start,Position_okForInsertion);
+        if (!allowInvalidPos && !Position_okForInsertion(pos)) {
+            var elemPos = Position_preferElementPosition(pos);
+            if (Position_okForInsertion(elemPos))
+                pos = elemPos;
+            else
+                pos = Position_closestMatchForwards(selRange.start,Position_okForInsertion);
+        }
         var node = pos.node;
         var offset = pos.offset;
 
