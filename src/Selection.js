@@ -509,10 +509,6 @@ var Selection_preferElementPositions;
             return;
         }
 
-        var rects = null;
-        if (selRange != null)
-            rects = Range_getClientRects(selRange);
-
         if ((selRange != null) && Range_isEmpty(selRange)) {
             // We just have a cursor
 
@@ -552,6 +548,10 @@ var Selection_preferElementPositions;
 
         if (updateTableSelection(selRange))
             return;
+
+        var rects = null;
+        if (selRange != null)
+            rects = Range_getClientRects(selRange);
 
         if ((rects != null) && (rects.length > 0)) {
             var boundsLeft = null;
