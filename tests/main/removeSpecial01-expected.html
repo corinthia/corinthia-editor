@@ -1,0 +1,36 @@
+Before
+------
+
+<html>
+  <head>
+    <style>
+.uxwrite-autocorrect {
+    background-color: #c0ffc0;
+}
+.uxwrite-selection {
+    background-color: rgb(201,221,238);
+}
+    </style>
+  </head>
+  <body>
+    <p>
+      one
+      <span class="uxwrite-autocorrect" original="twox">two</span>
+      three
+    </p>
+  </body>
+</html>
+
+After
+-----
+
+<html>
+  <head></head>
+  <body>
+    <p>
+      one
+      two
+      three
+    </p>
+  </body>
+</html>

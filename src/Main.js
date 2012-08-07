@@ -221,6 +221,14 @@ var Main_init;
     // public
     Main_removeSpecial = trace(function removeSpecial(node)
     {
+        // We process the children first, so that if there are any nested removable elements (e.g.
+        // a selection span inside of an autocorrect span), all levels of nesting are taken care of
+        var next;
+        for (var child = node.firstChild; child != null; child = next) {
+            next = child.nextSibling;
+            Main_removeSpecial(child);
+        }
+
         if ((DOM_upperName(node) == "SPAN") &&
             ((node.getAttribute("class") == Keys.HEADING_NUMBER) ||
              (node.getAttribute("class") == Keys.FIGURE_NUMBER) ||
@@ -241,14 +249,12 @@ var Main_init;
         else if (DOM_upperName(node) == "STYLE") {
             var cssText = Styles_getCSSText(["."+Keys.AUTOCORRECT_CLASS,
                                              "."+Keys.SELECTION_CLASS]);
-            DOM_deleteAllChildren(node);
-            DOM_appendChild(node,DOM_createTextNode(document,cssText));
-        }
-        else {
-            var next;
-            for (var child = node.firstChild; child != null; child = next) {
-                next = child.nextSibling;
-                Main_removeSpecial(child);
+            if (isWhitespaceString(cssText)) {
+                DOM_deleteNode(node);
+            }
+            else {
+                DOM_deleteAllChildren(node);
+                DOM_appendChild(node,DOM_createTextNode(document,cssText));
             }
         }
     });
