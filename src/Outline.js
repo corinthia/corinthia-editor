@@ -153,10 +153,27 @@ var Outline_setReferenceTarget;
         scheduleUpdateStructure();
     });
 
+    var addTOCInternal = trace(function addTOCInternal(category,node,toc)
+    {
+        UndoManager_addAction(removeTOCInternal,category,node);
+        category.tocs.put(node,toc);
+    });
+
+    var removeTOCInternal = trace(function removeTOCInternal(category,node)
+    {
+        var toc = category.tocs.get(node);
+        if (toc == null)
+            throw new Error("Attempt to remove ItemList that doesn't exist");
+
+        UndoManager_addAction(addTOCInternal,category,node,toc);
+
+        category.tocs.remove(node);
+    });
+
     Category.prototype.addTOC = trace(function addTOC(node)
     {
         var toc = new TOC(node);
-        this.tocs.put(node,toc);
+        addTOCInternal(this,node,toc);
 
         for (var item = this.list.first; item != null; item = item.next) {
             toc.addOutlineItem(item.id);
@@ -168,9 +185,7 @@ var Outline_setReferenceTarget;
 
     Category.prototype.removeTOC = trace(function removeTOC(node)
     {
-        if (this.tocs.get(node) == null)
-            throw new Error("Attempt to remove ItemList that doesn't exist");
-        this.tocs.remove(node);
+        removeTOCInternal(this,node);
     });
 
     function TOC(node)
