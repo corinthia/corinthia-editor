@@ -4,11 +4,11 @@
 <script>
 function performTest()
 {
-    var tr = document.getElementsByTagName("TR")[1];
-    var table = document.getElementsByTagName("TABLE")[0];
-    var trOffset = DOM_nodeOffset(tr);
-    var tableOffset = DOM_nodeOffset(table);
-    Selection_set(tr.parentNode,trOffset,table.parentNode,tableOffset+1);
+    var tr1 = document.getElementsByTagName("TR")[1];
+    var tr2 = document.getElementsByTagName("TR")[2];
+    var tr1Offset = DOM_nodeOffset(tr1);
+    var tr2Offset = DOM_nodeOffset(tr2);
+    Selection_set(tr1.parentNode,tr1Offset,tr2.parentNode,tr2Offset+1);
     Selection_deleteContents();
 }
 </script>

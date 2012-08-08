@@ -65,21 +65,15 @@ var Selection_preferElementPositions;
             trace(function setInternal(newStartNode,newStartOffset,newEndNode,newEndOffset)
         {
             var range = new Range(newStartNode,newStartOffset,newEndNode,newEndOffset);
-            if (Range_isForwards(range)) {
-                UndoManager_setProperty(selection,"value",
-                                        { startNode: newStartNode,
-                                          startOffset: newStartOffset,
-                                          endNode: newEndNode,
-                                          endOffset: newEndOffset });
-            }
-            else {
-                UndoManager_setProperty(selection,"value",
-                                        { startNode: newEndNode,
-                                          startOffset: newEndOffset,
-                                          endNode: newStartNode,
-                                          endOffset: newStartOffset
-                                        });
-            }
+            if (!Range_isForwards(range))
+                range = new Range(newEndNode,newEndOffset,newStartNode,newStartOffset);
+            range = boundaryCompliantRange(range);
+
+            UndoManager_setProperty(selection,"value",
+                                    { startNode: range.start.node,
+                                      startOffset: range.start.offset,
+                                      endNode: range.end.node,
+                                      endOffset: range.end.offset });
         });
 
         Selection_set = trace(function set(newStartNode,newStartOffset,newEndNode,newEndOffset,
@@ -1263,6 +1257,62 @@ var Selection_preferElementPositions;
         range.end = Position_preferElementPosition(range.end);
         Selection_set(range.start.node,range.start.offset,
                       range.end.node,range.end.offset);
+    });
+
+    var getBoundaryContainer = trace(function getBoundaryContainer(node,topAncestor)
+    {
+        var container = document.body;
+        for (; node != topAncestor.parentNode; node = node.parentNode) {
+            if (isFigureNode(node) || isTableNode(node))
+                container = node;
+        }
+        return container;
+    });
+
+    var boundaryCompliantRange = trace(function boundaryCompliantRange(range)
+    {
+        if (range == null)
+            return null;
+
+        var detail = Range_detail(range);
+        var start = range.start;
+        var end = range.end;
+        var startNode = start.closestActualNode();
+        var endNode = end.closestActualNode();
+        var startContainer = getBoundaryContainer(startNode,detail.commonAncestor);
+        var endContainer = getBoundaryContainer(endNode,detail.commonAncestor);
+
+        if (startContainer != endContainer) {
+
+            var doStart = false;
+            var doEnd = false;
+
+            if (nodeHasAncestor(startContainer,endContainer)) {
+                doStart = true;
+            }
+            else if (nodeHasAncestor(endContainer,startContainer)) {
+                doEnd = true;
+            }
+            else {
+                doStart = true;
+                doEnd = true;
+            }
+
+            if (doStart && (startContainer != document.body))
+                start = new Position(startContainer.parentNode,DOM_nodeOffset(startContainer));
+            if (doEnd && (endContainer != document.body))
+                end = new Position(endContainer.parentNode,DOM_nodeOffset(endContainer)+1);
+        }
+        return new Range(start.node,start.offset,end.node,end.offset);
+
+        function nodeHasAncestor(node,ancestor)
+        {
+            for (; node != null; node = node.parentNode) {
+                if (node == ancestor)
+                    return true;
+            }
+            return false;
+        }
     });
 
 })();
