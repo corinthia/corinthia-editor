@@ -1302,8 +1302,8 @@ var Selection_preferElementPositions;
         var end = range.end;
         var startNode = start.closestActualNode();
         var endNode = end.closestActualNode();
-        var startContainer = getBoundaryContainer(startNode,detail.commonAncestor);
-        var endContainer = getBoundaryContainer(endNode,detail.commonAncestor);
+        var startContainer = getBoundaryContainer(startNode.parentNode,detail.commonAncestor);
+        var endContainer = getBoundaryContainer(endNode.parentNode,detail.commonAncestor);
 
         if (startContainer != endContainer) {
 
