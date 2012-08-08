@@ -71,6 +71,12 @@ function rectIsEmpty(rect)
             ((rect.width == 0) && (rect.height == 0)));
 }
 
+function rectContainsPoint(rect,x,y)
+{
+    return ((x >= rect.left) && (x < rect.right) &&
+            (y >= rect.top) && (y < rect.bottom));
+}
+
 function clone(object)
 {
     var result = new Object();

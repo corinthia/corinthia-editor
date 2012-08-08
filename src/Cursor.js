@@ -78,15 +78,26 @@ var Cursor_set;
             if ((DOM_upperName(node) == "A") &&
                 (node.hasAttribute("href")) &&
                 (result == null)) {
-                var href = node.getAttribute("href");
-                if ((href != null) && (href.charAt(0) == "#")) {
-                    if (isInTOC(node))
-                        result = "intocreference-"+href.substring(1);
-                    else
-                        result = "inreference";
+
+                var arange = new Range(node,0,node,node.childNodes.length);
+                var rects = Range_getClientRects(arange);
+                var insideLink = false;
+                for (var i = 0; i < rects.length; i++) {
+                    if (rectContainsPoint(rects[i],x,y))
+                        insideLink = true;
                 }
-                else {
-                    result = "inlink";
+
+                if (insideLink) {
+                    var href = node.getAttribute("href");
+                    if ((href != null) && (href.charAt(0) == "#")) {
+                        if (isInTOC(node))
+                            result = "intocreference-"+href.substring(1);
+                        else
+                            result = "inreference";
+                    }
+                    else {
+                        result = "inlink";
+                    }
                 }
             }
             else if ((DOM_upperName(node) == "IMG") && (result == null)) {
