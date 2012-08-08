@@ -12,7 +12,7 @@ function performTest()
     PostponedActions_perform();
 
     Selection_selectAll();
-    outputOptions.keepSelectionSpans = true;
+    outputOptions.keepSelectionHighlights = true;
 
     var before = PrettyPrinter.getHTML(document.documentElement,outputOptions);
     Main_removeSpecial(document.documentElement);

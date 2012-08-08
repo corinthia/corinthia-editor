@@ -100,7 +100,7 @@ var Selection_preferElementPositions;
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     var selectionDivs = new Array();
-    var selectionSpans = new Array();
+    var selectionHighlights = new Array();
     var tableSelection = null;
 
     Selection_getPositionRect = trace(function getPositionRect(pos)
@@ -217,7 +217,7 @@ var Selection_preferElementPositions;
         if (tableSelection == null)
             return false;
 
-        removeSelectionSpans(getRangeData(null));
+        removeSelectionHighlights(getRangeData(null));
 
         var sel = tableSelection;
 
@@ -285,10 +285,10 @@ var Selection_preferElementPositions;
         }
     });
 
-    var getPrevSpanText = trace(function getPrevSpanText(node)
+    var getPrevHighlightText = trace(function getPrevHighlightText(node)
     {
         if ((node.previousSibling != null) &&
-            isSelectionSpan(node.previousSibling) &&
+            isSelectionHighlight(node.previousSibling) &&
             (node.previousSibling.lastChild != null) &&
             (node.previousSibling.lastChild.nodeType == Node.TEXT_NODE))
             return node.previousSibling.lastChild;
@@ -296,10 +296,10 @@ var Selection_preferElementPositions;
             return null;
     });
 
-    var getNextSpanText = trace(function getNextSpanText(node)
+    var getNextHighlightText = trace(function getNextHighlightText(node)
     {
         if ((node.nextSibling != null) &&
-            isSelectionSpan(node.nextSibling) &&
+            isSelectionHighlight(node.nextSibling) &&
             (node.nextSibling.firstChild != null) &&
             (node.nextSibling.firstChild.nodeType == Node.TEXT_NODE))
             return node.nextSibling.firstChild;
@@ -333,34 +333,34 @@ var Selection_preferElementPositions;
         }
     });
 
-    var setSelectionSpans = trace(function setSelectionSpans(spans)
+    var setSelectionHighlights = trace(function setSelectionHighlights(highlights)
     {
-        UndoManager_addAction(setSelectionSpans,selectionSpans);
-        selectionSpans = spans;
+        UndoManager_addAction(setSelectionHighlights,selectionHighlights);
+        selectionHighlights = highlights;
     });
 
-    var createSelectionSpans = trace(function createSelectionSpans(data)
+    var createSelectionHighlights = trace(function createSelectionHighlights(data)
     {
-        var newSpans = arrayCopy(selectionSpans);
+        var newHighlights = arrayCopy(selectionHighlights);
 
         var outermost = data.outermost;
         for (var i = 0; i < outermost.length; i++) {
             recurse(outermost[i]);
         }
         
-        setSelectionSpans(newSpans);
+        setSelectionHighlights(newHighlights);
 
         function recurse(node)
         {
             if (isTableNode(node) || isFigureNode(node)) {
-                if (!isSelectionSpan(node.parentNode)) {
+                if (!isSelectionHighlight(node.parentNode)) {
                     var wrapped = DOM_wrapNode(node,"DIV");
                     DOM_setAttribute(wrapped,"class",Keys.SELECTION_CLASS);
-                    newSpans.push(wrapped);
+                    newHighlights.push(wrapped);
                 }
             }
             else if (node.nodeType == Node.TEXT_NODE) {
-                createTextHighlight(node,data,newSpans);
+                createTextHighlight(node,data,newHighlights);
             }
             else {
                 var next;
@@ -372,10 +372,10 @@ var Selection_preferElementPositions;
         }
     });
 
-    var createTextHighlight = trace(function createTextHighlight(node,data,newSpans)
+    var createTextHighlight = trace(function createTextHighlight(node,data,newHighlights)
     {
         var selRange = data.range;
-        if (isSelectionSpan(node.parentNode)) {
+        if (isSelectionHighlight(node.parentNode)) {
 
             if ((node == selRange.end.node) && (node.nodeValue.length > selRange.end.offset)) {
                 var destTextNode = getTextNodeAfter(node.parentNode);
@@ -400,7 +400,7 @@ var Selection_preferElementPositions;
         var anext;
         for (var a = node; a != null; a = anext) {
             anext = a.parentNode;
-            if (isSelectionSpan(a))
+            if (isSelectionHighlight(a))
                 DOM_removeNodeButKeepChildren(a);
         }
 
@@ -419,8 +419,8 @@ var Selection_preferElementPositions;
                                        function() { return true; });
         }
 
-        var prevText = getPrevSpanText(node);
-        var nextText = getNextSpanText(node);
+        var prevText = getPrevHighlightText(node);
+        var nextText = getNextHighlightText(node);
 
         if ((prevText != null) && containsSelection(data.nodeSet,prevText)) {
             DOM_moveCharacters(node,0,node.nodeValue.length,
@@ -447,7 +447,7 @@ var Selection_preferElementPositions;
 
             var wrapped = DOM_wrapNode(node,"SPAN");
             DOM_setAttribute(wrapped,"class",Keys.SELECTION_CLASS);
-            newSpans.push(wrapped);
+            newHighlights.push(wrapped);
         }
     });
 
@@ -469,14 +469,14 @@ var Selection_preferElementPositions;
         return { range: selRange, nodeSet: nodeSet, nodes: nodes, outermost: outermost };
     });
 
-    var removeSelectionSpans = trace(function removeSelectionSpans(data,force)
+    var removeSelectionHighlights = trace(function removeSelectionHighlights(data,force)
     {
         var selectedSet = data.nodeSet;
 
-        var remainingSpans = new Array();
+        var remainingHighlights = new Array();
         var checkMerge = new Array();
-        for (var i = 0; i < selectionSpans.length; i++) {
-            var span = selectionSpans[i];
+        for (var i = 0; i < selectionHighlights.length; i++) {
+            var span = selectionHighlights[i];
             if ((span.parentNode != null) && (force || !containsSelection(selectedSet,span))) {
                 if (span.firstChild != null)
                     checkMerge.push(span.firstChild);
@@ -486,10 +486,10 @@ var Selection_preferElementPositions;
                 DOM_removeNodeButKeepChildren(span);
             }
             else if (span.parentNode != null) {
-                remainingSpans.push(span);
+                remainingHighlights.push(span);
             }
         }
-        setSelectionSpans(remainingSpans);
+        setSelectionHighlights(remainingHighlights);
 
         for (var i = 0; i < checkMerge.length; i++) {
             // if not already merged
@@ -521,7 +521,7 @@ var Selection_preferElementPositions;
 
         if (selRange == null) {
             DOM_ignoreMutationsWhileExecuting(function() {
-                removeSelectionSpans(getRangeData(null));
+                removeSelectionHighlights(getRangeData(null));
             });
             return;
         }
@@ -531,10 +531,10 @@ var Selection_preferElementPositions;
 
             Range_trackWhileExecuting(selRange,function() {
                 DOM_ignoreMutationsWhileExecuting(function() {
-                    removeSelectionSpans(getRangeData(selRange));
+                    removeSelectionHighlights(getRangeData(selRange));
                 });
             });
-            // Selection may have changed as a result of removeSelectionSpans()
+            // Selection may have changed as a result of removeSelectionHighlights()
             Selection_setInternal(selRange.start.node,selRange.start.offset,
                                   selRange.end.node,selRange.end.offset);
 
@@ -605,12 +605,12 @@ var Selection_preferElementPositions;
             Range_trackWhileExecuting(selRange,function() {
                 DOM_ignoreMutationsWhileExecuting(function() {
                     var data = getRangeData(selRange);
-                    createSelectionSpans(data);
-                    removeSelectionSpans(data);
+                    createSelectionHighlights(data);
+                    removeSelectionHighlights(data);
                 });
             });
 
-            // Selection may have changed as a result of create/removeSelectionSpans()
+            // Selection may have changed as a result of create/removeSelectionHighlights()
             Selection_setInternal(selRange.start.node,selRange.start.offset,
                                   selRange.end.node,selRange.end.offset);
 
@@ -1118,7 +1118,7 @@ var Selection_preferElementPositions;
     {
         Range_trackWhileExecuting(range,function() {
             DOM_ignoreMutationsWhileExecuting(function() {
-                removeSelectionSpans(getRangeData(range),true);
+                removeSelectionHighlights(getRangeData(range),true);
             });
 
             var region = Tables_regionFromRange(range);

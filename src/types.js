@@ -216,7 +216,7 @@ function isAutoCorrectNode(node)
             (node.getAttribute("class") == Keys.AUTOCORRECT_CLASS));
 }
 
-function isSelectionSpan(node)
+function isSelectionHighlight(node)
 {
     return ((node.nodeType == Node.ELEMENT_NODE) &&
             node.getAttribute("class") == Keys.SELECTION_CLASS);

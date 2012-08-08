@@ -72,7 +72,7 @@ function doPerformTest()
     testWindow.outputOptions = new Object();
     testWindow.disableOutlineRedoHack = true;
     var resultText = testWindow.performTest();
-    if (!testWindow.outputOptions.keepSelectionSpans) {
+    if (!testWindow.outputOptions.keepSelectionHighlights) {
         testWindow.Styles_removeSelectionRule();
         testWindow.Selection_clearSelection();
     }

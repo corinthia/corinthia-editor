@@ -8,14 +8,15 @@ function performTest()
     Styles_addDefaultRuleCategory("selection");
     PostponedActions_perform();
 
-    Selection_selectParagraph();
-    outputOptions.keepSelectionSpans = true;
+    Selection_selectAll();
+
+    outputOptions.keepSelectionHighlights = true;
 }
 </script>
 </head>
 <body>
 <p>First paragraph</p>
-<p>Second []paragraph</p>
+<p>Second paragraph</p>
 <p>Third paragraph</p>
 </body>
 </html>

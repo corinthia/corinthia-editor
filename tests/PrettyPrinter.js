@@ -1,7 +1,7 @@
 (function() {
 
     // Applicable options:
-    // keepSelectionSpans (boolean)
+    // keepSelectionHighlights (boolean)
     // preserveCase (boolean)
     // showNamespaceDetails (boolean)
     // separateLines (boolean)
@@ -11,7 +11,7 @@
         if (options == null)
             options = new Object();
         var copy = DOM_cloneNode(root,true);
-        if (!options.keepSelectionSpans)
+        if (!options.keepSelectionHighlights)
             removeSelectionSpans(copy);
         for (var body = copy.firstChild; body != null; body = body.nextSibling) {
             if (body.nodeName == "BODY") {
@@ -37,7 +37,7 @@
         }
 
         function recurse(node) {
-            if (isSelectionSpan(node)) {
+            if (isSelectionHighlight(node)) {
                 checkMerge.push(node.firstChild);
                 checkMerge.push(node.lastChild);
                 DOM_removeNodeButKeepChildren(node);

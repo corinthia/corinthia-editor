@@ -15,11 +15,7 @@ function performTest()
     Styles_addDefaultRuleCategory("selection");
     PostponedActions_perform();
 
-    outputOptions.keepSelectionSpans = true;
-
-    var p = document.getElementsByTagName("P")[0];
-    var text = p.firstChild;
-    Selection_set(text,0,text,1);
+    outputOptions.keepSelectionHighlights = true;
 }
 </script>
 </head>
