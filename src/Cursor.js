@@ -111,6 +111,14 @@ var Cursor_set;
             else if (isAutoCorrectNode(node) && (result == null)) {
                 result = "incorrection";
             }
+            else if (isTOCNode(node)) {
+                var rect = node.getBoundingClientRect();
+                if (x >= rect.left + rect.width/2)
+                    position = new Position(node.parentNode,DOM_nodeOffset(node)+1);
+                else
+                    position = new Position(node.parentNode,DOM_nodeOffset(node));
+                break;
+            }
         }
 
         var position = Position_closestMatchForwards(position,Position_okForMovement);

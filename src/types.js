@@ -222,7 +222,7 @@ function isSelectionHighlight(node)
             node.getAttribute("class") == Keys.SELECTION_CLASS);
 }
 
-function isInTOC(node)
+function isTOCNode(node)
 {
     if (DOM_upperName(node) == "NAV") {
         var cls = node.getAttribute("class");
@@ -231,6 +231,13 @@ function isInTOC(node)
             (cls == Keys.TABLE_TOC))
             return true;
     }
+    return false;
+}
+
+function isInTOC(node)
+{
+    if (isTOCNode(node))
+        return true;
     if (node.parentNode != null)
         return isInTOC(node.parentNode);
     return false;
