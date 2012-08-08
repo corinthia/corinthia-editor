@@ -140,6 +140,8 @@ function positionAtPoint(x,y)
             return new Position(next,0);
     }
 
+    pos = adjustPositionForFigure(pos);
+
     return pos;
 
     function elementContainsPoint(element,x,y)
@@ -184,6 +186,25 @@ function positionAtPoint(x,y)
         }
         return null;
     }
+
+    function adjustPositionForFigure(position)
+    {
+        if (position == null)
+            return null;
+        if (DOM_upperName(position.node) == "FIGURE") {
+            var prev = position.node.childNodes[position.offset-1];
+            var next = position.node.childNodes[position.offset];
+            if ((prev != null) && isImageNode(prev)) {
+                position = new Position(position.node.parentNode,
+                                        DOM_nodeOffset(position.node)+1);
+            }
+            else if ((next != null) && isImageNode(next)) {
+                position = new Position(position.node.parentNode,
+                                        DOM_nodeOffset(position.node));
+            }
+        }
+        return position;
+    };
 }
 
 function nodeHasContent(node)

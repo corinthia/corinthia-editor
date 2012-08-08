@@ -821,25 +821,18 @@ var Selection_preferElementPositions;
     // public
     Selection_dragSelectionBegin = trace(function dragSelectionBegin(x,y,selectWord)
     {
-        var range = Selection_get();
-        if ((range != null) && !Range_isEmpty(range))
-            return Selection_dragSelectionUpdate(x,y,selectWord);
-
-        var result;
         var pos = Position_closestMatchForwards(positionAtPoint(x,y),Position_okForMovement);
+
         if (pos == null) {
             Selection_clear();
-            result = "error";
-        }
-        else {
-            Selection_set(pos.node,pos.offset,pos.node,pos.offset);
-            result = "end";
+            return "error";
         }
 
         if (selectWord)
             Selection_selectWordAtCursor();
 
-        return result;
+        Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+        return "end";
     });
 
     var selectionHandleEnd = true;
