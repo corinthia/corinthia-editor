@@ -352,7 +352,7 @@ var Selection_preferElementPositions;
 
         function recurse(node)
         {
-            if (isTableNode(node) || isFigureNode(node)) {
+            if (isSpecialBlockNode(node)) {
                 if (!isSelectionHighlight(node.parentNode)) {
                     var wrapped = DOM_wrapNode(node,"DIV");
                     DOM_setAttribute(wrapped,"class",Keys.SELECTION_CLASS);

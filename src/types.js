@@ -245,7 +245,5 @@ function isInTOC(node)
 
 function isSpecialBlockNode(node)
 {
-    return ((DOM_upperName(node) == "TABLE") ||
-            (DOM_upperName(node) == "FIGURE") ||
-            ((DOM_upperName(node) == "NAV") && isInTOC(node)));
+    return (isTableNode(node) || isFigureNode(node) || isTOCNode(node));
 }
