@@ -821,7 +821,7 @@ var Selection_preferElementPositions;
     // public
     Selection_dragSelectionBegin = trace(function dragSelectionBegin(x,y,selectWord)
     {
-        var pos = Position_closestMatchForwards(positionAtPoint(x,y),Position_okForMovement);
+        var pos = Position_closestMatchForwards(Position_atPoint(x,y),Position_okForMovement);
 
         if (pos == null) {
             Selection_clear();
@@ -859,7 +859,7 @@ var Selection_preferElementPositions;
     {
         y = Cursor_scrollDocumentForY(y);
 
-        var pos = Position_closestMatchForwards(positionAtPoint(x,y),Position_okForMovement);
+        var pos = Position_closestMatchForwards(Position_atPoint(x,y),Position_okForMovement);
         var selRange = Selection_get();
         if ((pos == null) || (selRange == null))
             return "none";
@@ -950,7 +950,7 @@ var Selection_preferElementPositions;
     // public
     Selection_setSelectionStartAtCoords = trace(function setSelectionStartAtCoords(x,y)
     {
-        var position = Position_closestMatchForwards(positionAtPoint(x,y),Position_okForMovement);
+        var position = Position_closestMatchForwards(Position_atPoint(x,y),Position_okForMovement);
         if (position != null) {
             position = Position_closestMatchBackwards(position,Position_okForMovement);
             var selRange = Selection_get();
@@ -966,7 +966,7 @@ var Selection_preferElementPositions;
     // public
     Selection_setSelectionEndAtCoords = trace(function setSelectionEndAtCoords(x,y)
     {
-        var position = Position_closestMatchForwards(positionAtPoint(x,y),Position_okForMovement);
+        var position = Position_closestMatchForwards(Position_atPoint(x,y),Position_okForMovement);
         if (position != null) {
             position = Position_closestMatchBackwards(position,Position_okForMovement);
             var selRange = Selection_get();

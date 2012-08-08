@@ -152,7 +152,7 @@ var Text_toEndOfBoundary;
 
             for (var i = 0; i < rects.length; i++) {
                 if ((cursorX >= rects[i].left) && (cursorX <= rects[i].right)) {
-                    var newPos = positionAtPoint(cursorX,rects[i].top + rects[i].height/2);
+                    var newPos = Position_atPoint(cursorX,rects[i].top + rects[i].height/2);
                     if (newPos != null) {
                         newPos = Position_closestMatchBackwards(newPos,Position_okForInsertion);
                         newPos.targetX = cursorX;
@@ -163,7 +163,7 @@ var Text_toEndOfBoundary;
 
             var rightMost = findRightMostRect(rects);
             if (rightMost != null) {
-                var newPos = positionAtPoint(rightMost.right,rightMost.top + rightMost.height/2);
+                var newPos = Position_atPoint(rightMost.right,rightMost.top + rightMost.height/2);
                 if (newPos != null) {
                     newPos = Position_closestMatchBackwards(newPos,Position_okForInsertion);
                     newPos.targetX = cursorX;
@@ -305,7 +305,7 @@ var Text_toEndOfBoundary;
 
             for (var i = 0; i < rects.length; i++) {
                 if ((cursorX >= rects[i].left) && (cursorX <= rects[i].right)) {
-                    var newPos = positionAtPoint(cursorX,rects[i].top + rects[i].height/2);
+                    var newPos = Position_atPoint(cursorX,rects[i].top + rects[i].height/2);
                     if (newPos != null) {
                         newPos = Position_closestMatchForwards(newPos,Position_okForInsertion);
                         newPos.targetX = cursorX;
@@ -316,7 +316,7 @@ var Text_toEndOfBoundary;
 
             var rightMost = findRightMostRect(rects);
             if (rightMost != null) {
-                var newPos = positionAtPoint(rightMost.right,rightMost.top + rightMost.height/2);
+                var newPos = Position_atPoint(rightMost.right,rightMost.top + rightMost.height/2);
                 if (newPos != null) {
                     newPos = Position_closestMatchForwards(newPos,Position_okForInsertion);
                     newPos.targetX = cursorX;

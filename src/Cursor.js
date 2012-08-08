@@ -69,7 +69,7 @@ var Cursor_set;
         y = Cursor_scrollDocumentForY(y);
 
         var result = null;
-        var position = positionAtPoint(x,y);
+        var position = Position_atPoint(x,y);
         if (position == null)
             return null;
 
