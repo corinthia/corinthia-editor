@@ -392,6 +392,22 @@ var Cursor_set;
         }
         else {
             var currentPos = selRange.start;
+
+            // Special case of pressing backspace after a table, figure, or TOC
+            var back = Position_closestMatchBackwards(currentPos,Position_okForMovement);
+            if ((back != null) && (back.node.nodeType == Node.ELEMENT_NODE) && (back.offset > 0)) {
+                var prevNode = back.node.childNodes[back.offset-1];
+                if (isSpecialBlockNode(prevNode)) {
+                    var p = DOM_createElement(document,"P");
+                    DOM_insertBefore(prevNode.parentNode,p,prevNode);
+                    DOM_deleteNode(prevNode);
+                    Cursor_updateBRAtEndOfParagraph(p);
+                    Cursor_set(p,0);
+                    Cursor_ensureCursorVisible();
+                    return;
+                }
+            }
+
             currentPos = Position_preferTextPosition(currentPos);
             var prevPos = Position_prevMatch(currentPos,Position_okForMovement);
             if (prevPos != null) {
