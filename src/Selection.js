@@ -217,6 +217,8 @@ var Selection_preferElementPositions;
         if (tableSelection == null)
             return false;
 
+        removeSelectionSpans(getRangeData(null));
+
         var sel = tableSelection;
 
         var topLeftTD = sel.structure.get(sel.top,sel.left);
@@ -339,116 +341,137 @@ var Selection_preferElementPositions;
 
     var createSelectionSpans = trace(function createSelectionSpans(data)
     {
-        var selRange = data.range;
-        var skipped = 0;
-        var reused = 0;
-        var nodes = data.nodes;
         var newSpans = arrayCopy(selectionSpans);
-        for (var i = 0; i < nodes.length; i++) {
-            var node = nodes[i];
 
-            if (node.nodeType != Node.TEXT_NODE)
-                continue;
+        var outermost = data.outermost;
+        for (var i = 0; i < outermost.length; i++) {
+            recurse(outermost[i]);
+        }
+        
+        setSelectionSpans(newSpans);
 
-            if (isSelectionSpan(node.parentNode)) {
-                skipped++;
-
-                if ((node == selRange.end.node) && (node.nodeValue.length > selRange.end.offset)) {
-                    var destTextNode = getTextNodeAfter(node.parentNode);
-                    DOM_moveCharacters(node,
-                                       selRange.end.offset,
-                                       node.nodeValue.length,
-                                       destTextNode,0,
-                                       true,false);
+        function recurse(node)
+        {
+            if (isTableNode(node) || isFigureNode(node)) {
+                if (!isSelectionSpan(node.parentNode)) {
+                    var wrapped = DOM_wrapNode(node,"DIV");
+                    DOM_setAttribute(wrapped,"class",Keys.SELECTION_CLASS);
+                    newSpans.push(wrapped);
                 }
-                if ((node == selRange.start.node) && (selRange.start.offset > 0)) {
-                    var destTextNode = getTextNodeBefore(node.parentNode);
-                    DOM_moveCharacters(node,
-                                       0,
-                                       selRange.start.offset,
-                                       destTextNode,destTextNode.nodeValue.length,
-                                       false,true);
+            }
+            else if (node.nodeType == Node.TEXT_NODE) {
+                createTextHighlight(node,data,newSpans);
+            }
+            else {
+                var next;
+                for (var child = node.firstChild; child != null; child = next) {
+                    next = child.nextSibling;
+                    recurse(child);
                 }
-
-                continue;
-            }
-
-            var anext;
-            for (var a = node; a != null; a = anext) {
-                anext = a.parentNode;
-                if (isSelectionSpan(a))
-                    DOM_removeNodeButKeepChildren(a);
-            }
-
-            if (node == selRange.end.node) {
-                if (isWhitespaceString(node.nodeValue.substring(0,selRange.end.offset)))
-                    continue;
-                Formatting_splitTextAfter(selRange.end,
-                                          function() { return true; });a
-            }
-
-
-            if (node == selRange.start.node) {
-                if (isWhitespaceString(node.nodeValue.substring(selRange.start.offset)))
-                    continue;
-                Formatting_splitTextBefore(selRange.start,
-                                           function() { return true; });
-            }
-
-            var prevText = getPrevSpanText(node);
-            var nextText = getNextSpanText(node);
-
-            if ((prevText != null) && containsSelection(data.nodeSet,prevText)) {
-                DOM_moveCharacters(node,0,node.nodeValue.length,
-                                   prevText,prevText.nodeValue.length,true,false);
-                DOM_deleteNode(node);
-            }
-            else if ((nextText != null) && containsSelection(data.nodeSet,nextText)) {
-                DOM_moveCharacters(node,0,node.nodeValue.length,
-                                   nextText,0,false,true);
-                DOM_deleteNode(node);
-            }
-            else if (!isWhitespaceTextNode(node)) {
-                // Call moveCharacters() with an empty range, to force any tracked positions
-                // that are at the end of prevText or the start of nextText to move into this
-                // node
-                if (prevText != null) {
-                    DOM_moveCharacters(prevText,
-                                       prevText.nodeValue.length,prevText.nodeValue.length,
-                                       node,0);
-                }
-                if (nextText != null) {
-                    DOM_moveCharacters(nextText,0,0,node,node.nodeValue.length);
-                }
-
-                var wrapped = DOM_wrapNode(node,"SPAN");
-                DOM_setAttribute(wrapped,"class",Keys.SELECTION_CLASS);
-                newSpans.push(wrapped);
             }
         }
-        setSelectionSpans(newSpans);
+    });
+
+    var createTextHighlight = trace(function createTextHighlight(node,data,newSpans)
+    {
+        var selRange = data.range;
+        if (isSelectionSpan(node.parentNode)) {
+
+            if ((node == selRange.end.node) && (node.nodeValue.length > selRange.end.offset)) {
+                var destTextNode = getTextNodeAfter(node.parentNode);
+                DOM_moveCharacters(node,
+                                   selRange.end.offset,
+                                   node.nodeValue.length,
+                                   destTextNode,0,
+                                   true,false);
+            }
+            if ((node == selRange.start.node) && (selRange.start.offset > 0)) {
+                var destTextNode = getTextNodeBefore(node.parentNode);
+                DOM_moveCharacters(node,
+                                   0,
+                                   selRange.start.offset,
+                                   destTextNode,destTextNode.nodeValue.length,
+                                   false,true);
+            }
+
+            return;
+        }
+
+        var anext;
+        for (var a = node; a != null; a = anext) {
+            anext = a.parentNode;
+            if (isSelectionSpan(a))
+                DOM_removeNodeButKeepChildren(a);
+        }
+
+        if (node == selRange.end.node) {
+            if (isWhitespaceString(node.nodeValue.substring(0,selRange.end.offset)))
+                return;
+            Formatting_splitTextAfter(selRange.end,
+                                      function() { return true; });a
+        }
+
+
+        if (node == selRange.start.node) {
+            if (isWhitespaceString(node.nodeValue.substring(selRange.start.offset)))
+                return;
+            Formatting_splitTextBefore(selRange.start,
+                                       function() { return true; });
+        }
+
+        var prevText = getPrevSpanText(node);
+        var nextText = getNextSpanText(node);
+
+        if ((prevText != null) && containsSelection(data.nodeSet,prevText)) {
+            DOM_moveCharacters(node,0,node.nodeValue.length,
+                               prevText,prevText.nodeValue.length,true,false);
+            DOM_deleteNode(node);
+        }
+        else if ((nextText != null) && containsSelection(data.nodeSet,nextText)) {
+            DOM_moveCharacters(node,0,node.nodeValue.length,
+                               nextText,0,false,true);
+            DOM_deleteNode(node);
+        }
+        else if (!isWhitespaceTextNode(node)) {
+            // Call moveCharacters() with an empty range, to force any tracked positions
+            // that are at the end of prevText or the start of nextText to move into this
+            // node
+            if (prevText != null) {
+                DOM_moveCharacters(prevText,
+                                   prevText.nodeValue.length,prevText.nodeValue.length,
+                                   node,0);
+            }
+            if (nextText != null) {
+                DOM_moveCharacters(nextText,0,0,node,node.nodeValue.length);
+            }
+
+            var wrapped = DOM_wrapNode(node,"SPAN");
+            DOM_setAttribute(wrapped,"class",Keys.SELECTION_CLASS);
+            newSpans.push(wrapped);
+        }
     });
 
     var getRangeData = trace(function getSelectionData(selRange)
     {
         var nodeSet = new NodeSet();
         var nodes;
+        var outermost;
         if (selRange != null) {
-            var nodes = Range_getAllNodes(selRange);
+            outermost = Range_getOutermostNodes(selRange);
+            nodes = Range_getAllNodes(selRange);
             for (var i = 0; i < nodes.length; i++)
                 nodeSet.add(nodes[i]);
         }
         else {
             nodes = new Array();
+            outermost = new Array();
         }
-        return { range: selRange, nodeSet: nodeSet, nodes: nodes };
+        return { range: selRange, nodeSet: nodeSet, nodes: nodes, outermost: outermost };
     });
 
     var removeSelectionSpans = trace(function removeSelectionSpans(data,force)
     {
-        var selRange = data.range;
         var selectedSet = data.nodeSet;
-        var nodes = data.nodes;
 
         var remainingSpans = new Array();
         var checkMerge = new Array();

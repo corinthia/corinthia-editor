@@ -229,16 +229,16 @@ var Main_init;
             Main_removeSpecial(child);
         }
 
-        if ((DOM_upperName(node) == "SPAN") &&
-            ((node.getAttribute("class") == Keys.HEADING_NUMBER) ||
-             (node.getAttribute("class") == Keys.FIGURE_NUMBER) ||
-             (node.getAttribute("class") == Keys.TABLE_NUMBER) ||
-             (node.getAttribute("class") == Keys.AUTOCORRECT_CLASS) ||
-             (node.getAttribute("class") == Keys.SELECTION_CLASS))) {
-            DOM_removeNodeButKeepChildren(node);
-        }
-        else if ((DOM_upperName(node) == "DIV") &&
-                 (node.getAttribute("class") == Keys.SELECTION_HIGHLIGHT)) {
+        var cssClass = null;
+        if ((node.nodeType == Node.ELEMENT_NODE) && node.hasAttribute("class"))
+            cssClass = node.getAttribute("class");
+
+        if ((cssClass == Keys.HEADING_NUMBER) ||
+            (cssClass == Keys.FIGURE_NUMBER) ||
+            (cssClass == Keys.TABLE_NUMBER) ||
+            (cssClass == Keys.AUTOCORRECT_CLASS) ||
+            (cssClass == Keys.SELECTION_CLASS) ||
+            (cssClass == Keys.SELECTION_HIGHLIGHT)) {
             DOM_removeNodeButKeepChildren(node);
         }
         else if ((DOM_upperName(node) == "META") &&

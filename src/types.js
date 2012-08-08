@@ -218,8 +218,8 @@ function isAutoCorrectNode(node)
 
 function isSelectionSpan(node)
 {
-    return ((DOM_upperName(node) == "SPAN") &&
-            (node.getAttribute("class") == Keys.SELECTION_CLASS));
+    return ((node.nodeType == Node.ELEMENT_NODE) &&
+            node.getAttribute("class") == Keys.SELECTION_CLASS);
 }
 
 function isInTOC(node)
