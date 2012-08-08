@@ -828,10 +828,11 @@ var Selection_preferElementPositions;
             return "error";
         }
 
+        Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+
         if (selectWord)
             Selection_selectWordAtCursor();
 
-        Selection_set(pos.node,pos.offset,pos.node,pos.offset);
         return "end";
     });
 
