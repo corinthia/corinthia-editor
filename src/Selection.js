@@ -104,8 +104,6 @@ var Selection_preferElementPositions;
     var tableSelection = null;
 
     // FIXME: duplication with Position_rectAtPos
-    // FIXME: this returns rects that do not have the right or bottom properties set, which is
-    // inconsistent with the built-in rect objects returned by the DOM API
     Selection_getPositionRect = trace(function getPositionRect(pos)
     {
         var node = pos.node;
@@ -118,8 +116,10 @@ var Selection_preferElementPositions;
             // Cursor is immediately before table -> return table rect
             if ((offset > 0) && isSpecialBlockNode(node.childNodes[offset-1])) {
                 var rect = node.childNodes[offset-1].getBoundingClientRect();
-                return { left: rect.left + rect.width,
+                return { left: rect.right, // 0 width
+                         right: rect.right,
                          top: rect.top,
+                         bottom: rect.bottom,
                          width: 0,
                          height: rect.height };
             }
@@ -128,7 +128,9 @@ var Selection_preferElementPositions;
                      isSpecialBlockNode(node.childNodes[offset])) {
                 var rect = node.childNodes[offset].getBoundingClientRect();
                 return { left: rect.left,
+                         right: rect.left, // 0 width
                          top: rect.top,
+                         bottom: rect.bottom,
                          width: 0,
                          height: rect.height };
             }
