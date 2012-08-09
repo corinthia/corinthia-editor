@@ -6,7 +6,6 @@ var Selection_get;
 var Selection_set;
 var Selection_clear;
 
-var Selection_getPositionRect;
 var Selection_getCursorRect;
 var Selection_update;
 var Selection_selectAll;
@@ -103,114 +102,12 @@ var Selection_preferElementPositions;
     var selectionHighlights = new Array();
     var tableSelection = null;
 
-    // FIXME: duplication with Position_rectAtPos
-    Selection_getPositionRect = trace(function getPositionRect(pos)
-    {
-        var node = pos.node;
-        var offset = pos.offset;
-
-        if (node.nodeType == Node.ELEMENT_NODE) {
-            if (offset > node.childNodes.length)
-                throw new Error("Invalid offset: "+offset+" of "+node.childNodes.length);
-
-            // Cursor is immediately before table -> return table rect
-            if ((offset > 0) && isSpecialBlockNode(node.childNodes[offset-1])) {
-                var rect = node.childNodes[offset-1].getBoundingClientRect();
-                return { left: rect.right, // 0 width
-                         right: rect.right,
-                         top: rect.top,
-                         bottom: rect.bottom,
-                         width: 0,
-                         height: rect.height };
-            }
-            // Cursor is immediately after table -> return table rect
-            else if ((offset < node.childNodes.length) &&
-                     isSpecialBlockNode(node.childNodes[offset])) {
-                var rect = node.childNodes[offset].getBoundingClientRect();
-                return { left: rect.left,
-                         right: rect.left, // 0 width
-                         top: rect.top,
-                         bottom: rect.bottom,
-                         width: 0,
-                         height: rect.height };
-            }
-
-            // Cursor is between two elements. We don't want to use the rect of either element,
-            // since its height may not reflect that of the current text size. Temporarily add a
-            /// new character, and set the cursor's location and height based on this.
-            var result;
-            UndoManager_disableWhileExecuting(function() {
-                DOM_ignoreMutationsWhileExecuting(function() {
-                    var tempNode = DOM_createTextNode(document,"X");
-                    DOM_insertBefore(node,tempNode,node.childNodes[offset]);
-                    result = rectAtLeftOfRange(new Range(tempNode,0,tempNode,0));
-                    DOM_deleteNode(tempNode);
-                });
-            });
-            return result;
-        }
-        else if (node.nodeType == Node.TEXT_NODE) {
-            // First see if the client rects returned by the range gives us a valid value. This
-            // won't be the case if the cursor is surrounded by both sides on whitespace.
-            var result = rectAtRightOfRange(new Range(node,offset,node,offset));
-            if (result != null)
-                return result;
-
-            if (offset > 0) {
-                // Try and get the rect of the previous character; the cursor goes after that
-                var result = rectAtRightOfRange(new Range(node,offset-1,node,offset));
-                if (result != null)
-                    return result;
-            }
-
-            // Temporarily add a new character, and set the cursor's location to the place
-            // that would go.
-            var result;
-            DOM_ignoreMutationsWhileExecuting(function() {
-                var oldNodeValue = node.nodeValue;
-                node.nodeValue = node.nodeValue.slice(0,offset) + "X" +
-                                 node.nodeValue.slice(offset);
-                result = rectAtLeftOfRange(new Range(node,offset,node,offset));
-                node.nodeValue = oldNodeValue;
-            });
-            return result;
-        }
-        else {
-            return null;
-        }
-
-        function rectAtRightOfRange(range)
-        {
-            var rects = Range_getClientRects(range);
-            if ((rects == null) || (rects.length == 0) || (rects[rects.length-1].width == 0))
-                return null;
-            var rect = rects[rects.length-1];
-            return { left: rect.left + rect.width,
-                     top: rect.top,
-                     width: 0,
-                     height: rect.height };
-
-        }
-
-        function rectAtLeftOfRange(range)
-        {
-            var rects = Range_getClientRects(range);
-            if ((rects == null) || (rects.length == 0))
-                return null;
-            var rect = rects[0];
-            return { left: rect.left,
-                     top: rect.top,
-                     width: 0,
-                     height: rect.height };
-        }
-    });
-
     // public
     Selection_getCursorRect = trace(function getCursorRect()
     {
         var selRange = Selection_get();
         if (selRange != null)
-            return Selection_getPositionRect(selRange.end);
+            return Position_displayRectAtPos(selRange.end);
         else
             return null;
     });

@@ -29,7 +29,7 @@ var Cursor_set;
 
     Cursor_ensurePositionVisible = trace(function ensurePositionVisible(pos)
     {
-        var rect = Selection_getPositionRect(pos)
+        var rect = Position_displayRectAtPos(pos)
         if (rect != null) {
             var extraSpace = 4;
 
