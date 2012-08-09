@@ -103,6 +103,9 @@ var Selection_preferElementPositions;
     var selectionHighlights = new Array();
     var tableSelection = null;
 
+    // FIXME: duplication with Position_rectAtPos
+    // FIXME: this returns rects that do not have the right or bottom properties set, which is
+    // inconsistent with the built-in rect objects returned by the DOM API
     Selection_getPositionRect = trace(function getPositionRect(pos)
     {
         var node = pos.node;

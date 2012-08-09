@@ -637,6 +637,7 @@ var Position_atPoint;
         stopTracking(pos.self);
     });
 
+    // FIXME: duplication with Selection_getPositionRect
     Position_rectAtPos = trace(function rectAtPos(pos)
     {
         if (pos == null)

@@ -1,5 +1,6 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
+var Cursor_ensurePositionVisible;
 var Cursor_ensureCursorVisible;
 var Cursor_scrollDocumentForY;
 var Cursor_positionCursor;
@@ -26,10 +27,9 @@ var Cursor_set;
 
     var cursorX = null;
 
-    // public
-    Cursor_ensureCursorVisible = trace(function ensureCursorVisible()
+    Cursor_ensurePositionVisible = trace(function ensurePositionVisible(pos)
     {
-        var rect = Selection_getCursorRect();
+        var rect = Selection_getPositionRect(pos)
         if (rect != null) {
             var extraSpace = 4;
 
@@ -44,6 +44,14 @@ var Cursor_set;
             else if (cursorBottom > windowBottom)
                 window.scrollTo(window.scrollX,cursorBottom - window.innerHeight);
         }
+    });
+
+    // public
+    Cursor_ensureCursorVisible = trace(function ensureCursorVisible()
+    {
+        var selRange = Selection_get();
+        if (selRange != null)
+            Cursor_ensurePositionVisible(selRange.end);
     });
 
     Cursor_scrollDocumentForY = trace(function scrollDocumentForY(y)

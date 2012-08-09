@@ -146,10 +146,19 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     {
         var start = getPosition(startId);
         var end = getPosition(endId);
+
+        var oldSelection = Selection_get();
+        var oldStart = (oldSelection != null) ? oldSelection.start : null;
+        var oldEnd = (oldSelection != null) ? oldSelection.end : null;
+
         Selection_set(start.node,start.offset,end.node,end.offset);
 
         if (Position_equal(start,end))
-            Cursor_ensureCursorVisible();
+            Cursor_ensurePositionVisible(end);
+        else if (Position_equal(oldStart,start) && !Position_equal(oldEnd,end))
+            Cursor_ensurePositionVisible(end);
+        else if (Position_equal(oldEnd,end) && !Position_equal(oldStart,start))
+            Cursor_ensurePositionVisible(start);
     });
 
     // { startId, endId }
