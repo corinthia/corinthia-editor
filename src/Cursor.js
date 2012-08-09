@@ -446,6 +446,13 @@ var Cursor_set;
                     Cursor_ensureCursorVisible();
                     return;
                 }
+                if (DOM_upperName(prevNode) == "A") {
+                    Cursor_set(back.node,back.offset-1);
+                    Selection_preserveWhileExecuting(function() {
+                        DOM_deleteNode(prevNode);
+                    });
+                    return;
+                }
             }
 
             currentPos = Position_preferTextPosition(currentPos);

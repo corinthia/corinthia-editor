@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+function performTest()
+{
+    Outline_init();
+    PostponedActions_perform();
+    Cursor_insertReference("test");
+    PostponedActions_perform();
+    Cursor_deleteCharacter();
+    showSelection();
+}
+</script>
+</head>
+<body>
+<h1 id="test">1. Heading</h1>
+<p>Text[]</p>
+</body>
+</html>
