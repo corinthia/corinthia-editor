@@ -150,12 +150,31 @@ var Main_init;
         function cleanse(node)
         {
             if ((node.nodeType == Node.TEXT_NODE) || (node.nodeType == Node.COMMENT_NODE)) {
-                node.nodeValue = node.nodeValue.replace(/[^\s\.\@\^]/g,"X");
+                DOM_setNodeValue(node,cleanseString(node.nodeValue));
             }
             else if (node.nodeType == Node.ELEMENT_NODE) {
+                if ((DOM_upperName(node) == "STYLE") || (DOM_upperName(node) == "SCRIPT"))
+                    return;
+                cleanseAttribute(node,"original");
+                if (node.hasAttribute("href") && !node.getAttribute("href").match(/^#/))
+                    cleanseAttribute(node,"href");
                 for (var child = node.firstChild; child != null; child = child.nextSibling)
                     cleanse(child);
             }
+        }
+
+        function cleanseAttribute(node,name)
+        {
+            if (node.hasAttribute(name)) {
+                var value = node.getAttribute(name);
+                value = cleanseString(value);
+                DOM_setAttribute(node,name,value);
+            }
+        }
+
+        function cleanseString(str)
+        {
+            return str.replace(/[^\s\.\@\^]/g,"X");
         }
 
         function htmlWithSelection()
