@@ -162,7 +162,11 @@ var Cursor_set;
     // public
     Cursor_getCursorPosition = trace(function getCursorPosition()
     {
-        var rect = Selection_getCursorRect();
+        var selRange = Selection_get();
+        if (selRange == null)
+            return null;
+
+        var rect = Position_displayRectAtPos(selRange.end);
         if (rect == null)
             return null;
 

@@ -203,7 +203,7 @@ var AutoCorrect_replaceCorrection;
         var offset = Math.floor(textNode.nodeValue.length/2);
         Selection_set(textNode,offset,textNode,offset);
         Cursor_ensureCursorVisible();
-        var rect = Selection_getCursorRect();
+        var rect = Position_displayRectAtPos(new Position(textNode,offset));
         if (rect == null)
             return null;
 

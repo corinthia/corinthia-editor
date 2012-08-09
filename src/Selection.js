@@ -6,7 +6,6 @@ var Selection_get;
 var Selection_set;
 var Selection_clear;
 
-var Selection_getCursorRect;
 var Selection_update;
 var Selection_selectAll;
 var Selection_selectParagraph;
@@ -101,16 +100,6 @@ var Selection_preferElementPositions;
     var selectionDivs = new Array();
     var selectionHighlights = new Array();
     var tableSelection = null;
-
-    // public
-    Selection_getCursorRect = trace(function getCursorRect()
-    {
-        var selRange = Selection_get();
-        if (selRange != null)
-            return Position_displayRectAtPos(selRange.end);
-        else
-            return null;
-    });
 
     // private
     updateTableSelection = trace(function updateTableSelection(selRange)
@@ -439,9 +428,9 @@ var Selection_preferElementPositions;
             // Selection may have changed as a result of removeSelectionHighlights()
             Selection_setInternal(selRange.start.node,selRange.start.offset,
                                   selRange.end.node,selRange.end.offset);
+            selRange = Selection_get(); // since setInternal can theoretically change it
 
-            var rect = Selection_getCursorRect();
-
+            var rect = Position_displayRectAtPos(selRange.end);
             if (rect != null) {
                 var left = rect.left + window.scrollX;
                 var top = rect.top + window.scrollY;
