@@ -358,6 +358,15 @@ var Cursor_set;
 
         nbspToSpace(pos);
 
+        // If the user enters two double quotes in succession (open and close), replace them with
+        // just one plain double quote character
+        if ((str == "”") && (node.nodeType == Node.TEXT_NODE) &&
+            (offset > 0) && (node.nodeValue.charAt(offset-1) == "“")) {
+            DOM_deleteCharacters(node,offset-1,offset);
+            offset--;
+            str = "\"";
+        }
+
         if (node.nodeType == Node.ELEMENT_NODE) {
             var emptyTextNode = DOM_createTextNode(document,"");
             if (offset >= node.childNodes.length)
