@@ -658,7 +658,7 @@ var Position_atPoint;
         return null;
     });
 
-    Position_displayRectAtPos = trace(function getPositionRect(pos)
+    Position_displayRectAtPos = trace(function displayRectAtPos(pos)
     {
         var node = pos.node;
         var offset = pos.offset;
