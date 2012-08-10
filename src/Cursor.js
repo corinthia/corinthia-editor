@@ -81,7 +81,7 @@ var Cursor_set;
         if (position == null)
             return null;
 
-        var node = position.closestActualNode();
+        var node = Position_closestActualNode(position);
         for (; node != null; node = node.parentNode) {
             if ((DOM_upperName(node) == "A") &&
                 (node.hasAttribute("href")) &&
@@ -458,8 +458,8 @@ var Cursor_set;
             currentPos = Position_preferTextPosition(currentPos);
             var prevPos = Position_prevMatch(currentPos,Position_okForMovement);
             if (prevPos != null) {
-                var startBlock = firstBlockAncestor(prevPos.closestActualNode());
-                var endBlock = firstBlockAncestor(selRange.end.closestActualNode());
+                var startBlock = firstBlockAncestor(Position_closestActualNode(prevPos));
+                var endBlock = firstBlockAncestor(Position_closestActualNode(selRange.end));
                 if ((startBlock != endBlock) &&
                     isParagraphNode(startBlock) && !nodeHasContent(startBlock)) {
                     DOM_deleteNode(startBlock);
@@ -663,7 +663,7 @@ var Cursor_set;
         var selRange = Selection_get();
         var position = selRange.start;
         while (position != null) {
-            var node = position.closestActualNode();
+            var node = Position_closestActualNode(position);
             for (; node != null; node = node.parentNode) {
                 if (DOM_upperName(node) == name)
                     return node;

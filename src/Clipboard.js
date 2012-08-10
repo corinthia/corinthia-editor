@@ -314,7 +314,7 @@ var Clipboard_pasteNodes;
         var selRange = Selection_get();
         if (selRange != null) {
             Range_trackWhileExecuting(selRange,function() {
-                var node = selRange.start.closestActualNode();
+                var node = Position_closestActualNode(selRange.start);
                 while (node != null) {
                     var parent = node.parentNode;
                     if (isListItemNode(node)) {

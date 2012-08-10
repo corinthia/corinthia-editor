@@ -559,11 +559,11 @@ var Selection_preferElementPositions;
         var selRange = Selection_get();
         if (selRange == null)
             return;
-        var startNode = selRange.start.closestActualNode();
+        var startNode = Position_closestActualNode(selRange.start);
         while (!isParagraphNode(startNode) && !isContainerNode(startNode))
             startNode = startNode.parentNode;
 
-        var endNode = selRange.end.closestActualNode();
+        var endNode = Position_closestActualNode(selRange.end);
         while (!isParagraphNode(endNode) && !isContainerNode(endNode))
             endNode = endNode.parentNode;
 
@@ -1185,8 +1185,8 @@ var Selection_preferElementPositions;
         var detail = Range_detail(range);
         var start = range.start;
         var end = range.end;
-        var startNode = start.closestActualNode();
-        var endNode = end.closestActualNode();
+        var startNode = Position_closestActualNode(start);
+        var endNode = Position_closestActualNode(end);
         var startContainer = getBoundaryContainer(startNode.parentNode,detail.commonAncestor);
         var endContainer = getBoundaryContainer(endNode.parentNode,detail.commonAncestor);
 

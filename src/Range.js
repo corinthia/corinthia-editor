@@ -82,7 +82,7 @@ var Range_getText;
 
     Range_singleNode = trace(function singleNode(range)
     {
-        return range.start.closestActualNode(true);
+        return Position_closestActualNode(range.start,true);
     });
 
     Range_ensureInlineNodesInParagraph = trace(function ensureInlineNodesInParagraph(range)

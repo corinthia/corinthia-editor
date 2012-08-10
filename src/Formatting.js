@@ -320,7 +320,7 @@ var Formatting_formatInlineNode;
             return stringToStartOfParagraph(pos.node,pos.offset);
         }
         else {
-            return stringToStartOfParagraph(pos.closestActualNode(),0);
+            return stringToStartOfParagraph(Position_closestActualNode(pos),0);
         }
 
         function stringToStartOfParagraph(node,offset)

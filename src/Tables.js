@@ -715,8 +715,8 @@ var Tables_setProperties;
         if (range == null)
             return null;
 
-        var start = range.start.closestActualNode(true);
-        var end = range.end.closestActualNode(true);
+        var start = Position_closestActualNode(range.start,true);
+        var end = Position_closestActualNode(range.end,true);
 
         var startTD = Tables_findContainingCell(start);
         var endTD = Tables_findContainingCell(end);

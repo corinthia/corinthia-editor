@@ -214,7 +214,7 @@ var AutoCorrect_replaceCorrection;
     {
         var range = Selection_get();
         if (range != null) {
-            var endNode = range.end.closestActualNode();
+            var endNode = Position_closestActualNode(range.end);
             for (; endNode != null; endNode = endNode.parentNode) {
                 if (isAutoCorrectNode(endNode))
                     return correctionsByNode.get(endNode);

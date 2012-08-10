@@ -2,6 +2,7 @@
 
 var Position;
 var Position_trackWhileExecuting;
+var Position_closestActualNode;
 var Position_okForInsertion;
 var Position_okForMovement;
 var Position_prevMatch;
@@ -239,10 +240,10 @@ var Position_atPoint;
     });
 
     // public
-    Position.prototype.closestActualNode = function(preferElement)
+    Position_closestActualNode = trace(function closestActualNode(pos,preferElement)
     {
-        var node = this.node;
-        var offset = this.offset;
+        var node = pos.node;
+        var offset = pos.offset;
         if ((node.nodeType != Node.ELEMENT_NODE) || (node.firstChild == null))
             return node;
         else if (offset == 0)
@@ -260,7 +261,7 @@ var Position_atPoint;
         else {
             return next;
         }
-    }
+    });
 
     // public
     Position_okForInsertion = trace(function okForInsertion(pos)
