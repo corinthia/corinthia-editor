@@ -367,7 +367,7 @@ var Position_atPoint;
         if (isOpaqueNode(node))
             return false;
 
-        for (var ancestor = node; ancestor != document.body; ancestor = ancestor.parentNode) {
+        for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {
             if (DOM_upperName(node) == "FIGCAPTION")
                 break;
             if (isFigureNode(node))

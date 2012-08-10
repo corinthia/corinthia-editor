@@ -191,7 +191,7 @@ function isItemNumber(node)
 
 function isOpaqueNode(node)
 {
-    if (node == document.body)
+    if (node == null)
         return false;
     if (node.nodeType == Node.TEXT_NODE) {
         return isOpaqueNode(node.parentNode);

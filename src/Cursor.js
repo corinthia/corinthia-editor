@@ -109,7 +109,7 @@ var Cursor_set;
                 }
             }
             else if ((DOM_upperName(node) == "IMG") && (result == null)) {
-                for (var anc = node; anc != document.body; anc = anc.parentNode) {
+                for (var anc = node; anc != null; anc = anc.parentNode) {
                     if (DOM_upperName(anc) == "FIGURE") {
                         result = "infigure";
                         break;
