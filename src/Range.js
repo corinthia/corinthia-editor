@@ -484,7 +484,7 @@ var Range_getText;
             prevParagraph = paragraph;
             if ((pos.node == end.node) && (pos.offset == end.offset))
                 break;
-            pos = pos.next();
+            pos = Position_next(pos);
         }
         return components.join("");
     });

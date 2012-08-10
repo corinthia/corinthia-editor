@@ -668,7 +668,7 @@ var Cursor_set;
                 if (DOM_upperName(node) == name)
                     return node;
             }
-            position = position.prev();
+            position = Position_prev(position);
         }
         return null;
     });

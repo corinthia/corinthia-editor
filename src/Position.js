@@ -1,6 +1,8 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
 var Position;
+var Position_prev;
+var Position_next;
 var Position_trackWhileExecuting;
 var Position_closestActualNode;
 var Position_okForInsertion;
@@ -161,25 +163,25 @@ var Position_atPoint;
     }
 
     // public
-    Position.prototype.prev = function()
+    Position_prev = trace(function prev(pos)
     {
-        if (this.node.nodeType == Node.ELEMENT_NODE) {
-            var r = positionSpecial(this,false,true);
+        if (pos.node.nodeType == Node.ELEMENT_NODE) {
+            var r = positionSpecial(pos,false,true);
             if (r != null)
                 return r;
-            if (this.offset == 0) {
-                return upAndBack(this);
+            if (pos.offset == 0) {
+                return upAndBack(pos);
             }
             else {
-                var child = this.node.childNodes[this.offset-1];
+                var child = pos.node.childNodes[pos.offset-1];
                 return new Position(child,DOM_maxChildOffset(child));
             }
         }
-        else if (this.node.nodeType == Node.TEXT_NODE) {
-            if (this.offset > 0)
-                return new Position(this.node,this.offset-1);
+        else if (pos.node.nodeType == Node.TEXT_NODE) {
+            if (pos.offset > 0)
+                return new Position(pos.node,pos.offset-1);
             else
-                return upAndBack(this);
+                return upAndBack(pos);
         }
         else {
             return null;
@@ -192,25 +194,25 @@ var Position_atPoint;
             else
                 return new Position(pos.node.parentNode,DOM_nodeOffset(pos.node));
         }
-    }
+    });
 
     // public
-    Position.prototype.next = function()
+    Position_next = trace(function next(pos)
     {
-        if (this.node.nodeType == Node.ELEMENT_NODE) {
-            var r = positionSpecial(this,true,false);
+        if (pos.node.nodeType == Node.ELEMENT_NODE) {
+            var r = positionSpecial(pos,true,false);
             if (r != null)
                 return r;
-            if (this.offset == this.node.childNodes.length)
-                return upAndForwards(this);
+            if (pos.offset == pos.node.childNodes.length)
+                return upAndForwards(pos);
             else
-                return new Position(this.node.childNodes[this.offset],0);
+                return new Position(pos.node.childNodes[pos.offset],0);
         }
-        else if (this.node.nodeType == Node.TEXT_NODE) {
-            if (this.offset < this.node.nodeValue.length)
-                return new Position(this.node,this.offset+1);
+        else if (pos.node.nodeType == Node.TEXT_NODE) {
+            if (pos.offset < pos.node.nodeValue.length)
+                return new Position(pos.node,pos.offset+1);
             else
-                return upAndForwards(this);
+                return upAndForwards(pos);
         }
         else {
             return null;
@@ -223,7 +225,7 @@ var Position_atPoint;
             else
                 return new Position(pos.node.parentNode,DOM_nodeOffset(pos.node)+1);
         }
-    }
+    });
 
     // public
     Position_trackWhileExecuting = trace(function(positions,fun)
@@ -451,7 +453,7 @@ var Position_atPoint;
     Position_prevMatch = trace(function prevCursorPosition(pos,fun)
     {
         do {
-            pos = pos.prev();
+            pos = Position_prev(pos);
         } while ((pos != null) && !fun(pos));
         return pos;
     });
@@ -459,7 +461,7 @@ var Position_atPoint;
     Position_nextMatch = trace(function nextCursorPosition(pos,fun)
     {
         do {
-            pos = pos.next();
+            pos = Position_next(pos);
         } while ((pos != null) && !fun(pos));
         return pos;
     });

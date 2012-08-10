@@ -35,7 +35,7 @@ function showValidPositions()
 //            debug("Valid position: "+pos);
             validPositions.push(pos);
         }
-        pos = pos.next();
+        pos = Position_next(pos);
     }
 
     Position_trackWhileExecuting(validPositions,function() {
