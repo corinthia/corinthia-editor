@@ -23,10 +23,6 @@ function performTest()
     removeWhitespaceTextNodes(root);
     setup(root);
 
-    // Remove (HTML,2) and (HTML,3)
-    allPositions.splice(0,1);
-    allPositions.splice(allPositions.length-1,1);
-
     var total = 0;
     var pass = 0;
     var fail = 0;
@@ -40,8 +36,10 @@ function performTest()
 
         if (comparePositions(actual,expected))
             pass++;
-        else
+        else {
+            debug("fail: "+actual+" and "+expected+" (index "+index+")");
             fail++;
+        }
     }
 
     var message1 = "allPositions.length = "+allPositions.length;

@@ -567,8 +567,8 @@ var Selection_preferElementPositions;
         while (!isParagraphNode(endNode) && !isContainerNode(endNode))
             endNode = endNode.parentNode;
 
-        var startPos = new Position(startNode.parentNode,DOM_nodeOffset(startNode));
-        var endPos = new Position(endNode.parentNode,DOM_nodeOffset(endNode)+1);
+        var startPos = new Position(startNode,0);
+        var endPos = new Position(endNode,DOM_maxChildOffset(endNode));
         startPos = Position_closestMatchForwards(startPos,Position_okForMovement);
         endPos = Position_closestMatchBackwards(endPos,Position_okForMovement);
 

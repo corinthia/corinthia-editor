@@ -25,6 +25,8 @@ var Position_atPoint;
     // public
     Position = function(node,offset)
     {
+        if (node == document.documentElement)
+            throw new Error("node is root element");
         Object.defineProperty(this,"self",{value: {}});
         var self = this.self;
         self.this = this;

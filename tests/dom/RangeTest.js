@@ -62,9 +62,9 @@ function getAllPositions(root)
 
     var positions = new Array();
     var rootOffset = DOM_nodeOffset(root);
-    positions.push(new Position(root.parentNode,rootOffset));
+//    positions.push(new Position(root.parentNode,rootOffset));
     recurse(root);
-    positions.push(new Position(root.parentNode,rootOffset+1));
+//    positions.push(new Position(root.parentNode,rootOffset+1));
     return positions;
 
     function recurse(node)
