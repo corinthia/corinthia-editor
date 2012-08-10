@@ -230,7 +230,7 @@ var Position_atPoint;
     });
 
     // public
-    Position_trackWhileExecuting = trace(function(positions,fun)
+    Position_trackWhileExecuting = trace(function trackWhileExecuting(positions,fun)
     {
         for (var i = 0; i < positions.length; i++)
             startTracking(positions[i].self);
