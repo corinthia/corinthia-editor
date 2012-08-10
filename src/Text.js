@@ -221,45 +221,6 @@ var Text_toEndOfBoundary;
         return result;
     });
 
-    // FIXME: temp: for debugging purposes
-/*
-    var addRect = trace(function addRect(rect,color)
-    {
-        if (color == null)
-            color = "blue";
-        var div = DOM_createElement(document,"DIV");
-        div.style.position = "absolute";
-        div.style.left = rect.left+"px";
-        div.style.top = rect.top+"px";
-        if (rect.width != null)
-            div.style.width = rect.width+"px";
-        if (rect.height != null)
-            div.style.height = rect.height+"px";
-        div.style.borderWidth = 2;
-        div.style.borderColor = color;
-        div.style.borderStyle = "solid";
-        DOM_appendChild(document.body,div);
-        return div;
-    });
-
-    var addRectWithAnnotation = trace(function addRectWithAnnotation(rect,annotation,color)
-    {
-        addRect(rect,color);
-        var annotationRect = {
-            left: rect.right + 10,
-            top: rect.top,
-            width: 50,
-        };
-        var annotationDiv = addRect(annotationRect,"black");
-        var textNode = DOM_createTextNode(document,annotation);
-        annotationDiv.style.fontFamily = "sans-serif";
-        annotationDiv.style.fontSize = "8pt";
-        annotationDiv.style.fontWeight = "bold";
-        annotationDiv.style.backgroundColor = "#f0f0f0";
-        DOM_appendChild(annotationDiv,textNode);
-    });
-*/
-
     Text_posBelow = trace(function posBelow(pos,cursorRect,cursorX)
     {
         if (cursorX == null)

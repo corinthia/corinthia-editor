@@ -1,6 +1,5 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
-var Location;
 var Position;
 var Position_trackWhileExecuting;
 var Position_okForInsertion;
@@ -19,19 +18,6 @@ var Position_compare;
 var Position_atPoint;
 
 (function() {
-
-    // public
-    Location = function(parent,child)
-    {
-        this.parent = parent;
-        this.child = child;
-    }
-
-    // public
-    Location.prototype.toString = function()
-    {
-        return "("+nodeString(this.parent)+","+nodeString(this.child)+")";
-    }
 
     // public
     Position = function(node,offset)
@@ -102,79 +88,6 @@ var Position_atPoint;
     {
         self.this.node = node;
         self.this.offset = offset;
-    }
-
-    // public
-    Position.prototype.moveForwardIfAtEnd = function()
-    {
-        var self = this.self;
-        var node = self.node;
-        var offset = self.offset;
-        var changed = false;
-        while (node != document.body) {
-            if (((node.nodeType == Node.TEXT_NODE) && (offset == node.nodeValue.length)) ||
-                ((node.nodeType == Node.ELEMENT_NODE) && (offset == node.childNodes.length))) {
-                offset = DOM_nodeOffset(node)+1;
-                node = node.parentNode;
-                changed = true;
-            }
-            else {
-                break;
-            }
-        }
-        if (changed)
-            setNodeAndOffset(self,node,offset);
-        return changed;
-    }
-
-    // public
-    Position.prototype.moveBackwardIfAtStart = function()
-    {
-        var self = this.self;
-        var node = self.node;
-        var offset = self.offset;
-        var changed = false;
-        while ((node != document.body) && (offset == 0)) {
-            offset = DOM_nodeOffset(node);
-            node = node.parentNode;
-            changed = true;
-        }
-        if (changed)
-            setNodeAndOffset(self,node,offset);
-        return changed;
-    }
-
-    // public
-    Position.prototype.toLocation = function()
-    {
-        var self = this.self;
-        if ((self.node.nodeType == Node.ELEMENT_NODE) && (self.node.firstChild != null)) {
-            if (self.offset >= self.node.childNodes.length)
-                return new Location(self.node,null);
-            else
-                return new Location(self.node,self.node.childNodes[self.offset]);
-        }
-        else {
-            return new Location(self.node.parentNode,self.node);
-        }
-    }
-
-    // public
-    Position.prototype.toDefinitePosition = function()
-    {
-        var self = this.self;
-        if (self.node.nodeType == Node.ELEMENT_NODE) {
-            if (self.offset < self.node.childNodes.length)
-                return new Position(self.node.childNodes[self.offset],0);
-            var nextNode = nextNodeAfter(self.node);
-            if (nextNode != null)
-                return new Position(nextNode,0);
-            else
-                return null;
-        }
-        else {
-            return new Position(self.node,self.offset);
-        }
     }
 
     // public
