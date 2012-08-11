@@ -394,12 +394,14 @@ var Word_stylesXML;
     {
         documentLens.put(document.documentElement,docx.document.documentElement);
 
-        debug("------------------- updateFromHTML BEGIN ----------------------");
-        printTree(document.documentElement);
-        debug("------------------- updateFromHTML END ----------------------");
-        debug("updateFromHTML: word document:");
-        debug(PrettyPrinter.getHTML(docx.document.documentElement,
-                                    { preserveCase: true, separateLines: true }));
+        if (window.PrettyPrinter != null) {
+            debug("------------------- updateFromHTML BEGIN ----------------------");
+            printTree(document.documentElement);
+            debug("------------------- updateFromHTML END ----------------------");
+            debug("updateFromHTML: word document:");
+            debug(PrettyPrinter.getHTML(docx.document.documentElement,
+                                        { preserveCase: true, separateLines: true }));
+        }
         return true;
     });
 
