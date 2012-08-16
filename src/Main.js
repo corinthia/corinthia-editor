@@ -292,7 +292,7 @@ var Main_init;
     });
 
     // public
-    Main_init = trace(function init()
+    Main_init = trace(function init(width,height,textScale)
     {
         try {
             if (document.documentElement == null)
@@ -304,11 +304,14 @@ var Main_init;
             addContentType();
             Outline_init();
             Styles_init();
-            Viewport_init();
+            Viewport_init(width,height,textScale);
             AutoCorrect_init();
 
             Styles_addDefaultRuleCategory("selection");
             PostponedActions_perform();
+            if ((width != null) && (height != null) && (textScale != null)) {
+                Cursor_moveToStartOfDocument();
+            }
 
             UndoManager_clear();
 
