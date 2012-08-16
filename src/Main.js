@@ -309,9 +309,7 @@ var Main_init;
 
             Styles_addDefaultRuleCategory("selection");
             PostponedActions_perform();
-            if ((width != null) && (height != null) && (textScale != null)) {
-                Cursor_moveToStartOfDocument();
-            }
+            Cursor_moveToStartOfDocument();
 
             UndoManager_clear();
 

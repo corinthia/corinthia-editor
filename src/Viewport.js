@@ -23,24 +23,18 @@ var Viewport_setTextScale;
                 break;
             }
         }
+
         if (viewportMetaElement == null) {
             viewportMetaElement = DOM_createElement(document,"META");
             DOM_setAttribute(viewportMetaElement,"name","viewport");
             DOM_appendChild(head,viewportMetaElement);
         }
-        if ((width != null) && (height != null) && (textScale != null)) {
-            debug("Viewport_init(): values supplied");
-            viewportWidth = width;
-            viewportHeight = height;
-            var pct = Math.floor(textScale*100)+"%";
-            DOM_setAttribute(viewportMetaElement,"content","width = "+width+", user-scalable = no");
-            DOM_setStyleProperties(document.documentElement,{"-webkit-text-size-adjust": pct});
-        }
-        else {
-            debug("Viewport_init(): values not supplied");
-            DOM_setAttribute(viewportMetaElement,"content",
-                             "width = device-width, user-scalable = no");
-        }
+
+        viewportWidth = width;
+        viewportHeight = height;
+        var pct = Math.floor(textScale*100)+"%";
+        DOM_setAttribute(viewportMetaElement,"content","width = "+width+", user-scalable = no");
+        DOM_setStyleProperties(document.documentElement,{"-webkit-text-size-adjust": pct});
     });
 
     // public
