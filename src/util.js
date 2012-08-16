@@ -243,7 +243,6 @@ function TimingInfo()
     this.entries = new Array();
     this.total = 0;
     this.lastTime = null;
-    this.start();
 }
 
 TimingInfo.prototype.start = function()
