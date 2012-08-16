@@ -1,19 +1,15 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
 var Viewport_init;
-var Viewport_setViewportSize;
-var Viewport_getViewportWidth;
-var Viewport_getViewportHeight;
+var Viewport_setViewportWidth;
 var Viewport_setTextScale;
 
 (function() {
 
-    var viewportWidth = null;
-    var viewportHeight = null;
     var viewportMetaElement = null;
 
     // public
-    Viewport_init = trace(function init(width,height,textScale)
+    Viewport_init = trace(function init(width,textScale)
     {
         var head = DOM_documentHead(document);
         for (var child = head.firstChild; child != null; child = child.nextSibling) {
@@ -30,34 +26,18 @@ var Viewport_setTextScale;
             DOM_appendChild(head,viewportMetaElement);
         }
 
-        viewportWidth = width;
-        viewportHeight = height;
         var pct = Math.floor(textScale*100)+"%";
         DOM_setAttribute(viewportMetaElement,"content","width = "+width+", user-scalable = no");
         DOM_setStyleProperties(document.documentElement,{"-webkit-text-size-adjust": pct});
     });
 
     // public
-    Viewport_setViewportSize = trace(function setViewportSize(width,height)
+    Viewport_setViewportWidth = trace(function setViewportWidth(width)
     {
-        viewportWidth = width;
-        viewportHeight = height;
         DOM_setAttribute(viewportMetaElement,"content","width = "+width+", user-scalable = no");
 
         Selection_update();
         Cursor_ensureCursorVisible();
-    });
-
-    // public
-    Viewport_getViewportWidth = trace(function getViewportWidth()
-    {
-        return viewportWidth;
-    });
-
-    // public
-    Viewport_getViewportHeight = trace(function getViewportHeight()
-    {
-        return viewportHeight;
     });
 
     // public
