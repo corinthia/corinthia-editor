@@ -26,7 +26,7 @@ var Viewport_setTextScale;
             DOM_appendChild(head,viewportMetaElement);
         }
 
-        var pct = Math.floor(textScale*100)+"%";
+        var pct = textScale+"%";
         DOM_setAttribute(viewportMetaElement,"content","width = "+width+", user-scalable = no");
         DOM_setStyleProperties(document.documentElement,{"-webkit-text-size-adjust": pct});
     });
@@ -43,7 +43,7 @@ var Viewport_setTextScale;
     // public
     Viewport_setTextScale = trace(function setTextScale(textScale)
     {
-        var pct = Math.floor(textScale*100)+"%";
+        var pct = textScale+"%";
         DOM_setStyleProperties(document.documentElement,{"-webkit-text-size-adjust": pct});
 
         Selection_update();
