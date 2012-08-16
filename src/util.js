@@ -231,3 +231,44 @@ function diff(src,dest)
         return results.reverse();
     }
 }
+
+function TimingEntry(name,time)
+{
+    this.name = name;
+    this.time = time;
+}
+
+function TimingInfo()
+{
+    this.entries = new Array();
+    this.total = 0;
+    this.lastTime = null;
+    this.start();
+}
+
+TimingInfo.prototype.start = function()
+{
+    this.entries.length = 0;
+    this.lastTime = new Date();
+};
+
+TimingInfo.prototype.addEntry = function(name)
+{
+    if (this.lastTime == null)
+        this.start();
+
+    var now = new Date();
+    var interval = now - this.lastTime;
+    this.entries.push(new TimingEntry(name,interval));
+    this.total += interval;
+    this.lastTime = now;
+};
+
+TimingInfo.prototype.print = function(title)
+{
+    debug(title);
+    for (var i = 0; i < this.entries.length; i++) {
+        var entry = this.entries[i];
+        debug("    "+entry.name+": "+entry.time+"ms");
+    }
+};
