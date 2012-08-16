@@ -412,6 +412,8 @@ var Styles_removeSelectionRule;
     {
         for (var sheetNo = 0; sheetNo < document.styleSheets.length; sheetNo++) {
             var sheet = document.styleSheets[sheetNo];
+            if (sheet.href != null) // External stylesheet (such as builtin.css)
+                continue;
             var str = "";
             for (name in sheet)
                 str += name+"\n";
@@ -455,9 +457,31 @@ var Styles_removeSelectionRule;
             return selector;
     });
 
-    // public
-    Styles_init = trace(function init()
+    var addBuiltinStylesheet = trace(function addBuiltinStylesheet(cssURL)
     {
+        var head = DOM_documentHead(document);
+        for (var child = head.firstChild; child != null; child = child.nextSibling) {
+            if ((DOM_upperName(child) == "LINK") &&
+                (child.getAttribute("rel") == "stylesheet") &&
+                (child.getAttribute("href") == cssURL)) {
+                // Link element was already added by HTMLInjectionProtocol
+                return;
+            }
+        }
+
+        // HTMLInjectionProtocol was unable to find <head> element and insert the stylesheet link,
+        // so add it ourselves
+        var link = DOM_createElement(document,"LINK");
+        DOM_setAttribute(link,"rel","stylesheet");
+        DOM_setAttribute(link,"href",cssURL);
+        DOM_insertBefore(head,link,head.firstChild);
+    });
+
+    // public
+    Styles_init = trace(function init(cssURL)
+    {
+        addBuiltinStylesheet(cssURL);
+
         latentStyleGroups = {
             "td-paragraph-margins": ["td > :first-child", "td > :last-child"],
             "th-paragraph-margins": ["th > :first-child", "th > :last-child"],
@@ -466,8 +490,6 @@ var Styles_removeSelectionRule;
             "figure": ["figure"],
             "toc-print": [".toc1-print", ".toc2-print", ".toc3-print", ".toctitle",".tocpageno"],
             "toc": [".toc1", ".toc2", ".toc3"],
-            "autocorrect": [".uxwrite-autocorrect"],
-            "selection": [".uxwrite-selection"],
         };
 
         stylesById = new Object();
@@ -582,10 +604,6 @@ var Styles_removeSelectionRule;
                        "background-color": "white",
                        "text-align": "right",
                        "width": "36pt",}).hidden = true;
-        defaultStyle(".uxwrite-autocorrect","special",true,
-                     {"background-color": "#c0ffc0"}).hidden = true;
-        defaultStyle(".uxwrite-selection","special",true,
-                     {"background-color": "rgb(201,221,238)"}).hidden = true;
 
         // Now that we've added the built-in styles, discover any styles explicitly defined
         // in the document. Any that are found will be marked as non-latent, because we want

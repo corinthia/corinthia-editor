@@ -173,7 +173,6 @@ var AutoCorrect_replaceCorrection;
             DOM_insertBefore(node.parentNode,beforeText,node);
             DOM_insertBefore(node.parentNode,span,node);
             DOM_deleteCharacters(node,0,offset);
-            Styles_addDefaultRuleCategory("autocorrect");
             // Add the new group in a postponed action, so that the change to the style element
             // is not counted as a separate action
             PostponedActions_add(UndoManager_newGroup);

@@ -26,15 +26,23 @@ var Viewport_setTextScale;
             DOM_appendChild(head,viewportMetaElement);
         }
 
+        // Only set the width and text scale if they are not already set, to avoid triggering
+        // an extra layout at load time
+        var contentValue = "width = "+width+", user-scalable = no";
+        if (viewportMetaElement.getAttribute("content") != contentValue)
+            DOM_setAttribute(viewportMetaElement,"content",contentValue);
+
         var pct = textScale+"%";
-        DOM_setAttribute(viewportMetaElement,"content","width = "+width+", user-scalable = no");
-        DOM_setStyleProperties(document.documentElement,{"-webkit-text-size-adjust": pct});
+        if (document.documentElement.style.getPropertyValue("-webkit-text-size-adjust") != pct)
+            DOM_setStyleProperties(document.documentElement,{"-webkit-text-size-adjust": pct});
     });
 
     // public
     Viewport_setViewportWidth = trace(function setViewportWidth(width)
     {
-        DOM_setAttribute(viewportMetaElement,"content","width = "+width+", user-scalable = no");
+        var contentValue = "width = "+width+", user-scalable = no";
+        if (viewportMetaElement.getAttribute("content") != contentValue)
+            DOM_setAttribute(viewportMetaElement,"content",contentValue);
 
         Selection_update();
         Cursor_ensureCursorVisible();
@@ -44,7 +52,8 @@ var Viewport_setTextScale;
     Viewport_setTextScale = trace(function setTextScale(textScale)
     {
         var pct = textScale+"%";
-        DOM_setStyleProperties(document.documentElement,{"-webkit-text-size-adjust": pct});
+        if (document.documentElement.style.getPropertyValue("-webkit-text-size-adjust") != pct)
+            DOM_setStyleProperties(document.documentElement,{"-webkit-text-size-adjust": pct});
 
         Selection_update();
         Cursor_ensureCursorVisible();

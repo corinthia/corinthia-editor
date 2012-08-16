@@ -292,7 +292,7 @@ var Main_init;
     });
 
     // public
-    Main_init = trace(function init(width,textScale)
+    Main_init = trace(function init(width,textScale,cssURL)
     {
         try {
             if (document.documentElement == null)
@@ -303,11 +303,10 @@ var Main_init;
             Main_removeUnsupportedInput();
             addContentType();
             Outline_init();
-            Styles_init();
+            Styles_init(cssURL);
             Viewport_init(width,textScale);
             AutoCorrect_init();
 
-            Styles_addDefaultRuleCategory("selection");
             PostponedActions_perform();
             Cursor_moveToStartOfDocument();
 
