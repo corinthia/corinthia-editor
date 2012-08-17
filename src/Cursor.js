@@ -543,21 +543,25 @@ var Cursor_set;
 
             // If we're directly in a container node, add a paragraph, so we have something to
             // split.
-            if (isContainerExceptLI(pos.node)) {
+            if (isContainerNode(pos.node) && !isListItemNode(pos.node)) {
                 var p = DOM_createElement(document,"P");
                 DOM_insertBefore(pos.node,p,pos.node.childNodes[pos.offset]);
                 pos = new Position(p,0);
             }
 
+            var blockToSplit = getBlockToSplit(pos);
+            var stopAt = blockToSplit.parentNode;
+
             if (positionAtStartOfHeading(pos)) {
                 var container = getContainerOrParagraph(pos.node);
-                pos = Formatting_movePreceding(new Position(container,0),isContainerExceptLI,true);
+                pos = new Position(container,0);
+                pos = Formatting_movePreceding(pos,function(n) { return (n == stopAt); },true);
             }
             else if (pos.node.nodeType == Node.TEXT_NODE) {
-                pos = Formatting_splitTextAfter(pos,isContainerExceptLI,true);
+                pos = Formatting_splitTextAfter(pos,function(n) { return (n == stopAt); },true);
             }
             else {
-                pos = Formatting_moveFollowing(pos,isContainerExceptLI,true);
+                pos = Formatting_moveFollowing(pos,function(n) { return (n == stopAt); },true);
             }
         });
 
@@ -618,9 +622,20 @@ var Cursor_set;
         cursorX = null;
         Cursor_ensureCursorVisible();
 
-        function isContainerExceptLI(node)
+        function getBlockToSplit(pos)
         {
-            return (isContainerNode(node) && (DOM_upperName(node) != "LI"));
+            var blockToSplit = null;
+            for (var n = pos.node; n != null; n = n.parentNode) {
+                if (isListItemNode(n)) {
+                    blockToSplit = n;
+                }
+            }
+            if (blockToSplit == null) {
+                blockToSplit = pos.node;
+                while (isInlineNode(blockToSplit))
+                    blockToSplit = blockToSplit.parentNode;
+            }
+            return blockToSplit;
         }
 
         function getContainerOrParagraph(node)
