@@ -265,6 +265,11 @@ var Main_init;
                  (node.getAttribute("name").toLowerCase() == "viewport")) {
             DOM_deleteNode(node);
         }
+        else if (DOM_upperName(node) == "LINK") {
+            if ((node.getAttribute("rel") == "stylesheet") &&
+                (node.getAttribute("href") == Styles_getBuiltinCSSURL()))
+                DOM_deleteNode(node);
+        }
         else if (DOM_upperName(node) == "STYLE") {
             var cssText = Styles_getCSSText(["."+Keys.AUTOCORRECT_CLASS,
                                              "."+Keys.SELECTION_CLASS]);

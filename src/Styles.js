@@ -8,6 +8,8 @@ var Styles_setStyleSheet;
 var Styles_deleteStyleWithId;
 var Styles_addDefaultRuleCategory;
 var Styles_discoverStyles;
+var Styles_getBuiltinCSSURL;
+var Styles_setBuiltinCSSURL;
 var Styles_init;
 var Styles_removeSelectionRule;
 
@@ -477,10 +479,27 @@ var Styles_removeSelectionRule;
         DOM_insertBefore(head,link,head.firstChild);
     });
 
+    var builtinCSSURL = null;
+
+    Styles_getBuiltinCSSURL = trace(function getBuiltinCSSURL()
+    {
+        return builtinCSSURL;
+    });
+
+    // Used for tests, so they don't all have to pass the URL explicitly
+    Styles_setBuiltinCSSURL = trace(function setBuiltinCSSURL(cssURL)
+    {
+        builtinCSSURL = cssURL;
+    });
+
     // public
     Styles_init = trace(function init(cssURL)
     {
-        addBuiltinStylesheet(cssURL);
+        if (cssURL != null)
+            builtinCSSURL = cssURL;
+
+        if (builtinCSSURL != null)
+            addBuiltinStylesheet(builtinCSSURL);
 
         latentStyleGroups = {
             "td-paragraph-margins": ["td > :first-child", "td > :last-child"],
@@ -617,11 +636,13 @@ var Styles_removeSelectionRule;
     Styles_removeSelectionRule = trace(function removeSelectionRule()
     {
         if (doneInit) {
-            var selectionStyle = styleForId(".uxwrite-selection");
-            if (!selectionStyle.latent) {
-                selectionStyle.latent = true;
-                cssTextDirty = true;
-                applyCSSTextChanges();
+            var head = DOM_documentHead(document);
+            for (var child = head.firstChild; child != null; child = child.nextSibling) {
+                if ((DOM_upperName(child) == "LINK") &&
+                    (child.getAttribute("rel") == "stylesheet")) {
+                    DOM_deleteNode(child);
+                    return;
+                }
             }
         }
     });

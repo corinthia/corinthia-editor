@@ -71,6 +71,7 @@ function doPerformTest()
     var testWindow = leftArea.contentWindow;
     testWindow.outputOptions = new Object();
     testWindow.disableOutlineRedoHack = true;
+    testWindow.Styles_setBuiltinCSSURL("../../../common/builtin.css");
     var resultText = testWindow.performTest();
     if (!testWindow.outputOptions.keepSelectionHighlights) {
         testWindow.Styles_removeSelectionRule();

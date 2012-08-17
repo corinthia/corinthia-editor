@@ -3,14 +3,11 @@
 <head>
 <script src="AutoCorrectTests.js"></script>
 <script src="../undo/UndoTests.js"></script>
-<style>
-</style>
 <script>
 function performTest()
 {
     Styles_init();
     Outline_init();
-    Styles_addDefaultRuleCategory("autocorrect");
     AutoCorrect_init();
     PostponedActions_perform();
 

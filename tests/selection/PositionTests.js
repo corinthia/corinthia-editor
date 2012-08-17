@@ -78,7 +78,6 @@ function getPositionList()
 function positionTest(start1,end1,start2,end2)
 {
     Styles_init();
-    Styles_addDefaultRuleCategory("selection");
     PostponedActions_perform();
 
     var ps = document.getElementsByTagName("P");
