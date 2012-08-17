@@ -430,6 +430,8 @@ var Selection_preferElementPositions;
                                   selRange.end.node,selRange.end.offset);
             selRange = Selection_get(); // since setInternal can theoretically change it
 
+            // If we can't find the cursor rect for some reason, just don't update the position.
+            // This is better than using an incorrect position or throwing an exception.
             var rect = Position_displayRectAtPos(selRange.end);
             if (rect != null) {
                 var left = rect.left + window.scrollX;
@@ -441,15 +443,6 @@ var Selection_preferElementPositions;
                                    top: top,
                                    width: width,
                                    height: height});
-            }
-            else {
-                // Represents an invalid position - this should never actually occur
-                // FIXME: maybe throw an exception here?
-                setEditorHandles({ type: "cursor",
-                                   left: 0,
-                                   top: 0,
-                                   width: 300,
-                                   height: 300});
             }
             return;
         }

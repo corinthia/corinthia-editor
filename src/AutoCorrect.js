@@ -203,6 +203,10 @@ var AutoCorrect_replaceCorrection;
         Selection_set(textNode,offset,textNode,offset);
         Cursor_ensureCursorVisible();
         var rect = Position_displayRectAtPos(new Position(textNode,offset));
+
+        if (rect == null) // FIXME: pos
+            throw new Error("no rect for pos "+(new Position(textNode,offset)));
+
         if (rect == null)
             return null;
 

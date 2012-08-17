@@ -29,6 +29,8 @@ var Cursor_set;
 
     Cursor_ensurePositionVisible = trace(function ensurePositionVisible(pos)
     {
+        // If we can't find the cursor rect for some reason, just don't do anything.
+        // This is better than using an incorrect position or throwing an exception.
         var rect = Position_displayRectAtPos(pos)
         if (rect != null) {
             var extraSpace = 4;
@@ -166,6 +168,8 @@ var Cursor_set;
         if (selRange == null)
             return null;
 
+        // FIXME: in the cases where this is called from Objective C, test what happens if we
+        // return a null rect
         var rect = Position_displayRectAtPos(selRange.end);
         if (rect == null)
             return null;

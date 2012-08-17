@@ -576,7 +576,39 @@ var Position_atPoint;
         return null;
     });
 
-    Position_displayRectAtPos = trace(function displayRectAtPos(pos)
+    function posAtStartOfParagraph(pos,paragraph)
+    {
+        return ((pos.node == paragraph.node) &&
+                (pos.offset == paragraph.startOffset));
+    }
+
+    function posAtEndOfParagraph(pos,paragraph)
+    {
+        return ((pos.node == paragraph.node) &&
+                (pos.offset == paragraph.endOffset));
+    }
+
+    function zeroWidthRightRect(rect)
+    {
+        return { left: rect.right, // 0 width
+                 right: rect.right,
+                 top: rect.top,
+                 bottom: rect.bottom,
+                 width: 0,
+                 height: rect.height };
+    }
+
+    function zeroWidthLeftRect(rect)
+    {
+        return { left: rect.left,
+                 right: rect.left, // 0 width
+                 top: rect.top,
+                 bottom: rect.bottom,
+                 width: 0,
+                 height: rect.height };
+    }
+
+    var exactRectAtPos = trace(function exactRectAtPos(pos)
     {
         var node = pos.node;
         var offset = pos.offset;
@@ -585,41 +617,24 @@ var Position_atPoint;
             if (offset > node.childNodes.length)
                 throw new Error("Invalid offset: "+offset+" of "+node.childNodes.length);
 
+            var before = node.childNodes[offset-1];
+            var after = node.childNodes[offset];
+
             // Cursor is immediately before table -> return table rect
-            if ((offset > 0) && isSpecialBlockNode(node.childNodes[offset-1])) {
-                var rect = node.childNodes[offset-1].getBoundingClientRect();
-                return { left: rect.right, // 0 width
-                         right: rect.right,
-                         top: rect.top,
-                         bottom: rect.bottom,
-                         width: 0,
-                         height: rect.height };
-            }
+            if ((before != null) && isSpecialBlockNode(before))
+                return zeroWidthRightRect(before.getBoundingClientRect());
+
             // Cursor is immediately after table -> return table rect
-            else if ((offset < node.childNodes.length) &&
-                     isSpecialBlockNode(node.childNodes[offset])) {
-                var rect = node.childNodes[offset].getBoundingClientRect();
-                return { left: rect.left,
-                         right: rect.left, // 0 width
-                         top: rect.top,
-                         bottom: rect.bottom,
-                         width: 0,
-                         height: rect.height };
+            else if ((after != null) && isSpecialBlockNode(after))
+                return zeroWidthLeftRect(after.getBoundingClientRect());
+
+            // Start of empty paragraph
+            if ((node.nodeType == Node.ELEMENT_NODE) && (offset == 0) &&
+                isParagraphNode(node) && !nodeHasContent(node)) {
+                return zeroWidthLeftRect(node.getBoundingClientRect());
             }
 
-            // Cursor is between two elements. We don't want to use the rect of either element,
-            // since its height may not reflect that of the current text size. Temporarily add a
-            /// new character, and set the cursor's location and height based on this.
-            var result;
-            UndoManager_disableWhileExecuting(function() {
-                DOM_ignoreMutationsWhileExecuting(function() {
-                    var tempNode = DOM_createTextNode(document,"X");
-                    DOM_insertBefore(node,tempNode,node.childNodes[offset]);
-                    result = rectAtLeftOfRange(new Range(tempNode,0,tempNode,0));
-                    DOM_deleteNode(tempNode);
-                });
-            });
-            return result;
+            return null;
         }
         else if (node.nodeType == Node.TEXT_NODE) {
             // First see if the client rects returned by the range gives us a valid value. This
@@ -635,17 +650,7 @@ var Position_atPoint;
                     return result;
             }
 
-            // Temporarily add a new character, and set the cursor's location to the place
-            // that would go.
-            var result;
-            DOM_ignoreMutationsWhileExecuting(function() {
-                var oldNodeValue = node.nodeValue;
-                node.nodeValue = node.nodeValue.slice(0,offset) + "X" +
-                                 node.nodeValue.slice(offset);
-                result = rectAtLeftOfRange(new Range(node,offset,node,offset));
-                node.nodeValue = oldNodeValue;
-            });
-            return result;
+            return null;
         }
         else {
             return null;
@@ -654,27 +659,40 @@ var Position_atPoint;
         function rectAtRightOfRange(range)
         {
             var rects = Range_getClientRects(range);
-            if ((rects == null) || (rects.length == 0) || (rects[rects.length-1].width == 0))
+            if ((rects == null) || (rects.length == 0) || (rects[rects.length-1].height == 0))
                 return null;
-            var rect = rects[rects.length-1];
-            return { left: rect.left + rect.width,
-                     top: rect.top,
-                     width: 0,
-                     height: rect.height };
+            return zeroWidthRightRect(rects[rects.length-1]);
+        }
+    });
 
+    Position_displayRectAtPos = trace(function displayRectAtPos(pos)
+    {
+        rect = exactRectAtPos(pos);
+        if (rect != null)
+            return rect;
+
+        var paragraph = Text_findParagraphBoundaries(pos);
+
+        var backRect = null;
+        for (var backPos = pos; backPos != null; backPos = Position_prev(backPos)) {
+            backRect = exactRectAtPos(backPos);
+            if ((backRect != null) || posAtStartOfParagraph(backPos,paragraph))
+                break;
         }
 
-        function rectAtLeftOfRange(range)
-        {
-            var rects = Range_getClientRects(range);
-            if ((rects == null) || (rects.length == 0))
-                return null;
-            var rect = rects[0];
-            return { left: rect.left,
-                     top: rect.top,
-                     width: 0,
-                     height: rect.height };
+        var forwardRect = null;
+        for (var forwardPos = pos; forwardPos != null; forwardPos = Position_next(forwardPos)) {
+            forwardRect = exactRectAtPos(forwardPos);
+            if ((forwardRect != null) || posAtEndOfParagraph(forwardPos,paragraph))
+                break;
         }
+
+        if (backRect != null)
+            return backRect;
+        else if (forwardRect != null)
+            return forwardRect;
+        else
+            return null;
     });
 
     Position_equal = trace(function equal(a,b)
