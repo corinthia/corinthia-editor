@@ -348,16 +348,31 @@ var Text_toEndOfBoundary;
         }
     });
 
-    Paragraph_runFromOffset = trace(function runFromOffset(paragraph,offset)
+    Paragraph_runFromOffset = trace(function runFromOffset(paragraph,offset,end)
     {
         if (paragraph.runs.length == 0)
             throw new Error("Paragraph has no runs");
-        for (var i = 0; i < paragraph.runs.length; i++) {
-            var run = paragraph.runs[i];
-            if ((offset >= run.start) && (offset < run.end))
-                return run;
-            if ((i == paragraph.runs.length-1) && (offset == run.end))
-                return run;
+        if (!end) {
+
+            for (var i = 0; i < paragraph.runs.length; i++) {
+                var run = paragraph.runs[i];
+                if ((offset >= run.start) && (offset < run.end))
+                    return run;
+                if ((i == paragraph.runs.length-1) && (offset == run.end))
+                    return run;
+            }
+
+        }
+        else {
+
+            for (var i = 0; i < paragraph.runs.length; i++) {
+                var run = paragraph.runs[i];
+                if ((offset > run.start) && (offset <= run.end))
+                    return run;
+                if ((i == 0) && (offset == 0))
+                    return run;
+            }
+
         }
     });
 
@@ -370,9 +385,9 @@ var Text_toEndOfBoundary;
         throw new Error("Run for text node not found");
     });
 
-    Paragraph_positionAtOffset = trace(function positionAtOffset(paragraph,offset)
+    Paragraph_positionAtOffset = trace(function positionAtOffset(paragraph,offset,end)
     {
-        var run = Paragraph_runFromOffset(paragraph,offset);
+        var run = Paragraph_runFromOffset(paragraph,offset,end);
         if (run == null)
             throw new Error("Run at offset "+offset+" not found");
         return new Position(run.node,offset-run.start);

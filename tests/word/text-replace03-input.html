@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="WordTests.js"></script>
+<script>
+
+function performTest()
+{
+    return wordTest("text-replace03",function(html,body) {
+        var bold = findTextMatchingRecursive(body,/bold/);
+        var italic = findTextMatchingRecursive(body,/italic/);
+        var underline = findTextMatchingRecursive(body,/underline/);
+        DOM_setNodeValue(bold,bold.nodeValue.replace(/bold/,"BOLD"));
+        DOM_setNodeValue(italic,italic.nodeValue.replace(/italic/,"ITALIC"));
+        DOM_setNodeValue(underline,underline.nodeValue.replace(/underline/,"UNDERLINE"));
+    });
+}
+
+</script>
+</head>
+<body>
+</body>
+</html>

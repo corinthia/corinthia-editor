@@ -15,6 +15,88 @@ var Word_stylesXML;
 
 (function() {
 
+    var nodePropertiesCache = null;
+    var stringPropertiesCache = null;
+    var attributedCharCache = null;
+    var attributedCharRevCache = null;
+    var attributedCharNextId = null;
+
+    var resetCaches = trace(function resetCaches()
+    {
+        nodePropertiesCache = new NodeMap();
+        stringPropertiesCache = new NodeMap();
+        attributedCharCache = new Object();
+        attributedCharRevCache = new Object();
+        attributedCharNextId = 0;
+    });
+
+    var getNodeProperties = trace(function getNodeProperties(node)
+    {
+        if ((node == null) || !isInlineNode(node))
+            return new Object();
+
+        var properties = nodePropertiesCache.get(node);
+        if (properties != null)
+            return properties;
+
+        properties = new Object();
+
+        var parentProperties = getNodeProperties(node.parentNode);
+        for (var name in parentProperties)
+            properties[name] = parentProperties[name];
+
+        if (node.nodeType == Node.ELEMENT_NODE) {
+            for (var i = 0; i < node.style.length; i++) {
+                var name = node.style[i];
+                var value = node.getPropertyValue(name);
+                properties[name] = value;
+            }
+            var upperName = DOM_upperName(node);
+            if (upperName == "B")
+                properties["font-weight"] = "bold";
+            else if (upperName == "I")
+                properties["font-style"] = "italic";
+            else if (upperName == "U") // FIXME: handle other text-decoration values
+                properties["text-decoration"] = "underline";
+        }
+        nodePropertiesCache.put(node,properties);
+        return properties;
+    });
+
+    var getStringProperties = trace(function getStringProperties(node)
+    {
+        var str = stringPropertiesCache.get(node);
+        if (str != null)
+            return str;
+
+        var properties = getNodeProperties(node);
+        str = Styles_getPropertiesText(properties).trim().replace(/\s+/g," ");
+        stringPropertiesCache.put(node,str);
+        return str;
+    });
+
+    var getAttributedCharKey = trace(function getAttributedCharKey(node,offset)
+    {
+        var stringProperties = getStringProperties(node.parentNode);
+        var character = node.nodeValue.charAt(offset);
+        return character+":"+stringProperties;
+    });
+
+    var getAttributedChar = trace(function getAttributedChar(node,offset)
+    {
+        var key = getAttributedCharKey(node,offset);
+        var entry = attributedCharCache[key];
+        if (entry != null)
+            return entry;
+        var id = attributedCharNextId++;
+        attributedCharCache[key] = id;
+        attributedCharRevCache[id] = key;
+        return id;
+    });
+
+
+
+
     var docx = new Object();
     var documentLens;
 
@@ -32,6 +114,7 @@ var Word_stylesXML;
         }
 
         var node = DOM_createTextNode(document,content);
+        node._source = con;
 
         if ((rPr != null) && rPr._isrPr) {
             if (rPr._childu)
@@ -160,11 +243,186 @@ var Word_stylesXML;
         return abs;
     });
 
+    var getParagraphAttributedChars = trace(function getParagraphAttributedChars(paragraph)
+    {
+        var attributed = new Array();
+        for (var i = 0; i < paragraph.runs.length; i++) {
+            var run = paragraph.runs[i];
+            for (var runOffset = 0; runOffset < run.node.nodeValue.length; runOffset++)
+                attributed.push(getAttributedChar(run.node,runOffset));
+        }
+        return attributed;
+    });
+
     var Paragraph_put = trace(function Paragraph_put(abs,con)
     {
         var absStyleProperties = DOM_getStyleProperties(abs);
         var conStyleProperties = Paragraph_getStyleProperties(con);
         var pPr = getNamedChildNS(con,WORD_NAMESPACE,"w:pPr",false);
+
+        debug("Paragraph_put: abs = "+nodeString(abs));
+        printTree(abs);
+        debug("");
+
+//        debug("Paragraph_put: con = "+nodeString(con));
+//        printTree(con);
+//        debug("");
+
+        var orig = Paragraph_get(con);
+        debug("Paragraph_put: orig = "+orig);
+        printTree(orig);
+        debug("");
+
+/*
+        var paragraph = Text_analyseParagraph(new Position(abs,0));
+        var attributed = getParagraphAttributedChars(paragraph);
+        debug("paragraph.runs.length = "+paragraph.runs.length);
+        debug("paragraph.text.length = "+paragraph.text.length);
+        debug("attributed.length = "+attributed.length);
+        for (var i = 0; i < attributed.length; i++) {
+            debug("attributed["+i+"] = "+attributed[i]+" "+
+                  attributedCharRevCache[attributed[i]]);
+        }
+        return;
+*/
+
+        var oldPara = Text_analyseParagraph(new Position(orig,0));
+        var newPara = Text_analyseParagraph(new Position(abs,0));
+        debug("oldPara.text = "+JSON.stringify(oldPara.text));
+        debug("newPara.text = "+JSON.stringify(newPara.text));
+
+        var oldAttr = getParagraphAttributedChars(oldPara);
+        var newAttr = getParagraphAttributedChars(newPara);
+
+
+        var modifiedTextNodes = new NodeSet();
+
+//        var changes = diff(oldPara.text,newPara.text);
+        var changes = diff(oldAttr,newAttr);
+        changes.splice(0,0,{srcStart: 0, srcEnd: 0, destStart: 0, destEnd: 0});
+        debug("changes = "+changes);
+        var srcPos = oldPara.text.length;
+        var destPos = newPara.text.length;
+
+        for (var i = 0; i < changes.length; i++) {
+            var entry = changes[i];
+            debug("changes["+i+"]: "+
+                  "src "+entry.srcStart+"-"+entry.srcEnd+
+                  " dest "+entry.destStart+"-"+entry.destEnd);
+        }
+
+        for (var i = changes.length-1; i >= 0; i--) {
+            var entry = changes[i];
+            debug("src "+entry.srcStart+"-"+entry.srcEnd+
+                  " dest "+entry.destStart+"-"+entry.destEnd);
+            if ((entry.srcEnd < srcPos) &&
+                (entry.destEnd < destPos)) {
+                var deletionText = oldPara.text.substring(entry.srcEnd,srcPos);
+                var insertionText = newPara.text.substring(entry.destEnd,destPos);
+                debug("Replace "+JSON.stringify(deletionText)+
+                      " with "+JSON.stringify(insertionText));
+
+
+
+                var insertionOffset = insertionText.length;
+                var endOffset = srcPos;
+                var startOffset = entry.srcEnd;
+                debug("startOffset = "+startOffset+", endOffset = "+endOffset);
+
+                while (endOffset > startOffset) {
+                    var textPos = Paragraph_positionAtOffset(oldPara,endOffset,true);
+                    var run = Paragraph_runFromOffset(oldPara,endOffset,true);
+
+                    var relEndOffset = endOffset - run.start;
+                    var relStartOffset = startOffset - run.start;
+
+                    if (relStartOffset < 0)
+                        relStartOffset = 0;
+
+                    var numChars = (relEndOffset - relStartOffset);
+
+                    debug(textPos+" ("+relStartOffset+" to "+relEndOffset+", "+numChars+" chars)");
+
+                    var insertionStart = insertionOffset - numChars;
+                    var insertionEnd = insertionOffset;
+
+                    if (endOffset - numChars == startOffset)
+                        insertionStart = 0;
+
+
+                    DOM_replaceCharacters(run.node,
+                                          relStartOffset,
+                                          relEndOffset,
+                                          insertionText.substring(insertionStart,
+                                                                  insertionEnd));
+                    modifiedTextNodes.add(textPos.node);
+                    insertionOffset -= numChars;
+                    endOffset -= numChars;
+                }
+            }
+            else if (entry.srcEnd < srcPos) {
+                var deletionText = oldPara.text.substring(entry.srcEnd,srcPos);
+                debug("Delete "+JSON.stringify(deletionText));
+
+
+                var deleteSrcStart = entry.srcEnd;
+                var deleteSrcEnd = srcPos;
+
+                var tmpSrcOffset = deleteSrcEnd;
+                while (tmpSrcOffset > deleteSrcStart) {
+                    var textPos = Paragraph_positionAtOffset(oldPara,tmpSrcOffset,true);
+                    var numCharsToDelete = tmpSrcOffset - deleteSrcStart;
+                    if (numCharsToDelete > textPos.offset)
+                        numCharsToDelete = textPos.offset;
+                    DOM_deleteCharacters(textPos.node,
+                                         textPos.offset-numCharsToDelete,
+                                         textPos.offset);
+
+                    modifiedTextNodes.add(textPos.node);
+                    tmpSrcOffset -= numCharsToDelete;
+                }
+
+            }
+            else if (entry.destEnd < destPos) {
+                var insertionText = newPara.text.substring(entry.destEnd,destPos);
+                debug("Insert "+JSON.stringify(insertionText));
+
+                var numCharsToInsert = destPos - entry.destEnd;
+
+                var textPos = Paragraph_positionAtOffset(oldPara,srcPos);
+                var innerOffset = textPos.offset; // FIXME
+                DOM_insertCharacters(textPos.node,innerOffset,insertionText);
+                modifiedTextNodes.add(textPos.node);
+
+            }
+            else {
+            }
+            srcPos = entry.srcStart;
+            destPos = entry.destStart;
+        }
+
+        modifiedTextNodes.forEach(function(node) {
+            if (node._source == null)
+                throw new Error("Can't find source for text node");
+            var run = node._source;
+            var next;
+            for (child = run.firstChild; child != null; child = next) {
+                next = child.nextSibling;
+                if (child._ist) {
+                    DOM_deleteNode(child);
+                }
+            }
+            if (node.nodeValue.length == 0) {
+                DOM_deleteNode(run);
+            }
+            else {
+                debug("replacement: "+JSON.stringify(node.nodeValue));
+                var t = DOM_createElementNS(run.ownerDocument,WORD_NAMESPACE,"w:t");
+                DOM_appendChild(run,t);
+                DOM_appendChild(t,DOM_createTextNode(run.ownerDocument,node.nodeValue));
+                assignShorthandProperties(t);
+            }
+        });
 
         if (absStyleProperties["text-align"] != conStyleProperties["text-align"]) {
             var textAlign = absStyleProperties["text-align"];
@@ -384,9 +642,11 @@ var Word_stylesXML;
             next = child.nextSibling;
             DOM_appendChild(document.body,child);
         }
+/*
         debug("------------------- convertToHTML BEGIN ----------------------");
         printTree(document.documentElement);
         debug("------------------- convertToHTML END ----------------------");
+*/
         return true;
     });
 
@@ -394,6 +654,7 @@ var Word_stylesXML;
     {
         documentLens.put(document.documentElement,docx.document.documentElement);
 
+/*
         if (window.PrettyPrinter != null) {
             debug("------------------- updateFromHTML BEGIN ----------------------");
             printTree(document.documentElement);
@@ -402,11 +663,13 @@ var Word_stylesXML;
             debug(PrettyPrinter.getHTML(docx.document.documentElement,
                                         { preserveCase: true, separateLines: true }));
         }
+*/
         return true;
     });
 
     Word_getHTML = trace(function getHTML()
     {
+        resetCaches();
         return documentLens.get(docx.document.documentElement);
     });
 

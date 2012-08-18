@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="WordTests.js"></script>
+<script>
+
+function performTest()
+{
+    return wordTest("text-replace02",function(html,body) {
+        var p = body.firstChild;
+        p.innerHTML = "<b>bold</b> <i>ITALIC</i> <u>UNDERLINE</u>";
+        for (var child = p.firstChild; child != null; child = child.nextSibling)
+            DOM_assignNodeIds(child);
+    });
+}
+
+</script>
+</head>
+<body>
+</body>
+</html>

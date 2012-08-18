@@ -1,21 +1,42 @@
+function findBody(html)
+{
+    var body = html.firstChild;
+    while ((body != null) && (DOM_upperName(body) != "BODY"))
+        body = body.nextSibling;
+    return body;
+}
+
+function updateDisplayedContent(html)
+{
+    DOM_deleteAllChildren(document.body);
+    var body = findBody(html);
+    while (body.firstChild != null)
+        DOM_appendChild(document.body,body.firstChild);
+}
+
 function wordTest(filename,transformFun)
 {
     Word_initWord("extracted/"+filename);
     var html = Word_getHTML();
     var result = new Array();
 
-    var html1 = serializeHTML(html);
-    result.push(html1);
+    result.push(serializeHTML(html));
 
-    transformFun(html);
-    var html2 = serializeHTML(html);
-    result.push(html2);
+    var body = findBody(html);
+    if (body == null)
+        throw new Error("Can't find body");
+    transformFun(html,body);
+    var htmlText2 = serializeHTML(html);
+    result.push(htmlText2);
 
     Word_putHTML(html);
 
     html = Word_getHTML();
-    var html3 = serializeHTML(html);
-    result.push("reconstructed HTML same? "+(html2 == html3)+"\n");
+    var htmlText3 = serializeHTML(html);
+    result.push("reconstructed HTML same? "+(htmlText2 == htmlText3)+"\n");
+
+    updateDisplayedContent(html);
+//    result.push(htmlText3);
 
     var wordDocument = Word_document();
     result.push(PrettyPrinter.getHTML(wordDocument.documentElement,

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="WordTests.js"></script>
+<script>
+
+function performTest()
+{
+    return wordTest("text03",function(html,body) {
+        var bold = findTextMatchingRecursive(body,/bold/);
+        DOM_setNodeValue(bold,"boXYZld");
+        var underline = findTextMatchingRecursive(body,/underline/);
+        DOM_setNodeValue(underline,"undline");
+    });
+}
+
+</script>
+</head>
+<body>
+</body>
+</html>

@@ -226,8 +226,11 @@ function diff(src,dest)
     function entryToArray(src,dest,entry)
     {
         var results = new Array();
-        for (; entry != null; entry = entry.prev)
-            results.push(entry);
+        results.push(entry);
+        for (entry = entry.prev; entry != null; entry = entry.prev) {
+            if ((entry.srcStart != entry.srcEnd) || (entry.destStart != entry.destEnd))
+                results.push(entry);
+        }
         return results.reverse();
     }
 }

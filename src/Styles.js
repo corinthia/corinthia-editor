@@ -1,5 +1,6 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
+var Styles_getPropertiesText;
 var Styles_getCSSText;
 var Styles_scheduleApplyCSSTextChanges;
 var Styles_getAllStyles;
@@ -191,7 +192,7 @@ var Styles_removeSelectionRule;
     });
 
     // private
-    var propertyListText = trace(function propertyListText(properties)
+    Styles_getPropertiesText = trace(function getPropertiesText(properties)
     {
         properties = condenseProperties(properties);
 
@@ -229,7 +230,7 @@ var Styles_removeSelectionRule;
                 var ruleIds = Object.getOwnPropertyNames(style.rules).sort();
                 for (var ruleIndex = 0; ruleIndex < ruleIds.length; ruleIndex++) {
                     var rule = style.rules[ruleIds[ruleIndex]];
-                    var content = propertyListText(rule.properties);
+                    var content = Styles_getPropertiesText(rule.properties);
                     if ((content != "") || !rule.nilTextIfEmpty) {
                         individualRules.push({selector: rule.selector,
                                               content: content});

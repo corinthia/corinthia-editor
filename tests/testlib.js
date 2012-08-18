@@ -177,3 +177,21 @@ function readXML(filename)
     DOM_assignNodeIds(xml.documentElement);
     return xml;
 }
+
+function findTextMatchingRecursive(node,re)
+{
+    if (node.nodeType == Node.TEXT_NODE) {
+        if (node.nodeValue.match(re))
+            return node;
+        else
+            return null;
+    }
+    else {
+        for (var child = node.firstChild; child != null; child = child.nextSibling) {
+            var result = findTextMatchingRecursive(child,re);
+            if (result != null)
+                return result;
+        }
+        return null;
+    }
+}
