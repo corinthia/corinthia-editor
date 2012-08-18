@@ -988,6 +988,16 @@ var Outline_setReferenceTarget;
     {
         document.removeEventListener("DOMNodeInserted",docNodeInserted);
         document.removeEventListener("DOMNodeRemoved",docNodeRemoved);
+
+        removeCategoryListeners(sections);
+        removeCategoryListeners(figures);
+        removeCategoryListeners(tables);
+
+        function removeCategoryListeners(category)
+        {
+            for (var item = category.list.first; item != null; item = item.next)
+                item.node.removeEventListener("DOMSubtreeModified",item.modificationListener);
+        }
     });
 
     // private

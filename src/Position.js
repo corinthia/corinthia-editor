@@ -376,9 +376,9 @@ var Position_atPoint;
                 (isInlineNode(node) && !isOpaqueNode(node) && (DOM_upperName(node) != "BR"))))
                 return true;
 
-            if ((prevNode != null) && (isTableNode(prevNode) || isFigureNode(prevNode)))
+            if ((prevNode != null) && isSpecialBlockNode(prevNode))
                 return true;
-            if ((nextNode != null) && (isTableNode(nextNode) || isFigureNode(nextNode)))
+            if ((nextNode != null) && isSpecialBlockNode(nextNode))
                 return true;
 
             if ((nextNode != null) && isItemNumber(nextNode))
