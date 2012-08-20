@@ -117,13 +117,7 @@ var Main_init;
     // public
     Main_getHTML = trace(function getHTML()
     {
-        var clone = DOM_cloneNode(document.documentElement,true);
-        DOM_setStyleProperties(clone,{"-webkit-text-size-adjust": null});
-        if (clone.style.length == 0)
-            DOM_removeAttribute(clone,"style");
-        Main_removeSpecial(clone);
-
-        return clone.outerHTML;
+        return document.documentElement.outerHTML;
     });
 
     // public
