@@ -108,20 +108,29 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     {
         var start = getPosition(startId);
         var end = getPosition(endId);
+        if (start == null)
+            throw new Error("start is null");
+        if (end == null)
+            throw new Error("end is null");
 
         var range = new Range(start.node,start.offset,end.node,end.offset);
         Range_trackWhileExecuting(range,function() {
             Selection_deleteRangeContents(range);
         });
-        var textNode = DOM_createTextNode(document,text);
+        range.start = Position_preferTextPosition(range.start);
         var node = range.start.node;
         var offset = range.start.offset;
-        if (node.nodeType == Node.ELEMENT_NODE) {
-            DOM_insertBefore(node,textNode,range.childNodes[range.offset]);
+
+        if (node.nodeType == Node.TEXT_NODE) {
+            DOM_insertCharacters(node,offset,text);
+            Cursor_set(node,offset+text.length);
         }
-        else {
-            DOM_insertBefore(node.parentNode,textNode,node.nextSibling);
+        else if (node.nodeType == Node.ELEMENT_NODE) {
+            var textNode = DOM_createTextNode(document,text);
+            DOM_insertBefore(node,textNode,node.childNodes[offset]);
+            Cursor_set(node,offset+1);
         }
+
     });
 
     // { startId, endId }
