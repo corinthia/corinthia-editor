@@ -1192,15 +1192,17 @@ var Outline_setReferenceTarget;
     // public
     Outline_preparePrintMargins = trace(function preparePrintMargins()
     {
-        var computed = window.getComputedStyle(document.body);
-        var obj = { "margin-left": computed.marginLeft,
-                    "margin-right": computed.marginRight,
-                    "margin-top": computed.marginTop,
-                    "margin-bottom": computed.marginBottom };
-
         var bodyStyle = Styles_getAllStyles()["body"];
         if (bodyStyle == null)
             throw new Error("no body style");
+
+        var obj = {
+            "margin-left": bodyStyle.rules.base.properties["margin-left"],
+            "margin-right": bodyStyle.rules.base.properties["margin-right"],
+            "margin-top": bodyStyle.rules.base.properties["margin-top"],
+            "margin-bottom": bodyStyle.rules.base.properties["margin-bottom"],
+        };
+
         bodyStyle.rules.base.properties["margin-left"] = "0";
         bodyStyle.rules.base.properties["margin-right"] = "0";
         bodyStyle.rules.base.properties["margin-top"] = "0";
