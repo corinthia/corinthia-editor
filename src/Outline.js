@@ -17,7 +17,6 @@ var Outline_insertTableOfContents;
 var Outline_insertListOfFigures;
 var Outline_insertListOfTables;
 var Outline_setPrintMode;
-var Outline_preparePrintMargins;
 var Outline_examinePrintLayout;
 var Outline_setReferenceTarget;
 
@@ -1187,29 +1186,6 @@ var Outline_setReferenceTarget;
     {
         printMode = newPrintMode;
         scheduleUpdateStructure();
-    });
-
-    // public
-    Outline_preparePrintMargins = trace(function preparePrintMargins()
-    {
-        var bodyStyle = Styles_getAllStyles()["body"];
-        if (bodyStyle == null)
-            throw new Error("no body style");
-
-        var obj = {
-            "margin-left": bodyStyle.rules.base.properties["margin-left"],
-            "margin-right": bodyStyle.rules.base.properties["margin-right"],
-            "margin-top": bodyStyle.rules.base.properties["margin-top"],
-            "margin-bottom": bodyStyle.rules.base.properties["margin-bottom"],
-        };
-
-        bodyStyle.rules.base.properties["margin-left"] = "0";
-        bodyStyle.rules.base.properties["margin-right"] = "0";
-        bodyStyle.rules.base.properties["margin-top"] = "0";
-        bodyStyle.rules.base.properties["margin-bottom"] = "0";
-        Styles_setStyle(bodyStyle);
-
-        return obj;
     });
 
     // public
