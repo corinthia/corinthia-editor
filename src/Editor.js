@@ -35,10 +35,12 @@ var debug;
         addBackMessage("debug",str);
     };
 
-    Editor_error = function(error)
+    Editor_error = function(error,type)
     {
-        addBackMessage("error",error.toString());
-    };    
+        if (type == null)
+            type = "";
+        addBackMessage("error",error.toString(),type);
+    };
 
     Editor_addOutlineItem = function(itemId,type,title)
     {

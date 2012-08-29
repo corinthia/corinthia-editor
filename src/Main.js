@@ -275,7 +275,10 @@ var Main_init;
             return res;
         }
         catch (e) {
-            Editor_error(e);
+            if (e instanceof ODFInvalidError)
+                Editor_error(e,"ODF");
+            else
+                Editor_error(e);
         }
     });
 

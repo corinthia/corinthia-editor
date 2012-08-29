@@ -5,15 +5,32 @@ var ODF_settingsXML;
 var ODF_stylesXML;
 var ODF_initODF;
 
+function ODFInvalidError(msg)
+{
+    this.msg = msg;
+    this.custom = true;
+}
+
+ODFInvalidError.prototype.toString = function() {
+    return this.msg;
+};
+
 (function() {
 
     var odf = new Object();
+
+    var odfFontFaceDecls = null;
+    var odfStyles = null;
+    var odfAutomaticStyles = null;
+    var odfMasterStyles = null;
 
     var OFFICE_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:office:1.0";
     var STYLE_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:style:1.0";
     var TEXT_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:text:1.0";
     var TABLE_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:table:1.0";
     var FO_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0";
+    var SVG_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0";
+
     var nextODFId = 0;
     var automaticStyles = null;
 
@@ -27,14 +44,12 @@ var ODF_initODF;
 
         var tpr = node._child_style_text_properties;
         if (tpr != null) {
-            var fontWeight = tpr.getAttributeNS(FO_NAMESPACE,"font-weight");
-            var fontStyle = tpr.getAttributeNS(FO_NAMESPACE,"font-style");
-            var textUnderLineStyle =
-                tpr.getAttributeNS(STYLE_NAMESPACE,"text-underline-style");
-            var fontSize = tpr.getAttributeNS(FO_NAMESPACE,"font-size");
-            var color = tpr.getAttributeNS(FO_NAMESPACE,"color");
-            var backgroundColor =
-                tpr.getAttributeNS(FO_NAMESPACE,"background-color");
+            var fontWeight = DOM_getAttributeNS(tpr,FO_NAMESPACE,"font-weight");
+            var fontStyle = DOM_getAttributeNS(tpr,FO_NAMESPACE,"font-style");
+            var textUnderLineStyle = DOM_getAttributeNS(tpr,STYLE_NAMESPACE,"text-underline-style");
+            var fontSize = DOM_getAttributeNS(tpr,FO_NAMESPACE,"font-size");
+            var color = DOM_getAttributeNS(tpr,FO_NAMESPACE,"color");
+            var backgroundColor = DOM_getAttributeNS(tpr,FO_NAMESPACE,"background-color");
 
             if (fontWeight == "bold")
                 this.cssProperties["font-weight"] = "bold";
@@ -52,9 +67,9 @@ var ODF_initODF;
 
         var ppr = node._child_style_paragraph_properties;
         if (ppr != null) {
-            var textAlign = ppr.getAttributeNS(FO_NAMESPACE,"text-align");
+            var textAlign = DOM_getAttributeNS(ppr,FO_NAMESPACE,"text-align");
 
-            var shadow = ppr.getAttributeNS(FO_NAMESPACE,"shadow");
+            var shadow = DOM_getAttributeNS(ppr,FO_NAMESPACE,"shadow");
 
             if ((textAlign != null) && (textAlign != ""))
                 this.cssProperties["text-align"] = textAlign;
@@ -68,7 +83,7 @@ var ODF_initODF;
 
             function processBorder(prefix)
             {
-                var value = ppr.getAttributeNS(FO_NAMESPACE,prefix);
+                var value = DOM_getAttributeNS(ppr,FO_NAMESPACE,prefix);
                 if ((value != null) && (value != "")) {
                     var temp = DOM_createElement(document,"P");
                     temp.style[prefix] = value;
@@ -108,7 +123,7 @@ var ODF_initODF;
         span._source = con;
         DOM_setAttribute(span,"id","odf"+nextODFId++);
 
-        var styleName = con.getAttributeNS(TEXT_NAMESPACE,"style-name");
+        var styleName = DOM_getAttributeNS(con,TEXT_NAMESPACE,"style-name");
         var style = automaticStyles[styleName];
         if (style != null)
             DOM_setStyleProperties(span,style.cssProperties);
@@ -128,7 +143,7 @@ var ODF_initODF;
     {
         var p = null;
         if (con._is_text_h) {
-            var levelStr = con.getAttributeNS(TEXT_NAMESPACE,"outline-level");
+            var levelStr = DOM_getAttributeNS(con,TEXT_NAMESPACE,"outline-level");
             var level = 1;
             if (levelStr != null) {
                 levelStr = levelStr.trim();
@@ -142,7 +157,7 @@ var ODF_initODF;
         }
         DOM_setAttribute(p,"id","odf"+nextODFId++);
 
-        var styleName = con.getAttributeNS(TEXT_NAMESPACE,"style-name");
+        var styleName = DOM_getAttributeNS(con,TEXT_NAMESPACE,"style-name");
         var style = automaticStyles[styleName];
         if (style != null)
             DOM_setStyleProperties(p,style.cssProperties);
@@ -267,7 +282,7 @@ var ODF_initODF;
     namespaceMapping[TEXT_NAMESPACE] = "text";
     namespaceMapping[TABLE_NAMESPACE] = "table";
 
-    function assignShorthandProperties(node)
+    var assignShorthandProperties = trace(function _assignShorthandProperties(node)
     {
         for (var child = node.firstChild; child != null; child = child.nextSibling) {
             assignShorthandProperties(child);
@@ -281,9 +296,9 @@ var ODF_initODF;
                     node.parentNode["_child_"+name] = node;
             }
         }
-    }
+    });
 
-    function updateAutomaticStyles()
+    var updateAutomaticStyles = trace(function _updateAutomaticStyles()
     {
         automaticStyles = new Object();
         var root = odf.content.documentElement;
@@ -291,15 +306,119 @@ var ODF_initODF;
             if (child._is_office_automatic_styles) {
                 for (gc = child.firstChild; gc != null; gc = gc.nextSibling) {
                     if (gc._is_style_style) {
-                        var name = gc.getAttributeNS(STYLE_NAMESPACE,"name");
-                        var family = gc.getAttributeNS(STYLE_NAMESPACE,"family");
+                        var name = DOM_getAttributeNS(gc,STYLE_NAMESPACE,"name");
+                        var family = DOM_getAttributeNS(gc,STYLE_NAMESPACE,"family");
                         if ((name != null) && (family != null))
                             automaticStyles[name] = new ODFStyle(name,family,gc);
                     }
                 }
             }
         }
+    });
+
+    function StyleFontFace(name,node)
+    {
+        this.name = name;
+        this.node = node;
+        this.family = DOM_getAttributeNS(node,SVG_NAMESPACE,"font-family");
+        this.familyGeneric = DOM_getAttributeNS(node,SVG_NAMESPACE,"font-family-generic");
+        this.pitch = DOM_getAttributeNS(node,SVG_NAMESPACE,"font-pitch");
+        this.adornments = DOM_getAttributeNS(node,SVG_NAMESPACE,"font-adornments");
+//        debug("Found font face:");
+//        debug("    family = "+this.family);
+//        debug("    familyGeneric = "+this.familyGeneric);
+//        debug("    pitch = "+this.pitch);
+//        debug("    adornments = "+this.adornments);
     }
+
+    // style:font-face
+    var StyleFontFace_parse = trace(function _StyleFontFace_parse(con)
+    {
+        var name = DOM_getAttributeNS(con,STYLE_NAMESPACE,"name");
+        // style:name is the only required attribute. If the font face doesn't have one, skip it
+        if (name == "")
+            return;
+        odfFontFaceDecls[name] = new StyleFontFace(name,con);
+    });
+
+    // office:font-face-decls
+    var OfficeFontFaceDecls_parse = trace(function _OfficeFontFaceDecls_parse(con)
+    {
+        for (var child = con.firstChild; child != null; child = child.nextSibling) {
+            debug("OfficeFontFaceDecls_parse: child "+nodeString(child));
+            if (child._is_style_font_face) {
+                StyleFontFace_parse(child);
+            }
+        }
+    });
+
+    // office:styles
+    var OfficeStyles_parse = trace(function _OfficeStyles_parse(con)
+    {
+        for (var child = con.firstChild; child != null; child = child.nextSibling) {
+            debug("OfficeStyles_parse: child "+nodeString(child));
+        }
+    });
+
+    // office:automatic-styles
+    var OfficeAutomaticStyles_parse = trace(function _OfficeAutomaticStyles_parse(con)
+    {
+        for (var child = con.firstChild; child != null; child = child.nextSibling) {
+            debug("OfficeAutomaticStyles_parse: child "+nodeString(child));
+        }
+    });
+
+    // office:master-styles
+    var OfficeMasterStyles_parse = trace(function _OfficeMasterStyles_parse(con)
+    {
+        for (var child = con.firstChild; child != null; child = child.nextSibling) {
+            debug("OfficeMasterStyles_parse: child "+nodeString(child));
+        }
+    });
+
+    // office:document-styles
+    var OfficeDocumentStyles_parse = trace(function _OfficeDocumentStyles_parse()
+    {
+        odfFontFaceDecls = new Object();
+        odfStyles = new Object();
+        odfAutomaticStyles = new Object();
+        odfMasterStyles = new Object();
+
+        var root = odf.styles.documentElement;
+        debug("parseStyles: root = "+nodeString(root));
+        debug("parseStyles: root.nodeName = "+root.nodeName);
+        debug("parseStyles: root.namespaceURI = "+root.namespaceURI);
+        debug("parseStyles: root.prefix = "+root.prefix);
+        debug("parseStyles: root.localName = "+root.localName);
+
+        if ((root.namespaceURI != OFFICE_NAMESPACE) ||
+            (root.localName != "document-styles"))
+            throw new ODFInvalidError("Invalid root element in styles.xml");
+
+        for (var child = root.firstChild; child != null; child = child.nextSibling) {
+            if (child._is_office_font_face_decls) {
+                OfficeFontFaceDecls_parse(child);
+            }
+            else if (child._is_office_styles) {
+                OfficeStyles_parse(child);
+            }
+            else if (child._is_office_automatic_styles) {
+                OfficeAutomaticStyles_parse(child);
+            }
+            else if (child._is_office_master_styles) {
+                OfficeMasterStyles_parse(child);
+            }
+        }
+    });
+
+    var loadDoc = trace(function _loadDoc(readFun,baseDir,filename)
+    {
+        var doc = readFun(baseDir+filename);
+        if (doc == null)
+            throw new ODFInvalidError("Cannot read "+filename);
+        assignShorthandProperties(doc.documentElement);
+        return doc;
+    });
 
     ODF_initODF = trace(function initODF(filename)
     {
@@ -315,27 +434,13 @@ var ODF_initODF;
             baseDir = filename+"/";
             readFun = readFileTest;
         }
-        odf.content = readFun(baseDir+"content.xml");
-        odf.meta = readFun(baseDir+"meta.xml");
-        odf.settings = readFun(baseDir+"settings.xml");
-        odf.styles = readFun(baseDir+"styles.xml");
+        odf.content = loadDoc(readFun,baseDir,"content.xml");
+        odf.meta = loadDoc(readFun,baseDir,"meta.xml");
+        odf.settings = loadDoc(readFun,baseDir,"settings.xml");
+        odf.styles = loadDoc(readFun,baseDir,"styles.xml");
 
-        if (odf.content == null)
-            throw new Error("Cannot read content.xml")
-        if (odf.meta == null)
-            throw new Error("Cannot read meta.xml")
-        if (odf.settings == null)
-            throw new Error("Cannot read settings.xml")
-        if (odf.styles == null)
-            throw new Error("Cannot read styles.xml")
-
-        assignShorthandProperties(odf.content.documentElement);
-        assignShorthandProperties(odf.meta.documentElement);
-        assignShorthandProperties(odf.settings.documentElement);
-        assignShorthandProperties(odf.styles.documentElement);
+        OfficeDocumentStyles_parse();
         updateAutomaticStyles();
-
-//        DOM_appendChild(document.body,DOM_createTextNode(document,"ODF document"));
 
         convertToHTML();
     });
