@@ -431,6 +431,7 @@ var Range_getText;
 
     Range_getText = trace(function getText(range)
     {
+        range = Range_forwards(range);
         var start = range.start;
         var end = range.end;
         var pos = start;
