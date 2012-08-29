@@ -25,6 +25,10 @@ var DOM_deleteCharacters;
 var DOM_setNodeValue;
 
 // High-level DOM operations
+var DOM_getAttribute;
+var DOM_getAttributeNS;
+var DOM_getStringAttribute;
+var DOM_getStringAttributeNS;
 var DOM_getStyleProperties;
 var DOM_deleteAllChildren;
 var DOM_shallowCopyElement;
@@ -491,6 +495,38 @@ var DOM_Listener;
     }
 
     // public
+    function getAttribute(element,name)
+    {
+        if (element.hasAttribute(name))
+            return element.getAttribute(name);
+        else
+            return null;
+    }
+
+    // public
+    function getAttributeNS(element,namespaceURI,localName)
+    {
+        if (element.hasAttributeNS(namespaceURI,localName))
+            return element.getAttributeNS(namespaceURI,localName);
+        else
+            return null;
+    }
+
+    // public
+    function getStringAttribute(element,name)
+    {
+        var value = element.getAttribute(name);
+        return (value == null) ? "" : value;
+    }
+
+    // public
+    function getStringAttributeNS(element,namespaceURI,localName)
+    {
+        var value = element.getAttributeNS(namespaceURI,localName);
+        return (value == null) ? "" : value;
+    }
+
+    // public
     function getStyleProperties(element)
     {
         var properties = new Object();
@@ -948,6 +984,10 @@ var DOM_Listener;
     DOM_setNodeValue = trace(setNodeValue);
 
     // High-level DOM operations
+    DOM_getAttribute = trace(getAttribute);
+    DOM_getAttributeNS = trace(getAttributeNS);
+    DOM_getStringAttribute = trace(getStringAttribute);
+    DOM_getStringAttributeNS = trace(getStringAttributeNS);
     DOM_getStyleProperties = trace(getStyleProperties);
     DOM_deleteAllChildren = trace(deleteAllChildren);
     DOM_shallowCopyElement = trace(shallowCopyElement);
