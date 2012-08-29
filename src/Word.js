@@ -582,34 +582,6 @@ var Word_stylesXML;
         return null;
     }
 
-    function readFileApp(filename)
-    {
-        var req = new XMLHttpRequest("file:///read/"+filename);
-        req.open("POST","/read/"+encodeURI(filename),false);
-        req.send();
-//        debug("req.status = "+req.status);
-        if (req.status == 404)
-            return null; // file not found
-        else if ((req.status != 200) && (req.status != 0))
-            throw new Error(req.status+": "+req.responseText);
-        var doc = req.responseXML;
-        if (doc != null)
-            DOM_assignNodeIds(doc);
-        return doc;
-    }
-
-    function readFileTest(filename)
-    {
-        var req = new XMLHttpRequest();
-        req.open("GET",filename,false);
-        req.send();         
-        var xml = req.responseXML;
-        if (xml == null)
-            return null;
-        DOM_assignNodeIds(xml.documentElement);
-        return xml;
-    }
-
     // public
     Word_initWord = trace(function initWord(filename)
     {
@@ -652,6 +624,7 @@ var Word_stylesXML;
 
     Word_updateFromHTML = trace(function updateFromHTML()
     {
+        resetCaches();
         documentLens.put(document.documentElement,docx.document.documentElement);
 
 /*
