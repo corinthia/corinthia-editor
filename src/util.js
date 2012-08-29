@@ -47,14 +47,19 @@ function nodeString(node)
     var id = "";
     if (window.debugIds)
         id = node._nodeId.replace(/^.*:/,"")+":";
-    if (node.nodeType == Node.TEXT_NODE)
+    if (node.nodeType == Node.TEXT_NODE) {
         return id+JSON.stringify(node.nodeValue);
-    else if ((node.nodeType == Node.ELEMENT_NODE) && (node.hasAttribute("id")))
-        return id+DOM_upperName(node)+"#"+node.getAttribute("id");
-    else if (node.nodeType == Node.ELEMENT_NODE)
-        return id+DOM_upperName(node);
-    else
+    }
+    else if (node.nodeType == Node.ELEMENT_NODE) {
+        var name = (node.namespaceURI == null) ? node.nodeName.toUpperCase() : node.nodeName;
+        if (node.hasAttribute("id"))
+            return id+name+"#"+node.getAttribute("id");
+        else
+            return id+name;
+    }
+    else {
         return id+node.toString();
+    }
 }
 
 function rectString(rect)
