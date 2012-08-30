@@ -121,6 +121,64 @@ ODFInvalidError.prototype.toString = function() {
             style.cssProperties["background-color"] = backgroundColor;
     }
 
+    // fo:color
+    function AttrFOColor_toCSS(style,node)
+    {
+        var color = DOM_getAttributeNS(node,FO_NAMESPACE,"color");
+        if ((color != null) && (color != ""))
+            style.cssProperties["color"] = color;
+    }
+
+    // fo:font-family
+    function AttrFOFontFamily_toCSS(style,node)
+    {
+        var fontFamily = DOM_getAttributeNS(node,FO_NAMESPACE,"font-family");
+        if (fontFamily != null)
+            style.cssProperties["font-family"] = fontFamily;
+    }
+
+    // fo:font-weight
+    function AttrFOFontWeight_toCSS(style,node)
+    {
+        var fontWeight = DOM_getAttributeNS(node,FO_NAMESPACE,"font-weight");
+        if (fontWeight == "bold")
+            style.cssProperties["font-weight"] = "bold";
+    }
+
+    // fo:font-style
+    function AttrFOFontStyle_toCSS(style,node)
+    {
+        var fontStyle = DOM_getAttributeNS(node,FO_NAMESPACE,"font-style");
+        if (fontStyle == "italic")
+            style.cssProperties["font-style"] = "italic";
+    }
+
+    // fo:font-size
+    function AttrFOFontSize_toCSS(style,node)
+    {
+        var fontSize = DOM_getAttributeNS(node,FO_NAMESPACE,"font-size");
+        if ((fontSize != null) && fontSize.match(/[0-9\.]+pt/))
+            style.cssProperties["font-size"] = fontSize;
+    }
+
+    // fo:font-variant
+    // value = normal | small-caps
+    function AttrFOFontVariant_toCSS(style,node)
+    {
+        var fontVariant = DOM_getAttributeNS(node,FO_NAMESPACE,"font-variant");
+        if (fontVariant != null)
+            style.cssProperties["font-variant"] = fontVariant;
+    }
+
+    // fo:text-transform
+    // value = capitalize | uppercase | lowercase | none
+    function AttrFOTextTransform_toCSS(style,node)
+    {
+        var textTransform = DOM_getAttributeNS(node,FO_NAMESPACE,"text-transform");
+        if (textTransform != null)
+            style.cssProperties["textTransform"] = textTransform;
+    }
+
     // fo:line-height
     // value = <length> | <percentage> | normal
     function AttrFOLineHeight_toCSS(style,node)
@@ -130,12 +188,54 @@ ODFInvalidError.prototype.toString = function() {
             style.cssProperties["line-height"] = value;
     }
 
-    // fo:text-align
-    // fo:text-align-last
-    // fo:text-indent
-    // fo:widows
-    // fo:join-border
+    // fo:letter-spacing
+    // value = normal | <length>
+    function AttrFOLetterSpacing_toCSS(style,node)
+    {
+        var letterSpacing = DOM_getAttributeNS(node,FO_NAMESPACE,"letter-spacing");
+        if (letterSpacing != null)
+            style.cssProperties["letter-spacing"] = letterSpacing;
+    }
 
+    // fo:text-align
+    function AttrFOTextAlign_toCSS(style,node)
+    {
+        var textAlign = DOM_getAttributeNS(node,FO_NAMESPACE,"text-align");
+        if (textAlign != null)
+            style.cssProperties["text-align"] = textAlign;
+    }
+
+    function addTextDecoration(style,name)
+    {
+        if (style.cssProperties["text-decoration"] == null)
+            style.cssProperties["text-decoration"] = name;
+        else
+            style.cssProperties["text-decoration"] += " "+name;
+    }
+
+    // style: text-underline-style
+    function AttrStyleTextUnderlineStyle_toCSS(style,node)
+    {
+        var underline = DOM_getAttributeNS(node,STYLE_NAMESPACE,"text-underline-style");
+        if ((underline != null) && (underline != "none"))
+            addTextDecoration(style,"underline");
+    }
+
+    // style:text-overline-style
+    function AttrStyleTextOverlineStyle_toCSS(style,node)
+    {
+        var overline = DOM_getAttributeNS(node,STYLE_NAMESPACE,"text-overline-style");
+        if ((overline != null) && (overline != "none"))
+            addTextDecoration(style,"overline");
+    }
+
+    // style:text-line-through-style
+    function AttrStyleTextLineThroughStyle_toCSS(style,node)
+    {
+        var lineThrough = DOM_getAttributeNS(node,STYLE_NAMESPACE,"text-line-through-style");
+        if ((lineThrough != null) && (lineThrough != "none"))
+            addTextDecoration(style,"line-through");
+    }
 
     function StyleGraphicProperties_toCSS(style,node)
     {
@@ -169,192 +269,26 @@ ODFInvalidError.prototype.toString = function() {
         if (node == null)
             return;
 
-        // The <style:text-properties> element has the following attributes:
-        // fo:background-color 20.175
-        // fo:color 20.180
-        // fo:country 20.181
-        // fo:font-family 20.182
-        // fo:font-size 20.183
-        // fo:font-style 20.184
-        // fo:font-variant 20.185
-        // fo:font-weight 20.186
-        // fo:hyphenate 20.188
-        // fo:hyphenation-push-char-count 20.191
-        // fo:hyphenation-remain-char-count 20.192
-        // fo:language 20.195
-        // fo:letter-spacing 20.196
-        // fo:script 20.215
-        // fo:text-shadow 20.219
-        // fo:text-transform 20.220
-        // style:country-asian 20.248
-        // style:country-complex 20.249
-        // style:font-charset 20.260
-        // style:font-charset-asian 20.261
-        // style:font-charset-complex 20.262
-        // style:font-family-asian 20.263
-        // style:font-family-complex 20.264
-        // style:font-family-generic 20.265
-        // style:font-family-generic-asian 20.266
-        // style:font-family-generic-complex 20.267
-        // style:font-name 20.269
-        // style:font-name-asian 20.270
-        // style:font-name-complex 20.271
-        // style:font-pitch 20.272
-        // style:font-pitch-asian 20.273
-        // style:font-pitch-complex 20.274
-        // style:font-relief 20.275
-        // style:font-size-asian 20.276
-        // style:font-size-complex 20.277
-        // style:font-size-rel 20.278
-        // style:font-size-rel-asian 20.279
-        // style:font-size-rel-complex 20.280
-        // style:font-style-asian 20.281
-        // style:font-style-complex 20.282
-        // style:font-style-name 20.283
-        // style:font-style-name-asian 20.284
-        // style:font-style-name-complex 20.285
-        // style:font-weight-asian 20.286
-        // style:font-weight-complex 20.287
-        // style:language-asian 20.294
-        // style:language-complex 20.295
-        // style:letter-kerning 20.308
-        // style:rfc-language-tag 20.335
-        // style:rfc-language-tag-asian 20.336
-        // style:rfc-language-tag-complex 20.337
-        // style:script-asian 20.346
-        // style:script-complex 20.347
-        // style:script-type 20.348
-        // style:text-blinking 20.356
-        // style:text-combine 20.357
-        // style:text-combine-end-char 20.359
-        // style:text-combine-start-char 20.358
-        // style:text-emphasize 20.360
-        // style:text-line-through-color 20.361
-        // style:text-line-through-mode 20.362
-        // style:text-line-through-style 20.363
-        // style:text-line-through-text 20.364
-        // style:text-line-through-text-style 20.365
-        // style:text-line-through-type 20.366
-        // style:text-line- through-width 20.367
-        // style:text-outline 20.368
-        // style:text-overline-color 20.369
-        // style:text-overline-mode 20.370
-        // style:text-overline-style 20.371
-        // style:text-overline-type 20.372
-        // style:text-overline-width 20.373
-        // style:text-position 20.374
-        // style:text-rotation-angle 20.375
-        // style:text-rotation-scale 20.376
-        // style:text-scale 20.377
-        // style:text-underline-color 20.378
-        // style:text-underline-mode 20.379
-        // style:text-underline-style 20.380,
-        // style:text-underline-type 20.381
-        // style:text-underline-width 20.382
-        // style:use-window-font-color 20.385
-        // text:condition 20.416
-        // text:display 20.417.
+        // FIXME: style:font-name
 
         AttrFOBackgroundColor_toCSS(style,node);
-
-        var fontWeight = DOM_getAttributeNS(node,FO_NAMESPACE,"font-weight");
-        var fontStyle = DOM_getAttributeNS(node,FO_NAMESPACE,"font-style");
-        var fontSize = DOM_getAttributeNS(node,FO_NAMESPACE,"font-size");
-        var color = DOM_getAttributeNS(node,FO_NAMESPACE,"color");
-
-
-        if (fontWeight == "bold")
-            style.cssProperties["font-weight"] = "bold";
-        if (fontStyle == "italic")
-            style.cssProperties["font-style"] = "italic";
-//        if (underline == "solid")
-//            style.cssProperties["text-decoration"] = "underline";
-        if ((fontSize != null) && fontSize.match(/[0-9\.]+pt/))
-            style.cssProperties["font-size"] = fontSize;
-        if ((color != null) && (color != ""))
-            style.cssProperties["color"] = color;
-
-
-
-        var underline = DOM_getAttributeNS(node,STYLE_NAMESPACE,"text-underline-style");
-        var overline = DOM_getAttributeNS(node,STYLE_NAMESPACE,"text-overline-style");
-        var lineThrough = DOM_getAttributeNS(node,STYLE_NAMESPACE,"text-line-through-style");
-        var textDecorationArray = new Array();
-        if ((underline != null) && (underline != "none"))
-            textDecorationArray.push("underline");
-        if ((overline != null) && (overline != "none"))
-            textDecorationArray.push("overline");
-        if ((lineThrough != null) && (lineThrough != "none"))
-            textDecorationArray.push("line-through");
-        var textDecoration = textDecorationArray.join(" ");
-        if (textDecoration != "")
-            style.cssProperties["text-decoration"] = textDecoration;
+        AttrFOColor_toCSS(style,node);
+        AttrFOFontFamily_toCSS(style,node);
+        AttrFOFontWeight_toCSS(style,node);
+        AttrFOFontStyle_toCSS(style,node);
+        AttrFOFontSize_toCSS(style,node);
+        AttrFOFontVariant_toCSS(style,node);
+        AttrFOTextTransform_toCSS(style,node);
+        AttrFOLetterSpacing_toCSS(style,node);
+        AttrStyleTextUnderlineStyle_toCSS(style,node);
+        AttrStyleTextOverlineStyle_toCSS(style,node);
+        AttrStyleTextLineThroughStyle_toCSS(style,node);
     }
 
     function StyleParagraphProperties_toCSS(style,node)
     {
         if (node == null)
             return;
-
-        // The <style:paragraph-properties> element has the following attributes:
-        // fo:background-color
-        // fo:border
-        // fo:border-bottom
-        // fo:border-left
-        // fo:border-right
-        // fo:border-top
-        // fo:break-after
-        // fo:break-before
-        // fo:hyphenation-keep
-        // fo:hyphenation-ladder-count
-        // fo:keep-together
-        // fo:keep-with-next
-        // fo:line-height
-        // fo:margin
-        // fo:margin-bottom
-        // fo:margin-left
-        // fo:margin-right
-        // fo:margin-top
-        // fo:orphans
-        // fo:padding
-        // fo:padding-bottom
-        // fo:padding-left
-        // fo:padding-right
-        // fo:padding-top
-        // fo:text-align
-        // fo:text-align-last
-        // fo:text-indent
-        // fo:widows
-        // style:auto-text-indent
-        // style:background-transparency
-        // style:border-line-width
-        // style:border-line-width-bottom
-        // style:border-line-width-left
-        // style:border-line-width-right
-        // style:border-line-width-top
-        // style:font-independent-line-spacing
-        // style:join-border
-        // style:justify-single-word
-        // style:line-break
-        // style:line-height-at-least
-        // style:line-spacing
-        // style:page-number
-        // style:punctuation-wrap
-        // style:register-true
-        // style:shadow
-        // style:snap-to-layout-grid
-        // style:tab-stop-distance
-        // style:text-autospace
-        // style:vertical-align
-        // style:writing-mode
-        // style:writing-mode-automatic
-        // text:line-number
-        // text:number-lines
-
-        // The <style:paragraph-properties> element has the following child elements:
-        // <style:background-image>
-        // <style:drop-cap>
-        // <style:tab-stops>
 
         AttrFOBorder_toCSS(style,node,"border");
         AttrFOBorder_toCSS(style,node,"border-left");
@@ -372,13 +306,7 @@ ODFInvalidError.prototype.toString = function() {
         AttrFOMargin_toCSS(style,node,"margin-top");
         AttrFOMargin_toCSS(style,node,"margin-bottom");
         AttrFOBackgroundColor_toCSS(style,node);
-
-        var textAlign = DOM_getAttributeNS(node,FO_NAMESPACE,"text-align");
-        var shadow = DOM_getAttributeNS(node,FO_NAMESPACE,"shadow");
-
-        if ((textAlign != null) && (textAlign != ""))
-            style.cssProperties["text-align"] = textAlign;
-
+        AttrFOTextAlign_toCSS(style,node);
     }
 
     function StyleTableProperties_toCSS(style,node)
@@ -443,7 +371,6 @@ ODFInvalidError.prototype.toString = function() {
             StyleParagraphProperties_toCSS(style,node._child_style_paragraph_properties);
             StyleTextProperties_toCSS(style,node._child_style_text_properties);
         }
-
     }
 
     ODFStyle.prototype.print = function(indent)
