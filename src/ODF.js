@@ -34,85 +34,424 @@ ODFInvalidError.prototype.toString = function() {
     var nextODFId = 0;
     var automaticStyles = null;
 
+    // fo:border
+    // fo:border-left
+    // fo:border-right
+    // fo:border-top
+    // fo:border-bottom
+    // value = as for CSS
+    function AttrFOBorder_toCSS(style,node,prefix)
+    {
+        var value = DOM_getAttributeNS(node,FO_NAMESPACE,prefix);
+        if (value == null)
+            return;
+
+        var temp = DOM_createElement(document,"P");
+        temp.style[prefix] = value;
+
+        for (var i = 0; i < temp.style.length; i++) {
+            var propName = temp.style[i];
+            var propValue = temp.style.getPropertyValue(propName);
+            debug(prefix+": copying from temp: "+propName+" = "+propValue);
+
+            // FIXME: we currently fix the width at 1px, because often the actual
+            // values are really small and webkit won't render them
+            if (propName.match(/-width$/))
+                propValue = "1px";
+
+            if (propName.match(/-image$/))
+                continue; // I think this differs between safari and chrome
+
+            style.cssProperties[propName] = propValue;
+        }
+    }
+
+    // fo:padding
+    // fo:padding-bottom
+    // fo:padding-left
+    // fo:padding-right
+    // fo:padding-top
+    // value = <nonNegativeLength>
+    function AttrFOPadding_toCSS(style,node,prefix)
+    {
+        var value = DOM_getAttributeNS(node,FO_NAMESPACE,prefix);
+        if (value == null)
+            return;
+
+        if (prefix == "padding") {
+            style.cssProperties["padding-left"] = value;
+            style.cssProperties["padding-right"] = value;
+            style.cssProperties["padding-top"] = value;
+            style.cssProperties["padding-bottom"] = value;
+        }
+        else {
+            style.cssProperties[prefix] = value;
+        }
+    }
+
+    // fo:margin
+    // fo:margin-bottom
+    // fo:margin-left
+    // fo:margin-right
+    // fo:margin-top
+    // value = <nonNegativeLength> | <percent>
+    function AttrFOMargin_toCSS(style,node,prefix)
+    {
+        var value = DOM_getAttributeNS(node,FO_NAMESPACE,prefix);
+        if (value == null)
+            return;
+
+        if (prefix == "margin") {
+            style.cssProperties["margin-left"] = value;
+            style.cssProperties["margin-right"] = value;
+            style.cssProperties["margin-top"] = value;
+            style.cssProperties["margin-bottom"] = value;
+        }
+        else {
+            style.cssProperties[prefix] = value;
+        }
+    }
+
+    // fo:background-color
+    // value = transparent | #rrggbb
+    function AttrFOBackgroundColor_toCSS(style,node)
+    {
+        var backgroundColor = DOM_getAttributeNS(node,FO_NAMESPACE,"background-color");
+        if (backgroundColor != null)
+            style.cssProperties["background-color"] = backgroundColor;
+    }
+
+    // fo:line-height
+    // value = <length> | <percentage> | normal
+    function AttrFOLineHeight_toCSS(style,node)
+    {
+        var value = DOM_getAttributeNS(node,FO_NAMESPACE,"line-heght");
+        if (value != null)
+            style.cssProperties["line-height"] = value;
+    }
+
+    // fo:text-align
+    // fo:text-align-last
+    // fo:text-indent
+    // fo:widows
+    // fo:join-border
+
+
+    function StyleGraphicProperties_toCSS(style,node)
+    {
+        if (node == null)
+            return;
+    }
+
+    function StyleHeaderFooterProperties_toCSS(style,node)
+    {
+        if (node == null)
+            return;
+        AttrFOBackgroundColor_toCSS(style,node);
+    }
+
+    function StylePageLayoutProperties_toCSS(style,node)
+    {
+        if (node == null)
+            return;
+        AttrFOBackgroundColor_toCSS(style,node);
+    }
+
+    function StyleSectionProperties_toCSS(style,node)
+    {
+        if (node == null)
+            return;
+        AttrFOBackgroundColor_toCSS(style,node);
+    }
+
+    function StyleTextProperties_toCSS(style,node)
+    {
+        if (node == null)
+            return;
+
+        // The <style:text-properties> element has the following attributes:
+        // fo:background-color 20.175
+        // fo:color 20.180
+        // fo:country 20.181
+        // fo:font-family 20.182
+        // fo:font-size 20.183
+        // fo:font-style 20.184
+        // fo:font-variant 20.185
+        // fo:font-weight 20.186
+        // fo:hyphenate 20.188
+        // fo:hyphenation-push-char-count 20.191
+        // fo:hyphenation-remain-char-count 20.192
+        // fo:language 20.195
+        // fo:letter-spacing 20.196
+        // fo:script 20.215
+        // fo:text-shadow 20.219
+        // fo:text-transform 20.220
+        // style:country-asian 20.248
+        // style:country-complex 20.249
+        // style:font-charset 20.260
+        // style:font-charset-asian 20.261
+        // style:font-charset-complex 20.262
+        // style:font-family-asian 20.263
+        // style:font-family-complex 20.264
+        // style:font-family-generic 20.265
+        // style:font-family-generic-asian 20.266
+        // style:font-family-generic-complex 20.267
+        // style:font-name 20.269
+        // style:font-name-asian 20.270
+        // style:font-name-complex 20.271
+        // style:font-pitch 20.272
+        // style:font-pitch-asian 20.273
+        // style:font-pitch-complex 20.274
+        // style:font-relief 20.275
+        // style:font-size-asian 20.276
+        // style:font-size-complex 20.277
+        // style:font-size-rel 20.278
+        // style:font-size-rel-asian 20.279
+        // style:font-size-rel-complex 20.280
+        // style:font-style-asian 20.281
+        // style:font-style-complex 20.282
+        // style:font-style-name 20.283
+        // style:font-style-name-asian 20.284
+        // style:font-style-name-complex 20.285
+        // style:font-weight-asian 20.286
+        // style:font-weight-complex 20.287
+        // style:language-asian 20.294
+        // style:language-complex 20.295
+        // style:letter-kerning 20.308
+        // style:rfc-language-tag 20.335
+        // style:rfc-language-tag-asian 20.336
+        // style:rfc-language-tag-complex 20.337
+        // style:script-asian 20.346
+        // style:script-complex 20.347
+        // style:script-type 20.348
+        // style:text-blinking 20.356
+        // style:text-combine 20.357
+        // style:text-combine-end-char 20.359
+        // style:text-combine-start-char 20.358
+        // style:text-emphasize 20.360
+        // style:text-line-through-color 20.361
+        // style:text-line-through-mode 20.362
+        // style:text-line-through-style 20.363
+        // style:text-line-through-text 20.364
+        // style:text-line-through-text-style 20.365
+        // style:text-line-through-type 20.366
+        // style:text-line- through-width 20.367
+        // style:text-outline 20.368
+        // style:text-overline-color 20.369
+        // style:text-overline-mode 20.370
+        // style:text-overline-style 20.371
+        // style:text-overline-type 20.372
+        // style:text-overline-width 20.373
+        // style:text-position 20.374
+        // style:text-rotation-angle 20.375
+        // style:text-rotation-scale 20.376
+        // style:text-scale 20.377
+        // style:text-underline-color 20.378
+        // style:text-underline-mode 20.379
+        // style:text-underline-style 20.380,
+        // style:text-underline-type 20.381
+        // style:text-underline-width 20.382
+        // style:use-window-font-color 20.385
+        // text:condition 20.416
+        // text:display 20.417.
+
+        AttrFOBackgroundColor_toCSS(style,node);
+
+        var fontWeight = DOM_getAttributeNS(node,FO_NAMESPACE,"font-weight");
+        var fontStyle = DOM_getAttributeNS(node,FO_NAMESPACE,"font-style");
+        var fontSize = DOM_getAttributeNS(node,FO_NAMESPACE,"font-size");
+        var color = DOM_getAttributeNS(node,FO_NAMESPACE,"color");
+
+
+        if (fontWeight == "bold")
+            style.cssProperties["font-weight"] = "bold";
+        if (fontStyle == "italic")
+            style.cssProperties["font-style"] = "italic";
+//        if (underline == "solid")
+//            style.cssProperties["text-decoration"] = "underline";
+        if ((fontSize != null) && fontSize.match(/[0-9\.]+pt/))
+            style.cssProperties["font-size"] = fontSize;
+        if ((color != null) && (color != ""))
+            style.cssProperties["color"] = color;
+
+
+
+        var underline = DOM_getAttributeNS(node,STYLE_NAMESPACE,"text-underline-style");
+        var overline = DOM_getAttributeNS(node,STYLE_NAMESPACE,"text-overline-style");
+        var lineThrough = DOM_getAttributeNS(node,STYLE_NAMESPACE,"text-line-through-style");
+        var textDecorationArray = new Array();
+        if ((underline != null) && (underline != "none"))
+            textDecorationArray.push("underline");
+        if ((overline != null) && (overline != "none"))
+            textDecorationArray.push("overline");
+        if ((lineThrough != null) && (lineThrough != "none"))
+            textDecorationArray.push("line-through");
+        var textDecoration = textDecorationArray.join(" ");
+        if (textDecoration != "")
+            style.cssProperties["text-decoration"] = textDecoration;
+    }
+
+    function StyleParagraphProperties_toCSS(style,node)
+    {
+        if (node == null)
+            return;
+
+        // The <style:paragraph-properties> element has the following attributes:
+        // fo:background-color
+        // fo:border
+        // fo:border-bottom
+        // fo:border-left
+        // fo:border-right
+        // fo:border-top
+        // fo:break-after
+        // fo:break-before
+        // fo:hyphenation-keep
+        // fo:hyphenation-ladder-count
+        // fo:keep-together
+        // fo:keep-with-next
+        // fo:line-height
+        // fo:margin
+        // fo:margin-bottom
+        // fo:margin-left
+        // fo:margin-right
+        // fo:margin-top
+        // fo:orphans
+        // fo:padding
+        // fo:padding-bottom
+        // fo:padding-left
+        // fo:padding-right
+        // fo:padding-top
+        // fo:text-align
+        // fo:text-align-last
+        // fo:text-indent
+        // fo:widows
+        // style:auto-text-indent
+        // style:background-transparency
+        // style:border-line-width
+        // style:border-line-width-bottom
+        // style:border-line-width-left
+        // style:border-line-width-right
+        // style:border-line-width-top
+        // style:font-independent-line-spacing
+        // style:join-border
+        // style:justify-single-word
+        // style:line-break
+        // style:line-height-at-least
+        // style:line-spacing
+        // style:page-number
+        // style:punctuation-wrap
+        // style:register-true
+        // style:shadow
+        // style:snap-to-layout-grid
+        // style:tab-stop-distance
+        // style:text-autospace
+        // style:vertical-align
+        // style:writing-mode
+        // style:writing-mode-automatic
+        // text:line-number
+        // text:number-lines
+
+        // The <style:paragraph-properties> element has the following child elements:
+        // <style:background-image>
+        // <style:drop-cap>
+        // <style:tab-stops>
+
+        AttrFOBorder_toCSS(style,node,"border");
+        AttrFOBorder_toCSS(style,node,"border-left");
+        AttrFOBorder_toCSS(style,node,"border-right");
+        AttrFOBorder_toCSS(style,node,"border-top");
+        AttrFOBorder_toCSS(style,node,"border-bottom");
+        AttrFOPadding_toCSS(style,node,"padding");
+        AttrFOPadding_toCSS(style,node,"padding-left");
+        AttrFOPadding_toCSS(style,node,"padding-right");
+        AttrFOPadding_toCSS(style,node,"padding-top");
+        AttrFOPadding_toCSS(style,node,"padding-bottom");
+        AttrFOMargin_toCSS(style,node,"margin");
+        AttrFOMargin_toCSS(style,node,"margin-left");
+        AttrFOMargin_toCSS(style,node,"margin-right");
+        AttrFOMargin_toCSS(style,node,"margin-top");
+        AttrFOMargin_toCSS(style,node,"margin-bottom");
+        AttrFOBackgroundColor_toCSS(style,node);
+
+        var textAlign = DOM_getAttributeNS(node,FO_NAMESPACE,"text-align");
+        var shadow = DOM_getAttributeNS(node,FO_NAMESPACE,"shadow");
+
+        if ((textAlign != null) && (textAlign != ""))
+            style.cssProperties["text-align"] = textAlign;
+
+    }
+
+    function StyleTableProperties_toCSS(style,node)
+    {
+        AttrFOBackgroundColor_toCSS(style,node);
+    }
+
+    function StyleTableColumnProperties_toCSS(style,node)
+    {
+    }
+
+    function StyleTableRowProperties_toCSS(style,node)
+    {
+        AttrFOBackgroundColor_toCSS(style,node);
+    }
+
+    function StyleTableCellProperties_toCSS(style,node)
+    {
+        AttrFOBackgroundColor_toCSS(style,node);
+    }
+
     function ODFStyle(name,family,node)
     {
+        if (name == null)
+            throw new Error("ODFStyle: name is null");
+        if (family == null)
+            throw new Error("ODFStyle: family is null");
+        if (node == null)
+            throw new Error("ODFStyle: node is null");
+
         var style = this;
         this.name = name;
         this.family = family;
         this.node = node;
         this.cssProperties = new Object();
+        this.selector = null;
 
-        var tpr = node._child_style_text_properties;
-        if (tpr != null) {
-            var fontWeight = DOM_getAttributeNS(tpr,FO_NAMESPACE,"font-weight");
-            var fontStyle = DOM_getAttributeNS(tpr,FO_NAMESPACE,"font-style");
-            var textUnderLineStyle = DOM_getAttributeNS(tpr,STYLE_NAMESPACE,"text-underline-style");
-            var fontSize = DOM_getAttributeNS(tpr,FO_NAMESPACE,"font-size");
-            var color = DOM_getAttributeNS(tpr,FO_NAMESPACE,"color");
-            var backgroundColor = DOM_getAttributeNS(tpr,FO_NAMESPACE,"background-color");
-
-            if (fontWeight == "bold")
-                this.cssProperties["font-weight"] = "bold";
-            if (fontStyle == "italic")
-                this.cssProperties["font-style"] = "italic";
-            if (textUnderLineStyle == "solid")
-                this.cssProperties["text-decoration"] = "underline";
-            if ((fontSize != null) && fontSize.match(/[0-9\.]+pt/))
-                this.cssProperties["font-size"] = fontSize;
-            if ((color != null) && (color != ""))
-                this.cssProperties["color"] = color;
-            if ((backgroundColor != null) && (backgroundColor != ""))
-                this.cssProperties["background-color"] = backgroundColor;
+        if (family == "text") {
+            this.selector = "span."+this.name;
+            StyleTextProperties_toCSS(style,node._child_style_text_properties);
+        }
+        else if (family == "paragraph") {
+            this.selector = "p."+this.name;
+            StyleParagraphProperties_toCSS(style,node._child_style_paragraph_properties);
+            StyleTextProperties_toCSS(style,node._child_style_text_properties);
+        }
+        else if (family == "table") {
+            this.selector = "table."+this.name;
+            StyleTableProperties_toCSS(style,node._child_style_table_properties);
+        }
+        else if (family == "table-column") {
+            this.selector = "col."+this.name;
+            StyleTableColumnProperties_toCSS(style,node._child_style_table_column_properties);
+        }
+        else if (family == "table-row") {
+            this.selector = "tr."+this.name;
+            StyleTableRowProperties_toCSS(style,node._child_style_table_row_properties);
+        }
+        else if (family == "table-cell") {
+            this.selector = "td."+this.name;
+            StyleTableCellProperties_toCSS(style,node._child_style_table_cell_properties);
+            StyleParagraphProperties_toCSS(style,node._child_style_paragraph_properties);
+            StyleTextProperties_toCSS(style,node._child_style_text_properties);
         }
 
-        var ppr = node._child_style_paragraph_properties;
-        if (ppr != null) {
-            var textAlign = DOM_getAttributeNS(ppr,FO_NAMESPACE,"text-align");
+    }
 
-            var shadow = DOM_getAttributeNS(ppr,FO_NAMESPACE,"shadow");
-
-            if ((textAlign != null) && (textAlign != ""))
-                this.cssProperties["text-align"] = textAlign;
-
-
-            processBorder("border");
-            processBorder("border-left");
-            processBorder("border-right");
-            processBorder("border-top");
-            processBorder("border-bottom");
-
-            function processBorder(prefix)
-            {
-                var value = DOM_getAttributeNS(ppr,FO_NAMESPACE,prefix);
-                if ((value != null) && (value != "")) {
-                    var temp = DOM_createElement(document,"P");
-                    temp.style[prefix] = value;
-
-                    for (var i = 0; i < temp.style.length; i++) {
-                        var propName = temp.style[i];
-                        var propValue = temp.style.getPropertyValue(propName);
-                        debug(prefix+": copying from temp: "+propName+" = "+propValue);
-
-                        // FIXME: we currently fix the width at 1px, because often the actual
-                        // values are really small and webkit won't render them
-                        if (propName.match(/-width$/))
-                            propValue = "1px";
-
-                        if (propName.match(/-image$/))
-                            continue; // I think this differs between safari and chrome
-
-                        style.cssProperties[propName] = propValue;
-                    }
-
-                }
-            }
-        }
-
-
+    ODFStyle.prototype.print = function(indent)
+    {
         var names = Object.getOwnPropertyNames(this.cssProperties).sort();
-        debug("Style "+this.name+" ("+this.family+")");
+        debug(indent+"Style "+this.name+" ("+this.family+"); selector "+this.selector);
         for (var i = 0; i < names.length; i++) {
-            debug("    "+names[i]+" = "+this.cssProperties[names[i]]);
+            debug(indent+"    "+names[i]+" = "+this.cssProperties[names[i]]);
         }
     }
 
@@ -357,6 +696,12 @@ ODFInvalidError.prototype.toString = function() {
     {
         for (var child = con.firstChild; child != null; child = child.nextSibling) {
             debug("OfficeStyles_parse: child "+nodeString(child));
+            if (child._is_style_style) {
+                var name = DOM_getAttributeNS(child,STYLE_NAMESPACE,"name");
+                var family = DOM_getAttributeNS(child,STYLE_NAMESPACE,"family");
+                if ((name != null) && (family != null))
+                    odfStyles[name] = new ODFStyle(name,family,child);
+            }
         }
     });
 
@@ -409,6 +754,16 @@ ODFInvalidError.prototype.toString = function() {
                 OfficeMasterStyles_parse(child);
             }
         }
+
+
+        debug("---------------------- OfficeDocumentStyles_parse BEGIN --------------------------");
+        debug("odfStyles =");
+        var names = Object.getOwnPropertyNames(odfStyles).sort();
+        for (var i = 0; i < names.length; i++) {
+            var style = odfStyles[names[i]];
+            style.print("    ");
+        }
+        debug("---------------------- OfficeDocumentStyles_parse END --------------------------");
     });
 
     var loadDoc = trace(function _loadDoc(readFun,baseDir,filename)
