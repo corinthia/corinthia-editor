@@ -6,8 +6,9 @@ var BDT_Container_put;
     {
         var present = new NodeSet();
         for (var achild = a.firstChild; achild != null; achild = achild.nextSibling) {
-            if (achild._source != null)
-                present.add(achild._source);
+            var source = lens.getSource(achild);
+            if (source != null)
+                present.add(source);
         }
 
         var next;
@@ -28,8 +29,9 @@ var BDT_Container_put;
         }
 
         for (var achild = a.firstChild; achild != null; achild = achild.nextSibling) {
-            if (achild._source != null) {
-                cchild = achild._source;
+            var source = lens.getSource(achild);
+            if (source != null) {
+                cchild = source;
                 do {
                     newList.push(cchild);
                     cchild = cchild.nextSibling;
@@ -46,12 +48,13 @@ var BDT_Container_put;
     {
         var before = null;
         for (var achild = a.lastChild; achild != null; achild = achild.previousSibling) {
-            if (achild._source != null) {
+            var source = lens.getSource(achild);
+            if (source != null) {
                 if (lens.put == null)
                     throw new Error(nodeString(achild)+": "+lens.constructor.name+
                                     " has no put method");
-                lens.put(achild,achild._source);
-                before = achild._source;
+                lens.put(achild,source);
+                before = source;
             }
             else {
                 if (lens.create == null)

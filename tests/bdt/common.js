@@ -33,6 +33,11 @@ EntryLens.prototype.isVisible = function(node)
     return (DOM_upperName(node) == "ENTRY");
 };
 
+EntryLens.prototype.getSource = function(node)
+{
+    return node._source;
+};
+
 function BookmarkLens()
 {
     this.entryLens = new EntryLens();

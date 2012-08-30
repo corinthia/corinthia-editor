@@ -465,6 +465,10 @@ var Word_stylesXML;
     {
     }
 
+    ContentLens.prototype.getSource = function(abs) {
+        return abs._source;
+    };
+
     ContentLens.prototype.get = trace(function ContentLens_get(con)
     {
         return Paragraph_get(con);
@@ -503,6 +507,10 @@ var Word_stylesXML;
         this.contentLens = new ContentLens();
     }
 
+    BodyLens.prototype.getSource = function(abs) {
+        return abs._source;
+    };
+
     BodyLens.prototype.get = trace(function BodyLens_get(con) {
         var abs = DOM_createElement(document,"BODY");
         abs._source = abs;
@@ -526,6 +534,10 @@ var Word_stylesXML;
     {
         this.bodyLens = new BodyLens();
     }
+
+    DocumentLens.prototype.getSource = function(abs) {
+        return abs._source;
+    };
 
     DocumentLens.prototype.get = trace(function DocumentLens_get(con)
     {
