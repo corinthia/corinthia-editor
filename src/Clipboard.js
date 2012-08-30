@@ -409,6 +409,9 @@ var Clipboard_pasteNodes;
     // public
     Clipboard_pasteNodes = trace(function pasteNodes(nodes)
     {
+        for (var i = 0; i < nodes.length; i++)
+            removeDuplicateIds(nodes[i]);
+
         if ((nodes.length == 0) && isTableNode(nodes[0])) {
             // FIXME: this won't work; selectionRange is not defined
             var fromRegion = Tables_getTableRegionFromTable(nodes[0]);
@@ -564,6 +567,17 @@ var Clipboard_pasteNodes;
 
         Selection_set(pos.node,pos.offset,pos.node,pos.offset);
         Cursor_ensureCursorVisible();
+
+        function removeDuplicateIds(node)
+        {
+            if ((node.nodeType == Node.ELEMENT_NODE) && node.hasAttribute("id")) {
+                var existing = document.getElementById(node.getAttribute("id"));
+                if ((existing != null) && (existing != node))
+                    DOM_removeAttribute(node,"id");
+            }
+            for (var child = node.firstChild; child != null; child = child.nextSibling)
+                removeDuplicateIds(child);
+        }
     });
 
     function pasteImage(href)
