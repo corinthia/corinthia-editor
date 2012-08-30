@@ -24,6 +24,32 @@ ODFInvalidError.prototype.toString = function() {
     var odfAutomaticStyles = null;
     var odfMasterStyles = null;
 
+
+
+
+
+    var odfSourceById = new Object();
+    var nextODFId = 0;
+
+    var addSourceMapping = trace(function _addSourceMapping(abs,con)
+    {
+        var id = "odf"+nextODFId;
+        odfSourceById[id] = con;
+        DOM_setAttribute(abs,"id",id);
+        nextODFId++;
+    });
+
+    var lookupSourceMapping = trace(function _lookupSourceMapping(abs)
+    {
+        if (abs.nodeType != Node.ELEMENT_NODE)
+            return null;
+        var id = DOM_getAttribute(abs,"id");
+        if (id == null)
+            return id;
+        else
+            return odfSourceById[id];
+    });
+
     var OFFICE_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:office:1.0";
     var STYLE_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:style:1.0";
     var TEXT_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:text:1.0";
@@ -31,7 +57,13 @@ ODFInvalidError.prototype.toString = function() {
     var FO_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0";
     var SVG_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0";
 
-    var nextODFId = 0;
+    var OFFICE_PREFIX = "office:";
+    var STYLE_PREFIX = "style:";
+    var TEXT_PREFIX = "text:";
+    var TABLE_PREFIX = "table:";
+    var FO_PREFIX = "fo:";
+    var SVG_PREFIX = "svg:";
+
     var automaticStyles = null;
 
     // fo:border
@@ -386,8 +418,7 @@ ODFInvalidError.prototype.toString = function() {
     var TextSpan_get = trace(function _TextSpan_get(con)
     {
         var span = DOM_createElement(document,"SPAN");
-        span._source = con;
-        DOM_setAttribute(span,"id","odf"+nextODFId++);
+        addSourceMapping(span,con);
 
         var styleName = DOM_getAttributeNS(con,TEXT_NAMESPACE,"style-name");
         var style = automaticStyles[styleName];
@@ -397,7 +428,6 @@ ODFInvalidError.prototype.toString = function() {
         for (var child = con.firstChild; child != null; child = child.nextSibling) {
             if (child.nodeType == Node.TEXT_NODE) {
                 var text = DOM_createTextNode(document,child.nodeValue);
-                text._source = child;
                 DOM_appendChild(span,text);
             }
         }
@@ -421,20 +451,18 @@ ODFInvalidError.prototype.toString = function() {
         else {
             p = DOM_createElement(document,"P");
         }
-        DOM_setAttribute(p,"id","odf"+nextODFId++);
+        addSourceMapping(p,con);
 
         var styleName = DOM_getAttributeNS(con,TEXT_NAMESPACE,"style-name");
         var style = automaticStyles[styleName];
         if (style != null)
             DOM_setStyleProperties(p,style.cssProperties);
 
-        p._source = con;
         for (var child = con.firstChild; child != null; child = child.nextSibling) {
             if (child.nodeType == Node.TEXT_NODE) {
                 var span = DOM_createElement(document,"SPAN");
-                DOM_setAttribute(span,"id","odf"+nextODFId++);
+                addSourceMapping(span,child);
                 var text = DOM_createTextNode(document,child.nodeValue);
-                text._source = child;
                 DOM_appendChild(span,text);
                 DOM_appendChild(p,span);
             }
@@ -449,7 +477,6 @@ ODFInvalidError.prototype.toString = function() {
     var OfficeText_get = trace(function _OfficeText_get(con)
     {
         var body = DOM_createElement(document,"BODY");
-        body._source = con;
         for (var child = con.firstChild; child != null; child = child.nextSibling) {
             if (child._is_text_p || child._is_text_h) {
                 DOM_appendChild(body,TextPH_get(child));
@@ -458,59 +485,123 @@ ODFInvalidError.prototype.toString = function() {
         return body;
     });
 
+    var OfficeTextChild_isVisible = trace(function _OfficeTextChild_isVisible(con)
+    {
+        return (con._is_text_p || con._is_text_h);
+    });
+
+    var OfficeTextChild_put = trace(function _OfficeTextChild_put(abs,con)
+    {
+        debug("OfficeTextChild_put "+JSON.stringify(getNodeText(abs)));
+        DOM_deleteAllChildren(con);
+        DOM_appendChild(con,DOM_createTextNode(odf.content,getNodeText(abs)));
+    });
+
+    var OfficeTextChild_create = trace(function _OfficeTextChild_create(abs)
+    {
+        if (isParagraphNode(abs)) {
+            debug("OfficeTextChild_create "+JSON.stringify(getNodeText(abs)));
+            var text_p = DOM_createElementNS(odf.content,TEXT_NAMESPACE,TEXT_PREFIX+"p");
+            DOM_appendChild(text_p,DOM_createTextNode(odf.content,getNodeText(abs)));
+            return text_p;
+        }
+        else {
+            return null;
+        }
+    });
+
+    var OfficeTextChildLens = {
+        isVisible: OfficeTextChild_isVisible,
+        put: OfficeTextChild_put,
+        create: OfficeTextChild_create,
+        getSource: lookupSourceMapping,
+    };
+
+
+    var OfficeText_put = trace(function _OfficeText_put(abs,con)
+    {
+        debug("OfficeBody_put: abs = "+nodeString(abs));
+        debug("OfficeBody_put: con = "+nodeString(con));
+        BDT_Container_put(abs,con,OfficeTextChildLens);
+    });
+
     // office:body
     var OfficeBody_get = trace(function _OfficeBody_get(con)
     {
-        for (var child = con.firstChild; child != null; child = child.nextSibling) {
-            if (child._is_office_text) {
-                return OfficeText_get(child);
-            }
-        }
-        throw new Error("office:text element not found");
+        if (con._child_office_text == null)
+            throw new ODFInvalidError("Not an ODF word processing document");
+        return OfficeText_get(con._child_office_text);
+    });
+
+    var OfficeBody_put = trace(function _OfficeBody_put(abs,con)
+    {
+        OfficeText_put(abs,con._child_office_text);
     });
 
     // office:document-content
     var OfficeDocumentContent_get = trace(function _OfficeDocumentContent_get(con)
     {
-        debug("OfficeDocumentContent_get: con = "+nodeString(con));
-        var abs = DOM_createElement(document,"HTML");
-        abs._source = con;
-        for (var child = con.firstChild; child != null; child = child.nextSibling) {
-            if (child._is_office_body) {
-                DOM_appendChild(abs,OfficeBody_get(child));
+        if ((con.namespaceURI != OFFICE_NAMESPACE) || (con.localName != "document-content"))
+            throw new ODFInvalidError("Invalid root element in content.xml");
+
+        if (con._child_office_body == null)
+            throw new ODFInvalidError("No office:body element in content.xml");
+
+        var html = DOM_createElement(document,"HTML");
+        DOM_appendChild(html,OfficeBody_get(con._child_office_body));
+        return html;
+    });
+
+    var OfficeDocumentContent_put = trace(function _OfficeDocumentContent_update(abs,con)
+    {
+        var body = null;
+        for (var child = abs.firstChild; child != null; child = child.nextSibling) {
+            if (DOM_upperName(child) == "BODY") {
+                body = child;
+                break;
             }
         }
-        return abs;
+
+        if (body == null)
+            throw new Error("Could not find body element");
+        OfficeBody_put(body,con._child_office_body);
     });
 
     var convertToHTML = trace(function convertToHTML()
     {
-        var html = OfficeDocumentContent_get(odf.content.documentElement);;
+        Selection_clear();
 
-        var body = html.firstChild;
-        var next;
-        for (var child = body.firstChild; child != null; child = next) {
-            next = child.nextSibling;
-            DOM_appendChild(document.body,child);
+        var absHTML = OfficeDocumentContent_get(odf.content.documentElement);;
+
+        var absHead = null;
+        var absBody = null;
+        for (var child = absHTML.firstChild; child != null; child = child.nextSibling) {
+            if (DOM_upperName(child) == "HEAD")
+                absHead = child;
+            else if (DOM_upperName(child) == "BODY")
+                absBody = child;
         }
 
+        DOM_deleteAllChildren(document.head);
+        DOM_deleteAllChildren(document.body);
 
-//        debug("------------------- convertToHTML BEGIN ----------------------");
-//        printTree(document.documentElement);
-//        debug("------------------- convertToHTML END ----------------------");
+        if (absHead != null) {
+            while (absHead.firstChild != null)
+                DOM_appendChild(document.head,absHead.firstChild);
+        }
+
+        if (absBody != null) {
+            while (absBody.firstChild != null)
+                DOM_appendChild(document.body,absBody.firstChild);
+        }
 
         return true;
     });
 
-
-
-
-
-
-
-
     ODF_updateFromHTML = trace(function updateFromHTML()
     {
+        OfficeDocumentContent_put(document.documentElement,
+                                  odf.content.documentElement);
         return true;
     });
 
@@ -657,11 +748,13 @@ ODFInvalidError.prototype.toString = function() {
         odfMasterStyles = new Object();
 
         var root = odf.styles.documentElement;
+/*
         debug("parseStyles: root = "+nodeString(root));
         debug("parseStyles: root.nodeName = "+root.nodeName);
         debug("parseStyles: root.namespaceURI = "+root.namespaceURI);
         debug("parseStyles: root.prefix = "+root.prefix);
         debug("parseStyles: root.localName = "+root.localName);
+*/
 
         if ((root.namespaceURI != OFFICE_NAMESPACE) ||
             (root.localName != "document-styles"))
@@ -683,6 +776,7 @@ ODFInvalidError.prototype.toString = function() {
         }
 
 
+/*
         debug("---------------------- OfficeDocumentStyles_parse BEGIN --------------------------");
         debug("odfStyles =");
         var names = Object.getOwnPropertyNames(odfStyles).sort();
@@ -691,6 +785,7 @@ ODFInvalidError.prototype.toString = function() {
             style.print("    ");
         }
         debug("---------------------- OfficeDocumentStyles_parse END --------------------------");
+*/
     });
 
     var loadDoc = trace(function _loadDoc(readFun,baseDir,filename)
