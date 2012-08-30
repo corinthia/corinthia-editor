@@ -632,6 +632,7 @@ var Cursor_set;
             for (var n = pos.node; n != null; n = n.parentNode) {
                 if (isListItemNode(n)) {
                     blockToSplit = n;
+                    break;
                 }
             }
             if (blockToSplit == null) {
