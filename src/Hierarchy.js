@@ -66,6 +66,30 @@ var Hierarchy_wrapInlineNodesInParagraph;
         }
     });
 
+    var checkInvalidNesting = trace(function checkInvalidNesting(node)
+    {
+        var invalidNesting = !isContainerNode(node.parentNode);
+        if (isParagraphNode(node) && (DOM_upperName(node.parentNode) == "DIV"))
+            invalidNesting = false; // this case is ok
+        return invalidNesting;
+    });
+
+    var checkInvalidHeadingNesting = trace(function checkInvalidHeadingNesting(node)
+    {
+        return isHeadingNode(node) &&
+            (node.parentNode != document.body) &&
+            (DOM_upperName(node.parentNode) != "NAV");
+    });
+
+    var nodeHasSignificantChildren = trace(function nodeHasSignificantChildren(node)
+    {
+        for (var child = node.firstChild; child != null; child = child.nextSibling) {
+            if (!isWhitespaceTextNode(child))
+                return true;
+        }
+        return false;
+    });
+
     // Enforce the restriction that any path from the root to a given node must be of the form
     //    container+ paragraph inline
     // or container+ paragraph
@@ -80,32 +104,26 @@ var Hierarchy_wrapInlineNodesInParagraph;
             if (count > 20)
                 throw new Error("ensureValidHierarchy: too many iterations");
 
-            if (isHeadingNode(node) &&
-                (node.parentNode != document.body) &&
-                (DOM_upperName(node.parentNode) != "NAV")) {
-
+            if (checkInvalidHeadingNesting(node)) {
                 var offset = DOM_nodeOffset(node);
+                var parent = node.parentNode;
                 Formatting_moveFollowing(new Position(node.parentNode,offset+1),
                                          function() { return false; });
-                Formatting_movePreceding(new Position(node.parentNode,offset),
-                                         function() { return false; });
-                DOM_removeNodeButKeepChildren(node.parentNode);
+                DOM_insertBefore(node.parentNode.parentNode,
+                                 node,
+                                 node.parentNode.nextSibling);
+
+                while ((parent != document.body) && !nodeHasSignificantChildren(parent)) {
+                    var grandParent = parent.parentNode;
+                    DOM_deleteNode(parent);
+                    parent = grandParent;
+                }
+
                 continue;
             }
             else if (isContainerNode(node) || isParagraphNode(node)) {
-
-                var invalidNesting = !isContainerNode(node.parentNode);
-                if (isParagraphNode(node) && (DOM_upperName(node.parentNode) == "DIV"))
-                    invalidNesting = false; // this case is ok
+                var invalidNesting = checkInvalidNesting(node);
                 if (invalidNesting) {
-                    DOM_removeAdjacentWhitespace(node);
-
-                    var offset = DOM_nodeOffset(node);
-                    Formatting_moveFollowing(new Position(node.parentNode,offset+1),
-                                             isContainerNode);
-                    Formatting_movePreceding(new Position(node.parentNode,offset),
-                                             isContainerNode);
-
                     var ancestors = new Array();
                     var child = node;
                     while (!isContainerNode(child.parentNode)) {
@@ -113,9 +131,19 @@ var Hierarchy_wrapInlineNodesInParagraph;
                             ancestors.push(child.parentNode);
                         child = child.parentNode;
                     }
-                    DOM_insertBefore(child.parentNode,node,child);
-                    DOM_deleteNode(child);
 
+                    while (checkInvalidNesting(node)) {
+                        var offset = DOM_nodeOffset(node);
+                        var parent = node.parentNode;
+                        Formatting_moveFollowing(new Position(node.parentNode,offset+1),
+                                                 isContainerNode);
+                        DOM_insertBefore(node.parentNode.parentNode,
+                                         node,
+                                         node.parentNode.nextSibling);
+                        if (!nodeHasSignificantChildren(parent))
+                            DOM_deleteNode(parent);
+
+                    }
                     wrapInlineChildrenInAncestors(node,ancestors);
                 }
             }

@@ -433,16 +433,18 @@ var Clipboard_pasteNodes;
         var previousSibling;
         var nextSibling;
 
-        if (range.start.node.nodeType == Node.ELEMENT_NODE) {
-            parent = range.start.node;
-            nextSibling = range.start.node.childNodes[range.start.offset];
-            previousSibling = range.start.node.childNodes[range.start.offset-1];
+        var start = range.start;
+        start = Position_preferElementPosition(start);
+        if (start.node.nodeType == Node.ELEMENT_NODE) {
+            parent = start.node;
+            nextSibling = start.node.childNodes[start.offset];
+            previousSibling = start.node.childNodes[start.offset-1];
         }
         else {
-            Formatting_splitTextBefore(range.start);
-            parent = range.start.node.parentNode;
-            nextSibling = range.start.node;
-            previousSibling = range.start.node.previousSibling;
+            Formatting_splitTextAfter(start);
+            parent = start.node.parentNode;
+            nextSibling = start.node.nextSibling;
+            previousSibling = start.node;
         }
 
         var prevLI = null;
