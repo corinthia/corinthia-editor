@@ -923,7 +923,7 @@ var Selection_preferElementPositions;
     });
 
     // private
-    var deleteTextSelection = trace(function deleteTextSelection(selRange)
+    var deleteTextSelection = trace(function deleteTextSelection(selRange,keepEmpty)
     {
         var nodes = Range_getOutermostNodes(selRange);
         for (var i = 0; i < nodes.length; i++) {
@@ -989,10 +989,45 @@ var Selection_preferElementPositions;
                 removeParagraphDescendants(detail.startAncestor);
         }
 
+        if (!keepEmpty) {
+            var node = selRange.start.node;
+
+            var pos = selRange.start;
+
+            Selection_clear();
+            while ((node != document.body) &&
+                   (node.nodeType == Node.ELEMENT_NODE) &&
+                   (node.childNodes.length == 0)) {
+
+                var before = new Position(node.parentNode,DOM_nodeOffset(node));
+                var after = new Position(node.parentNode,DOM_nodeOffset(node)+1);
+                before = Position_prevMatch(before,Position_okForMovement);
+                after = Position_nextMatch(after,Position_okForMovement);
+
+                if ((before == null) && (after == null))
+                    break;
+
+                pos = (before != null) ? before : after;
+
+                var parent = node.parentNode;
+                Position_trackWhileExecuting([pos],function() {
+                    DOM_deleteNode(node);
+                });
+                node = parent;
+            }
+
+            // Modify the *properties* of the start and end, don't replace the start and end
+            // themselves - because they're still being tracked
+            selRange.start.node = pos.node;
+            selRange.start.offset = pos.offset;
+            selRange.end.node = pos.node;
+            selRange.end.offset = pos.offset;
+        }
+
         Cursor_updateBRAtEndOfParagraph(Range_singleNode(selRange));
     });
 
-    Selection_deleteRangeContents = trace(function deleteRangeContents(range)
+    Selection_deleteRangeContents = trace(function deleteRangeContents(range,keepEmpty)
     {
         Range_trackWhileExecuting(range,function() {
             DOM_ignoreMutationsWhileExecuting(function() {
@@ -1003,18 +1038,18 @@ var Selection_preferElementPositions;
             if (region != null)
                 Tables_deleteRegion(region);
             else
-                deleteTextSelection(range);
+                deleteTextSelection(range,keepEmpty);
         });
 
         Selection_set(range.start.node,range.start.offset,range.start.node,range.start.offset);
     });
 
-    Selection_deleteContents = trace(function deleteContents()
+    Selection_deleteContents = trace(function deleteContents(keepEmpty)
     {
         var range = Selection_get();
         if (range == null)
             return;
-        Selection_deleteRangeContents(range);
+        Selection_deleteRangeContents(range,keepEmpty);
     });
 
     // private

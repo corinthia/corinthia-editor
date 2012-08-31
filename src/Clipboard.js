@@ -421,7 +421,7 @@ var Clipboard_pasteNodes;
             }
         }
 
-        Selection_deleteContents();
+        Selection_deleteContents(true);
         var range = Selection_get();
         if (range == null)
             return;
