@@ -990,41 +990,57 @@ var Selection_preferElementPositions;
         }
 
         if (!keepEmpty) {
-            var node = selRange.start.node;
-
-            var pos = selRange.start;
-
-            Selection_clear();
-            while ((node != document.body) &&
-                   (node.nodeType == Node.ELEMENT_NODE) &&
-                   (node.childNodes.length == 0)) {
-
-                var before = new Position(node.parentNode,DOM_nodeOffset(node));
-                var after = new Position(node.parentNode,DOM_nodeOffset(node)+1);
-                before = Position_prevMatch(before,Position_okForMovement);
-                after = Position_nextMatch(after,Position_okForMovement);
-
-                if ((before == null) && (after == null))
-                    break;
-
-                pos = (before != null) ? before : after;
-
-                var parent = node.parentNode;
-                Position_trackWhileExecuting([pos],function() {
-                    DOM_deleteNode(node);
-                });
-                node = parent;
-            }
-
-            // Modify the *properties* of the start and end, don't replace the start and end
-            // themselves - because they're still being tracked
-            selRange.start.node = pos.node;
-            selRange.start.offset = pos.offset;
-            selRange.end.node = pos.node;
-            selRange.end.offset = pos.offset;
+            var startNode = selRange.start.node;
+            var endNode = selRange.end.node;
+            if (startNode.parentNode != null)
+                delEmpty(selRange,startNode);
+            if (endNode.parentNode != null)
+                delEmpty(selRange,endNode);
         }
 
         Cursor_updateBRAtEndOfParagraph(Range_singleNode(selRange));
+    });
+
+    var delEmpty = trace(function delEmpty(selRange,node)
+    {
+        while ((node != document.body) &&
+               (node.nodeType == Node.ELEMENT_NODE) &&
+               (node.firstChild == null)) {
+
+            if (!fixPositionOutside(selRange.start,node))
+                break;
+            if (!fixPositionOutside(selRange.end,node))
+                break;
+
+            var parent = node.parentNode;
+            Range_trackWhileExecuting(selRange,function() {
+                DOM_deleteNode(node);
+            });
+            node = parent;
+        }
+    });
+
+    var fixPositionOutside = trace(function fixPositionOutside(pos,node)
+    {
+        if (pos.node == node) {
+            var before = new Position(node.parentNode,DOM_nodeOffset(node));
+            var after = new Position(node.parentNode,DOM_nodeOffset(node)+1);
+            before = Position_prevMatch(before,Position_okForMovement);
+            after = Position_nextMatch(after,Position_okForMovement);
+
+            if (before != null) {
+                pos.node = before.node;
+                pos.offset = before.offset;
+            }
+            else if (after != null) {
+                pos.node = after.node;
+                pos.offset = after.offset;
+            }
+            else {
+                return false;
+            }
+        }
+        return true;
     });
 
     Selection_deleteRangeContents = trace(function deleteRangeContents(range,keepEmpty)
