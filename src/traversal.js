@@ -120,14 +120,19 @@ function isNonWhitespaceTextNode(node)
     return !isWhitespaceString(node.nodeValue);
 }
 
-function printTree(node,indent)
+function printTree(node,indent,offset)
 {
     if (indent == null)
         indent = "";
+    if (offset == null)
+        offset = "";
     if ((node.nodeType == Node.ELEMENT_NODE) && node.hasAttribute("class"))
-        debug(indent+nodeString(node)+"."+node.getAttribute("class"));
+        debug(indent+offset+nodeString(node)+"."+node.getAttribute("class"));
     else
-        debug(indent+nodeString(node));
-    for (var child = node.firstChild; child != null; child = child.nextSibling)
-        printTree(child,indent+"    ");
+        debug(indent+offset+nodeString(node));
+    var childOffset = 0;
+    for (var child = node.firstChild; child != null; child = child.nextSibling) {
+        printTree(child,indent+"    ",childOffset+" ");
+        childOffset++;
+    }
 }
