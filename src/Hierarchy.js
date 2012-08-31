@@ -127,8 +127,21 @@ var Hierarchy_wrapInlineNodesInParagraph;
                     var ancestors = new Array();
                     var child = node;
                     while (!isContainerNode(child.parentNode)) {
-                        if (isInlineNode(child.parentNode))
-                            ancestors.push(child.parentNode);
+                        if (isInlineNode(child.parentNode)) {
+                            var keep = false;
+                            if (DOM_upperName(child.parentNode) == "SPAN") {
+                                for (var i = 0; i < child.attributes.length; i++) {
+                                    var attr = child.attributes[i];
+                                    if (attr.nodeName.toUpperCase() != "ID")
+                                        keep = true;
+                                }
+                                if (keep)
+                                    ancestors.push(child.parentNode);
+                            }
+                            else {
+                                ancestors.push(child.parentNode);
+                            }
+                        }
                         child = child.parentNode;
                     }
 
