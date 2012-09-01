@@ -84,7 +84,7 @@ ODFInvalidError.prototype.toString = function() {
         for (var i = 0; i < temp.style.length; i++) {
             var propName = temp.style[i];
             var propValue = temp.style.getPropertyValue(propName);
-            debug(prefix+": copying from temp: "+propName+" = "+propValue);
+//            debug(prefix+": copying from temp: "+propName+" = "+propValue);
 
             // FIXME: we currently fix the width at 1px, because often the actual
             // values are really small and webkit won't render them
@@ -414,6 +414,12 @@ ODFInvalidError.prototype.toString = function() {
         }
     }
 
+    ODFStyle_getCSSText = trace(function _ODFStyle_getCSSText(style)
+    {
+        debug("getting CSS text for "+style.selector);
+        return style.selector+" {\n"+Styles_getPropertiesText(style.cssProperties)+"}\n";
+    });
+
     // text:span
     var TextSpan_get = trace(function _TextSpan_get(con)
     {
@@ -455,8 +461,14 @@ ODFInvalidError.prototype.toString = function() {
 
         var styleName = DOM_getAttributeNS(con,TEXT_NAMESPACE,"style-name");
         var style = automaticStyles[styleName];
-        if (style != null)
+        if (style != null) {
             DOM_setStyleProperties(p,style.cssProperties);
+        }
+        else {
+            // FIXME: only do this if it's a paragraph style
+            // FIXME: what happens in the case of duplicate styles?
+            DOM_setAttribute(p,"class",styleName);
+        }
 
         for (var child = con.firstChild; child != null; child = child.nextSibling) {
             if (child.nodeType == Node.TEXT_NODE) {
@@ -548,6 +560,15 @@ ODFInvalidError.prototype.toString = function() {
             throw new ODFInvalidError("No office:body element in content.xml");
 
         var html = DOM_createElement(document,"HTML");
+
+
+        var head = DOM_createElement(document,"HEAD");
+        var style = DOM_createElement(document,"STYLE");
+        var styleContent = getODFStylesText();
+        DOM_appendChild(style,DOM_createTextNode(document,styleContent));
+        DOM_appendChild(head,style);
+        DOM_appendChild(html,head);
+
         DOM_appendChild(html,OfficeBody_get(con._child_office_body));
         return html;
     });
@@ -582,8 +603,8 @@ ODFInvalidError.prototype.toString = function() {
                 absBody = child;
         }
 
-        DOM_deleteAllChildren(document.head);
-        DOM_deleteAllChildren(document.body);
+//        DOM_deleteAllChildren(document.head);
+//        DOM_deleteAllChildren(document.body);
 
         if (absHead != null) {
             while (absHead.firstChild != null)
@@ -748,13 +769,6 @@ ODFInvalidError.prototype.toString = function() {
         odfMasterStyles = new Object();
 
         var root = odf.styles.documentElement;
-/*
-        debug("parseStyles: root = "+nodeString(root));
-        debug("parseStyles: root.nodeName = "+root.nodeName);
-        debug("parseStyles: root.namespaceURI = "+root.namespaceURI);
-        debug("parseStyles: root.prefix = "+root.prefix);
-        debug("parseStyles: root.localName = "+root.localName);
-*/
 
         if ((root.namespaceURI != OFFICE_NAMESPACE) ||
             (root.localName != "document-styles"))
@@ -774,19 +788,18 @@ ODFInvalidError.prototype.toString = function() {
                 OfficeMasterStyles_parse(child);
             }
         }
+    });
 
-
-/*
-        debug("---------------------- OfficeDocumentStyles_parse BEGIN --------------------------");
-        debug("odfStyles =");
+    function getODFStylesText()
+    {
+        var strings = new Array();
         var names = Object.getOwnPropertyNames(odfStyles).sort();
         for (var i = 0; i < names.length; i++) {
             var style = odfStyles[names[i]];
-            style.print("    ");
+            strings.push(ODFStyle_getCSSText(style));
         }
-        debug("---------------------- OfficeDocumentStyles_parse END --------------------------");
-*/
-    });
+        return strings.join("");
+    }
 
     var loadDoc = trace(function _loadDoc(readFun,baseDir,filename)
     {
