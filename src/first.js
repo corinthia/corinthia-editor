@@ -9,9 +9,17 @@ var trace;
     function valueString(arg)
     {
         try {
-            if (typeof(arg) == "object") {
-                var str = arg.toString();
-                return "[object "+arg.constructor.name+"]";
+            if (arg == null) {
+                return "null";
+            }
+            else if (typeof(arg) == "object") {
+                if (arg instanceof Node) {
+                    return "[node "+arg.nodeName+"]";
+                }
+                else {
+                    var str = arg.toString();
+                    return "[object "+arg.constructor.name+"]";
+                }
             }
             else if (typeof(arg) == "string") {
                 return JSON.stringify(arg);
