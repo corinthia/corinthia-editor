@@ -424,7 +424,7 @@ var Clipboard_pasteNodes;
         Selection_deleteContents(true);
         var range = Selection_get();
         if (range == null)
-            return;
+            throw new Error("No current selection");
 
         if (nodes.length == 0)
             return;
