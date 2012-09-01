@@ -385,6 +385,12 @@ ODFInvalidError.prototype.toString = function() {
             StyleParagraphProperties_toCSS(style,node._child_style_paragraph_properties);
             StyleTextProperties_toCSS(style,node._child_style_text_properties);
         }
+        else if (family == "section") {
+            // Unsupported
+        }
+        else if (family == "ruby") {
+            // Unsupported
+        }
         else if (family == "table") {
             this.selector = "table."+this.name;
             StyleTableProperties_toCSS(style,node._child_style_table_properties);
@@ -403,6 +409,18 @@ ODFInvalidError.prototype.toString = function() {
             StyleParagraphProperties_toCSS(style,node._child_style_paragraph_properties);
             StyleTextProperties_toCSS(style,node._child_style_text_properties);
         }
+        else if (family == "graphic") {
+            // Unsupported
+        }
+        else if (family == "presentation") {
+            // Unsupported
+        }
+        else if (family == "drawing-page") {
+            // Unsupported
+        }
+        else if (family == "chart") {
+            // Unsupported
+        }
     }
 
     ODFStyle.prototype.print = function(indent)
@@ -420,6 +438,24 @@ ODFInvalidError.prototype.toString = function() {
         return style.selector+" {\n"+Styles_getPropertiesText(style.cssProperties)+"}\n";
     });
 
+/*
+    var ParagraphContentOrHyperlink_getChild = trace(
+        function _ParagraphContentOrHyperlink_getChild(con)
+    {
+        return ParagraphContent_get(con);
+    });
+*/
+
+    var ParagraphContent_getChild = trace(function _ParagraphContent_getChild(con)
+    {
+        if (con.nodeType == Node.TEXT_NODE)
+            return DOM_createTextNode(document,con.nodeValue);
+        else if (con._is_text_span)
+            return TextSpan_get(con);
+        else
+            return null;
+    });
+
     // text:span
     var TextSpan_get = trace(function _TextSpan_get(con)
     {
@@ -430,12 +466,13 @@ ODFInvalidError.prototype.toString = function() {
         var style = automaticStyles[styleName];
         if (style != null)
             DOM_setStyleProperties(span,style.cssProperties);
+        else
+            DOM_setAttribute(span,"class",styleName);
 
         for (var child = con.firstChild; child != null; child = child.nextSibling) {
-            if (child.nodeType == Node.TEXT_NODE) {
-                var text = DOM_createTextNode(document,child.nodeValue);
-                DOM_appendChild(span,text);
-            }
+            var childAbs = ParagraphContent_getChild(child);
+            if (childAbs != null)
+                DOM_appendChild(span,childAbs);
         }
         return span;
     });
@@ -471,16 +508,9 @@ ODFInvalidError.prototype.toString = function() {
         }
 
         for (var child = con.firstChild; child != null; child = child.nextSibling) {
-            if (child.nodeType == Node.TEXT_NODE) {
-                var span = DOM_createElement(document,"SPAN");
-                addSourceMapping(span,child);
-                var text = DOM_createTextNode(document,child.nodeValue);
-                DOM_appendChild(span,text);
-                DOM_appendChild(p,span);
-            }
-            else if (child._is_text_span) {
-                DOM_appendChild(p,TextSpan_get(child));
-            }
+            var childAbs = ParagraphContent_getChild(child);
+            if (childAbs != null)
+                DOM_appendChild(p,childAbs);
         }
         return p;
     });
@@ -831,8 +861,10 @@ ODFInvalidError.prototype.toString = function() {
 
         OfficeDocumentStyles_parse();
         updateAutomaticStyles();
-
         convertToHTML();
+
+        Styles_discoverStyles();
+        PostponedActions_perform();
     });
 
 })();
