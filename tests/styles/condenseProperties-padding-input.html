@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+function performTest()
+{
+    var strings = new Array();
+
+    strings.push(Styles_getPropertiesText({
+        "padding-bottom": "1px",
+        "padding-left": "1px",
+        "padding-right": "1px",
+        "padding-top": "1px",
+    }));
+
+    strings.push(Styles_getPropertiesText({
+        "padding-bottom": "10px",
+        "padding-left": "1px",
+        "padding-right": "1px",
+        "padding-top": "1px",
+    }));
+
+    strings.push(Styles_getPropertiesText({
+        "padding-bottom": "1px",
+        "padding-left": "10px",
+        "padding-right": "1px",
+        "padding-top": "1px",
+    }));
+
+    strings.push(Styles_getPropertiesText({
+        "padding-bottom": "1px",
+        "padding-left": "1px",
+        "padding-right": "10px",
+        "padding-top": "1px",
+    }));
+
+    strings.push(Styles_getPropertiesText({
+        "padding-bottom": "1px",
+        "padding-left": "1px",
+        "padding-right": "1px",
+        "padding-top": "10px",
+    }));
+
+    strings.push(Styles_getPropertiesText({
+        "padding-left": "1px",
+        "padding-right": "1px",
+        "padding-top": "1px",
+    }));
+
+    strings.push(Styles_getPropertiesText({
+        "padding-bottom": "1px",
+        "padding-right": "1px",
+        "padding-top": "1px",
+    }));
+
+    strings.push(Styles_getPropertiesText({
+        "padding-bottom": "1px",
+        "padding-left": "1px",
+        "padding-top": "1px",
+    }));
+
+    strings.push(Styles_getPropertiesText({
+        "padding-bottom": "1px",
+        "padding-left": "1px",
+        "padding-right": "1px",
+    }));
+
+    return strings.join("\n");
+}
+</script>
+</head>
+<body>
+</body>
+</html>

@@ -71,11 +71,11 @@ var Styles_removeSelectionRule;
     var cssTextDirty = false;
 
     // private
-    var stringsAllEqual = trace(function stringsAllEqual(strings)
+    var stringsAllEqual = trace(function stringsAllEqual()
     {
-        var first = strings[0];
-        for (var i = 1; i < strings.length; i++) {
-            if (first != strings[i])
+        var first = arguments[0];
+        for (var i = 1; i < arguments.length; i++) {
+            if (first != arguments[i])
                 return false;
         }
         return true;
