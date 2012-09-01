@@ -462,8 +462,11 @@ var Formatting_formatInlineNode;
     });
 
     // private
-    var getAllProperties = trace(function getAllProperties(node)
+    var getAllProperties = trace(function _getAllProperties(node)
     {
+        if (node == null)
+            throw new Error("Node is not in tree");
+
         if (node == node.ownerDocument.body)
             return new Object();
 
