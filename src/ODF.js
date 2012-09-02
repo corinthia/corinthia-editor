@@ -565,12 +565,60 @@ ODFInvalidError.prototype.toString = function() {
         return ul;
     });
 
+    var TableTableCell_get = trace(function _TableTableCell_get(con)
+    {
+        var td = DOM_createElement(document,"TD");
+        addSourceMapping(td,con);
+        for (var child = con.firstChild; child != null; child = child.nextSibling) {
+            var childAbs = DefTextContentChild_get(child);
+            if (childAbs != null)
+                DOM_appendChild(td,childAbs);
+        }
+        return td;
+    });
+
+    var TableTableRow_get = trace(function _TableTableRow_get(con)
+    {
+        var tr = DOM_createElement(document,"TR");
+        addSourceMapping(tr,con);
+        for (var child = con.firstChild; child != null; child = child.nextSibling) {
+            if (child._is_table_table_cell)
+                DOM_appendChild(tr,TableTableCell_get(child));
+        }
+        return tr;
+    });
+
+    var TableTable_get = trace(function _TableTable_get(con)
+    {
+        var table = DOM_createElement(document,"TABLE");
+        addSourceMapping(table,con);
+
+        var tableTitle = null;
+        var tableDesc = null;
+        var tableSource = null;
+
+        for (var child = con.firstChild; child != null; child = child.nextSibling) {
+            if (child._is_table_title) {
+                tableTitle = getNodeText(child);
+            }
+            else if (child._is_table_desc) {
+                tableDesc = getNodeText(child);
+            }
+            else if (child._is_table_table_row) {
+                DOM_appendChild(table,TableTableRow_get(child));
+            }
+        }
+        return table;
+    });
+
     var DefTextContentChild_get = trace(function _DefTextContentChild_get(con)
     {
         if (con._is_text_p || con._is_text_h)
             return TextPH_get(con);
         else if (con._is_text_list)
             return TextList_get(con);
+        else if (con._is_table_table)
+            return TableTable_get(con);
         else
             return null;
     });
@@ -580,9 +628,9 @@ ODFInvalidError.prototype.toString = function() {
     {
         var body = DOM_createElement(document,"BODY");
         for (var child = con.firstChild; child != null; child = child.nextSibling) {
-            var abs = DefTextContentChild_get(child);
-            if (abs != null)
-                DOM_appendChild(body,abs);
+            var childAbs = DefTextContentChild_get(child);
+            if (childAbs != null)
+                DOM_appendChild(body,childAbs);
         }
         return body;
     });
