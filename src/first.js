@@ -4,6 +4,22 @@
 
 var trace;
 
+var OFFICE_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:office:1.0";
+var STYLE_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:style:1.0";
+var TEXT_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:text:1.0";
+var TABLE_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:table:1.0";
+var FO_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0";
+var SVG_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0";
+var XLINK_NAMESPACE = "http://www.w3.org/1999/xlink";
+
+var OFFICE_PREFIX = "office:";
+var STYLE_PREFIX = "style:";
+var TEXT_PREFIX = "text:";
+var TABLE_PREFIX = "table:";
+var FO_PREFIX = "fo:";
+var SVG_PREFIX = "svg:";
+var XLINK_PREFIX = "xlink:";
+
 (function() {
 
     function valueString(arg)
