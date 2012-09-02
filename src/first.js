@@ -4,6 +4,8 @@
 
 var trace;
 
+// ODF
+
 var OFFICE_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:office:1.0";
 var STYLE_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:style:1.0";
 var TEXT_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:text:1.0";
@@ -19,6 +21,10 @@ var TABLE_PREFIX = "table:";
 var FO_PREFIX = "fo:";
 var SVG_PREFIX = "svg:";
 var XLINK_PREFIX = "xlink:";
+
+// OOXML
+
+var WORD_NAMESPACE = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 
 (function() {
 

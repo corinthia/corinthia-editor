@@ -100,8 +100,6 @@ var Word_stylesXML;
     var docx = new Object();
     var documentLens;
 
-    var WORD_NAMESPACE = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
-
     function Run_get(con)
     {
         var rPr = firstChildElement(con);
@@ -567,11 +565,11 @@ var Word_stylesXML;
             assignShorthandProperties(child);
             if ((child.nodeType == Node.ELEMENT_NODE) &&
                 (child.namespaceURI == WORD_NAMESPACE)) {
-                node["_child"+child.localName] = child;
+                node["_child_"+child.localName] = child;
             }
         }
         if ((node.nodeType == Node.ELEMENT_NODE) && (node.namespaceURI == WORD_NAMESPACE)) {
-            node["_is"+node.localName] = true;
+            node["_is_"+node.localName] = true;
         }
     }
 
@@ -614,11 +612,42 @@ var Word_stylesXML;
         docx.numbering = readFun(wordDir+"/numbering.xml");
         docx.styles = readFun(wordDir+"/styles.xml");
         documentLens = new DocumentLens();
+
+        if (docx.styles != null) {
+            assignShorthandProperties(docx.styles.documentElement);
+            WordStyles_parseStyles(docx.styles.documentElement);
+        }
+
         convertToHTML();
     });
 
     var convertToHTML = trace(function convertToHTML()
     {
+        Selection_clear();
+
+        var absHTML = WordDocument_get(docx.document.documentElement);;
+
+        var absHead = null;
+        var absBody = null;
+        for (var child = absHTML.firstChild; child != null; child = child.nextSibling) {
+            if (DOM_upperName(child) == "HEAD")
+                absHead = child;
+            else if (DOM_upperName(child) == "BODY")
+                absBody = child;
+        }
+
+        if (absHead != null) {
+            while (absHead.firstChild != null)
+                DOM_appendChild(document.head,absHead.firstChild);
+        }
+
+        if (absBody != null) {
+            while (absBody.firstChild != null)
+                DOM_appendChild(document.body,absBody.firstChild);
+        }
+
+        return true;
+/*
         var html = documentLens.get(docx.document.documentElement);;
         var body = html.firstChild;
         var next;
@@ -626,6 +655,8 @@ var Word_stylesXML;
             next = child.nextSibling;
             DOM_appendChild(document.body,child);
         }
+
+*/
 /*
         debug("------------------- convertToHTML BEGIN ----------------------");
         printTree(document.documentElement);
@@ -636,8 +667,8 @@ var Word_stylesXML;
 
     Word_updateFromHTML = trace(function updateFromHTML()
     {
-        resetCaches();
-        documentLens.put(document.documentElement,docx.document.documentElement);
+//        resetCaches();
+//        documentLens.put(document.documentElement,docx.document.documentElement);
 
 /*
         if (window.PrettyPrinter != null) {
