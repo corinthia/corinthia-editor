@@ -99,20 +99,68 @@ function WordStyle()
         debug("WordBody_put: abs = "+nodeString(abs)+", con = "+nodeString(con));
     });
 
-//    var WordTbl_get = trace(function _WordTbl_get(con)
-//    {
-//    });
+    var WordTc_get = trace(function _WordTc_get(con)
+    {
+        var abs = DOM_createElement(document,"TD");
+        addSourceMapping(abs,con);
+        for (var child = con.firstChild; child != null; child = child.nextSibling) {
+            var childAbs = EG_BlockLevelEltsChild_get(child);
+            if (childAbs != null)
+                DOM_appendChild(abs,childAbs);
+        }
+        return abs;
+    });
 
-//    var WordTbl_put = trace(function _WordTbl_put(abs,con)
-//    {
-//    });
+    var WordTc_put = trace(function _WordTc_put(con)
+    {
+    });
+
+    var WordTr_get = trace(function _WordTr_get(con)
+    {
+        var abs = DOM_createElement(document,"TR");
+        addSourceMapping(abs,con);
+        for (var child = con.firstChild; child != null; child = child.nextSibling) {
+            if (child._is_tc) {
+                DOM_appendChild(abs,WordTc_get(child));
+            }
+        }
+        return abs;
+    });
+
+    var WordTr_put = trace(function _WordTr_put(con)
+    {
+    });
+
+    var WordTbl_get = trace(function _WordTbl_get(con)
+    {
+        var abs = DOM_createElement(document,"TABLE");
+        addSourceMapping(abs,con);
+        DOM_setAttribute(abs,"border","1"); // FIXME: temp
+        DOM_setAttribute(abs,"width","100%"); // FIXME: temp
+
+        if (con._child_tblPr != null) {
+        }
+        if (con._child_tblGrid != null) {
+        }
+
+        for (var child = con.firstChild; child != null; child = child.nextSibling) {
+            if (child._is_tr) {
+                DOM_appendChild(abs,WordTr_get(child)); 
+            }
+        }
+        return abs;
+    });
+
+    var WordTbl_put = trace(function _WordTbl_put(abs,con)
+    {
+    });
 
     var EG_BlockLevelEltsChild_isVisible = trace(function _EG_BlockLevelEltsChild_isVisible(con)
     {
         if (con._is_p)
             return true;
-//        else if (con._is_tbl)
-//            return WordTbl_get(con);
+        else if (con._is_tbl)
+            return true;
         else
             return false;
     });
@@ -121,8 +169,8 @@ function WordStyle()
     {
         if (con._is_p)
             return WordP_get(con);
-//        else if (con._is_tbl)
-//            return WordTbl_get(con);
+        else if (con._is_tbl)
+            return WordTbl_get(con);
         else
             return null;
     });
@@ -131,8 +179,8 @@ function WordStyle()
     {
         if (con._is_p)
             return WordP_put(abs,con);
-//        else if (con._is_tbl)
-//            return WordTbl_put(abs,con);
+        else if (con._is_tbl)
+            return WordTbl_put(abs,con);
         else
             return null;
     });
