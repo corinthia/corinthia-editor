@@ -1,5 +1,6 @@
 var WordRPR_toCSS;
 var WordRPR_updateFromCSS;
+var WordRPR_createFromCSS;
 var WordPPR_toCSS;
 var WordStyles_parseStyles;
 
@@ -92,6 +93,13 @@ var WordStyles_parseStyles;
                 DOM_appendChild(con,i);
             }
         }
+    });
+
+    WordRPR_createFromCSS = trace(function _WordRPR_createFromCSS(cssProperties,doc)
+    {
+        var rPr = DOM_createElementNS(doc,WORD_NAMESPACE,WORD_PREFIX+"rPr");
+        WordRPR_updateFromCSS(rPr,cssProperties);
+        return (rPr.firstChild != null) ? rPr : null;
     });
 
     // Paragraph properties

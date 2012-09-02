@@ -152,20 +152,25 @@ function WordStyle()
             for (var i = 0; i < leafNodes.length; i++) {
 
                 var leaf = leafNodes[i];
+                if (leaf.nodeType == Node.TEXT_NODE) {
+                    var r = DOM_createElementNS(doc,WORD_NAMESPACE,WORD_PREFIX+"r");
 
-                var r = DOM_createElementNS(doc,WORD_NAMESPACE,WORD_PREFIX+"r");
-                var rPr = DOM_createElementNS(doc,WORD_NAMESPACE,WORD_PREFIX+"rPr");
-                WordRPR_updateFromCSS(rPr,Formatting_getAllNodeProperties(leaf));
-                DOM_appendChild(r,rPr);
-                var t = DOM_createElementNS(doc,WORD_NAMESPACE,WORD_PREFIX+"t");
-                var str = getNodeText(leaf);
-                if (str.trim() != str)
-                    DOM_setAttributeNS(t,XML_NAMESPACE,"xml:space","preserve");
-                var text = DOM_createTextNode(doc,str);
-                DOM_appendChild(t,text);
-                DOM_appendChild(r,t);
-                DOM_appendChild(p,r);
+                    var rPr = WordRPR_createFromCSS(Formatting_getAllNodeProperties(leaf),doc);
+                    if (rPr != null)
+                        DOM_appendChild(r,rPr);
 
+                    var t = DOM_createElementNS(doc,WORD_NAMESPACE,WORD_PREFIX+"t");
+                    if (leaf.nodeValue.trim() != leaf.nodeValue)
+                        DOM_setAttributeNS(t,XML_NAMESPACE,"xml:space","preserve");
+                    DOM_appendChild(t,DOM_createTextNode(doc,leaf.nodeValue));
+
+                    DOM_appendChild(r,t);
+                    DOM_appendChild(p,r);
+                }
+                else {
+                    // FIXME: support images and any other new types of leaf nodes (e.g.
+                    // references)
+                }
             }
 
             return p;
