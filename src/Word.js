@@ -5,13 +5,13 @@ var Word_updateFromHTML;
 var Word_getHTML;
 var Word_putHTML;
 
-var Word_document;
-var Word_numbering;
-var Word_styles;
-
 var Word_documentXML;
 var Word_numberingXML;
 var Word_stylesXML;
+
+var Word_documentDoc;
+var Word_numberingDoc;
+var Word_stylesDoc;
 
 (function() {
 
@@ -605,17 +605,17 @@ var Word_stylesXML;
             wordDir = filename+"/word";
             readFun = readFileTest;
         }
-        docx.document = readFun(wordDir+"/document.xml");
-        if (docx.document == null)
+        Word_documentDoc = readFun(wordDir+"/document.xml");
+        if (Word_documentDoc == null)
             throw new Error("Cannot read "+wordDir+"/document.xml")
-        assignShorthandProperties(docx.document.documentElement);
-        docx.numbering = readFun(wordDir+"/numbering.xml");
-        docx.styles = readFun(wordDir+"/styles.xml");
+        assignShorthandProperties(Word_documentDoc.documentElement);
+        Word_numberingDoc = readFun(wordDir+"/numbering.xml");
+        Word_stylesDoc = readFun(wordDir+"/styles.xml");
         documentLens = new DocumentLens();
 
-        if (docx.styles != null) {
-            assignShorthandProperties(docx.styles.documentElement);
-            WordStyles_parseStyles(docx.styles.documentElement);
+        if (Word_stylesDoc != null) {
+            assignShorthandProperties(Word_stylesDoc.documentElement);
+            WordStyles_parseStyles(Word_stylesDoc.documentElement);
         }
 
         convertToHTML();
@@ -625,7 +625,7 @@ var Word_stylesXML;
     {
         Selection_clear();
 
-        var absHTML = WordDocument_get(docx.document.documentElement);;
+        var absHTML = WordDocument_get(Word_documentDoc.documentElement);;
 
         var absHead = null;
         var absBody = null;
@@ -648,7 +648,7 @@ var Word_stylesXML;
 
         return true;
 /*
-        var html = documentLens.get(docx.document.documentElement);;
+        var html = documentLens.get(Word_documentDoc.documentElement);;
         var body = html.firstChild;
         var next;
         for (var child = body.firstChild; child != null; child = next) {
@@ -668,7 +668,16 @@ var Word_stylesXML;
     Word_updateFromHTML = trace(function updateFromHTML()
     {
 //        resetCaches();
-//        documentLens.put(document.documentElement,docx.document.documentElement);
+//        documentLens.put(document.documentElement,Word_documentDoc.documentElement);
+
+        debug("");
+        debug("");
+        debug("");
+        assignShorthandProperties(Word_documentDoc.documentElement);
+        WordDocument_put(document.documentElement,Word_documentDoc.documentElement);
+        debug("");
+        debug("");
+        debug("");
 
 /*
         if (window.PrettyPrinter != null) {
@@ -676,7 +685,7 @@ var Word_stylesXML;
             printTree(document.documentElement);
             debug("------------------- updateFromHTML END ----------------------");
             debug("updateFromHTML: word document:");
-            debug(PrettyPrinter.getHTML(docx.document.documentElement,
+            debug(PrettyPrinter.getHTML(Word_documentDoc.documentElement,
                                         { preserveCase: true, separateLines: true }));
         }
 */
@@ -686,12 +695,12 @@ var Word_stylesXML;
     Word_getHTML = trace(function getHTML()
     {
         resetCaches();
-        return documentLens.get(docx.document.documentElement);
+        return documentLens.get(Word_documentDoc.documentElement);
     });
 
     Word_putHTML = trace(function putHTML(html)
     {
-        documentLens.put(html,docx.document.documentElement);
+        documentLens.put(html,Word_documentDoc.documentElement);
     });
 
     function serialize(xmlDocument)
@@ -702,34 +711,22 @@ var Word_stylesXML;
             return new XMLSerializer().serializeToString(xmlDocument);
     }
 
-    Word_document = function() {
-        return docx.document;
-    };
-
-    Word_numbering = function() {
-        return docx.numbering;
-    };
-
-    Word_styles = function() {
-        return docx.styles;
-    };
-
     // public
     Word_documentXML = trace(function documentXML()
     {
-        return serialize(docx.document);
+        return serialize(Word_documentDoc);
     });
 
     // public
     Word_numberingXML = trace(function numberingXML()
     {
-        return serialize(docx.numbering);
+        return serialize(Word_numberingDoc);
     });
 
     // public
     Word_stylesXML = trace(function stylesXML()
     {
-        return serialize(docx.styles);
+        return serialize(Word_stylesDoc);
     });
 
 })();

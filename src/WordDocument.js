@@ -96,6 +96,7 @@ function WordStyle()
 
     var WordP_put = trace(function _WordP_put(abs,con)
     {
+        debug("WordBody_put: abs = "+nodeString(abs)+", con = "+nodeString(con));
     });
 
 //    var WordTbl_get = trace(function _WordTbl_get(con)
@@ -106,9 +107,18 @@ function WordStyle()
 //    {
 //    });
 
+    var EG_BlockLevelEltsChild_isVisible = trace(function _EG_BlockLevelEltsChild_isVisible(con)
+    {
+        if (con._is_p)
+            return true;
+//        else if (con._is_tbl)
+//            return WordTbl_get(con);
+        else
+            return false;
+    });
+
     var EG_BlockLevelEltsChild_get = trace(function _EG_BlockLevelEltsChild_get(con)
     {
-//        debug("EG_BlockLevelEltsChild_get: con "+nodeString(con));
         if (con._is_p)
             return WordP_get(con);
 //        else if (con._is_tbl)
@@ -116,6 +126,32 @@ function WordStyle()
         else
             return null;
     });
+
+    var EG_BlockLevelEltsChild_put = trace(function _EG_BlockLevelEltsChild_put(abs,con)
+    {
+        if (con._is_p)
+            return WordP_put(abs,con);
+//        else if (con._is_tbl)
+//            return WordTbl_put(abs,con);
+        else
+            return null;
+    });
+
+    var EG_BlockLevelEltsChild_create = trace(function _EG_BlockLevelEltsChild_put(abs,doc)
+    {
+        if (isWhitespaceTextNode(abs))
+            return null;
+        debug("EG_BlockLevelEltsChild_create: "+nodeString(abs));
+        debug("EG_BlockLevelEltsChild_create: "+JSON.stringify(getNodeText(abs)));
+        throw new Error("EG_BlockLevelEltsChild_create not yet implemented");
+    });
+
+    var EG_BlockLevelEltsChildLens = {
+        isVisible: EG_BlockLevelEltsChild_isVisible,
+        put: EG_BlockLevelEltsChild_put,
+        create: EG_BlockLevelEltsChild_create,
+        getSource: lookupSourceMapping,
+    };
 
     var WordBody_get = trace(function _WordBody_get(con)
     {
@@ -133,6 +169,12 @@ function WordStyle()
 
     var WordBody_put = trace(function _WordBody_put(abs,con)
     {
+        debug("WordBody_put: abs = "+nodeString(abs)+", con = "+nodeString(con));
+        var sectPr = con._child_sectPr;
+        BDT_Container_put(abs,con,EG_BlockLevelEltsChildLens);
+        // Make sure the sectPr element is at the end
+        if ((sectPr != null) && (sectPr.parentNode == con))
+            DOM_appendChild(con,sectPr);
     });
 
     WordDocument_get = trace(function _WordDocument_get(con)
@@ -144,6 +186,13 @@ function WordStyle()
 
     WordDocument_put = trace(function _WordDocument_put(abs,con)
     {
+        debug("WordDocument_put: abs = "+nodeString(abs)+", con = "+nodeString(con));
+        for (var absChild = abs.firstChild; absChild != null; absChild = absChild.nextSibling) {
+            if (DOM_upperName(absChild) == "BODY") {
+                WordBody_put(absChild,con._child_body);
+                return;
+            }
+        }
     });
 
 })();

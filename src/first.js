@@ -4,6 +4,10 @@
 
 var trace;
 
+// FIXME: The _PREFIX variables below must be replaced with functions that return the
+// appropriate namespace prefix for the document in question (since we can't rely on the
+// values that LibreOffice/MS Word happen to use by default)
+
 // ODF
 
 var OFFICE_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:office:1.0";
@@ -25,6 +29,7 @@ var XLINK_PREFIX = "xlink:";
 // OOXML
 
 var WORD_NAMESPACE = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
+var WORD_PREFIX = "w";
 
 (function() {
 
