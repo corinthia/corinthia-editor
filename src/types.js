@@ -247,3 +247,12 @@ function isSpecialBlockNode(node)
 {
     return (isTableNode(node) || isFigureNode(node) || isTOCNode(node));
 }
+
+function isContentLeafNode(node)
+{
+    if (node.nodeType == Node.TEXT_NODE)
+        return true;
+    if (DOM_upperName(node) == "IMG")
+        return true;
+    return false;
+}

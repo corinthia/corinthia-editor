@@ -8,6 +8,8 @@ var trace;
 // appropriate namespace prefix for the document in question (since we can't rely on the
 // values that LibreOffice/MS Word happen to use by default)
 
+var XML_NAMESPACE = "http://www.w3.org/XML/1998/namespace";
+
 // ODF
 
 var OFFICE_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:office:1.0";
@@ -29,7 +31,7 @@ var XLINK_PREFIX = "xlink:";
 // OOXML
 
 var WORD_NAMESPACE = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
-var WORD_PREFIX = "w";
+var WORD_PREFIX = "w:";
 
 (function() {
 

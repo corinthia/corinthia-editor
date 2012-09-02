@@ -8,6 +8,7 @@ var Formatting_splitAroundSelection;
 var Formatting_mergeWithNeighbours;
 var Formatting_mergeRange;
 var Formatting_paragraphTextUpToPosition;
+var Formatting_getAllNodeProperties;
 var Formatting_getFormatting;
 var Formatting_pushDownInlineProperties;
 var Formatting_applyFormattingChanges;
@@ -368,7 +369,7 @@ var Formatting_formatInlineNode;
         var commonProperties = null;
         for (var i = 0; i < leafNodes.length; i++) {
             if (!isWhitespaceTextNode(leafNodes[i]) || empty) {
-                var leafNodeProperties = getAllProperties(leafNodes[i]);
+                var leafNodeProperties = Formatting_getAllNodeProperties(leafNodes[i]);
                 if (leafNodeProperties["uxwrite-style"] == null)
                     leafNodeProperties["uxwrite-style"] = Keys.NONE_STYLE;
                 if (commonProperties == null)
@@ -461,8 +462,8 @@ var Formatting_formatInlineNode;
         }
     });
 
-    // private
-    var getAllProperties = trace(function _getAllProperties(node)
+    // public
+    Formatting_getAllNodeProperties = trace(function _getAllNodeProperties(node)
     {
         if (node == null)
             throw new Error("Node is not in tree");
@@ -470,7 +471,7 @@ var Formatting_formatInlineNode;
         if (node == node.ownerDocument.body)
             return new Object();
 
-        var properties = getAllProperties(node.parentNode);
+        var properties = Formatting_getAllNodeProperties(node.parentNode);
 
         if (node.nodeType == Node.ELEMENT_NODE) {
             // Note: Style names corresponding to element names must be in lowercase, because
@@ -1029,7 +1030,7 @@ var Formatting_formatInlineNode;
 
             // Set properties on inline nodes
             for (var i = 0; i < outermost.length; i++) {
-                var existing = getAllProperties(outermost[i]);
+                var existing = Formatting_getAllNodeProperties(outermost[i]);
                 var toSet = new Object();
                 for (var name in inlineProperties) {
                     if ((inlineProperties[name] != null) &&

@@ -120,6 +120,21 @@ function isNonWhitespaceTextNode(node)
     return !isWhitespaceString(node.nodeValue);
 }
 
+function getContentLeafNodes(root)
+{
+    var leafNodes = new Array();
+    recurse(root);
+    return leafNodes;
+
+    function recurse(node)
+    {
+        if (isContentLeafNode(node))
+            leafNodes.push(node);
+        for (var child = node.firstChild; child != null; child = child.nextSibling)
+            recurse(child);
+    }
+}
+
 function printTree(node,indent,offset)
 {
     if (indent == null)

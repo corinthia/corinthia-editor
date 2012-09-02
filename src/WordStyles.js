@@ -1,4 +1,5 @@
 var WordRPR_toCSS;
+var WordRPR_updateFromCSS;
 var WordPPR_toCSS;
 var WordStyles_parseStyles;
 
@@ -75,6 +76,22 @@ var WordStyles_parseStyles;
         }
         if (node._child_shd != null)
             WordShd_toCSS(style,node._child_shd);
+    });
+
+    WordRPR_updateFromCSS = trace(function _WordRPR_updateFromCSS(con,cssProperties)
+    {
+        if (cssProperties["font-weight"] == "bold") {
+            if (con._child_b == null) {
+                var b = DOM_createElementNS(con.ownerDocument,WORD_NAMESPACE,WORD_PREFIX+"b");
+                DOM_appendChild(con,b);
+            }
+        }
+        if (cssProperties["font-style"] == "italic") {
+            if (con._child_i == null) {
+                var i = DOM_createElementNS(con.ownerDocument,WORD_NAMESPACE,WORD_PREFIX+"i");
+                DOM_appendChild(con,i);
+            }
+        }
     });
 
     // Paragraph properties

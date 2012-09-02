@@ -141,9 +141,37 @@ function WordStyle()
     {
         if (isWhitespaceTextNode(abs))
             return null;
-        debug("EG_BlockLevelEltsChild_create: "+nodeString(abs));
-        debug("EG_BlockLevelEltsChild_create: "+JSON.stringify(getNodeText(abs)));
-        throw new Error("EG_BlockLevelEltsChild_create not yet implemented");
+
+        if (isParagraphNode(abs)) {
+            debug("EG_BlockLevelEltsChild_create "+nodeString(abs));
+            printTree(abs);
+
+            var p = DOM_createElementNS(doc,WORD_NAMESPACE,WORD_PREFIX+"p");
+
+            var leafNodes = getContentLeafNodes(abs);
+            for (var i = 0; i < leafNodes.length; i++) {
+
+                var leaf = leafNodes[i];
+
+                var r = DOM_createElementNS(doc,WORD_NAMESPACE,WORD_PREFIX+"r");
+                var rPr = DOM_createElementNS(doc,WORD_NAMESPACE,WORD_PREFIX+"rPr");
+                WordRPR_updateFromCSS(rPr,Formatting_getAllNodeProperties(leaf));
+                DOM_appendChild(r,rPr);
+                var t = DOM_createElementNS(doc,WORD_NAMESPACE,WORD_PREFIX+"t");
+                var str = getNodeText(leaf);
+                if (str.trim() != str)
+                    DOM_setAttributeNS(t,XML_NAMESPACE,"xml:space","preserve");
+                var text = DOM_createTextNode(doc,str);
+                DOM_appendChild(t,text);
+                DOM_appendChild(r,t);
+                DOM_appendChild(p,r);
+
+            }
+
+            return p;
+        }
+
+        return null;
     });
 
     var EG_BlockLevelEltsChildLens = {
