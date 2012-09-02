@@ -1,5 +1,8 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
+var Style_create;
+var Rule_create;
+
 var Styles_getPropertiesText;
 var Styles_getCSSText;
 var Styles_scheduleApplyCSSTextChanges;
@@ -65,6 +68,16 @@ var Styles_removeSelectionRule;
         this.properties = properties;
         this.nilTextIfEmpty = false;
     }
+
+    Style_create = trace(function Style_create(styleId,displayName,rules)
+    {
+        return new Style(styleId,displayName,rules);
+    });
+
+    Rule_create = trace(function Rule_create(selector,properties)
+    {
+        return new Rule(selector,properties);
+    });
 
     var stylesById = null;
     var documentStyleElement = null;

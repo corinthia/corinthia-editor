@@ -1,3 +1,5 @@
+// Copyright (c) 2012 UX Productivity Pty Ltd. All rights reserved.
+
 var ODF_updateFromHTML;
 var ODF_contentXML;
 var ODF_metaXML;

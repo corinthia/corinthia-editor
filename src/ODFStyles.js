@@ -1,11 +1,10 @@
+// Copyright (c) 2012 UX Productivity Pty Ltd. All rights reserved.
+
 var ODFAutomaticStyles_add;
 var ODFAutomaticStyles_get;
 
 var ODFStyle_create;
 var ODFStyle_print;
-var ODFStyle_getCSSText;
-
-var ODFStyleSheet_getCSSText;
 
 var OfficeFontFaceDecls_parseStyles;
 var OfficeStyles_parseStyles;
@@ -406,22 +405,13 @@ var OfficeDocumentStyles_parseStyles;
         }
     });
 
-    ODFStyle_getCSSText = trace(function _ODFStyle_getCSSText(style)
+    var ODFStyle_toStyle = trace(function _ODFStyle_toStyle(style)
     {
-        debug("getting CSS text for "+style.selector);
-        return style.selector+" {\n"+Styles_getPropertiesText(style.cssProperties)+"}\n";
+        var uxrule = Rule_create(style.selector,style.cssProperties);
+        var uxstyle = Style_create(style.selector,style.selector,{ base: uxrule });
+        return uxstyle;
     });
 
-    ODFStyleSheet_getCSSText = trace(function _ODFStyleSheet_getCSSText()
-    {
-        var strings = new Array();
-        var names = Object.getOwnPropertyNames(odfStyles).sort();
-        for (var i = 0; i < names.length; i++) {
-            var style = odfStyles[names[i]];
-            strings.push(ODFStyle_getCSSText(style));
-        }
-        return strings.join("");
-    });
 
 
 
@@ -503,6 +493,7 @@ var OfficeDocumentStyles_parseStyles;
                 if ((name != null) && (family != null)) {
                     debug("found style "+name+", family "+family);
                     odfStyles[name] = ODFStyle_create(name,family,child);
+                    Styles_setStyle(ODFStyle_toStyle(odfStyles[name]));
                 }
             }
         }

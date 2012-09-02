@@ -1,3 +1,5 @@
+// Copyright (c) 2012 UX Productivity Pty Ltd. All rights reserved.
+
 var OfficeDocumentContent_get;
 var OfficeDocumentContent_put;
 var OfficeDocumentContent_parseStyles;
@@ -281,15 +283,6 @@ var OfficeDocumentContent_parseStyles;
             throw new ODFInvalidError("No office:body element in content.xml");
 
         var html = DOM_createElement(document,"HTML");
-
-
-        var head = DOM_createElement(document,"HEAD");
-        var style = DOM_createElement(document,"STYLE");
-        var styleContent = ODFStyleSheet_getCSSText();
-        DOM_appendChild(style,DOM_createTextNode(document,styleContent));
-        DOM_appendChild(head,style);
-        DOM_appendChild(html,head);
-
         DOM_appendChild(html,OfficeBody_get(con._child_office_body));
         return html;
     });
