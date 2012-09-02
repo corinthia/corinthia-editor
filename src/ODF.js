@@ -56,6 +56,7 @@ ODFInvalidError.prototype.toString = function() {
     var TABLE_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:table:1.0";
     var FO_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0";
     var SVG_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0";
+    var XLINK_NAMESPACE = "http://www.w3.org/1999/xlink";
 
     var OFFICE_PREFIX = "office:";
     var STYLE_PREFIX = "style:";
@@ -63,6 +64,7 @@ ODFInvalidError.prototype.toString = function() {
     var TABLE_PREFIX = "table:";
     var FO_PREFIX = "fo:";
     var SVG_PREFIX = "svg:";
+    var XLINK_PREFIX = "xlink:";
 
     var automaticStyles = null;
 
@@ -446,6 +448,28 @@ ODFInvalidError.prototype.toString = function() {
     });
 */
 
+    var TextA_get = trace(function _TextA_get(con)
+    {
+        var href = DOM_getStringAttributeNS(con,XLINK_NAMESPACE,"href");
+        var abs = DOM_createElement(document,"A");
+        DOM_setAttribute(abs,"href",href);
+        for (var child = con.firstChild; child != null; child = child.nextSibling) {
+            var childAbs = ParagraphContent_getChild(child);
+            if (childAbs != null)
+                DOM_appendChild(abs,childAbs);
+        }
+        return abs;
+    });
+
+    var ParagraphContentOrHyperlink_getChild =
+        trace(function _ParagraphContentOrHyperlink_getChild(con)
+    {
+        if (con._is_text_a)
+            return TextA_get(con);
+        else
+            return ParagraphContent_getChild(con);
+    });
+
     var ParagraphContent_getChild = trace(function _ParagraphContent_getChild(con)
     {
         if (con.nodeType == Node.TEXT_NODE)
@@ -462,15 +486,16 @@ ODFInvalidError.prototype.toString = function() {
         var span = DOM_createElement(document,"SPAN");
         addSourceMapping(span,con);
 
+        // ODF Spec: in the context of <text:span>, the text:style-name attribute specifies style
+        // for span which shall be a style with family of text.
         var styleName = DOM_getAttributeNS(con,TEXT_NAMESPACE,"style-name");
-        var style = automaticStyles[styleName];
-        if (style != null)
-            DOM_setStyleProperties(span,style.cssProperties);
+        if (automaticStyles[styleName] != null)
+            DOM_setStyleProperties(span,automaticStyles[styleName].cssProperties);
         else
             DOM_setAttribute(span,"class",styleName);
 
         for (var child = con.firstChild; child != null; child = child.nextSibling) {
-            var childAbs = ParagraphContent_getChild(child);
+            var childAbs = ParagraphContentOrHyperlink_getChild(child);
             if (childAbs != null)
                 DOM_appendChild(span,childAbs);
         }
@@ -497,22 +522,57 @@ ODFInvalidError.prototype.toString = function() {
         addSourceMapping(p,con);
 
         var styleName = DOM_getAttributeNS(con,TEXT_NAMESPACE,"style-name");
-        var style = automaticStyles[styleName];
-        if (style != null) {
-            DOM_setStyleProperties(p,style.cssProperties);
-        }
-        else {
-            // FIXME: only do this if it's a paragraph style
-            // FIXME: what happens in the case of duplicate styles?
+        if (automaticStyles[styleName] != null)
+            DOM_setStyleProperties(p,automaticStyles[styleName].cssProperties);
+        else
             DOM_setAttribute(p,"class",styleName);
-        }
 
         for (var child = con.firstChild; child != null; child = child.nextSibling) {
-            var childAbs = ParagraphContent_getChild(child);
+            var childAbs = ParagraphContentOrHyperlink_getChild(child);
             if (childAbs != null)
                 DOM_appendChild(p,childAbs);
         }
         return p;
+    });
+
+    var TextListItem_get = trace(function _TextListItem_get(con)
+    {
+        var li = DOM_createElement(document,"LI");
+        addSourceMapping(li,con);
+        for (var child = con.firstChild; child != null; child = child.nextSibling) {
+            if (child._is_text_p || child._is_text_h)
+                DOM_appendChild(li,TextPH_get(child));
+            else if (child._is_text_list)
+                DOM_appendChild(li,TextList_get(child));
+        }
+        return li;
+    });
+
+    var TextList_get = trace(function _TextList_get(con)
+    {
+        // All attributes are optional
+        var styleName = DOM_getAttributeNS(con,TEXT_NAMESPACE,"style-name");
+        var continueNumbering = DOM_getAttributeNS(con,TEXT_NAMESPACE,"continue-numbering");
+        var continueList = DOM_getAttributeNS(con,TEXT_NAMESPACE,"continue-list");
+
+        var ul = DOM_createElement(document,"UL");
+        addSourceMapping(ul,con);
+        for (var child = con.firstChild; child != null; child = child.nextSibling) {
+            if (child._is_text_list_item) {
+                DOM_appendChild(ul,TextListItem_get(child));
+            }
+        }
+        return ul;
+    });
+
+    var DefTextContentChild_get = trace(function _DefTextContentChild_get(con)
+    {
+        if (con._is_text_p || con._is_text_h)
+            return TextPH_get(con);
+        else if (con._is_text_list)
+            return TextList_get(con);
+        else
+            return null;
     });
 
     // office:text
@@ -520,9 +580,9 @@ ODFInvalidError.prototype.toString = function() {
     {
         var body = DOM_createElement(document,"BODY");
         for (var child = con.firstChild; child != null; child = child.nextSibling) {
-            if (child._is_text_p || child._is_text_h) {
-                DOM_appendChild(body,TextPH_get(child));
-            }
+            var abs = DefTextContentChild_get(child);
+            if (abs != null)
+                DOM_appendChild(body,abs);
         }
         return body;
     });
