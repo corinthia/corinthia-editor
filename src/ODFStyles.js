@@ -7,11 +7,11 @@ var ODFStyle_getCSSText;
 
 var ODFStyleSheet_getCSSText;
 
-var OfficeFontFaceDecls_parse;
-var OfficeStyles_parse;
-var OfficeAutomaticStyles_parse;
-var OfficeMasterStyles_parse;
-var OfficeDocumentStyles_parse;
+var OfficeFontFaceDecls_parseStyles;
+var OfficeStyles_parseStyles;
+var OfficeAutomaticStyles_parseStyles;
+var OfficeMasterStyles_parseStyles;
+var OfficeDocumentStyles_parseStyles;
 
 (function() {
 
@@ -455,11 +455,6 @@ var OfficeDocumentStyles_parse;
         this.familyGeneric = DOM_getAttributeNS(node,SVG_NAMESPACE,"font-family-generic");
         this.pitch = DOM_getAttributeNS(node,SVG_NAMESPACE,"font-pitch");
         this.adornments = DOM_getAttributeNS(node,SVG_NAMESPACE,"font-adornments");
-//        debug("Found font face:");
-//        debug("    family = "+this.family);
-//        debug("    familyGeneric = "+this.familyGeneric);
-//        debug("    pitch = "+this.pitch);
-//        debug("    adornments = "+this.adornments);
     }
 
     // style:font-face
@@ -487,7 +482,7 @@ var OfficeDocumentStyles_parse;
 
 
     // office:font-face-decls
-    OfficeFontFaceDecls_parse = trace(function _OfficeFontFaceDecls_parse(con)
+    OfficeFontFaceDecls_parseStyles = trace(function _OfficeFontFaceDecls_parseStyles(con)
     {
         for (var child = con.firstChild; child != null; child = child.nextSibling) {
             debug("OfficeFontFaceDecls_parse: child "+nodeString(child));
@@ -498,7 +493,7 @@ var OfficeDocumentStyles_parse;
     });
 
     // office:styles
-    OfficeStyles_parse = trace(function _OfficeStyles_parse(con)
+    OfficeStyles_parseStyles = trace(function _OfficeStyles_parseStyles(con)
     {
         for (var child = con.firstChild; child != null; child = child.nextSibling) {
             debug("OfficeStyles_parse: child "+nodeString(child));
@@ -514,15 +509,20 @@ var OfficeDocumentStyles_parse;
     });
 
     // office:automatic-styles
-    OfficeAutomaticStyles_parse = trace(function _OfficeAutomaticStyles_parse(con)
+    OfficeAutomaticStyles_parseStyles = trace(function _OfficeAutomaticStyles_parseStyles(con)
     {
         for (var child = con.firstChild; child != null; child = child.nextSibling) {
-            debug("OfficeAutomaticStyles_parse: child "+nodeString(child));
+            if (child._is_style_style) {
+                var name = DOM_getAttributeNS(child,STYLE_NAMESPACE,"name");
+                var family = DOM_getAttributeNS(child,STYLE_NAMESPACE,"family");
+                if ((name != null) && (family != null))
+                    ODFAutomaticStyles_add(name,family,child);
+            }
         }
     });
 
     // office:master-styles
-    OfficeMasterStyles_parse = trace(function _OfficeMasterStyles_parse(con)
+    OfficeMasterStyles_parseStyles = trace(function _OfficeMasterStyles_parseStyles(con)
     {
         for (var child = con.firstChild; child != null; child = child.nextSibling) {
             debug("OfficeMasterStyles_parse: child "+nodeString(child));
@@ -530,22 +530,22 @@ var OfficeDocumentStyles_parse;
     });
 
     // office:document-styles
-    OfficeDocumentStyles_parse = trace(function _OfficeDocumentStyles_parse(root)
+    OfficeDocumentStyles_parseStyles = trace(function _OfficeDocumentStyles_parseStyles(root)
     {
         if ((root.namespaceURI != OFFICE_NAMESPACE) || (root.localName != "document-styles"))
             throw new ODFInvalidError("Invalid root element in styles.xml");
 
         if (root._child_office_font_face_decls != null)
-            OfficeFontFaceDecls_parse(root._child_office_font_face_decls);
+            OfficeFontFaceDecls_parseStyles(root._child_office_font_face_decls);
 
         if (root._child_office_styles != null)
-            OfficeStyles_parse(root._child_office_styles);
+            OfficeStyles_parseStyles(root._child_office_styles);
 
         if (root._child_office_automatic_styles != null)
-            OfficeAutomaticStyles_parse(root._child_office_automatic_styles);
+            OfficeAutomaticStyles_parseStyles(root._child_office_automatic_styles);
 
         if (root._child_office_master_styles != null)
-            OfficeMasterStyles_parse(root._child_office_master_styles);
+            OfficeMasterStyles_parseStyles(root._child_office_master_styles);
     });
 
 })();

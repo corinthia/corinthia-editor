@@ -1,5 +1,6 @@
 var OfficeDocumentContent_get;
 var OfficeDocumentContent_put;
+var OfficeDocumentContent_parseStyles;
 
 (function() {
 
@@ -306,6 +307,14 @@ var OfficeDocumentContent_put;
         if (body == null)
             throw new Error("Could not find body element");
         OfficeBody_put(body,con._child_office_body);
+    });
+
+    OfficeDocumentContent_parseStyles = trace(function _OfficeDocumentContent_parseStyles(root)
+    {
+        if (root._child_office_font_face_decls != null)
+            OfficeFontFaceDecls_parseStyles(root._child_office_font_face_decls);
+        if (root._child_office_automatic_styles != null)
+            OfficeAutomaticStyles_parseStyles(root._child_office_automatic_styles);
     });
 
 })();

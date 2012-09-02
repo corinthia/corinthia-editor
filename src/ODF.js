@@ -22,8 +22,6 @@ ODFInvalidError.prototype.toString = function() {
 
 (function() {
 
-    var odf = new Object();
-
     var convertToHTML = trace(function convertToHTML()
     {
         Selection_clear();
@@ -38,9 +36,6 @@ ODFInvalidError.prototype.toString = function() {
             else if (DOM_upperName(child) == "BODY")
                 absBody = child;
         }
-
-//        DOM_deleteAllChildren(document.head);
-//        DOM_deleteAllChildren(document.body);
 
         if (absHead != null) {
             while (absHead.firstChild != null)
@@ -112,23 +107,6 @@ ODFInvalidError.prototype.toString = function() {
         }
     });
 
-    var updateAutomaticStyles = trace(function _updateAutomaticStyles()
-    {
-        var root = ODF_contentDoc.documentElement;
-        for (var child = root.firstChild; child != null; child = child.nextSibling) {
-            if (child._is_office_automatic_styles) {
-                for (gc = child.firstChild; gc != null; gc = gc.nextSibling) {
-                    if (gc._is_style_style) {
-                        var name = DOM_getAttributeNS(gc,STYLE_NAMESPACE,"name");
-                        var family = DOM_getAttributeNS(gc,STYLE_NAMESPACE,"family");
-                        if ((name != null) && (family != null))
-                            ODFAutomaticStyles_add(name,family,gc);
-                    }
-                }
-            }
-        }
-    });
-
     var loadDoc = trace(function _loadDoc(readFun,baseDir,filename)
     {
         var doc = readFun(baseDir+filename);
@@ -159,8 +137,8 @@ ODFInvalidError.prototype.toString = function() {
         ODF_stylesDoc = loadDoc(readFun,baseDir,"styles.xml");
 
 
-        OfficeDocumentStyles_parse(ODF_stylesDoc.documentElement);
-        updateAutomaticStyles();
+        OfficeDocumentStyles_parseStyles(ODF_stylesDoc.documentElement);
+        OfficeDocumentContent_parseStyles(ODF_contentDoc.documentElement);
         convertToHTML();
 
         Styles_discoverStyles();
