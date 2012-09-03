@@ -306,3 +306,36 @@ function readFileTest(filename)
     DOM_assignNodeIds(xml.documentElement);
     return xml;
 }
+
+function fromTokenList(value)
+{
+    var result = new Object();
+    if (value != null) {
+        var components = value.toLowerCase().split(/\s+/);
+        for (var i = 0; i < components.length; i++) {
+            if (components[i].length > 0)
+                result[components[i]] = true;
+        }
+    }
+    return result;
+}
+
+function toTokenList(properties)
+{
+    var tokens = new Array();
+
+    if (properties != null) {
+        // Sort the names to ensure deterministic results in test cases
+        var names = Object.getOwnPropertyNames(properties).sort();
+        for (var i = 0; i < names.length; i++) {
+            var name = names[i];
+            if (properties[name])
+                tokens.push(name);
+        }
+    }
+
+    if (tokens.length == null)
+        return null;
+    else
+        return tokens.join(" ");
+}

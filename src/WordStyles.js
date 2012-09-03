@@ -44,12 +44,23 @@ var WordStyles_parseStyles;
             style.cssProperties["background-color"] = "#"+fill;
     });
 
+    WordB_toCSS = trace(function _WordB_toCSS(style,node)
+    {
+        // val: type xsd:boolean;  {true, false, 1, 0}.
+        var val = DOM_getAttributeNS(node,WORD_NAMESPACE,"val");
+        if ((val == "false") || (val == "0"))
+            style.cssProperties["font-weight"] = "normal";
+        else
+            style.cssProperties["font-weight"] = "bold";
+    });
+
     // Run properties
     WordRPR_toCSS = trace(function _WordRPR_toCSS(style,node)
     {
         // w_EG_RPrBase
         if (node._child_b)
-            style.cssProperties["font-weight"] = "bold";
+            WordB_toCSS(style,node._child_b);
+
         if (node._child_i)
             style.cssProperties["font-style"] = "italic";
         if (node._child_u)
@@ -79,19 +90,86 @@ var WordStyles_parseStyles;
             WordShd_toCSS(style,node._child_shd);
     });
 
-    WordRPR_updateFromCSS = trace(function _WordRPR_updateFromCSS(con,cssProperties)
+    function getChild(parent,name)
     {
-        if (cssProperties["font-weight"] == "bold") {
-            if (con._child_b == null) {
-                var b = DOM_createElementNS(con.ownerDocument,WORD_NAMESPACE,WORD_PREFIX+"b");
-                DOM_appendChild(con,b);
-            }
+        var property = "_child_"+name;
+        if (parent[property] == null) {
+            var child = DOM_createElementNS(parent.ownerDocument,WORD_NAMESPACE,WORD_PREFIX+name);
+            DOM_appendChild(parent,child);
+            parent[property] = child;
         }
-        if (cssProperties["font-style"] == "italic") {
-            if (con._child_i == null) {
-                var i = DOM_createElementNS(con.ownerDocument,WORD_NAMESPACE,WORD_PREFIX+"i");
-                DOM_appendChild(con,i);
-            }
+        return parent[property];
+    }
+
+    function removeChild(parent,name)
+    {
+        var property = "_child_"+name;
+        if (parent[property] == null) {
+            DOM_deleteNode(parent[property]);
+            parent[property] = null;
+        }
+    }
+
+    function setChildVal(parentNode,childName,val)
+    {
+        if (val != null) {
+            var childNode = getChild(parentNode,childName);
+            DOM_setAttributeNS(childNode,WORD_NAMESPACE,WORD_PREFIX+"val",val);
+        }
+        else {
+            removeChild(parentNode,childName);
+        }
+    }
+
+    WordRPR_updateFromCSS = trace(function _WordRPR_updateFromCSS(con,newProperties)
+    {
+        var oldProperties = {};
+        WordRPR_toCSS({ newProperties: oldProperties },con);
+        var oldTextDecoration = fromTokenList(oldProperties["text-decoration"]);
+        var newTextDecoration = fromTokenList(newProperties["text-decoration"]);
+
+        // bold
+        var oldFontWeight = oldProperties["font-weight"];
+        var newFontWeight = newProperties["font-weight"];
+        if (oldFontWeight != newFontWeight) {
+            if (newFontWeight == "bold")
+                setChildVal(con,"b","true");
+            else if (newFontWeight == "bold")
+                setChildVal(con,"b","false");
+            else
+                setChildVal(con,"b",null);
+        }
+
+        // italic
+        var oldFontStyle = oldProperties["font-style"];
+        var newFontStyle = newProperties["font-style"];
+        if (oldFontStyle != newFontStyle) {
+            if (newFontStyle == "italic")
+                setChildVal(con,"i","true");
+            else if (newFontStyle == "normal")
+                setChildVal(con,"i","false");
+            else
+                setChildVal(con,"i",null);
+        }
+
+        // underline
+        var oldUnderline = oldTextDecoration["underline"];
+        var newUnderline = newTextDecoration["underline"];
+        if (oldUnderline != newUnderline) {
+            if (newUnderline)
+                setChildVal(con,"u","single");
+            else
+                setChildVal(con,"u",null);
+        }
+
+        // line-through/strike-through
+        var oldLineThrough = oldTextDecoration["line-through"];
+        var newLineThrough = newTextDecoration["line-through"];
+        if (oldLineThrough != newLineThrough) {
+            if (newLineThrough)
+                setChildVal(con,"strike","true");
+            else
+                setChildVal(con,"strike",null);
         }
     });
 
