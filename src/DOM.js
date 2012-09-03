@@ -527,13 +527,15 @@ var DOM_Listener;
     }
 
     // public
-    function getStyleProperties(element)
+    function getStyleProperties(node)
     {
         var properties = new Object();
-        for (var i = 0; i < element.style.length; i++) {
-            var name = element.style[i];
-            var value = element.style.getPropertyValue(name);
-            properties[name] = value;
+        if (node.nodeType == Node.ELEMENT_NODE) {
+            for (var i = 0; i < node.style.length; i++) {
+                var name = node.style[i];
+                var value = node.style.getPropertyValue(name);
+                properties[name] = value;
+            }
         }
         return properties;
     }
