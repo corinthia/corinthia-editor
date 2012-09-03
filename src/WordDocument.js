@@ -11,6 +11,7 @@ var WordDocument_put;
         var id = "word"+nextWordId;
         wordSourceById[id] = con;
         DOM_setAttribute(abs,"id",id);
+        DOM_setAttribute(abs,Keys.ABSTRACT_ELEMENT,"true");
         nextWordId++;
     });
 
@@ -122,7 +123,6 @@ var WordDocument_put;
 
     var WordP_get = trace(function _WordP_get(con)
     {
-        debug("WordP_get: con = "+nodeString(con));
         var abs = DOM_createElement(document,"P");
         addSourceMapping(abs,con);
 
@@ -153,7 +153,8 @@ var WordDocument_put;
         debug("WordP_put");
         debug("    abs = "+nodeString(abs)+" "+JSON.stringify(getNodeText(abs)));
         debug("    con = "+nodeString(con)+" "+JSON.stringify(getNodeText(con)));
-        BDT_Container_put(abs,con,PContentChildLens);
+        var normalised = normaliseParagraph(abs);
+        BDT_Container_put(normalised,con,PContentChildLens);
     });
 
     var WordP_create = trace(function _WordP_create(abs,doc)
@@ -258,11 +259,31 @@ var WordDocument_put;
             throw new Error("Paragraph analysis failed");
 
         var res = DOM_createElement(document,p.nodeName);
+        var doneSpanIds = new Object();
         for (var i = 0; i < paragraph.runs.length; i++) {
             var run = paragraph.runs[i];
 //            debug("paragraph.runs["+i+"] = "+run.start+"-"+run.end+" "+nodeString(run.node));
             var properties = Formatting_getAllNodeProperties(run.node);
             var span = DOM_createElement(document,"SPAN");
+
+            var spanId = null;
+            var ancestor = run.node;
+            while ((ancestor != null) && isInlineNode(ancestor)) {
+                if ((DOM_upperName(ancestor) == "SPAN") &&
+                    ancestor.hasAttribute(Keys.ABSTRACT_ELEMENT) &&
+                    ancestor.hasAttribute("id")) {
+                    spanId = DOM_getAttribute(ancestor,"id");
+                    break;
+                }
+                ancestor = ancestor.parentNode;
+            }
+
+            if ((spanId != null) && !doneSpanIds[spanId]) {
+                DOM_setAttribute(span,"id",spanId);
+                doneSpanIds[spanId] = true;
+            }
+
+
             DOM_setStyleProperties(span,properties);
             DOM_appendChild(res,span);
             DOM_appendChild(span,DOM_cloneNode(run.node,true));
