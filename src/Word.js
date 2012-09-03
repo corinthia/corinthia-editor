@@ -619,6 +619,22 @@ var Word_stylesDoc;
         }
 
         convertToHTML();
+        PostponedActions_perform();
+
+        Cursor_set(document.body,document.body.childNodes.length);
+        Clipboard_pasteHTML("<p>one <b>two <i>three</i> four</b> five</p>");
+/*
+        Clipboard_pasteHTML(
+            "<p>start "+
+                "<b>bold "+
+                "<i>italic</i> "+
+                "<u>ul</u> "+
+                "<span style='text-decoration: underline'>ul2</span> "+
+                "<span style='text-decoration: line-through'>lt</span> "+
+                "<span style='text-decoration: underline line-through'>ul and lt</span> "+
+                "bold2</b> "+
+                "end</p>");
+*/
     });
 
     var convertToHTML = trace(function convertToHTML()

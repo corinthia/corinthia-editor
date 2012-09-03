@@ -1,6 +1,6 @@
 var WordRPR_toCSS;
 var WordRPR_updateFromCSS;
-var WordRPR_createFromCSS;
+//var WordRPR_createFromCSS;
 var WordPPR_toCSS;
 var WordStyles_parseStyles;
 
@@ -124,7 +124,7 @@ var WordStyles_parseStyles;
     WordRPR_updateFromCSS = trace(function _WordRPR_updateFromCSS(con,newProperties)
     {
         var oldProperties = {};
-        WordRPR_toCSS({ newProperties: oldProperties },con);
+        WordRPR_toCSS({ cssProperties: oldProperties },con);
         var oldTextDecoration = fromTokenList(oldProperties["text-decoration"]);
         var newTextDecoration = fromTokenList(newProperties["text-decoration"]);
 
@@ -173,12 +173,12 @@ var WordStyles_parseStyles;
         }
     });
 
-    WordRPR_createFromCSS = trace(function _WordRPR_createFromCSS(cssProperties,doc)
-    {
-        var rPr = DOM_createElementNS(doc,WORD_NAMESPACE,WORD_PREFIX+"rPr");
-        WordRPR_updateFromCSS(rPr,cssProperties);
-        return (rPr.firstChild != null) ? rPr : null;
-    });
+//    WordRPR_createFromCSS = trace(function _WordRPR_createFromCSS(cssProperties,doc)
+//    {
+//        var rPr = DOM_createElementNS(doc,WORD_NAMESPACE,WORD_PREFIX+"rPr");
+//        WordRPR_updateFromCSS(rPr,cssProperties);
+//        return (rPr.firstChild != null) ? rPr : null;
+//    });
 
     // Paragraph properties
     WordPPR_toCSS = trace(function _WordPPR_toCSS(style,node)

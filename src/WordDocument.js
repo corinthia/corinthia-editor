@@ -31,14 +31,6 @@ function WordStyle()
             return wordSourceById[id];
     });
 
-//    var WordT_get = trace(function _WordT_get(con)
-//    {
-//    });
-
-//    var WordT_put = trace(function _WordT_put(abs,con)
-//    {
-//    });
-
     var WordR_get = trace(function _WordR_get(con)
     {
         var abs = DOM_createElement(document,"SPAN");
@@ -54,7 +46,6 @@ function WordStyle()
                 if (val != null)
                     DOM_setAttribute(abs,"class",val);
             }
-
         }
 
         for (var child = con.firstChild; child != null; child = child.nextSibling) {
@@ -66,7 +57,74 @@ function WordStyle()
 
     var WordR_put = trace(function _WordR_put(abs,con)
     {
+        var oldText = getNodeText(con);
+        var newText = getNodeText(abs);
+        if (oldText != newText) {
+            var next;
+            for (var child = con.firstChild; child != null; child = next) {
+                next = child.nextSibling;
+                if (child._is_t)
+                    DOM_deleteNode(child);
+            }
+
+            var t = DOM_createElementNS(con.ownerDocument,WORD_NAMESPACE,WORD_PREFIX+"t");
+            var str = getNodeText(abs);
+            if (str.trim() != str)
+                DOM_setAttributeNS(t,XML_NAMESPACE,"xml:space","preserve");
+            DOM_appendChild(t,DOM_createTextNode(con.ownerDocument,str));
+            DOM_appendChild(con,t);
+        }
+
+        var rPr = con._child_rPr;
+        if (rPr == null) {
+            rPr = DOM_createElementNS(con.ownerDocument,WORD_NAMESPACE,WORD_PREFIX+"rPr");
+            DOM_insertBefore(con,rPr,con.firstChild);
+        }
+        WordRPR_updateFromCSS(rPr,DOM_getStyleProperties(abs));
+        if (rPr.firstChild == null)
+            DOM_deleteNode(rPr);
     });
+
+    var WordR_create = trace(function _WordR_create(abs,doc)
+    {
+        var con = DOM_createElementNS(doc,WORD_NAMESPACE,WORD_PREFIX+"r");
+        WordR_put(abs,con);
+        return con;
+    });
+
+    var PContentChild_isVisible = trace(function _PContentChild_isVisible(con)
+    {
+        return con._is_r;
+    });
+
+    var PContentChild_get = trace(function _PContentChild_get(con)
+    {
+        if (con._is_r)
+            return WordR_get(con);
+        else
+            return null;
+    });
+
+    var PContentChild_put = trace(function _PContentChild_put(abs,con)
+    {
+        if (con._is_r)
+            WordR_put(abs,con);
+    });
+
+    var PContentChild_create = trace(function _PContentChild_create(abs,doc)
+    {
+        if (DOM_upperName(abs) == "SPAN")
+            return WordR_create(abs,doc);
+        else
+            return null;
+    });
+
+    var PContentChildLens = {
+        isVisible: PContentChild_isVisible,
+        put: PContentChild_put,
+        create: PContentChild_create,
+        getSource: lookupSourceMapping,
+    };
 
     var WordP_get = trace(function _WordP_get(con)
     {
@@ -87,8 +145,9 @@ function WordStyle()
         }
 
         for (var child = con.firstChild; child != null; child = child.nextSibling) {
-            if (child._is_r)
-                DOM_appendChild(abs,WordR_get(child));
+            var childAbs = PContentChild_get(child);
+            if (childAbs != null)
+                DOM_appendChild(abs,childAbs);
         }
 
         return abs;
@@ -96,7 +155,25 @@ function WordStyle()
 
     var WordP_put = trace(function _WordP_put(abs,con)
     {
-        debug("WordBody_put: abs = "+nodeString(abs)+", con = "+nodeString(con));
+//        debug("WordP_put: abs = "+nodeString(abs)+", con = "+nodeString(con));
+        debug("WordP_put");
+        debug("    abs = "+nodeString(abs)+" "+JSON.stringify(getNodeText(abs)));
+        debug("    con = "+nodeString(con)+" "+JSON.stringify(getNodeText(con)));
+        BDT_Container_put(abs,con,PContentChildLens);
+    });
+
+    var WordP_create = trace(function _WordP_create(abs,doc)
+    {
+        var p = DOM_createElementNS(doc,WORD_NAMESPACE,WORD_PREFIX+"p");
+
+        var normalised = normaliseParagraph(abs);
+        for (var child = normalised.firstChild; child != null; child = child.nextSibling) {
+            var childAbs = PContentChild_create(child,doc);
+            if (childAbs != null)
+                DOM_appendChild(p,childAbs);
+        }
+
+        return p;
     });
 
     var WordTc_get = trace(function _WordTc_get(con)
@@ -104,7 +181,7 @@ function WordStyle()
         var abs = DOM_createElement(document,"TD");
         addSourceMapping(abs,con);
         for (var child = con.firstChild; child != null; child = child.nextSibling) {
-            var childAbs = EG_BlockLevelEltsChild_get(child);
+            var childAbs = BlockLevelEltsChild_get(child);
             if (childAbs != null)
                 DOM_appendChild(abs,childAbs);
         }
@@ -155,17 +232,12 @@ function WordStyle()
     {
     });
 
-    var EG_BlockLevelEltsChild_isVisible = trace(function _EG_BlockLevelEltsChild_isVisible(con)
+    var BlockLevelEltsChild_isVisible = trace(function _BlockLevelEltsChild_isVisible(con)
     {
-        if (con._is_p)
-            return true;
-        else if (con._is_tbl)
-            return true;
-        else
-            return false;
+        return (con._is_p || con._is_tbl);
     });
 
-    var EG_BlockLevelEltsChild_get = trace(function _EG_BlockLevelEltsChild_get(con)
+    var BlockLevelEltsChild_get = trace(function _BlockLevelEltsChild_get(con)
     {
         if (con._is_p)
             return WordP_get(con);
@@ -175,7 +247,7 @@ function WordStyle()
             return null;
     });
 
-    var EG_BlockLevelEltsChild_put = trace(function _EG_BlockLevelEltsChild_put(abs,con)
+    var BlockLevelEltsChild_put = trace(function _BlockLevelEltsChild_put(abs,con)
     {
         if (con._is_p)
             return WordP_put(abs,con);
@@ -185,52 +257,37 @@ function WordStyle()
             return null;
     });
 
-    var EG_BlockLevelEltsChild_create = trace(function _EG_BlockLevelEltsChild_put(abs,doc)
+    var normaliseParagraph = trace(function _normaliseParagraph(p)
     {
-        if (isWhitespaceTextNode(abs))
-            return null;
+        var paragraph = Text_analyseParagraph(new Position(p,0));
+        if (paragraph == null)
+            throw new Error("Paragraph analysis failed");
 
-        if (isParagraphNode(abs)) {
-            debug("EG_BlockLevelEltsChild_create "+nodeString(abs));
-            printTree(abs);
-
-            var p = DOM_createElementNS(doc,WORD_NAMESPACE,WORD_PREFIX+"p");
-
-            var leafNodes = getContentLeafNodes(abs);
-            for (var i = 0; i < leafNodes.length; i++) {
-
-                var leaf = leafNodes[i];
-                if (leaf.nodeType == Node.TEXT_NODE) {
-                    var r = DOM_createElementNS(doc,WORD_NAMESPACE,WORD_PREFIX+"r");
-
-                    var rPr = WordRPR_createFromCSS(Formatting_getAllNodeProperties(leaf),doc);
-                    if (rPr != null)
-                        DOM_appendChild(r,rPr);
-
-                    var t = DOM_createElementNS(doc,WORD_NAMESPACE,WORD_PREFIX+"t");
-                    if (leaf.nodeValue.trim() != leaf.nodeValue)
-                        DOM_setAttributeNS(t,XML_NAMESPACE,"xml:space","preserve");
-                    DOM_appendChild(t,DOM_createTextNode(doc,leaf.nodeValue));
-
-                    DOM_appendChild(r,t);
-                    DOM_appendChild(p,r);
-                }
-                else {
-                    // FIXME: support images and any other new types of leaf nodes (e.g.
-                    // references)
-                }
-            }
-
-            return p;
+        var res = DOM_createElement(document,p.nodeName);
+        for (var i = 0; i < paragraph.runs.length; i++) {
+            var run = paragraph.runs[i];
+//            debug("paragraph.runs["+i+"] = "+run.start+"-"+run.end+" "+nodeString(run.node));
+            var properties = Formatting_getAllNodeProperties(run.node);
+            var span = DOM_createElement(document,"SPAN");
+            DOM_setStyleProperties(span,properties);
+            DOM_appendChild(res,span);
+            DOM_appendChild(span,DOM_cloneNode(run.node,true));
         }
-
-        return null;
+        return res;
     });
 
-    var EG_BlockLevelEltsChildLens = {
-        isVisible: EG_BlockLevelEltsChild_isVisible,
-        put: EG_BlockLevelEltsChild_put,
-        create: EG_BlockLevelEltsChild_create,
+    var BlockLevelEltsChild_create = trace(function _BlockLevelEltsChild_put(abs,doc)
+    {
+        if (isParagraphNode(abs))
+            return WordP_create(abs,doc);
+        else
+            return null;
+    });
+
+    var BlockLevelEltsChildLens = {
+        isVisible: BlockLevelEltsChild_isVisible,
+        put: BlockLevelEltsChild_put,
+        create: BlockLevelEltsChild_create,
         getSource: lookupSourceMapping,
     };
 
@@ -241,7 +298,7 @@ function WordStyle()
         addSourceMapping(abs,con);
         for (var child = con.firstChild; child != null; child = child.nextSibling) {
             debug("WordBody_get: child = "+nodeString(child));
-            var childAbs = EG_BlockLevelEltsChild_get(child);
+            var childAbs = BlockLevelEltsChild_get(child);
             if (childAbs != null)
                 DOM_appendChild(abs,childAbs);
         }
@@ -252,7 +309,7 @@ function WordStyle()
     {
         debug("WordBody_put: abs = "+nodeString(abs)+", con = "+nodeString(con));
         var sectPr = con._child_sectPr;
-        BDT_Container_put(abs,con,EG_BlockLevelEltsChildLens);
+        BDT_Container_put(abs,con,BlockLevelEltsChildLens);
         // Make sure the sectPr element is at the end
         if ((sectPr != null) && (sectPr.parentNode == con))
             DOM_appendChild(con,sectPr);
