@@ -75,6 +75,7 @@ var Keys = {
     NONE_STYLE: "__none",
     AUTOCORRECT_CLASS: "uxwrite-autocorrect",
     SELECTION_CLASS: "uxwrite-selection",
+    ABSTRACT_ELEMENT: "uxwrite-abstract",
 };
 
 var ITEM_NUMBER_CLASSES = {
@@ -255,4 +256,9 @@ function isContentLeafNode(node)
     if (DOM_upperName(node) == "IMG")
         return true;
     return false;
+}
+
+function isAbstractSpan(node)
+{
+    return ((DOM_upperName(node) == "SPAN") && node.hasAttribute(Keys.ABSTRACT_ELEMENT));
 }

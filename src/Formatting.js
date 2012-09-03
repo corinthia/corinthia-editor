@@ -772,7 +772,7 @@ var Formatting_formatInlineNode;
     // private
     var wrapInline = trace(function wrapInline(node,elementName)
     {
-        if (!isInlineNode(node)) {
+        if (!isInlineNode(node) || isAbstractSpan(node)) {
             var next;
             for (var child = node.firstChild; child != null; child = next) {
                 next = child.nextSibling;
@@ -931,9 +931,13 @@ var Formatting_formatInlineNode;
 
     function isSpecialSpan(span)
     {
-        return ((DOM_upperName(span) == "SPAN") &&
-                span.hasAttribute("class") &&
-                (span.getAttribute("class").indexOf(Keys.UXWRITE_PREFIX) == 0));
+        if ((DOM_upperName(span) == "SPAN")) {
+            if (span.hasAttribute(Keys.ABSTRACT_ELEMENT))
+                return true;
+            if (DOM_getStringAttribute(span,"class").indexOf(Keys.UXWRITE_PREFIX) == 0)
+                return true;
+        }
+        return false;
     }
 
     // private
