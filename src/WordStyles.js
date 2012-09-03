@@ -8,86 +8,86 @@ var WordStyles_parseStyles;
 
     var rrggbbRegex = /^[0-9A-Fa-f]{6}$/;
 
-    var WordPBdrSide_toCSS = trace(function _WordPBdrSide_toCSS(style,node,prefix)
+    var WordPBdrSide_toCSS = trace(function _WordPBdrSide_toCSS(cssProperties,node,prefix)
     {
         var val = DOM_getAttributeNS(node,WORD_NAMESPACE,"val");
         var sz = DOM_getAttributeNS(node,WORD_NAMESPACE,"sz");
         var space = DOM_getAttributeNS(node,WORD_NAMESPACE,"space");
         var color = DOM_getAttributeNS(node,WORD_NAMESPACE,"color");
 
-        style.cssProperties[prefix+"style"] = "solid"; // FIXME
-        style.cssProperties[prefix+"width"] = "2px"; // FIXME
+        cssProperties[prefix+"style"] = "solid"; // FIXME
+        cssProperties[prefix+"width"] = "2px"; // FIXME
 
         if ((color != null) && color.match(rrggbbRegex))
-            style.cssProperties[prefix+"color"] = "#"+color;
+            cssProperties[prefix+"color"] = "#"+color;
         else
-            style.cssProperties[prefix+"color"] = "black";
+            cssProperties[prefix+"color"] = "black";
     });
 
-    var WordPBdr_toCSS = trace(function _WordPBdr_toCSS(style,node)
+    var WordPBdr_toCSS = trace(function _WordPBdr_toCSS(cssProperties,node)
     {
         if (node._child_left != null)
-            WordPBdrSide_toCSS(style,node._child_left,"border-left-");
+            WordPBdrSide_toCSS(cssProperties,node._child_left,"border-left-");
         if (node._child_right != null)
-            WordPBdrSide_toCSS(style,node._child_right,"border-right-");
+            WordPBdrSide_toCSS(cssProperties,node._child_right,"border-right-");
         if (node._child_top != null)
-            WordPBdrSide_toCSS(style,node._child_top,"border-top-");
+            WordPBdrSide_toCSS(cssProperties,node._child_top,"border-top-");
         if (node._child_bottom != null)
-            WordPBdrSide_toCSS(style,node._child_bottom,"border-bottom-");
+            WordPBdrSide_toCSS(cssProperties,node._child_bottom,"border-bottom-");
     });
 
-    var WordShd_toCSS = trace(function _WordShd_toCSS(style,node)
+    var WordShd_toCSS = trace(function _WordShd_toCSS(cssProperties,node)
     {
         var fill = DOM_getAttributeNS(node,WORD_NAMESPACE,"fill");
         debug("******** shading: fill = "+fill);
         if ((fill != null) && fill.match(rrggbbRegex))
-            style.cssProperties["background-color"] = "#"+fill;
+            cssProperties["background-color"] = "#"+fill;
     });
 
-    WordB_toCSS = trace(function _WordB_toCSS(style,node)
+    var WordB_toCSS = trace(function _WordB_toCSS(cssProperties,node)
     {
         // val: type xsd:boolean;  {true, false, 1, 0}.
         var val = DOM_getAttributeNS(node,WORD_NAMESPACE,"val");
         if ((val == "false") || (val == "0"))
-            style.cssProperties["font-weight"] = "normal";
+            cssProperties["font-weight"] = "normal";
         else
-            style.cssProperties["font-weight"] = "bold";
+            cssProperties["font-weight"] = "bold";
     });
 
     // Run properties
-    WordRPR_toCSS = trace(function _WordRPR_toCSS(style,node)
+    WordRPR_toCSS = trace(function _WordRPR_toCSS(cssProperties,node)
     {
         // w_EG_RPrBase
         if (node._child_b)
-            WordB_toCSS(style,node._child_b);
+            WordB_toCSS(cssProperties,node._child_b);
 
         if (node._child_i)
-            style.cssProperties["font-style"] = "italic";
+            cssProperties["font-style"] = "italic";
         if (node._child_u)
-            style.cssProperties["text-decoration"] = "underline";
+            cssProperties["text-decoration"] = "underline";
         if (node._child_color) {
             var val = DOM_getAttributeNS(node._child_color,WORD_NAMESPACE,"val");
             if ((val != null) && val.match(rrggbbRegex)) {
-                style.cssProperties["color"] = "#"+val;
+                cssProperties["color"] = "#"+val;
             }
         }
         if (node._child_sz) {
             // units: 1/2 pt
             var val = DOM_getAttributeNS(node._child_sz,WORD_NAMESPACE,"val");
             if (val != null) {
-                style.cssProperties["font-size"] = (val/2)+"pt";
+                cssProperties["font-size"] = (val/2)+"pt";
             }
         }
         if (node._child_rFonts) {
             var ascii = DOM_getAttributeNS(node._child_rFonts,WORD_NAMESPACE,"ascii");
             var hAnsi = DOM_getAttributeNS(node._child_rFonts,WORD_NAMESPACE,"hAnsi");
             if (ascii != null)
-                style.cssProperties["font-family"] = ascii;
+                cssProperties["font-family"] = ascii;
             else if (hAnsi != null)
-                style.cssProperties["font-family"] = hAnsi;
+                cssProperties["font-family"] = hAnsi;
         }
         if (node._child_shd != null)
-            WordShd_toCSS(style,node._child_shd);
+            WordShd_toCSS(cssProperties,node._child_shd);
     });
 
     function getChild(parent,name)
@@ -123,8 +123,8 @@ var WordStyles_parseStyles;
 
     WordRPR_updateFromCSS = trace(function _WordRPR_updateFromCSS(con,newProperties)
     {
-        var oldProperties = {};
-        WordRPR_toCSS({ cssProperties: oldProperties },con);
+        var oldProperties = new Object();
+        WordRPR_toCSS(oldProperties,con);
         var oldTextDecoration = fromTokenList(oldProperties["text-decoration"]);
         var newTextDecoration = fromTokenList(newProperties["text-decoration"]);
 
@@ -181,15 +181,15 @@ var WordStyles_parseStyles;
 //    });
 
     // Paragraph properties
-    WordPPR_toCSS = trace(function _WordPPR_toCSS(style,node)
+    WordPPR_toCSS = trace(function _WordPPR_toCSS(cssProperties,node)
     {
         for (var child = node.firstChild; child != null; child = child.nextSibling) {
             debug("pPr child "+nodeString(child));
         }
         if (node._child_shd != null)
-            WordShd_toCSS(style,node._child_shd);
+            WordShd_toCSS(cssProperties,node._child_shd);
         if (node._child_pBdr != null)
-            WordPBdr_toCSS(style,node._child_pBdr);
+            WordPBdr_toCSS(cssProperties,node._child_pBdr);
     });
 
     var WordStyle_parseStyle = trace(function _WordStyle_parseStyle(con)
@@ -201,15 +201,15 @@ var WordStyles_parseStyles;
             displayName = DOM_getAttributeNS(con,WORD_NAMESPACE,"val");
         else
             displayName = styleId;
-        var wstyle = new WordStyle();
+        var cssProperties = new Object();
 
         debug("WordStyle_parseStyle: styleId "+styleId+" type "+type+
               " display name "+JSON.stringify(displayName));
 
         if (con._child_pPr != null)
-            WordPPR_toCSS(wstyle,con._child_pPr);
+            WordPPR_toCSS(cssProperties,con._child_pPr);
         if (con._child_rPr != null)
-            WordRPR_toCSS(wstyle,con._child_rPr);
+            WordRPR_toCSS(cssProperties,con._child_rPr);
 
 
         // These are the only four possible types of styles
@@ -227,7 +227,7 @@ var WordStyles_parseStyles;
         }
 
         if (selector != null) {
-            var uxrule = Rule_create(selector,wstyle.cssProperties);
+            var uxrule = Rule_create(selector,cssProperties);
             var uxstyle = Style_create(selector,displayName,{ base: uxrule });
             Styles_setStyle(uxstyle);
         }

@@ -1,12 +1,6 @@
 var WordDocument_get;
 var WordDocument_put;
 
-// FIXME: find somewhere better for this
-function WordStyle()
-{
-    this.cssProperties = new Object();
-}
-
 (function() {
 
     var wordSourceById = new Object();
@@ -37,9 +31,9 @@ function WordStyle()
         addSourceMapping(abs,con);
 
         if (con._child_rPr != null) {
-            var style = new WordStyle();
-            WordRPR_toCSS(style,con._child_rPr);
-            DOM_setStyleProperties(abs,style.cssProperties);
+            var cssProperties = new Object();
+            WordRPR_toCSS(cssProperties,con._child_rPr);
+            DOM_setStyleProperties(abs,cssProperties);
 
             if (con._child_rPr._child_rStyle != null) {
                 var val = DOM_getAttributeNS(con._child_rPr._child_rStyle,WORD_NAMESPACE,"val");
@@ -133,9 +127,9 @@ function WordStyle()
         addSourceMapping(abs,con);
 
         if (con._child_pPr != null) {
-            var style = new WordStyle();
-            WordPPR_toCSS(style,con._child_pPr);
-            DOM_setStyleProperties(abs,style.cssProperties);
+            var cssProperties = new Object();
+            WordPPR_toCSS(cssProperties,con._child_pPr);
+            DOM_setStyleProperties(abs,cssProperties);
 
             if (con._child_pPr._child_pStyle != null) {
                 var val = DOM_getAttributeNS(con._child_pPr._child_pStyle,WORD_NAMESPACE,"val");
