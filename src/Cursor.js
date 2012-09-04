@@ -336,7 +336,7 @@ var Cursor_set;
             return;
 
         if (!Range_isEmpty(selRange)) {
-            Selection_deleteContents();
+            Selection_deleteContents(true);
             selRange = Selection_get();
         }
         var pos = selRange.start;
@@ -432,7 +432,7 @@ var Cursor_set;
             return;
 
         if (!Range_isEmpty(selRange)) {
-            Selection_deleteContents();
+            Selection_deleteContents(true);
         }
         else {
             var currentPos = selRange.start;
