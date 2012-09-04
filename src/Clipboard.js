@@ -310,7 +310,7 @@ var Clipboard_pasteNodes;
         content = copyRange(range);
 
         Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
-        Selection_deleteContents();
+        Selection_deleteContents(false);
         var selRange = Selection_get();
         if (selRange != null) {
             Range_trackWhileExecuting(selRange,function() {

@@ -502,7 +502,7 @@ var Cursor_set;
 
         Range_trackWhileExecuting(selRange,function() {
             if (!Range_isEmpty(selRange))
-                Selection_deleteContents();
+                Selection_deleteContents(true);
         });
 
         var check = Position_preferElementPosition(selRange.start);
