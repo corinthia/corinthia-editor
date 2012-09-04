@@ -115,7 +115,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
 
         var range = new Range(start.node,start.offset,end.node,end.offset);
         Range_trackWhileExecuting(range,function() {
-            Selection_deleteRangeContents(range);
+            Selection_deleteRangeContents(range,true);
         });
         range.start = Position_preferTextPosition(range.start);
         var node = range.start.node;
