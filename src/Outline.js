@@ -60,15 +60,15 @@ var Outline_setReferenceTarget;
         Editor_removeOutlineItem(item.id);
     }
 
-    Category.prototype.add = trace(function add(node)
+    var Category_add = trace(function add(category,node)
     {
         var item = itemsByNode.get(node);
         if (item == null)
-            item = new OutlineItem(this,node);
+            item = new OutlineItem(category,node);
 
-        var prevItem = findPrevItemOfType(node,this.nodeFilter);
-        addItemInternal(this,item,prevItem,null);
-        this.tocs.forEach(function(node,toc) { toc.addOutlineItem(item.id); });
+        var prevItem = findPrevItemOfType(node,category.nodeFilter);
+        addItemInternal(category,item,prevItem,null);
+        category.tocs.forEach(function(node,toc) { TOC_addOutlineItem(toc,item.id); });
 
         // Register for notifications to changes to this item's node content. We may need to
         // update the title when such a modification occurs.
@@ -80,16 +80,16 @@ var Outline_setReferenceTarget;
         // The actual number given in the node content is irrelevant; we assign our own number
         // based on the position of the item in the overall structurel.
         var firstText = null;
-        var titleNode = item.getTitleNode();
+        var titleNode = OutlineItem_getTitleNode(item);
         if (titleNode != null)
             firstText = findFirstTextDescendant(titleNode);
         if (firstText != null) {
-            var regex = this.numberRegex;
+            var regex = category.numberRegex;
             var str = firstText.nodeValue;
-            if (str.match(this.numberRegex)) {
-                var match = str.match(this.numberRegex);
-                DOM_setNodeValue(firstText,str.replace(this.numberRegex,""));
-                item.enableNumbering();
+            if (str.match(category.numberRegex)) {
+                var match = str.match(category.numberRegex);
+                DOM_setNodeValue(firstText,str.replace(category.numberRegex,""));
+                OutlineItem_enableNumbering(item);
             }
         }
 
@@ -99,9 +99,9 @@ var Outline_setReferenceTarget;
         // numbered, then this item will also be numbered. If it has two unnumbered neighbours,
         // or only one neighbour (and that neighbour is not numbered), then it will not be numbered.
         if (doneInit && (item.numberSpan == null))
-            item.setNumberedUsingAdjacent();
+            OutlineItem_setNumberedUsingAdjacent(item);
 
-        item.updateItemTitle();
+        OutlineItem_updateItemTitle(item);
         scheduleUpdateStructure();
         return item;
 
@@ -127,22 +127,22 @@ var Outline_setReferenceTarget;
         }
     });
 
-    Category.prototype.remove = trace(function remove(node)
+    var Category_remove = trace(function remove(category,node)
     {
         var item = itemsByNode.get(node);
         if (item == null) {
             throw new Error("Attempt to remove non-existant "+DOM_upperName(node)+
                             " item "+node.getAttribute("id"));
         }
-        removeItemInternal(this,item);
-        this.tocs.forEach(function(node,toc) { toc.removeOutlineItem(item.id); });
+        removeItemInternal(category,item);
+        category.tocs.forEach(function(node,toc) { TOC_removeOutlineItem(toc,item.id); });
         item.title = null;
         item.node.removeEventListener("DOMSubtreeModified",item.modificationListener);
         if (item.numberSpan != null) {
             DOM_deleteNode(item.numberSpan);
             item.numberSpan = null;
         }
-        var titleNode = item.getTitleNode(false);
+        var titleNode = OutlineItem_getTitleNode(item,false);
         if ((titleNode != null) &&
             ((item.type == "figure") || (item.type == "table")) &&
             (titleNode.firstChild == null) &&
@@ -169,22 +169,22 @@ var Outline_setReferenceTarget;
         category.tocs.remove(node);
     });
 
-    Category.prototype.addTOC = trace(function addTOC(node)
+    var Category_addTOC = trace(function addTOC(category,node)
     {
         var toc = new TOC(node);
-        addTOCInternal(this,node,toc);
+        addTOCInternal(category,node,toc);
 
-        for (var item = this.list.first; item != null; item = item.next) {
-            toc.addOutlineItem(item.id);
-            toc.updateOutlineItem(item.id,item.title);
+        for (var item = category.list.first; item != null; item = item.next) {
+            TOC_addOutlineItem(toc,item.id);
+            TOC_updateOutlineItem(toc,item.id,item.title);
         }
 
         scheduleUpdateStructure();
     });
 
-    Category.prototype.removeTOC = trace(function removeTOC(node)
+    var Category_removeTOC = trace(function removeTOC(category,node)
     {
-        removeTOCInternal(this,node);
+        removeTOCInternal(category,node);
     });
 
     function TOC(node)
@@ -193,29 +193,28 @@ var Outline_setReferenceTarget;
         this.textNodes = new Object();
     }
 
-    TOC.prototype.addOutlineItem = trace(function addOutlineItem(id)
+    var TOC_addOutlineItem = trace(function addOutlineItem(toc,id)
     {
-        this.textNodes[id] = DOM_createTextNode(document,"");
+        toc.textNodes[id] = DOM_createTextNode(document,"");
     });
 
-    TOC.prototype.removeOutlineItem = trace(function removeOutlineItem(id)
+    var TOC_removeOutlineItem = trace(function removeOutlineItem(toc,id)
     {
-        delete this.textNodes[id];
+        delete toc.textNodes[id];
     });
 
-    TOC.prototype.updateOutlineItem = trace(function updateOutlineItem(id,title)
+    var TOC_updateOutlineItem = trace(function updateOutlineItem(toc,id,title)
     {
-        DOM_setNodeValue(this.textNodes[id],title);
+        DOM_setNodeValue(toc.textNodes[id],title);
     });
 
-    TOC.prototype.updateStructure = trace(function updateStructure(structure,toplevelShadows,
-                                                                   pageNumbers)
+    var TOC_updateStructure = trace(function _TOC_updateStructure(toc,structure,toplevelShadows,
+                                                                  pageNumbers)
     {
-        var toc = this;
-        DOM_deleteAllChildren(this.node);
+        DOM_deleteAllChildren(toc.node);
 
         var headingText;
-        var cls = this.node.getAttribute("class");
+        var cls = toc.node.getAttribute("class");
         if (cls == Keys.SECTION_TOC)
             headingText = "Contents";
         else if (cls == Keys.FIGURE_TOC)
@@ -225,7 +224,7 @@ var Outline_setReferenceTarget;
 
         var heading = DOM_createElement(document,"H1");
         DOM_appendChild(heading,DOM_createTextNode(document,headingText));
-        DOM_appendChild(this.node,heading);
+        DOM_appendChild(toc.node,heading);
 
         if (printMode)
             Styles_addDefaultRuleCategory("toc-print");
@@ -233,16 +232,16 @@ var Outline_setReferenceTarget;
             Styles_addDefaultRuleCategory("toc");
 
         if (toplevelShadows.length == 0) {
-            createEmptyTOC(this.node);
+            createEmptyTOC(toc.node);
         }
         else {
-            recurse(toplevelShadows,this.node,1);
+            recurse(toplevelShadows,toc.node,1);
         }
 
         if (printMode) {
             var brk = DOM_createElement(document,"DIV");
             DOM_setStyleProperties(brk,{ "clear": "both" });
-            DOM_appendChild(this.node,brk);
+            DOM_appendChild(toc.node,brk);
         }
 
         function createEmptyTOC(parent)
@@ -290,9 +289,11 @@ var Outline_setReferenceTarget;
                     DOM_appendChild(div,rightSpan);
 
                     // FIXME: item -> shadow
-                    if (item.numberSpan != null)
-                        DOM_appendChild(leftSpan,DOM_createTextNode(document,
-                                                                    shadow.getFullNumber()+" "));
+                    if (item.numberSpan != null) {
+                        var numText = Shadow_getFullNumber(shadow)+" ";
+                        DOM_appendChild(leftSpan,DOM_createTextNode(document,numText));
+                    }
+
                     DOM_appendChild(leftSpan,toc.textNodes[item.id]);
                     var pageNo = pageNumbers ? pageNumbers.get(item.node) : null;
                     if (pageNo == null)
@@ -310,7 +311,7 @@ var Outline_setReferenceTarget;
                     DOM_appendChild(div,a);
 
                     if (item.numberSpan != null) {
-                        var numText = shadow.getFullNumber()+" ";
+                        var numText = Shadow_getFullNumber(shadow)+" ";
                         DOM_appendChild(a,DOM_createTextNode(document,numText));
                     }
                     DOM_appendChild(a,toc.textNodes[item.id]);
@@ -378,50 +379,37 @@ var Outline_setReferenceTarget;
         }
     }
 
-    OutlineItem.prototype.info = trace(function info()
+    var OutlineItem_enableNumbering = trace(function enableNumbering(item)
     {
-        if (this.numberSpan == null)
-            return nodeString(this.node)+" (numberSpan null)";
-        else
-            return nodeString(this.node)+" (numberSpan "+nodeString(this.numberSpan)+
-            ", parent "+nodeString(this.numberSpan.parentNode)+")";
-    });
-
-    OutlineItem.prototype.enableNumbering = trace(function enableNumbering()
-    {
-        if (this.numberSpan != null)
+        if (item.numberSpan != null)
             return;
-        var titleNode = this.getTitleNode(true);
+        var titleNode = OutlineItem_getTitleNode(item,true);
 
-        var item = this;
         item.numberSpan = item.spareSpan;
         DOM_insertBefore(titleNode,item.numberSpan,titleNode.firstChild);
         scheduleUpdateStructure();
     });
 
-    OutlineItem.prototype.disableNumbering = trace(function disableNumbering()
+    var OutlineItem_disableNumbering = trace(function disableNumbering(item)
     {
-        var item = this;
-
         if (item.numberSpan == null)
             return;
 
-        // Set item.numberSpan to null before the deleting node, so that updateItemTitle gets the
-        // correct text for the title
+        // Set item.numberSpan to null before the deleting node, so that OutlineItem_updateItemTitle
+        // gets the correct text for the title
         var numberSpan = item.numberSpan;
         item.numberSpan = null;
         DOM_deleteNode(numberSpan);
 
-        var titleNode = item.getTitleNode(false);
+        var titleNode = OutlineItem_getTitleNode(item,false);
         if ((titleNode != null) && !nodeHasContent(titleNode))
             DOM_deleteNode(titleNode);
 
         scheduleUpdateStructure();
     });
 
-    OutlineItem.prototype.getTitleNode = trace(function getTitleNode(create)
+    var OutlineItem_getTitleNode = trace(function getTitleNode(item,create)
     {
-        var item = this;
         if (item.type == "section") {
             return item.node;
         }
@@ -452,42 +440,41 @@ var Outline_setReferenceTarget;
         }
     });
 
-    OutlineItem.prototype.setNumberedUsingAdjacent = trace(function setNumberedUsingAdjacent()
+    var OutlineItem_setNumberedUsingAdjacent = trace(function setNumberedUsingAdjacent(item)
     {
         // Enable numbering for the specified outline numbered if there are either no other
         // items of its type, or either the preceding or following item of that type has
         // numbering enabled
-        if ((this.prev == null) && (this.next == null)) {
-            this.enableNumbering();
+        if ((item.prev == null) && (item.next == null)) {
+            OutlineItem_enableNumbering(item);
         }
         else {
-            if (((this.prev != null) && (this.prev.numberSpan != null)) ||
-                ((this.next != null) && (this.next.numberSpan != null))) {
-                this.enableNumbering();
+            if (((item.prev != null) && (item.prev.numberSpan != null)) ||
+                ((item.next != null) && (item.next.numberSpan != null))) {
+                OutlineItem_enableNumbering(item);
             }
             else {
-                this.disableNumbering();
+                OutlineItem_disableNumbering(item);
             }
         }
     });
 
-    OutlineItem.prototype.updateItemTitle = trace(function updateItemTitle()
+    var OutlineItem_updateItemTitle = trace(function updateItemTitle(item)
     {
-        var titleNode = this.getTitleNode(false);
-        if (this.numberSpan != null)
-            newTitle = normalizeWhitespace(getNodeTextAfter(this.numberSpan));
+        var titleNode = OutlineItem_getTitleNode(item,false);
+        if (item.numberSpan != null)
+            newTitle = normalizeWhitespace(getNodeTextAfter(item.numberSpan));
         else if (titleNode != null)
             newTitle = normalizeWhitespace(getNodeText(titleNode));
         else
             newTitle = "";
 
-        if (this.title != newTitle) {
-            UndoManager_addAction(Editor_updateOutlineItem,this.id,this.title);
-            Editor_updateOutlineItem(this.id,newTitle);
-            this.title = newTitle;
-            var item = this;
-            this.category.tocs.forEach(function(node,toc) {
-                toc.updateOutlineItem(item.id,item.title);
+        if (item.title != newTitle) {
+            UndoManager_addAction(Editor_updateOutlineItem,item.id,item.title);
+            Editor_updateOutlineItem(item.id,newTitle);
+            item.title = newTitle;
+            item.category.tocs.forEach(function(node,toc) {
+                TOC_updateOutlineItem(toc,item.id,item.title);
             });
         }
 
@@ -507,7 +494,7 @@ var Outline_setReferenceTarget;
             return;
         if (ignoreModifications > 0)
             return;
-        item.updateItemTitle();
+        OutlineItem_updateItemTitle(item);
         var numbered = (item.numberSpan != null);
         if (!numbered)
             setReferenceText(item.node,item.title);
@@ -593,22 +580,22 @@ var Outline_setReferenceTarget;
             }
 
             if (isHeadingNode(node) && !isInTOC(node))
-                sections.add(node);
+                Category_add(sections,node);
             else if (isFigureNode(node))
-                figures.add(node);
+                Category_add(figures,node);
             else if (isTableNode(node))
-                tables.add(node);
+                Category_add(tables,node);
             else if (isRefNode(node) && !isInTOC(node))
                 refInserted(node);
 
             if (DOM_upperName(node) == "NAV") {
                 var cls = node.getAttribute("class");
                 if (cls == Keys.SECTION_TOC)
-                    sections.addTOC(node);
+                    Category_addTOC(sections,node);
                 else if (cls == Keys.FIGURE_TOC)
-                    figures.addTOC(node);
+                    Category_addTOC(figures,node);
                 else if (cls == Keys.TABLE_TOC)
-                    tables.addTOC(node);
+                    Category_addTOC(tables,node);
             }
 
             var next;
@@ -638,22 +625,22 @@ var Outline_setReferenceTarget;
         function recurse(node)
         {
             if (isHeadingNode(node) && !isInTOC(node))
-                sections.remove(node);
+                Category_remove(sections,node);
             else if (isFigureNode(node))
-                figures.remove(node);
+                Category_remove(figures,node);
             else if (isTableNode(node))
-                tables.remove(node);
+                Category_remove(tables,node);
             else if (isRefNode(node) && !isInTOC(node))
                 refRemoved(node);
 
             if (DOM_upperName(node) == "NAV") {
                 var cls = node.getAttribute("class");
                 if (cls == Keys.SECTION_TOC)
-                    sections.removeTOC(node);
+                    Category_removeTOC(sections,node);
                 else if (cls == Keys.FIGURE_TOC)
-                    figures.removeTOC(node);
+                    Category_removeTOC(figures,node);
                 else if (cls == Keys.TABLE_TOC)
-                    tables.removeTOC(node);
+                    Category_removeTOC(tables,node);
             }
 
             for (var child = node.firstChild; child != null; child = child.nextSibling)
@@ -694,17 +681,17 @@ var Outline_setReferenceTarget;
         this.parent = null;
     }
 
-    Shadow.prototype.last = trace(function last()
+    var Shadow_last = trace(function last(shadow)
     {
-        if (this.children.length == 0)
-            return this;
+        if (shadow.children.length == 0)
+            return shadow;
         else
-            return this.children[this.children.length-1].last();
+            return Shadow_last(shadow.children[shadow.children.length-1]);
     });
 
-    Shadow.prototype.outerNext = trace(function outerNext(structure)
+    var Shadow_outerNext = trace(function outerNext(shadow,structure)
     {
-        var last = this.last();
+        var last = Shadow_last(shadow);
         if (last == null)
             return null;
         else if (last.item.next == null)
@@ -713,11 +700,10 @@ var Outline_setReferenceTarget;
             return structure.shadowsByNode.get(last.item.next.node);
     });
 
-    Shadow.prototype.getFullNumber = trace(function getFullNumber()
+    var Shadow_getFullNumber = trace(function getFullNumber(shadow)
     {
-        if (this.item.numberSpan == null)
+        if (shadow.item.numberSpan == null)
             return "";
-        var shadow = this;
         var fullNumber = ""+shadow.index;
         while (shadow.parent != null) {
             shadow = shadow.parent;
@@ -738,24 +724,23 @@ var Outline_setReferenceTarget;
         return null;
     });
 
-    Shadow.prototype.updateItemNumbering = trace(function updateItemNumbering()
+    var Shadow_updateItemNumbering = trace(function updateItemNumbering(shadow)
     {
-        var shadow = this;
-        var item = this.item;
+        var item = shadow.item;
         if (item.title == null)
             throw new Error("updateItemNumbering: item "+item.id+" has null title");
         if (item.numberSpan != null) {
             var spanText = "";
             if (item.type == "section") {
-                spanText = shadow.getFullNumber()+" ";
+                spanText = Shadow_getFullNumber(shadow)+" ";
             }
             else if (item.type == "figure") {
-                spanText = "Figure "+shadow.getFullNumber();
+                spanText = "Figure "+Shadow_getFullNumber(shadow);
                 if (item.title != "")
                     spanText += ": ";
             }
             else if (item.type == "table") {
-                spanText = "Table "+shadow.getFullNumber();
+                spanText = "Table "+Shadow_getFullNumber(shadow);
                 if (item.title != "")
                     spanText += ": ";
             }
@@ -765,7 +750,7 @@ var Outline_setReferenceTarget;
             DOM_setNodeValue(text,spanText);
         }
 
-        var refText = shadow.getFullNumber();
+        var refText = Shadow_getFullNumber(shadow);
         if (refText == "")
             refText = shadow.item.title;
         setReferenceText(shadow.item.node,refText);
@@ -861,27 +846,27 @@ var Outline_setReferenceTarget;
 
         for (var section = sections.list.first; section != null; section = section.next) {
             var shadow = structure.shadowsByNode.get(section.node);
-            shadow.updateItemNumbering();
+            Shadow_updateItemNumbering(shadow);
         }
 
         for (var figure = figures.list.first; figure != null; figure = figure.next) {
             var shadow = structure.shadowsByNode.get(figure.node);
-            shadow.updateItemNumbering();
+            Shadow_updateItemNumbering(shadow);
         }
 
         for (var table = tables.list.first; table != null; table = table.next) {
             var shadow = structure.shadowsByNode.get(table.node);
-            shadow.updateItemNumbering();
+            Shadow_updateItemNumbering(shadow);
         }
 
         sections.tocs.forEach(function (node,toc) {
-            toc.updateStructure(structure,structure.toplevelSections,pageNumbers);
+            TOC_updateStructure(toc,structure,structure.toplevelSections,pageNumbers);
         });
         figures.tocs.forEach(function (node,toc) {
-            toc.updateStructure(structure,structure.toplevelFigures,pageNumbers);
+            TOC_updateStructure(toc,structure,structure.toplevelFigures,pageNumbers);
         });
         tables.tocs.forEach(function (node,toc) {
-            toc.updateStructure(structure,structure.toplevelTables,pageNumbers);
+            TOC_updateStructure(toc,structure,structure.toplevelTables,pageNumbers);
         });
     });
 
@@ -910,7 +895,7 @@ var Outline_setReferenceTarget;
                 encodeShadow(shadow.children[i],encChildren);
 
             var obj = { id: shadow.item.id,
-                        number: shadow.getFullNumber(),
+                        number: Shadow_getFullNumber(shadow),
                         children: encChildren };
             result.push(obj);
         }
@@ -941,13 +926,13 @@ var Outline_setReferenceTarget;
         }
         strings.push("Figures:\n");
         for (var figure = figures.list.first; figure != null; figure = figure.next) {
-            var titleNode = figure.getTitleNode(false);
+            var titleNode = OutlineItem_getTitleNode(figure,false);
             var title = titleNode ? getNodeText(titleNode) : "[no caption]";
             strings.push("    "+title+" ("+figure.id+")\n");
         }
         strings.push("Tables:\n");
         for (var table = tables.list.first; table != null; table = table.next) {
-            var titleNode = table.getTitleNode(false);
+            var titleNode = OutlineItem_getTitleNode(table,false);
             var title = titleNode ? getNodeText(titleNode) : "[no caption]";
             strings.push("    "+title+" ("+table.id+")\n");
         }
@@ -955,7 +940,7 @@ var Outline_setReferenceTarget;
 
         function printSectionRecursive(shadow,indent)
         {
-            var titleNode = shadow.item.getTitleNode(false);
+            var titleNode = OutlineItem_getTitleNode(shadow.item,false);
             var content = getNodeText(titleNode);
             if (isWhitespaceString(content))
                 content = "[empty]";
@@ -1002,7 +987,7 @@ var Outline_setReferenceTarget;
     // private
     var getShadowNodes = trace(function getShadowNodes(structure,shadow,result)
     {
-        var endShadow = shadow.outerNext(structure);
+        var endShadow = Shadow_outerNext(shadow,structure);
         var endNode = endShadow ? endShadow.item.node : null;
         for (var n = shadow.item.node; (n != null) && (n != endNode); n = n.nextSibling)
             result.push(n);
@@ -1039,7 +1024,7 @@ var Outline_setReferenceTarget;
         getShadowNodes(structure,shadow,sectionNodes);
 
         if ((next == null) && (parent != null))
-            next = parent.outerNext(structure);
+            next = Shadow_outerNext(parent,structure);
 
         if (next == null) {
             for (var i = 0; i < sectionNodes.length; i++)
@@ -1121,9 +1106,9 @@ var Outline_setReferenceTarget;
         var item = itemsByNode.get(node);
 
         if (numbered)
-            item.enableNumbering();
+            OutlineItem_enableNumbering(item);
         else
-            item.disableNumbering();
+            OutlineItem_disableNumbering(item);
 
         scheduleUpdateStructure();
     });
@@ -1134,7 +1119,7 @@ var Outline_setReferenceTarget;
         var node = document.getElementById(itemId);
         var item = itemsByNode.get(node);
         Selection_preserveWhileExecuting(function() {
-            var titleNode = item.getTitleNode(true);
+            var titleNode = OutlineItem_getTitleNode(item,true);
             var oldEmpty = (item.title == "");
             var newEmpty = (title == "");
             if (oldEmpty != newEmpty) {
@@ -1149,7 +1134,7 @@ var Outline_setReferenceTarget;
                 DOM_deleteAllChildren(titleNode);
             }
             DOM_appendChild(titleNode,DOM_createTextNode(document,title));
-            item.updateItemTitle();
+            OutlineItem_updateItemTitle(item);
         });
     });
 
