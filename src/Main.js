@@ -276,6 +276,19 @@ var Main_init;
         }
     });
 
+    var fixEmptyBody = trace(function fixEmptyBody()
+    {
+        for (var child = document.body.firstChild; child != null; child = child.nextSibling) {
+            if (nodeHasContent(child))
+                return;
+        }
+
+        var p = DOM_createElement(document,"P");
+        var br = DOM_createElement(document,"BR");
+        DOM_appendChild(p,br);
+        DOM_appendChild(document.body,p);
+    });
+
     // public
     Main_init = trace(function init(width,textScale,cssURL)
     {
@@ -287,6 +300,7 @@ var Main_init;
             DOM_assignNodeIds(document);
             Main_removeUnsupportedInput();
             addMetaCharset();
+            fixEmptyBody();
             Outline_init();
             Styles_init(cssURL);
             Viewport_init(width,textScale);
