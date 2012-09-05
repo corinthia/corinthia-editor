@@ -670,10 +670,59 @@ var Table_get;
         var fromStructure = Tables_analyseStructure(fromTableElement);
     });
 
+    var Table_fix = trace(function _Table_fix(table)
+    {
+        var changed = false;
+
+        var tbody = null;
+        for (var child = table.element.firstChild; child != null; child = child.nextSibling) {
+            if (DOM_upperName(child) == "TBODY")
+                tbody = child;
+        }
+
+        if (tbody == null)
+            return table; // FIXME: handle presence of THEAD and TFOOT, and also a missing TBODY
+
+        var trs = new Array();
+        for (var child = tbody.firstChild; child != null; child = child.nextSibling) {
+            if (DOM_upperName(child) == "TR")
+                trs.push(child);
+        }
+
+        while (trs.length < table.numRows) {
+            var tr = DOM_createElement(document,"TR");
+            DOM_appendChild(tbody,tr);
+            trs.push(tr);
+        }
+
+        for (var row = 0; row < table.numRows; row++) {
+            for (var col = 0; col < table.numCols; col++) {
+                var cell = Table_get(table,row,col);
+                if (cell == null) {
+                    var td = DOM_createElement(document,"TD");
+                    DOM_appendChild(trs[row],td);
+                    changed = true;
+                }
+            }
+        }
+
+        if (changed)
+            return new Table(table.element);
+        else
+            return table;
+    });
+
     // public
     Tables_analyseStructure = trace(function analyseStructure(element)
     {
-        return new Table(element);
+        // FIXME: we should probably be preserving the selection here, since we are modifying
+        // the DOM (though I think it's unlikely it would cause problems, becausing the fixup
+        // logic only adds elements). However this method is called (indirectly) from within
+        // Selection_update(), which causes unbounded recursion due to the subsequent Selecton_set()
+        // that occurs.
+        var initial = new Table(element);
+        var fixed = Table_fix(initial);
+        return fixed;
     });
 
     // public
