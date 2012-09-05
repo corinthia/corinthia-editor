@@ -350,7 +350,7 @@ var Outline_setReferenceTarget;
             spanClass = Keys.FIGURE_NUMBER;
         else if (this.type == "table")
             spanClass = Keys.TABLE_NUMBER;
-            DOM_setAttribute(this.spareSpan,"class",spanClass);
+        DOM_setAttribute(this.spareSpan,"class",spanClass);
 
         // titleNode
         if (this.type == "figure") {
@@ -953,17 +953,19 @@ var Outline_setReferenceTarget;
     // public
     Outline_init = trace(function init()
     {
-        sections = new Category("section",isHeadingNode,sectionNumberRegex);
-        figures = new Category("figure",isFigureNode,figureNumberRegex);
-        tables = new Category("table",isTableNode,tableNumberRegex);
-        itemsByNode = new NodeMap();
-        refsById = new Object();
+        Selection_preserveWhileExecuting(function() {
+            sections = new Category("section",isHeadingNode,sectionNumberRegex);
+            figures = new Category("figure",isFigureNode,figureNumberRegex);
+            tables = new Category("table",isTableNode,tableNumberRegex);
+            itemsByNode = new NodeMap();
+            refsById = new Object();
 
-        DOM_ensureUniqueIds(document.documentElement);
-        document.addEventListener("DOMNodeInserted",docNodeInserted);
-        document.addEventListener("DOMNodeRemoved",docNodeRemoved);
+            DOM_ensureUniqueIds(document.documentElement);
+            document.addEventListener("DOMNodeInserted",docNodeInserted);
+            document.addEventListener("DOMNodeRemoved",docNodeRemoved);
 
-        docNodeInserted({target:document});
+            docNodeInserted({target:document});
+        });
         doneInit = true;
     });
 
@@ -1105,10 +1107,12 @@ var Outline_setReferenceTarget;
         var node = document.getElementById(itemId);
         var item = itemsByNode.get(node);
 
-        if (numbered)
-            OutlineItem_enableNumbering(item);
-        else
-            OutlineItem_disableNumbering(item);
+        Selection_preserveWhileExecuting(function() {
+            if (numbered)
+                OutlineItem_enableNumbering(item);
+            else
+                OutlineItem_disableNumbering(item);
+        });
 
         scheduleUpdateStructure();
     });

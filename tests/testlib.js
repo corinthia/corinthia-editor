@@ -47,8 +47,10 @@ function showRangeAsBrackets(range)
 function showSelection()
 {
     var range = Selection_get();
-    if (range != null)
+    if (range != null) {
+        Range_assertValid(range,"Selection");
         showRangeAsBrackets(range);
+    }
 }
 
 function removeIds()
