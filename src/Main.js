@@ -58,25 +58,19 @@ var Main_init;
     });
 
     // private
-    var addContentType = trace(function addContentType()
+    var addMetaCharset = trace(function addMetaCharset()
     {
         var head = DOM_documentHead(document);
-        var haveContentType = false;
         for (var child = head.firstChild; child != null; child = child.nextSibling) {
-            if (DOM_upperName(child) == "META") {
-                var httpEquiv = child.getAttribute("http-equiv");
-                if ((httpEquiv != null) && (httpEquiv.toLowerCase() == "content-type")) {
-                    haveContentType = true;
-                    break;
-                }
+            if ((DOM_upperName(child) == "META") && child.hasAttribute("charset")) {
+                DOM_setAttribute(child,"charset","utf-8");
+                return;
             }
         }
-        if (!haveContentType) {
-            var meta = DOM_createElement(document,"META");
-            DOM_setAttribute(meta,"http-equiv","Content-Type");
-            DOM_setAttribute(meta,"content","text/html; charset=utf-8");
-            DOM_insertBefore(head,meta,head.firstChild);
-        }
+
+        var meta = DOM_createElement(document,"META");
+        DOM_setAttribute(meta,"charset","utf-8");
+        DOM_insertBefore(head,meta,head.firstChild);
     });
 
     // public
@@ -292,7 +286,7 @@ var Main_init;
                 throw new Error("document.body is null");
             DOM_assignNodeIds(document);
             Main_removeUnsupportedInput();
-            addContentType();
+            addMetaCharset();
             Outline_init();
             Styles_init(cssURL);
             Viewport_init(width,textScale);
