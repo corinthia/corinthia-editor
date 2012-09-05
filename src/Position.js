@@ -1,6 +1,7 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
 var Position;
+var Position_assertValid;
 var Position_prev;
 var Position_next;
 var Position_trackWhileExecuting;
@@ -163,6 +164,31 @@ var Position_atPoint;
 
         return null;
     }
+
+    // public
+    Position_assertValid = trace(function _Position_assertValid(pos,description)
+    {
+        if (description == null)
+            description = "Position";
+
+        for (var ancestor = pos.node; ancestor != document.body; ancestor = ancestor.parentNode) {
+            if (ancestor == null)
+                throw new Error(description+" node "+pos.node.nodeName+" is not in tree");
+        }
+
+        var max;
+        if (pos.node.nodeType == Node.ELEMENT_NODE)
+            max = pos.node.childNodes.length;
+        else if (pos.node.nodeType == Node.TEXT_NODE)
+            max = pos.node.nodeValue.length;
+        else
+            throw new Error(description+" has invalid node type "+pos.node.nodeType);
+
+        if ((pos.offset < 0) || (pos.offset > max)) {
+            throw new Error(description+" (in "+pos.node.nodeName+") has invalid offset "+
+                            pos.offset+" (max allowed is "+max+")");
+        }
+    });
 
     // public
     Position_prev = trace(function prev(pos)

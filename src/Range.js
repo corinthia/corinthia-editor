@@ -2,6 +2,7 @@
 
 var Range;
 
+var Range_assertValid;
 var Range_isEmpty;
 var Range_trackWhileExecuting;
 var Range_expand;
@@ -25,6 +26,16 @@ var Range_getText;
         this.start = new Position(startNode,startOffset);
         this.end = new Position(endNode,endOffset);
     }
+
+    Range_assertValid = trace(function _Range_assertValid(range,description)
+    {
+        if (description == null)
+            description = "Range";
+        if (range == null)
+            throw new Error(description+" is null");
+        Position_assertValid(range.start,description+" start");
+        Position_assertValid(range.end,description+" end");
+    });
 
     Range_isEmpty = trace(function isEmpty(range)
     {

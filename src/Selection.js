@@ -401,15 +401,6 @@ var Selection_preferElementPositions;
         return false;
     });
 
-    var isNodeInTree = trace(function isNodeInTree(node)
-    {
-        for (; node != null; node = node.parentNode) {
-            if (node == document.body)
-                return true;
-        }
-        return false;
-    });
-
     Selection_update = trace(function update()
     {
         // Remove table selection DIVs
@@ -426,10 +417,7 @@ var Selection_preferElementPositions;
             return;
         }
 
-        if (!isNodeInTree(selRange.start.node))
-            throw new Error("Selection start node is not in tree");
-        if (!isNodeInTree(selRange.end.node))
-            throw new Error("Selection end node is not in tree");
+        Range_assertValid(selRange,"Selection");
 
         if (Range_isEmpty(selRange)) {
             // We just have a cursor
