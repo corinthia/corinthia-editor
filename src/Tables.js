@@ -18,6 +18,8 @@ var Tables_getSelectedTableId;
 var Tables_getProperties;
 var Tables_setProperties;
 
+var Table_get;
+
 (function() {
 
     function Cell(element,row,col)
@@ -46,29 +48,29 @@ var Tables_setProperties;
         this.right = this.left + this.colspan - 1;
     }
 
-    Cell.prototype.setRowspan = function(rowspan)
+    var Cell_setRowspan = trace(function _Cell_setRowspan(cell,rowspan)
     {
         if (rowspan < 1)
             rowspan = 1;
-        this.rowspan = rowspan;
-        this.bottom = this.top + this.rowspan - 1;
+        cell.rowspan = rowspan;
+        cell.bottom = cell.top + cell.rowspan - 1;
         if (rowspan == 1)
-            DOM_removeAttribute(this.element,"rowspan");
+            DOM_removeAttribute(cell.element,"rowspan");
         else
-            DOM_setAttribute(this.element,"rowspan",rowspan);
-    }
+            DOM_setAttribute(cell.element,"rowspan",rowspan);
+    });
 
-    Cell.prototype.setColspan = function(colspan)
+    var Cell_setColspan = trace(function _Cell_setColspan(cell,colspan)
     {
         if (colspan < 1)
             colspan = 1;
-        this.colspan = colspan;
-        this.right = this.left + this.colspan - 1;
+        cell.colspan = colspan;
+        cell.right = cell.left + cell.colspan - 1;
         if (colspan == 1)
-            DOM_removeAttribute(this.element,"colspan");
+            DOM_removeAttribute(cell.element,"colspan");
         else
-            DOM_setAttribute(this.element,"colspan",colspan);
-    }
+            DOM_setAttribute(cell.element,"colspan",colspan);
+    });
 
     function Table(element)
     {
@@ -80,54 +82,55 @@ var Tables_setProperties;
         this.numCols = 0;
         this.translated = false;
         this.cellsByElement = new NodeMap();
-        this.processTable(element);
+        Table_processTable(this,element);
     }
 
-    Table.prototype.set = function(row,col,cell)
+    var Table_set = trace(function _Table_set(table,row,col,cell)
     {
-        if (this.numRows < row+1)
-            this.numRows = row+1;
-        if (this.numCols < col+1)
-            this.numCols = col+1;
-        if (this.cells[row] == null)
-            this.cells[row] = new Array();
-        this.cells[row][col] = cell;
-    }
+        if (table.numRows < row+1)
+            table.numRows = row+1;
+        if (table.numCols < col+1)
+            table.numCols = col+1;
+        if (table.cells[row] == null)
+            table.cells[row] = new Array();
+        table.cells[row][col] = cell;
+    });
 
-    Table.prototype.get = function(row,col)
+    // public
+    Table_get = trace(function _Table_get(table,row,col)
     {
-        if (this.cells[row] == null)
+        if (table.cells[row] == null)
             return null;
-        return this.cells[row][col];
-    }
+        return table.cells[row][col];
+    });
 
-    Table.prototype.processTable = function(node)
+    var Table_processTable = trace(function _Table_processTable(table,node)
     {
         if ((DOM_upperName(node) == "TD") || (DOM_upperName(node) == "TH")) {
-            while (this.get(this.row,this.col) != null)
-                this.col++;
+            while (Table_get(table,table.row,table.col) != null)
+                table.col++;
 
-            var cell = new Cell(node,this.row,this.col);
-            this.cellsByElement.put(node,cell);
+            var cell = new Cell(node,table.row,table.col);
+            table.cellsByElement.put(node,cell);
 
             for (var r = 0; r < cell.rowspan; r++) {
                 for (var c = 0; c < cell.colspan; c++) {
-                    this.set(this.row+r,this.col+c,cell);
+                    Table_set(table,table.row+r,table.col+c,cell);
                 }
             }
-            this.col += cell.colspan;
+            table.col += cell.colspan;
         }
         else if (DOM_upperName(node) == "TR") {
             for (var child = node.firstChild; child != null; child = child.nextSibling)
-                this.processTable(child);
-            this.row++;
-            this.col = 0;
+                Table_processTable(table,child);
+            table.row++;
+            table.col = 0;
         }
         else {
             for (var child = node.firstChild; child != null; child = child.nextSibling)
-                this.processTable(child);
+                Table_processTable(table,child);
         }
-    }
+    });
 
     // public
     Tables_insertTable = trace(function insertTable(rows,cols,width,numbered,caption)
@@ -225,10 +228,10 @@ var Tables_setProperties;
     {
         var col = 0;
         while (col < structure.numCols) {
-            var existingCell = structure.get(oldRow,col);
+            var existingCell = Table_get(structure,oldRow,col);
             if (((newRow > oldRow) && (newRow < existingCell.row + existingCell.rowspan)) ||
                 ((newRow < oldRow) && (newRow >= existingCell.row))) {
-                existingCell.setRowspan(existingCell.rowspan+1);
+                Cell_setRowspan(existingCell,existingCell.rowspan+1);
             }
             else {
                 var td = addEmptyTableCell(newTR,existingCell.element.nodeName); // check-ok
@@ -246,7 +249,7 @@ var Tables_setProperties;
         Selection_preserveWhileExecuting(function() {
             var region = Tables_regionFromRange(Selection_get(),true);
             if (region != null) {
-                var cell = region.structure.get(region.top,region.left);
+                var cell = Table_get(region.structure,region.top,region.left);
                 var oldTR = cell.element.parentNode;
                 var newTR = DOM_createElement(document,"TR");
                 DOM_insertBefore(oldTR.parentNode,newTR,oldTR);
@@ -263,7 +266,7 @@ var Tables_setProperties;
         Selection_preserveWhileExecuting(function() {
             var region = Tables_regionFromRange(Selection_get(),true);
             if (region != null) {
-                var cell = region.structure.get(region.bottom,region.left);
+                var cell = Table_get(region.structure,region.bottom,region.left);
                 var oldTR = cell.element.parentNode;
                 var newTR = DOM_createElement(document,"TR");
                 DOM_insertBefore(oldTR.parentNode,newTR,oldTR.nextSibling);
@@ -410,14 +413,14 @@ var Tables_setProperties;
     var addColumnCells = trace(function addColumnCells(structure,oldIndex,right)
     {
         for (var row = 0; row < structure.numRows; row++) {
-            var cell = structure.get(row,oldIndex);
+            var cell = Table_get(structure,row,oldIndex);
             var oldTD = cell.element;
             if (cell.row == row) {
 
                 if (((right && (oldIndex+1 < cell.col + cell.colspan)) ||
                     (!right && (oldIndex-1 >= cell.col))) &&
                     (cell.colspan > 1)) {
-                    cell.setColspan(cell.colspan+1);
+                    Cell_setColspan(cell,cell.colspan+1);
                 }
                 else {
                     var newTD = createEmptyTableCell(oldTD.nodeName); // check-ok
@@ -494,7 +497,7 @@ var Tables_setProperties;
         var nodesToDelete = new NodeSet();
         for (var row = 0; row < structure.numRows; row++) {
             for (var col = left; col <= right; col++) {
-                var cell = structure.get(row,col);
+                var cell = Table_get(structure,row,col);
                 nodesToDelete.add(cell.element);
             }
         }
@@ -508,7 +511,7 @@ var Tables_setProperties;
         var structure = region.structure;
         for (var row = region.top; row <= region.bottom; row++) {
             for (var col = region.left; col <= region.right; col++) {
-                var cell = structure.get(row,col);
+                var cell = Table_get(structure,row,col);
                 DOM_deleteAllChildren(cell.element);
             }
         }
@@ -552,7 +555,7 @@ var Tables_setProperties;
 
             for (var row = region.top; row <= region.bottom; row++) {
                 for (var col = region.left; col <= region.right; col++) {
-                    var cell = structure.get(row,col);
+                    var cell = Table_get(structure,row,col);
                     var cellFirstRow = cell.row;
                     var cellLastRow = cell.row + cell.rowspan - 1;
                     var cellFirstCol = cell.col;
@@ -567,11 +570,11 @@ var Tables_setProperties;
                 }
             }
 
-            var mergedCell = structure.get(region.top,region.left);
+            var mergedCell = Table_get(structure,region.top,region.left);
 
             for (var row = region.top; row <= region.bottom; row++) {
                 for (var col = region.left; col <= region.right; col++) {
-                    var cell = structure.get(row,col);
+                    var cell = Table_get(structure,row,col);
                     // parentNode will be null if we've already done this cell
                     if ((cell != mergedCell) && (cell.element.parentNode != null)) {
                         while (cell.element.firstChild != null)
@@ -616,7 +619,7 @@ var Tables_setProperties;
 
         for (var row = region.top; row <= region.bottom; row++) {
             for (var col = region.left; col <= region.right; col++) {
-                var cell = structure.get(row,col);
+                var cell = Table_get(structure,row,col);
                 if ((cell.rowspan > 1) || (cell.colspan > 1)) {
 
                     var original = cell.element;
@@ -626,12 +629,12 @@ var Tables_setProperties;
                             if ((r == cell.top) && (c == cell.left))
                                 continue;
                             var newTD = createEmptyTableCell(original.nodeName); // check-ok
-                            var nextCell = structure.get(r,cell.right+1);
+                            var nextCell = Table_get(structure,r,cell.right+1);
                             var nextElement = null;
                             if ((nextCell != null) && (nextCell.row == r))
                                 nextElement = nextCell.element;
                             DOM_insertBefore(trElements[r],newTD,nextElement);
-                            structure.set(r,c,new Cell(newTD,r,c));
+                            Table_set(structure,r,c,new Cell(newTD,r,c));
                         }
                     }
                     DOM_removeAttribute(original,"rowspan");
@@ -650,7 +653,7 @@ var Tables_setProperties;
             var tr = DOM_createElement(document,"TR");
             DOM_appendChild(table,tr);
             for (var col = region.left; col <= region.right; col++) {
-                var cell = region.structure.get(row,col);
+                var cell = Table_get(region.structure,row,col);
                 if (!cellNodesDone.contains(cell.element)) {
                     DOM_appendChild(tr,DOM_cloneNode(cell.element,true));
                     cellNodesDone.add(cell.element);
@@ -771,12 +774,12 @@ var Tables_setProperties;
         do {
             boundariesOk = true;
             for (var row = region.top; row <= region.bottom; row++) {
-                var cell = structure.get(row,region.left);
+                var cell = Table_get(structure,row,region.left);
                 if (region.left > cell.left) {
                     region.left = cell.left;
                     boundariesOk = false;
                 }
-                cell = structure.get(row,region.right);
+                cell = Table_get(structure,row,region.right);
                 if (region.right < cell.right) {
                     region.right = cell.right;
                     boundariesOk = false;
@@ -784,12 +787,12 @@ var Tables_setProperties;
             }
 
             for (var col = region.left; col <= region.right; col++) {
-                var cell = structure.get(region.top,col);
+                var cell = Table_get(structure,region.top,col);
                 if (region.top > cell.top) {
                     region.top = cell.top;
                     boundariesOk = false;
                 }
-                cell = structure.get(region.bottom,col);
+                cell = Table_get(structure,region.bottom,col);
                 if (region.bottom < cell.bottom) {
                     region.bottom = cell.bottom;
                     boundariesOk = false;

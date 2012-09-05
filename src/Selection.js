@@ -112,8 +112,8 @@ var Selection_preferElementPositions;
 
         var sel = tableSelection;
 
-        var topLeftTD = sel.structure.get(sel.top,sel.left);
-        var bottomRightTD = sel.structure.get(sel.bottom,sel.right);
+        var topLeftTD = Table_get(sel.structure,sel.top,sel.left);
+        var bottomRightTD = Table_get(sel.structure,sel.bottom,sel.right);
 
         var topLeftRect = topLeftTD.element.getBoundingClientRect();
         var bottomRightRect = bottomRightTD.element.getBoundingClientRect();
@@ -888,8 +888,8 @@ var Selection_preferElementPositions;
         }
 
         // FIXME: handle the case where there is no cell at the specified row and column
-        var topLeftCell = structure.get(tableSelection.top,tableSelection.left);
-        var bottomRightCell = structure.get(tableSelection.bottom,tableSelection.right);
+        var topLeftCell = Table_get(structure,tableSelection.top,tableSelection.left);
+        var bottomRightCell = Table_get(structure,tableSelection.bottom,tableSelection.right);
 
         var topLeftNode = topLeftCell.element.parentNode;
         var topLeftOffset = DOM_nodeOffset(topLeftCell.element);
@@ -903,7 +903,7 @@ var Selection_preferElementPositions;
         {
             for (var r = 0; r < structure.numRows; r++) {
                 for (var c = 0; c < structure.numCols; c++) {
-                    var cell = structure.get(r,c);
+                    var cell = Table_get(structure,r,c);
                     if (cell != null) {
                         var rect = cell.element.getBoundingClientRect();
                         if ((x >= rect.left) && (x <= rect.right) &&
