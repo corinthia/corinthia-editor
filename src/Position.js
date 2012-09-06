@@ -713,12 +713,19 @@ var Position_atPoint;
                 break;
         }
 
-        if (backRect != null)
+        if (backRect != null) {
             return backRect;
-        else if (forwardRect != null)
+        }
+        else if (forwardRect != null) {
             return forwardRect;
-        else // Fallback, e.g. for empty LI elements
-            return zeroWidthLeftRect(pos.node.getBoundingClientRect());
+        }
+        else {
+            // Fallback, e.g. for empty LI elements
+            var node = pos.node;
+            if (node.nodeType == Node.TEXT_NODE)
+                node = node.parentNode;
+            return zeroWidthLeftRect(node.getBoundingClientRect());
+        }
     });
 
     Position_equal = trace(function equal(a,b)
