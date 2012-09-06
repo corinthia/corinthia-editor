@@ -478,7 +478,7 @@ var Range_getText;
                         str = pos.node.nodeValue;
                         pos = new Position(pos.node,pos.node.nodeValue.length);
                     }
-                    str = str.replace(/\n/g," ");
+                    str = str.replace(/\s+/g," ");
                     components.push(str);
                 }
 
