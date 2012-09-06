@@ -255,7 +255,7 @@ var Lists_setOrderedList;
         var ds = detail.startAncestor;
         var de = detail.endAncestor;
 
-        while (!isContainerNode(dca)) {
+        while (isInlineNode(dca)) {
             ds = dca;
             de = dca;
             dca = dca.parentNode;
@@ -292,6 +292,8 @@ var Lists_setOrderedList;
                     addNode(child);
             }
         }
+        if ((nodes.length == 0) && isParagraphNode(dca))
+            nodes.push(dca);
         return nodes;
 
         function addNode(node)

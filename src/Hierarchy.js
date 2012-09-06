@@ -69,8 +69,10 @@ var Hierarchy_wrapInlineNodesInParagraph;
     var checkInvalidNesting = trace(function checkInvalidNesting(node)
     {
         var invalidNesting = !isContainerNode(node.parentNode);
-        if (isParagraphNode(node) && (DOM_upperName(node.parentNode) == "DIV"))
-            invalidNesting = false; // this case is ok
+        if (DOM_upperName(node.parentNode) == "DIV") {
+            if (isParagraphNode(node) || isListNode(node))
+                invalidNesting = false; // this case is ok
+        }
         return invalidNesting;
     });
 
