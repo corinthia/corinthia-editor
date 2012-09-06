@@ -717,8 +717,8 @@ var Position_atPoint;
             return backRect;
         else if (forwardRect != null)
             return forwardRect;
-        else
-            return null;
+        else // Fallback, e.g. for empty LI elements
+            return zeroWidthLeftRect(pos.node.getBoundingClientRect());
     });
 
     Position_equal = trace(function equal(a,b)
