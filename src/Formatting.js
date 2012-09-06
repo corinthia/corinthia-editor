@@ -628,31 +628,37 @@ var Formatting_formatInlineNode;
         var array = new Array();
         var set = new NodeSet();
         for (var i = 0; i < nodes.length; i++) {
-            var node = nodes[i];
-
-            var haveParagraph = false;
-            for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {   
-                if (isListItemNode(ancestor))
-                    putDirectInlineChildrenInParagraphs(ancestor);
+            for (var anc = nodes[i].parentNode; anc != null; anc = anc.parentNode) {
+                if (isListItemNode(anc))
+                    putDirectInlineChildrenInParagraphs(anc);
             }
-            for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {   
-                if (isParagraphNode(ancestor)) {
-                    add(ancestor);
-                    haveParagraph = true;
-                }
-            }
-
-            if (!haveParagraph)
-                recurse(node);
+            recurse(nodes[i]);
         }
-        return array;
+
+        var remove = new NodeSet();
+        for (var i = 0; i < array.length; i++) {
+            for (var anc = array[i].parentNode; anc != null; anc = anc.parentNode)
+                remove.add(anc);
+        }
+
+        var modified = new Array();
+        for (var i = 0; i < array.length; i++) {
+            if (!remove.contains(array[i]))
+                modified.push(array[i]);
+        }
+
+        return modified;
 
         function recurse(node)
         {
             if (isListItemNode(node))
                 putDirectInlineChildrenInParagraphs(node);
-            if (isParagraphNode(node)) {
-                add(node);
+            if (node.firstChild == null) {
+                // Leaf node
+                for (var anc = node; anc != null; anc = anc.parentNode)
+                    if (isParagraphNode(anc)) {
+                        add(anc);
+                    }
             }
             else {
                 for (var child = node.firstChild; child != null; child = child.nextSibling)

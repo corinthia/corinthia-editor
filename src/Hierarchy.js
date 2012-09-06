@@ -76,9 +76,10 @@ var Hierarchy_wrapInlineNodesInParagraph;
 
     var checkInvalidHeadingNesting = trace(function checkInvalidHeadingNesting(node)
     {
-        return isHeadingNode(node) &&
-            (node.parentNode != document.body) &&
-            (DOM_upperName(node.parentNode) != "NAV");
+        return (isHeadingNode(node) &&
+                (node.parentNode != document.body) &&
+                (DOM_upperName(node.parentNode) != "NAV") &&
+                (DOM_upperName(node.parentNode) != "DIV"));
     });
 
     var nodeHasSignificantChildren = trace(function nodeHasSignificantChildren(node)
