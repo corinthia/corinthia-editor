@@ -99,13 +99,14 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
 
         var range = new Range(start.node,start.offset,end.node,end.offset);
         var result = Range_getText(range);
-//        debug("textInRange "+start+" - "+end+" = "+JSON.stringify(result));
+        idebug("Input_textInRange("+startId+","+endId+") = "+JSON.stringify(result));
         return result;
     });
 
     // void
     Input_replaceRange = trace(function replaceRange(startId,endId,text)
     {
+        idebug("Input_replaceRange("+startId+","+endId+","+JSON.stringify(text)+")");
         var start = getPosition(startId);
         var end = getPosition(endId);
         if (start == null)
@@ -138,13 +139,13 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     {
         var range = Selection_get();
         if (range == null) {
-//            idebug("selectedTextRange: null");
+            idebug("Input_selectedTextRange = null");
             return null;
         }
         else {
             var startId = addPosition(range.start);
             var endId = addPosition(range.end);
-//            idebug("selectedTextRange: "+startId+", "+endId);
+            idebug("Input_selectedTextRange = "+startId+", "+endId);
             return { startId: startId,
                      endId: endId };
         }
@@ -153,6 +154,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     // void
     Input_setSelectedTextRange = trace(function setSelectedTextRange(startId,endId)
     {
+        idebug("Input_setSelectedTextRange("+startId+","+endId+")");
         var start = getPosition(startId);
         var end = getPosition(endId);
 
@@ -173,28 +175,33 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     // { startId, endId }
     Input_markedTextRange = trace(function markedTextRange()
     {
+        idebug("Input_markedTextRange");
         return null;
     });
 
     // void
     Input_setMarkedText = trace(function setMarkedText(text,startOffset,endOffset)
     {
+        idebug("Input_setMarkedText");
     });
 
     // void
     Input_unmarkText = trace(function unmarkText()
     {
+        idebug("Input_unmarkText");
     });
 
     // boolean
     Input_forwardSelectionAffinity = trace(function forwardSelectionAffinity()
     {
+        idebug("Input_forwardSelectionAffinity");
         return forwardSelection;
     });
 
     // void
     Input_setForwardSelectionAffinity = trace(function setForwardSelectionAffinity(value)
     {
+        idebug("Input_setForwardSelectionAffinity");
         forwardSelection = value;
     });
 
@@ -228,13 +235,16 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     Input_positionFromPositionOffset = trace(function positionFromPositionOffset(posId,offset)
     {
         var pos = getPosition(posId);
-        return addPosition(positionRight(pos,offset));
+        var res = addPosition(positionRight(pos,offset));
+        idebug("Input_positionFromPositionOffset("+posId+","+offset+") = "+res);
+        return res;
     });
 
     // posId
     Input_positionFromPositionInDirectionOffset =
         trace(function positionFromPositionInDirectionOffset(posId,direction,offset)
     {
+        idebug("Input_positionFromPositionInDirectionOffset("+posId+","+direction+","+offset+")");
         var pos = getPosition(posId);
         if (direction == "left")
             return addPosition(positionRight(pos,-offset));
@@ -251,6 +261,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     // posId
     Input_beginningOfDocument = trace(function beginningOfDocument()
     {
+        idebug("Input_beginningOfDocument");
         var pos = new Position(document.body,0);
         pos = Position_closestMatchForwards(pos,Position_okForMovement);
         return addPosition(pos);
@@ -259,6 +270,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     // posId
     Input_endOfDocument = trace(function endOfDocument()
     {
+        idebug("Input_endOfDocument");
         var pos = new Position(document.body,document.body.childNodes.length);
         pos = Position_closestMatchBackwards(pos,Position_okForMovement);
         return addPosition(pos);
@@ -267,6 +279,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     // int
     Input_comparePositionToPosition = trace(function comparePositionToPosition(posId1,posId2)
     {
+        idebug("Input_comparePositionToPosition("+posId1+","+posId2+")");
         var pos1 = getPosition(posId1);
         var pos2 = getPosition(posId2);
         if ((pos1.node == pos2.node) && (pos1.offset == pos2.offset))
@@ -281,12 +294,14 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     // int
     Input_offsetFromPositionToPosition = trace(function offsetFromPositionToPosition(fromId,toId)
     {
+        idebug("Input_offsetFromPositionToPosition("+fromId+","+toId+")");
         throw new Error("offsetFromPositionToPosition: not implemented");
     });
 
     Input_positionWithinRangeFarthestInDirection =
         trace(function positionWithinRangeFarthestInDirection(startId,endId,direction)
     {
+        idebug("Input_positionWithinRangeFarthestInDirection("+startId+","+endId+","+direction);
         throw new Error("positionWithinRangeFarthestInDirection: not implemented");
     });
 
@@ -294,11 +309,13 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     Input_characterRangeByExtendingPositionInDirection =
         trace(function characterRangeByExtendingPositionInDirection(posId,direction)
     {
+        idebug("Input_characterRangeByExtendingPositionInDirection("+posId+","+direction);
         throw new Error("characterRangeByExtendingPositionInDirection: not implemented");
     });
 
     Input_firstRectForRange = trace(function firstRectForRange(startId,endId)
     {
+        idebug("Input_firstRectForRange("+startId+","+endId+")");
         var start = getPosition(startId);
         var end = getPosition(endId);
         var range = new Range(start.node,start.offset,end.node,end.offset);
@@ -312,6 +329,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
 
     Input_caretRectForPosition = trace(function caretRectForPosition(posId)
     {
+        idebug("Input_caretRectForPosition("+posId+")");
         var pos = getPosition(posId);
         var rect = Position_rectAtPos(pos);
         if (rect == null)
@@ -323,6 +341,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     // posId
     Input_closestPositionToPoint = trace(function closestPositionToPoint(x,y)
     {
+        idebug("Input_closestPositionToPoint("+x+","+y+")");
         throw new Error("closestPositionToPoint: not implemented");
     });
 
@@ -330,12 +349,14 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     Input_closestPositionToPointWithinRange =
         trace(function closestPositionToPointWithinRange(x,y,startId,endId)
     {
+        idebug("Input_closestPositionToPointWithinRange("+x+","+y+")");
         throw new Error("closestPositionToPointWithinRange: not implemented");
     });
 
     // { startId, endId }
     Input_characterRangeAtPoint = trace(function characterRangeAtPoint(x,y)
     {
+        idebug("Input_characterRangeAtPoint("+x+","+y+")");
         throw new Error("characterRangeAtPoint: not implemented");
     });
 
@@ -343,6 +364,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     Input_positionWithinRangeAtCharacterOffset =
         trace(function positionWithinRangeAtCharacterOffset(startId,endId,offset)
     {
+        idebug("Input_positionWithinRangeAtCharacterOffset("+startId+","+endId+","+offset+")");
         throw new Error("positionWithinRangeAtCharacterOffset: not implemented");
     });
 
@@ -350,6 +372,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     Input_characterOffsetOfPositionWithinRange =
         trace(function characterOffsetOfPositionWithinRange(posId,startId,endId)
     {
+        idebug("Input_characterOffsetOfPositionWithinRange("+posId+","+startId+","+endId+")");
         throw new Error("characterOffsetOfPositionWithinRange: not implemented");
     });
 
@@ -401,6 +424,8 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     Input_isPositionAtBoundaryGranularityInDirection =
         trace(function isPositionAtBoundaryGranularityInDirection(posId,granularity,direction)
     {
+        idebug("Input_isPositionAtBoundaryGranularityInDirection("+
+               posId+","+granularity+","+direction+")");
         var pos = getPosition(posId);
         if (pos == null)
             return false;
@@ -427,6 +452,8 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     Input_isPositionWithinTextUnitInDirection =
         trace(function isPositionWithinTextUnitInDirection(posId,granularity,direction)
     {
+        idebug("Input_isPositionWithinTextUnitInDirection("+
+               posId+","+granularity+","+direction+")");
         var pos = getPosition(posId);
         if (pos == null)
             return false;
@@ -558,6 +585,8 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     Input_positionFromPositionToBoundaryInDirection =
         trace(function positionFromPositionToBoundaryInDirection(posId,granularity,direction)
     {
+        idebug("Input_positionFromPositionToBoundaryInDirection("+
+               posId+","+granularity+","+direction+")");
         var pos = getPosition(posId);
         if (pos == null)
             return null;
@@ -575,6 +604,8 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     Input_rangeEnclosingPositionWithGranularityInDirection =
         trace(function rangeEnclosingPositionWithGranularityInDirection(posId,granularity,direction)
     {
+        idebug("Input_rangeEnclosingPositionWithGranularityInDirection("+
+               posId+","+granularity+","+direction);
         var pos = getPosition(posId);
         if (pos == null)
             return null;
