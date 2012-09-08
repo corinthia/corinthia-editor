@@ -690,11 +690,18 @@ var Formatting_formatInlineNode;
             if ((result != null) && (result.length == 4)) {
                 var elementName = result[1];
                 var className = result[3];
-                elementName = (elementName != null) ? elementName.toUpperCase() : null;
-                if ((elementName == null) || !PARAGRAPH_ELEMENTS[elementName])
+
+                if (elementName == null)
                     elementName = "P";
+                else
+                    elementName = elementName.toUpperCase();
+
+                if (!PARAGRAPH_ELEMENTS[elementName])
+                    return; // better than throwing an exception
+
                 if (DOM_upperName(paragraph) != elementName)
                     paragraph = DOM_replaceElement(paragraph,elementName);
+
                 if (className != null)
                     DOM_setAttribute(paragraph,"class",className);
                 else
