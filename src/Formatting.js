@@ -676,26 +676,34 @@ var Formatting_formatInlineNode;
     });
 
     // private
-    var setParagraphStyle = trace(function setParagraphStyle(paragraph,style)
+    var setParagraphStyle = trace(function setParagraphStyle(paragraph,selector)
     {
         var wasHeading = isHeadingNode(paragraph);
         DOM_removeAttribute(paragraph,"class");
-        if (style == "") {
+        if (selector == "") {
             if (DOM_upperName(paragraph) != "P")
                 paragraph = DOM_replaceElement(paragraph,"P");
-        }
-        else if (style.charAt(0) == ".") {
-            if (DOM_upperName(paragraph) != "P")
-                paragraph = DOM_replaceElement(paragraph,"P");
-            DOM_setAttribute(paragraph,"class",style.slice(1));
         }
         else {
-            var elementName = style.toUpperCase();
-            if (!PARAGRAPH_ELEMENTS[elementName])
-                throw new Error(style+" is not a valid paragraph element");
-            if (DOM_upperName(paragraph) != elementName)
-                paragraph = DOM_replaceElement(paragraph,elementName);
+            var elementClassRegex = /^([a-zA-Z0-9]+)?(\.(.+))?$/;
+            var result = elementClassRegex.exec(selector);
+            if ((result != null) && (result.length == 4)) {
+                var elementName = result[1];
+                var className = result[3];
+                elementName = (elementName != null) ? elementName.toUpperCase() : null;
+                if ((elementName == null) || !PARAGRAPH_ELEMENTS[elementName])
+                    elementName = "P";
+                if (DOM_upperName(paragraph) != elementName)
+                    paragraph = DOM_replaceElement(paragraph,elementName);
+                if (className != null)
+                    DOM_setAttribute(paragraph,"class",className);
+                else
+                    DOM_removeAttribute(paragraph,"class");
+            }
         }
+
+        // FIXME: this will need to change when we add Word/ODF support, because the ids serve
+        // a purpose other than simply being targets for references
         var isHeading = isHeadingNode(paragraph);
         if (wasHeading && !isHeading)
             DOM_removeAttribute(paragraph,"id");
