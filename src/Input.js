@@ -48,7 +48,12 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
 
     var forwardSelection = true;
     var positions = new Object();
-    var nextPosId = 1;
+    var BaseIdDocumentStart = 1;
+    var BaseIdDocumentEnd = 2;
+    var BaseIdSelectionStart = 3;
+    var BaseIdSelectionEnd = 4;
+    var firstDynamicPosId = 5;
+    var nextPosId = firstDynamicPosId;
 
     var addPosition = trace(function addPosition(pos)
     {
