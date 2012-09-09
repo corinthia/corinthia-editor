@@ -53,6 +53,7 @@ var Text_toEndOfBoundary;
 
     Text_findParagraphBoundaries = trace(function findParagraphBoundaries(pos)
     {
+        Position_assertValid(pos);
         var startOffset = pos.offset;
         var endOffset = pos.offset;
         var node = pos.node;

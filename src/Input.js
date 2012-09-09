@@ -12,8 +12,6 @@ var Input_forwardSelectionAffinity;
 var Input_setForwardSelectionAffinity;
 var Input_positionFromPositionOffset;
 var Input_positionFromPositionInDirectionOffset;
-var Input_beginningOfDocument;
-var Input_endOfDocument;
 var Input_comparePositionToPosition;
 var Input_offsetFromPositionToPosition;
 var Input_positionWithinRangeFarthestInDirection;
@@ -48,6 +46,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
 
     var forwardSelection = true;
     var positions = new Object();
+    var BaseIdNull = 0;
     var BaseIdDocumentStart = 1;
     var BaseIdDocumentEnd = 2;
     var BaseIdSelectionStart = 3;
@@ -74,8 +73,33 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     {
         if (posId instanceof Position) // for tests
             return posId;
-        if (posId == 0)
-            return null;
+        if (posId < firstDynamicPosId) {
+            switch (posId) {
+            case BaseIdNull: {
+                return null;
+            }
+            case BaseIdDocumentStart: {
+                var pos = new Position(document.body,0);
+                pos = Position_closestMatchForwards(pos,Position_okForMovement);
+                return pos;
+            }
+            case BaseIdDocumentEnd: {
+                var pos = new Position(document.body,document.body.childNodes.length);
+                pos = Position_closestMatchBackwards(pos,Position_okForMovement);
+                return pos;
+            }
+            case BaseIdSelectionStart: {
+                var range = Selection_get();
+                return (range != null) ? range.start : null;
+            }
+            case BaseIdSelectionEnd: {
+                var range = Selection_get();
+                return (range != null) ? range.end : null;
+            }
+            default:
+                return null;
+            }
+        }
         if (positions[posId] == null)
             throw new Error("No position for pos id "+posId);
         return positions[posId];
@@ -86,6 +110,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     // void
     Input_removePosition = trace(function removePosition(posId)
     {
+        idebug("Input_removePosition("+posId+")");
         var pos = positions[posId];
         if (pos == null) {
             throw new Error("no position for id "+posId);
@@ -168,6 +193,11 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         var oldEnd = (oldSelection != null) ? oldSelection.end : null;
 
         Selection_set(start.node,start.offset,end.node,end.offset);
+
+        // The positions may have changed as a result of spans being added/removed
+        var newRange = Selection_get();
+        start = newRange.start;
+        end = newRange.end;
 
         if (Position_equal(start,end))
             Cursor_ensurePositionVisible(end);
@@ -261,24 +291,6 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
             return addPosition(positionDown(pos,offset));
         else
             throw new Error("unknown direction: "+direction);
-    });
-
-    // posId
-    Input_beginningOfDocument = trace(function beginningOfDocument()
-    {
-        idebug("Input_beginningOfDocument");
-        var pos = new Position(document.body,0);
-        pos = Position_closestMatchForwards(pos,Position_okForMovement);
-        return addPosition(pos);
-    });
-
-    // posId
-    Input_endOfDocument = trace(function endOfDocument()
-    {
-        idebug("Input_endOfDocument");
-        var pos = new Position(document.body,document.body.childNodes.length);
-        pos = Position_closestMatchBackwards(pos,Position_okForMovement);
-        return addPosition(pos);
     });
 
     // int
