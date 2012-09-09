@@ -120,16 +120,19 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     });
 
     // string
-    Input_textInRange = trace(function textInRange(startId,endId)
+    Input_textInRange = trace(function textInRange(startId,startAdjust,endId,endAdjust)
     {
         var start = getPosition(startId);
         var end = getPosition(endId);
+        start = positionRight(start,startAdjust);
+        end = positionRight(end,endAdjust);
         if ((start == null) || (end == null))
             return "";
 
         var range = new Range(start.node,start.offset,end.node,end.offset);
         var result = Range_getText(range);
-        idebug("Input_textInRange("+startId+","+endId+") = "+JSON.stringify(result));
+        idebug("Input_textInRange("+startId+","+startAdjust+","+endId+","+endAdjust+") = "+
+               JSON.stringify(result));
         return result;
     });
 
