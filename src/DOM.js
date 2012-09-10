@@ -56,9 +56,6 @@ var DOM_Listener;
 
 (function() {
 
-    // Assign a unique prefix to the ids, to ensure namespaces don't clash when multiple instances
-    // of this are used in different browser windows
-    var prefix = Math.random()+":";
     var nextNodeId = 0;
     var nodeData = new Object();
     var ignoreMutations = 0;
@@ -79,7 +76,7 @@ var DOM_Listener;
     {
         if (node._nodeId != null)
             throw new Error(node+" already has id");
-        node._nodeId = prefix+nextNodeId++;
+        node._nodeId = nextNodeId++;
         return node;
     }
 
@@ -95,7 +92,7 @@ var DOM_Listener;
     {
         if (node._nodeId != null)
             throw new Error(node+" already has id");
-        node._nodeId = prefix+nextNodeId++;
+        node._nodeId = nextNodeId++;
         for (var child = node.firstChild; child != null; child = child.nextSibling)
             assignNodeIds(child);
     }
