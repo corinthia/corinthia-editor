@@ -297,19 +297,33 @@ var Main_init;
                 throw new Error("document.documentElement is null");
             if (document.body == null)
                 throw new Error("document.body is null");
+            var timing = new TimingInfo();
+            timing.start();
             DOM_assignNodeIds(document);
+            timing.addEntry("DOM_assignNodeIds");
             Main_removeUnsupportedInput();
+            timing.addEntry("Main_removeUnsupportedInput");
             addMetaCharset();
+            timing.addEntry("addMetaCharset");
             fixEmptyBody();
+            timing.addEntry("fixEmptyBody");
             Outline_init();
+            timing.addEntry("Outline_init");
             Styles_init(cssURL);
+            timing.addEntry("Styles_init");
             Viewport_init(width,textScale);
+            timing.addEntry("Viewport_init");
             AutoCorrect_init();
+            timing.addEntry("AutoCorrect_init");
 
             PostponedActions_perform();
+            timing.addEntry("PostponedActions_perform");
             Cursor_moveToStartOfDocument();
+            timing.addEntry("Cursor_moveToStartOfDocument");
 
             UndoManager_clear();
+            timing.addEntry("UndoManager_clear");
+            timing.print();
 
             return true;
         }
