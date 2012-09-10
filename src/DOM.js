@@ -77,6 +77,7 @@ var DOM_Listener;
         if (node._nodeId != null)
             throw new Error(node+" already has id");
         node._nodeId = nextNodeId++;
+        node._type = ElementTypes[node.nodeName];
         return node;
     }
 
@@ -96,6 +97,7 @@ var DOM_Listener;
 
         function recurse(node) {
             node._nodeId = nextNodeId++;
+            node._type = ElementTypes[node.nodeName];
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
         }
