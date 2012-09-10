@@ -13,27 +13,36 @@ function prevNode(node)
     }
 }
 
-function nextNodeAfter(node)
+function nextNodeAfter(node,entering,exiting)
 {
-    if (node.nextSibling) {
-        return node.nextSibling;
+    while (node != null) {
+        if (node.nextSibling != null) {
+            if (exiting != null)
+                exiting(node);
+            node = node.nextSibling;
+            if (entering != null)
+                entering(node);
+            break;
+        }
+
+        if (exiting != null)
+            exiting(node);
+        node = node.parentNode;
     }
-    else {
-        while ((node.parentNode != null) && (node.parentNode.nextSibling == null))
-            node = node.parentNode;
-        if (node.parentNode == null)
-            return null;
-        else
-            return node.parentNode.nextSibling;
-    }
+    return node;
 }
 
-function nextNode(node)
+function nextNode(node,entering,exiting)
 {
-    if (node.firstChild)
-        return node.firstChild;
-    else
-        return nextNodeAfter(node);
+    if (node.firstChild) {
+        node = node.firstChild;
+        if (entering != null)
+            entering(node);
+        return node;
+    }
+    else {
+        return nextNodeAfter(node,entering,exiting);
+    }
 }
 
 function prevTextNode(node)
