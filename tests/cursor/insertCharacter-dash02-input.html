@@ -7,12 +7,14 @@ function performTest()
     Cursor_insertCharacter("-",true);
     var text = getNodeText(document.body).replace(/\s+$/,"");
     var charCode = text.charCodeAt(text.length-1);
-    DOM_appendChild(document.body,DOM_createTextNode(document,"charCode = "+charCode));
+    var p = DOM_createElement(document,"P");
+    DOM_appendChild(p,DOM_createTextNode(document,"charCode = "+charCode));
+    DOM_appendChild(document.body,p);
     showSelection();
 }
 </script>
 </head>
 <body>
-En dash: 3[]
+<p>En dash: 3[]</p>
 </body>
 </html>

@@ -393,16 +393,13 @@ var Cursor_set;
             offset = 0;
         }
 
-        var paragraph = Text_analyseParagraph(new Position(node,0));
-        var putInParagraph = ((paragraph != null) && isWhitespaceString(paragraph.text));
-
         if (str == " ")
             DOM_insertCharacters(node,offset,nbsp);
         else
             DOM_insertCharacters(node,offset,str);
 
-        if (putInParagraph && !allowNoParagraph) // must be done *after* inserting the text
-            Hierarchy_ensureInlineNodesInParagraph(node);
+        if (!allowNoParagraph) // must be done *after* inserting the text
+            Hierarchy_ensureInlineNodesInParagraph(node,true);
 
         offset += str.length;
 

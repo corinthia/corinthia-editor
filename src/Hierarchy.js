@@ -168,7 +168,7 @@ var Hierarchy_wrapInlineNodesInParagraph;
         }
     });
 
-    Hierarchy_ensureInlineNodesInParagraph = trace(function ensureInlineNodesInParagraph(node)
+    Hierarchy_ensureInlineNodesInParagraph = trace(function ensureInlineNodesInParagraph(node,weak)
     {
         var count = 0;
         while ((node != null) && (node.parentNode != null) && (node != document.body)) {
@@ -177,6 +177,7 @@ var Hierarchy_wrapInlineNodesInParagraph;
                 throw new Error("ensureInlineNodesInParagraph: too many iterations");
             if (isInlineNode(node) &&
                 isContainerNode(node.parentNode) && !isListItemNode(node.parentNode) &&
+                (!weak || !isTableCell(node.parentNode)) &&
                 !isWhitespaceTextNode(node)) {
                 Hierarchy_wrapInlineNodesInParagraph(node);
                 return;
