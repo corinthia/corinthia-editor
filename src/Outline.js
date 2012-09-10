@@ -572,23 +572,37 @@ var Outline_setReferenceTarget;
 
         function recurse(node)
         {
-            if (!doneInit && isHeadingNode(node) && isWhitespaceString(getNodeText(node))) {
-                DOM_ignoreMutationsWhileExecuting(function() {
-                    DOM_deleteNode(node);
-                });
-                return;
+            switch (node._type) {
+            case HTML_H1:
+            case HTML_H2:
+            case HTML_H3:
+            case HTML_H4:
+            case HTML_H5:
+            case HTML_H6: {
+                if (!doneInit && isWhitespaceString(getNodeText(node))) {
+                    DOM_ignoreMutationsWhileExecuting(function() {
+                        DOM_deleteNode(node);
+                    });
+                    return;
+                }
+
+                if (!isInTOC(node))
+                    Category_add(sections,node);
+                break;
             }
-
-            if (isHeadingNode(node) && !isInTOC(node))
-                Category_add(sections,node);
-            else if (isFigureNode(node))
+            case HTML_FIGURE:
                 Category_add(figures,node);
-            else if (isTableNode(node))
+                break;
+            case HTML_TABLE:
                 Category_add(tables,node);
-            else if (isRefNode(node) && !isInTOC(node))
-                refInserted(node);
-
-            if (DOM_upperName(node) == "NAV") {
+                break;
+            case HTML_A: {
+                if (isRefNode(node) && !isInTOC(node)) {
+                    refInserted(node);
+                }
+                break;
+            }
+            case HTML_NAV: {
                 var cls = node.getAttribute("class");
                 if (cls == Keys.SECTION_TOC)
                     Category_addTOC(sections,node);
@@ -596,6 +610,8 @@ var Outline_setReferenceTarget;
                     Category_addTOC(figures,node);
                 else if (cls == Keys.TABLE_TOC)
                     Category_addTOC(tables,node);
+                break;
+            }
             }
 
             var next;
