@@ -18,7 +18,7 @@ var CONTAINER_ELEMENTS = {
     "COL": true,
     "FIGURE": true,
     "FIGCAPTION": true,
-    "NAV": true,
+    "NAV": true
 };
 
 var CONTAINER_ELEMENT_TYPES = new Array(HTML_COUNT);
