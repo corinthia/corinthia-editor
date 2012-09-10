@@ -777,12 +777,8 @@ var Position_atPoint;
         if ((second.node.parentNode == null) && (second.node != doc.documentElement))
             throw new Error("Second node has been removed from document");
 
-        if ((first.node == second.node) && (first.node.nodeType == Node.TEXT_NODE)) {
-            if (first.offset <= second.offset)
-                return -1;
-            else
-                return 1;
-        }
+        if (first.node == second.node)
+            return first.offset - second.offset;
 
         var firstParent = null;
         var firstChild = null;

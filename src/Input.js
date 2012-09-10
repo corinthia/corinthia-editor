@@ -302,13 +302,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         idebug("Input_comparePositionToPosition("+posId1+","+posId2+")");
         var pos1 = getPosition(posId1);
         var pos2 = getPosition(posId2);
-        if ((pos1.node == pos2.node) && (pos1.offset == pos2.offset))
-            return 0;
-        var range = new Range(pos1.node,pos1.offset,pos2.node,pos2.offset);
-        if (Range_isForwards(range))
-            return -1;
-        else
-            return 1;
+        return Position_compare(pos1,pos2);
     });
 
     // int
