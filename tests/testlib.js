@@ -1,3 +1,94 @@
+function testHarnessSetup()
+{
+    DOM_assignNodeIds(document);
+
+    var start;
+    var track;
+    var end;
+
+
+    UndoManager_disableWhileExecuting(function() {
+        start = extractPositionFromCharacter("[");
+        track = (start == null) ? [] : [start];
+        Position_trackWhileExecuting(track,function() {
+            end = extractPositionFromCharacter("]");
+        });
+    });
+
+    if ((start != null) && (end == null))
+        throw new Error("Start of selection specified, but not end");
+    if ((start == null) && (end != null))
+        throw new Error("End of selection specified, but not start");
+
+    if ((start != null) && (end != null)) {
+        var range = new Range(start.node,start.offset,end.node,end.offset);
+
+        UndoManager_disableWhileExecuting(function() {
+            Range_trackWhileExecuting(range,function() {
+                positionMergeWithNeighbours(start);
+                positionMergeWithNeighbours(end);
+            });
+        });
+
+        range.start = Position_preferTextPosition(range.start);
+        range.end = Position_preferTextPosition(range.end);
+
+        Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
+    }
+
+    return;
+
+    function positionMergeWithNeighbours(pos)
+    {
+        var node = pos.node;
+        var offset = pos.offset;
+        if ((node.nodeType == Node.ELEMENT_NODE) && (offset < node.childNodes.length))
+            Formatting_mergeWithNeighbours(node.childNodes[offset],Formatting_MERGEABLE_INLINE);
+        else if ((node.nodeType == Node.ELEMENT_NODE) && (node.lastChild != null))
+            Formatting_mergeWithNeighbours(node.lastChild,Formatting_MERGEABLE_INLINE);
+        else
+            Formatting_mergeWithNeighbours(node,Formatting_MERGEABLE_INLINE);
+    }
+
+    function extractPositionFromCharacter(c)
+    {
+        return recurse(document.body);
+
+        function recurse(node)
+        {
+            if (node.nodeType == Node.TEXT_NODE) {
+                var index = node.nodeValue.indexOf(c);
+                if (index >= 0) {
+                    var offsetInParent = DOM_nodeOffset(node);
+                    if (index == 0) {
+                        node.nodeValue = node.nodeValue.substring(1);
+                        return new Position(node.parentNode,offsetInParent);
+                    }
+                    else if (index == node.nodeValue.length - 1) {
+                        node.nodeValue = node.nodeValue.substring(0,node.nodeValue.length-1);
+                        return new Position(node.parentNode,offsetInParent+1);
+                    }
+                    else {
+                        var rest = node.nodeValue.substring(index+1);
+                        node.nodeValue = node.nodeValue.substring(0,index);
+                        var restNode = DOM_createTextNode(document,rest);
+                        DOM_insertBefore(node.parentNode,restNode,node.nextSibling);
+                        return new Position(node.parentNode,offsetInParent+1);
+                    }
+                }
+            }
+            else {
+                for (var child = node.firstChild; child != null; child = child.nextSibling) {
+                    var result = recurse(child);
+                    if (result != null)
+                        return result;
+                }
+            }
+            return null;
+        }
+    }
+}
+
 function insertAtPosition(position,node)
 {
     if (position.node.nodeType == Node.ELEMENT_NODE) {

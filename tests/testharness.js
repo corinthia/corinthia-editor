@@ -54,6 +54,7 @@ function loadCode()
                            "../src/util.js",
                            "../src/Viewport.js",
                            "../src/Word.js",
+                           "PrettyPrinter.js", // only used for test harness
                            "testlib.js"]; // must be last
     var allCodeArray = new Array();
     for (var i = 0; i < javascriptFiles.length; i++)
@@ -69,18 +70,18 @@ function loadTestIndex()
 function doPerformTest()
 {
     var testDocument = leftArea.contentDocument;
-    var testWindow = leftArea.contentWindow;
-    testWindow.outputOptions = new Object();
-    testWindow.disableOutlineRedoHack = true;
-    testWindow.Styles_setBuiltinCSSURL("../../../common/builtin.css");
-    var resultText = testWindow.performTest();
-    if (!testWindow.outputOptions.keepSelectionHighlights) {
-        testWindow.Styles_removeSelectionRule();
-        testWindow.Selection_clearSelection();
+    var w = leftArea.contentWindow;
+    w.outputOptions = new Object();
+    w.disableOutlineRedoHack = true;
+    w.Styles_setBuiltinCSSURL("../../../common/builtin.css");
+    var resultText = w.performTest();
+    if (!w.outputOptions.keepSelectionHighlights) {
+        w.Styles_removeSelectionRule();
+        w.Selection_clearSelection();
     }
     if (resultText == null)
-        resultText = PrettyPrinter.getHTML(testDocument.documentElement,testWindow.outputOptions)
-    var messages = JSON.parse(testWindow.Editor_getBackMessages());
+        resultText = w.PrettyPrinter.getHTML(testDocument.documentElement,w.outputOptions)
+    var messages = JSON.parse(w.Editor_getBackMessages());
     for (var i = 0; i < messages.length; i++) {
         var message = messages[i];
         if (message[0] == "error")
@@ -125,15 +126,14 @@ function clearPanel(panel)
 {
     panel.contentDocument.open();
     panel.contentDocument.close();
-    DOM_assignNodeIds(panel.contentDocument.body);
 }
 
 function setPanelText(panel,text)
 {
     clearPanel(panel);
-    var pre = DOM_createElement(panel.contentDocument,"PRE");
-    DOM_appendChild(panel.contentDocument.body,pre);
-    DOM_appendChild(pre,DOM_createTextNode(panel.contentDocument,text));
+    var pre = panel.contentDocument.createElement("PRE");
+    panel.contentDocument.body.appendChild(pre);
+    pre.appendChild(panel.contentDocument.createTextNode(text));
 }
 
 
@@ -146,45 +146,6 @@ function readJSCode(filename)
     return req.responseText;
 }
 
-function extractPositionFromCharacter(c)
-{
-    var w = leftArea.contentWindow;
-    return recurse(w.document.body);
-
-    function recurse(node)
-    {
-        if (node.nodeType == Node.TEXT_NODE) {
-            var index = node.nodeValue.indexOf(c);
-            if (index >= 0) {
-                var offsetInParent = w.DOM_nodeOffset(node);
-                if (index == 0) {
-                    node.nodeValue = node.nodeValue.substring(1);
-                    return new w.Position(node.parentNode,offsetInParent);
-                }
-                else if (index == node.nodeValue.length - 1) {
-                    node.nodeValue = node.nodeValue.substring(0,node.nodeValue.length-1);
-                    return new w.Position(node.parentNode,offsetInParent+1);
-                }
-                else {
-                    var rest = node.nodeValue.substring(index+1);
-                    node.nodeValue = node.nodeValue.substring(0,index);
-                    var restNode = DOM_createTextNode(document,rest);
-                    DOM_insertBefore(node.parentNode,restNode,node.nextSibling);
-                    return new w.Position(node.parentNode,offsetInParent+1);
-                }
-            }
-        }
-        else {
-            for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                var result = recurse(child);
-                if (result != null)
-                    return result;
-            }
-        }
-        return null;
-    }
-}
-
 function leftLoaded()
 {
     if (leftLoadedContinuation == null)
@@ -195,64 +156,11 @@ function leftLoaded()
     var w = leftArea.contentWindow;
     w.eval(allCode);
     w.debug = function(str) { console.log(str); };
-    w.PrettyPrinter = PrettyPrinter;
 
-    w.DOM_assignNodeIds(w.document);
-
-    var start;
-    var track;
-    var end;
-
-
-    w.UndoManager_disableWhileExecuting(function() {
-        start = extractPositionFromCharacter("[");
-        track = (start == null) ? [] : [start];
-        w.Position_trackWhileExecuting(track,function() {
-            end = extractPositionFromCharacter("]");
-        });
-    });
-
-    if ((start != null) && (end == null))
-        throw new Error("Start of selection specified, but not end");
-    if ((start == null) && (end != null))
-        throw new Error("End of selection specified, but not start");
-
-    if ((start != null) && (end != null)) {
-        var range = new w.Range(start.node,start.offset,end.node,end.offset);
-
-        w.UndoManager_disableWhileExecuting(function() {
-            w.Range_trackWhileExecuting(range,function() {
-                positionMergeWithNeighbours(start);
-                positionMergeWithNeighbours(end);
-            });
-        });
-
-        range.start = w.Position_preferTextPosition(range.start);
-        range.end = w.Position_preferTextPosition(range.end);
-
-        w.Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
-    }
+    w.testHarnessSetup();
     continuation();
 
     return;
-
-    function positionMergeWithNeighbours(pos)
-    {
-        var node = pos.node;
-        var offset = pos.offset;
-        if ((node.nodeType == Node.ELEMENT_NODE) && (offset < node.childNodes.length))
-            w.Formatting_mergeWithNeighbours(node.childNodes[offset],w.Formatting_MERGEABLE_INLINE);
-        else if ((node.nodeType == Node.ELEMENT_NODE) && (node.lastChild != null))
-            w.Formatting_mergeWithNeighbours(node.lastChild,w.Formatting_MERGEABLE_INLINE);
-        else
-            w.Formatting_mergeWithNeighbours(node,w.Formatting_MERGEABLE_INLINE);
-    }
-
-    function getPosition(node)
-    {
-        var offset = w.DOM_nodeOffset(node);
-        return new w.Position(node.parentNode,offset);
-    }
 }
 
 function runAllTests()
@@ -279,12 +187,13 @@ function runAllTests()
     function updateStatistics()
     {
         var statistics = document.getElementById("statistics");
-        DOM_deleteAllChildren(statistics);
+        while (statistics.firstChild != null)
+            statistics.removeChild(statistics.firstChild);
         var now = new Date();
         var elapsed = now - startTime;
         var str = "Passes: "+passes+", Failures: "+failures+
             ", Elapsed time "+(elapsed/1000)+" seconds";
-        DOM_appendChild(statistics,DOM_createTextNode(document,str));
+        statistics.appendChild(document.createTextNode(str));
     }
 
     function runNextTest()
@@ -305,19 +214,20 @@ function runAllTests()
 
             var fullname = dirname+"-"+filename;
             var resultElement = document.getElementById("result-"+fullname);
-            DOM_deleteAllChildren(resultElement);
-            var a = DOM_createElement(document,"a");
+            while (resultElement.firstChild != null)
+                resultElement.removeChild(resultElement);
+            var a = document.createElement("a");
             a.href = "javascript:showResult('"+dirname+"','"+filename+"')";
-            DOM_appendChild(resultElement,a);
+            resultElement.appendChild(a);
             results[fullname] = new Result(actual,expected);
             if (actual == expected) {
-                DOM_setAttribute(resultElement,"class","pass");
-                DOM_appendChild(a,DOM_createTextNode(document,"PASS"));
+                resultElement.setAttribute("class","pass");
+                a.appendChild(document.createTextNode("PASS"));
                 passes++;
             }
             else {
-                DOM_setAttribute(resultElement,"class","fail");
-                DOM_appendChild(a,DOM_createTextNode(document,"FAIL"));
+                resultElement.setAttribute("class","fail");
+                a.appendChild(document.createTextNode("FAIL"));
                 failures++;
             }
             updateStatistics();
@@ -345,48 +255,47 @@ function runAllTests()
 
 function loaded()
 {
-    DOM_assignNodeIds(document);
     topArea = document.getElementById("topInner");
     leftArea = document.getElementById("leftInner");
     rightArea = document.getElementById("rightInner");
     loadCode();
     loadTestIndex();
 
-    var table = DOM_createElement(document,"table");
-    DOM_appendChild(topArea,table);
+    var table = document.createElement("table");
+    topArea.appendChild(table);
 
     for (var dirno = 0; dirno < tests.length; dirno++) {
         var dir = tests[dirno];
 
-        var tr = DOM_createElement(document,"tr");
-        DOM_appendChild(table,tr);
-        DOM_setAttribute(tr,"class","dirrow");
-        DOM_setAttribute(table,"width","100%");
+        var tr = document.createElement("tr");
+        table.appendChild(tr);
+        tr.setAttribute("class","dirrow");
+        table.setAttribute("width","100%");
 
-        var td = DOM_createElement(document,"td");
-        DOM_appendChild(tr,td);
-        DOM_setAttribute(td,"colspan","2");
-        DOM_appendChild(td,DOM_createTextNode(document,dir.dir));
+        var td = document.createElement("td");
+        tr.appendChild(td);
+        td.setAttribute("colspan","2");
+        td.appendChild(document.createTextNode(dir.dir));
 
         for (var fileno = 0; fileno < dir.files.length; fileno++) {
             var filename = dir.files[fileno];
 
-            tr = DOM_createElement(document,"tr");
-            DOM_appendChild(table,tr);
-            DOM_setAttribute(tr,"class","testrow");
+            tr = document.createElement("tr");
+            table.appendChild(tr);
+            tr.setAttribute("class","testrow");
 
-            td = DOM_createElement(document,"td");
-            DOM_appendChild(tr,td);
-            DOM_setAttribute(td,"width","50%");
+            td = document.createElement("td");
+            tr.appendChild(td);
+            td.setAttribute("width","50%");
 
-            var a = DOM_createElement(document,"a");
-            DOM_appendChild(td,a);
+            var a = document.createElement("a");
+            td.appendChild(a);
             a.href = "javascript:showTest('"+dir.dir+"','"+filename+"')";
-            DOM_appendChild(a,DOM_createTextNode(document,filename));
+            a.appendChild(document.createTextNode(filename));
 
-            td = DOM_createElement(document,"td");
-            DOM_appendChild(tr,td);
-            DOM_setAttribute(td,"width","50%");
+            td = document.createElement("td");
+            tr.appendChild(td);
+            td.setAttribute("width","50%");
             td.id = "result-"+dir.dir+"-"+filename;
         }
     }

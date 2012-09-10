@@ -8,17 +8,20 @@
     
     function getHTML(root,options)
     {
-        if (options == null)
-            options = new Object();
-        var copy = DOM_cloneNode(root,true);
-        if (!options.keepSelectionHighlights)
-            removeSelectionSpans(copy);
-        for (var body = copy.firstChild; body != null; body = body.nextSibling) {
-            if (body.nodeName == "BODY") {
-                DOM_removeAttribute(body,"style");
-                DOM_removeAttribute(body,"contentEditable");
+        var copy;
+        UndoManager_disableWhileExecuting(function() {
+            if (options == null)
+                options = new Object();
+            copy = DOM_cloneNode(root,true);
+            if (!options.keepSelectionHighlights)
+                removeSelectionSpans(copy);
+            for (var body = copy.firstChild; body != null; body = body.nextSibling) {
+                if (body.nodeName == "BODY") {
+                    DOM_removeAttribute(body,"style");
+                    DOM_removeAttribute(body,"contentEditable");
+                }
             }
-        }
+        });
 
         var output = new Array();
         prettyPrint(output,options,copy,"");
