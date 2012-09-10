@@ -86,15 +86,19 @@ var DOM_Listener;
             throw new Error(DOM_upperName(node)+" lacks _nodeId");
     }
 
-
     // public
-    function assignNodeIds(node)
+    function assignNodeIds(root)
     {
-        if (node._nodeId != null)
-            throw new Error(node+" already has id");
-        node._nodeId = nextNodeId++;
-        for (var child = node.firstChild; child != null; child = child.nextSibling)
-            assignNodeIds(child);
+        if (root._nodeId != null)
+            throw new Error(root+" already has id");
+        recurse(root);
+        return;
+
+        function recurse(node) {
+            node._nodeId = nextNodeId++;
+            for (var child = node.firstChild; child != null; child = child.nextSibling)
+                recurse(child);
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
