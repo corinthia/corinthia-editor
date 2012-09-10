@@ -443,62 +443,77 @@ var Range_getText;
     Range_getText = trace(function getText(range)
     {
         range = Range_forwards(range);
+
         var start = range.start;
         var end = range.end;
-        var pos = start;
-        var prev = null;
-        var prevParagraph = null;
+
+        var startNode = start.node;
+
+        if (start.node.nodeType == Node.ELEMENT_NODE) {
+            if ((start.node.offset == start.node.childNodes.length) &&
+                (start.node.offset > 0))
+                startNode = nextNodeAfter(start.node);
+            else
+                startNode = start.node.childNodes[start.offset];
+        }
+
+        var endNode = end.node;
+        if (end.node.nodeType == Node.ELEMENT_NODE) {
+            if (end.offset > 0)
+                endNode = end.node.childNodes[end.offset-1];
+            else
+                endNode = prevNode(end.node);
+        }
+
         var components = new Array();
-        while (true) {
-//            debug("getText: pos = "+pos+", result = "+JSON.stringify(components.join("")));
-            var paragraph = Text_analyseParagraph(pos);
+        var node = startNode;
+        var significantParagraph = true;
+        while (node != null) {
 
-            var significantParagraph =
-                (paragraph != null) &&
-                (isParagraphNode(paragraph.node) ||
-                 !isWhitespaceString(paragraph.text));
+            if (node.nodeType == Node.TEXT_NODE) {
 
-            if (significantParagraph) {
+                if (!significantParagraph && !isWhitespaceString(node.nodeValue)) {
+                    significantParagraph = true;
+                    components.push("\n");
+                }
 
-                if (pos.node.nodeType == Node.TEXT_NODE) {
+                if (significantParagraph) {
                     var str;
-                    if ((pos.node == start.node) && (pos.node == end.node)) {
-                        str = pos.node.nodeValue.substring(start.offset,end.offset);
-                        pos = end;
-                    }
-                    else if (pos.node == start.node) {
-                        str = pos.node.nodeValue.substring(start.offset);
-                        pos = new Position(pos.node,pos.node.nodeValue.length);
-                    }
-                    else if (pos.node == end.node) {
-                        str = pos.node.nodeValue.substring(0,end.offset);
-                        pos = end;
-                    }
-                    else {
-                        str = pos.node.nodeValue;
-                        pos = new Position(pos.node,pos.node.nodeValue.length);
-                    }
+                    if ((node == start.node) && (node == end.node))
+                        str = node.nodeValue.substring(start.offset,end.offset);
+                    else if (node == start.node)
+                        str = node.nodeValue.substring(start.offset);
+                    else if (node == end.node)
+                        str = node.nodeValue.substring(0,end.offset);
+                    else
+                        str = node.nodeValue;
                     str = str.replace(/\s+/g," ");
                     components.push(str);
                 }
-
-                if ((paragraph != null) && (prevParagraph != null)) {
-                    if ((paragraph.node != prevParagraph.node) ||
-                        (paragraph.startOffset != prevParagraph.startOffset) ||
-                        (paragraph.endOffset != prevParagraph.endOffset)) {
-                        components.push("\n");
-                    }
-                }
             }
 
-
-            prev = pos;
-            prevParagraph = paragraph;
-            if ((pos.node == end.node) && (pos.offset == end.offset))
+            if (node == endNode)
                 break;
-            pos = Position_next(pos);
+
+
+            var next = nextNode(node,entering,exiting);
+            node = next;
         }
         return components.join("");
+
+        function entering(n)
+        {
+            if (isParagraphNode(n)) {
+                significantParagraph = true;
+                components.push("\n");
+            }
+        }
+
+        function exiting(n)
+        {
+            if (isParagraphNode(n))
+                significantParagraph = false;
+        }
     });
 
 })();
