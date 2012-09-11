@@ -1012,6 +1012,9 @@ var Selection_preferElementPositions;
                (node.nodeType == Node.ELEMENT_NODE) &&
                (node.firstChild == null)) {
 
+            if (isTableCell(node) || isTableCell(node.parentNode))
+                return;
+
             if (!fixPositionOutside(selRange.start,node))
                 break;
             if (!fixPositionOutside(selRange.end,node))
