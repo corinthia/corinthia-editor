@@ -46,7 +46,7 @@ function nodeString(node)
         return "null";
     var id = "";
     if (window.debugIds)
-        id = node._nodeId.replace(/^.*:/,"")+":";
+        id = node._nodeId+":";
     if (node.nodeType == Node.TEXT_NODE) {
         return id+JSON.stringify(node.nodeValue);
     }
