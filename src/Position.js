@@ -299,12 +299,55 @@ var Position_atPoint;
         return Position_okForMovement(pos,true);
     });
 
+    var nodeCausesLineBreak = trace(function nodeCausesLineBreak(node)
+    {
+        return ((node._type == HTML_BR) || !isInlineNode(node));
+    });
+
+    var spacesUntilNextContent = trace(function spacesUntilNextContent(node)
+    {
+        var spaces = 0;
+        while (true) {
+            if (node.firstChild) {
+                node = node.firstChild;
+            }
+            else if (node.nextSibling) {
+                node = node.nextSibling;
+            }
+            else {
+                while ((node.parentNode != null) && (node.parentNode.nextSibling == null)) {
+                    node = node.parentNode;
+                    if (nodeCausesLineBreak(node))
+                        return null;
+                }
+                if (node.parentNode == null)
+                    node = null;
+                else
+                    node = node.parentNode.nextSibling;
+            }
+
+            if ((node == null) || nodeCausesLineBreak(node))
+                return null;
+            if (isOpaqueNode(node))
+                return spaces;
+            if (node.nodeType == Node.TEXT_NODE) {
+                if (isWhitespaceTextNode(node)) {
+                    spaces += node.nodeValue.length;
+                }
+                else {
+                    var matches = node.nodeValue.match(/^\s+/);
+                    if (matches == null)
+                        return spaces;
+                    spaces += matches[0].length;
+                    return spaces;
+                }
+            }
+        }
+    });
+
     // public
     Position_okForMovement = trace(function okForMovement(pos,insertion)
     {
-        var nodeCausesLineBreak = trace(nodeCausesLineBreak);
-        var spacesUntilNextContent = trace(spacesUntilNextContent);
-
         var node = pos.node;
         var offset = pos.offset;
         var type = node._type;
@@ -342,13 +385,12 @@ var Position_atPoint;
                 value += lastNode.nodeValue;
             }
 
-            var prevPrevChar = value.charAt(offset-2);
             var prevChar = value.charAt(offset-1);
             var nextChar = value.charAt(offset);
             var havePrevChar = ((prevChar != null) && !isWhitespaceString(prevChar));
             var haveNextChar = ((nextChar != null) && !isWhitespaceString(nextChar));
-            var precedingText = value.substring(0,offset);
-            var followingText = value.substring(offset);
+            if (havePrevChar && haveNextChar)
+                return true;
 
             if (isWhitespaceString(value)) {
                 if (offset == 0) {
@@ -374,6 +416,7 @@ var Position_atPoint;
             if (insertion)
                 return true;
 
+            var precedingText = value.substring(0,offset);
             if (isWhitespaceString(precedingText)) {
                 return (haveNextChar &&
                         ((node.previousSibling == null) ||
@@ -384,6 +427,7 @@ var Position_atPoint;
                          ((precedingText.length > 0))));
             }
 
+            var followingText = value.substring(offset);
             if (isWhitespaceString(followingText)) {
                 return (havePrevChar &&
                         ((node.nextSibling == null) ||
@@ -455,52 +499,6 @@ var Position_atPoint;
         }
 
         return false;
-
-        function nodeCausesLineBreak(node)
-        {
-            return ((node._type == HTML_BR) || !isInlineNode(node));
-        };
-
-        function spacesUntilNextContent(node)
-        {
-            var spaces = 0;
-            while (1) {
-                if (node.firstChild) {
-                    node = node.firstChild;
-                }
-                else if (node.nextSibling) {
-                    node = node.nextSibling;
-                }
-                else {
-                    while ((node.parentNode != null) && (node.parentNode.nextSibling == null)) {
-                        node = node.parentNode;
-                        if (nodeCausesLineBreak(node))
-                            return null;
-                    }
-                    if (node.parentNode == null)
-                        node = null;
-                    else
-                        node = node.parentNode.nextSibling;
-                }
-
-                if ((node == null) || nodeCausesLineBreak(node))
-                    return null;
-                if (isOpaqueNode(node))
-                    return spaces;
-                if (node.nodeType == Node.TEXT_NODE) {
-                    if (isWhitespaceTextNode(node)) {
-                        spaces += node.nodeValue.length;
-                    }
-                    else {
-                        var matches = node.nodeValue.match(/^\s+/);
-                        if (matches == null)
-                            return spaces;
-                        spaces += matches[0].length;
-                        return spaces;
-                    }
-                }
-            }
-        };
     });
 
     Position_prevMatch = trace(function prevCursorPosition(pos,fun)
