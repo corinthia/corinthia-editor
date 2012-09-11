@@ -312,9 +312,10 @@ var Position_atPoint;
             return false;
 
         for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {
-            if (DOM_upperName(node) == "FIGCAPTION")
+            var ancestorType = node._type;
+            if (ancestorType == HTML_FIGCAPTION)
                 break;
-            if (isFigureNode(node))
+            else if (ancestorType == HTML_FIGURE)
                 return false;
         }
 
@@ -351,7 +352,7 @@ var Position_atPoint;
                     if ((node == firstNode) &&
                         (firstNode.previousSibling == null) && (lastNode.nextSibling == null))
                         return true;
-                    if ((node.nextSibling != null) && (DOM_upperName(node.nextSibling) == "BR"))
+                    if ((node.nextSibling != null) && (node.nextSibling._type == HTML_BR))
                         return true;
                     if ((node.firstChild == null) &&
                         (node.previousSibling == null) &&
@@ -361,7 +362,7 @@ var Position_atPoint;
                     if (insertion && (node.previousSibling != null) &&
                         isInlineNode(node.previousSibling) &&
                         !isOpaqueNode(node.previousSibling) &&
-                        (DOM_upperName(node.previousSibling) != "BR"))
+                        (node.previousSibling._type != HTML_BR))
                         return true;
                 }
                 return false;
@@ -373,7 +374,7 @@ var Position_atPoint;
             if (isWhitespaceString(precedingText)) {
                 return (haveNextChar &&
                         ((node.previousSibling == null) ||
-                         (DOM_upperName(node.previousSibling) == "BR") ||
+                         (node.previousSibling._type == HTML_BR) ||
                          (isParagraphNode(node.previousSibling)) ||
                          (getNodeText(node.previousSibling).match(/\s$/)) ||
                          isItemNumber(node.previousSibling) ||
@@ -398,8 +399,8 @@ var Position_atPoint;
             var nextNode = node.childNodes[offset];
 
             if ((prevNode == null) && (nextNode == null) &&
-                (CONTAINER_ELEMENTS_ALLOWING_CONTENT[DOM_upperName(node)] ||
-                (isInlineNode(node) && !isOpaqueNode(node) && (DOM_upperName(node) != "BR"))))
+                (CONTAINERS_ALLOWING_CONTENT_TYPES[node._type] ||
+                (isInlineNode(node) && !isOpaqueNode(node) && (node._type != HTML_BR))))
                 return true;
 
             if ((prevNode != null) && isSpecialBlockNode(prevNode))
@@ -412,7 +413,7 @@ var Position_atPoint;
             if ((prevNode != null) && isItemNumber(prevNode))
                 return ((nextNode == null) || isWhitespaceTextNode(nextNode));
 
-            if ((nextNode != null) && (DOM_upperName(nextNode) == "BR"))
+            if ((nextNode != null) && (nextNode._type == HTML_BR))
                 return ((prevNode == null) || !isTextNode(prevNode));
 
             if ((prevNode != null) && (isOpaqueNode(prevNode) || isTableNode(prevNode))) {
@@ -433,7 +434,7 @@ var Position_atPoint;
 
         function nodeCausesLineBreak(node)
         {
-            return ((DOM_upperName(node) == "BR") || !isInlineNode(node));
+            return ((node._type == HTML_BR) || !isInlineNode(node));
         };
 
         function spacesUntilNextContent(node)
@@ -952,7 +953,7 @@ var Position_atPoint;
     {
         if (position == null)
             return null;
-        if (DOM_upperName(position.node) == "FIGURE") {
+        if (position.node._type == HTML_FIGURE) {
             var prev = position.node.childNodes[position.offset-1];
             var next = position.node.childNodes[position.offset];
             if ((prev != null) && isImageNode(prev)) {

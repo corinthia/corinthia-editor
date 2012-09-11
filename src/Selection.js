@@ -966,10 +966,15 @@ var Selection_preferElementPositions;
             }
 
             if (removeWholeNode) {
-                if ((DOM_upperName(node) == "TD") || (DOM_upperName(node) == "TH"))
+                switch (node._type) {
+                case HTML_TD:
+                case HTML_TH:
                     DOM_deleteAllChildren(node);
-                else
+                    break;
+                default:
                     DOM_deleteNode(node);
+                    break;
+                }
             }
         }
 
@@ -985,7 +990,7 @@ var Selection_preferElementPositions;
             DOM_mergeWithNextSibling(detail.startAncestor,
                                      Formatting_MERGEABLE_BLOCK_AND_INLINE);
             if (isParagraphNode(detail.startAncestor) &&
-                (DOM_upperName(detail.startAncestor) != "DIV"))
+                (detail.startAncestor._type != HTML_DIV))
                 removeParagraphDescendants(detail.startAncestor);
         }
 

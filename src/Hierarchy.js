@@ -69,7 +69,7 @@ var Hierarchy_wrapInlineNodesInParagraph;
     var checkInvalidNesting = trace(function checkInvalidNesting(node)
     {
         var invalidNesting = !isContainerNode(node.parentNode);
-        if (DOM_upperName(node.parentNode) == "DIV") {
+        if (node.parentNode._type == HTML_DIV) {
             if (isParagraphNode(node) || isListNode(node))
                 invalidNesting = false; // this case is ok
         }
@@ -78,10 +78,25 @@ var Hierarchy_wrapInlineNodesInParagraph;
 
     var checkInvalidHeadingNesting = trace(function checkInvalidHeadingNesting(node)
     {
-        return (isHeadingNode(node) &&
-                (node.parentNode != document.body) &&
-                (DOM_upperName(node.parentNode) != "NAV") &&
-                (DOM_upperName(node.parentNode) != "DIV"));
+        switch (node._type) {
+        case HTML_H1:
+        case HTML_H2:
+        case HTML_H3:
+        case HTML_H4:
+        case HTML_H5:
+        case HTML_H6:
+            switch (node.parentNode._type) {
+            case HTML_BODY:
+            case HTML_NAV:
+            case HTML_DIV:
+                return false;
+            default:
+                return true;
+            }
+            break;
+        default:
+            return false;
+        }
     });
 
     var nodeHasSignificantChildren = trace(function nodeHasSignificantChildren(node)
@@ -132,7 +147,7 @@ var Hierarchy_wrapInlineNodesInParagraph;
                     while (!isContainerNode(child.parentNode)) {
                         if (isInlineNode(child.parentNode)) {
                             var keep = false;
-                            if (DOM_upperName(child.parentNode) == "SPAN") {
+                            if (child.parentNode._type == HTML_SPAN) {
                                 for (var i = 0; i < child.attributes.length; i++) {
                                     var attr = child.attributes[i];
                                     if (attr.nodeName.toUpperCase() != "ID")

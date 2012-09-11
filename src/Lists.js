@@ -30,7 +30,7 @@ var Lists_setOrderedList;
             if (node == null)
                 return;
 
-            if (DOM_upperName(node) == "LI") {
+            if (node._type == HTML_LI) {
                 if (!arrayContains(array,node))
                     array.push(node);
                 return;
@@ -61,7 +61,7 @@ var Lists_setOrderedList;
             for (var i = 0; i < listItems.length; i++) {
                 var li = listItems[i];
                 var prevLi = li.previousSibling;
-                while ((prevLi != null) && (DOM_upperName(prevLi) != "LI"))
+                while ((prevLi != null) && (prevLi._type != HTML_LI))
                     prevLi = prevLi.previousSibling;
                 // We can only increase the indentation of the current list item C if there is
                 // another list item P immediately preceding C. In this case, C becomes a child of
@@ -101,7 +101,7 @@ var Lists_setOrderedList;
                         }
                         else {
                             // alert("Case 4: no prevList and no childList");
-                            if (DOM_upperName(li.parentNode) == "UL")
+                            if (li.parentNode._type == HTML_UL)
                                 newList = DOM_createElement(document,"UL");
                             else
                                 newList = DOM_createElement(document,"OL");
@@ -119,8 +119,11 @@ var Lists_setOrderedList;
                 var node = firstChildElement(node);
                 if (node == null)
                     return null;
-                if ((DOM_upperName(node) == "UL") || (DOM_upperName(node) == "OL"))
+                switch (node._type) {
+                case HTML_UL:
+                case HTML_OL:
                     return node;
+                }
             }
         }
 
@@ -130,8 +133,11 @@ var Lists_setOrderedList;
                 var node = lastChildElement(node);
                 if (node == null)
                     return null;
-                if ((DOM_upperName(node) == "UL") || (DOM_upperName(node) == "OL"))
+                switch (node._type) {
+                case HTML_UL:
+                case HTML_OL:
                     return node;
+                }
             }
         }
     });
@@ -206,7 +212,7 @@ var Lists_setOrderedList;
 
                 if (haveContentAfter(node)) {
                     var secondHalf;
-                    if (DOM_upperName(parentList) == "UL")
+                    if (parentList._type == HTML_UL)
                         secondHalf = DOM_createElement(document,"UL");
                     else
                         secondHalf = DOM_createElement(document,"OL");
@@ -240,7 +246,7 @@ var Lists_setOrderedList;
             if (node == null)
                 return null;
 
-            if (DOM_upperName(node) == "LI")
+            if (node._type == HTML_LI)
                 return node;
 
             return findContainingListItem(node.parentNode);
@@ -269,7 +275,7 @@ var Lists_setOrderedList;
         // list item.
         if ((ds == de) || ((ds != null) && (ds.nextSibling == null) && (de == null))) {
             for (var ancestor = dca; ancestor != null; ancestor = ancestor.parentNode) {
-                if (DOM_upperName(ancestor) == "LI")
+                if (ancestor._type == HTML_LI)
                     return [ancestor];
             }
         }
@@ -277,19 +283,23 @@ var Lists_setOrderedList;
         var end = (de == null) ? null : de.nextSibling;
 
         for (var child = ds; child != end; child = child.nextSibling) {
-            if ((DOM_upperName(child) == "UL") || (DOM_upperName(child) == "OL")) {
+            switch (child._type) {
+            case HTML_UL:
+            case HTML_OL:
                 for (var gc = child.firstChild; gc != null; gc = gc.nextSibling) {
                     if (!isWhitespaceTextNode(gc))
                         addNode(gc);
                 }
-            }
-            else if ((DOM_upperName(child) == "DIV") &&
+                break;
+            default:
+                if ((child._type == HTML_DIV) &&
                      child.getAttribute("class") == Keys.SELECTION_HIGHLIGHT) {
-                // skip
-            }
-            else {
-                if (!isWhitespaceTextNode(child))
+                    // skip
+                }
+                else if (!isWhitespaceTextNode(child)) {
                     addNode(child);
+                }
+                break;
             }
         }
         if ((nodes.length == 0) && isParagraphNode(dca))
@@ -321,7 +331,7 @@ var Lists_setOrderedList;
 
             for (var i = 0; i < nodes.length; i++) {
                 var node = nodes[i];
-                if (DOM_upperName(node) == "LI") {
+                if (node._type == HTML_LI) {
                     var li = node;
                     var list = li.parentNode;
                     var insertionPoint = null;
@@ -419,12 +429,12 @@ var Lists_setOrderedList;
                 var oldList = null;
                 var listInsertionPoint;
 
-                if ((DOM_upperName(node) == "LI") && (DOM_upperName(node.parentNode) == type)) {
+                if ((node._type == HTML_LI) && (node.parentNode._type == type)) {
                     // Already in the correct type of list; don't need to do anything
                     continue;
                 }
 
-                if ((DOM_upperName(node) == "LI")) {
+                if (node._type == HTML_LI) {
                     li = node;
                     var list = li.parentNode;
 
@@ -470,18 +480,19 @@ var Lists_setOrderedList;
                 var list;
                 var itemInsertionPoint;
 
-                if ((prev != null) &&
-                    (DOM_upperName(prev) == type)) {
+                if ((prev != null) && (prev._type == type)) {
                     list = prev;
                     itemInsertionPoint = null;
                 }
-                else if ((next != null) &&
-                         (DOM_upperName(next) == type)) {
+                else if ((next != null) && (next._type == type)) {
                     list = next;
                     itemInsertionPoint = list.firstChild;
                 }
                 else {
-                    list = DOM_createElement(document,type);
+                    if (type == HTML_UL)
+                        list = DOM_createElement(document,"UL");
+                    else
+                        list = DOM_createElement(document,"OL");
                     DOM_insertBefore(node.parentNode,list,listInsertionPoint);
                     itemInsertionPoint = null;
                 }
@@ -501,7 +512,7 @@ var Lists_setOrderedList;
 
                 // Merge with adjacent list
                 DOM_removeAdjacentWhitespace(list);
-                if ((list.nextSibling != null) && (DOM_upperName(list.nextSibling) == type)) {
+                if ((list.nextSibling != null) && (list.nextSibling._type == type)) {
                     var followingList = list.nextSibling;
                     while (followingList.firstChild != null) {
                         if (isWhitespaceTextNode(followingList.firstChild))
@@ -520,13 +531,13 @@ var Lists_setOrderedList;
     // public
     Lists_setUnorderedList = trace(function setUnorderedList()
     {
-        setList("UL");
+        setList(HTML_UL);
     });
 
     // public
     Lists_setOrderedList = trace(function setOrderedList()
     {
-        setList("OL");
+        setList(HTML_OL);
     });
 
 })();

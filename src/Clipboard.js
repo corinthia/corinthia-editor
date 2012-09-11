@@ -15,7 +15,8 @@ var Clipboard_pasteNodes;
     {
         var linesBetweenChildren = 1;
         var childIndent = indent;
-        if (DOM_upperName(node) == "LI") {
+        switch (node._type) {
+        case HTML_LI:
             if (listType == "OL") {
                 var listMarker;
                 if (listNo.value < 10)
@@ -30,43 +31,44 @@ var Clipboard_pasteNodes;
                 nextIndent += "    ";
             }
             listNo.value++;
-        }
-        else if (DOM_upperName(node) == "UL") {
+            break;
+        case HTML_UL:
             listType = "UL";
             listNo = { value: 1 };
             beginParagraph(md,1,indent,nextIndent);
             linesBetweenChildren = 0;
-        }
-        else if (DOM_upperName(node) == "OL") {
+            break;
+        case HTML_OL:
             listType = "OL";
             listNo = { value: 1 };
             beginParagraph(md,1,indent,nextIndent);
             linesBetweenChildren = 0;
-        }
-        else if (DOM_upperName(node) == "H1") {
+            break;
+        case HTML_H1:
             beginParagraph(md,1,indent,nextIndent,"# "," #");
-        }
-        else if (DOM_upperName(node) == "H2") {
+            break;
+        case HTML_H2:
             beginParagraph(md,1,indent,nextIndent,"## "," ##");
-        }
-        else if (DOM_upperName(node) == "H3") {
+            break;
+        case HTML_H3:
             beginParagraph(md,1,indent,nextIndent,"### "," ###");
-        }
-        else if (DOM_upperName(node) == "H4") {
+            break;
+        case HTML_H4:
             beginParagraph(md,1,indent,nextIndent,"#### "," ####");
-        }
-        else if (DOM_upperName(node) == "H5") {
+            break;
+        case HTML_H5:
             beginParagraph(md,1,indent,nextIndent,"##### "," #####");
-        }
-        else if (DOM_upperName(node) == "H6") {
+            break;
+        case HTML_H6:
             beginParagraph(md,1,indent,nextIndent,"###### "," ######");
-        }
-        else if (DOM_upperName(node) == "BLOCKQUOTE") {
+            break;
+        case HTML_BLOCKQUOTE:
             beginParagraph(md,1,indent,nextIndent,"> ");
             nextIndent += "> ";
-        }
-        else if (DOM_upperName(node) == "PRE") {
+            break;
+        case HTML_PRE:
             md.preDepth++;
+            break;
         }
 
         var foundNonWhitespaceChild = false;
@@ -91,9 +93,8 @@ var Clipboard_pasteNodes;
             }
         }
 
-        if (DOM_upperName(node) == "PRE") {
+        if (node._type == HTML_PRE)
             md.preDepth--;
-        }
     });
 
     // private
@@ -154,7 +155,8 @@ var Clipboard_pasteNodes;
     // private
     var inlineToText = trace(function inlineToText(md,node)
     {
-        if (node.nodeType == Node.TEXT_NODE) {
+        switch (node._type) {
+        case HTML_TEXT: {
             var text = node.nodeValue;
             if (md.preDepth == 0) {
                 text = text.replace(/\\/g,"\\\\");
@@ -163,24 +165,30 @@ var Clipboard_pasteNodes;
                 text = text.replace(/\]/g,"\\]");
             }
             md.buildParagraph.push(text);
+            break;
         }
-        else if ((DOM_upperName(node) == "I") || (DOM_upperName(node) == "EM")) {
+        case HTML_I:
+        case HTML_EM:
             md.buildParagraph.push("*");
             processChildren();
             md.buildParagraph.push("*");
-        }
-        else if ((DOM_upperName(node) == "B") || (DOM_upperName(node) == "STRONG")) {
+            break;
+        case HTML_B:
+        case HTML_STRONG:
             md.buildParagraph.push("**");
             processChildren();
             md.buildParagraph.push("**");
-        }
-        else if ((DOM_upperName(node) == "A") && node.hasAttribute("href")) {
-            md.buildParagraph.push("[");
+            break;
+        case HTML_A:
+            if (node.hasAttribute("href")) {
+                md.buildParagraph.push("[");
+                processChildren();
+                md.buildParagraph.push("]("+node.getAttribute("href")+")");
+            }
+            break;
+        default:
             processChildren();
-            md.buildParagraph.push("]("+node.getAttribute("href")+")");
-        }
-        else {
-            processChildren();
+            break;
         }
 
         function processChildren()
@@ -238,13 +246,13 @@ var Clipboard_pasteNodes;
 
         var startInLI = null;
         for (var node = range.start.node; node != null; node = node.parentNode) {
-            if (DOM_upperName(node) == "LI")
+            if (node._type == HTML_LI)
                 startInLI = node;
         }
 
         var endInLI = null;
         for (var node = range.end.node; node != null; node = node.parentNode) {
-            if (DOM_upperName(node) == "LI")
+            if (node._type == HTML_LI)
                 endInLI = node;
         }
 

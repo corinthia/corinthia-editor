@@ -328,7 +328,7 @@ var Styles_removeSelectionRule;
             return documentStyleElement;
         var head = DOM_documentHead(document);
         for (var child = head.lastChild; child != null; child = child.previousSibling) {
-            if (DOM_upperName(child) == "STYLE") {
+            if (child._type == HTML_STYLE) {
                 documentStyleElement = child;
                 return documentStyleElement;
             }
@@ -477,7 +477,7 @@ var Styles_removeSelectionRule;
     {
         var head = DOM_documentHead(document);
         for (var child = head.firstChild; child != null; child = child.nextSibling) {
-            if ((DOM_upperName(child) == "LINK") &&
+            if ((child._type == HTML_LINK) &&
                 (child.getAttribute("rel") == "stylesheet") &&
                 (child.getAttribute("href") == cssURL)) {
                 // Link element was already added by HTMLInjectionProtocol
@@ -652,8 +652,7 @@ var Styles_removeSelectionRule;
         if (doneInit) {
             var head = DOM_documentHead(document);
             for (var child = head.firstChild; child != null; child = child.nextSibling) {
-                if ((DOM_upperName(child) == "LINK") &&
-                    (child.getAttribute("rel") == "stylesheet")) {
+                if ((child._type == HTML_LINK) && (child.getAttribute("rel") == "stylesheet")) {
                     DOM_deleteNode(child);
                     return;
                 }

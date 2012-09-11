@@ -13,8 +13,7 @@ var Viewport_setTextScale;
     {
         var head = DOM_documentHead(document);
         for (var child = head.firstChild; child != null; child = child.nextSibling) {
-            if ((DOM_upperName(child) == "META") &&
-                (child.getAttribute("name") == "viewport")) {
+            if ((child._type == HTML_META) && (child.getAttribute("name") == "viewport")) {
                 viewportMetaElement = child;
                 break;
             }

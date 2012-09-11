@@ -106,7 +106,10 @@ var Table_get;
 
     var Table_processTable = trace(function _Table_processTable(table,node)
     {
-        if ((DOM_upperName(node) == "TD") || (DOM_upperName(node) == "TH")) {
+        var type = node._type;
+        switch (node._type) {
+        case HTML_TD:
+        case HTML_TH: {
             while (Table_get(table,table.row,table.col) != null)
                 table.col++;
 
@@ -119,16 +122,18 @@ var Table_get;
                 }
             }
             table.col += cell.colspan;
+            break;
         }
-        else if (DOM_upperName(node) == "TR") {
+        case HTML_TR:
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 Table_processTable(table,child);
             table.row++;
             table.col = 0;
-        }
-        else {
+            break;
+        default:
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 Table_processTable(table,child);
+            break;
         }
     });
 
@@ -281,14 +286,16 @@ var Table_get;
     {
         var cols = new Array();
         for (child = table.firstChild; child != null; child = child.nextSibling) {
-            if (DOM_upperName(child) == "COLGROUP") {
+            switch (child._type) {
+            case HTML_COLGROUP:
                 for (var gc = child.firstChild; gc != null; gc = gc.nextSibling) {
-                    if (DOM_upperName(gc) == "COL")
+                    if (gc._type == HTML_COL)
                         cols.push(gc);
                 }
-            }
-            else if (DOM_upperName(child) == "COL") {
+                break;
+            case HTML_COL:
                 cols.push(child);
+                break;
             }
         }
         return cols;
@@ -482,7 +489,7 @@ var Table_get;
     // private
     var getTRs = trace(function getTRs(node,result)
     {
-        if (DOM_upperName(node) == "TR") {
+        if (node._type == HTML_TR) {
             result.push(node);
         }
         else {
@@ -676,7 +683,7 @@ var Table_get;
 
         var tbody = null;
         for (var child = table.element.firstChild; child != null; child = child.nextSibling) {
-            if (DOM_upperName(child) == "TBODY")
+            if (child._type == HTML_TBODY)
                 tbody = child;
         }
 
@@ -685,7 +692,7 @@ var Table_get;
 
         var trs = new Array();
         for (var child = tbody.firstChild; child != null; child = child.nextSibling) {
-            if (DOM_upperName(child) == "TR")
+            if (child._type == HTML_TR)
                 trs.push(child);
         }
 

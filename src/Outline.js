@@ -131,7 +131,7 @@ var Outline_setReferenceTarget;
     {
         var item = itemsByNode.get(node);
         if (item == null) {
-            throw new Error("Attempt to remove non-existant "+DOM_upperName(node)+
+            throw new Error("Attempt to remove non-existant "+node.nodeName+
                             " item "+node.getAttribute("id"));
         }
         removeItemInternal(category,item);
@@ -414,7 +414,7 @@ var Outline_setReferenceTarget;
             return item.node;
         }
         else if (item.type == "figure") {
-            var titleNode = findChild(item.node,"FIGCAPTION");
+            var titleNode = findChild(item.node,HTML_FIGCAPTION);
             if ((titleNode == null) && create) {
                 titleNode = item.spareTitle;
                 DOM_appendChild(item.node,titleNode);
@@ -422,7 +422,7 @@ var Outline_setReferenceTarget;
             return titleNode;
         }
         else if (item.type == "table") {
-            var titleNode = findChild(item.node,"CAPTION");
+            var titleNode = findChild(item.node,HTML_CAPTION);
             if ((titleNode == null) && create) {
                 titleNode = item.spareTitle;
                 DOM_insertBefore(item.node,titleNode,item.node.firstChild);
@@ -430,10 +430,10 @@ var Outline_setReferenceTarget;
             return titleNode;
         }
 
-        function findChild(node,name)
+        function findChild(node,type)
         {
             for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                if (DOM_upperName(child) == name)
+                if (child._type == type)
                     return child;
             }
             return null;
@@ -546,9 +546,7 @@ var Outline_setReferenceTarget;
     var acceptNode = trace(function acceptNode(node)
     {
         for (var p = node; p != null; p = p.parentNode) {
-            if ((p.nodeType == Node.ELEMENT_NODE) &&
-                (DOM_upperName(p) == "SPAN") &&
-                (p.getAttribute("class") == Keys.HEADING_NUMBER))
+            if ((p._type == HTML_SPAN) && (p.getAttribute("class") == Keys.HEADING_NUMBER))
                 return false;
         }
         return true;
@@ -640,16 +638,27 @@ var Outline_setReferenceTarget;
 
         function recurse(node)
         {
-            if (isHeadingNode(node) && !isInTOC(node))
-                Category_remove(sections,node);
-            else if (isFigureNode(node))
+            switch (node._type) {
+            case HTML_H1:
+            case HTML_H2:
+            case HTML_H3:
+            case HTML_H4:
+            case HTML_H5:
+            case HTML_H6:
+                if (!isInTOC(node))
+                    Category_remove(sections,node);
+                break;
+            case HTML_FIGURE:
                 Category_remove(figures,node);
-            else if (isTableNode(node))
+                break;
+            case HTML_TABLE:
                 Category_remove(tables,node);
-            else if (isRefNode(node) && !isInTOC(node))
-                refRemoved(node);
-
-            if (DOM_upperName(node) == "NAV") {
+                break;
+            case HTML_A:
+                if (isRefNode(node) && !isInTOC(node))
+                    refRemoved(node);
+                break;
+            case HTML_NAV:
                 var cls = node.getAttribute("class");
                 if (cls == Keys.SECTION_TOC)
                     Category_removeTOC(sections,node);
@@ -657,6 +666,7 @@ var Outline_setReferenceTarget;
                     Category_removeTOC(figures,node);
                 else if (cls == Keys.TABLE_TOC)
                     Category_removeTOC(tables,node);
+                break;
             }
 
             for (var child = node.firstChild; child != null; child = child.nextSibling)
@@ -692,9 +702,32 @@ var Outline_setReferenceTarget;
     {
         this.node = node;
         this.item = itemsByNode.get(node);
-        this.level = parseInt(DOM_upperName(node).substring(1));
         this.children = [];
         this.parent = null;
+
+        switch (node._type) {
+        case HTML_H1:
+            this.level = 1;
+            break;
+        case HTML_H2:
+            this.level = 2;
+            break;
+        case HTML_H3:
+            this.level = 3;
+            break;
+        case HTML_H4:
+            this.level = 4;
+            break;
+        case HTML_H5:
+            this.level = 5;
+            break;
+        case HTML_H6:
+            this.level = 6;
+            break;
+        default:
+            this.level = 0;
+            break;
+        }
     }
 
     var Shadow_last = trace(function last(shadow)

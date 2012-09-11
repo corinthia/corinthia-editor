@@ -85,7 +85,8 @@ var Cursor_set;
 
         var node = Position_closestActualNode(position);
         for (; node != null; node = node.parentNode) {
-            if ((DOM_upperName(node) == "A") &&
+            var type = node._type;
+            if ((type == HTML_A) &&
                 (node.hasAttribute("href")) &&
                 (result == null)) {
 
@@ -110,9 +111,9 @@ var Cursor_set;
                     }
                 }
             }
-            else if ((DOM_upperName(node) == "IMG") && (result == null)) {
+            else if ((type == HTML_IMG) && (result == null)) {
                 for (var anc = node; anc != null; anc = anc.parentNode) {
-                    if (DOM_upperName(anc) == "FIGURE") {
+                    if (anc._type == HTML_FIGURE) {
                         result = "infigure";
                         break;
                     }
@@ -241,7 +242,7 @@ var Cursor_set;
                 while ((child != null) && isWhitespaceTextNode(child))
                     child = child.previousSibling;
 
-                if ((child != null) && (DOM_upperName(child) == "BR"))
+                if ((child != null) && (child._type == HTML_BR))
                     br = child;
             }
 
@@ -447,7 +448,7 @@ var Cursor_set;
                     Cursor_ensureCursorVisible();
                     return;
                 }
-                if (DOM_upperName(prevNode) == "A") {
+                if (prevNode._type == HTML_A) {
                     Cursor_set(back.node,back.offset-1);
                     Selection_preserveWhileExecuting(function() {
                         DOM_deleteNode(prevNode);
@@ -525,14 +526,16 @@ var Cursor_set;
         var pos = selRange.start;
 
         var detail = Range_detail(selRange);
-        if ((DOM_upperName(detail.startParent) == "OL") ||
-            (DOM_upperName(detail.startParent) == "UL")) {
+        switch (detail.startParent._type) {
+        case HTML_OL:
+        case HTML_UL: {
             var li = DOM_createElement(document,"LI");
             DOM_insertBefore(detail.startParent,li,detail.startChild);
 
             Cursor_set(li,0);
             Cursor_ensureCursorVisible();
             return;
+        }
         }
 
         if (isAutoCorrectNode(pos.node)) {
@@ -609,7 +612,7 @@ var Cursor_set;
                     Cursor_updateBRAtEndOfParagraph(prev);
                     break;
                 }
-                else if ((DOM_upperName(ancestor) == "LI") && !nodeHasContent(ancestor)) {
+                else if ((ancestor._type == HTML_LI) && !nodeHasContent(ancestor)) {
                     DOM_deleteAllChildren(ancestor);
                     break;
                 }

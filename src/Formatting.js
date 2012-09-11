@@ -384,11 +384,15 @@ var Formatting_formatInlineNode;
 
         for (var i = 0; i < leafNodes.length; i++) {
             var leaf = leafNodes[i];
-            if (isListItemNode(leaf)) {
-                if (DOM_upperName(leaf.parentNode) == "UL")
+            if (leaf._type == HTML_LI) {
+                switch (leaf.parentNode._type) {
+                case HTML_UL:
                     commonProperties["uxwrite-in-ul"] = "true";
-                else if (DOM_upperName(leaf.parentNode) == "OL")
+                    break;
+                case HTML_OL:
                     commonProperties["uxwrite-in-ol"] = "true";
+                    break;
+                }
             }
             else {
                 for (var ancestor = leaf;
@@ -405,10 +409,14 @@ var Formatting_formatInlineNode;
                         }
                         if (!havePrev) {
                             var listNode = ancestor.parentNode.parentNode;
-                            if (DOM_upperName(listNode) == "UL")
+                            switch (listNode._type) {
+                            case HTML_UL:
                                 commonProperties["uxwrite-in-ul"] = "true";
-                            else if (DOM_upperName(listNode) == "OL")
+                                break;
+                            case HTML_OL:
                                 commonProperties["uxwrite-in-ol"] = "true";
+                                break;
+                            }
                         }
                     }
                 }
@@ -481,13 +489,16 @@ var Formatting_formatInlineNode;
                 for (var name in nodeProperties)
                     properties[name] = nodeProperties[name];
             }
-            if (DOM_upperName(node) == "B") {
+
+            var type = node._type;
+            switch (type) {
+            case HTML_B:
                 properties["font-weight"] = "bold";
-            }
-            else if (DOM_upperName(node) == "I") {
+                break;
+            case HTML_I:
                 properties["font-style"] = "italic";
-            }
-            else if (DOM_upperName(node) == "U") {
+                break;
+            case HTML_U: {
                 var components = [];
                 if (properties["text-decoration"] != null) {
                     var components = properties["text-decoration"].toLowerCase().split(/\s+/);
@@ -497,57 +508,62 @@ var Formatting_formatInlineNode;
                 else {
                     properties["text-decoration"] = "underline";
                 }
+                break;
             }
-            else if (DOM_upperName(node) == "TT") {
-                properties["uxwrite-in-tt"] = "true";
-            }
-            else if (DOM_upperName(node) == "H1") {
+//            case HTML_TT:
+//                properties["uxwrite-in-tt"] = "true";
+//                break;
+            case HTML_H1:
                 properties["uxwrite-style"] = "h1";
-            }
-            else if (DOM_upperName(node) == "H2") {
+                break;
+            case HTML_H2:
                 properties["uxwrite-style"] = "h2";
-            }
-            else if (DOM_upperName(node) == "H3") {
+                break;
+            case HTML_H3:
                 properties["uxwrite-style"] = "h3";
-            }
-            else if (DOM_upperName(node) == "H4") {
+                break;
+            case HTML_H4:
                 properties["uxwrite-style"] = "h4";
-            }
-            else if (DOM_upperName(node) == "H5") {
+                break;
+            case HTML_H5:
                 properties["uxwrite-style"] = "h5";
-            }
-            else if (DOM_upperName(node) == "H6") {
+                break;
+            case HTML_H6:
                 properties["uxwrite-style"] = "h6";
-            }
-            else if (DOM_upperName(node) == "PRE") {
+                break;
+            case HTML_PRE:
                 properties["uxwrite-style"] = "pre";
-            }
-            else if (DOM_upperName(node) == "BLOCKQUOTE") {
+                break;
+            case HTML_BLOCKQUOTE:
                 properties["uxwrite-style"] = "blockquote";
-            }
-            else if (DOM_upperName(node) == "IMG") {
+                break;
+            case HTML_IMG:
                 properties["uxwrite-in-image"] = "true";
-            }
-            else if (DOM_upperName(node) == "TABLE") {
+                break;
+            case HTML_TABLE:
                 properties["uxwrite-in-table"] = "true";
-            }
-            else if ((DOM_upperName(node) == "A") && node.hasAttribute("href")) {
-                var href = node.getAttribute("href");
-                if (href.charAt(0) == "#")
-                    properties["uxwrite-in-reference"] = "true";
-                else
-                    properties["uxwrite-in-link"] = "true";
-            }
-            else if (isParagraphNode(node)) {
-                if (node.hasAttribute("class"))
-                    properties["uxwrite-style"] = "."+node.getAttribute("class");
-                else
-                    properties["uxwrite-style"] = "p";
+                break;
+            case HTML_A:
+                if (node.hasAttribute("href")) {
+                    var href = node.getAttribute("href");
+                    if (href.charAt(0) == "#")
+                        properties["uxwrite-in-reference"] = "true";
+                    else
+                        properties["uxwrite-in-link"] = "true";
+                }
+                break;
+            default:
+                if (PARAGRAPH_ELEMENT_TYPES[type]) {
+                    if (node.hasAttribute("class"))
+                        properties["uxwrite-style"] = "."+node.getAttribute("class");
+                    else
+                        properties["uxwrite-style"] = "p";
+                }
+                break;
             }
 
-            if (isOutlineItemTitleNode(node) && node.hasAttribute("id")) {
+            if (isOutlineItemTitleNode(node) && node.hasAttribute("id"))
                 properties["uxwrite-in-item-title"] = node.getAttribute("id");
-            }
         }
 
         return properties;
@@ -681,7 +697,7 @@ var Formatting_formatInlineNode;
         var wasHeading = isHeadingNode(paragraph);
         DOM_removeAttribute(paragraph,"class");
         if (selector == "") {
-            if (DOM_upperName(paragraph) != "P")
+            if (paragraph._type != HTML_P)
                 paragraph = DOM_replaceElement(paragraph,"P");
         }
         else {
@@ -750,17 +766,21 @@ var Formatting_formatInlineNode;
                 remove[name] = null;
             DOM_setStyleProperties(node,remove);
 
-            if (DOM_upperName(node) == "B")
+            var type = node._type;
+            switch (type) {
+            case HTML_B:
                 inlineProperties["font-weight"] = "bold";
-            if (DOM_upperName(node) == "I")
+                break;
+            case HTML_I:
                 inlineProperties["font-style"] = "italic";
-            if (DOM_upperName(node) == "U") {
+                break;
+            case HTML_U:
                 if (inlineProperties["text-decoration"] != null)
                     inlineProperties["text-decoration"] += " underline";
                 else
                     inlineProperties["text-decoration"] = "underline";
+                break;
             }
-
 
             var special = extractSpecial(inlineProperties);
             var count = Object.getOwnPropertyNames(inlineProperties).length;
@@ -783,10 +803,13 @@ var Formatting_formatInlineNode;
             if (node.hasAttribute("style") && (node.style.length == 0))
                 DOM_removeAttribute(node,"style");
 
-            if ((DOM_upperName(node) == "B") ||
-                (DOM_upperName(node) == "I") ||
-                (DOM_upperName(node) == "U"))
+            switch (type) {
+            case HTML_B:
+            case HTML_I:
+            case HTML_U:
                 DOM_removeNodeButKeepChildren(node);
+                break;
+            }
         }
     });
 
@@ -820,12 +843,18 @@ var Formatting_formatInlineNode;
         if (special.bold)
             target = wrapInline(target,"B");
 
+        var isbiu = false;
+        switch (target._type) {
+        case HTML_B:
+        case HTML_I:
+        case HTML_U:
+            isbiu = true;
+            break;
+        }
+
         if ((Object.getOwnPropertyNames(inlineProperties).length > 0) &&
             ((target.nodeType != Node.ELEMENT_NODE) ||
-             isSpecialSpan(target) ||
-             (DOM_upperName(target) == "B") ||
-             (DOM_upperName(target) == "I") ||
-             (DOM_upperName(target) == "U"))) {
+             isbiu || isSpecialSpan(target))) {
             target = wrapInline(target,"SPAN");
         }
 
@@ -930,11 +959,21 @@ var Formatting_formatInlineNode;
             DOM_setStyleProperties(node,remove);
         }
 
-        var willRemove = ((DOM_upperName(node) == "B") && (special.bold != null)) ||
-                         ((DOM_upperName(node) == "I") && (special.italic != null)) ||
-                         ((DOM_upperName(node) == "U") && (special.underline != null)) ||
-                         ((DOM_upperName(node) == "SPAN") && !node.hasAttribute("style")
-                                                          && !isSpecialSpan(node));
+        var willRemove = false;
+        switch (node._type) {
+        case HTML_B:
+            willRemove = (special.bold != null);
+            break;
+        case HTML_I:
+            willRemove = (special.italic != null);
+            break;
+        case HTML_U:
+            willRemove = (special.underline != null);
+            break;
+        case HTML_SPAN:
+            willRemove = (!node.hasAttribute("style") && !isSpecialSpan(node));
+            break;
+        }
 
         var childRemaining = willRemove ? remaining : null;
 
@@ -952,7 +991,7 @@ var Formatting_formatInlineNode;
 
     function isSpecialSpan(span)
     {
-        if ((DOM_upperName(span) == "SPAN")) {
+        if (span._type == HTML_SPAN) {
             if (span.hasAttribute(Keys.ABSTRACT_ELEMENT))
                 return true;
             if (DOM_getStringAttribute(span,"class").indexOf(Keys.UXWRITE_PREFIX) == 0)

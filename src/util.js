@@ -92,16 +92,16 @@ function clone(object)
 
 function nodeHasContent(node)
 {
-    if (node.nodeType == Node.TEXT_NODE) {
+    switch (node._type) {
+    case HTML_TEXT:
         return !isWhitespaceString(node.nodeValue);
-    }
-    else if ((DOM_upperName(node) == "IMG") || (DOM_upperName(node) == "TABLE")) {
+    case HTML_IMG:
+    case HTML_TABLE:
         return true;
-    }
-    else if (isOpaqueNode(node)) {
-        return true;
-    }
-    else {
+    default:
+        if (isOpaqueNode(node))
+            return true;
+
         for (var child = node.firstChild; child != null; child = child.nextSibling) {
             if (nodeHasContent(child))
                 return true;

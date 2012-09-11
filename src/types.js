@@ -308,15 +308,6 @@ function isSpecialBlockNode(node)
     return (isTableNode(node) || isFigureNode(node) || isTOCNode(node));
 }
 
-function isContentLeafNode(node)
-{
-    if (node.nodeType == Node.TEXT_NODE)
-        return true;
-    if (DOM_upperName(node) == "IMG")
-        return true;
-    return false;
-}
-
 function isAbstractSpan(node)
 {
     return ((node._type == HTML_SPAN) && node.hasAttribute(Keys.ABSTRACT_ELEMENT));
