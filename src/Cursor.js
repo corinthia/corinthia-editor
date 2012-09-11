@@ -696,7 +696,7 @@ var Cursor_set;
 
     Cursor_getLinkProperties = trace(function getLinkProperties()
     {
-        var a = Cursor_getAdjacentNodeWithName("A");
+        var a = Cursor_getAdjacentNodeWithType(HTML_A);
         if (a == null)
             return null;
 
@@ -706,7 +706,7 @@ var Cursor_set;
 
     Cursor_setLinkProperties = trace(function setLinkProperties(properties)
     {
-        var a = Cursor_getAdjacentNodeWithName("A");
+        var a = Cursor_getAdjacentNodeWithType(HTML_A);
         if (a == null)
             return null;
 
@@ -719,7 +719,7 @@ var Cursor_set;
 
     Cursor_setReferenceTarget = trace(function setReferenceTarget(itemId)
     {
-        var a = Cursor_getAdjacentNodeWithName("A");
+        var a = Cursor_getAdjacentNodeWithType(HTML_A);
         if (a != null)
             Outline_setReferenceTarget(a,itemId);
     });
