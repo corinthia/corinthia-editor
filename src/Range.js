@@ -451,6 +451,7 @@ var Range_getText;
         var end = range.end;
 
         var startNode = start.node;
+        var startOffset = start.offset;
 
         if (start.node.nodeType == Node.ELEMENT_NODE) {
             if ((start.node.offset == start.node.childNodes.length) &&
@@ -458,20 +459,30 @@ var Range_getText;
                 startNode = nextNodeAfter(start.node);
             else
                 startNode = start.node.childNodes[start.offset];
+            startOffset = 0;
         }
 
         var endNode = end.node;
+        var endOffset = end.offset;
+
         if (end.node.nodeType == Node.ELEMENT_NODE) {
-            if (end.offset > 0)
-                endNode = end.node.childNodes[end.offset-1];
+            if ((end.node.offset == end.node.childNodes.length) &&
+                (end.node.offset > 0))
+                endNode = nextNodeAfter(end.node);
             else
-                endNode = prevNode(end.node);
+                endNode = end.node.childNodes[end.offset];
+            endOffset = 0;
         }
+
+        if ((startNode == null) || (endNode == null))
+            return "";
 
         var components = new Array();
         var node = startNode;
         var significantParagraph = true;
-        while (node != null) {
+        while (true) {
+            if (node == null)
+                throw new Error("Cannot find end node");
 
             if (node.nodeType == Node.TEXT_NODE) {
 
@@ -482,12 +493,12 @@ var Range_getText;
 
                 if (significantParagraph) {
                     var str;
-                    if ((node == start.node) && (node == end.node))
-                        str = node.nodeValue.substring(start.offset,end.offset);
-                    else if (node == start.node)
-                        str = node.nodeValue.substring(start.offset);
-                    else if (node == end.node)
-                        str = node.nodeValue.substring(0,end.offset);
+                    if ((node == startNode) && (node == endNode))
+                        str = node.nodeValue.substring(startOffset,endOffset);
+                    else if (node == startNode)
+                        str = node.nodeValue.substring(startOffset);
+                    else if (node == endNode)
+                        str = node.nodeValue.substring(0,endOffset);
                     else
                         str = node.nodeValue;
                     str = str.replace(/\s+/g," ");
