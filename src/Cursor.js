@@ -468,8 +468,9 @@ var Cursor_set;
                     Cursor_set(selRange.end.node,selRange.end.offset)
                 }
                 else {
-                    Selection_deleteRangeContents(new Range(prevPos.node,prevPos.offset,
-                                                            selRange.end.node,selRange.end.offset));
+                    var range = new Range(prevPos.node,prevPos.offset,
+                                          selRange.end.node,selRange.end.offset);
+                    Selection_deleteRangeContents(range,true);
                 }
             }
         }
