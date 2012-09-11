@@ -246,12 +246,20 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     var positionRight = trace(function positionRight(pos,offset)
     {
         if (offset > 0) {
-            for (; (offset > 0) && (pos != null); offset--)
-                pos = Position_nextMatch(pos,Position_okForMovement);
+            for (; offset > 0; offset--) {
+                var next = Position_nextMatch(pos,Position_okForMovement);
+                if (next == null)
+                    return pos;
+                pos = next;
+            }
         }
         else {
-            for (; (offset < 0) && (pos != null); offset++)
-                pos = Position_prevMatch(pos,Position_okForMovement);
+            for (; offset < 0; offset++) {
+                var prev = Position_prevMatch(pos,Position_okForMovement);
+                if (prev == null)
+                    return pos;
+                pos = prev;
+            }
         }
         return pos;
     });
@@ -259,12 +267,20 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     var positionDown = trace(function positionDown(pos,offset)
     {
         if (offset > 0) {
-            for (; (offset > 0) && (pos != null); offset--)
-                pos = Text_posBelow(pos);
+            for (; offset > 0; offset--) {
+                var below = Text_posBelow(pos);
+                if (below == null)
+                    return pos;
+                pos = below;
+            }
         }
         else {
-            for (; (offset < 0) && (pos != null); offset++)
-                pos = Text_posAbove(pos);
+            for (; offset < 0; offset++) {
+                var above = Text_posAbove(pos);
+                if (above == null)
+                    return pos;
+                pos = above;
+            }
         }
         return pos;
     });
