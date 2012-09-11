@@ -25,15 +25,19 @@ var Viewport_setTextScale;
             DOM_appendChild(head,viewportMetaElement);
         }
 
-        // Only set the width and text scale if they are not already set, to avoid triggering
-        // an extra layout at load time
-        var contentValue = "width = "+width+", user-scalable = no";
-        if (viewportMetaElement.getAttribute("content") != contentValue)
-            DOM_setAttribute(viewportMetaElement,"content",contentValue);
+        if (width != 0) {
+            // Only set the width and text scale if they are not already set, to avoid triggering
+            // an extra layout at load time
+            var contentValue = "width = "+width+", user-scalable = no";
+            if (viewportMetaElement.getAttribute("content") != contentValue)
+                DOM_setAttribute(viewportMetaElement,"content",contentValue);
+        }
 
-        var pct = textScale+"%";
-        if (document.documentElement.style.getPropertyValue("-webkit-text-size-adjust") != pct)
-            DOM_setStyleProperties(document.documentElement,{"-webkit-text-size-adjust": pct});
+        if (textScale != 0) {
+            var pct = textScale+"%";
+            if (document.documentElement.style.getPropertyValue("-webkit-text-size-adjust") != pct)
+                DOM_setStyleProperties(document.documentElement,{"-webkit-text-size-adjust": pct});
+        }
     });
 
     // public
