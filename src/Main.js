@@ -330,7 +330,7 @@ var Main_init;
 
             UndoManager_clear();
             timing.addEntry("UndoManager_clear");
-            timing.print();
+//            timing.print();
 
             return true;
         }
