@@ -130,36 +130,36 @@ var Position_atPoint;
         var next = node.childNodes[offset];
 
         // Moving left from the start of a caption - go to the end of the table
-        if (isTableCaptionNode(node) && backwards && (prev == null))
+        if ((node._type == HTML_CAPTION) && backwards && (prev == null))
             return new Position(node.parentNode,node.parentNode.childNodes.length);
 
         // Moving right from the end of a caption - go after the table
-        if (isTableCaptionNode(node) && forwards && (next == null))
+        if ((node._type == HTML_CAPTION) && forwards && (next == null))
             return new Position(node.parentNode.parentNode,DOM_nodeOffset(node.parentNode)+1);
 
         // Moving left from just after a table - go to the end of the caption (if there is one)
-        if ((prev != null) && isTableNode(prev) && backwards) {
+        if ((prev != null) && (prev._type == HTML_TABLE) && backwards) {
             var firstChild = firstChildElement(prev);
-            if (isTableCaptionNode(firstChild))
+            if ((firstChild._type == HTML_CAPTION))
                 return new Position(firstChild,firstChild.childNodes.length);
         }
 
         // Moving right from just before a table - bypass the the caption (if there is one)
-        if ((next != null) && isTableNode(next) && forwards) {
+        if ((next != null) && (next._type == HTML_TABLE) && forwards) {
             var firstChild = firstChildElement(next);
-            if (isTableCaptionNode(firstChild))
+            if (firstChild._type == HTML_CAPTION)
                 return new Position(next,DOM_nodeOffset(firstChild)+1);
         }
 
         // Moving right from the end of a table - go to the start of the caption (if there is one)
-        if (isTableNode(node) && (next == null) && forwards) {
+        if ((node._type == HTML_TABLE) && (next == null) && forwards) {
             var firstChild = firstChildElement(node);
-            if (isTableCaptionNode(firstChild))
+            if (firstChild._type == HTML_CAPTION)
                 return new Position(firstChild,0);
         }
 
         // Moving left just after a caption node - skip the caption
-        if ((prev != null) && isTableCaptionNode(prev) && backwards)
+        if ((prev != null) && (prev._type == HTML_CAPTION) && backwards)
             return new Position(node,offset-1);
 
         return null;
@@ -307,6 +307,7 @@ var Position_atPoint;
 
         var node = pos.node;
         var offset = pos.offset;
+        var type = node._type;
 
         if (isOpaqueNode(node))
             return false;
@@ -328,13 +329,15 @@ var Position_atPoint;
             var firstNode = node;
             var lastNode = node;
 
-            while ((firstNode.previousSibling != null) && isTextNode(firstNode.previousSibling)) {
+            while ((firstNode.previousSibling != null) &&
+                   (firstNode.previousSibling.nodeType == Node.TEXT_NODE)) {
                 firstNode = firstNode.previousSibling;
                 value = firstNode.nodeValue + value;
                 offset += firstNode.nodeValue.length;
             }
 
-            while ((lastNode.nextSibling != null) && isTextNode(lastNode.nextSibling)) {
+            while ((lastNode.nextSibling != null) &&
+                   (lastNode.nextSibling.nodeType == Node.TEXT_NODE)) {
                 lastNode = lastNode.nextSibling;
                 value += lastNode.nodeValue;
             }
@@ -391,16 +394,28 @@ var Position_atPoint;
             return (havePrevChar || haveNextChar);
         }
         else if (node.nodeType == Node.ELEMENT_NODE) {
-            if ((node.firstChild == null) &&
-                (isParagraphNode(node) || isListItemNode(node) || isTableCell(node)))
-                return true;
+            if (node.firstChild == null) {
+                switch (type) {
+                case HTML_LI:
+                case HTML_TH:
+                case HTML_TD:
+                    return true;
+                default:
+                    if (PARAGRAPH_ELEMENTS[type])
+                        return true;
+                    else
+                        break;
+                }
+            }
 
             var prevNode = node.childNodes[offset-1];
             var nextNode = node.childNodes[offset];
+            var prevType = (prevNode != null) ? prevNode._type : 0;
+            var nextType = (nextNode != null) ? nextNode._type : 0;
 
             if ((prevNode == null) && (nextNode == null) &&
-                (CONTAINERS_ALLOWING_CONTENT_TYPES[node._type] ||
-                (isInlineNode(node) && !isOpaqueNode(node) && (node._type != HTML_BR))))
+                (CONTAINERS_ALLOWING_CHILDREN[type] ||
+                (isInlineNode(node) && !isOpaqueNode(node) && (type != HTML_BR))))
                 return true;
 
             if ((prevNode != null) && isSpecialBlockNode(prevNode))
@@ -413,20 +428,29 @@ var Position_atPoint;
             if ((prevNode != null) && isItemNumber(prevNode))
                 return ((nextNode == null) || isWhitespaceTextNode(nextNode));
 
-            if ((nextNode != null) && (nextNode._type == HTML_BR))
-                return ((prevNode == null) || !isTextNode(prevNode));
+            if ((nextNode != null) && (nextType == HTML_BR))
+                return ((prevType == 0) || (prevType != HTML_TEXT));
 
-            if ((prevNode != null) && (isOpaqueNode(prevNode) || isTableNode(prevNode))) {
-                return ((nextNode == null) ||
-                        isOpaqueNode(nextNode) ||
-                        isTextNode(nextNode) ||
-                        isTableNode(nextNode));
+            if ((prevNode != null) && (isOpaqueNode(prevNode) || (prevType == HTML_TABLE))) {
+
+                switch (nextType) {
+                case 0:
+                case HTML_TEXT:
+                case HTML_TABLE:
+                    return true;
+                default:
+                    return isOpaqueNode(nextNode);
+                }
             }
-            if ((nextNode != null) && (isOpaqueNode(nextNode) || isTableNode(nextNode))) {
-                return ((prevNode == null) ||
-                        isOpaqueNode(prevNode) ||
-                        isTextNode(prevNode) ||
-                        isTableNode(prevNode));
+            if ((nextNode != null) && (isOpaqueNode(nextNode) || (nextType == HTML_TABLE))) {
+                switch (prevType) {
+                case 0:
+                case HTML_TEXT:
+                case HTML_TABLE:
+                    return true;
+                default:
+                    return isOpaqueNode(prevNode);
+                }
             }
         }
 
@@ -894,10 +918,10 @@ var Position_atPoint;
             var prev = pos.node.childNodes[pos.offset-1];
             var next = pos.node.childNodes[pos.offset];
 
-            if ((prev != null) && isImageNode(prev) && elementContainsPoint(prev,x,y))
+            if ((prev != null) && (prev._type == HTML_IMG) && elementContainsPoint(prev,x,y))
                 return new Position(prev,0);
 
-            if ((next != null) && isImageNode(next) && elementContainsPoint(next,x,y))
+            if ((next != null) && (next._type == HTML_IMG) && elementContainsPoint(next,x,y))
                 return new Position(next,0);
         }
 
@@ -956,11 +980,11 @@ var Position_atPoint;
         if (position.node._type == HTML_FIGURE) {
             var prev = position.node.childNodes[position.offset-1];
             var next = position.node.childNodes[position.offset];
-            if ((prev != null) && isImageNode(prev)) {
+            if ((prev != null) && (prev._type == HTML_IMG)) {
                 position = new Position(position.node.parentNode,
                                         DOM_nodeOffset(position.node)+1);
             }
-            else if ((next != null) && isImageNode(next)) {
+            else if ((next != null) && (next._type == HTML_IMG)) {
                 position = new Position(position.node.parentNode,
                                         DOM_nodeOffset(position.node));
             }

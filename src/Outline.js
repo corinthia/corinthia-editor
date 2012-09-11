@@ -1003,6 +1003,17 @@ var Outline_setReferenceTarget;
     Outline_init = trace(function init()
     {
         Selection_preserveWhileExecuting(function() {
+
+            function isTableNode(node)
+            {
+                return (node._type == HTML_TABLE);
+            }
+
+            function isFigureNode(node)
+            {
+                return (node._type == HTML_FIGURE);
+            }
+
             sections = new Category("section",isHeadingNode,sectionNumberRegex);
             figures = new Category("figure",isFigureNode,figureNumberRegex);
             tables = new Category("table",isTableNode,tableNumberRegex);

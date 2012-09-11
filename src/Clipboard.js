@@ -325,20 +325,24 @@ var Clipboard_pasteNodes;
                 var node = Position_closestActualNode(selRange.start);
                 while (node != null) {
                     var parent = node.parentNode;
-                    if (isListItemNode(node)) {
+                    switch (node._type) {
+                    case HTML_LI:
                         if (!nodeHasContent(node))
                             DOM_deleteNode(node);
-                    }
-                    else if (isListNode(node)) {
+                        break;
+                    case HTML_UL:
+                    case HTML_OL: {
                         var haveLI = false;
                         for (var c = node.firstChild; c != null; c = c.nextSibling) {
-                            if (isListItemNode(c)) {
+                            if (c._type == HTML_LI) {
                                 haveLI = true;
                                 break;
                             }
                         }
                         if (!haveLI)
                             DOM_deleteNode(node);
+                        break;
+                    }
                     }
                     node = parent;
                 }
@@ -420,7 +424,7 @@ var Clipboard_pasteNodes;
         for (var i = 0; i < nodes.length; i++)
             removeDuplicateIds(nodes[i]);
 
-        if ((nodes.length == 0) && isTableNode(nodes[0])) {
+        if ((nodes.length == 0) && (nodes[0]._type == HTML_TABLE)) {
             // FIXME: this won't work; selectionRange is not defined
             var fromRegion = Tables_getTableRegionFromTable(nodes[0]);
             var toRegion = Tables_regionFromRange(selectionRange);
@@ -462,10 +466,15 @@ var Clipboard_pasteNodes;
 
         for (var temp = parent; temp != null; temp = temp.parentNode) {
             if (isContainerNode(temp)) {
-                if (isListItemNode(temp))
+                switch (temp._type) {
+                case HTML_LI:
                     inItem = temp;
-                if (isListNode(temp))
+                    break;
+                case HTML_UL:
+                case HTML_OL:
                     inList = temp;
+                    break;
+                }
                 containerParent = temp.parentNode;
                 break;
             }
@@ -479,20 +488,23 @@ var Clipboard_pasteNodes;
 
                 var offset = DOM_nodeOffset(nextSibling,parent);
 
-                if (isListNode(child)) {
+                switch (child._type) {
+                case HTML_UL:
+                case HTML_OL:
                     Formatting_movePreceding(new Position(parent,offset),
                                              function(x) { return (x == containerParent); });
                     insertChildrenBefore(inItem.parentNode,child,inItem,pastedNodes);
-                }
-                else if (isListItemNode(child)) {
+                    break;
+                case HTML_LI:
                     Formatting_movePreceding(new Position(parent,offset),
                                              function(x) { return (x == containerParent); });
                     DOM_insertBefore(inItem.parentNode,child,inItem);
                     pastedNodes.push(child);
-                }
-                else {
+                    break;
+                default:
                     DOM_insertBefore(parent,child,nextSibling);
                     pastedNodes.push(child);
+                    break;
                 }
             }
         }
@@ -502,22 +514,26 @@ var Clipboard_pasteNodes;
                 var child = nodes[i];
 
                 var offset = DOM_nodeOffset(nextSibling,parent);
-                
-                if (isListNode(child)) {
+
+                switch (child._type) {
+                case HTML_UL:
+                case HTML_OL:
                     insertChildrenBefore(parent,child,nextSibling,pastedNodes);
                     prevLI = null;
-                }
-                else if (isListItemNode(child)) {
+                    break;
+                case HTML_LI:
                     DOM_insertBefore(parent,child,nextSibling);
                     pastedNodes.push(child);
                     prevLI = null;
-                }
-                else if (!isWhitespaceTextNode(child)) {
-                    if (prevLI == null)
-                        prevLI = DOM_createElement(document,"LI");
-                    DOM_appendChild(prevLI,child);
-                    DOM_insertBefore(parent,prevLI,nextSibling);
-                    pastedNodes.push(child);
+                    break;
+                default:
+                    if (!isWhitespaceTextNode(child)) {
+                        if (prevLI == null)
+                            prevLI = DOM_createElement(document,"LI");
+                        DOM_appendChild(prevLI,child);
+                        DOM_insertBefore(parent,prevLI,nextSibling);
+                        pastedNodes.push(child);
+                    }
                 }
             }
         }
@@ -558,7 +574,7 @@ var Clipboard_pasteNodes;
             while (true) {
                 if (pos.node == document.body)
                     break;
-                if (isContainerNode(pos.node) && !isListItemNode(pos.node))
+                if (isContainerNode(pos.node) && (pos.node._type != HTML_LI))
                     break;
                 if (!nodeHasContent(pos.node)) {
                     var oldNode = pos.node;

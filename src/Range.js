@@ -363,13 +363,16 @@ var Range_getText;
         }
 
         var childArray = new Array();
-        if (isListNode(clone)) {
+        switch (clone._type) {
+        case HTML_UL:
+        case HTML_OL:
             childArray.push(clone);
-        }
-        else {
+            break;
+        default:
             for (var child = clone.firstChild; child != null; child = child.nextSibling)
                 childArray.push(child);
             Formatting_pushDownInlineProperties(childArray);
+            break;
         }
 
         return childArray;

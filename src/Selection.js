@@ -1090,7 +1090,7 @@ var Selection_preferElementPositions;
     {
         if (isParagraphNode(node))
             return node;
-        if (isListItemNode(node)) {
+        if (node._type == HTML_LI) {
             var nonWhitespaceInline = false;
 
             for (var child = node.firstChild; child != null; child = child.nextSibling) {
@@ -1142,7 +1142,7 @@ var Selection_preferElementPositions;
         }
         else if (isParagraphNode(detail.startAncestor) &&
                  isListNode(detail.endAncestor) &&
-                 isListItemNode(detail.endAncestor.firstChild)) {
+                 (detail.endAncestor.firstChild._type == HTML_LI)) {
             var list = detail.endAncestor;
             var li = detail.endAncestor.firstChild;
 
@@ -1159,7 +1159,7 @@ var Selection_preferElementPositions;
         }
         else if (isParagraphNode(detail.endAncestor) &&
                  isListNode(detail.startAncestor) &&
-                 isListItemNode(detail.startAncestor.lastChild)) {
+                 (detail.startAncestor.lastChild._type == HTML_LI)) {
             var list = detail.startAncestor;
             var li = detail.startAncestor.lastChild;
             var p = detail.endAncestor;
@@ -1220,8 +1220,12 @@ var Selection_preferElementPositions;
     {
         var container = document.body;
         for (; node != topAncestor.parentNode; node = node.parentNode) {
-            if (isFigureNode(node) || isTableNode(node))
+            switch (node._type) {
+            case HTML_FIGURE:
+            case HTML_TABLE:
                 container = node;
+                break;
+            }
         }
         return container;
     });

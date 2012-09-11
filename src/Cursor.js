@@ -547,7 +547,7 @@ var Cursor_set;
 
             // If we're directly in a container node, add a paragraph, so we have something to
             // split.
-            if (isContainerNode(pos.node) && !isListItemNode(pos.node)) {
+            if (isContainerNode(pos.node) && (pos.node._type != HTML_LI)) {
                 var p = DOM_createElement(document,"P");
                 DOM_insertBefore(pos.node,p,pos.node.childNodes[pos.offset]);
                 pos = new Position(p,0);
@@ -589,7 +589,7 @@ var Cursor_set;
                     Cursor_updateBRAtEndOfParagraph(prev);
                     break;
                 }
-                else if ((prev != null) && isListItemNode(prev) && !nodeHasContent(prev)) {
+                else if ((prev != null) && (prev._type == HTML_LI) && !nodeHasContent(prev)) {
                     var next;
                     for (var child = prev.firstChild; child != null; child = next) {
                         next = child.nextSibling;
@@ -630,7 +630,7 @@ var Cursor_set;
         {
             var blockToSplit = null;
             for (var n = pos.node; n != null; n = n.parentNode) {
-                if (isListItemNode(n)) {
+                if (n._type == HTML_LI) {
                     blockToSplit = n;
                     break;
                 }

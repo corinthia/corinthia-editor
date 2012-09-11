@@ -249,13 +249,24 @@ function setNumbering(enabled)
 
     function recurse(node,enabled)
     {
-        if ((isHeadingNode(node) || isFigureNode(node) || isTableNode(node)) && !isInTOC(node)) {
-            Outline_setNumbered(node.getAttribute("id"),enabled);
+        switch (node._type) {
+        case HTML_H1:
+        case HTML_H2:
+        case HTML_H3:
+        case HTML_H4:
+        case HTML_H5:
+        case HTML_H6:
+        case HTML_FIGURE:
+        case HTML_TABLE:
+            if (!isInTOC(node)) {
+                Outline_setNumbered(node.getAttribute("id"),enabled);
+                return;
+            }
+            break;
         }
-        else {
-            for (var child = node.firstChild; child != null; child = child.nextSibling)
-                recurse(child,enabled);
-        }
+
+        for (var child = node.firstChild; child != null; child = child.nextSibling)
+            recurse(child,enabled);
     }
 }
 

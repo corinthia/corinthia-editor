@@ -191,7 +191,7 @@ var Hierarchy_wrapInlineNodesInParagraph;
             if (count > 20)
                 throw new Error("ensureInlineNodesInParagraph: too many iterations");
             if (isInlineNode(node) &&
-                isContainerNode(node.parentNode) && !isListItemNode(node.parentNode) &&
+                isContainerNode(node.parentNode) && (node.parentNode._type != HTML_LI) &&
                 (!weak || !isTableCell(node.parentNode)) &&
                 !isWhitespaceTextNode(node)) {
                 Hierarchy_wrapInlineNodesInParagraph(node);

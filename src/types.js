@@ -1,124 +1,72 @@
 // Copyright (c) 2012 UX Productivity Pty Ltd. All rights reserved.
 
-var CONTAINER_ELEMENTS = {
-    "#document": true,
-    "HTML": true,
-    "BODY": true,
-    "UL": true,
-    "OL":  true,
-    "LI": true,
-    "TABLE": true,
-    "CAPTION": true,
-    "THEAD": true,
-    "TFOOT": true,
-    "TBODY": true,
-    "TR": true,
-    "TH": true,
-    "TD": true,
-    "COL": true,
-    "FIGURE": true,
-    "FIGCAPTION": true,
-    "NAV": true
-};
+var CONTAINER_ELEMENTS = new Array(HTML_COUNT);
+CONTAINER_ELEMENTS[HTML_DOCUMENT] = true;
+CONTAINER_ELEMENTS[HTML_HTML] = true;
+CONTAINER_ELEMENTS[HTML_BODY] = true;
+CONTAINER_ELEMENTS[HTML_UL] = true;
+CONTAINER_ELEMENTS[HTML_OL] = true,
+CONTAINER_ELEMENTS[HTML_LI] = true;
+CONTAINER_ELEMENTS[HTML_TABLE] = true;
+CONTAINER_ELEMENTS[HTML_CAPTION] = true;
+CONTAINER_ELEMENTS[HTML_THEAD] = true;
+CONTAINER_ELEMENTS[HTML_TFOOT] = true;
+CONTAINER_ELEMENTS[HTML_TBODY] = true;
+CONTAINER_ELEMENTS[HTML_TR] = true;
+CONTAINER_ELEMENTS[HTML_TH] = true;
+CONTAINER_ELEMENTS[HTML_TD] = true;
+CONTAINER_ELEMENTS[HTML_COL] = true;
+CONTAINER_ELEMENTS[HTML_FIGURE] = true;
+CONTAINER_ELEMENTS[HTML_FIGCAPTION] = true;
+CONTAINER_ELEMENTS[HTML_NAV] = true;
 
-var CONTAINER_ELEMENT_TYPES = new Array(HTML_COUNT);
-CONTAINER_ELEMENT_TYPES[HTML_DOCUMENT] = true;
-CONTAINER_ELEMENT_TYPES[HTML_HTML] = true;
-CONTAINER_ELEMENT_TYPES[HTML_BODY] = true;
-CONTAINER_ELEMENT_TYPES[HTML_UL] = true;
-CONTAINER_ELEMENT_TYPES[HTML_OL] = true,
-CONTAINER_ELEMENT_TYPES[HTML_LI] = true;
-CONTAINER_ELEMENT_TYPES[HTML_TABLE] = true;
-CONTAINER_ELEMENT_TYPES[HTML_CAPTION] = true;
-CONTAINER_ELEMENT_TYPES[HTML_THEAD] = true;
-CONTAINER_ELEMENT_TYPES[HTML_TFOOT] = true;
-CONTAINER_ELEMENT_TYPES[HTML_TBODY] = true;
-CONTAINER_ELEMENT_TYPES[HTML_TR] = true;
-CONTAINER_ELEMENT_TYPES[HTML_TH] = true;
-CONTAINER_ELEMENT_TYPES[HTML_TD] = true;
-CONTAINER_ELEMENT_TYPES[HTML_COL] = true;
-CONTAINER_ELEMENT_TYPES[HTML_FIGURE] = true;
-CONTAINER_ELEMENT_TYPES[HTML_FIGCAPTION] = true;
-CONTAINER_ELEMENT_TYPES[HTML_NAV] = true;
+var PARAGRAPH_ELEMENTS = new Array(HTML_COUNT);
+PARAGRAPH_ELEMENTS[HTML_P] = true;
+PARAGRAPH_ELEMENTS[HTML_H1] = true;
+PARAGRAPH_ELEMENTS[HTML_H2] = true;
+PARAGRAPH_ELEMENTS[HTML_H3] = true;
+PARAGRAPH_ELEMENTS[HTML_H4] = true;
+PARAGRAPH_ELEMENTS[HTML_H5] = true;
+PARAGRAPH_ELEMENTS[HTML_H6] = true;
+PARAGRAPH_ELEMENTS[HTML_DIV] = true;
+PARAGRAPH_ELEMENTS[HTML_PRE] = true;
+PARAGRAPH_ELEMENTS[HTML_BLOCKQUOTE] = true;
 
-var PARAGRAPH_ELEMENTS = {
-    "P": true,
-    "H1": true,
-    "H2": true,
-    "H3": true,
-    "H4": true,
-    "H5": true,
-    "H6": true,
-    "DIV": true,
-    "PRE": true,
-    "BLOCKQUOTE": true
-};
+var BLOCK_ELEMENTS = new Array(HTML_COUNT);
+for (var i = 0; i < HTML_COUNT; i++)
+    BLOCK_ELEMENTS[i] = (CONTAINER_ELEMENTS[i] || PARAGRAPH_ELEMENTS[i]);
 
-var PARAGRAPH_ELEMENT_TYPES = new Array(HTML_COUNT);
-PARAGRAPH_ELEMENT_TYPES[HTML_P] = true;
-PARAGRAPH_ELEMENT_TYPES[HTML_H1] = true;
-PARAGRAPH_ELEMENT_TYPES[HTML_H2] = true;
-PARAGRAPH_ELEMENT_TYPES[HTML_H3] = true;
-PARAGRAPH_ELEMENT_TYPES[HTML_H4] = true;
-PARAGRAPH_ELEMENT_TYPES[HTML_H5] = true;
-PARAGRAPH_ELEMENT_TYPES[HTML_H6] = true;
-PARAGRAPH_ELEMENT_TYPES[HTML_DIV] = true;
-PARAGRAPH_ELEMENT_TYPES[HTML_PRE] = true;
-PARAGRAPH_ELEMENT_TYPES[HTML_BLOCKQUOTE] = true;
+var INLINE_ELEMENTS = new Array(HTML_COUNT);
+for (var i = 0; i < HTML_COUNT; i++)
+    INLINE_ELEMENTS[i] = !BLOCK_ELEMENTS[i];
 
+var HEADING_ELEMENTS = new Array(HTML_COUNT);
+HEADING_ELEMENTS[HTML_H1] = true;
+HEADING_ELEMENTS[HTML_H2] = true;
+HEADING_ELEMENTS[HTML_H3] = true;
+HEADING_ELEMENTS[HTML_H4] = true;
+HEADING_ELEMENTS[HTML_H5] = true;
+HEADING_ELEMENTS[HTML_H6] = true;
 
-var HEADING_ELEMENTS = {
-    "H1": true,
-    "H2": true,
-    "H3": true,
-    "H4": true,
-    "H5": true,
-    "H6": true
-}
+var CONTAINERS_ALLOWING_CHILDREN = new Array(HTML_COUNT);
+CONTAINERS_ALLOWING_CHILDREN[HTML_BODY] = true;
+CONTAINERS_ALLOWING_CHILDREN[HTML_LI] = true;
+CONTAINERS_ALLOWING_CHILDREN[HTML_CAPTION] = true;
+CONTAINERS_ALLOWING_CHILDREN[HTML_TH] = true;
+CONTAINERS_ALLOWING_CHILDREN[HTML_TD] = true;
+CONTAINERS_ALLOWING_CHILDREN[HTML_FIGURE] = true;
+CONTAINERS_ALLOWING_CHILDREN[HTML_FIGCAPTION] = true;
+CONTAINERS_ALLOWING_CHILDREN[HTML_NAV] = true;
 
-var HEADING_ELEMENT_TYPES = new Array(HTML_COUNT);
-HEADING_ELEMENT_TYPES[HTML_H1] = true;
-HEADING_ELEMENT_TYPES[HTML_H2] = true;
-HEADING_ELEMENT_TYPES[HTML_H3] = true;
-HEADING_ELEMENT_TYPES[HTML_H4] = true;
-HEADING_ELEMENT_TYPES[HTML_H5] = true;
-HEADING_ELEMENT_TYPES[HTML_H6] = true;
-
-var INLINE_ELEMENTS_THAT_CAN_HAVE_CHILDREN = {
-    "A": true,
-    "B": true,
-    "I": true,
-    "U": true,
-    "SPAN": true,
-};
-
-var INLINE_ALLOWING_CHILDREN_TYPES = new Array(HTML_COUNT);
-INLINE_ALLOWING_CHILDREN_TYPES[HTML_A] = true;
-INLINE_ALLOWING_CHILDREN_TYPES[HTML_B] = true;
-INLINE_ALLOWING_CHILDREN_TYPES[HTML_I] = true;
-INLINE_ALLOWING_CHILDREN_TYPES[HTML_U] = true;
-INLINE_ALLOWING_CHILDREN_TYPES[HTML_SPAN] = true;
-
-var CONTAINER_ELEMENTS_ALLOWING_CONTENT = {
-    "BODY": true,
-    "LI": true,
-    "CAPTION": true,
-    "TH": true,
-    "TD": true,
-    "FIGURE": true,
-    "FIGCAPTION": true,
-    "NAV": true,
-};
-
-var CONTAINERS_ALLOWING_CONTENT_TYPES = new Array(HTML_COUNT);
-CONTAINERS_ALLOWING_CONTENT_TYPES[HTML_BODY] = true;
-CONTAINERS_ALLOWING_CONTENT_TYPES[HTML_LI] = true;
-CONTAINERS_ALLOWING_CONTENT_TYPES[HTML_CAPTION] = true;
-CONTAINERS_ALLOWING_CONTENT_TYPES[HTML_TH] = true;
-CONTAINERS_ALLOWING_CONTENT_TYPES[HTML_TD] = true;
-CONTAINERS_ALLOWING_CONTENT_TYPES[HTML_FIGURE] = true;
-CONTAINERS_ALLOWING_CONTENT_TYPES[HTML_FIGCAPTION] = true;
-CONTAINERS_ALLOWING_CONTENT_TYPES[HTML_NAV] = true;
+var OUTLINE_TITLE_ELEMENTS = new Array(HTML_COUNT);
+OUTLINE_TITLE_ELEMENTS[HTML_H1] = true;
+OUTLINE_TITLE_ELEMENTS[HTML_H2] = true;
+OUTLINE_TITLE_ELEMENTS[HTML_H3] = true;
+OUTLINE_TITLE_ELEMENTS[HTML_H4] = true;
+OUTLINE_TITLE_ELEMENTS[HTML_H5] = true;
+OUTLINE_TITLE_ELEMENTS[HTML_H6] = true;
+OUTLINE_TITLE_ELEMENTS[HTML_FIGCAPTION] = true;
+OUTLINE_TITLE_ELEMENTS[HTML_CAPTION] = true;
 
 var Keys = {
     HEADING_NUMBER: "uxwrite-heading-number",
@@ -154,42 +102,27 @@ var OPAQUE_NODE_CLASSES = {
 
 function isContainerNode(node)
 {
-    return CONTAINER_ELEMENT_TYPES[node._type];
+    return CONTAINER_ELEMENTS[node._type];
 }
 
 function isParagraphNode(node)
 {
-    return PARAGRAPH_ELEMENT_TYPES[node._type];
+    return PARAGRAPH_ELEMENTS[node._type];
 }
 
 function isHeadingNode(node)
 {
-    return HEADING_ELEMENT_TYPES[node._type];
-}
-
-function isTableCaptionNode(node)
-{
-    return (node._type == HTML_CAPTION);
-}
-
-function isFigureCaptionNode(node)
-{
-    return (node._type == HTML_FIGCAPTION);
-}
-
-function isOutlineItemTitleNode(node)
-{
-    return (isHeadingNode(node) || isFigureCaptionNode(node) || isTableCaptionNode(node));
+    return HEADING_ELEMENTS[node._type];
 }
 
 function isBlockNode(node)
 {
-    return (isContainerNode(node) || isParagraphNode(node));
+    return BLOCK_ELEMENTS[node._type];
 }
 
 function isInlineNode(node)
 {
-    return !isBlockNode(node);
+    return INLINE_ELEMENTS[node._type];
 }
 
 function isListNode(node)
@@ -198,25 +131,15 @@ function isListNode(node)
     return ((type == HTML_UL) || (type == HTML_OL));
 }
 
-function isListItemNode(node)
-{
-    return (node._type == HTML_LI);
-}
-
-function isTableNode(node)
-{
-    return (node._type == HTML_TABLE);
-}
-
 function isTableCell(node)
 {
-    var type = node._type;
-    return ((type == HTML_TD) || (type == HTML_TH));
-}
-
-function isFigureNode(node)
-{
-    return (node._type == HTML_FIGURE);
+    switch (node._type) {
+    case HTML_TD:
+    case HTML_TH:
+        return true;
+    default:
+        return false;
+    }
 }
 
 function isRefNode(node)
@@ -224,16 +147,6 @@ function isRefNode(node)
     return ((node._type == HTML_A) &&
             node.hasAttribute("href") &&
             node.getAttribute("href").charAt(0) == "#");
-}
-
-function isImageNode(node)
-{
-    return (node._type == HTML_IMG);
-}
-
-function isTextNode(node)
-{
-    return (node.nodeType == Node.TEXT_NODE);
 }
 
 function isItemNumber(node)
@@ -253,21 +166,23 @@ function isOpaqueNode(node)
 {
     if (node == null)
         return false;
-    if (node.nodeType == Node.TEXT_NODE) {
+
+    switch (node._type) {
+    case HTML_TEXT:
+    case HTML_COMMENT:
         return isOpaqueNode(node.parentNode);
+    case HTML_IMG:
+        return true;
+    case HTML_A:
+        return node.hasAttribute("href");
+    case HTML_DOCUMENT:
+        return false;
+    default:
+        if (node.hasAttribute("class") && OPAQUE_NODE_CLASSES[node.getAttribute("class")])
+            return true;
+        else
+            return isOpaqueNode(node.parentNode);
     }
-    else if (node.nodeType == Node.ELEMENT_NODE) {
-        if (node.hasAttribute("class") && OPAQUE_NODE_CLASSES[node.getAttribute("class")]) {
-            return true;
-        }
-        else if ((node._type == HTML_A) && node.hasAttribute("href")) {
-            return true;
-        }
-        else if (isImageNode(node)) {
-            return true;
-        }
-    }
-    return isOpaqueNode(node.parentNode);
 }
 
 function isAutoCorrectNode(node)
@@ -305,7 +220,15 @@ function isInTOC(node)
 
 function isSpecialBlockNode(node)
 {
-    return (isTableNode(node) || isFigureNode(node) || isTOCNode(node));
+    switch (node._type) {
+    case HTML_TABLE:
+    case HTML_FIGURE:
+        return true;
+    case HTML_NAV:
+        return isTOCNode(node);
+    default:
+        return false;
+    }
 }
 
 function isAbstractSpan(node)

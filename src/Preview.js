@@ -84,7 +84,7 @@ var Preview_showForStyle;
 
         DOM_deleteAllChildren(document.body);
 
-        if (PARAGRAPH_ELEMENTS[styleId.toUpperCase()] ||
+        if (PARAGRAPH_ELEMENTS[ElementTypes[styleId.toUpperCase()]] ||
             (styleId.charAt(0) == ".")) {
             var paragraph1 = createParagraphElementForStyleId(styleId);
             var paragraph2 = createParagraphElementForStyleId(styleId);
@@ -120,7 +120,7 @@ var Preview_showForStyle;
 
         function createParagraphElementForStyleId(styleId)
         {
-            if (PARAGRAPH_ELEMENTS[styleId.toUpperCase()]) {
+            if (PARAGRAPH_ELEMENTS[ElementTypes[styleId.toUpperCase()]]) {
                 return DOM_createElement(document,styleId);
             }
             else {

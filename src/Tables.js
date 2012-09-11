@@ -746,7 +746,7 @@ var Table_get;
     Tables_findContainingTable = trace(function findContainingTable(node)
     {
         for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {
-            if (isTableNode(ancestor))
+            if (ancestor._type == HTML_TABLE)
                 return ancestor;
         }
         return null;

@@ -402,7 +402,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                      ancestor.parentNode != null;
                      ancestor = ancestor.parentNode) {
 
-                    if (isListItemNode(ancestor.parentNode)) {
+                    if (ancestor.parentNode._type == HTML_LI) {
                         var havePrev = false;
                         for (var c = ancestor.previousSibling; c != null; c = c.previousSibling) {
                             if (!isWhitespaceTextNode(c)) {
@@ -556,7 +556,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                 }
                 break;
             default:
-                if (PARAGRAPH_ELEMENT_TYPES[type]) {
+                if (PARAGRAPH_ELEMENTS[type]) {
                     if (node.hasAttribute("class"))
                         properties["uxwrite-style"] = "."+node.getAttribute("class");
                     else
@@ -565,7 +565,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                 break;
             }
 
-            if (isOutlineItemTitleNode(node) && node.hasAttribute("id"))
+            if (OUTLINE_TITLE_ELEMENTS[type] && node.hasAttribute("id"))
                 properties["uxwrite-in-item-title"] = node.getAttribute("id");
         }
 
@@ -648,7 +648,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         var set = new NodeSet();
         for (var i = 0; i < nodes.length; i++) {
             for (var anc = nodes[i].parentNode; anc != null; anc = anc.parentNode) {
-                if (isListItemNode(anc))
+                if (anc._type == HTML_LI)
                     putDirectInlineChildrenInParagraphs(anc);
             }
             recurse(nodes[i]);
@@ -670,7 +670,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 
         function recurse(node)
         {
-            if (isListItemNode(node))
+            if (node._type == HTML_LI)
                 putDirectInlineChildrenInParagraphs(node);
             if (node.firstChild == null) {
                 // Leaf node
@@ -717,7 +717,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 
                 var elementType = ElementTypes[elementName];
 
-                if (!PARAGRAPH_ELEMENT_TYPES[elementType])
+                if (!PARAGRAPH_ELEMENTS[elementType])
                     return; // better than throwing an exception
 
                 if (paragraph._type != elementType)
