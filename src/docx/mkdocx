@@ -1,4 +1,0 @@
-#!/bin/bash
-filename=$1
-
-cd $filename && zip -r ../`basename $filename`.docx .
