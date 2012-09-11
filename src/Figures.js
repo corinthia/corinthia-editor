@@ -44,7 +44,7 @@ var Figures_setProperties;
 
     Figures_getSelectedFigureId = trace(function getAdjacentFigureId()
     {
-        var element = Cursor_getAdjacentNodeWithName("FIGURE");
+        var element = Cursor_getAdjacentNodeWithType(HTML_FIGURE);
         return element ? element.getAttribute("id") : null;
     });
 
@@ -57,7 +57,7 @@ var Figures_setProperties;
         var rect = figure.getBoundingClientRect();
         var result = { width: null, src: null };
         for (var child = figure.firstChild; child != null; child = child.nextSibling) {
-            if (DOM_upperName(child) == "IMG") {
+            if (child._type == HTML_IMG) {
                 result.src = decodeURI(child.getAttribute("src"));
                 result.width = child.style.width;
             }
@@ -72,7 +72,7 @@ var Figures_setProperties;
         if (figure == null)
             return null;
         for (var child = figure.firstChild; child != null; child = child.nextSibling) {
-            if (DOM_upperName(child) == "IMG") {
+            if (child._type == HTML_IMG) {
                 if (src == null)
                     DOM_removeAttribute(child,"src");
                 else

@@ -859,7 +859,7 @@ var Table_get;
 
     Tables_getSelectedTableId = trace(function getSelectedTableId()
     {
-        var element = Cursor_getAdjacentNodeWithName("TABLE");
+        var element = Cursor_getAdjacentNodeWithType(HTML_TABLE);
         return element ? element.getAttribute("id") : null;
     });
 

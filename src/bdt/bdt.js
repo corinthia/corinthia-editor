@@ -109,7 +109,7 @@ DocumentLens.put = function(source,target)
         if (targetChild._source == sourceChild) {
 //            debug("match between "+nodeString(targetChild)+" and "+nodeString(sourceChild));
 
-            if (DOM_upperName(targetChild) == "P")
+            if (targetChild._type == HTML_P)
                 ParagraphLens.put(sourceChild,targetChild);
 
             sourceChild = sourceChild.nextSibling;

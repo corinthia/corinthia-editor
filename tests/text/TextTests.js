@@ -8,7 +8,7 @@ function showRuns()
 
         var elementNames = new Array();
         for (var anc = runs[i].node.parentNode; anc != paragraph.node; anc = anc.parentNode) {
-            elementNames.push(DOM_upperName(anc)+" ");
+            elementNames.push(anc.nodeName+" ");
         }
 
         lines.push("Run "+i+" ("+runs[i].start+"): "+

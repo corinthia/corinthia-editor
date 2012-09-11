@@ -6,13 +6,16 @@ var Formatting_movePreceding;
 var Formatting_moveFollowing;
 var Formatting_splitAroundSelection;
 var Formatting_mergeWithNeighbours;
-var Formatting_mergeRange;
 var Formatting_paragraphTextUpToPosition;
 var Formatting_getAllNodeProperties;
 var Formatting_getFormatting;
 var Formatting_pushDownInlineProperties;
 var Formatting_applyFormattingChanges;
 var Formatting_formatInlineNode;
+
+var Formatting_MERGEABLE_INLINE;
+var Formatting_MERGEABLE_BLOCK;
+var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 
 (function() {
 
@@ -177,8 +180,8 @@ var Formatting_formatInlineNode;
         }
     });
 
-    // public
-    Formatting_mergeRange = trace(function mergeRange(range,whiteList)
+    // private
+    var mergeRange = trace(function mergeRange(range,whiteList)
     {
         var nodes = Range_getAllNodes(range);
         for (var i = 0; i < nodes.length; i++) {
@@ -712,10 +715,12 @@ var Formatting_formatInlineNode;
                 else
                     elementName = elementName.toUpperCase();
 
-                if (!PARAGRAPH_ELEMENTS[elementName])
+                var elementType = ElementTypes[elementName];
+
+                if (!PARAGRAPH_ELEMENT_TYPES[elementType])
                     return; // better than throwing an exception
 
-                if (DOM_upperName(paragraph) != elementName)
+                if (paragraph._type != elementType)
                     paragraph = DOM_replaceElement(paragraph,elementName);
 
                 if (className != null)
@@ -1129,7 +1134,7 @@ var Formatting_formatInlineNode;
                 }
             }
 
-            Formatting_mergeRange(range,Formatting_MERGEABLE_INLINE);
+            mergeRange(range,Formatting_MERGEABLE_INLINE);
 
             if (target != null) {
                 for (var p = target; p != null; p = next) {
@@ -1167,62 +1172,56 @@ var Formatting_formatInlineNode;
         return applyInlineFormatting(node,properties,special,true);
     });
 
-    Formatting_MERGEABLE_INLINE = {
-        "SPAN": true,
-        "A": true,
-        "Q": true,
-        "FONT": true,
-        "BASEFONT": true,
+    Formatting_MERGEABLE_INLINE = new Array(HTML_COUNT);
 
-         // HTML 4.01 Section 9.2.1: Phrase elements
-        "EM": true,
-        "STRONG": true,
-        "DFN": true,
-        "CODE": true,
-        "SAMP": true,
-        "KBD": true,
-        "VAR": true,
-        "CITE": true,
-        "ABBR": true,
-        "ACRONYM": true,
+    Formatting_MERGEABLE_INLINE[HTML_SPAN] = true;
+    Formatting_MERGEABLE_INLINE[HTML_A] = true;
+    Formatting_MERGEABLE_INLINE[HTML_Q] = true;
 
-        // HTML 4.01 Section 9.2.3: Subscripts and superscripts
-        "SUB": true,
-        "SUP": true,
+    // HTML 4.01 Section 9.2.1: Phrase elements
+    Formatting_MERGEABLE_INLINE[HTML_EM] = true;
+    Formatting_MERGEABLE_INLINE[HTML_STRONG] = true;
+    Formatting_MERGEABLE_INLINE[HTML_DFN] = true;
+    Formatting_MERGEABLE_INLINE[HTML_CODE] = true;
+    Formatting_MERGEABLE_INLINE[HTML_SAMP] = true;
+    Formatting_MERGEABLE_INLINE[HTML_KBD] = true;
+    Formatting_MERGEABLE_INLINE[HTML_VAR] = true;
+    Formatting_MERGEABLE_INLINE[HTML_CITE] = true;
+    Formatting_MERGEABLE_INLINE[HTML_ABBR] = true;
 
-        // HTML 4.01 Section 15.2.1: Font style elements
-        "TT": true,
-        "I": true,
-        "B": true,
-        "BIG": true,
-        "SMALL": true,
-        "STRIKE": true,
-        "S": true,
-        "U": true,
-    };
+    // HTML 4.01 Section 9.2.3: Subscripts and superscripts
+    Formatting_MERGEABLE_INLINE[HTML_SUB] = true;
+    Formatting_MERGEABLE_INLINE[HTML_SUP] = true;
 
-    Formatting_MERGEABLE_BLOCK = {
-        "P": true,
-        "H1": true,
-        "H2": true,
-        "H3": true,
-        "H4": true,
-        "H5": true,
-        "H6": true,
-        "DIV": true,
-        "PRE": true,
-        "BLOCKQUOTE": true,
+    // HTML 4.01 Section 15.2.1: Font style elements
+    Formatting_MERGEABLE_INLINE[HTML_I] = true;
+    Formatting_MERGEABLE_INLINE[HTML_B] = true;
+    Formatting_MERGEABLE_INLINE[HTML_SMALL] = true;
+    Formatting_MERGEABLE_INLINE[HTML_S] = true;
+    Formatting_MERGEABLE_INLINE[HTML_U] = true;
 
-        "UL": true,
-        "OL":  true,
-        "LI": true,
-    };
+    Formatting_MERGEABLE_BLOCK = new Array(HTML_COUNT);
 
-    Formatting_MERGEABLE_BLOCK_AND_INLINE = new Object();
-    for (var name in Formatting_MERGEABLE_INLINE)
-        Formatting_MERGEABLE_BLOCK_AND_INLINE[name] = Formatting_MERGEABLE_INLINE[name];
-    for (var name in Formatting_MERGEABLE_BLOCK)
-        Formatting_MERGEABLE_BLOCK_AND_INLINE[name] = Formatting_MERGEABLE_BLOCK[name];
-    Formatting_MERGEABLE_BLOCK_AND_INLINE["force"] = true;
+    Formatting_MERGEABLE_BLOCK[HTML_P] = true;
+    Formatting_MERGEABLE_BLOCK[HTML_H1] = true;
+    Formatting_MERGEABLE_BLOCK[HTML_H2] = true;
+    Formatting_MERGEABLE_BLOCK[HTML_H3] = true;
+    Formatting_MERGEABLE_BLOCK[HTML_H4] = true;
+    Formatting_MERGEABLE_BLOCK[HTML_H5] = true;
+    Formatting_MERGEABLE_BLOCK[HTML_H6] = true;
+    Formatting_MERGEABLE_BLOCK[HTML_DIV] = true;
+    Formatting_MERGEABLE_BLOCK[HTML_PRE] = true;
+    Formatting_MERGEABLE_BLOCK[HTML_BLOCKQUOTE] = true;
+
+    Formatting_MERGEABLE_BLOCK[HTML_UL] = true;
+    Formatting_MERGEABLE_BLOCK[HTML_OL] = true;
+    Formatting_MERGEABLE_BLOCK[HTML_LI] = true;
+
+    Formatting_MERGEABLE_BLOCK_AND_INLINE = new Array(HTML_COUNT);
+    for (var i = 0; i < HTML_COUNT; i++) {
+        if (Formatting_MERGEABLE_INLINE[i] || Formatting_MERGEABLE_BLOCK[i])
+            Formatting_MERGEABLE_BLOCK_AND_INLINE[i] = true;
+        Formatting_MERGEABLE_BLOCK_AND_INLINE["force"] = true;
+    }
 
 })();

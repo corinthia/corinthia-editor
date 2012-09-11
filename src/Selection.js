@@ -988,7 +988,7 @@ var Selection_preferElementPositions;
             !sameTextNode) {
             prepareForMerge(detail);
             DOM_mergeWithNextSibling(detail.startAncestor,
-                                     Formatting_MERGEABLE_BLOCK_AND_INLINE);
+                                          Formatting_MERGEABLE_BLOCK_AND_INLINE);
             if (isParagraphNode(detail.startAncestor) &&
                 (detail.startAncestor._type != HTML_DIV))
                 removeParagraphDescendants(detail.startAncestor);
@@ -1169,7 +1169,7 @@ var Selection_preferElementPositions;
             DOM_deleteNode(p);
             if (oldLastChild != null) {
                 DOM_mergeWithNextSibling(oldLastChild,
-                                         Formatting_MERGEABLE_BLOCK_AND_INLINE);
+                                              Formatting_MERGEABLE_BLOCK_AND_INLINE);
             }
         }
 

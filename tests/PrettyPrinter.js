@@ -151,7 +151,7 @@
                 output.push(indent + "<" + name + attributeString(options,node) + "/>\n");
             }
             else {
-                if (DOM_upperName(node) == "STYLE") {
+                if (node._type == HTML_STYLE) {
                     output.push(indent + "<" + name + attributeString(options,node) + ">\n");
                     for (var child = node.firstChild; child != null; child = child.nextSibling)
                         prettyPrint(output,options,child,"");

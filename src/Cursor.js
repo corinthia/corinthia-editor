@@ -16,7 +16,7 @@ var Cursor_insertCharacter;
 var Cursor_deleteCharacter;
 var Cursor_enterPressed;
 var Cursor_getPrecedingWord;
-var Cursor_getAdjacentNodeWithName;
+var Cursor_getAdjacentNodeWithType;
 var Cursor_getLinkProperties;
 var Cursor_setLinkProperties;
 var Cursor_setReferenceTarget;
@@ -678,14 +678,14 @@ var Cursor_set;
         return node.nodeValue.substring(0,offset);
     });
 
-    Cursor_getAdjacentNodeWithName = trace(function getAdjacentNodeWithName(name)
+    Cursor_getAdjacentNodeWithType = trace(function getAdjacentNodeWithType(type)
     {
         var selRange = Selection_get();
         var position = selRange.start;
         while (position != null) {
             var node = Position_closestActualNode(position);
             for (; node != null; node = node.parentNode) {
-                if (DOM_upperName(node) == name)
+                if (node._type == type)
                     return node;
             }
             position = Position_prev(position);

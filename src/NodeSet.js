@@ -8,21 +8,21 @@ function NodeSet()
 NodeSet.prototype.add = function(node)
 {
     if (node._nodeId == null)
-        throw new Error("NodeSet.add: node "+DOM_upperName(node)+" has no _nodeId property");
+        throw new Error("NodeSet.add: node "+node.nodeName+" has no _nodeId property");
     this.members[node._nodeId] = node;
 }
 
 NodeSet.prototype.remove = function(node)
 {
     if (node._nodeId == null)
-        throw new Error("NodeSet.remove: node "+DOM_upperName(node)+" has no _nodeId property");
+        throw new Error("NodeSet.remove: node "+node.nodeName+" has no _nodeId property");
     delete this.members[node._nodeId];
 }
 
 NodeSet.prototype.contains = function(node)
 {
     if (node._nodeId == null)
-        throw new Error("NodeSet.contains: node "+DOM_upperName(node)+" has no _nodeId property");
+        throw new Error("NodeSet.contains: node "+node.nodeName+" has no _nodeId property");
     return (this.members[node._nodeId] != null);
 }
 

@@ -56,19 +56,23 @@ function flattenTreeToString(node)
 
     function recurse(node)
     {
-        if (node.nodeType == Node.TEXT_NODE) {
+        switch (node._type) {
+        case HTML_TEXT:
             result.push(node.nodeValue);
-        }
-        else if (DOM_upperName(node) == "IMG") {
+            break;
+        case HTML_IMG:
             result.push("I");
-        }
-        else if (isOpaqueNode(node)) {
-            result.push("O");
-        }
-        else if (node.nodeType == Node.ELEMENT_NODE) {
-            for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                recurse(child);
+            break;
+        default:
+            if (isOpaqueNode(node)) {
+                result.push("O");
             }
+            else if (node.nodeType == Node.ELEMENT_NODE) {
+                for (var child = node.firstChild; child != null; child = child.nextSibling) {
+                    recurse(child);
+                }
+            }
+            break;
         }
     }
 }

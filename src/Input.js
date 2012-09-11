@@ -41,7 +41,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
 
     function idebug(str)
     {
-        debug(str);
+        //debug(str);
     }
 
     var forwardSelection = true;
@@ -302,6 +302,10 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         idebug("Input_comparePositionToPosition("+posId1+","+posId2+")");
         var pos1 = getPosition(posId1);
         var pos2 = getPosition(posId2);
+        if (pos1 == null)
+            throw new Error("pos1 is null");
+        if (pos2 == null)
+            throw new Error("pos2 is null");
         return Position_compare(pos1,pos2);
     });
 

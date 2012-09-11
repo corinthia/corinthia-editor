@@ -42,8 +42,6 @@ var DOM_replaceCharacters;
 var DOM_addTrackedPosition;
 var DOM_removeTrackedPosition;
 var DOM_removeAdjacentWhitespace;
-var DOM_lowerName;
-var DOM_upperName;
 var DOM_documentHead;
 var DOM_ensureUniqueIds;
 var DOM_nodeOffset;
@@ -84,7 +82,7 @@ var DOM_Listener;
     function checkNodeId(node)
     {
         if (node._nodeId == null)
-            throw new Error(DOM_upperName(node)+" lacks _nodeId");
+            throw new Error(node.nodeName+" lacks _nodeId");
     }
 
     // public
@@ -703,21 +701,21 @@ var DOM_Listener;
     }
 
     // public
-    function nodesMergeable(a,b,whiteList)
+    function nodesMergeableTypes(a,b,whiteList)
     {
         if ((a.nodeType == Node.TEXT_NODE) && (b.nodeType == Node.TEXT_NODE))
             return true;
         else if ((a.nodeType == Node.ELEMENT_NODE) && (b.nodeType == Node.ELEMENT_NODE))
-            return elementsMergable(a,b);
+            return elementsMergableTypes(a,b);
         else
             return false;
 
-        function elementsMergable(a,b)
+        function elementsMergableTypes(a,b)
         {
             if (whiteList["force"] && isParagraphNode(a) && isParagraphNode(b))
                 return true;
-            if ((DOM_upperName(a) == DOM_upperName(b)) &&
-                whiteList[DOM_upperName(a)] &&
+            if ((a._type == b._type) &&
+                whiteList[a._type] &&
                 (a.attributes.length == b.attributes.length)) {
                 for (var i = 0; i < a.attributes.length; i++) {
                     var attrName = a.attributes[i].nodeName; // check-ok
@@ -734,7 +732,7 @@ var DOM_Listener;
     function getDataForNode(node,create)
     {
         if (node._nodeId == null)
-            throw new Error("getDataForNode: node "+DOM_upperName(node)+" has no _nodeId property");
+            throw new Error("getDataForNode: node "+node.nodeName+" has no _nodeId property");
         if ((nodeData[node._nodeId] == null) && create)
             nodeData[node._nodeId] = new Object();
         return nodeData[node._nodeId];
@@ -790,7 +788,7 @@ var DOM_Listener;
         var data = getDataForNode(position.node,false);
         if ((data == null) || (data.trackedPositions == null))
             throw new Error("DOM_removeTrackedPosition: no registered positions for this node "+
-                            "("+DOM_upperName(position.node)+")");
+                            "("+position.node.nodeName+")");
         for (var i = 0; i < data.trackedPositions.length; i++) {
             if (data.trackedPositions[i] == position) {
                 data.trackedPositions.splice(i,1);
@@ -811,26 +809,11 @@ var DOM_Listener;
     }
 
     // public
-    function lowerName(node)
-    {
-        return node.nodeName.toLowerCase(); // check-ok
-    }
-
-    // public
-    function upperName(node)
-    {
-        if (node.nodeType == Node.ELEMENT_NODE)
-            return node.nodeName.toUpperCase(); // check-ok
-        else
-            return node.nodeName; // check-ok
-    }
-
-    // public
     function documentHead(document)
     {
         var html = document.documentElement;
         for (var child = html.firstChild; child != null; child = child.nextSibling) {
-            if (DOM_upperName(child) == "HEAD")
+            if (child._type == HTML_HEAD)
                 return child;
         }
         throw new Error("Document contains no HEAD element");
@@ -1001,13 +984,11 @@ var DOM_Listener;
     DOM_wrapNode = trace(wrapNode);
     DOM_wrapSiblings = trace(wrapSiblings);
     DOM_mergeWithNextSibling = trace(mergeWithNextSibling);
-    DOM_nodesMergeable = trace(nodesMergeable);
+    DOM_nodesMergeable = trace(nodesMergeableTypes);
     DOM_replaceCharacters = trace(replaceCharacters);
     DOM_addTrackedPosition = trace(addTrackedPosition);
     DOM_removeTrackedPosition = trace(removeTrackedPosition);
     DOM_removeAdjacentWhitespace = trace(removeAdjacentWhitespace);
-    DOM_lowerName = trace(lowerName);
-    DOM_upperName = trace(upperName);
     DOM_documentHead = trace(documentHead);
     DOM_ensureUniqueIds = trace(ensureUniqueIds);
     DOM_nodeOffset = trace(nodeOffset);

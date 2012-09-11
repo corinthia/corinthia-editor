@@ -30,7 +30,7 @@ EntryLens.prototype.create = function(a,cdoc)
 
 EntryLens.prototype.isVisible = function(node)
 {
-    return (DOM_upperName(node) == "ENTRY");
+    return (node.nodeName == "entry");
 };
 
 EntryLens.prototype.getSource = function(node)

@@ -62,7 +62,7 @@ var Main_init;
     {
         var head = DOM_documentHead(document);
         for (var child = head.firstChild; child != null; child = child.nextSibling) {
-            if ((DOM_upperName(child) == "META") && child.hasAttribute("charset")) {
+            if ((child._type == HTML_META) && child.hasAttribute("charset")) {
                 DOM_setAttribute(child,"charset","utf-8");
                 return;
             }
@@ -79,7 +79,7 @@ var Main_init;
         UndoManager_disableWhileExecuting(function() {
             var head = DOM_documentHead(document);
             for (var child = head.firstChild; child != null; child = child.nextSibling) {
-                if ((DOM_upperName(child) == "META") &&
+                if ((child._type == HTML_META) &&
                     child.hasAttribute("name") &&
                     (child.getAttribute("name").toLowerCase() == "generator")) {
                     DOM_setAttribute(child,"content",generator);
@@ -137,17 +137,23 @@ var Main_init;
 
         function cleanse(node)
         {
-            if ((node.nodeType == Node.TEXT_NODE) || (node.nodeType == Node.COMMENT_NODE)) {
+            switch (node._type) {
+            case HTML_TEXT:
+            case HTML_COMMENT:
                 DOM_setNodeValue(node,cleanseString(node.nodeValue));
-            }
-            else if (node.nodeType == Node.ELEMENT_NODE) {
-                if ((DOM_upperName(node) == "STYLE") || (DOM_upperName(node) == "SCRIPT"))
-                    return;
-                cleanseAttribute(node,"original");
-                if (node.hasAttribute("href") && !node.getAttribute("href").match(/^#/))
-                    cleanseAttribute(node,"href");
-                for (var child = node.firstChild; child != null; child = child.nextSibling)
-                    cleanse(child);
+                break;
+            case HTML_STYLE:
+            case HTML_SCRIPT:
+                return;
+            default:
+                if (node.nodeType == Node.ELEMENT_NODE) {
+                    cleanseAttribute(node,"original");
+                    if (node.hasAttribute("href") && !node.getAttribute("href").match(/^#/))
+                        cleanseAttribute(node,"href");
+                    for (var child = node.firstChild; child != null; child = child.nextSibling)
+                        cleanse(child);
+                }
+                break;
             }
         }
 
@@ -248,15 +254,16 @@ var Main_init;
             (cssClass == Keys.SELECTION_HIGHLIGHT)) {
             DOM_removeNodeButKeepChildren(node);
         }
-        else if ((DOM_upperName(node) == "META") &&
+        else if ((node._type == HTML_META) &&
                  node.hasAttribute("name") &&
                  (node.getAttribute("name").toLowerCase() == "viewport")) {
             DOM_deleteNode(node);
         }
-        else if (DOM_upperName(node) == "LINK") {
+        else if (node._type == HTML_LINK) {
             if ((node.getAttribute("rel") == "stylesheet") &&
-                (node.getAttribute("href") == Styles_getBuiltinCSSURL()))
+                (node.getAttribute("href") == Styles_getBuiltinCSSURL())) {
                 DOM_deleteNode(node);
+            }
         }
     });
 
