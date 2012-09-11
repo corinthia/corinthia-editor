@@ -51,13 +51,17 @@ var Word_stylesDoc;
                 var value = node.getPropertyValue(name);
                 properties[name] = value;
             }
-            var upperName = DOM_upperName(node);
-            if (upperName == "B")
+            switch (node._type) {
+            case HTML_B:
                 properties["font-weight"] = "bold";
-            else if (upperName == "I")
+                break;
+            case HTML_I:
                 properties["font-style"] = "italic";
-            else if (upperName == "U") // FIXME: handle other text-decoration values
+                break;
+            case HTML_U: // FIXME: handle other text-decoration values
                 properties["text-decoration"] = "underline";
+                break;
+            }
         }
         nodePropertiesCache.put(node,properties);
         return properties;
@@ -551,7 +555,7 @@ var Word_stylesDoc;
 //        debug("DocumentLens.put: con = "+nodeString(con));
         var htmlBody = null;
         for (var absChild = abs.firstChild; absChild != null; absChild = absChild.nextSibling) {
-            if (DOM_upperName(absChild) == "BODY") {
+            if (absChild._type == HTML_BODY) {
                 htmlBody = absChild;
             }
         }
@@ -646,10 +650,14 @@ var Word_stylesDoc;
         var absHead = null;
         var absBody = null;
         for (var child = absHTML.firstChild; child != null; child = child.nextSibling) {
-            if (DOM_upperName(child) == "HEAD")
+            switch (child._type) {
+            case HTML_HEAD:
                 absHead = child;
-            else if (DOM_upperName(child) == "BODY")
+                break;
+            case HTML_BODY:
                 absBody = child;
+                break;
+            }
         }
 
         if (absHead != null) {

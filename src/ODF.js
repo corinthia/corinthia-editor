@@ -33,10 +33,14 @@ ODFInvalidError.prototype.toString = function() {
         var absHead = null;
         var absBody = null;
         for (var child = absHTML.firstChild; child != null; child = child.nextSibling) {
-            if (DOM_upperName(child) == "HEAD")
+            switch (child._type) {
+            case HTML_HEAD:
                 absHead = child;
-            else if (DOM_upperName(child) == "BODY")
+                break;
+            case HTML_BODY:
                 absBody = child;
+                break;
+            }
         }
 
         if (absHead != null) {
@@ -48,6 +52,10 @@ ODFInvalidError.prototype.toString = function() {
             while (absBody.firstChild != null)
                 DOM_appendChild(document.body,absBody.firstChild);
         }
+
+        var pos = new Position(document.body,0);
+        pos = Position_closestMatchForwards(pos,Position_okForMovement);
+        Cursor_set(pos.node,pos.offset);
 
         return true;
     });

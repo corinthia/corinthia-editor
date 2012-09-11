@@ -108,10 +108,12 @@ var WordDocument_put;
 
     var PContentChild_create = trace(function _PContentChild_create(abs,doc)
     {
-        if (DOM_upperName(abs) == "SPAN")
+        switch (abs._type) {
+        case HTML_SPAN:
             return WordR_create(abs,doc);
-        else
+        default:
             return null;
+        }
     });
 
     var PContentChildLens = {
@@ -269,7 +271,7 @@ var WordDocument_put;
             var spanId = null;
             var ancestor = run.node;
             while ((ancestor != null) && isInlineNode(ancestor)) {
-                if ((DOM_upperName(ancestor) == "SPAN") &&
+                if ((ancestor._type == HTML_SPAN) &&
                     ancestor.hasAttribute(Keys.ABSTRACT_ELEMENT) &&
                     ancestor.hasAttribute("id")) {
                     spanId = DOM_getAttribute(ancestor,"id");
@@ -341,7 +343,7 @@ var WordDocument_put;
     {
         debug("WordDocument_put: abs = "+nodeString(abs)+", con = "+nodeString(con));
         for (var absChild = abs.firstChild; absChild != null; absChild = absChild.nextSibling) {
-            if (DOM_upperName(absChild) == "BODY") {
+            if (absChild._type == HTML_BODY) {
                 WordBody_put(absChild,con._child_body);
                 return;
             }

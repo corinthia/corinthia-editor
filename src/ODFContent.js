@@ -291,7 +291,7 @@ var OfficeDocumentContent_parseStyles;
     {
         var body = null;
         for (var child = abs.firstChild; child != null; child = child.nextSibling) {
-            if (DOM_upperName(child) == "BODY") {
+            if (child._type == HTML_BODY) {
                 body = child;
                 break;
             }
