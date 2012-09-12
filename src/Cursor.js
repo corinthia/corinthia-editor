@@ -399,8 +399,18 @@ var Cursor_set;
         else
             DOM_insertCharacters(node,offset,str);
 
-        if (!allowNoParagraph) // must be done *after* inserting the text
-            Hierarchy_ensureInlineNodesInParagraph(node,true);
+                // must be done *after* inserting the text
+        if (!allowNoParagraph) {
+            switch (node.parentNode._type) {
+            case HTML_CAPTION:
+            case HTML_FIGCAPTION:
+                // Do nothing
+                break;
+            default:
+                Hierarchy_ensureInlineNodesInParagraph(node,true);
+                break;
+            }
+        }
 
         offset += str.length;
 

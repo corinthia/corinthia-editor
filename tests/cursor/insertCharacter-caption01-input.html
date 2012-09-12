@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+function performTest()
+{
+    Outline_init();
+    Styles_init();
+    Styles_addDefaultRuleCategory("td-paragraph-margins");
+    Styles_addDefaultRuleCategory("th-paragraph-margins");
+    Styles_addDefaultRuleCategory("table-borders");
+    Styles_addDefaultRuleCategory("table-caption");
+    PostponedActions_perform();
+
+    var caption = document.getElementsByTagName("CAPTION")[0];
+    var last = caption.lastChild;
+    debug("last = "+nodeString(last));
+    Selection_set(last,4,last,4);
+    Cursor_insertCharacter("X");
+    showSelection();
+}
+</script>
+</head>
+<body>
+  <table style="width: 100%">
+    <caption>
+      Table 1: Test
+    </caption>
+    <col width="50%">
+    <col width="50%">
+    <tr>
+      <td>0, 0</td>
+      <td>0, 1</td>
+    </tr>
+    <tr>
+      <td>1, 0</td>
+      <td>1, 1</td>
+    </tr>
+  </table>
+</body>
+</html>
