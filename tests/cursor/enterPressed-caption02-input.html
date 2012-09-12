@@ -15,7 +15,7 @@ function performTest()
     var caption = document.getElementsByTagName("CAPTION")[0];
     var last = caption.lastChild;
     Selection_set(last,3,last,3);
-    Cursor_insertCharacter("X");
+    Cursor_enterPressed();
     showSelection();
 }
 </script>

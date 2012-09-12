@@ -514,6 +514,32 @@ var Cursor_set;
                 Selection_deleteContents(true);
         });
 
+        // Are we inside a figure or table caption? If so, put an empty paragraph directly after it
+        var inCaption = false;
+        var inFigCaption = false;
+        var closestNode = Position_closestActualNode(selRange.start);
+        for (var ancestor = closestNode; ancestor != null; ancestor = ancestor.parentNode) {
+            switch (ancestor._type) {
+            case HTML_CAPTION:
+                inCaption = true;
+                break;
+            case HTML_FIGCAPTION:
+                inFigCaption = true;
+                break;
+            case HTML_TABLE:
+            case HTML_FIGURE:
+                if ((inCaption && (ancestor._type == HTML_TABLE)) ||
+                    (inFigCaption && (ancestor._type == HTML_FIGURE))) {
+                    var p = DOM_createElement(document,"P");
+                    DOM_insertBefore(ancestor.parentNode,p,ancestor.nextSibling);
+                    Cursor_updateBRAtEndOfParagraph(p);
+                    Selection_set(p,0,p,0);
+                    return;
+                }
+                break;
+            }
+        }
+
         var check = Position_preferElementPosition(selRange.start);
         if (check.node.nodeType == Node.ELEMENT_NODE) {
             var before = check.node.childNodes[check.offset-1];
