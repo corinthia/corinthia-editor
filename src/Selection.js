@@ -108,43 +108,49 @@ var Selection_preferElementPositions;
         if (tableSelection == null)
             return false;
 
-        removeSelectionHighlights(getRangeData(null));
+        Range_trackWhileExecuting(selRange,function() {
 
-        var sel = tableSelection;
+            removeSelectionHighlights(getRangeData(null));
 
-        var topLeftTD = Table_get(sel.structure,sel.top,sel.left);
-        var bottomRightTD = Table_get(sel.structure,sel.bottom,sel.right);
+            var sel = tableSelection;
 
-        var topLeftRect = topLeftTD.element.getBoundingClientRect();
-        var bottomRightRect = bottomRightTD.element.getBoundingClientRect();
+            var topLeftTD = Table_get(sel.structure,sel.top,sel.left);
+            var bottomRightTD = Table_get(sel.structure,sel.bottom,sel.right);
 
-        var left = topLeftRect.left;
-        var top = topLeftRect.top;
+            var topLeftRect = topLeftTD.element.getBoundingClientRect();
+            var bottomRightRect = bottomRightTD.element.getBoundingClientRect();
 
-        var bottom = bottomRightRect.bottom;
-        var right = bottomRightRect.right;
+            var left = topLeftRect.left;
+            var top = topLeftRect.top;
 
-        var x = left;
-        var y = top;
-        var width = right - left;
-        var height = bottom - top;
+            var bottom = bottomRightRect.bottom;
+            var right = bottomRightRect.right;
 
-        x += window.scrollX;
-        y += window.scrollY;
+            var x = left;
+            var y = top;
+            var width = right - left;
+            var height = bottom - top;
 
-        var div = DOM_createElement(document,"DIV");
-        DOM_setAttribute(div,"class",Keys.SELECTION_HIGHLIGHT);
-        DOM_setStyleProperties(div,{ "position": "absolute",
-                                     "left": x+"px",
-                                     "top": y+"px",
-                                     "width": width+"px",
-                                     "height": height+"px",
-                                     "background-color": "rgb(201,221,238)",
-                                     "z-index": -1 });
-        DOM_appendChild(document.body,div);
-        selectionDivs.push(div);
+            x += window.scrollX;
+            y += window.scrollY;
 
-        setEditorHandles({ type: "table", x: x, y: y, width: width, height: height });
+            var div = DOM_createElement(document,"DIV");
+            DOM_setAttribute(div,"class",Keys.SELECTION_HIGHLIGHT);
+            DOM_setStyleProperties(div,{ "position": "absolute",
+                                         "left": x+"px",
+                                         "top": y+"px",
+                                         "width": width+"px",
+                                         "height": height+"px",
+                                         "background-color": "rgb(201,221,238)",
+                                         "z-index": -1 });
+            DOM_appendChild(document.body,div);
+            selectionDivs.push(div);
+
+            setEditorHandles({ type: "table", x: x, y: y, width: width, height: height });
+        });
+
+        Selection_setInternal(selRange.start.node,selRange.start.offset,
+                              selRange.end.node,selRange.end.offset);
 
         return true;
     });

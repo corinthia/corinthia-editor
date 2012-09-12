@@ -361,6 +361,8 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         if (range == null)
             return {};
 
+        Range_assertValid(range,"Selection");
+
         var outermost = Range_getOutermostNodes(range,true);
 
         var leafNodes = new Array();
