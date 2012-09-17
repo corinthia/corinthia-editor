@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+p { border: solid blue }
+</style>
+<script>
+function performTest()
+{
+    Styles_init();
+    PostponedActions_perform();
+    var styles = Styles_getAllStyles();
+    var pstyle = styles["p"];
+    debug("pstyle = "+pstyle.rules.base.properties);
+    var properties = pstyle.rules.base.properties;
+
+    var output = new Array();
+    var names = Object.getOwnPropertyNames(properties).sort();
+    for (var i = 0; i < names.length; i++) {
+        var name = names[i];
+        var value = properties[name];
+        output.push(name+" = "+value+"\n");
+    }
+    return output.join("");
+}
+</script>
+</head>
+<body>
+<p>test</p>
+</body>
+</html>

@@ -442,7 +442,13 @@ var Styles_removeSelectionRule;
                         var value = rule.style.getPropertyValue(name);
                         value = value.replace(/^['"]/,"");
                         value = value.replace(/['"]$/,"");
-                        properties[name] = value;
+
+                        if (name.match(/^border-.*(width|image)$/) && (value == "initial")) {
+                            // skip
+                        }
+                        else {
+                            properties[name] = value;
+                        }
                     }
 
                     var individualSelectors = rule.selectorText.split(/\s*,\s*/);
