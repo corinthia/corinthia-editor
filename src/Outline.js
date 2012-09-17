@@ -1014,7 +1014,12 @@ var Outline_setReferenceTarget;
                 return (node._type == HTML_FIGURE);
             }
 
-            sections = new Category("section",isHeadingNode,sectionNumberRegex);
+            function isNonTOCHeadingNode(node)
+            {
+                return (HEADING_ELEMENTS[node._type] && !isInTOC(node));
+            }
+
+            sections = new Category("section",isNonTOCHeadingNode,sectionNumberRegex);
             figures = new Category("figure",isFigureNode,figureNumberRegex);
             tables = new Category("table",isTableNode,tableNumberRegex);
             itemsByNode = new NodeMap();
