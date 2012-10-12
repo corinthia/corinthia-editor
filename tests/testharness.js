@@ -25,7 +25,6 @@ function loadCode()
     var javascriptFiles = ["../src/first.js", // must be first
                            "../src/ElementTypes.js", // must be second
                            "../src/AutoCorrect.js",
-                           "../src/BDT.js",
                            "../src/Clipboard.js",
                            "../src/Cursor.js",
                            "../src/DOM.js",
