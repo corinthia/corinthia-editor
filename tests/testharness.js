@@ -25,6 +25,7 @@ function loadCode()
     var javascriptFiles = ["../src/first.js", // must be first
                            "../src/ElementTypes.js", // must be second
                            "../src/AutoCorrect.js",
+                           "../src/ChangeTracking.js",
                            "../src/Clipboard.js",
                            "../src/Cursor.js",
                            "../src/DOM.js",
@@ -36,8 +37,8 @@ function loadCode()
                            "../src/Input.js",
                            "../src/Lists.js",
                            "../src/Main.js",
+                           "../src/Metadata.js",
                            "../src/NodeSet.js",
-                           "../src/ODF.js",
                            "../src/Outline.js",
                            "../src/Position.js",
                            "../src/PostponedActions.js",
@@ -53,7 +54,6 @@ function loadCode()
                            "../src/UndoManager.js",
                            "../src/util.js",
                            "../src/Viewport.js",
-                           "../src/Word.js",
                            "PrettyPrinter.js", // only used for test harness
                            "testlib.js"]; // must be last
     var allCodeArray = new Array();
