@@ -119,7 +119,7 @@ var Hierarchy_wrapInlineNodesInParagraph;
         var count = 0;
         while ((node != null) && (node.parentNode != null) && (node != document.body)) {
             count++;
-            if (count > 20)
+            if (count > 100)
                 throw new Error("ensureValidHierarchy: too many iterations");
 
             if (checkInvalidHeadingNesting(node)) {
