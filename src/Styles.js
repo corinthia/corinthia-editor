@@ -3,6 +3,8 @@
 var Style_create;
 var Rule_create;
 
+var Styles_getComplete;
+var Styles_setComplete;
 var Styles_getPropertiesText;
 var Styles_getCSSText;
 var Styles_scheduleApplyCSSTextChanges;
@@ -204,7 +206,32 @@ var Styles_removeSelectionRule;
         return properties;
     });
 
-    // private
+    Styles_getComplete = trace(function getComplete()
+    {
+        var head = DOM_documentHead(document);
+        var cssText = "";
+        for (var child = head.firstChild; child != null; child = child.nextSibling) {
+            if (child._type == HTML_STYLE)
+                cssText += getNodeText(child)+"\n";
+        }
+        return cssText;
+    });
+
+    Styles_setComplete = trace(function setComplete(cssText)
+    {
+        UndoManager_newGroup("Update styles");
+        var head = DOM_documentHead(document);
+        var next;
+        for (var child = head.firstChild; child != null; child = next) {
+            next = child.nextSibling;
+            if (child._type == HTML_STYLE)
+                DOM_deleteNode(child);
+        }
+        var style = DOM_createElement(document,"STYLE");
+        DOM_appendChild(style,DOM_createTextNode(document,cssText));
+        DOM_appendChild(head,style);
+    });
+
     Styles_getPropertiesText = trace(function getPropertiesText(properties)
     {
         properties = condenseProperties(properties);
