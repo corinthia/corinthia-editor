@@ -20,45 +20,6 @@ var Preview_showForStyle;
         "venenatis, leo in pulvinar pharetra, eros nisi convallis elit, vitae luctus \n"+
         "magna velit ut lorem."
 
-    function getStyleElement()
-    {
-        var style = document.getElementById("style");
-        if (style == null) {
-            style = DOM_createElement(document,"STYLE");
-            DOM_setAttribute(style,"id","style");
-            var head = DOM_documentHead(document);
-            DOM_appendChild(head,style);
-        }
-        return style;
-    }
-
-    function clearDocument()
-    {
-        var style = getStyleElement();
-        DOM_deleteAllChildren(style);
-        DOM_deleteAllChildren(document.body);
-    }
-
-    function setStyleSheet(selector,cssText)
-    {
-        clearDocument();
-        
-        var style = getStyleElement();
-        DOM_appendChild(style,DOM_createTextNode(document,cssText));
-        
-        var element;
-        if (selector.charAt(0) == ".") {
-            element = DOM_createElement(document,"DIV");
-            DOM_setAttribute(element,"class",selector.slice(1));
-        }
-        else {
-            element = DOM_createElement(document,selector);
-        }
-        
-        DOM_appendChild(document.body,element);
-        DOM_appendChild(element,DOM_createTextNode(document,previewText));
-    }
-
     function setTableCellContents(node)
     {
         if (isTableCell(node)) {
@@ -71,45 +32,76 @@ var Preview_showForStyle;
         }
     }
 
-    function showForStyle(styleId)
+    function showForStyle(styleId,uiName)
     {
-        var displayName = styleId;
-        var style = Styles_getAllStyles()[styleId];
-        if (style != null)
-            displayName = style.displayName;
+        var elementName = null;
+        var className = null;
 
-        var titleText = "Preview of style "+displayName;
+        var dotPos = styleId.indexOf(".");
+        if (dotPos >= 0) {
+            elementName = styleId.substring(0,dotPos);
+            className = styleId.substring(dotPos+1);
+        }
+        else {
+            elementName = styleId;
+            className = null;
+        }
+
+        var titleText = "Preview of style "+uiName;
         var title = DOM_createTextNode(document,titleText);
         var text = DOM_createTextNode(document,previewText);
 
         DOM_deleteAllChildren(document.body);
 
-        if (PARAGRAPH_ELEMENTS[ElementTypes[styleId.toUpperCase()]] ||
-            (styleId.charAt(0) == ".")) {
-            var paragraph1 = createParagraphElementForStyleId(styleId);
-            var paragraph2 = createParagraphElementForStyleId(styleId);
+        if (elementName == "p") {
+            var paragraph1 = createParagraphElement(elementName,className);
+            var paragraph2 = createParagraphElement(elementName,className);
             DOM_appendChild(paragraph1,title);
             DOM_appendChild(paragraph2,text);
             DOM_appendChild(document.body,paragraph1);
             DOM_appendChild(document.body,paragraph2);
 
-            Selection_selectAll();
-            Formatting_applyFormattingChanges(styleId,null);
-            Selection_clear();
+            if (className != null) {
+                DOM_setAttribute(paragraph1,"class",className);
+                DOM_setAttribute(paragraph2,"class",className);
+            }
         }
-        else if ((styleId == "table") || (styleId == "caption")) {
+        else if (elementName == "span") {
+            var p1 = DOM_createElement(document,"P");
+            var p2 = DOM_createElement(document,"P");
+            var span1 = DOM_createElement(document,"SPAN");
+            var span2 = DOM_createElement(document,"SPAN");
+
+            if (className != null) {
+                DOM_setAttribute(span1,"class",className);
+                DOM_setAttribute(span2,"class",className);
+            }
+
+            DOM_appendChild(span1,title);
+            DOM_appendChild(span2,text);
+
+            DOM_appendChild(p1,span1);
+            DOM_appendChild(p2,span2);
+
+            DOM_appendChild(document.body,p1);
+            DOM_appendChild(document.body,p2);
+        }
+        else if ((elementName == "table") || (elementName == "caption")) {
+            // FIXME: cater for different table styles
             Selection_selectAll();
             Tables_insertTable(3,3,"66%",true,"Table caption");
             Selection_clear();
             var table = document.getElementsByTagName("TABLE")[0];
             setTableCellContents(table);
+            if ((elementName == "table") && (className != null))
+                DOM_setAttribute(table,"class",className);
         }
-        else if ((styleId == "figure") || (styleId == "figcaption")) {
+        else if ((elementName == "figure") || (elementName == "figcaption")) {
             Selection_selectAll();
             Figures_insertFigure("SampleFigure.svg","75%",true,"TCP 3-way handshake");
             Selection_clear();
         }
-        else if (styleId == "body") {
+        else if (elementName == "body") {
             // We use BR here instead of separate paragraphs, since we don't want the properties
             // for the P element to be applied
             DOM_appendChild(document.body,title);
@@ -118,21 +110,15 @@ var Preview_showForStyle;
             DOM_appendChild(document.body,text);
         }
 
-        function createParagraphElementForStyleId(styleId)
+        function createParagraphElement(elementName,className)
         {
-            if (PARAGRAPH_ELEMENTS[ElementTypes[styleId.toUpperCase()]]) {
-                return DOM_createElement(document,styleId);
-            }
-            else {
-                var div = DOM_createElement(document,"DIV");
-                DOM_setAttribute(div,"class",styleId.substring(1));
-                return div;
-            }
+            var element = DOM_createElement(document,elementName);
+            if (className != null)
+                DOM_setAttribute(element,"class",className);
+            return element;
         }
     }
 
     Preview_showForStyle = trace(showForStyle);
-
-//    DOM_assignNodeIds(document);
 
 })();
