@@ -61,9 +61,6 @@ function createTestFigures(count)
         DOM_appendChild(figure,figcaption);
         DOM_appendChild(document.body,figure);
     }
-
-    Styles_addDefaultRuleCategory("figure");
-    PostponedActions_perform();
 }
 
 function createTestTables(count)

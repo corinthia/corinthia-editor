@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<link href="../generic.css" rel="stylesheet"/>
 <style>
 caption {
     caption-side: bottom;
@@ -25,13 +26,7 @@ td, th {
 function performTest()
 {
     Outline_init();
-    Styles_init();
     PostponedActions_perform();
-
-    // Chrome sets border-image when it parses border, while Safari doesn't. Since this
-    // property is not included in the expected output, delete it.
-    delete Styles_getAllStyles()["td"].rules.base.properties["border-image"];
-    delete Styles_getAllStyles()["th"].rules.base.properties["border-image"];
 
     // Add a list of tables
     Selection_set(document.body,0,document.body,0);

@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
+<link href="../generic.css" rel="stylesheet"/>
 <script>
 function performTest()
 {
     Outline_init();
-    Styles_init();
-    Styles_addDefaultRuleCategory("figure");
     PostponedActions_perform();
 
     var caption = document.getElementsByTagName("FIGCAPTION")[0];

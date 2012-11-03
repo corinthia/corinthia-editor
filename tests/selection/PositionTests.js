@@ -77,9 +77,6 @@ function getPositionList()
 
 function positionTest(start1,end1,start2,end2)
 {
-    Styles_init();
-    PostponedActions_perform();
-
     var ps = document.getElementsByTagName("P");
 
     var p = ps[0];

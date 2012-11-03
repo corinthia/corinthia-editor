@@ -1,15 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
+<link href="../generic.css" rel="stylesheet"/>
 <script>
 function performTest()
 {
     Outline_init();
-    Styles_init();
-    Styles_addDefaultRuleCategory("td-paragraph-margins");
-    Styles_addDefaultRuleCategory("th-paragraph-margins");
-    Styles_addDefaultRuleCategory("table-borders");
-    Styles_addDefaultRuleCategory("table-caption");
     PostponedActions_perform();
 
     var caption = document.getElementsByTagName("CAPTION")[0];
