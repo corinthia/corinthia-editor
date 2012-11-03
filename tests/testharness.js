@@ -73,12 +73,9 @@ function doPerformTest()
     var w = leftArea.contentWindow;
     w.outputOptions = new Object();
     w.disableOutlineRedoHack = true;
-//    w.Styles_setBuiltinCSSURL("../../../common/builtin.css");
     var resultText = w.performTest();
-    if (!w.outputOptions.keepSelectionHighlights) {
-//        w.Styles_removeSelectionRule();
+    if (!w.outputOptions.keepSelectionHighlights)
         w.Selection_clearSelection();
-    }
     if (resultText == null)
         resultText = w.PrettyPrinter.getHTML(testDocument.documentElement,w.outputOptions)
     var messages = JSON.parse(w.Editor_getBackMessages());
