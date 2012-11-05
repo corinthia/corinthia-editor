@@ -51,9 +51,10 @@ var Preview_showForStyle;
         var title = DOM_createTextNode(document,titleText);
         var text = DOM_createTextNode(document,previewText);
 
+        Selection_clear();
         DOM_deleteAllChildren(document.body);
 
-        if (elementName == "p") {
+        if (PARAGRAPH_ELEMENTS[ElementTypes[elementName]]) {
             var paragraph1 = createParagraphElement(elementName,className);
             var paragraph2 = createParagraphElement(elementName,className);
             DOM_appendChild(paragraph1,title);
