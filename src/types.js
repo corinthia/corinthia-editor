@@ -98,6 +98,7 @@ var OPAQUE_NODE_CLASSES = {
     "listoffigures": true,
     "listoftables": true,
     "uxwrite-selection-highlight": true,
+    "uxwrite-field": true,
 };
 
 function isContainerNode(node)
