@@ -68,8 +68,14 @@ var Hierarchy_wrapInlineNodesInParagraph;
 
     var checkInvalidNesting = trace(function checkInvalidNesting(node)
     {
-        var invalidNesting = !isContainerNode(node.parentNode);
-        if (node.parentNode._type == HTML_DIV) {
+        var parent = node.parentNode;
+        if ((parent._type == HTML_DIV) &&
+            (DOM_getAttribute(parent,"class") == Keys.SELECTION_CLASS)) {
+            parent = parent.parentNode;
+        }
+
+        var invalidNesting = !isContainerNode(parent);
+        if (parent._type == HTML_DIV) {
             if (isParagraphNode(node) || isListNode(node))
                 invalidNesting = false; // this case is ok
         }
