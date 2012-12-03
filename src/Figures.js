@@ -12,8 +12,6 @@ var Figures_setProperties;
     {
         UndoManager_newGroup("Insert figure");
 
-        Styles_addDefaultRuleCategory("figure");
-
         var figure = DOM_createElement(document,"FIGURE");
         var img = DOM_createElement(document,"IMG");
         DOM_setAttribute(img,"src",encodeURI(filename));

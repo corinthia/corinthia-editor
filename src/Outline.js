@@ -226,11 +226,6 @@ var Outline_setReferenceTarget;
         DOM_appendChild(heading,DOM_createTextNode(document,headingText));
         DOM_appendChild(toc.node,heading);
 
-        if (printMode)
-            Styles_addDefaultRuleCategory("toc-print");
-        else
-            Styles_addDefaultRuleCategory("toc");
-
         if (toplevelShadows.length == 0) {
             createEmptyTOC(toc.node);
         }
