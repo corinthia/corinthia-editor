@@ -231,6 +231,12 @@ function showClipboard(clipboard)
     if ((text.length == 0) || (text.charAt(text.length-1) != "\n"))
         text += "\n";
 
+    // Chrome and Safari behave differently when generating style attribute values for innerHTML.
+    // Safari adds a space after the last property definition, while chrome doesn't. For consistent
+    // results, we add the space if it is not already there (this was the original behaviour
+    // of Chrome but it changed).
+    html = html.replace(/(style="[^"]+;)"/g,"$1 \"");
+
     return "text/html\n"+
            "---------\n"+
            "\n"+
