@@ -211,6 +211,7 @@ var Outline_setReferenceTarget;
     var TOC_updateStructure = trace(function _TOC_updateStructure(toc,structure,toplevelShadows,
                                                                   pageNumbers)
     {
+        Hierarchy_ensureValidHierarchy(toc.node);
         DOM_deleteAllChildren(toc.node);
 
         var headingText;
