@@ -61,10 +61,15 @@ var Main_init;
     var addMetaCharset = trace(function addMetaCharset()
     {
         var head = DOM_documentHead(document);
-        for (var child = head.firstChild; child != null; child = child.nextSibling) {
-            if ((child._type == HTML_META) && child.hasAttribute("charset")) {
-                DOM_setAttribute(child,"charset","utf-8");
-                return;
+        var next;
+        for (var child = head.firstChild; child != null; child = next) {
+            next = child.nextSibling;
+            if ((child._type == HTML_META) && (child.hasAttribute("charset"))) {
+                DOM_deleteNode(child);
+            }
+            else if ((child._type == HTML_META) && child.hasAttribute("http-equiv") &&
+                     (child.getAttribute("http-equiv").toLowerCase() == "content-type")) {
+                DOM_deleteNode(child);
             }
         }
 
