@@ -148,13 +148,6 @@ var Table_get;
             cols = 1;
 
         var haveCaption = (caption != null) && (caption != "");
-
-        Styles_addDefaultRuleCategory("td-paragraph-margins");
-        Styles_addDefaultRuleCategory("th-paragraph-margins");
-        Styles_addDefaultRuleCategory("table-borders");
-        if (numbered || haveCaption)
-            Styles_addDefaultRuleCategory("table-caption");
-
         var table = DOM_createElement(document,"TABLE");
 
         if (width != null)
