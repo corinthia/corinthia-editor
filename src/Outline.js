@@ -50,6 +50,7 @@ var Outline_setReferenceTarget;
         UndoManager_addAction(removeItemInternal,category,item);
         category.list.insertAfter(item,prevItem);
         item.title = title;
+        category.tocs.forEach(function(node,toc) { TOC_addOutlineItem(toc,item.id); });
         Editor_addOutlineItem(item.id,category.type,title);
     }
 
@@ -57,6 +58,8 @@ var Outline_setReferenceTarget;
     {
         UndoManager_addAction(addItemInternal,category,item,item.prev,item.title);
         category.list.remove(item);
+        category.tocs.forEach(function(node,toc) { TOC_removeOutlineItem(toc,item.id); });
+        item.title = null;
         Editor_removeOutlineItem(item.id);
     }
 
@@ -68,7 +71,6 @@ var Outline_setReferenceTarget;
 
         var prevItem = findPrevItemOfType(node,category.nodeFilter);
         addItemInternal(category,item,prevItem,null);
-        category.tocs.forEach(function(node,toc) { TOC_addOutlineItem(toc,item.id); });
 
         // Register for notifications to changes to this item's node content. We may need to
         // update the title when such a modification occurs.
@@ -135,8 +137,6 @@ var Outline_setReferenceTarget;
                             " item "+node.getAttribute("id"));
         }
         removeItemInternal(category,item);
-        category.tocs.forEach(function(node,toc) { TOC_removeOutlineItem(toc,item.id); });
-        item.title = null;
         item.node.removeEventListener("DOMSubtreeModified",item.modificationListener);
         if (item.numberSpan != null) {
             DOM_deleteNode(item.numberSpan);
