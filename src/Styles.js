@@ -2,7 +2,6 @@
 
 var Styles_getCSSText;
 var Styles_setCSSText;
-var Styles_addDefaultRuleCategory;
 var Styles_getBuiltinCSSURL;
 var Styles_init;
 
@@ -32,11 +31,6 @@ var Styles_init;
         var style = DOM_createElement(document,"STYLE");
         DOM_appendChild(style,DOM_createTextNode(document,cssText));
         DOM_appendChild(head,style);
-    });
-
-    // public
-    Styles_addDefaultRuleCategory = trace(function addDefaultRuleCategory(category)
-    {
     });
 
     var addBuiltinStylesheet = trace(function addBuiltinStylesheet(cssURL)
