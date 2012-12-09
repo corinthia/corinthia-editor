@@ -559,10 +559,11 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                 break;
             default:
                 if (PARAGRAPH_ELEMENTS[type]) {
+                    var name = node.nodeName.toLowerCase();
                     if (node.hasAttribute("class"))
-                        properties["uxwrite-style"] = "."+node.getAttribute("class");
+                        properties["uxwrite-style"] = name+"."+node.getAttribute("class");
                     else
-                        properties["uxwrite-style"] = "p";
+                        properties["uxwrite-style"] = name;
                 }
                 break;
             }
