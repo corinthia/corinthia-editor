@@ -5,7 +5,7 @@
 function performTest()
 {
     var properties = Formatting_getFormatting();
-    delete properties["uxwrite-shift"];
+    delete properties["-uxwrite-shift"];
     Selection_clearSelection();
 
     DOM_deleteAllChildren(document.body);

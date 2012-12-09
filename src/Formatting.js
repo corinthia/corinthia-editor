@@ -392,10 +392,10 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
             if (leaf._type == HTML_LI) {
                 switch (leaf.parentNode._type) {
                 case HTML_UL:
-                    commonProperties["uxwrite-in-ul"] = "true";
+                    commonProperties["-uxwrite-in-ul"] = "true";
                     break;
                 case HTML_OL:
-                    commonProperties["uxwrite-in-ol"] = "true";
+                    commonProperties["-uxwrite-in-ol"] = "true";
                     break;
                 }
             }
@@ -416,10 +416,10 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                             var listNode = ancestor.parentNode.parentNode;
                             switch (listNode._type) {
                             case HTML_UL:
-                                commonProperties["uxwrite-in-ul"] = "true";
+                                commonProperties["-uxwrite-in-ul"] = "true";
                                 break;
                             case HTML_OL:
-                                commonProperties["uxwrite-in-ol"] = "true";
+                                commonProperties["-uxwrite-in-ol"] = "true";
                                 break;
                             }
                         }
@@ -443,14 +443,14 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                         firstInParagraph = false;
                 }
                 if (firstInParagraph)
-                    commonProperties["uxwrite-shift"] = "true";
+                    commonProperties["-uxwrite-shift"] = "true";
             }
             if (strBeforeCursor.match(/\.\s*$/))
-                commonProperties["uxwrite-shift"] = "true";
+                commonProperties["-uxwrite-shift"] = "true";
             if (strBeforeCursor.match(/\([^\)]*$/))
-                commonProperties["uxwrite-in-brackets"] = "true";
+                commonProperties["-uxwrite-in-brackets"] = "true";
             if (strBeforeCursor.match(/\u201c[^\u201d]*$/))
-                commonProperties["uxwrite-in-quotes"] = "true";
+                commonProperties["-uxwrite-in-quotes"] = "true";
         }
 
         function intersection(a,b)
@@ -516,7 +516,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                 break;
             }
 //            case HTML_TT:
-//                properties["uxwrite-in-tt"] = "true";
+//                properties["-uxwrite-in-tt"] = "true";
 //                break;
             case HTML_H1:
                 properties["-uxwrite-paragraph-style"] = "h1";
@@ -543,18 +543,18 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                 properties["-uxwrite-paragraph-style"] = "blockquote";
                 break;
             case HTML_IMG:
-                properties["uxwrite-in-image"] = "true";
+                properties["-uxwrite-in-image"] = "true";
                 break;
             case HTML_TABLE:
-                properties["uxwrite-in-table"] = "true";
+                properties["-uxwrite-in-table"] = "true";
                 break;
             case HTML_A:
                 if (node.hasAttribute("href")) {
                     var href = node.getAttribute("href");
                     if (href.charAt(0) == "#")
-                        properties["uxwrite-in-reference"] = "true";
+                        properties["-uxwrite-in-reference"] = "true";
                     else
-                        properties["uxwrite-in-link"] = "true";
+                        properties["-uxwrite-in-link"] = "true";
                 }
                 break;
             default:
@@ -571,7 +571,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
             }
 
             if (OUTLINE_TITLE_ELEMENTS[type] && node.hasAttribute("id"))
-                properties["uxwrite-in-item-title"] = node.getAttribute("id");
+                properties["-uxwrite-in-item-title"] = node.getAttribute("id");
         }
 
         return properties;
