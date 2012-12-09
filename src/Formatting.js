@@ -375,8 +375,8 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         for (var i = 0; i < leafNodes.length; i++) {
             if (!isWhitespaceTextNode(leafNodes[i]) || empty) {
                 var leafNodeProperties = Formatting_getAllNodeProperties(leafNodes[i]);
-                if (leafNodeProperties["uxwrite-style"] == null)
-                    leafNodeProperties["uxwrite-style"] = Keys.NONE_STYLE;
+                if (leafNodeProperties["-uxwrite-paragraph-style"] == null)
+                    leafNodeProperties["-uxwrite-paragraph-style"] = Keys.NONE_STYLE;
                 if (commonProperties == null)
                     commonProperties = leafNodeProperties;
                 else
@@ -385,7 +385,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         }
 
         if (commonProperties == null)
-            commonProperties = {"uxwrite-style": Keys.NONE_STYLE};
+            commonProperties = {"-uxwrite-paragraph-style": Keys.NONE_STYLE};
 
         for (var i = 0; i < leafNodes.length; i++) {
             var leaf = leafNodes[i];
@@ -519,28 +519,28 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 //                properties["uxwrite-in-tt"] = "true";
 //                break;
             case HTML_H1:
-                properties["uxwrite-style"] = "h1";
+                properties["-uxwrite-paragraph-style"] = "h1";
                 break;
             case HTML_H2:
-                properties["uxwrite-style"] = "h2";
+                properties["-uxwrite-paragraph-style"] = "h2";
                 break;
             case HTML_H3:
-                properties["uxwrite-style"] = "h3";
+                properties["-uxwrite-paragraph-style"] = "h3";
                 break;
             case HTML_H4:
-                properties["uxwrite-style"] = "h4";
+                properties["-uxwrite-paragraph-style"] = "h4";
                 break;
             case HTML_H5:
-                properties["uxwrite-style"] = "h5";
+                properties["-uxwrite-paragraph-style"] = "h5";
                 break;
             case HTML_H6:
-                properties["uxwrite-style"] = "h6";
+                properties["-uxwrite-paragraph-style"] = "h6";
                 break;
             case HTML_PRE:
-                properties["uxwrite-style"] = "pre";
+                properties["-uxwrite-paragraph-style"] = "pre";
                 break;
             case HTML_BLOCKQUOTE:
-                properties["uxwrite-style"] = "blockquote";
+                properties["-uxwrite-paragraph-style"] = "blockquote";
                 break;
             case HTML_IMG:
                 properties["uxwrite-in-image"] = "true";
@@ -560,10 +560,12 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
             default:
                 if (PARAGRAPH_ELEMENTS[type]) {
                     var name = node.nodeName.toLowerCase();
+                    var selector;
                     if (node.hasAttribute("class"))
-                        properties["uxwrite-style"] = name+"."+node.getAttribute("class");
+                        selector = name + "." + node.getAttribute("class");
                     else
-                        properties["uxwrite-style"] = name;
+                        selector = name;
+                    properties["-uxwrite-paragraph-style"] = selector;
                 }
                 break;
             }
