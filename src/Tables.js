@@ -138,7 +138,7 @@ var Table_get;
     });
 
     // public
-    Tables_insertTable = trace(function insertTable(rows,cols,width,numbered,caption)
+    Tables_insertTable = trace(function insertTable(rows,cols,width,numbered,caption,className)
     {
         UndoManager_newGroup("Insert table");
 
@@ -152,6 +152,9 @@ var Table_get;
 
         if (width != null)
             DOM_setStyleProperties(table,{"width": width});
+
+        if (className != null)
+            DOM_setAttribute(table,"class",className);
 
         // Caption comes first
         if (haveCaption) {
@@ -171,9 +174,11 @@ var Table_get;
         var firstTD = null;
 
         // Then the rows and columns
+        var tbody = DOM_createElement(document,"TBODY");
+        DOM_appendChild(table,tbody);
         for (var r = 0; r < rows; r++) {
             var tr = DOM_createElement(document,"TR");
-            DOM_appendChild(table,tr);
+            DOM_appendChild(tbody,tr);
             for (var c = 0; c < cols; c++) {
                 var td = DOM_createElement(document,"TD");
                 var p = DOM_createElement(document,"P");
