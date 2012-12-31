@@ -475,15 +475,15 @@ var Outline_setReferenceTarget;
                 TOC_updateOutlineItem(toc,item.id,item.title);
             });
         }
-
-        function getNodeTextAfter(node)
-        {
-            var text = "";
-            for (var child = node.nextSibling; child != null; child = child.nextSibling)
-                text += getNodeText(child);
-            return text;
-        }
     });
+
+    function getNodeTextAfter(node)
+    {
+        var text = "";
+        for (var child = node.nextSibling; child != null; child = child.nextSibling)
+            text += getNodeText(child);
+        return text;
+    }
 
     // private
     var itemModified = trace(function itemModified(item)
@@ -959,10 +959,56 @@ var Outline_setReferenceTarget;
             DOM_deleteAllChildren(refs[i]);
             var text = null;
 
-            if (item.numValue != null)
+            var className = DOM_getAttribute(refs[i],"class");
+            if (className == "uxwrite-ref-num") {
                 text = item.numValue;
-            else
-                text = item.title;
+            }
+            else if (className == "uxwrite-ref-text") {
+                if (item.type == "section") {
+                    if (item.numberSpan != null)
+                        text = getNodeTextAfter(item.numberSpan);
+                    else
+                        text = normalizeWhitespace(getNodeText(item.node));
+                }
+                else if ((item.type == "figure") || (item.type == "table")) {
+                    var titleNode = OutlineItem_getTitleNode(item,false);
+                    if (titleNode != null)
+                        text = getNodeText(titleNode);
+                }
+            }
+            else if (className == "uxwrite-ref-caption-text") {
+                if (item.type == "section") {
+                    if (item.numberSpan != null)
+                        text = getNodeTextAfter(item.numberSpan);
+                    else
+                        text = normalizeWhitespace(getNodeText(item.node));
+                }
+                else if ((item.type == "figure") || (item.type == "table")) {
+                    var titleNode = OutlineItem_getTitleNode(item,false);
+                    if (titleNode != null) {
+                        if (item.numberSpan != null)
+                            text = getNodeTextAfter(item.numberSpan);
+                        else
+                            text = normalizeWhitespace(getNodeText(titleNode));
+                    }
+                }
+            }
+            else if (className == "uxwrite-ref-label-num") {
+                if (item.numValue != null) {
+                    if (item.type == "section")
+                        text = "Section "+item.numValue;
+                    else if (item.type == "figure")
+                        text = "Figure "+item.numValue;
+                    else if (item.type == "table")
+                        text = "Table "+item.numValue;
+                }
+            }
+            else {
+                if (item.numValue != null)
+                    text = item.numValue;
+                else
+                    text = item.title;
+            }
 
             if (text == null)
                 text = "?";
