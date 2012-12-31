@@ -236,7 +236,8 @@ var Cursor_set;
         if (paragraph != null) {
 
             var br = null;
-            for (var last = paragraph; last != null; last = last.lastChild) {
+            var last = paragraph;
+            do {
 
                 var child = last;
                 while ((child != null) && isWhitespaceTextNode(child))
@@ -244,7 +245,10 @@ var Cursor_set;
 
                 if ((child != null) && (child._type == HTML_BR))
                     br = child;
-            }
+
+                last = last.lastChild;
+
+            } while ((last != null) && isInlineNode(last));
 
             if (nodeHasContent(paragraph)) {
                 // Paragraph has content: don't want BR at end
