@@ -125,8 +125,8 @@ var Hierarchy_wrapInlineNodesInParagraph;
         var count = 0;
         while ((node != null) && (node.parentNode != null) && (node != document.body)) {
             count++;
-            if (count > 100)
-                throw new Error("ensureValidHierarchy: too many iterations");
+            if (count > 200)
+                throw new Error("too many iterations");
 
             if (checkInvalidHeadingNesting(node)) {
                 var offset = DOM_nodeOffset(node);
@@ -194,8 +194,8 @@ var Hierarchy_wrapInlineNodesInParagraph;
         var count = 0;
         while ((node != null) && (node.parentNode != null) && (node != document.body)) {
             count++;
-            if (count > 20)
-                throw new Error("ensureInlineNodesInParagraph: too many iterations");
+            if (count > 200)
+                throw new Error("too many iterations");
             if (isInlineNode(node) &&
                 isContainerNode(node.parentNode) && (node.parentNode._type != HTML_LI) &&
                 (!weak || !isTableCell(node.parentNode)) &&
