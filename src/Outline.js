@@ -335,6 +335,8 @@ var Outline_setReferenceTarget;
         this.node = node;
         this.title = null;
 
+        this.numValue = null;
+
         // numberSpan
         this.numberSpan = null;
         this.spareSpan = DOM_createElement(document,"SPAN");
@@ -491,9 +493,7 @@ var Outline_setReferenceTarget;
         if (ignoreModifications > 0)
             return;
         OutlineItem_updateItemTitle(item);
-        var numbered = (item.numberSpan != null);
-        if (!numbered)
-            setReferenceText(item.node,item.title);
+        updateRefsForItem(item);
     });
 
     var addRefForId = trace(function addRefForId(id,node)
@@ -774,18 +774,24 @@ var Outline_setReferenceTarget;
         var item = shadow.item;
         if (item.title == null)
             throw new Error("updateItemNumbering: item "+item.id+" has null title");
+        var fullNumber = Shadow_getFullNumber(shadow);
+        if (fullNumber == "")
+            item.numValue = null;
+        else
+            item.numValue = fullNumber;
+
         if (item.numberSpan != null) {
             var spanText = "";
             if (item.type == "section") {
-                spanText = Shadow_getFullNumber(shadow)+" ";
+                spanText = fullNumber+" ";
             }
             else if (item.type == "figure") {
-                spanText = "Figure "+Shadow_getFullNumber(shadow);
+                spanText = "Figure "+fullNumber;
                 if (item.title != "")
                     spanText += ": ";
             }
             else if (item.type == "table") {
-                spanText = "Table "+Shadow_getFullNumber(shadow);
+                spanText = "Table "+fullNumber;
                 if (item.title != "")
                     spanText += ": ";
             }
@@ -795,10 +801,7 @@ var Outline_setReferenceTarget;
             DOM_setNodeValue(text,spanText);
         }
 
-        var refText = Shadow_getFullNumber(shadow);
-        if (refText == "")
-            refText = shadow.item.title;
-        setReferenceText(shadow.item.node,refText);
+        updateRefsForItem(item);
     });
 
     function Structure()
@@ -946,17 +949,27 @@ var Outline_setReferenceTarget;
         }
     });
 
-    function setReferenceText(node,referenceText)
+    var updateRefsForItem = trace(function _updateRefsForItem(item)
     {
-        var id = node.getAttribute("id");
+        var id = item.node.getAttribute("id");
         var refs = refsById[id];
-        if (refs != null) {
-            for (var i = 0; i < refs.length; i++) {
-                DOM_deleteAllChildren(refs[i]);
-                DOM_appendChild(refs[i],DOM_createTextNode(document,referenceText));
-            }
+        if (refs == null)
+            return;
+        for (var i = 0; i < refs.length; i++) {
+            DOM_deleteAllChildren(refs[i]);
+            var text = null;
+
+            if (item.numValue != null)
+                text = item.numValue;
+            else
+                text = item.title;
+
+            if (text == null)
+                text = "?";
+
+            DOM_appendChild(refs[i],DOM_createTextNode(document,text));
         }
-    }
+    });
 
     Outline_plainText = trace(function plainText()
     {
