@@ -274,9 +274,24 @@ var Lists_setOrderedList;
         // check if it is wholly contained within a single list item. If so, select just that
         // list item.
         if ((ds == de) || ((ds != null) && (ds.nextSibling == null) && (de == null))) {
-            for (var ancestor = dca; ancestor != null; ancestor = ancestor.parentNode) {
-                if (ancestor._type == HTML_LI)
-                    return [ancestor];
+
+            if (dca._type == HTML_LI)
+                return [dca];
+
+            for (var ancestor = dca; ancestor.parentNode != null; ancestor = ancestor.parentNode) {
+                if (ancestor.parentNode._type == HTML_LI) {
+                    var firstElement = true;
+
+                    for (var p = ancestor.previousSibling; p != null; p = p.previousSibling) {
+                        if (p.nodeType == Node.ELEMENT_NODE) {
+                            firstElement = false;
+                            break;
+                        }
+                    }
+
+                    if (firstElement)
+                        return [ancestor.parentNode];
+                }
             }
         }
 
