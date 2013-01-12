@@ -7,6 +7,8 @@ var Styles_init;
 
 (function() {
 
+    var rules = new Object();
+
     Styles_getCSSText = trace(function getCSSText()
     {
         var head = DOM_documentHead(document);
@@ -18,7 +20,7 @@ var Styles_init;
         return cssText;
     });
 
-    Styles_setCSSText = trace(function setCSSText(cssText)
+    Styles_setCSSText = trace(function setCSSText(cssText,cssRules)
     {
         UndoManager_newGroup("Update styles");
         var head = DOM_documentHead(document);
@@ -31,6 +33,8 @@ var Styles_init;
         var style = DOM_createElement(document,"STYLE");
         DOM_appendChild(style,DOM_createTextNode(document,cssText));
         DOM_appendChild(head,style);
+        rules = cssRules; // FIXME: undo support? (must coordinate with ObjC code)
+        return {}; // Objective C caller expects JSON result
     });
 
     var addBuiltinStylesheet = trace(function addBuiltinStylesheet(cssURL)
