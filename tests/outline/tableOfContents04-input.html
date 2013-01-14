@@ -18,7 +18,7 @@ function performTest()
     PostponedActions_perform();
 
     // Modify the second heading, to verify that the change is reflected in the TOC
-    var heading = document.getElementsByTagName("h1")[2];
+    var heading = document.getElementsByTagName("h1")[1];
     DOM_deleteCharacters(heading.lastChild,2,6);
     PostponedActions_perform();
 }

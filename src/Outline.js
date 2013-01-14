@@ -19,6 +19,7 @@ var Outline_insertListOfTables;
 var Outline_setPrintMode;
 var Outline_examinePrintLayout;
 var Outline_setReferenceTarget;
+var Outline_scheduleUpdateStructure;
 
 (function() {
 
@@ -214,18 +215,7 @@ var Outline_setReferenceTarget;
         Hierarchy_ensureValidHierarchy(toc.node);
         DOM_deleteAllChildren(toc.node);
 
-        var headingText;
         var cls = toc.node.getAttribute("class");
-        if (cls == Keys.SECTION_TOC)
-            headingText = "Contents";
-        else if (cls == Keys.FIGURE_TOC)
-            headingText = "List of Figures";
-        else if (cls == Keys.TABLE_TOC)
-            headingText = "List of Tables";
-
-        var heading = DOM_createElement(document,"H1");
-        DOM_appendChild(heading,DOM_createTextNode(document,headingText));
-        DOM_appendChild(toc.node,heading);
 
         if (toplevelShadows.length == 0) {
             createEmptyTOC(toc.node);
@@ -680,6 +670,8 @@ var Outline_setReferenceTarget;
             PostponedActions_add(updateStructure);
         }
     });
+
+    Outline_scheduleUpdateStructure = scheduleUpdateStructure;
 
     // private
     var updateStructure = trace(function updateStructure()

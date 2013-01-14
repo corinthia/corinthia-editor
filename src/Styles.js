@@ -34,6 +34,7 @@ var Styles_init;
         DOM_appendChild(style,DOM_createTextNode(document,cssText));
         DOM_appendChild(head,style);
         rules = cssRules; // FIXME: undo support? (must coordinate with ObjC code)
+        Outline_scheduleUpdateStructure();
         return {}; // Objective C caller expects JSON result
     });
 
