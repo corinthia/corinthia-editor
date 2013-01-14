@@ -19,6 +19,7 @@ var Outline_insertListOfTables;
 var Outline_setPrintMode;
 var Outline_examinePrintLayout;
 var Outline_setReferenceTarget;
+var Outline_detectSectionNumbering;
 var Outline_scheduleUpdateStructure;
 
 (function() {
@@ -77,33 +78,6 @@ var Outline_scheduleUpdateStructure;
         // update the title when such a modification occurs.
         node.addEventListener("DOMSubtreeModified",item.modificationListener);
 
-        // Examine the content of the node to determine whether it contains text representing
-        // a section, figure, or table number. This is done using the regular expressions at the
-        // top of the file. If we find a match, we mark the item as being numbered.
-        // The actual number given in the node content is irrelevant; we assign our own number
-        // based on the position of the item in the overall structurel.
-        var firstText = null;
-        var titleNode = OutlineItem_getTitleNode(item);
-        if (titleNode != null)
-            firstText = findFirstTextDescendant(titleNode);
-        if (firstText != null) {
-            var regex = category.numberRegex;
-            var str = firstText.nodeValue;
-            if (str.match(category.numberRegex)) {
-                var match = str.match(category.numberRegex);
-                DOM_setNodeValue(firstText,str.replace(category.numberRegex,""));
-                OutlineItem_enableNumbering(item);
-            }
-        }
-
-        // If we did not determine the item to be numbered based on inspecting its textual content
-        // above, consider adjacent items of the same type to decide whether to automatically
-        // number this item. If it is the only item of its type, or either of its neighbours are
-        // numbered, then this item will also be numbered. If it has two unnumbered neighbours,
-        // or only one neighbour (and that neighbour is not numbered), then it will not be numbered.
-        if (doneInit && (item.numberSpan == null))
-            OutlineItem_setNumberedUsingAdjacent(item);
-
         OutlineItem_updateItemTitle(item);
         scheduleUpdateStructure();
         return item;
@@ -114,20 +88,20 @@ var Outline_scheduleUpdateStructure;
             while ((node != null) && !typeFun(node));
             return (node == null) ? null : itemsByNode.get(node);
         }
+    });
 
-        function findFirstTextDescendant(node)
-        {
-            if (isWhitespaceTextNode(node))
-                return;
-            if (node.nodeType == Node.TEXT_NODE)
-                return node;
-            for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                var result = findFirstTextDescendant(child);
-                if (result != null)
-                    return result;
-            }
-            return null;
+    var findFirstTextDescendant = trace(function _findFirstTextDescendant(node)
+    {
+        if (isWhitespaceTextNode(node))
+            return;
+        if (node.nodeType == Node.TEXT_NODE)
+            return node;
+        for (var child = node.firstChild; child != null; child = child.nextSibling) {
+            var result = findFirstTextDescendant(child);
+            if (result != null)
+                return result;
         }
+        return null;
     });
 
     var Category_remove = trace(function remove(category,node)
@@ -139,10 +113,6 @@ var Outline_scheduleUpdateStructure;
         }
         removeItemInternal(category,item);
         item.node.removeEventListener("DOMSubtreeModified",item.modificationListener);
-        if (item.numberSpan != null) {
-            DOM_deleteNode(item.numberSpan);
-            item.numberSpan = null;
-        }
         var titleNode = OutlineItem_getTitleNode(item,false);
         if ((titleNode != null) &&
             ((item.type == "figure") || (item.type == "table")) &&
@@ -233,7 +203,7 @@ var Outline_scheduleUpdateStructure;
         function createEmptyTOC(parent)
         {
             if (!printMode) {
-                var str;
+                var str = "";
 
                 if (cls == Keys.SECTION_TOC)
                     str = "[No sections defined]";
@@ -274,10 +244,9 @@ var Outline_scheduleUpdateStructure;
                     DOM_appendChild(div,leftSpan);
                     DOM_appendChild(div,rightSpan);
 
-                    // FIXME: item -> shadow
-                    if (item.numberSpan != null) {
-                        var numText = Shadow_getFullNumber(shadow)+" ";
-                        DOM_appendChild(leftSpan,DOM_createTextNode(document,numText));
+                    if (item.computedNumber != null) {
+                        var text = DOM_createTextNode(document,item.computedNumber+" ");
+                        DOM_appendChild(leftSpan,text);
                     }
 
                     DOM_appendChild(leftSpan,toc.textNodes[item.id]);
@@ -296,10 +265,8 @@ var Outline_scheduleUpdateStructure;
                     DOM_setAttribute(a,"href","#"+item.id);
                     DOM_appendChild(div,a);
 
-                    if (item.numberSpan != null) {
-                        var numText = Shadow_getFullNumber(shadow)+" ";
-                        DOM_appendChild(a,DOM_createTextNode(document,numText));
-                    }
+                    if (item.computedNumber != null)
+                        DOM_appendChild(a,DOM_createTextNode(document,item.computedNumber+" "));
                     DOM_appendChild(a,toc.textNodes[item.id]);
                 }
 
@@ -324,11 +291,8 @@ var Outline_scheduleUpdateStructure;
         this.type = type;
         this.node = node;
         this.title = null;
+        this.computedNumber = null;
 
-        this.numValue = null;
-
-        // numberSpan
-        this.numberSpan = null;
         this.spareSpan = DOM_createElement(document,"SPAN");
         DOM_appendChild(this.spareSpan,DOM_createTextNode(document,""));
         var spanClass = null;
@@ -367,35 +331,6 @@ var Outline_scheduleUpdateStructure;
         }
     }
 
-    var OutlineItem_enableNumbering = trace(function enableNumbering(item)
-    {
-        if (item.numberSpan != null)
-            return;
-        var titleNode = OutlineItem_getTitleNode(item,true);
-
-        item.numberSpan = item.spareSpan;
-        DOM_insertBefore(titleNode,item.numberSpan,titleNode.firstChild);
-        scheduleUpdateStructure();
-    });
-
-    var OutlineItem_disableNumbering = trace(function disableNumbering(item)
-    {
-        if (item.numberSpan == null)
-            return;
-
-        // Set item.numberSpan to null before the deleting node, so that OutlineItem_updateItemTitle
-        // gets the correct text for the title
-        var numberSpan = item.numberSpan;
-        item.numberSpan = null;
-        DOM_deleteNode(numberSpan);
-
-        var titleNode = OutlineItem_getTitleNode(item,false);
-        if ((titleNode != null) && !nodeHasContent(titleNode))
-            DOM_deleteNode(titleNode);
-
-        scheduleUpdateStructure();
-    });
-
     var OutlineItem_getTitleNode = trace(function getTitleNode(item,create)
     {
         if (item.type == "section") {
@@ -428,31 +363,10 @@ var Outline_scheduleUpdateStructure;
         }
     });
 
-    var OutlineItem_setNumberedUsingAdjacent = trace(function setNumberedUsingAdjacent(item)
-    {
-        // Enable numbering for the specified outline numbered if there are either no other
-        // items of its type, or either the preceding or following item of that type has
-        // numbering enabled
-        if ((item.prev == null) && (item.next == null)) {
-            OutlineItem_enableNumbering(item);
-        }
-        else {
-            if (((item.prev != null) && (item.prev.numberSpan != null)) ||
-                ((item.next != null) && (item.next.numberSpan != null))) {
-                OutlineItem_enableNumbering(item);
-            }
-            else {
-                OutlineItem_disableNumbering(item);
-            }
-        }
-    });
-
     var OutlineItem_updateItemTitle = trace(function updateItemTitle(item)
     {
         var titleNode = OutlineItem_getTitleNode(item,false);
-        if (item.numberSpan != null)
-            newTitle = normalizeWhitespace(getNodeTextAfter(item.numberSpan));
-        else if (titleNode != null)
+        if (titleNode != null)
             newTitle = normalizeWhitespace(getNodeText(titleNode));
         else
             newTitle = "";
@@ -737,18 +651,6 @@ var Outline_scheduleUpdateStructure;
             return structure.shadowsByNode.get(last.item.next.node);
     });
 
-    var Shadow_getFullNumber = trace(function getFullNumber(shadow)
-    {
-        if (shadow.item.numberSpan == null)
-            return "";
-        var fullNumber = ""+shadow.index;
-        while (shadow.parent != null) {
-            shadow = shadow.parent;
-            fullNumber = shadow.index+"."+fullNumber;
-        }
-        return fullNumber;
-    });
-
     var firstTextDescendant = trace(function firstTextDescendant(node)
     {
         if (node.nodeType == Node.TEXT_NODE)
@@ -761,41 +663,6 @@ var Outline_scheduleUpdateStructure;
         return null;
     });
 
-    var Shadow_updateItemNumbering = trace(function updateItemNumbering(shadow)
-    {
-        var item = shadow.item;
-        if (item.title == null)
-            throw new Error("updateItemNumbering: item "+item.id+" has null title");
-        var fullNumber = Shadow_getFullNumber(shadow);
-        if (fullNumber == "")
-            item.numValue = null;
-        else
-            item.numValue = fullNumber;
-
-        if (item.numberSpan != null) {
-            var spanText = "";
-            if (item.type == "section") {
-                spanText = fullNumber+" ";
-            }
-            else if (item.type == "figure") {
-                spanText = "Figure "+fullNumber;
-                if (item.title != "")
-                    spanText += ": ";
-            }
-            else if (item.type == "table") {
-                spanText = "Table "+fullNumber;
-                if (item.title != "")
-                    spanText += ": ";
-            }
-            var text = firstTextDescendant(item.numberSpan);
-            if (text == null)
-                throw new Error("no text in number span");
-            DOM_setNodeValue(text,spanText);
-        }
-
-        updateRefsForItem(item);
-    });
-
     function Structure()
     {
         this.toplevelSections = new Array();
@@ -804,12 +671,15 @@ var Outline_scheduleUpdateStructure;
         this.shadowsByNode = new NodeMap();
     }
 
-    var discoverStructure = trace(function discoverStructure()
+    var discoverStructure = trace(function _discoverStructure()
     {
         var structure = new Structure();
         var nextToplevelSectionNumber = 1;
         var nextFigureNumber = 1;
         var nextTableNumber = 1;
+        var headingNumbering = Styles_headingNumbering();
+
+        var counters = { h1: 0, h2: 0, h3: 0, h4: 0, h5: 0, h6: 0, table: 0, figure: 0 };
 
         var current = null;
 
@@ -834,44 +704,51 @@ var Outline_scheduleUpdateStructure;
 
         for (var section = sections.list.first; section != null; section = section.next) {
             var shadow = structure.shadowsByNode.get(section.node);
-           
+            var node = section.node;
+            var item = shadow.item;
+
+            if (!headingNumbering || (DOM_getAttribute(node,"class") == "Unnumbered")) {
+                item.computedNumber = null;
+            }
+            else {
+                var level = parseInt(node.nodeName.charAt(1));
+                counters[node.nodeName.toLowerCase()]++;
+                for (var inner = level+1; inner <= 6; inner++)
+                    counters["h"+inner] = 0;
+                item.computedNumber = "";
+                for (var i = 1; i <= level; i++) {
+                    if (i == 1)
+                        item.computedNumber += counters["h"+i];
+                    else
+                        item.computedNumber += "." + counters["h"+i];
+                }
+            }
+
             while ((current != null) && (shadow.level < current.level+1))
                 current = current.parent;
 
             shadow.parent = current;
-            if (current == null) {
-                if (shadow.item.numberSpan != null)
-                    shadow.index = nextToplevelSectionNumber++;
-                else
-                    shadow.index = 0;
+            if (current == null)
                 structure.toplevelSections.push(shadow);
-            }
-            else {
-                if (shadow.item.numberSpan != null)
-                    shadow.index = current.nextChildSectionNumber++;
-                else
-                    shadow.index = 0;
+            else
                 current.children.push(shadow);
-            }
 
             current = shadow;
         }
 
         for (var figure = figures.list.first; figure != null; figure = figure.next) {
             var shadow = structure.shadowsByNode.get(figure.node);
-            if (shadow.item.numberSpan != null)
-                shadow.index = nextFigureNumber++;
-            else
-                shadow.index = 0;
+            var item = shadow.item;
+            counters.figure++;
+            item.computedNumber = ""+counters.figure;
             structure.toplevelFigures.push(shadow);
         }
 
         for (var table = tables.list.first; table != null; table = table.next) {
             var shadow = structure.shadowsByNode.get(table.node);
-            if (shadow.item.numberSpan != null)
-                shadow.index = nextTableNumber++;
-            else
-                shadow.index = 0;
+            var item = shadow.item;
+            counters.table++
+            item.computedNumber = ""+counters.table;
             structure.toplevelTables.push(shadow);
         }
 
@@ -886,17 +763,17 @@ var Outline_scheduleUpdateStructure;
 
         for (var section = sections.list.first; section != null; section = section.next) {
             var shadow = structure.shadowsByNode.get(section.node);
-            Shadow_updateItemNumbering(shadow);
+            updateRefsForItem(shadow.item);
         }
 
         for (var figure = figures.list.first; figure != null; figure = figure.next) {
             var shadow = structure.shadowsByNode.get(figure.node);
-            Shadow_updateItemNumbering(shadow);
+            updateRefsForItem(shadow.item);
         }
 
         for (var table = tables.list.first; table != null; table = table.next) {
             var shadow = structure.shadowsByNode.get(table.node);
-            Shadow_updateItemNumbering(shadow);
+            updateRefsForItem(shadow.item);
         }
 
         sections.tocs.forEach(function (node,toc) {
@@ -908,6 +785,8 @@ var Outline_scheduleUpdateStructure;
         tables.tocs.forEach(function (node,toc) {
             TOC_updateStructure(toc,structure,structure.toplevelTables,pageNumbers);
         });
+
+        Editor_outlineUpdated();
     });
 
     Outline_getOutline = trace(function getOutline()
@@ -935,7 +814,7 @@ var Outline_scheduleUpdateStructure;
                 encodeShadow(shadow.children[i],encChildren);
 
             var obj = { id: shadow.item.id,
-                        number: Shadow_getFullNumber(shadow),
+                        number: shadow.item.computedNumber ? shadow.item.computedNumber : "",
                         children: encChildren };
             result.push(obj);
         }
@@ -953,7 +832,7 @@ var Outline_scheduleUpdateStructure;
 
             var className = DOM_getAttribute(refs[i],"class");
             if (className == "uxwrite-ref-num") {
-                text = item.numValue;
+                text = item.computedNumber;
             }
             else if (className == "uxwrite-ref-text") {
                 if (item.type == "section") {
@@ -986,18 +865,18 @@ var Outline_scheduleUpdateStructure;
                 }
             }
             else if (className == "uxwrite-ref-label-num") {
-                if (item.numValue != null) {
+                if (item.computedNumber != null) {
                     if (item.type == "section")
-                        text = "Section "+item.numValue;
+                        text = "Section "+item.computedNumber;
                     else if (item.type == "figure")
-                        text = "Figure "+item.numValue;
+                        text = "Figure "+item.computedNumber;
                     else if (item.type == "table")
-                        text = "Table "+item.numValue;
+                        text = "Table "+item.computedNumber;
                 }
             }
             else {
-                if (item.numValue != null)
-                    text = item.numValue;
+                if (item.computedNumber != null)
+                    text = item.computedNumber;
                 else
                     text = item.title;
             }
@@ -1220,10 +1099,13 @@ var Outline_scheduleUpdateStructure;
         var item = itemsByNode.get(node);
 
         Selection_preserveWhileExecuting(function() {
-            if (numbered)
-                OutlineItem_enableNumbering(item);
-            else
-                OutlineItem_disableNumbering(item);
+            // FIXME: Figures and tables
+            if (isHeadingNode(node)) {
+                if (numbered)
+                    DOM_removeAttribute(node,"class");
+                else
+                    DOM_setAttribute(node,"class","Unnumbered");
+            }
         });
 
         scheduleUpdateStructure();
@@ -1378,6 +1260,57 @@ var Outline_scheduleUpdateStructure;
             DOM_setAttribute(node,"href","#"+itemId);
             refInserted(node);
         });
+    });
+
+    Outline_detectSectionNumbering = trace(function detectSectionNumbering()
+    {
+        var sectionNumbering = detectNumbering(sections);
+        if (sectionNumbering)
+            makeNumberingExplicit(sections);
+        makeNumberingExplicit(figures);
+        makeNumberingExplicit(tables);
+        return sectionNumbering;
+    });
+
+    var detectNumbering = trace(function _detectNumbering(category)
+    {
+        for (var item = category.list.first; item != null; item = item.next) {
+
+            var firstText = null;
+            var titleNode = OutlineItem_getTitleNode(item);
+
+            if (titleNode != null)
+                firstText = findFirstTextDescendant(titleNode);
+            if (firstText != null) {
+                var regex = category.numberRegex;
+                var str = firstText.nodeValue;
+                if (str.match(category.numberRegex))
+                    return true;
+            }
+        }
+    });
+
+    var makeNumberingExplicit = trace(function _makeNumberingExplicit(category)
+    {
+        for (var item = category.list.first; item != null; item = item.next) {
+            var firstText = null;
+            var titleNode = OutlineItem_getTitleNode(item);
+
+            if (titleNode != null)
+                firstText = findFirstTextDescendant(titleNode);
+            if (firstText != null) {
+                var regex = category.numberRegex;
+                var str = firstText.nodeValue;
+                if (str.match(category.numberRegex)) {
+                    var oldValue = str;
+                    var newValue = str.replace(category.numberRegex,"");
+                    DOM_setNodeValue(firstText,newValue);
+                }
+                else {
+                    DOM_setAttribute(item.node,"class","Unnumbered");
+                }
+            }
+        }
     });
 
 })();

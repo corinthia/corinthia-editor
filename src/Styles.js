@@ -1,5 +1,6 @@
 // Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
 
+var Styles_headingNumbering;
 var Styles_getCSSText;
 var Styles_setCSSText;
 var Styles_getBuiltinCSSURL;
@@ -8,6 +9,12 @@ var Styles_init;
 (function() {
 
     var rules = new Object();
+
+    Styles_headingNumbering = trace(function headingNumbering()
+    {
+        return ((rules["h1::before"] != null) &&
+                (rules["h1::before"]["content"] != null));
+    });
 
     Styles_getCSSText = trace(function getCSSText()
     {

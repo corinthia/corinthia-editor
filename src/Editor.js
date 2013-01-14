@@ -5,6 +5,7 @@ var Editor_debug;
 var Editor_addOutlineItem;
 var Editor_updateOutlineItem;
 var Editor_removeOutlineItem;
+var Editor_outlineUpdated;
 var Editor_setCursor;
 var Editor_setSelectionHandles;
 var Editor_clearSelectionHandlesAndCursor;
@@ -55,6 +56,11 @@ var debug;
     Editor_removeOutlineItem = function(itemId)
     {
         addBackMessage("removeOutlineItem",itemId);
+    };
+
+    Editor_outlineUpdated = function()
+    {
+        addBackMessage("outlineUpdated");
     };
     
     Editor_setCursor = function(x,y,width,height)
