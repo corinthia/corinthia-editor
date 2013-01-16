@@ -1,4 +1,4 @@
-// Copyright (c) 2012 UX Productivity Pty Ltd. All rights reserved.
+// Copyright (c) 2012-2013 UX Productivity Pty Ltd. All rights reserved.
 // If you're successfully able to decipher all this and figure out what it
 // does, please send a copy of your resume to peter@uxproductivity.com.
 

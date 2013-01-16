@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2012 UX Productivity Pty Ltd. All rights reserved.
+// Copyright (c) 2011-2013 UX Productivity Pty Ltd. All rights reserved.
 
 var Main_getLanguage;
 var Main_setLanguage;

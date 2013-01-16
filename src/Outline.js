@@ -1,4 +1,4 @@
-// Copyright (c) 2012 UX Productivity Pty Ltd. All rights reserved.
+// Copyright (c) 2012-2013 UX Productivity Pty Ltd. All rights reserved.
 
 // FIXME: The TOC/ItemList stuff won't work with Undo, because we're making DOM mutations in
 // response to other DOM mutations, so at undo time the changes will be made twice

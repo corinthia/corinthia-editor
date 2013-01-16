@@ -1,4 +1,4 @@
-// Copyright (c) 2012 UX Productivity Pty Ltd. All rights reserved.
+// Copyright (c) 2012-2013 UX Productivity Pty Ltd. All rights reserved.
 
 var Figures_insertFigure;
 var Figures_getSelectedFigureId;

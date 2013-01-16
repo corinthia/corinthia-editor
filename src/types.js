@@ -1,4 +1,4 @@
-// Copyright (c) 2012 UX Productivity Pty Ltd. All rights reserved.
+// Copyright (c) 2012-2013 UX Productivity Pty Ltd. All rights reserved.
 
 var CONTAINER_ELEMENTS = new Array(HTML_COUNT);
 CONTAINER_ELEMENTS[HTML_DOCUMENT] = true;
