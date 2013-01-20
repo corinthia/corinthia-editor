@@ -1,10 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
+<style>
+</style>
 <script>
 function performTest()
 {
     Outline_init();
+    if (Outline_detectSectionNumbering())
+        setupOutlineNumbering();
     PostponedActions_perform();
 
     Outline_insertTableOfContents();
@@ -13,6 +17,7 @@ function performTest()
     Cursor_insertCharacter("Two");
     Formatting_applyFormattingChanges("h1",null);
     PostponedActions_perform();
+    simplifyTOCs();
 }
 </script>
 </head>

@@ -250,6 +250,11 @@ function showClipboard(clipboard)
 
 function setNumbering(enabled)
 {
+//    if (enabled)
+//        setupOutlineNumbering();
+//    else
+//        Styles_setCSSText("",{});
+
     recurse(document.body,enabled);
     PostponedActions_perform();
 
@@ -360,4 +365,42 @@ function prependTableOfContents()
     DOM_setAttribute(nav,"class","tableofcontents");
     DOM_insertBefore(document.body,nav,document.body.firstChild);
     PostponedActions_perform();
+}
+
+function simplifyTOCs()
+{
+    recurse(document.body);
+
+    function recurse(node)
+    {
+        if ((node._type == HTML_NAV) &&
+            ((DOM_getAttribute(node,"class") == "tableofcontents") ||
+             (DOM_getAttribute(node,"class") == "listoffigures") ||
+             (DOM_getAttribute(node,"class") == "listoftables"))) {
+            mergeAdjacentTextNodes(node);
+        }
+        else {
+            for (var child = node.firstChild; child != null; child = child.nextSibling)
+                recurse(child);
+        }
+    }
+
+    function mergeAdjacentTextNodes(node)
+    {
+        var child = node.firstChild;
+        while (child != null) {
+            if ((child.nodeType == Node.TEXT_NODE) &&
+                (child.nextSibling != null) &&
+                (child.nextSibling.nodeType == Node.TEXT_NODE)) {
+                DOM_insertCharacters(child,child.nodeValue.length,child.nextSibling.nodeValue);
+                DOM_deleteNode(child.nextSibling);
+            }
+            else {
+                child = child.nextSibling;
+            }
+        }
+
+        for (var child = node.firstChild; child != null; child = child.nextSibling)
+            mergeAdjacentTextNodes(child);
+    }
 }
