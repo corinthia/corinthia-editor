@@ -1333,7 +1333,9 @@ var Outline_scheduleUpdateStructure;
                     DOM_setNodeValue(firstText,newValue);
                 }
                 else {
-                    DOM_setAttribute(item.node,"class","Unnumbered");
+                    var titleNode = OutlineItem_getTitleNode(item,true);
+                    if (titleNode != null)
+                        DOM_setAttribute(titleNode,"class","Unnumbered");
                 }
             }
         }

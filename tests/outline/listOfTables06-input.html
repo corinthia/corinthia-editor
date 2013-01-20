@@ -2,30 +2,12 @@
 <html>
 <head>
 <link href="../generic.css" rel="stylesheet"/>
-<style>
-caption {
-    caption-side: bottom;
-}
-table {
-    border-collapse: collapse;
-    margin-left: auto;
-    margin-right: auto;
-}
-td > *:first-child, th > *:first-child {
-    margin-top: 0;
-}
-td > *:last-child, th > *:last-child {
-    margin-bottom: 0;
-}
-td, th {
-    border: 1px solid black;
-}
-</style>
 <script type="text/javascript" src="OutlineTest.js"></script>
 <script>
 function performTest()
 {
     Outline_init();
+    Outline_detectSectionNumbering();
     PostponedActions_perform();
 
     // Add a list of tables
