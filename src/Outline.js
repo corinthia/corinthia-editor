@@ -707,7 +707,7 @@ var Outline_scheduleUpdateStructure;
             var node = section.node;
             var item = shadow.item;
 
-            if (!headingNumbering || (DOM_getAttribute(node,"class") == "Unnumbered")) {
+            if (!headingNumbering || (DOM_getAttribute(item.node,"class") == "Unnumbered")) {
                 item.computedNumber = null;
             }
             else {
@@ -739,16 +739,32 @@ var Outline_scheduleUpdateStructure;
         for (var figure = figures.list.first; figure != null; figure = figure.next) {
             var shadow = structure.shadowsByNode.get(figure.node);
             var item = shadow.item;
-            counters.figure++;
-            item.computedNumber = ""+counters.figure;
+
+            var titleNode = OutlineItem_getTitleNode(item,false);
+            if ((titleNode == null) || DOM_getAttribute(titleNode,"class") == "Unnumbered") {
+                item.computedNumber = null;
+            }
+            else {
+                counters.figure++;
+                item.computedNumber = ""+counters.figure;
+            }
+
             structure.toplevelFigures.push(shadow);
         }
 
         for (var table = tables.list.first; table != null; table = table.next) {
             var shadow = structure.shadowsByNode.get(table.node);
             var item = shadow.item;
-            counters.table++
-            item.computedNumber = ""+counters.table;
+
+            var titleNode = OutlineItem_getTitleNode(item,false);
+            if ((titleNode == null) || DOM_getAttribute(titleNode,"class") == "Unnumbered") {
+                item.computedNumber = null;
+            }
+            else {
+                counters.table++;
+                item.computedNumber = ""+counters.table;
+            }
+
             structure.toplevelTables.push(shadow);
         }
 
@@ -1099,12 +1115,22 @@ var Outline_scheduleUpdateStructure;
         var item = itemsByNode.get(node);
 
         Selection_preserveWhileExecuting(function() {
-            // FIXME: Figures and tables
-            if (isHeadingNode(node)) {
+            if (item.type == "section") {
                 if (numbered)
                     DOM_removeAttribute(node,"class");
                 else
                     DOM_setAttribute(node,"class","Unnumbered");
+            }
+            else if ((item.type == "figure") || (item.type == "table")) {
+                if (numbered) {
+                    var caption = OutlineItem_getTitleNode(item,true);
+                    DOM_removeAttribute(caption,"class");
+                }
+                else {
+                    var caption = OutlineItem_getTitleNode(item,false);
+                    if (caption != null)
+                        DOM_setAttribute(caption,"class","Unnumbered");
+                }
             }
         });
 
