@@ -5,6 +5,7 @@
 
 function performTest()
 {
+    setupOutlineNumbering();
     Outline_init();
     PostponedActions_perform();
     var heading = document.getElementsByTagName("H1")[0];
@@ -16,8 +17,9 @@ function performTest()
 </script>
 </head>
 <body>
-<h1>1 One</h1>
-<h1>2 Two</h1>
-<h1>3 Three</h1>
+<nav class="tableofcontents"></nav>
+<h1>One</h1>
+<h1>Two</h1>
+<h1>Three</h1>
 </body>
 </html>

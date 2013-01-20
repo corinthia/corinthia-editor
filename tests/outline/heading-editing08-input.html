@@ -5,6 +5,7 @@
 
 function performTest()
 {
+    setupOutlineNumbering();
     Outline_init();
     PostponedActions_perform();
     for (var i = 0; i < 19; i++) {
@@ -18,9 +19,10 @@ function performTest()
 </script>
 </head>
 <body>
-<h1>1 One</h1>
-<h1>1 Two</h1>
-<h1>1 Three</h1>
+<nav class="tableofcontents"></nav>
+<h1>One</h1>
+<h1>Two</h1>
+<h1>Three</h1>
 <p>Other[]</p>
 </body>
 </html>

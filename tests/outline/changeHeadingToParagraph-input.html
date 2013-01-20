@@ -5,6 +5,7 @@
 
 function performTest()
 {
+    setupOutlineNumbering();
     Outline_init();
     PostponedActions_perform();
     Formatting_applyFormattingChanges("P",{});
@@ -13,6 +14,7 @@ function performTest()
 </script>
 </head>
 <body>
+<nav class="tableofcontents"></nav>
 [<h1>Heading</h1>]
 </body>
 </html>
