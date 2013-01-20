@@ -353,3 +353,11 @@ function setupOutlineNumbering()
         },
     });
 }
+
+function prependTableOfContents()
+{
+    var nav = DOM_createElement(document,"NAV");
+    DOM_setAttribute(nav,"class","tableofcontents");
+    DOM_insertBefore(document.body,nav,document.body.firstChild);
+    PostponedActions_perform();
+}
