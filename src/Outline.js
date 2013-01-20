@@ -214,7 +214,7 @@ var Outline_scheduleUpdateStructure;
 
                 var text = DOM_createTextNode(document,str);
 
-                var div = DOM_createElement(document,"DIV");
+                var div = DOM_createElement(document,"P");
                 DOM_setAttribute(div,"class","toc1");
                 DOM_appendChild(div,text);
                 DOM_appendChild(parent,div);
@@ -231,7 +231,7 @@ var Outline_scheduleUpdateStructure;
                 var item = shadow.item;
 
                 if (printMode) {
-                    var div = DOM_createElement(document,"DIV");
+                    var div = DOM_createElement(document,"P");
                     DOM_setAttribute(div,"class","toc"+level+"-print");
                     DOM_appendChild(parent,div);
 
@@ -257,7 +257,7 @@ var Outline_scheduleUpdateStructure;
                         DOM_appendChild(rightSpan,DOM_createTextNode(document,pageNo));
                 }
                 else {
-                    var div = DOM_createElement(document,"DIV");
+                    var div = DOM_createElement(document,"P");
                     DOM_setAttribute(div,"class","toc"+level);
                     DOM_appendChild(parent,div);
 
