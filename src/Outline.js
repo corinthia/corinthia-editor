@@ -20,6 +20,7 @@ var Outline_setPrintMode;
 var Outline_examinePrintLayout;
 var Outline_setReferenceTarget;
 var Outline_detectSectionNumbering;
+var Outline_findUsedStyles;
 var Outline_scheduleUpdateStructure;
 
 (function() {
@@ -1364,6 +1365,49 @@ var Outline_scheduleUpdateStructure;
                         DOM_setAttribute(titleNode,"class","Unnumbered");
                 }
             }
+        }
+    });
+
+    // Search through the document for any elements corresponding to built-in styles that are
+    // normally latent (i.e. only included in the stylesheet if used)
+    Outline_findUsedStyles = trace(function findUsedStyles()
+    {
+        var used = new Object();
+        recurse(document.body);
+        return used;
+
+        function recurse(node)
+        {
+            switch (node._type) {
+            case HTML_NAV: {
+                var className = DOM_getAttribute(node,"class");
+                if ((className == "tableofcontents") ||
+                    (className == "listoffigures") ||
+                    (className == "listoftables")) {
+                    used["nav."+className] = true;
+                }
+                break;
+            }
+            case HTML_FIGCAPTION:
+            case HTML_CAPTION:
+            case HTML_H1:
+            case HTML_H2:
+            case HTML_H3:
+            case HTML_H4:
+            case HTML_H5:
+            case HTML_H6: {
+                var elementName = node.nodeName.toLowerCase();
+                var className = DOM_getAttribute(node,"class");
+                if ((className == null) || (className == ""))
+                    used[elementName] = true;
+                else if (className == "Unnumbered")
+                    used[elementName+".Unnumbered"] = true;
+                break;
+            }
+            }
+
+            for (var child = node.firstChild; child != null; child = child.nextSibling)
+                recurse(child);
         }
     });
 
