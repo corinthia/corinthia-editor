@@ -859,8 +859,14 @@ var Outline_scheduleUpdateStructure;
                 }
                 else if ((item.type == "figure") || (item.type == "table")) {
                     var titleNode = OutlineItem_getTitleNode(item,false);
-                    if (titleNode != null)
+                    if (titleNode != null) {
                         text = getNodeText(titleNode);
+
+                        if ((item.computedNumber != null) && (item.type == "figure"))
+                            text = "Figure "+item.computedNumber+": "+text;
+                        else if ((item.computedNumber != null) && (item.type == "table"))
+                            text = "Table "+item.computedNumber+": "+text;
+                    }
                 }
             }
             else if (className == "uxwrite-ref-caption-text") {
@@ -917,14 +923,20 @@ var Outline_scheduleUpdateStructure;
         }
         strings.push("Figures:\n");
         for (var figure = figures.list.first; figure != null; figure = figure.next) {
+            var shadow = structure.shadowsByNode.get(figure.node);
             var titleNode = OutlineItem_getTitleNode(figure,false);
             var title = titleNode ? getNodeText(titleNode) : "[no caption]";
+            if (shadow.item.computedNumber != null)
+                title = shadow.item.computedNumber+" "+title;
             strings.push("    "+title+" ("+figure.id+")\n");
         }
         strings.push("Tables:\n");
         for (var table = tables.list.first; table != null; table = table.next) {
+            var shadow = structure.shadowsByNode.get(table.node);
             var titleNode = OutlineItem_getTitleNode(table,false);
             var title = titleNode ? getNodeText(titleNode) : "[no caption]";
+            if (shadow.item.computedNumber != null)
+                title = shadow.item.computedNumber+" "+title;
             strings.push("    "+title+" ("+table.id+")\n");
         }
         return strings.join("");
@@ -933,6 +945,8 @@ var Outline_scheduleUpdateStructure;
         {
             var titleNode = OutlineItem_getTitleNode(shadow.item,false);
             var content = getNodeText(titleNode);
+            if (shadow.item.computedNumber != null)
+                content = shadow.item.computedNumber+" "+content;
             if (isWhitespaceString(content))
                 content = "[empty]";
             strings.push(indent+content+" ("+shadow.item.id+")\n");

@@ -10,6 +10,8 @@ table { caption-side: bottom; }
 function performTest()
 {
     Outline_init();
+    if (Outline_detectSectionNumbering())
+        setupOutlineNumbering();
     PostponedActions_perform();
 }
 </script>

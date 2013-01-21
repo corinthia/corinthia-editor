@@ -7,10 +7,15 @@
 function performTest()
 {
     Outline_init();
+    if (Outline_detectSectionNumbering())
+        setupOutlineNumbering();
     PostponedActions_perform();
 
     var two = document.getElementById("two");
     var figure = DOM_createElement(document,"FIGURE");
+    var figcaption = DOM_createElement(document,"FIGCAPTION");
+    DOM_appendChild(figure,figcaption);
+    DOM_appendChild(figcaption,DOM_createTextNode(document,""));
     DOM_insertBefore(document.body,figure,two);
     PostponedActions_perform();
 }

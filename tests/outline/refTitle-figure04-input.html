@@ -6,6 +6,8 @@
 function performTest()
 {
     Outline_init();
+    if (Outline_detectSectionNumbering())
+        setupOutlineNumbering();
     PostponedActions_perform();
 
     var figcaptions = document.getElementsByTagName("figcaption");
