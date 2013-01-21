@@ -1,44 +1,34 @@
+Sections:
+    1 Heading A (item1)
+        1.1 Heading B (item2)
+        1.2 Heading C (item3)
+    2 Heading D (item4)
+        2.1 Heading E (item5)
+        2.2 Heading F (item6)
+Figures:
+    1 First figure caption (item8)
+    2 Second figure caption (item10)
+    3 (item12)
+Tables:
+    1 First table caption (item7)
+    2 Second table caption (item9)
+    3 (item11)
 <html>
   <head>
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
     <title>Test document</title>
     <style>
-table { border: 1px solid black }
-caption { caption-side: bottom; font-style: italic; color: #808080 }
-figure { border: 1px dashed #C0C0C0 }
-figcaption { color: #808080; font-style: italic; text-align: center }
     </style>
   </head>
   <body>
-    <h1 id="item1">
-      <span class="uxwrite-heading-number">1</span>
-      Heading A
-    </h1>
-    <h2 id="item2">
-      <span class="uxwrite-heading-number">1.1</span>
-      Heading B
-    </h2>
-    <h2 id="item3">
-      <span class="uxwrite-heading-number">1.2</span>
-      Heading C
-    </h2>
-    <h1 id="item4">
-      <span class="uxwrite-heading-number">2</span>
-      Heading D
-    </h1>
-    <h2 id="item5">
-      <span class="uxwrite-heading-number">2.1</span>
-      Heading E
-    </h2>
-    <h2 id="item6">
-      <span class="uxwrite-heading-number">2.2</span>
-      Heading F
-    </h2>
+    <h1 id="item1">Heading A</h1>
+    <h2 id="item2">Heading B</h2>
+    <h2 id="item3">Heading C</h2>
+    <h1 id="item4">Heading D</h1>
+    <h2 id="item5">Heading E</h2>
+    <h2 id="item6">Heading F</h2>
     <table align="center" id="item7" width="80%">
-      <caption>
-        <span class="uxwrite-table-number">Table 1:</span>
-        First table caption
-      </caption>
+      <caption>First table caption</caption>
       <tbody>
         <tr>
           <td>First</td>
@@ -52,16 +42,10 @@ figcaption { color: #808080; font-style: italic; text-align: center }
     </table>
     <figure id="item8">
       <p>First figure content</p>
-      <figcaption>
-        <span class="uxwrite-figure-number">Figure 1:</span>
-        First figure caption
-      </figcaption>
+      <figcaption>First figure caption</figcaption>
     </figure>
     <table align="center" id="item9" width="80%">
-      <caption>
-        <span class="uxwrite-table-number">Table 2:</span>
-        Second table caption
-      </caption>
+      <caption>Second table caption</caption>
       <tbody>
         <tr>
           <td>Second</td>
@@ -75,13 +59,10 @@ figcaption { color: #808080; font-style: italic; text-align: center }
     </table>
     <figure id="item10">
       <p>[Second figure content]</p>
-      <figcaption>
-        <span class="uxwrite-figure-number">Figure 2:</span>
-        Second figure caption
-      </figcaption>
+      <figcaption>Second figure caption</figcaption>
     </figure>
     <table align="center" id="item11" width="80%">
-      <caption><span class="uxwrite-table-number">Table 3</span></caption>
+      <caption/>
       <tbody>
         <tr>
           <td>Third</td>
@@ -95,7 +76,7 @@ figcaption { color: #808080; font-style: italic; text-align: center }
     </table>
     <figure id="item12">
       <p>[Third figure content]</p>
-      <figcaption><span class="uxwrite-figure-number">Figure 3</span></figcaption>
+      <figcaption/>
     </figure>
   </body>
 </html>

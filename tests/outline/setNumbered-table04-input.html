@@ -6,7 +6,7 @@ function performTest()
 {
     Outline_init();
     PostponedActions_perform();
-    Outline_setNumbered("item1",false);
+    Outline_setNumbered("item1",true);
     PostponedActions_perform();
     showSelection();
 }
@@ -14,7 +14,7 @@ function performTest()
 </head>
 <body>
 <table id="item1" width="100%">
-  <caption>Test table[]</caption>
+  <caption class="Unnumbered">Test table[]</caption>
   <tr>
     <td>A</td>
     <td>B</td>

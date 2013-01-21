@@ -4,10 +4,6 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>Test document</title>
 <style>
-table { border: 1px solid black }
-caption { caption-side: bottom; font-style: italic; color: #808080 }
-figure { border: 1px dashed #C0C0C0 }
-figcaption { color: #808080; font-style: italic; text-align: center }
 </style>
 <script type="text/javascript">
 
@@ -16,6 +12,7 @@ function performTest()
     Outline_init();
     PostponedActions_perform();
     setNumbering(true);
+    return Outline_plainText()+PrettyPrinter.getHTML(document.documentElement);
 }
 </script>
 </head>
@@ -42,9 +39,7 @@ function performTest()
 
 <figure>
   <p>[First figure content]</p>
-  <figcaption>
-    First figure caption
-  </figcaption>
+  <figcaption>First figure caption</figcaption>
 </figure>
 
 <table width="80%" align="center">
@@ -61,9 +56,7 @@ function performTest()
 
 <figure>
   <p>[Second figure content]</p>
-  <figcaption>
-    Second figure caption
-  </figcaption>
+  <figcaption>Second figure caption</figcaption>
 </figure>
 
 <table width="80%" align="center">

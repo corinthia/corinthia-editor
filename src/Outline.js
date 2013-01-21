@@ -1150,8 +1150,12 @@ var Outline_scheduleUpdateStructure;
                 }
                 else {
                     var caption = OutlineItem_getTitleNode(item,false);
-                    if (caption != null)
-                        DOM_setAttribute(caption,"class","Unnumbered");
+                    if (caption != null) {
+                        if (nodeHasContent(caption))
+                            DOM_setAttribute(caption,"class","Unnumbered");
+                        else
+                            DOM_deleteNode(caption);
+                    }
                 }
             }
         });

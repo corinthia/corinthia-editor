@@ -5,10 +5,13 @@
 <script>
 function performTest()
 {
+    setupOutlineNumbering();
     var versions = new Array();
     versions.push(DOM_cloneNode(document.body,true));
 
     Outline_init();
+    if (Outline_detectSectionNumbering())
+        setupOutlineNumbering();
     PostponedActions_perform();
     versions.push(DOM_cloneNode(document.body,true));
 
@@ -27,8 +30,8 @@ function performTest()
 </head>
 <body>
 <nav class="tableofcontents"></nav>
-<h1>4 Test</h1>
-<h1>4 Test</h1>
-<h1>4 Test</h1>
+<h1>Test</h1>
+<h1>Test</h1>
+<h1>Test</h1>
 </body>
 </html>

@@ -4,6 +4,7 @@
 <script>
 function performTest()
 {
+    setupOutlineNumbering();
     Outline_init();
     PostponedActions_perform();
     Cursor_deleteCharacter();
@@ -12,7 +13,7 @@ function performTest()
 </script>
 </head>
 <body>
-<h1 id="test">1. Heading</h1>
-<p>Text<a href="#test">1</a>[]after</p>
+<h1 id="test">Heading</h1>
+<p>Text<a href="#test"></a>[]after</p>
 </body>
 </html>

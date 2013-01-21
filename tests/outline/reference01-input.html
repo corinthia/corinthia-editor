@@ -4,16 +4,14 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>Test document</title>
 <style>
-table { border: 1px solid black }
-caption { caption-side: bottom; font-style: italic; color: #808080 }
-figure { border: 1px dashed #C0C0C0 }
-figcaption { color: #808080; font-style: italic; text-align: center }
 </style>
 <script type="text/javascript">
 
 function performTest()
 {
     Outline_init();
+    if (Outline_detectSectionNumbering())
+        setupOutlineNumbering();
     PostponedActions_perform();
     setNumbering(true);
 
@@ -33,6 +31,8 @@ function performTest()
 
     var newFigure = DOM_createElement(document,"FIGURE");
     var newTable = DOM_createElement(document,"TABLE");
+    DOM_appendChild(newFigure,DOM_createElement(document,"FIGCAPTION"));
+    DOM_appendChild(newTable,DOM_createElement(document,"CAPTION"));
     DOM_insertBefore(document.body,newTable,document.body.firstChild);
     DOM_insertBefore(document.body,newFigure,document.body.firstChild);
     DOM_insertBefore(document.body,newSection,document.body.firstChild);
