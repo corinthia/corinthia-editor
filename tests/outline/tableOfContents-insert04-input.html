@@ -7,12 +7,15 @@
 function performTest()
 {
     Outline_init();
+    if (Outline_detectSectionNumbering())
+        setupOutlineNumbering();
     PostponedActions_perform();
 
     var h1 = document.getElementsByTagName("h1")[0];
     Selection_set(h1.lastChild,5,h1.lastChild,5);
     Outline_insertTableOfContents();
     PostponedActions_perform();
+    simplifyTOCs();
 }
 </script>
 </head>

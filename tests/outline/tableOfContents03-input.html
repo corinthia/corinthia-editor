@@ -6,6 +6,7 @@
 <script>
 function performTest()
 {
+    setupOutlineNumbering();
     Outline_init();
     PostponedActions_perform();
 
@@ -21,6 +22,8 @@ function performTest()
     var heading = document.getElementsByTagName("h1")[1];
     DOM_insertCharacters(heading.lastChild,2,"XYZ");
     PostponedActions_perform();
+
+    simplifyTOCs();
 }
 </script>
 </head>

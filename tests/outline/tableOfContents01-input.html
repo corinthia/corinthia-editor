@@ -6,6 +6,7 @@
 <script>
 function performTest()
 {
+    setupOutlineNumbering();
     Outline_init();
     PostponedActions_perform();
 
@@ -16,6 +17,8 @@ function performTest()
     Selection_set(document.body,0,document.body,0);
     Outline_insertTableOfContents();
     PostponedActions_perform();
+
+    simplifyTOCs();
 }
 </script>
 </head>

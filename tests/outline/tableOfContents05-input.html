@@ -7,12 +7,16 @@
 function performTest()
 {
     Outline_init();
+    if (Outline_detectSectionNumbering())
+        setupOutlineNumbering();
     PostponedActions_perform();
 
     // Add a table of contents
     Selection_set(document.body,0,document.body,0);
     Outline_insertTableOfContents();
     PostponedActions_perform();
+
+    simplifyTOCs();
 }
 </script>
 </head>

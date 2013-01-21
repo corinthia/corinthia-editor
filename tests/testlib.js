@@ -250,10 +250,8 @@ function showClipboard(clipboard)
 
 function setNumbering(enabled)
 {
-//    if (enabled)
-//        setupOutlineNumbering();
-//    else
-//        Styles_setCSSText("",{});
+    if (enabled)
+        setupOutlineNumbering();
 
     recurse(document.body,enabled);
     PostponedActions_perform();

@@ -6,6 +6,7 @@
 <script>
 function performTest()
 {
+    setupOutlineNumbering();
     Outline_init();
     PostponedActions_perform();
 
@@ -26,6 +27,8 @@ function performTest()
     Outline_setNumbered(h1s[0].getAttribute("id"),true);
     Outline_setNumbered(h1s[1].getAttribute("id"),true);
     PostponedActions_perform();
+
+    simplifyTOCs();
 }
 </script>
 </head>

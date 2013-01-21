@@ -926,8 +926,12 @@ var Outline_scheduleUpdateStructure;
             var shadow = structure.shadowsByNode.get(figure.node);
             var titleNode = OutlineItem_getTitleNode(figure,false);
             var title = titleNode ? getNodeText(titleNode) : "[no caption]";
-            if (shadow.item.computedNumber != null)
-                title = shadow.item.computedNumber+" "+title;
+            if (shadow.item.computedNumber != null) {
+                if (title.length > 0)
+                    title = shadow.item.computedNumber+" "+title;
+                else
+                    title = shadow.item.computedNumber;
+            }
             strings.push("    "+title+" ("+figure.id+")\n");
         }
         strings.push("Tables:\n");
@@ -935,8 +939,12 @@ var Outline_scheduleUpdateStructure;
             var shadow = structure.shadowsByNode.get(table.node);
             var titleNode = OutlineItem_getTitleNode(table,false);
             var title = titleNode ? getNodeText(titleNode) : "[no caption]";
-            if (shadow.item.computedNumber != null)
-                title = shadow.item.computedNumber+" "+title;
+            if (shadow.item.computedNumber != null) {
+                if (title.length > 0)
+                    title = shadow.item.computedNumber+" "+title;
+                else
+                    title = shadow.item.computedNumber;
+            }
             strings.push("    "+title+" ("+table.id+")\n");
         }
         return strings.join("");

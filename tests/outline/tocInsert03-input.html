@@ -7,6 +7,8 @@
 function performTest()
 {
     Outline_init();
+    if (Outline_detectSectionNumbering())
+        setupOutlineNumbering();
     PostponedActions_perform();
 
     Outline_insertTableOfContents();
@@ -16,6 +18,8 @@ function performTest()
 //    showSelection();
     Outline_insertListOfTables();
     PostponedActions_perform();
+
+    simplifyTOCs();
 }
 </script>
 </head>
