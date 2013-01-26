@@ -3,12 +3,23 @@
 var Styles_headingNumbering;
 var Styles_getCSSText;
 var Styles_setCSSText;
+var Styles_getParagraphClass;
+var Styles_setParagraphClass;
 var Styles_getBuiltinCSSURL;
 var Styles_init;
 
 (function() {
 
     var rules = new Object();
+    var paragraphClass = null;
+
+    Styles_getParagraphClass = trace(function _getParagraphClass() {
+        return paragraphClass;
+    });
+
+    Styles_setParagraphClass = trace(function _setParagraphClass(cls) {
+        paragraphClass = cls;
+    });
 
     Styles_headingNumbering = trace(function headingNumbering()
     {

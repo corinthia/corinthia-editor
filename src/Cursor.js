@@ -647,6 +647,9 @@ var Cursor_set;
                 if (isParagraphNode(ancestor) && isHeadingNode(ancestor)) {
                     ancestor = DOM_replaceElement(ancestor,"P");
                     DOM_removeAttribute(ancestor,"id");
+                    var cls = Styles_getParagraphClass();
+                    if (cls != null)
+                        DOM_setAttribute(ancestor,"class",cls);
                 }
 
                 if (isParagraphNode(ancestor) && !nodeHasContent(ancestor)) {
