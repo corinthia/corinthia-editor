@@ -424,6 +424,24 @@ var Clipboard_pasteNodes;
         if (nodes.length == 0)
             return;
 
+        // Remove any elements which don't belong in the document body (in case an entire
+        // HTML document is being pasted in)
+        var i = 0;
+        while (i < nodes.length) {
+            switch (nodes[i]._type) {
+            case HTML_HTML:
+            case HTML_BODY:
+            case HTML_META:
+            case HTML_TITLE:
+            case HTML_SCRIPT:
+            case HTML_STYLE:
+                nodes.splice(i,1);
+                break;
+            default:
+                i++;
+            }
+        }
+
         for (var i = 0; i < nodes.length; i++)
             removeDuplicateIds(nodes[i]);
 
@@ -570,6 +588,7 @@ var Clipboard_pasteNodes;
         })});
 
         var pos = new Position(origRange.end.node,origRange.end.offset);
+        Range_trackWhileExecuting(pastedRange,function() {
         Position_trackWhileExecuting(pos,function() {
             while (true) {
                 if (pos.node == document.body)
@@ -584,6 +603,7 @@ var Clipboard_pasteNodes;
                 else
                     break;
             }
+        });
         });
 
         pos = new Position(pastedRange.end.node,pastedRange.end.offset);
