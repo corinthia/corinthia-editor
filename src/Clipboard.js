@@ -421,25 +421,25 @@ var Clipboard_pasteNodes;
     // public
     Clipboard_pasteNodes = trace(function pasteNodes(nodes)
     {
+        if (nodes.length == 0)
+            return;
+
         for (var i = 0; i < nodes.length; i++)
             removeDuplicateIds(nodes[i]);
 
-        if ((nodes.length == 0) && (nodes[0]._type == HTML_TABLE)) {
-            // FIXME: this won't work; selectionRange is not defined
-            var fromRegion = Tables_getTableRegionFromTable(nodes[0]);
-            var toRegion = Tables_regionFromRange(selectionRange);
-            if (toRegion != null) {
-                return;
-            }
-        }
+//        if ((nodes.length == 0) && (nodes[0]._type == HTML_TABLE)) {
+//            // FIXME: this won't work; selectionRange is not defined
+//            var fromRegion = Tables_getTableRegionFromTable(nodes[0]);
+//            var toRegion = Tables_regionFromRange(selectionRange);
+//            if (toRegion != null) {
+//                return;
+//            }
+//        }
 
         Selection_deleteContents(true);
         var range = Selection_get();
         if (range == null)
             throw new Error("No current selection");
-
-        if (nodes.length == 0)
-            return;
 
         var parent;
         var previousSibling;
