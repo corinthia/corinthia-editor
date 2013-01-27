@@ -75,10 +75,29 @@ var Hierarchy_wrapInlineNodesInParagraph;
         }
 
         var invalidNesting = !isContainerNode(parent);
-        if (parent._type == HTML_DIV) {
+        switch (parent._type) {
+        case HTML_DIV:
             if (isParagraphNode(node) || isListNode(node))
                 invalidNesting = false; // this case is ok
+            break;
+        case HTML_CAPTION:
+        case HTML_FIGCAPTION:
+        case HTML_TABLE:
+        case HTML_FIGURE:
+            switch (node._type) {
+            case HTML_FIGURE:
+            case HTML_TABLE:
+            case HTML_H1:
+            case HTML_H2:
+            case HTML_H3:
+            case HTML_H4:
+            case HTML_H5:
+            case HTML_H6:
+                return true;
+            }
+            break;
         }
+
         return invalidNesting;
     });
 

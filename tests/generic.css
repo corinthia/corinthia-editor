@@ -1,3 +1,7 @@
+body {
+    counter-reset: h1 h2 h3 h4 h5 h6 figure table;
+}
+
 table {
     border-collapse: collapse;
     margin-left: auto;
@@ -33,4 +37,21 @@ figure {
     margin-bottom: 6pt;
     margin-left: 48pt;
     margin-top: 6pt;
+}
+
+caption {
+  caption-side: bottom;
+  counter-increment: table;
+}
+
+caption::before {
+  content: "Table " counter(table) ": ";
+}
+
+figcaption {
+  counter-increment: figure;
+}
+
+figcaption::before {
+  content: "Figure " counter(figure) ": ";
 }
