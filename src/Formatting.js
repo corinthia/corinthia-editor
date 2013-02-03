@@ -545,6 +545,9 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
             case HTML_IMG:
                 properties["-uxwrite-in-image"] = "true";
                 break;
+            case HTML_FIGURE:
+                properties["-uxwrite-in-figure"] = "true";
+                break;
             case HTML_TABLE:
                 properties["-uxwrite-in-table"] = "true";
                 break;
