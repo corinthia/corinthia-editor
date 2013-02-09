@@ -644,12 +644,27 @@ var Cursor_set;
             }
 
             for (var ancestor = start; ancestor != null; ancestor = ancestor.parentNode) {
-                if (isParagraphNode(ancestor) && isHeadingNode(ancestor)) {
-                    ancestor = DOM_replaceElement(ancestor,"P");
-                    DOM_removeAttribute(ancestor,"id");
-                    var cls = Styles_getParagraphClass();
-                    if (cls != null)
-                        DOM_setAttribute(ancestor,"class",cls);
+
+                if (isParagraphNode(ancestor)) {
+                    var nextSelector = Styles_nextSelectorAfter(ancestor);
+                    if (nextSelector != null) {
+                        var nextElementName = null;
+                        var nextClassName = null;
+
+
+                        var dotIndex = nextSelector.indexOf(".");
+                        if (dotIndex >= 0) {
+                            nextElementName = nextSelector.substring(0,dotIndex);
+                            nextClassName = nextSelector.substring(dotIndex+1);
+                        }
+                        else {
+                            nextElementName = nextSelector;
+                        }
+
+                        ancestor = DOM_replaceElement(ancestor,nextElementName);
+                        DOM_removeAttribute(ancestor,"id");
+                        DOM_setAttribute(ancestor,"class",nextClassName);
+                    }
                 }
 
                 if (isParagraphNode(ancestor) && !nodeHasContent(ancestor)) {

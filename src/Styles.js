@@ -1,10 +1,12 @@
 // Copyright (c) 2011-2013 UX Productivity Pty Ltd. All rights reserved.
 
+var Styles_getRule;
+var Styles_nextSelectorAfter;
+var Styles_getParagraphClass;
+var Styles_setParagraphClass;
 var Styles_headingNumbering;
 var Styles_getCSSText;
 var Styles_setCSSText;
-var Styles_getParagraphClass;
-var Styles_setParagraphClass;
 var Styles_getBuiltinCSSURL;
 var Styles_init;
 
@@ -12,6 +14,64 @@ var Styles_init;
 
     var rules = new Object();
     var paragraphClass = null;
+
+    Styles_getRule = trace(function _getRule(selector) {
+        return rules[selector];
+    });
+
+    Styles_nextSelectorAfter = trace(function _nextSelectorAfter(element) {
+        var selector = element.nodeName.toLowerCase();
+        var className = DOM_getAttribute(element,"class");
+        if (className != null)
+            selector = selector+"."+className;
+
+        var nextElementName = null;
+        var nextClassName = null;
+
+        var rule = Styles_getRule(selector);
+        if (rule != null) {
+            var nextSelector = rule["-uxwrite-next"];
+            if (nextSelector != null) {
+                try {
+                    nextSelector = JSON.parse(nextSelector);
+                    if (typeof(nextSelector) != "string")
+                        nextSelector = null;
+                }
+                catch (e) {
+                    nextSelector = null;
+                }
+            }
+            if (nextSelector != null) {
+                var dotIndex = nextSelector.indexOf(".");
+                if (dotIndex >= 0) {
+                    nextElementName = nextSelector.substring(0,dotIndex);
+                    nextClassName = nextSelector.substring(dotIndex+1);
+                }
+                else {
+                    nextElementName = nextSelector;
+                }
+            }
+        }
+
+        if ((nextElementName == null) ||
+            (ElementTypes[nextElementName] == null) ||
+            (!PARAGRAPH_ELEMENTS[ElementTypes[nextElementName]])) {
+            nextElementName = null;
+            nextClassName = null;
+        }
+
+        if (isHeadingNode(element)) {
+            nextElementName = "p";
+            nextClassName = Styles_getParagraphClass();
+        }
+
+        if (nextElementName == null)
+            return null;
+        else if (nextClassName == null)
+            return nextElementName;
+        else
+            return nextElementName+"."+nextClassName;
+    });
 
     Styles_getParagraphClass = trace(function _getParagraphClass() {
         return paragraphClass;
