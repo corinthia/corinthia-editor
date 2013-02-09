@@ -292,6 +292,13 @@ var Main_init;
                 return;
         }
 
+        for (var child = document.body.firstChild; child != null; child = child.nextSibling) {
+            if (child._type == HTML_P) {
+                Cursor_updateBRAtEndOfParagraph(child);
+                return;
+            }
+        }
+
         var p = DOM_createElement(document,"P");
         var br = DOM_createElement(document,"BR");
         DOM_appendChild(p,br);
