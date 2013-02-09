@@ -478,13 +478,6 @@ var Outline_scheduleUpdateStructure;
             case HTML_H4:
             case HTML_H5:
             case HTML_H6: {
-                if (!doneInit && isWhitespaceString(getNodeText(node))) {
-                    DOM_ignoreMutationsWhileExecuting(function() {
-                        DOM_deleteNode(node);
-                    });
-                    return;
-                }
-
                 if (!isInTOC(node))
                     Category_add(sections,node);
                 break;
