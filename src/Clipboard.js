@@ -418,11 +418,36 @@ var Clipboard_pasteNodes;
         }
     }
 
+    var fixParagraphStyles = trace(function _fixParagraphStyles(node,paragraphClass)
+    {
+        if (isParagraphNode(node)) {
+            if (node._type == HTML_P) {
+                var className = DOM_getAttribute(node,"class");
+                if ((className == null) || (className == "")) {
+                    debug("Setting paragraph class to "+paragraphClass);
+                    DOM_setAttribute(node,"class",paragraphClass);
+                }
+            }
+        }
+        else {
+            for (var child = node.firstChild; child != null; child = child.nextSibling) {
+                fixParagraphStyles(child,paragraphClass);
+            }
+        }
+    });
+
     // public
     Clipboard_pasteNodes = trace(function pasteNodes(nodes)
     {
         if (nodes.length == 0)
             return;
+
+        var paragraphClass = Styles_getParagraphClass();
+        if (paragraphClass != null) {
+            for (var i = 0; i < nodes.length; i++) {
+                fixParagraphStyles(nodes[i],paragraphClass);
+            }
+        }
 
         // Remove any elements which don't belong in the document body (in case an entire
         // HTML document is being pasted in)
