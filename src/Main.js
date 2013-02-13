@@ -81,14 +81,19 @@ var Main_init;
     // public
     Main_setGenerator = trace(function setGenerator(generator)
     {
-        UndoManager_disableWhileExecuting(function() {
+        return UndoManager_disableWhileExecuting(function() {
             var head = DOM_documentHead(document);
             for (var child = head.firstChild; child != null; child = child.nextSibling) {
                 if ((child._type == HTML_META) &&
                     child.hasAttribute("name") &&
                     (child.getAttribute("name").toLowerCase() == "generator")) {
+                    var origGenerator = DOM_getAttribute(child,"content");
                     DOM_setAttribute(child,"content",generator);
-                    return;
+
+                    if (origGenerator == null)
+                        return "";
+                    else
+                        return origGenerator;
                 }
             }
 
@@ -96,6 +101,8 @@ var Main_init;
             DOM_setAttribute(meta,"name","generator");
             DOM_setAttribute(meta,"content",generator);
             DOM_insertBefore(head,meta,head.firstChild);
+
+            return "";
         });
     });
 
