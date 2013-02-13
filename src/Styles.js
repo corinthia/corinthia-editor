@@ -92,8 +92,12 @@ var Styles_init;
         var head = DOM_documentHead(document);
         var cssText = "";
         for (var child = head.firstChild; child != null; child = child.nextSibling) {
-            if (child._type == HTML_STYLE)
-                cssText += getNodeText(child)+"\n";
+            if (child._type == HTML_STYLE) {
+                for (var t = child.firstChild; t != null; t = t.nextSibling) {
+                    if (t._type == HTML_TEXT)
+                        cssText += t.nodeValue;
+                }
+            }
         }
         return cssText;
     });
