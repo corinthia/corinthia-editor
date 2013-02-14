@@ -109,7 +109,7 @@ var Range_getText;
     {
         Range_trackWhileExecuting(range,function() {
             var nodes = Range_getAllNodes(range,true);
-            for (var i = 0; i < nodes.length; i++)
+            for (var i = nodes.length-1; i >= 0; i--)
                 Hierarchy_ensureValidHierarchy(nodes[i],true,allowDirectInline);
         });
     });
