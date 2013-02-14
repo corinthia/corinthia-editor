@@ -467,8 +467,9 @@ var Clipboard_pasteNodes;
             }
         }
 
+        var found = new Object();
         for (var i = 0; i < nodes.length; i++)
-            removeDuplicateIds(nodes[i]);
+            removeDuplicateIds(nodes[i],found);
 
 //        if ((nodes.length == 0) && (nodes[0]._type == HTML_TABLE)) {
 //            // FIXME: this won't work; selectionRange is not defined
@@ -639,15 +640,22 @@ var Clipboard_pasteNodes;
         Selection_set(pos.node,pos.offset,pos.node,pos.offset);
         Cursor_ensureCursorVisible();
 
-        function removeDuplicateIds(node)
+        function removeDuplicateIds(node,found)
         {
             if ((node.nodeType == Node.ELEMENT_NODE) && node.hasAttribute("id")) {
-                var existing = document.getElementById(node.getAttribute("id"));
+                var id = node.getAttribute("id");
+
+                var existing = document.getElementById(id);
+                if (existing == null)
+                    existing = found[id];
+
                 if ((existing != null) && (existing != node))
                     DOM_removeAttribute(node,"id");
+                else
+                    found[id] = node;
             }
             for (var child = node.firstChild; child != null; child = child.nextSibling)
-                removeDuplicateIds(child);
+                removeDuplicateIds(child,found);
         }
     });
 
