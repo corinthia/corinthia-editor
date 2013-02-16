@@ -54,11 +54,14 @@ var Figures_setProperties;
             return null;
         var rect = figure.getBoundingClientRect();
         var result = { width: null, src: null };
-        for (var child = figure.firstChild; child != null; child = child.nextSibling) {
-            if (child._type == HTML_IMG) {
-                result.src = decodeURI(child.getAttribute("src"));
-                result.width = child.style.width;
-            }
+
+        var img = firstDescendantOfType(figure,HTML_IMG);
+        if (img != null) {
+            result.src = decodeURI(img.getAttribute("src"));
+            result.width = img.style.width;
+
+            if ((result.width == null) || (result.width == ""))
+                result.width = DOM_getAttribute(img,"width");
         }
         return result;
     });

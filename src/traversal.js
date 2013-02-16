@@ -91,6 +91,19 @@ function lastDescendant(node)
     return node;
 }
 
+function firstDescendantOfType(node,type)
+{
+    if (node._type == type)
+        return node;
+
+    for (var child = node.firstChild; child != null; child = child.nextSibling) {
+        var result = firstDescendantOfType(child,type);
+        if (result != null)
+            return result;
+    }
+    return null;
+}
+
 function getNodeDepth(node)
 {
     var depth = 0;
