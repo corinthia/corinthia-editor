@@ -560,6 +560,14 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                         properties["-uxwrite-in-link"] = "true";
                 }
                 break;
+            case HTML_NAV: {
+                var className = DOM_getAttribute(node,"class");
+                if ((className == Keys.SECTION_TOC) ||
+                    (className == Keys.FIGURE_TOC) ||
+                    (className == Keys.TABLE_TOC))
+                    properties["-uxwrite-in-toc"] = "true";
+                break;
+            }
             default:
                 if (PARAGRAPH_ELEMENTS[type]) {
                     var name = node.nodeName.toLowerCase();
