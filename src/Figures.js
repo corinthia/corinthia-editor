@@ -72,17 +72,16 @@ var Figures_setProperties;
         var figure = document.getElementById(itemId);
         if (figure == null)
             return null;
-        for (var child = figure.firstChild; child != null; child = child.nextSibling) {
-            if (child._type == HTML_IMG) {
-                if (src == null)
-                    DOM_removeAttribute(child,"src");
-                else
-                    DOM_setAttribute(child,"src",encodeURI(src));
+        var img = firstDescendantOfType(figure,HTML_IMG);
+        if (img != null) {
+            if (src == null)
+                DOM_removeAttribute(img,"src");
+            else
+                DOM_setAttribute(img,"src",encodeURI(src));
 
-                DOM_setStyleProperties(child,{"width": width});
-                if (child.getAttribute("style") == "")
-                    DOM_removeAttribute(child,"style");
-            }
+            DOM_setStyleProperties(img,{"width": width});
+            if (img.getAttribute("style") == "")
+                DOM_removeAttribute(img,"style");
         }
     });
 
