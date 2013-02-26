@@ -620,6 +620,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         "border-bottom-right-radius": true,
 
         "text-align": true,
+        "text-indent": true,
         "line-height": true,
         "display": true,
 
