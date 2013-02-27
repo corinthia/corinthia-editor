@@ -9,6 +9,7 @@ var Outline_moveSection;
 var Outline_deleteItem;
 var Outline_goToItem;
 var Outline_setTitle;
+var Outline_resetSectionNumbering;
 var Outline_setNumbered;
 var Outline_getItemElement;
 var Outline_getOutline;
@@ -1122,6 +1123,17 @@ var Outline_scheduleUpdateStructure;
     Outline_getItemElement = trace(function getItemElement(itemId)
     {
         return document.getElementById(itemId);
+    });
+
+    // public
+    Outline_resetSectionNumbering = trace(function resetSectionNumbering()
+    {
+        // This function is called when the user turns of heading numbering in the settings menu.
+        // We need to remove the "Unnumbered" class name from all heading elements, because those
+        // classes will be deleted from the stylesheet.
+        for (var section = sections.list.first; section != null; section = section.next)
+            DOM_removeAttribute(section.node,"class");
+        scheduleUpdateStructure();
     });
 
     // public
