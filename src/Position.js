@@ -389,8 +389,15 @@ var Position_atPoint;
             var nextChar = value.charAt(offset);
             var havePrevChar = ((prevChar != null) && !isWhitespaceString(prevChar));
             var haveNextChar = ((nextChar != null) && !isWhitespaceString(nextChar));
-            if (havePrevChar && haveNextChar)
+            if (havePrevChar && haveNextChar) {
+                var prevCode = value.charCodeAt(offset-1);
+                var nextCode = value.charCodeAt(offset);
+                if ((prevCode >= 0xD800) && (prevCode <= 0xDBFF) &&
+                    (nextCode >= 0xDC00) && (nextCode <= 0xDFFF)) {
+                    return false; // In middle of surrogate pair
+                }
                 return true;
+            }
 
             if (isWhitespaceString(value)) {
                 if (offset == 0) {
