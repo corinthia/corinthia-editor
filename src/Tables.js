@@ -17,8 +17,9 @@ var Tables_regionFromRange;
 var Tables_getSelectedTableId;
 var Tables_getProperties;
 var Tables_setProperties;
-
-var Table_get;
+var Tables_getColWidths;
+var Tables_setColWidths;
+var Tables_getGeometry;
 
 (function() {
 
@@ -321,6 +322,7 @@ var Table_get;
         // If there are fewer COL elements than there are colums, add extra ones, copying the
         // width value from the last one
         // FIXME: handle col elements with colspan > 1, as well as colgroups with width set
+        // FIXME: What if there are 0 col elements?
         while (colElements.length < structure.numCols) {
             var newColElement = DOM_createElement(document,"COL");
             var lastColElement = colElements[colElements.length-1];
@@ -877,6 +879,137 @@ var Table_get;
             return null;
         DOM_setStyleProperties(table,{ width: width });
         Selection_update(); // ensure cursor/selection drawn in correct pos
+    });
+
+    // Returns an array of numbers representing the percentage widths (0 - 100) of each
+    // column. This works on the assumption that all tables are supposed to have all of
+    // their column widths specified, and in all cases as percentages. Any which do not
+    // are considered invalid, and have any non-percentage values filled in based on the
+    // average values of all valid percentage-based columns.
+    Tables_getColWidths = trace(function getColWidths(structure)
+    {
+        var colElements = getColElements(structure.element);
+        var colWidths = new Array();
+
+        for (var i = 0; i < structure.numCols; i++) {
+            var value = null;
+
+            if (i < colElements.length) {
+                var widthStr = DOM_getAttribute(colElements[i],"width");
+                if (widthStr != null) {
+                    value = parsePercentage(widthStr);
+                }
+            }
+
+            if ((value != null) && (value >= 1.0)) {
+                colWidths[i] = value;
+            }
+            else {
+                colWidths[i] = null;
+            }
+        }
+
+        fixWidths(colWidths,structure.numCols);
+
+        return colWidths;
+
+        function parsePercentage(str)
+        {
+            if (str.match(/^\s*\d+(\.\d+)?\s*%\s*$/))
+                return parseFloat(str.replace(/\s*%\s*$/,""));
+            else
+                return null;
+        }
+    });
+
+    function fixWidths(colWidths,numCols)
+    {
+        var totalWidth = 0;
+        var numValidCols = 0;
+        for (var i = 0; i < numCols; i++) {
+            if (colWidths[i] != null) {
+                totalWidth += colWidths[i];
+                numValidCols++;
+            }
+        }
+
+        var averageWidth = (numValidCols > 0) ? totalWidth/numValidCols : 1.0;
+        for (var i = 0; i < numCols; i++) {
+            if (colWidths[i] == null) {
+                colWidths[i] = averageWidth;
+                totalWidth += averageWidth;
+            }
+        }
+
+        // To cater for the case where the column widths do not all add up to 100%,
+        // recalculate all of them based on their value relative to the total width
+        // of all columns. For example, if there are three columns of 33%, 33%, and 33%,
+        // these will get rounded up to 33.33333.....%.
+        // If there are no column widths defined, each will have 100/numCols%.
+        if (totalWidth > 0) {
+            for (var i = 0; i < numCols; i++) {
+                colWidths[i] = 100.0*colWidths[i]/totalWidth;
+            }
+        }
+    }
+
+    // public
+    Tables_setColWidths = trace(function setColWidths(itemId,widths)
+    {
+        var element = document.getElementById(itemId);
+        if (element == null)
+            return null;
+
+        var structure = Tables_analyseStructure(element);
+
+        fixWidths(widths,structure.numCols);
+
+        var colElements = getColElements(element);
+        for (var i = 0; i < widths.length; i++) {
+            DOM_setAttribute(colElements[i],"width",widths[i]+"%");
+        }
+    });
+
+    // public
+    Tables_getGeometry = trace(function getRect(itemId)
+    {
+        var element = document.getElementById(itemId);
+        if ((element == null) || (element.parentNode == null))
+            return null;
+
+        var structure = Tables_analyseStructure(element);
+
+        var result = new Object();
+
+        // Calculate the rect based on the cells, not the whole table element;
+        // we want to ignore the caption
+        var topLeftCell = Table_get(structure,0,0);
+        var bottomRightCell = Table_get(structure,structure.numRows-1,structure.numCols-1);
+
+        if (topLeftCell == null)
+            throw new Error("No top left cell");
+        if (bottomRightCell == null)
+            throw new Error("No bottom right cell");
+
+        var topLeftRect = topLeftCell.element.getBoundingClientRect();
+        var bottomRightRect = bottomRightCell.element.getBoundingClientRect();
+
+        var left = topLeftRect.left + window.scrollX;
+        var right = bottomRightRect.right + window.scrollX;
+        var top = topLeftRect.top + window.scrollY;
+        var bottom = bottomRightRect.bottom + window.scrollY;
+
+        result.contentRect = { x: left, y: top, width: right - left, height: bottom - top };
+        result.fullRect = xywhAbsElementRect(element);
+        result.parentRect = xywhAbsElementRect(element.parentNode);
+
+        result.columnWidths = Tables_getColWidths(structure);
+
+        var caption = firstChildOfType(element,HTML_CAPTION);
+        result.hasCaption = (caption != null);
+
+        return result;
+
     });
 
 })();

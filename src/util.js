@@ -339,3 +339,12 @@ function toTokenList(properties)
     else
         return tokens.join(" ");
 }
+
+function xywhAbsElementRect(element)
+{
+    var rect = element.getBoundingClientRect();
+    return { x: rect.left + window.scrollX,
+             y: rect.top + window.scrollY,
+             width: rect.width,
+             height: rect.height };
+}

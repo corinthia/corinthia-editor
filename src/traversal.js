@@ -104,6 +104,15 @@ function firstDescendantOfType(node,type)
     return null;
 }
 
+function firstChildOfType(node,type)
+{
+    for (var child = node.firstChild; child != null; child = child.nextSibling) {
+        if (child._type == type)
+            return child;
+    }
+    return null;
+}
+
 function getNodeDepth(node)
 {
     var depth = 0;

@@ -4,6 +4,7 @@ var Figures_insertFigure;
 var Figures_getSelectedFigureId;
 var Figures_getProperties;
 var Figures_setProperties;
+var Figures_getGeometry;
 
 (function() {
 
@@ -82,7 +83,28 @@ var Figures_setProperties;
             DOM_setStyleProperties(img,{"width": width});
             if (img.getAttribute("style") == "")
                 DOM_removeAttribute(img,"style");
+            Selection_update();
         }
+    });
+
+    // public
+    Figures_getGeometry = trace(function getGeometry(itemId)
+    {
+        var figure = document.getElementById(itemId);
+        if ((figure == null) || (figure.parentNode == null))
+            return null;
+        var img = firstDescendantOfType(figure,HTML_IMG);
+        if (img == null)
+            return null;
+
+        var figcaption = firstChildOfType(figure,HTML_FIGCAPTION);
+
+        var result = new Object();
+        result.contentRect = xywhAbsElementRect(img);
+        result.fullRect = xywhAbsElementRect(figure);
+        result.parentRect = xywhAbsElementRect(figure.parentNode);
+        result.hasCaption = (figcaption != null);
+        return result;
     });
 
 })();
