@@ -965,9 +965,10 @@ var Tables_getGeometry;
         fixWidths(widths,structure.numCols);
 
         var colElements = getColElements(element);
-        for (var i = 0; i < widths.length; i++) {
+        for (var i = 0; i < widths.length; i++)
             DOM_setAttribute(colElements[i],"width",widths[i]+"%");
-        }
+
+        Selection_update();
     });
 
     // public
