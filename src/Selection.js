@@ -409,12 +409,14 @@ var Selection_preferElementPositions;
 
     Selection_update = trace(function update()
     {
-        // Remove table selection DIVs
-        for (var i = 0; i < selectionDivs.length; i++)
-            DOM_deleteNode(selectionDivs[i]);
-        selectionDivs = new Array();
-
         var selRange = Selection_get();
+
+        Range_trackWhileExecuting(selRange,function() {
+            // Remove table selection DIVs
+            for (var i = 0; i < selectionDivs.length; i++)
+                DOM_deleteNode(selectionDivs[i]);
+            selectionDivs = new Array();
+        });
 
         if (selRange == null) {
             DOM_ignoreMutationsWhileExecuting(function() {

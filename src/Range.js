@@ -50,7 +50,10 @@ var Range_getText;
 
     Range_trackWhileExecuting = trace(function trackWhileExecuting(range,fun)
     {
-        Position_trackWhileExecuting([range.start,range.end],fun);
+        if (range == null)
+            return fun();
+        else
+            return Position_trackWhileExecuting([range.start,range.end],fun);
     });
 
     Range_expand = trace(function expand(range)
