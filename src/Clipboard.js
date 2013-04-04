@@ -446,6 +446,10 @@ var Clipboard_pasteNodes;
         // If any new columns were added, calculate a width for them
         Table_fixColumnWidths(dest.structure);
 
+        // Remove duplicate ids
+        var found = new Object();
+        removeDuplicateIds(dest.structure.element,found);
+
         // Place the cursor in the bottom-right cell that was pasted
         var bottomRightCell = Table_get(dest.structure,dest.bottom,dest.right);
         var node = bottomRightCell.element;
@@ -711,24 +715,24 @@ var Clipboard_pasteNodes;
 
         Selection_set(pos.node,pos.offset,pos.node,pos.offset);
         Cursor_ensureCursorVisible();
+    });
 
-        function removeDuplicateIds(node,found)
-        {
-            if ((node.nodeType == Node.ELEMENT_NODE) && node.hasAttribute("id")) {
-                var id = node.getAttribute("id");
+    var removeDuplicateIds = trace(function _removeDuplicateIds(node,found)
+    {
+        if ((node.nodeType == Node.ELEMENT_NODE) && node.hasAttribute("id")) {
+            var id = node.getAttribute("id");
 
-                var existing = document.getElementById(id);
-                if (existing == null)
-                    existing = found[id];
+            var existing = document.getElementById(id);
+            if (existing == null)
+                existing = found[id];
 
-                if ((existing != null) && (existing != node))
-                    DOM_removeAttribute(node,"id");
-                else
-                    found[id] = node;
-            }
-            for (var child = node.firstChild; child != null; child = child.nextSibling)
-                removeDuplicateIds(child,found);
+            if ((existing != null) && (existing != node))
+                DOM_removeAttribute(node,"id");
+            else
+                found[id] = node;
         }
+        for (var child = node.firstChild; child != null; child = child.nextSibling)
+            removeDuplicateIds(child,found);
     });
 
     function pasteImage(href)
