@@ -55,3 +55,6 @@ figcaption {
 figcaption::before {
   content: "Figure " counter(figure) ": ";
 }
+
+.uxwrite-autocorrect { background-color: #c0ffc0; }
+.uxwrite-selection { background-color: rgb(201,221,238); }

@@ -7,12 +7,14 @@ function performTest()
     Outline_init();
     PostponedActions_perform();
 
-    return Clipboard_copy()["text/html"];
+    var result = Clipboard_copy()["text/html"];
+    showSelection();
+    return result;
 }
 </script>
 </head>
 <body>
-  <table>
+  <table border="1">
     <tr>
       <td>One</td>
       <td>Two</td>

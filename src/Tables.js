@@ -21,6 +21,13 @@ var Tables_getColWidths;
 var Tables_setColWidths;
 var Tables_getGeometry;
 
+var Table_get;
+var Table_set;
+var Table_setRegion;
+var Table_fix;
+var Table_fixColumnWidths;
+var TableRegion_splitCells;
+
 (function() {
 
     function Cell(element,row,col)
@@ -86,7 +93,16 @@ var Tables_getGeometry;
         Table_processTable(this,element);
     }
 
-    var Table_set = trace(function _Table_set(table,row,col,cell)
+    // public
+    Table_get = trace(function _Table_get(table,row,col)
+    {
+        if (table.cells[row] == null)
+            return null;
+        return table.cells[row][col];
+    });
+
+    // public
+    Table_set = trace(function _Table_set(table,row,col,cell)
     {
         if (table.numRows < row+1)
             table.numRows = row+1;
@@ -98,11 +114,15 @@ var Tables_getGeometry;
     });
 
     // public
-    Table_get = trace(function _Table_get(table,row,col)
+    Table_setRegion = trace(function _Table_setRegion(table,top,left,bottom,right,cell)
     {
-        if (table.cells[row] == null)
-            return null;
-        return table.cells[row][col];
+        for (var row = top; row <= bottom; row++) {
+            for (var col = left; col <= right; col++) {
+                var destCell = Table_get(table,row,col);
+                DOM_deleteNode(destCell.element);
+                Table_set(table,row,col,cell);
+            }
+        }
     });
 
     var Table_processTable = trace(function _Table_processTable(table,node)
@@ -612,13 +632,13 @@ var Tables_getGeometry;
             Range_trackWhileExecuting(range,function() {
                 var region = Tables_regionFromRange(range,true);
                 if (region != null)
-                    splitCellsInRegion(region);
+                    TableRegion_splitCells(region);
             });
         });
     });
 
-    // private
-    var splitCellsInRegion = trace(function splitCellsInRegion(region)
+    // public
+    TableRegion_splitCells = trace(function _TableRegion_splitCells(region)
     {
         var structure = region.structure;
         var trElements = new Array();
@@ -636,10 +656,18 @@ var Tables_getGeometry;
                             if ((r == cell.top) && (c == cell.left))
                                 continue;
                             var newTD = createEmptyTableCell(original.nodeName); // check-ok
-                            var nextCell = Table_get(structure,r,cell.right+1);
                             var nextElement = null;
-                            if ((nextCell != null) && (nextCell.row == r))
-                                nextElement = nextCell.element;
+
+                            var nextCol = cell.right+1;
+                            while (nextCol < structure.numCols) {
+                                var nextCell = Table_get(structure,r,nextCol);
+                                if ((nextCell != null) && (nextCell.row == r)) {
+                                    nextElement = nextCell.element;
+                                    break;
+                                }
+                                nextCol++;
+                            }
+
                             DOM_insertBefore(trElements[r],newTD,nextElement);
                             Table_set(structure,r,c,new Cell(newTD,r,c));
                         }
@@ -677,7 +705,8 @@ var Tables_getGeometry;
         var fromStructure = Tables_analyseStructure(fromTableElement);
     });
 
-    var Table_fix = trace(function _Table_fix(table)
+    // public
+    Table_fix = trace(function _Table_fix(table)
     {
         var changed = false;
 
@@ -706,7 +735,7 @@ var Tables_getGeometry;
             for (var col = 0; col < table.numCols; col++) {
                 var cell = Table_get(table,row,col);
                 if (cell == null) {
-                    var td = DOM_createElement(document,"TD");
+                    var td = createEmptyTableCell("TD");
                     DOM_appendChild(trs[row],td);
                     changed = true;
                 }
@@ -717,6 +746,21 @@ var Tables_getGeometry;
             return new Table(table.element);
         else
             return table;
+    });
+
+    // public
+    Table_fixColumnWidths = trace(function _Table_fixColumnWidths(structure)
+    {
+        var colElements = getColElements(structure.element);
+        if (colElements.length == 0)
+            return;
+        addMissingColElements(structure,colElements);
+
+        var widths = Tables_getColWidths(structure);
+        fixWidths(widths,structure.numCols);
+        colElements = getColElements(structure.element);
+        for (var i = 0; i < widths.length; i++)
+            DOM_setAttribute(colElements[i],"width",widths[i]+"%");
     });
 
     // public

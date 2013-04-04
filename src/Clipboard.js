@@ -404,8 +404,80 @@ var Clipboard_pasteNodes;
             nodes.push(child);
 
         UndoManager_newGroup("Paste");
-        Clipboard_pasteNodes(nodes);
+        var region = Tables_regionFromRange(Selection_get(),true);
+        if ((region != null) && (nodes.length == 1) && (nodes[0]._type == HTML_TABLE))
+            pasteTable(nodes[0],region);
+        else
+            Clipboard_pasteNodes(nodes);
         UndoManager_newGroup();
+    });
+
+    var pasteTable = trace(function _pasteTable(srcTable,dest)
+    {
+        var src = Tables_analyseStructure(srcTable);
+
+        // In the destination table, the region into which we will paste the cells will the
+        // the same size as that of the source table, regardless of how many rows and columns
+        // were selected - i.e. we only pay attention to the top-left most cell, ignoring
+        // whatever the bottom-right is set to
+        dest.bottom = dest.top + src.numRows - 1;
+        dest.right = dest.left + src.numCols - 1;
+
+        // Make sure the destination table is big enough to hold all the cells we want to paste.
+        // This will add rows and columns as appropriate, with empty cells that only contain a
+        // <p><br></p> (to ensure they have non-zero height)
+        if (dest.structure.numRows < dest.bottom + 1)
+            dest.structure.numRows = dest.bottom + 1;
+        if (dest.structure.numCols < dest.right + 1)
+            dest.structure.numCols = dest.right + 1;
+        dest.structure = Table_fix(dest.structure);
+
+        // To simplify the paste, split any merged cells that are in the region of the destination
+        // table we're pasting into. We have to re-analyse the table structure after this to
+        // get the correct cell array.
+        TableRegion_splitCells(dest);
+        dest.structure = Tables_analyseStructure(dest.structure.element);
+
+        // Do the actual paste
+        Selection_preserveWhileExecuting(function() {
+            replaceCells(src,dest.structure,dest.top,dest.left);
+        });
+
+        // If any new columns were added, calculate a width for them
+        Table_fixColumnWidths(dest.structure);
+
+        // Place the cursor in the bottom-right cell that was pasted
+        var bottomRightCell = Table_get(dest.structure,dest.bottom,dest.right);
+        var node = bottomRightCell.element;
+        Selection_set(node,node.childNodes.length,node,node.childNodes.length);
+    });
+
+    var replaceCells = trace(function _replaceCells(src,dest,destRow,destCol)
+    {
+        // By this point, all of the cells have been split. So it is guaranteed that every cell
+        // in dest will have rowspan = 1 and colspan = 1.
+        for (var srcRow = 0; srcRow < src.numRows; srcRow++) {
+            for (var srcCol = 0; srcCol < src.numCols; srcCol++) {
+                var srcCell = Table_get(src,srcRow,srcCol);
+                var destCell = Table_get(dest,srcRow+destRow,srcCol+destCol);
+
+                if ((srcRow != srcCell.row) || (srcCol != srcCell.col))
+                    continue;
+
+                if (destCell.rowspan != 1)
+                    throw new Error("unexpected rowspan: "+destCell.rowspan);
+                if (destCell.colspan != 1)
+                    throw new Error("unexpected colspan: "+destCell.colspan);
+
+                DOM_insertBefore(destCell.element.parentNode,srcCell.element,destCell.element);
+
+                var destTop = destRow + srcRow;
+                var destLeft = destCol + srcCol;
+                var destBottom = destTop + srcCell.rowspan - 1;
+                var destRight = destLeft + srcCell.colspan - 1;
+                Table_setRegion(dest,destTop,destLeft,destBottom,destRight,srcCell);
+            }
+        }
     });
 
     function insertChildrenBefore(parent,child,nextSibling,pastedNodes)
