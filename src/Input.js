@@ -223,12 +223,22 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     // void
     Input_setMarkedText = trace(function setMarkedText(text,startOffset,endOffset)
     {
-        //idebug("Input_setMarkedText");
+        Selection_deleteContents();
+        var oldSel = Selection_get();
+        Range_trackWhileExecuting(oldSel,function() {
+            Cursor_insertCharacter(text,false,false,true);
+        });
+        var newSel = Selection_get();
+
+        Selection_set(oldSel.start.node,oldSel.start.offset,
+                      newSel.end.node,newSel.end.offset,false,true);
     });
 
     // void
     Input_unmarkText = trace(function unmarkText()
     {
+        var range = Selection_get();
+        Cursor_set(range.end.node,range.end.offset);
         //idebug("Input_unmarkText");
     });
 

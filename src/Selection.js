@@ -2,6 +2,7 @@
 
 // FIXME: cursor does not display correctly if it is after a space at the end of the line
 
+var Selection_isMarked;
 var Selection_get;
 var Selection_set;
 var Selection_clear;
@@ -48,6 +49,14 @@ var Selection_preferElementPositions;
 
         var selection = new Object();
 
+        Selection_isMarked = trace(function isMarked()
+        {
+            if (selection.value == null)
+                return null;
+            else
+                return selection.value.isMarked;
+        });
+
         // public
         Selection_get = trace(function get()
         {
@@ -60,7 +69,7 @@ var Selection_preferElementPositions;
 
         // public
         Selection_setInternal =
-            trace(function setInternal(newStartNode,newStartOffset,newEndNode,newEndOffset)
+            trace(function setInternal(newStartNode,newStartOffset,newEndNode,newEndOffset,isMarked)
         {
             var range = new Range(newStartNode,newStartOffset,newEndNode,newEndOffset);
             if (!Range_isForwards(range))
@@ -71,13 +80,14 @@ var Selection_preferElementPositions;
                                     { startNode: range.start.node,
                                       startOffset: range.start.offset,
                                       endNode: range.end.node,
-                                      endOffset: range.end.offset });
+                                      endOffset: range.end.offset,
+                                      isMarked: isMarked });
         });
 
         Selection_set = trace(function set(newStartNode,newStartOffset,newEndNode,newEndOffset,
-                                           keepActiveHandle)
+                                           keepActiveHandle,isMarked)
         {
-            Selection_setInternal(newStartNode,newStartOffset,newEndNode,newEndOffset);
+            Selection_setInternal(newStartNode,newStartOffset,newEndNode,newEndOffset,isMarked);
             Selection_update();
             if (!keepActiveHandle)
                 activeHandle = HANDLE_NONE;
@@ -167,7 +177,10 @@ var Selection_preferElementPositions;
             Editor_setCursor(info.left,info.top,info.width,info.height);
         }
         else if (info.type == "selection") {
-            Editor_setSelectionHandles(info.x1,info.y1,info.height1,info.x2,info.y2,info.height2);
+            if (!Selection_isMarked()) {
+                Editor_setSelectionHandles(info.x1,info.y1,
+                                           info.height1,info.x2,info.y2,info.height2);
+            }
             Editor_setSelectionBounds(info.boundsLeft,info.boundsTop,
                                       info.boundsRight,info.boundsBottom);
         }
@@ -410,6 +423,7 @@ var Selection_preferElementPositions;
     Selection_update = trace(function update()
     {
         var selRange = Selection_get();
+        var selMarked = Selection_isMarked();
 
         Range_trackWhileExecuting(selRange,function() {
             // Remove table selection DIVs
@@ -437,7 +451,8 @@ var Selection_preferElementPositions;
             });
             // Selection may have changed as a result of removeSelectionHighlights()
             Selection_setInternal(selRange.start.node,selRange.start.offset,
-                                  selRange.end.node,selRange.end.offset);
+                                  selRange.end.node,selRange.end.offset,
+                                  selMarked);
             selRange = Selection_get(); // since setInternal can theoretically change it
 
             // If we can't find the cursor rect for some reason, just don't update the position.
@@ -504,7 +519,8 @@ var Selection_preferElementPositions;
 
             // Selection may have changed as a result of create/removeSelectionHighlights()
             Selection_setInternal(selRange.start.node,selRange.start.offset,
-                                  selRange.end.node,selRange.end.offset);
+                                  selRange.end.node,selRange.end.offset,
+                                  selMarked);
 
             var firstRect = rects[0];
             var lastRect = rects[rects.length-1];
