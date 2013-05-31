@@ -223,7 +223,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     // void
     Input_setMarkedText = trace(function setMarkedText(text,startOffset,endOffset)
     {
-        Selection_deleteContents();
+        Selection_deleteContents(true);
         var oldSel = Selection_get();
         Range_trackWhileExecuting(oldSel,function() {
             Cursor_insertCharacter(text,false,false,true);
