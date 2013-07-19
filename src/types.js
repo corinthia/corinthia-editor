@@ -82,6 +82,8 @@ var Keys = {
     AUTOCORRECT_CLASS: "uxwrite-autocorrect",
     SELECTION_CLASS: "uxwrite-selection",
     ABSTRACT_ELEMENT: "uxwrite-abstract",
+    SPELLING_CLASS: "uxwrite-spelling",
+    MATCH_CLASS: "uxwrite-match",
 };
 
 var ITEM_NUMBER_CLASSES = {
