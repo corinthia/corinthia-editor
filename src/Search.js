@@ -4,6 +4,7 @@ var Search_addMatch;
 var Search_showMatch;
 var Search_replaceMatch;
 var Search_removeMatch;
+var Search_goToMatch;
 
 (function() {
 
@@ -13,10 +14,11 @@ var Search_removeMatch;
         this.startPos = startPos;
         this.endPos = endPos;
         this.type = type;
+        this.spans = new Array();
     }
 
     var matchesById = new Object();
-    var nextMatchId = 0;
+    var nextMatchId = 1;
 
     var curPos = null;
     var curParagraph = null;
@@ -24,6 +26,7 @@ var Search_removeMatch;
     Search_reset = trace(function _Search_reset() {
         curPos = new Position(document.body,0);
         curParagraph = null;
+        clearMatches();
     });
 
     Search_next = trace(function _Search_next() {
@@ -37,16 +40,20 @@ var Search_removeMatch;
         if (curParagraph == null)
             return null;
 
-//        var str = "curPos: "+curPos+" -> ";
         curPos = Position_nextMatch(curPos,Position_okForMovement);
-//        debug(str+curPos);
 
-        return { text: curParagraph.text };
+        var sectionId = null;
+        if (isHeadingNode(curParagraph.node) &&
+            (curParagraph.startOffset == 0) &&
+            (curParagraph.endOffset == curParagraph.node.childNodes.length)) {
+            sectionId = DOM_getAttribute(curParagraph.node,"id");
+        }
+
+        return { text: curParagraph.text,
+                 sectionId: sectionId };
     });
 
     Search_addMatch = trace(function _Search_addMatch(start,end,type) {
-//        if (curPos == null)
-//            throw new Error("curPos is null");
         if (curParagraph == null)
             throw new Error("curParagraph is null");
         if ((start < 0) || (start > curParagraph.text.length))
@@ -66,8 +73,8 @@ var Search_removeMatch;
 
         var startPos = new Position(startRun.node,start - startRun.start);
         var endPos = new Position(endRun.node,end - endRun.start);
-        Position_track(startPos); // FIXME: untrack later
-        Position_track(endPos); // FIXME: untrack later
+        Position_track(startPos);
+        Position_track(endPos);
 
         var match = new Match(matchId,startPos,endPos,type);
         matchesById[matchId] = match;
@@ -83,13 +90,12 @@ var Search_removeMatch;
         var range = new Range(match.startPos.node,match.startPos.offset,
                               match.endPos.node,match.endPos.offset);
         var text = Range_getText(range);
-        debug("---Match "+matchId+": "+JSON.stringify(text));
         Formatting_splitAroundSelection(range,true);
         var outermost = Range_getOutermostNodes(range);
         for (var i = 0; i < outermost.length; i++) {
-//            var span = DOM_createElement(document,"SPAN");
             var span = DOM_wrapNode(outermost[i],"SPAN");
             DOM_setAttribute(span,"class",Keys.MATCH_CLASS);
+            match.spans.push(span);
         }
     });
 
@@ -97,9 +103,40 @@ var Search_removeMatch;
     {
     });
 
-    Search_removeMatch = trace(function _Search_removeMatch(matchId)
+    var removeSpansForMatch = trace(function _removeSpansForMatch(match)
     {
-        printTree(document.body);
+        for (var i = 0; i < match.spans.length; i++)
+            DOM_removeNodeButKeepChildren(match.spans[i]);
+    });
+
+    Scan_removeMatch = trace(function _Scan_removeMatch(matchId)
+    {
+        removeSpansForMatch(matchesById[matchId]);
+        delete matchesById[matchId];
+    });
+
+    Search_goToMatch = trace(function _Scan_goToMatch(matchId)
+    {
+        var match = matchesById[matchId];
+        if (match == null)
+            throw new Error("Match "+matchId+" not found");
+
+        Selection_set(match.startPos.node,match.startPos.offset,
+                      match.endPos.node,match.endPos.offset);
+        Cursor_ensurePositionVisible(match.startPos);
+    });
+
+    var clearMatches = trace(function _clearMatches()
+    {
+        for (var matchId in matchesById) {
+            var match = matchesById[matchId];
+            removeSpansForMatch(match);
+            Position_untrack(match.startPos);
+            Position_untrack(match.endPos);
+        }
+
+        matchesById = new Object();
+        nextMatchId = 1;
     });
 
 })();
