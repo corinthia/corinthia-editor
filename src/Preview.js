@@ -32,7 +32,7 @@ var Preview_showForStyle;
         }
     }
 
-    function showForStyle(styleId,uiName)
+    function showForStyle(styleId,uiName,titleText)
     {
         var elementName = null;
         var className = null;
@@ -47,7 +47,6 @@ var Preview_showForStyle;
             className = null;
         }
 
-        var titleText = "Preview of style "+uiName;
         var title = DOM_createTextNode(document,titleText);
         var text = DOM_createTextNode(document,previewText);
 
