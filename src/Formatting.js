@@ -518,30 +518,6 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 //            case HTML_TT:
 //                properties["-uxwrite-in-tt"] = "true";
 //                break;
-            case HTML_H1:
-                properties["-uxwrite-paragraph-style"] = "h1";
-                break;
-            case HTML_H2:
-                properties["-uxwrite-paragraph-style"] = "h2";
-                break;
-            case HTML_H3:
-                properties["-uxwrite-paragraph-style"] = "h3";
-                break;
-            case HTML_H4:
-                properties["-uxwrite-paragraph-style"] = "h4";
-                break;
-            case HTML_H5:
-                properties["-uxwrite-paragraph-style"] = "h5";
-                break;
-            case HTML_H6:
-                properties["-uxwrite-paragraph-style"] = "h6";
-                break;
-            case HTML_PRE:
-                properties["-uxwrite-paragraph-style"] = "pre";
-                break;
-            case HTML_BLOCKQUOTE:
-                properties["-uxwrite-paragraph-style"] = "blockquote";
-                break;
             case HTML_IMG:
                 properties["-uxwrite-in-image"] = "true";
                 break;
