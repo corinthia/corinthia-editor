@@ -326,8 +326,23 @@ var Range_getText;
                 domRange.setStart(node,startOffset);
                 domRange.setEnd(node,endOffset);
                 var rects = domRange.getClientRects();
-                for (var rectIndex = 0; rectIndex < rects.length; rectIndex++)
-                    result.push(rects[rectIndex]);
+                for (var rectIndex = 0; rectIndex < rects.length; rectIndex++) {
+                    var rect = rects[rectIndex];
+                    if (iOS7Hacks) {
+                        // Apple Bug ID 14682166 - getClientRects() returns coordinates relative
+                        // to top of document, when it should instead return coordinates relative
+                        // to the current client view (that is, taking into account scroll offsets)
+                        result.push({ left: rect.left - window.scrollX,
+                                      right: rect.right - window.scrollX,
+                                      top: rect.top - window.scrollY,
+                                      bottom: rect.bottom - window.scrollY,
+                                      width: rect.width,
+                                      height: rect.height });
+                    }
+                    else {
+                        result.push(rect);
+                    }
+                }
             }
             else if (node.nodeType == Node.ELEMENT_NODE) {
                 result.push(node.getBoundingClientRect());
