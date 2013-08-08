@@ -313,9 +313,10 @@ var Main_init;
     });
 
     // public
-    Main_init = trace(function init(width,textScale,cssURL)
+    Main_init = trace(function init(width,textScale,cssURL,iOS7)
     {
         try {
+            iOS7Hacks = iOS7;
             if (document.documentElement == null)
                 throw new Error("document.documentElement is null");
             if (document.body == null)
