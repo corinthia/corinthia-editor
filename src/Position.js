@@ -942,12 +942,24 @@ var Position_atPoint;
                 (y >= rect.top) && (y <= rect.bottom));
     });
 
+    var isEmptyParagraphNode = trace(function _isEmptyParagraphNode(node)
+    {
+        return ((node._type == HTML_P) &&
+                (node.lastChild != null) &&
+                (node.lastChild._type == HTML_BR) &&
+                !nodeHasContent(node));
+    });
+
     var findLastTextRect = trace(function findLastTextRect()
     {
         var node = lastDescendant(document.body);
 
-        while ((node != null) && ((node.nodeType != Node.TEXT_NODE) || isWhitespaceTextNode(node)))
+        while ((node != null) &&
+               ((node.nodeType != Node.TEXT_NODE) || isWhitespaceTextNode(node))) {
+            if (isEmptyParagraphNode(node))
+                return node.getBoundingClientRect();
             node = prevNode(node);
+        }
         
         if (node != null) {
             var domRange = document.createRange();
@@ -964,8 +976,12 @@ var Position_atPoint;
     {
         var node = firstDescendant(document.body);
 
-        while ((node != null) && ((node.nodeType != Node.TEXT_NODE) || isWhitespaceTextNode(node)))
+        while ((node != null) &&
+               ((node.nodeType != Node.TEXT_NODE) || isWhitespaceTextNode(node))) {
+            if (isEmptyParagraphNode(node))
+                return node.getBoundingClientRect();
             node = nextNode(node);
+        }
         
         if (node != null) {
             var domRange = document.createRange();
