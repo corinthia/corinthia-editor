@@ -1,10 +1,10 @@
-var Search_reset;
-var Search_next;
-var Search_addMatch;
-var Search_showMatch;
-var Search_replaceMatch;
-var Search_removeMatch;
-var Search_goToMatch;
+var Scan_reset;
+var Scan_next;
+var Scan_addMatch;
+var Scan_showMatch;
+var Scan_replaceMatch;
+var Scan_removeMatch;
+var Scan_goToMatch;
 
 (function() {
 
@@ -23,13 +23,13 @@ var Search_goToMatch;
     var curPos = null;
     var curParagraph = null;
 
-    Search_reset = trace(function _Search_reset() {
+    Scan_reset = trace(function _Scan_reset() {
         curPos = new Position(document.body,0);
         curParagraph = null;
         clearMatches();
     });
 
-    Search_next = trace(function _Search_next() {
+    Scan_next = trace(function _Scan_next() {
         if (curPos == null)
             return null;
         curPos = Text_toEndOfBoundary(curPos,"paragraph");
@@ -53,7 +53,7 @@ var Search_goToMatch;
                  sectionId: sectionId };
     });
 
-    Search_addMatch = trace(function _Search_addMatch(start,end,type) {
+    Scan_addMatch = trace(function _Scan_addMatch(start,end,type) {
         if (curParagraph == null)
             throw new Error("curParagraph is null");
         if ((start < 0) || (start > curParagraph.text.length))
@@ -81,7 +81,7 @@ var Search_goToMatch;
         return matchId;
     });
 
-    Search_showMatch = trace(function _Search_showMatch(matchId)
+    Scan_showMatch = trace(function _Scan_showMatch(matchId)
     {
         var match = matchesById[matchId];
         if (match == null)
@@ -99,7 +99,7 @@ var Search_goToMatch;
         }
     });
 
-    Search_replaceMatch = trace(function _Search_replaceMatch(matchId,replacement)
+    Scan_replaceMatch = trace(function _Scan_replaceMatch(matchId,replacement)
     {
     });
 
@@ -115,7 +115,7 @@ var Search_goToMatch;
         delete matchesById[matchId];
     });
 
-    Search_goToMatch = trace(function _Scan_goToMatch(matchId)
+    Scan_goToMatch = trace(function _Scan_goToMatch(matchId)
     {
         var match = matchesById[matchId];
         if (match == null)

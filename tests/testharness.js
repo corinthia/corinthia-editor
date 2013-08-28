@@ -45,7 +45,7 @@ function loadCode()
                            "../src/Range.js",
                            "../src/Selection.js",
                            "../src/3rdparty/showdown/showdown.js",
-                           "../src/Search.js",
+                           "../src/Scan.js",
                            "../src/StringBuilder.js",
                            "../src/Styles.js",
                            "../src/Tables.js",
