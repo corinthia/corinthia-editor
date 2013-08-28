@@ -8,12 +8,11 @@ var Scan_goToMatch;
 
 (function() {
 
-    function Match(matchId,startPos,endPos,type)
+    function Match(matchId,startPos,endPos)
     {
         this.matchId = matchId;
         this.startPos = startPos;
         this.endPos = endPos;
-        this.type = type;
         this.spans = new Array();
     }
 
@@ -53,7 +52,7 @@ var Scan_goToMatch;
                  sectionId: sectionId };
     });
 
-    Scan_addMatch = trace(function _Scan_addMatch(start,end,type) {
+    Scan_addMatch = trace(function _Scan_addMatch(start,end) {
         if (curParagraph == null)
             throw new Error("curParagraph is null");
         if ((start < 0) || (start > curParagraph.text.length))
@@ -76,7 +75,7 @@ var Scan_goToMatch;
         Position_track(startPos);
         Position_track(endPos);
 
-        var match = new Match(matchId,startPos,endPos,type);
+        var match = new Match(matchId,startPos,endPos);
         matchesById[matchId] = match;
         return matchId;
     });
