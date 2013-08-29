@@ -58,3 +58,5 @@ figcaption::before {
 
 .uxwrite-autocorrect { background-color: #c0ffc0; }
 .uxwrite-selection { background-color: rgb(201,221,238); }
+.uxwrite-spelling { background-color: rgb(255,128,128); }
+.uxwrite-match { background-color: rgb(255,255,0); }

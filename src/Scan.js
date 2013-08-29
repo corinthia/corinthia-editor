@@ -100,6 +100,26 @@ var Scan_goToMatch;
 
     Scan_replaceMatch = trace(function _Scan_replaceMatch(matchId,replacement)
     {
+        var match = matchesById[matchId];
+        if (match == null)
+            throw new Error("Match "+matchId+" not found");
+
+        if (match.spans.length == 0)
+            return;
+
+        var span = match.spans[0];
+
+        Selection_preserveWhileExecuting(function() {
+            var replacementNode = DOM_createTextNode(document,replacement);
+            DOM_insertBefore(span.parentNode,replacementNode,span);
+
+            for (var i = 0; i < match.spans.length; i++)
+                DOM_deleteNode(match.spans[i]);
+
+            Formatting_mergeUpwards(replacementNode,Formatting_MERGEABLE_INLINE);
+        });
+
+        delete matchesById[matchId];
     });
 
     var removeSpansForMatch = trace(function _removeSpansForMatch(match)

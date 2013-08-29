@@ -5,6 +5,7 @@ var Formatting_splitTextAfter;
 var Formatting_movePreceding;
 var Formatting_moveFollowing;
 var Formatting_splitAroundSelection;
+var Formatting_mergeUpwards;
 var Formatting_mergeWithNeighbours;
 var Formatting_paragraphTextUpToPosition;
 var Formatting_getAllNodeProperties;
@@ -145,8 +146,37 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         });
     });
 
+    // public
+    Formatting_mergeUpwards = trace(function mergeUpwards(node,whiteList)
+    {
+        while ((node != null) && whiteList[node._type]) {
+            var parent = node.parentNode;
+            Formatting_mergeWithNeighbours(node,whiteList,true);
+            node = parent;
+        }
+    });
+
+    var isDiscardable = trace(function _isDiscardable(node)
+    {
+        if (node.nodeType != Node.ELEMENT_NODE)
+            return false;
+
+        if (!isInlineNode(node))
+            return false;
+
+        if (isOpaqueNode(node))
+            return false;
+
+        for (var child = node.firstChild; child != null; child = child.nextSibling) {
+            if (!isDiscardable(child))
+                return false;
+        }
+
+        return true;
+    });
+
     // public (for use by tests)
-    Formatting_mergeWithNeighbours = trace(function mergeWithNeighbours(node,whiteList)
+    Formatting_mergeWithNeighbours = trace(function mergeWithNeighbours(node,whiteList,trim)
     {
         var parent = node.parentNode;
         if (parent == null)
@@ -162,6 +192,13 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         while ((end.nextSibling != null) &&
                DOM_nodesMergeable(end,end.nextSibling,whiteList))
             end = end.nextSibling;
+
+        if (trim) {
+            while ((start.previousSibling != null) && isDiscardable(start.previousSibling))
+                DOM_deleteNode(start.previousSibling);
+            while ((end.nextSibling != null) && isDiscardable(end.nextSibling))
+                DOM_deleteNode(end.nextSibling);
+        }
 
         if (start != end) {
             var lastMerge;
@@ -1166,6 +1203,8 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     });
 
     Formatting_MERGEABLE_INLINE = new Array(HTML_COUNT);
+
+    Formatting_MERGEABLE_INLINE[HTML_TEXT] = true;
 
     Formatting_MERGEABLE_INLINE[HTML_SPAN] = true;
     Formatting_MERGEABLE_INLINE[HTML_A] = true;
