@@ -402,3 +402,20 @@ function simplifyTOCs()
             mergeAdjacentTextNodes(child);
     }
 }
+
+function showNonEmptyTextNodes()
+{
+    recurse(document.body);
+
+    function recurse(node)
+    {
+        if (node.nodeType == Node.TEXT_NODE) {
+            if (!isWhitespaceTextNode(node))
+                node.nodeValue = "{" + node.nodeValue + "}";
+        }
+        else {
+            for (var child = node.firstChild; child != null; child = child.nextSibling)
+                recurse(child);
+        }
+    }
+}

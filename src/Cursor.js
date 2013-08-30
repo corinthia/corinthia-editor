@@ -320,6 +320,36 @@ var Cursor_set;
         });
     });
 
+    var isPosAtStartOfParagraph = trace(function _isPosAtStartOfParagraph(pos)
+    {
+        if ((pos.node.nodeType == Node.ELEMENT_NODE) && (pos.offset == 0) &&
+            !isInlineNode(pos.node)) {
+            return true;
+        }
+
+
+
+        while (pos != null) {
+            if (pos.node.nodeType == Node.ELEMENT_NODE) {
+                if ((pos.offset == 0) && !isInlineNode(pos.node))
+                    return true;
+                else
+                    pos = Position_prev(pos);
+            }
+            else if (pos.node.nodeType == Node.TEXT_NODE) {
+                if (pos.offset > 0)
+                    return false;
+                else
+                    pos = Position_prev(pos);
+            }
+            else {
+                return false;
+            }
+        }
+
+        return false;
+    });
+
     // public
     Cursor_insertCharacter = trace(function insertCharacter(str,allowInvalidPos,allowNoParagraph)
     {
@@ -346,12 +376,24 @@ var Cursor_set;
         }
         var pos = selRange.start;
         pos = Position_preferTextPosition(pos);
+        if ((str == " ") && isPosAtStartOfParagraph(pos))
+            return;
         if (!allowInvalidPos && !Position_okForInsertion(pos)) {
             var elemPos = Position_preferElementPosition(pos);
-            if (Position_okForInsertion(elemPos))
+            if (Position_okForInsertion(elemPos)) {
                 pos = elemPos;
-            else
+            }
+            else {
+                var oldPos = pos;
                 pos = Position_closestMatchForwards(selRange.start,Position_okForInsertion);
+                var difference = new Range(oldPos.node,oldPos.offset,pos.node,pos.offset);
+                difference = Range_forwards(difference);
+                Position_trackWhileExecuting([pos],function() {
+                    if (!Range_hasContent(difference)) {
+                        Selection_deleteRangeContents(difference,true);
+                    }
+                });
+            }
         }
         var node = pos.node;
         var offset = pos.offset;
