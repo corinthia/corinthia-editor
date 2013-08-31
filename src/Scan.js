@@ -142,7 +142,7 @@ var Scan_goToMatch;
 
         Selection_set(match.startPos.node,match.startPos.offset,
                       match.endPos.node,match.endPos.offset);
-        Cursor_ensurePositionVisible(match.startPos);
+        Cursor_ensurePositionVisible(match.startPos,true);
     });
 
     var clearMatches = trace(function _clearMatches()

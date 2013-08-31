@@ -27,7 +27,7 @@ var Cursor_set;
 
     var cursorX = null;
 
-    Cursor_ensurePositionVisible = trace(function ensurePositionVisible(pos)
+    Cursor_ensurePositionVisible = trace(function ensurePositionVisible(pos,center)
     {
         // If we can't find the cursor rect for some reason, just don't do anything.
         // This is better than using an incorrect position or throwing an exception.
@@ -41,19 +41,25 @@ var Cursor_set;
             var windowTop = window.scrollY;
             var windowBottom = window.scrollY + window.innerHeight;
 
-            if (cursorTop < windowTop)
+            if (center) {
+                var newY = Math.floor(cursorTop + rect.height/2 - window.innerHeight/2);
+                window.scrollTo(window.scrollX,newY);
+            }
+            else if (cursorTop < windowTop) {
                 window.scrollTo(window.scrollX,cursorTop);
-            else if (cursorBottom > windowBottom)
+            }
+            else if (cursorBottom > windowBottom) {
                 window.scrollTo(window.scrollX,cursorBottom - window.innerHeight);
+            }
         }
     });
 
     // public
-    Cursor_ensureCursorVisible = trace(function ensureCursorVisible()
+    Cursor_ensureCursorVisible = trace(function ensureCursorVisible(center)
     {
         var selRange = Selection_get();
         if (selRange != null)
-            Cursor_ensurePositionVisible(selRange.end);
+            Cursor_ensurePositionVisible(selRange.end,center);
     });
 
     Cursor_scrollDocumentForY = trace(function scrollDocumentForY(y)
