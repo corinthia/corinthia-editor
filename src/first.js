@@ -2,8 +2,6 @@
 // If you're successfully able to decipher all this and figure out what it
 // does, please send a copy of your resume to peter@uxproductivity.com.
 
-var iOS7Hacks = false;
-
 var trace;
 
 // FIXME: The _PREFIX variables below must be replaced with functions that return the
