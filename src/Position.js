@@ -848,7 +848,7 @@ var Position_atPoint;
 
                 if (firstP == secondP) {
                     // if secondC is last child, firstC must be secondC or come before it
-                    if (secondC == null) 
+                    if (secondC == null)
                         return -1;
                     for (var n = firstC; n != null; n = n.nextSibling) {
                         if (n == secondC)
@@ -900,7 +900,7 @@ var Position_atPoint;
         var boundaryRect = null;
         if (y <= bodyRect.top)
             boundaryRect = findFirstTextRect();
-        else if (y >= bodyRect.bottom) 
+        else if (y >= bodyRect.bottom)
             boundaryRect = findLastTextRect();
 
         if (boundaryRect != null) {
@@ -960,7 +960,7 @@ var Position_atPoint;
                 return node.getBoundingClientRect();
             node = prevNode(node);
         }
-        
+
         if (node != null) {
             var domRange = document.createRange();
             domRange.setStart(node,0);
@@ -982,7 +982,7 @@ var Position_atPoint;
                 return node.getBoundingClientRect();
             node = nextNode(node);
         }
-        
+
         if (node != null) {
             var domRange = document.createRange();
             domRange.setStart(node,0);

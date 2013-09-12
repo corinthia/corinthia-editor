@@ -62,12 +62,12 @@ var debug;
     {
         addBackMessage("outlineUpdated");
     };
-    
+
     Editor_setCursor = function(x,y,width,height)
     {
         addBackMessage("setCursor",x,y,width,height);
     };
-    
+
     Editor_setSelectionHandles = function(x1,y1,height1,x2,y2,height2)
     {
         addBackMessage("setSelectionHandles",x1,y1,height1,x2,y2,height2);
@@ -77,7 +77,7 @@ var debug;
     {
         addBackMessage("setTableSelection",x,y,width,height);
     };
-    
+
     Editor_setSelectionBounds = function(left,top,right,bottom)
     {
         addBackMessage("setSelectionBounds",left,top,right,bottom);

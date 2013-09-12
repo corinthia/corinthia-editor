@@ -536,7 +536,7 @@ var Cursor_set;
                 }
             }
         }
-        
+
         selRange = Selection_get();
         if (selRange != null)
             spaceToNbsp(selRange.end);

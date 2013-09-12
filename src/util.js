@@ -181,7 +181,7 @@ function diff(src,dest)
         for (var k = -distance; k <= distance; k += 2) {
             var srcEnd;
             var prev;
-            
+
             var del = traces[k-1];
             var ins = traces[k+1];
 
@@ -299,7 +299,7 @@ function readFileTest(filename)
 {
     var req = new XMLHttpRequest();
     req.open("GET",filename,false);
-    req.send();         
+    req.send();
     var xml = req.responseXML;
     if (xml == null)
         return null;

@@ -5,7 +5,7 @@
     // preserveCase (boolean)
     // showNamespaceDetails (boolean)
     // separateLines (boolean)
-    
+
     function getHTML(root,options)
     {
         var copy;

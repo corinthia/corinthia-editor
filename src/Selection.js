@@ -257,7 +257,7 @@ var Selection_preferElementPositions;
         for (var i = 0; i < outermost.length; i++) {
             recurse(outermost[i]);
         }
-        
+
         setSelectionHighlights(newHighlights);
 
         function recurse(node)

@@ -142,7 +142,7 @@
             self.ymap[self.include[i].top] = true;
             self.ymap[self.include[i].bottom] = true;
         }
-        
+
         for (var i = 0; i < self.exclude.length; i++) {
             self.xmap[self.exclude[i].left] = true;
             self.xmap[self.exclude[i].right] = true;

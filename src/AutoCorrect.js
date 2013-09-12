@@ -142,7 +142,7 @@ var AutoCorrect_replaceCorrection;
         return result;
     });
 
-    AutoCorrect_correctPrecedingWord = 
+    AutoCorrect_correctPrecedingWord =
         trace(function correctPrecedingWord(numChars,replacement,confirmed)
     {
         Selection_preserveWhileExecuting(function() {

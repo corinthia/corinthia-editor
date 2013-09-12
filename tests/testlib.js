@@ -283,7 +283,7 @@ function readXML(filename)
 {
     var req = new XMLHttpRequest();
     req.open("GET",filename,false);
-    req.send();         
+    req.send();
     var xml = req.responseXML;
     if (xml == null)
         return null;

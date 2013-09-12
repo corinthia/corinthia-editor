@@ -64,7 +64,7 @@
     {
         var x = event.clientX - treeView.this.x;
         var y = event.clientY - treeView.this.y;
-        
+
         var closestNode = null;
         var closestDistance = null;
         var keys = treeView.displayNodes.getKeys();
@@ -172,7 +172,7 @@
     {
         var x = event.clientX - treeView.this.x;
         var y = event.clientY - treeView.this.y;
-        
+
         var closestPosition = null;
         var closestDistance = null;
 
@@ -413,7 +413,7 @@
                 marker.setAttribute("fill","red");
                 marker.setAttribute("d","M 0 0 L 5 10 L -5 10");
                 marker.setAttribute("transform","translate("+displayNode.x+","+displayNode.y+")");
-                
+
                 DOM_appendChild(self.monitorGroup,marker);
             }
             else if ((value != null) && (value instanceof Position)) {
