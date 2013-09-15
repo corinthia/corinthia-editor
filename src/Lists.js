@@ -270,14 +270,15 @@ var Lists_setOrderedList;
         var nodes = new Array();
         var nodeSet = new NodeSet();
 
+        if (dca._type == HTML_LI)
+            return [dca];
+
         // If, after moving up the tree until dca is a container node, a single node is selected,
         // check if it is wholly contained within a single list item. If so, select just that
         // list item.
-        if ((ds == de) || ((ds != null) && (ds.nextSibling == null) && (de == null))) {
-
-            if (dca._type == HTML_LI)
-                return [dca];
-
+        var isStartLI = ((ds != null) && (ds._type == HTML_LI));
+        var isEndLI = ((de != null) && (de._type == HTML_LI));
+        if (!isStartLI && !isEndLI) {
             for (var ancestor = dca; ancestor.parentNode != null; ancestor = ancestor.parentNode) {
                 if (ancestor.parentNode._type == HTML_LI) {
                     var firstElement = true;
