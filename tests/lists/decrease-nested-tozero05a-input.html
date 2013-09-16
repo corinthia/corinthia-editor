@@ -4,9 +4,9 @@
 <script>
 function performTest()
 {
-    Lists_decreaseIndent();
-    Lists_decreaseIndent();
-    Lists_decreaseIndent();
+    for (var i = 0; i < 5; i++)
+        Lists_decreaseIndent();
+
     showSelection();
 }
 </script>
@@ -14,17 +14,19 @@ function performTest()
 <body>
 <ol>
   <li>
-    [One
+    <p>[One</p>
     <ol>
       <li>
-        Two
+        <p>Two</p>
         <ol>
           <li>
-            Three
+            <p>Three</p>
             <ol>
               <li>
-                Four
-                <ol><li>Five]</li></ol>
+                <p>Four</p>
+                <ol>
+                  <li><p>Five]</p></li>
+                </ol>
               </li>
             </ol>
           </li>
