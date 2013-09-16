@@ -3,6 +3,7 @@
 var Hierarchy_ensureValidHierarchy;
 var Hierarchy_ensureInlineNodesInParagraph;
 var Hierarchy_wrapInlineNodesInParagraph;
+var Hierarchy_avoidInlineChildren;
 
 (function() {
 
@@ -238,6 +239,32 @@ var Hierarchy_wrapInlineNodesInParagraph;
             end = end.nextSibling;
 
         return DOM_wrapSiblings(start,end,"P");
+    });
+
+    Hierarchy_avoidInlineChildren = trace(function avoidInlineChildren(parent)
+    {
+        var child = parent.firstChild;
+
+        while (child != null) {
+            if (isInlineNode(child)) {
+                var start = child;
+                var end = child;
+                var haveContent = nodeHasContent(end);
+                while ((end.nextSibling != null) && isInlineNode(end.nextSibling)) {
+                    end = end.nextSibling;
+                    if (nodeHasContent(end))
+                        haveContent = true;
+                }
+                child = DOM_wrapSiblings(start,end,"P");
+                var next = child.nextSibling;
+                if (!nodeHasContent(child))
+                    DOM_deleteNode(child);
+                child = next;
+            }
+            else {
+                child = child.nextSibling;
+            }
+        }
     });
 
 })();

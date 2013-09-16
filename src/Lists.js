@@ -156,17 +156,6 @@ var Lists_setOrderedList;
             // some in table cells etc
             var listItems = findLIElements(range);
 
-            // Remove from consideration any list items that are not inside a nested list
-            var i = 0;
-            while (i < listItems.length) {
-                var node = listItems[i];
-                var container = findContainingListItem(node.parentNode);
-                if (container == null)
-                    listItems.splice(i,1);
-                else
-                    i++;
-            }
-
             // Remove from consideration any list items that have an ancestor that is going to
             // be moved
             var i = 0;
@@ -201,33 +190,20 @@ var Lists_setOrderedList;
             // For LI nodes that are part of a nested list, move them to the parent (this requires
             // splitting the child list in two)
             for (var i = 0; i < listItems.length; i++) {
-                var node = listItems[i];
-                var parentList = node.parentNode;
+                var liNode = listItems[i];
+                var listNode = liNode.parentNode;
+                var containerChild = findContainerChild(listNode);
 
-
-                var container = findContainingListItem(node.parentNode);
-
-                // We can only decrease the indentation of a list node if the list it is in is
-                // itself inside another list
-
-                if (haveContentAfter(node)) {
+                if (haveContentAfter(liNode)) {
                     var secondHalf;
-                    if (parentList._type == HTML_UL)
+                    if (listNode._type == HTML_UL)
                         secondHalf = DOM_createElement(document,"UL");
                     else
                         secondHalf = DOM_createElement(document,"OL");
 
-                    var copy = secondHalf;
+                    DOM_appendChild(liNode,secondHalf);
 
-                    for (var p = parentList.parentNode; p != container; p = p.parentNode) {
-                        var pcopy = DOM_shallowCopyElement(p);
-                        DOM_appendChild(pcopy,copy);
-                        copy = pcopy;
-                    }
-
-                    DOM_appendChild(node,copy);
-
-                    var following = node.nextSibling;
+                    var following = liNode.nextSibling;
                     while (following != null) {
                         var next = following.nextSibling;
                         DOM_appendChild(secondHalf,following);
@@ -235,21 +211,24 @@ var Lists_setOrderedList;
                     }
                 }
 
-                DOM_insertBefore(container.parentNode,node,container.nextSibling);
-                if (!nodeHasContent(parentList))
-                    DOM_deleteNode(parentList);
+                DOM_insertBefore(containerChild.parentNode,liNode,containerChild.nextSibling);
+                if (!isListNode(liNode.parentNode)) {
+                    Hierarchy_avoidInlineChildren(liNode);
+                    DOM_removeNodeButKeepChildren(liNode);
+                }
+
+                if (!nodeHasContent(listNode))
+                    DOM_deleteNode(listNode);
             }
         });
 
-        function findContainingListItem(node)
+        function findContainerChild(node)
         {
-            if (node == null)
-                return null;
-
-            if (node._type == HTML_LI)
-                return node;
-
-            return findContainingListItem(node.parentNode);
+            while (node.parentNode != null) {
+                if (isContainerNode(node.parentNode) && (node.parentNode._type != HTML_LI))
+                    return node;
+                node = node.parentNode;
+            }
         }
     });
 
