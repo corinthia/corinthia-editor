@@ -195,9 +195,6 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         var oldStart = (oldSelection != null) ? oldSelection.start : null;
         var oldEnd = (oldSelection != null) ? oldSelection.end : null;
 
-        start = Position_closestMatchForwards(start,Position_okForInsertion);
-        end = Position_closestMatchForwards(end,Position_okForInsertion);
-
         Selection_set(start.node,start.offset,end.node,end.offset);
 
         // The positions may have changed as a result of spans being added/removed
