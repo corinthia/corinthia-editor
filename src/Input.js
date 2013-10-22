@@ -641,6 +641,10 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
             return addPosition(Input_toParagraphBoundary(pos,direction));
         else if (granularity == "line")
             return addPosition(Input_toLineBoundary(pos,direction));
+        else if (granularity == "character")
+            return Input_positionFromPositionInDirectionOffset(posId,direction,1);
+        else if (granularity == "document")
+            return isForward(direction) ? BaseIdDocumentEnd : BaseIdDocumentStart;
         else
             throw new Error("unsupported granularity: "+granularity);
     });
