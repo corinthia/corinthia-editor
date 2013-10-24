@@ -12,6 +12,8 @@ var Main_removeSpecial;
 var Main_execute;
 var Main_init;
 
+var Main_clientRectsBug;
+
 (function() {
 
     // public
@@ -313,9 +315,10 @@ var Main_init;
     });
 
     // public
-    Main_init = trace(function init(width,textScale,cssURL)
+    Main_init = trace(function init(width,textScale,cssURL,clientRectsBug)
     {
         try {
+            Main_clientRectsBug = clientRectsBug;
             if (document.documentElement == null)
                 throw new Error("document.documentElement is null");
             if (document.body == null)
