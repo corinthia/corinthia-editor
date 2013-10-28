@@ -12,7 +12,7 @@ function performTest()
 
     var names = Object.getOwnPropertyNames(properties).sort();
     for (var i = 0; i < names.length; i++) {
-        if (names[i] == "border-image") // Extra property present in Chrome
+        if (names[i].match(/^border-image-/)) // Extra properties present in Chrome
             continue;
         var p = DOM_createElement(document,"P");
         DOM_appendChild(document.body,p);
