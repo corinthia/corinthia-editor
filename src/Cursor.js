@@ -22,6 +22,7 @@ var Cursor_setLinkProperties;
 var Cursor_setReferenceTarget;
 var Cursor_makeContainerInsertionPoint;
 var Cursor_set;
+var Cursor_insertFootnote;
 
 (function() {
 
@@ -889,6 +890,24 @@ var Cursor_set;
         Selection_set(node,offset,node,offset);
         if (!keepCursorX)
             cursorX = null;
+    });
+
+    Cursor_insertFootnote = trace(function _Cursor_insertFootnote() {
+        var footnote = DOM_createElement(document,"span");
+        DOM_setAttribute(footnote,"class","footnote");
+        DOM_appendChild(footnote,DOM_createTextNode(document,"Footnote content"));
+
+        var range = Selection_get();
+        Formatting_splitAroundSelection(range,false);
+        Range_expand(range);
+        Range_ensureInlineNodesInParagraph(range);
+        Range_ensureValidHierarchy(range);
+        Range_expand(range);
+
+        var pos = Position_preferElementPosition(range.start);
+
+        DOM_insertBefore(pos.node,footnote,pos.node.childNodes[pos.offset]);
+        Selection_set(footnote,0,footnote,footnote.childNodes.length);
     });
 
 })();
