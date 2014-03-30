@@ -23,6 +23,7 @@ var Cursor_setReferenceTarget;
 var Cursor_makeContainerInsertionPoint;
 var Cursor_set;
 var Cursor_insertFootnote;
+var Cursor_insertEndnote;
 
 (function() {
 
@@ -892,10 +893,10 @@ var Cursor_insertFootnote;
             cursorX = null;
     });
 
-    Cursor_insertFootnote = trace(function _Cursor_insertFootnote() {
+    var insertNote = trace(function _insertNote(className,content) {
         var footnote = DOM_createElement(document,"span");
-        DOM_setAttribute(footnote,"class","footnote");
-        DOM_appendChild(footnote,DOM_createTextNode(document,"Footnote content"));
+        DOM_setAttribute(footnote,"class",className);
+        DOM_appendChild(footnote,DOM_createTextNode(document,content));
 
         var range = Selection_get();
         Formatting_splitAroundSelection(range,false);
@@ -908,6 +909,14 @@ var Cursor_insertFootnote;
 
         DOM_insertBefore(pos.node,footnote,pos.node.childNodes[pos.offset]);
         Selection_set(footnote,0,footnote,footnote.childNodes.length);
+    });
+
+    Cursor_insertFootnote = trace(function _Cursor_insertFootnote(content) {
+        insertNote("footnote",content);
+    });
+
+    Cursor_insertEndnote = trace(function _Cursor_insertEndnote(content) {
+        insertNote("endnote",content);
     });
 
 })();
