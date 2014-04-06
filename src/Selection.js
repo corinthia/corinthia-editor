@@ -28,6 +28,7 @@ var Selection_preserveWhileExecuting;
 var Selection_posAtStartOfWord;
 var Selection_posAtEndOfWord;
 var Selection_preferElementPositions;
+var Selection_print;
 
 (function() {
 
@@ -1300,6 +1301,74 @@ var Selection_preferElementPositions;
                     return true;
             }
             return false;
+        }
+    });
+
+
+    Selection_print = trace(function _Selection_print()
+    {
+        debug("");
+        debug("");
+        debug("");
+        debug("================================================================================");
+
+        var sel = Selection_get();
+        if (sel == null) {
+            debug("No selection");
+            return;
+        }
+
+        printSelectionElement(document.body,"");
+
+        function printSelectionElement(node,indent)
+        {
+            var className = DOM_getAttribute(node,"class");
+            if (className != null)
+                debug(indent+node.nodeName+" ("+className+")");
+            else
+                debug(indent+node.nodeName);
+
+            var child = node.firstChild;
+            var offset = 0;
+            while (true) {
+
+                var isStart = ((sel.start.node == node) && (sel.start.offset == offset));
+                var isEnd = ((sel.end.node == node) && (sel.end.offset == offset));
+                if (isStart && isEnd)
+                    debug(indent+"    []");
+                else if (isStart)
+                    debug(indent+"    [");
+                else if (isEnd)
+                    debug(indent+"    ]");
+
+                if (child == null)
+                    break;
+
+                if (child.nodeType == Node.ELEMENT_NODE)
+                    printSelectionElement(child,indent+"    ");
+                else
+                    printSelectionText(child,indent+"    ");
+
+                child = child.nextSibling;
+                offset++;
+            }
+        }
+
+        function printSelectionText(node,indent)
+        {
+            var value = node.nodeValue;
+
+            if (sel.end.node == node) {
+                var afterSelection = value.substring(sel.end.offset);
+                value = value.substring(0,sel.end.offset) + "]" + afterSelection;
+            }
+
+            if (sel.start.node == node) {
+                var beforeSelection = value.substring(0,sel.start.offset);
+                value = beforeSelection + "[" + value.substring(sel.start.offset);
+            }
+
+            debug(indent+JSON.stringify(value));
         }
     });
 
