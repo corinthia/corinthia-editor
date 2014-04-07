@@ -213,6 +213,13 @@ function isSelectionHighlight(node)
             node.getAttribute("class") == Keys.SELECTION_CLASS);
 }
 
+function isSelectionSpan(node)
+{
+    return ((node != null) &&
+            (node._type == HTML_SPAN) &&
+            (DOM_getAttribute(node,"class") == Keys.SELECTION_CLASS));
+};
+
 function isTOCNode(node)
 {
     if (node._type == HTML_NAV) {
