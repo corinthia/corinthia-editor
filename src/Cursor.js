@@ -900,15 +900,12 @@ var Cursor_insertEndnote;
 
         var range = Selection_get();
         Formatting_splitAroundSelection(range,false);
-        Range_expand(range);
-        Range_ensureInlineNodesInParagraph(range);
-        Range_ensureValidHierarchy(range);
-        Range_expand(range);
 
         var pos = Position_preferElementPosition(range.start);
 
         DOM_insertBefore(pos.node,footnote,pos.node.childNodes[pos.offset]);
         Selection_set(footnote,0,footnote,footnote.childNodes.length);
+        Cursor_updateBRAtEndOfParagraph(footnote);
     });
 
     Cursor_insertFootnote = trace(function _Cursor_insertFootnote(content) {
