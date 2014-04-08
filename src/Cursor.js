@@ -893,12 +893,29 @@ var Cursor_insertEndnote;
             cursorX = null;
     });
 
+    var moveRangeOutsideOfNote = trace(function _moveRangeOutsideOfNote(range)
+    {
+        var node = range.start.node;
+        var offset = range.start.offset;
+
+        for (var anc = node; anc != null; anc = anc.parentNode) {
+            if (isNoteNode(anc) && (anc.parentNode != null)) {
+                node = anc.parentNode;
+                offset = DOM_nodeOffset(anc)+1;
+                return new Range(node,offset,node,offset);
+            }
+        }
+
+        return range;
+    });
+
     var insertNote = trace(function _insertNote(className,content) {
         var footnote = DOM_createElement(document,"span");
         DOM_setAttribute(footnote,"class",className);
         DOM_appendChild(footnote,DOM_createTextNode(document,content));
 
         var range = Selection_get();
+        range = moveRangeOutsideOfNote(range);
         Formatting_splitAroundSelection(range,false);
 
         var pos = Position_preferElementPosition(range.start);
