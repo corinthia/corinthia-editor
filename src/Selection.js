@@ -145,7 +145,7 @@ var Selection_print;
             x += window.scrollX;
             y += window.scrollY;
 
-            var div = DOM_createElement(document,"DIV");
+            var div = makeSelectionDiv();
             DOM_setAttribute(div,"class",Keys.SELECTION_HIGHLIGHT);
             DOM_setStyleProperties(div,{ "position": "absolute",
                                          "left": x+"px",
@@ -154,9 +154,8 @@ var Selection_print;
                                          "height": height+"px",
                                          "background-color": "rgb(201,221,238)",
                                          "z-index": -1 });
-            DOM_appendChild(document.body,div);
-            selectionDivs.push(div);
 
+            setTableEdges(x,y,width,height);
             setEditorHandles({ type: "table", x: x, y: y, width: width, height: height });
         });
 
@@ -164,6 +163,41 @@ var Selection_print;
                               selRange.end.node,selRange.end.offset);
 
         return true;
+    });
+
+    var makeSelectionDiv = trace(function _makeSelectionDiv()
+    {
+        var div = DOM_createElement(document,"DIV");
+        DOM_appendChild(document.body,div);
+        selectionDivs.push(div);
+        return div;
+    });
+
+    var setTableEdges = trace(function _setTableEdges(x,y,width,height)
+    {
+        var left = makeSelectionDiv();
+        var right = makeSelectionDiv();
+        var top = makeSelectionDiv();
+        var bottom = makeSelectionDiv();
+
+        var thick = 2;
+        width++;
+        height++;
+        setBoxCoords(left,x-thick,y-thick,thick,height+2*thick);
+        setBoxCoords(right,x+width,y-thick,thick,height+2*thick);
+        setBoxCoords(top,x-thick,y-thick,width+2*thick,thick);
+        setBoxCoords(bottom,x-thick,y+height,width+2*thick,thick);
+
+        function setBoxCoords(box,x,y,width,height)
+        {
+            DOM_setStyleProperties(box,{ "position": "absolute",
+                                         "left": x+"px",
+                                         "top": y+"px",
+                                         "width": width+"px",
+                                         "height": height+"px",
+                                         "background-color": "blue",
+                                         "z-index": 1 });
+        }
     });
 
     var editorHandles = { type: "none" };
