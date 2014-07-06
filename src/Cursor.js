@@ -29,7 +29,7 @@ var Cursor_insertEndnote;
 
     var cursorX = null;
 
-    Cursor_ensurePositionVisible = trace(function ensurePositionVisible(pos,center)
+    Cursor_ensurePositionVisible = function(pos,center)
     {
         // If we can't find the cursor rect for some reason, just don't do anything.
         // This is better than using an incorrect position or throwing an exception.
@@ -54,17 +54,17 @@ var Cursor_insertEndnote;
                 window.scrollTo(window.scrollX,cursorBottom - window.innerHeight);
             }
         }
-    });
+    }
 
     // public
-    Cursor_ensureCursorVisible = trace(function ensureCursorVisible(center)
+    Cursor_ensureCursorVisible = function(center)
     {
         var selRange = Selection_get();
         if (selRange != null)
             Cursor_ensurePositionVisible(selRange.end,center);
-    });
+    }
 
-    Cursor_scrollDocumentForY = trace(function scrollDocumentForY(y)
+    Cursor_scrollDocumentForY = function(y)
     {
         var absY = window.scrollY + y;
         if (absY-44 < window.scrollY) {
@@ -76,10 +76,10 @@ var Cursor_insertEndnote;
             y = absY - window.scrollY;
         }
         return y;
-    });
+    }
 
     // public
-    Cursor_positionCursor = trace(function positionCursor(x,y,wordBoundary)
+    Cursor_positionCursor = function(x,y,wordBoundary)
     {
         if (UndoManager_groupType() != "Cursor movement")
             UndoManager_newGroup("Cursor movement");
@@ -168,10 +168,10 @@ var Cursor_insertEndnote;
 
         Cursor_set(position.node,position.offset);
         return result;
-    });
+    }
 
     // public
-    Cursor_getCursorPosition = trace(function getCursorPosition()
+    Cursor_getCursorPosition = function()
     {
         var selRange = Selection_get();
         if (selRange == null)
@@ -187,10 +187,10 @@ var Cursor_insertEndnote;
         var top = rect.top + window.scrollY;
         var height = rect.height;
         return { x: left, y: top, width: 0, height: height };
-    });
+    }
 
     // public
-    Cursor_moveLeft = trace(function moveLeft()
+    Cursor_moveLeft = function()
     {
         var range = Selection_get();
         if (range == null)
@@ -200,10 +200,10 @@ var Cursor_insertEndnote;
         if (pos != null)
             Cursor_set(pos.node,pos.offset);
         Cursor_ensureCursorVisible();
-    });
+    }
 
     // public
-    Cursor_moveRight = trace(function moveRight()
+    Cursor_moveRight = function()
     {
         var range = Selection_get();
         if (range == null)
@@ -213,30 +213,30 @@ var Cursor_insertEndnote;
         if (pos != null)
             Cursor_set(pos.node,pos.offset);
         Cursor_ensureCursorVisible();
-    });
+    }
 
     // public
-    Cursor_moveToStartOfDocument = trace(function moveToStartOfDocument()
+    Cursor_moveToStartOfDocument = function()
     {
         var pos = new Position(document.body,0);
         pos = Position_closestMatchBackwards(pos,Position_okForMovement);
         Cursor_set(pos.node,pos.offset);
         Cursor_ensureCursorVisible();
-    });
+    }
 
     // public
-    Cursor_moveToEndOfDocument = trace(function moveToEndOfDocument()
+    Cursor_moveToEndOfDocument = function()
     {
         var pos = new Position(document.body,document.body.childNodes.length);
         pos = Position_closestMatchForwards(pos,Position_okForMovement);
         Cursor_set(pos.node,pos.offset);
         Cursor_ensureCursorVisible();
-    });
+    }
 
     // An empty paragraph does not get shown and cannot be edited. We can fix this by adding
     // a BR element as a child
     // public
-    Cursor_updateBRAtEndOfParagraph = trace(function updateBRAtEndOfParagraph(node)
+    Cursor_updateBRAtEndOfParagraph = function(node)
     {
         var paragraph = node;
         while ((paragraph != null) && !isParagraphNode(paragraph))
@@ -272,28 +272,28 @@ var Cursor_insertEndnote;
                 }
             }
         }
-    });
+    }
 
     // public
-    Cursor_insertReference = trace(function insertReference(itemId)
+    Cursor_insertReference = function(itemId)
     {
         var a = DOM_createElement(document,"A");
         DOM_setAttribute(a,"href","#"+itemId);
         Clipboard_pasteNodes([a]);
-    });
+    }
 
     // public
-    Cursor_insertLink = trace(function insertLink(text,url)
+    Cursor_insertLink = function(text,url)
     {
         var a = DOM_createElement(document,"A");
         DOM_setAttribute(a,"href",url);
         DOM_appendChild(a,DOM_createTextNode(document,text));
         Clipboard_pasteNodes([a]);
-    });
+    }
 
     var nbsp = String.fromCharCode(160);
 
-    var spaceToNbsp = trace(function spaceToNbsp(pos)
+    function spaceToNbsp(pos)
     {
         var node = pos.node;
         var offset = pos.offset;
@@ -304,9 +304,9 @@ var Cursor_insertEndnote;
             DOM_insertCharacters(node,offset-1,nbsp);
             DOM_deleteCharacters(node,offset,offset+1);
         }
-    });
+    }
 
-    var nbspToSpace = trace(function nbspToSpace(pos)
+    function nbspToSpace(pos)
     {
         var node = pos.node;
         var offset = pos.offset;
@@ -317,18 +317,18 @@ var Cursor_insertEndnote;
             DOM_insertCharacters(node,offset-1," ");
             DOM_deleteCharacters(node,offset,offset+1);
         }
-    });
+    }
 
-    var checkNbsp = trace(function insertFinished()
+    function checkNbsp()
     {
         Selection_preserveWhileExecuting(function() {
             var selRange = Selection_get();
             if (selRange != null)
                 nbspToSpace(selRange.end);
         });
-    });
+    }
 
-    var isPosAtStartOfParagraph = trace(function _isPosAtStartOfParagraph(pos)
+    function isPosAtStartOfParagraph(pos)
     {
         if ((pos.node.nodeType == Node.ELEMENT_NODE) && (pos.offset == 0) &&
             !isInlineNode(pos.node)) {
@@ -356,10 +356,10 @@ var Cursor_insertEndnote;
         }
 
         return false;
-    });
+    }
 
     // public
-    Cursor_insertCharacter = trace(function insertCharacter(str,allowInvalidPos,allowNoParagraph)
+    Cursor_insertCharacter = function(str,allowInvalidPos,allowNoParagraph)
     {
         var firstInsertion = (UndoManager_groupType() != "Insert text");
 
@@ -480,9 +480,9 @@ var Cursor_insertEndnote;
 
         Selection_update();
         Cursor_ensureCursorVisible();
-    });
+    }
 
-    var tryDeleteEmptyCaption = trace(function _tryDeleteEmptyCaption(pos)
+    function tryDeleteEmptyCaption(pos)
     {
         var caption = Position_captionAncestor(pos);
         if ((caption == null) || nodeHasContent(caption))
@@ -498,9 +498,9 @@ var Cursor_insertEndnote;
         });
 
         return true;
-    });
+    }
 
-    var tryDeleteEmptyNote = trace(function _tryDeleteEmptyNote(pos)
+    function tryDeleteEmptyNote(pos)
     {
         var note = Position_noteAncestor(pos);
         if ((note == null) || nodeHasContent(note))
@@ -513,10 +513,10 @@ var Cursor_insertEndnote;
         });
 
         return true;
-    });
+    }
 
     // public
-    Cursor_deleteCharacter = trace(function deleteCharacter()
+    Cursor_deleteCharacter = function()
     {
         if (UndoManager_groupType() != "Delete text")
             UndoManager_newGroup("Delete text",checkNbsp);
@@ -596,10 +596,10 @@ var Cursor_insertEndnote;
                 node = node.parentNode;
             return node;
         }
-    });
+    }
 
     // public
-    Cursor_enterPressed = trace(function enterPressed()
+    Cursor_enterPressed = function()
     {
         UndoManager_newGroup("New paragraph");
 
@@ -838,9 +838,9 @@ var Cursor_insertEndnote;
             else
                 return false;
         }
-    });
+    }
 
-    Cursor_getPrecedingWord = trace(function getPrecedingWord() {
+    Cursor_getPrecedingWord = function() {
         var selRange = Selection_get();
         if ((selRange == null) && !Range_isEmpty(selRange))
             return "";
@@ -851,9 +851,9 @@ var Cursor_insertEndnote;
             return "";
 
         return node.nodeValue.substring(0,offset);
-    });
+    }
 
-    Cursor_getAdjacentNodeWithType = trace(function getAdjacentNodeWithType(type)
+    Cursor_getAdjacentNodeWithType = function(type)
     {
         var selRange = Selection_get();
         var position = selRange.start;
@@ -866,9 +866,9 @@ var Cursor_insertEndnote;
             position = Position_prev(position);
         }
         return null;
-    });
+    }
 
-    Cursor_getLinkProperties = trace(function getLinkProperties()
+    Cursor_getLinkProperties = function()
     {
         var a = Cursor_getAdjacentNodeWithType(HTML_A);
         if (a == null)
@@ -876,9 +876,9 @@ var Cursor_insertEndnote;
 
         return { href: a.getAttribute("href"),
                  text: getNodeText(a) };
-    });
+    }
 
-    Cursor_setLinkProperties = trace(function setLinkProperties(properties)
+    Cursor_setLinkProperties = function(properties)
     {
         var a = Cursor_getAdjacentNodeWithType(HTML_A);
         if (a == null)
@@ -889,19 +889,19 @@ var Cursor_insertEndnote;
             DOM_deleteAllChildren(a);
             DOM_appendChild(a,DOM_createTextNode(document,properties.text));
         });
-    });
+    }
 
-    Cursor_setReferenceTarget = trace(function setReferenceTarget(itemId)
+    Cursor_setReferenceTarget = function(itemId)
     {
         var a = Cursor_getAdjacentNodeWithType(HTML_A);
         if (a != null)
             Outline_setReferenceTarget(a,itemId);
-    });
+    }
 
     // Deletes the current selection contents and ensures that the cursor is located directly
     // inside the nearest container element, i.e. not inside a paragraph or inline node. This
     // is intended for preventing things like inserting a table of contants inside a heading
-    Cursor_makeContainerInsertionPoint = trace(function makeContainerInsertionPoint()
+    Cursor_makeContainerInsertionPoint = function()
     {
         var selRange = Selection_get();
         if (selRange == null)
@@ -950,16 +950,16 @@ var Cursor_insertEndnote;
 
         Cursor_set(parent,offset);
         cursorX = null;
-    });
+    }
 
-    Cursor_set = trace(function set(node,offset,keepCursorX)
+    Cursor_set = function(node,offset,keepCursorX)
     {
         Selection_set(node,offset,node,offset);
         if (!keepCursorX)
             cursorX = null;
-    });
+    }
 
-    var moveRangeOutsideOfNote = trace(function _moveRangeOutsideOfNote(range)
+    function moveRangeOutsideOfNote(range)
     {
         var node = range.start.node;
         var offset = range.start.offset;
@@ -973,9 +973,10 @@ var Cursor_insertEndnote;
         }
 
         return range;
-    });
+    }
 
-    var insertNote = trace(function _insertNote(className,content) {
+    function insertNote(className,content)
+    {
         var footnote = DOM_createElement(document,"span");
         DOM_setAttribute(footnote,"class",className);
         DOM_appendChild(footnote,DOM_createTextNode(document,content));
@@ -1004,14 +1005,16 @@ var Cursor_insertEndnote;
         DOM_insertBefore(pos.node,footnote,pos.node.childNodes[pos.offset]);
         Selection_set(footnote,0,footnote,footnote.childNodes.length);
         Cursor_updateBRAtEndOfParagraph(footnote);
-    });
+    }
 
-    Cursor_insertFootnote = trace(function _Cursor_insertFootnote(content) {
+    Cursor_insertFootnote = function(content)
+    {
         insertNote("footnote",content);
-    });
+    }
 
-    Cursor_insertEndnote = trace(function _Cursor_insertEndnote(content) {
+    Cursor_insertEndnote = function(content)
+    {
         insertNote("endnote",content);
-    });
+    }
 
 })();

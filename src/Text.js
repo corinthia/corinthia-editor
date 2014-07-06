@@ -51,7 +51,7 @@ var Text_toEndOfBoundary;
     //
     // <p>...</p> Some <i>inline</i> nodes <p>...</p>
 
-    Text_findParagraphBoundaries = trace(function findParagraphBoundaries(pos)
+    Text_findParagraphBoundaries = function(pos)
     {
         Position_assertValid(pos);
         var startOffset = pos.offset;
@@ -73,9 +73,9 @@ var Text_toEndOfBoundary;
             endOffset++;
 
         return { node: node, startOffset: startOffset, endOffset: endOffset };
-    });
+    }
 
-    Text_analyseParagraph = trace(function analyseParagraph(pos)
+    Text_analyseParagraph = function(pos)
     {
         var initial = pos.node;
         var strings = new Array();
@@ -105,9 +105,9 @@ var Text_toEndOfBoundary;
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
         }
-    });
+    }
 
-    Text_posAbove = trace(function posAbove(pos,cursorRect,cursorX)
+    Text_posAbove = function(pos,cursorRect,cursorX)
     {
         if (cursorX == null)
             cursorX = pos.targetX;
@@ -176,9 +176,9 @@ var Text_toEndOfBoundary;
             pos = new Position(paragraph.node,paragraph.startOffset);
             pos = Position_prevMatch(pos,Position_okForMovement);
         }
-    });
+    }
 
-    var findHighestTop = trace(function findHighestTop(rects)
+    var findHighestTop = function(rects)
     {
         var top = null;
         for (var i = 0; i < rects.length; i++) {
@@ -186,9 +186,9 @@ var Text_toEndOfBoundary;
                 top = rects[i].top;
         }
         return top;
-    });
+    }
 
-    var findLowestBottom = trace(function findLowestBottom(rects)
+    var findLowestBottom = function(rects)
     {
         var bottom = null;
         for (var i = 0; i < rects.length; i++) {
@@ -196,9 +196,9 @@ var Text_toEndOfBoundary;
                 bottom = rects[i].bottom;
         }
         return bottom;
-    });
+    }
 
-    var findRightMostRect = trace(function findRightMost(rects)
+    var findRightMostRect = function(rects)
     {
         var rightMost = null;
         for (var i = 0; i < rects.length; i++) {
@@ -206,9 +206,9 @@ var Text_toEndOfBoundary;
                 rightMost = rects[i];
         }
         return rightMost;
-    });
+    }
 
-    var offsetRects = trace(function offsetRects(rects,offsetX,offsetY)
+    var offsetRects = function(rects,offsetX,offsetY)
     {
         var result = new Array();
         for (var i = 0; i < rects.length; i++) {
@@ -220,9 +220,9 @@ var Text_toEndOfBoundary;
                           height: rects[i].height });
         }
         return result;
-    });
+    }
 
-    Text_posBelow = trace(function posBelow(pos,cursorRect,cursorX)
+    Text_posBelow = function(pos,cursorRect,cursorX)
     {
         if (cursorX == null)
             cursorX = pos.targetX;
@@ -289,9 +289,9 @@ var Text_toEndOfBoundary;
             pos = new Position(paragraph.node,paragraph.endOffset);
             pos = Position_nextMatch(pos,Position_okForMovement);
         }
-    });
+    }
 
-    Text_closestPosBackwards = trace(function closestPosBackwards(pos)
+    Text_closestPosBackwards = function(pos)
     {
         if (isNonWhitespaceTextNode(pos.node))
             return pos;
@@ -311,9 +311,9 @@ var Text_toEndOfBoundary;
             return null;
         else
             return new Position(node,node.nodeValue.length);
-    });
+    }
 
-    Text_closestPosForwards = trace(function closestPosForwards(pos)
+    Text_closestPosForwards = function(pos)
     {
         if (isNonWhitespaceTextNode(pos.node))
             return pos;
@@ -335,9 +335,9 @@ var Text_toEndOfBoundary;
             return null;
         else
             return new Position(node,0);
-    });
+    }
 
-    Text_closestPosInDirection = trace(function closestPosInDirection(pos,direction)
+    Text_closestPosInDirection = function(pos,direction)
     {
         if ((direction == "forward") ||
             (direction == "right") ||
@@ -347,9 +347,9 @@ var Text_toEndOfBoundary;
         else {
             return Text_closestPosBackwards(pos);
         }
-    });
+    }
 
-    Paragraph_runFromOffset = trace(function runFromOffset(paragraph,offset,end)
+    Paragraph_runFromOffset = function(paragraph,offset,end)
     {
         if (paragraph.runs.length == 0)
             throw new Error("Paragraph has no runs");
@@ -375,32 +375,32 @@ var Text_toEndOfBoundary;
             }
 
         }
-    });
+    }
 
-    Paragraph_runFromNode = trace(function runFromNode(paragraph,node)
+    Paragraph_runFromNode = function(paragraph,node)
     {
         for (var i = 0; i < paragraph.runs.length; i++) {
             if (paragraph.runs[i].node == node)
                 return paragraph.runs[i];
         }
         throw new Error("Run for text node not found");
-    });
+    }
 
-    Paragraph_positionAtOffset = trace(function positionAtOffset(paragraph,offset,end)
+    Paragraph_positionAtOffset = function(paragraph,offset,end)
     {
         var run = Paragraph_runFromOffset(paragraph,offset,end);
         if (run == null)
             throw new Error("Run at offset "+offset+" not found");
         return new Position(run.node,offset-run.start);
-    });
+    }
 
-    Paragraph_offsetAtPosition = trace(function offsetAtPosition(paragraph,pos)
+    Paragraph_offsetAtPosition = function(paragraph,pos)
     {
         var run = Paragraph_runFromNode(paragraph,pos.node);
         return run.start + pos.offset;
-    });
+    }
 
-    Paragraph_getRunRects = trace(function getRunRects(paragraph)
+    Paragraph_getRunRects = function(paragraph)
     {
         var rects = new Array();
         for (var i = 0; i < paragraph.runs.length; i++) {
@@ -410,9 +410,9 @@ var Text_toEndOfBoundary;
             Array.prototype.push.apply(rects,runRects);
         }
         return rects;
-    });
+    }
 
-    Paragraph_getRunOrFallbackRects = trace(function getRunOrFallbackRects(paragraph,pos)
+    Paragraph_getRunOrFallbackRects = function(paragraph,pos)
     {
         var rects = Paragraph_getRunRects(paragraph);
         if ((rects.length == 0) && (paragraph.node.nodeType == Node.ELEMENT_NODE)) {
@@ -433,9 +433,9 @@ var Text_toEndOfBoundary;
             }
         }
         return rects;
-    });
+    }
 
-    var toStartOfParagraph = trace(function posAtStartOfParagraph(pos)
+    function toStartOfParagraph(pos)
     {
         pos = Position_closestMatchBackwards(pos,Position_okForMovement);
         if (pos == null)
@@ -446,9 +446,9 @@ var Text_toEndOfBoundary;
 
         var newPos = new Position(paragraph.node,paragraph.startOffset);
         return Position_closestMatchForwards(newPos,Position_okForMovement);
-    });
+    }
 
-    var toEndOfParagraph = trace(function posAtEndOfParagraph(pos)
+    function toEndOfParagraph(pos)
     {
         pos = Position_closestMatchForwards(pos,Position_okForMovement);
         if (pos == null)
@@ -459,9 +459,9 @@ var Text_toEndOfBoundary;
 
         var newPos = new Position(paragraph.node,paragraph.endOffset);
         return Position_closestMatchBackwards(newPos,Position_okForMovement);
-    });
+    }
 
-    var toStartOfLine = trace(function toStartOfLine(pos)
+    function toStartOfLine(pos)
     {
         var posRect = Position_rectAtPos(pos);
         if (posRect == null) {
@@ -481,9 +481,9 @@ var Text_toEndOfBoundary;
                 return pos;
             pos = check;
         }
-    });
+    }
 
-    var toEndOfLine = trace(function toEndOfLine(pos)
+    function toEndOfLine(pos)
     {
         var posRect = Position_rectAtPos(pos);
         if (posRect == null) {
@@ -503,9 +503,9 @@ var Text_toEndOfBoundary;
                 return pos;
             pos = check;
         }
-    });
+    }
 
-    Text_toStartOfBoundary = trace(function toStartOfBoundary(pos,boundary)
+    Text_toStartOfBoundary = function(pos,boundary)
     {
         if (boundary == "paragraph")
             return toStartOfParagraph(pos);
@@ -513,9 +513,9 @@ var Text_toEndOfBoundary;
             return toStartOfLine(pos);
         else
             throw new Error("Unsupported boundary: "+boundary);
-    });
+    }
 
-    Text_toEndOfBoundary = trace(function toEndOfBoundary(pos,boundary)
+    Text_toEndOfBoundary = function(pos,boundary)
     {
         if (boundary == "paragraph")
             return toEndOfParagraph(pos);
@@ -523,6 +523,6 @@ var Text_toEndOfBoundary;
             return toEndOfLine(pos);
         else
             throw new Error("Unsupported boundary: "+boundary);
-    });
+    }
 
 })();

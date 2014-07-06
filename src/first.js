@@ -2,8 +2,6 @@
 // If you're successfully able to decipher all this and figure out what it
 // does, please send a copy of your resume to peter@uxproductivity.com.
 
-var trace;
-
 // FIXME: The _PREFIX variables below must be replaced with functions that return the
 // appropriate namespace prefix for the document in question (since we can't rely on the
 // values that LibreOffice/MS Word happen to use by default)
@@ -32,77 +30,3 @@ var XLINK_PREFIX = "xlink:";
 
 var WORD_NAMESPACE = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 var WORD_PREFIX = "w:";
-
-(function() {
-
-    function valueString(arg)
-    {
-        try {
-            if (arg == null) {
-                return "null";
-            }
-            else if (typeof(arg) == "object") {
-                if (arg instanceof Node) {
-                    return "[node "+arg.nodeName+"]";
-                }
-                else {
-                    var str = arg.toString();
-                    return "[object "+arg.constructor.name+"]";
-                }
-            }
-            else if (typeof(arg) == "string") {
-                return JSON.stringify(arg);
-            }
-            else if (typeof(arg) == "function") {
-                if (arg.name)
-                    return "<function "+arg.name+">";
-                else
-                    return "<anonymous function>";
-            }
-            else {
-                return arg;
-            }
-        }
-        catch (e) {
-            return "?"; // in case object or array element's toString() fails
-        }
-    }
-
-    function stackEntryString(fun,args,thisObject)
-    {
-        var components = new Array();
-        if ((thisObject != null) && (thisObject.constructor.name != null)) {
-            components.push(thisObject.constructor.name+".");
-        }
-        components.push(fun.name+"(");
-        for (var argno = 0; argno < args.length; argno++) {
-            var arg = args[argno];
-            if (argno > 0)
-                components.push(",");
-            components.push(valueString(arg));
-        }
-        components.push("): this = "+valueString(thisObject));
-        return components.join("");
-    }
-
-    trace = function(fun)
-    {
-        var result = function() {
-            try {
-                return fun.apply(this,arguments);
-            }
-            catch (e) {
-                var error = e;
-                if (!error.custom) {
-                    error = new Error(e.toString()+"\n");
-                    error.custom = true;
-                }
-                error.message += stackEntryString(fun,arguments,this)+"\n";
-                throw error;
-            }
-        }
-        result.wrappedName = fun.name;
-        return result;
-    }
-
-})();

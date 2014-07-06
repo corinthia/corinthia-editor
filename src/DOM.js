@@ -32,7 +32,6 @@ var DOM_getStringAttributeNS;
 var DOM_getStyleProperties;
 var DOM_deleteAllChildren;
 var DOM_shallowCopyElement;
-var DOM_removeNodeButKeepChildren;
 var DOM_replaceElement;
 var DOM_wrapNode;
 var DOM_wrapSiblings;
@@ -86,7 +85,7 @@ var DOM_Listener;
     }
 
     // public
-    function assignNodeIds(root)
+    DOM_assignNodeIds = function(root)
     {
         if (root._nodeId != null)
             throw new Error(root+" already has id");
@@ -165,31 +164,31 @@ var DOM_Listener;
       */
 
     // public
-    function createElement(document,elementName)
+    DOM_createElement = function(document,elementName)
     {
         return assignNodeId(document.createElement(elementName)); // check-ok
     }
 
     // public
-    function createElementNS(document,namespaceURI,qualifiedName)
+    DOM_createElementNS = function(document,namespaceURI,qualifiedName)
     {
         return assignNodeId(document.createElementNS(namespaceURI,qualifiedName)); // check-ok
     }
 
     // public
-    function createTextNode(document,data)
+    DOM_createTextNode = function(document,data)
     {
         return assignNodeId(document.createTextNode(data)); // check-ok
     }
 
     // public
-    function createComment(document,data)
+    DOM_createComment = function(document,data)
     {
         return assignNodeId(document.createComment(data)); // check-ok
     }
 
     // public
-    function cloneNode(original,deep,noIdAttr)
+    DOM_cloneNode = function(original,deep,noIdAttr)
     {
         var clone = original.cloneNode(deep); // check-ok
         DOM_assignNodeIds(clone);
@@ -247,12 +246,12 @@ var DOM_Listener;
     }
 
     // public
-    function setAttribute(element,name,value)
+    DOM_setAttribute = function(element,name,value)
     {
         if (element.hasAttribute(name))
-            addUndoAction(setAttribute,element,name,element.getAttribute(name));
+            addUndoAction(DOM_setAttribute,element,name,element.getAttribute(name));
         else
-            addUndoAction(setAttribute,element,name,null);
+            addUndoAction(DOM_setAttribute,element,name,null);
 
         if (value == null)
             element.removeAttribute(name); // check-ok
@@ -261,16 +260,16 @@ var DOM_Listener;
     }
 
     // public
-    function setAttributeNS(element,namespaceURI,qualifiedName,value)
+    DOM_setAttributeNS = function(element,namespaceURI,qualifiedName,value)
     {
         var localName = qualifiedName.replace(/^.*:/,"");
         if (element.hasAttributeNS(namespaceURI,localName)) {
             var oldValue = element.getAttributeNS(namespaceURI,localName);
             var oldQName = element.getAttributeNodeNS(namespaceURI,localName).nodeName; // check-ok
-            addUndoAction(setAttributeNS,element,namespaceURI,oldQName,oldValue)
+            addUndoAction(DOM_setAttributeNS,element,namespaceURI,oldQName,oldValue)
         }
         else {
-            addUndoAction(setAttributeNS,element,namespaceURI,localName,null);
+            addUndoAction(DOM_setAttributeNS,element,namespaceURI,localName,null);
         }
 
         if (value == null)
@@ -280,7 +279,7 @@ var DOM_Listener;
     }
 
     // public
-    function setStyleProperties(element,properties)
+    DOM_setStyleProperties = function(element,properties)
     {
         if (Object.getOwnPropertyNames(properties).length == 0)
             return;
@@ -298,7 +297,7 @@ var DOM_Listener;
     }
 
     // public
-    function insertCharacters(textNode,offset,characters)
+    DOM_insertCharacters = function(textNode,offset,characters)
     {
         if (textNode.nodeType != Node.TEXT_NODE)
             throw new Error("DOM_insertCharacters called on non-text node");
@@ -313,11 +312,11 @@ var DOM_Listener;
                              textNode.nodeValue.slice(offset);
         var startOffset = offset;
         var endOffset = offset + characters.length;
-        addUndoAction(deleteCharacters,textNode,startOffset,endOffset);
+        addUndoAction(DOM_deleteCharacters,textNode,startOffset,endOffset);
     }
 
     // public
-    function deleteCharacters(textNode,startOffset,endOffset)
+    DOM_deleteCharacters = function(textNode,startOffset,endOffset)
     {
         if (textNode.nodeType != Node.TEXT_NODE)
             throw new Error("DOM_deleteCharacters called on non-text node "+nodeString(textNode));
@@ -334,15 +333,15 @@ var DOM_Listener;
         });
 
         var removed = textNode.nodeValue.slice(startOffset,endOffset);
-        addUndoAction(insertCharacters,textNode,startOffset,removed);
+        addUndoAction(DOM_insertCharacters,textNode,startOffset,removed);
 
         textNode.nodeValue = textNode.nodeValue.slice(0,startOffset) +
                              textNode.nodeValue.slice(endOffset);
     }
 
     // public
-    function moveCharacters(srcTextNode,srcStartOffset,srcEndOffset,destTextNode,destOffset,
-                            excludeStartPos,excludeEndPos)
+    DOM_moveCharacters = function(srcTextNode,srcStartOffset,srcEndOffset,destTextNode,destOffset,
+                                  excludeStartPos,excludeEndPos)
     {
         if (srcTextNode == destTextNode)
             throw new Error("src and dest text nodes cannot be the same");
@@ -359,7 +358,7 @@ var DOM_Listener;
 
         var length = srcEndOffset - srcStartOffset;
 
-        addUndoAction(moveCharacters,destTextNode,destOffset,destOffset+length,
+        addUndoAction(DOM_moveCharacters,destTextNode,destOffset,destOffset+length,
                       srcTextNode,srcStartOffset,excludeStartPos,excludeEndPos);
 
         trackedPositionsForNode(destTextNode).forEach(function (pos) {
@@ -392,7 +391,7 @@ var DOM_Listener;
     }
 
     // public
-    function setNodeValue(textNode,value)
+    DOM_setNodeValue = function(textNode,value)
     {
         if (textNode.nodeType != Node.TEXT_NODE)
             throw new Error("DOM_setNodeValue called on non-text node");
@@ -400,7 +399,7 @@ var DOM_Listener;
             position.offset = 0;
         });
         var oldValue = textNode.nodeValue;
-        addUndoAction(setNodeValue,textNode,oldValue);
+        addUndoAction(DOM_setNodeValue,textNode,oldValue);
         textNode.nodeValue = value;
     }
 
@@ -416,13 +415,13 @@ var DOM_Listener;
     }
 
     // public
-    function appendChild(node,child)
+    DOM_appendChild = function(node,child)
     {
         return DOM_insertBefore(node,child,null);
     }
 
     // public
-    function insertBefore(parent,child,nextSibling)
+    DOM_insertBefore = function(parent,child,nextSibling)
     {
         var newOffset;
         if (nextSibling != null)
@@ -457,7 +456,7 @@ var DOM_Listener;
     }
 
     // public
-    function deleteNode(node)
+    DOM_deleteNode = function(node)
     {
         if (node.parentNode == null) // already deleted
             return;
@@ -484,19 +483,19 @@ var DOM_Listener;
     }
 
     // public
-    function removeAttribute(element,name,value)
+    DOM_removeAttribute = function(element,name,value)
     {
         DOM_setAttribute(element,name,null);
     }
 
     // public
-    function removeAttributeNS(element,namespaceURI,localName)
+    DOM_removeAttributeNS = function(element,namespaceURI,localName)
     {
         DOM_setAttributeNS(element,namespaceURI,localName,null)
     }
 
     // public
-    function getAttribute(element,name)
+    DOM_getAttribute = function(element,name)
     {
         if (element.hasAttribute(name))
             return element.getAttribute(name);
@@ -505,7 +504,7 @@ var DOM_Listener;
     }
 
     // public
-    function getAttributeNS(element,namespaceURI,localName)
+    DOM_getAttributeNS = function(element,namespaceURI,localName)
     {
         if (element.hasAttributeNS(namespaceURI,localName))
             return element.getAttributeNS(namespaceURI,localName);
@@ -514,21 +513,21 @@ var DOM_Listener;
     }
 
     // public
-    function getStringAttribute(element,name)
+    DOM_getStringAttribute = function(element,name)
     {
         var value = element.getAttribute(name);
         return (value == null) ? "" : value;
     }
 
     // public
-    function getStringAttributeNS(element,namespaceURI,localName)
+    DOM_getStringAttributeNS = function(element,namespaceURI,localName)
     {
         var value = element.getAttributeNS(namespaceURI,localName);
         return (value == null) ? "" : value;
     }
 
     // public
-    function getStyleProperties(node)
+    DOM_getStyleProperties = function(node)
     {
         var properties = new Object();
         if (node.nodeType == Node.ELEMENT_NODE) {
@@ -542,20 +541,20 @@ var DOM_Listener;
     }
 
     // public
-    function deleteAllChildren(parent)
+    DOM_deleteAllChildren = function(parent)
     {
         while (parent.firstChild != null)
             DOM_deleteNode(parent.firstChild);
     }
 
     // public
-    function shallowCopyElement(element)
+    DOM_shallowCopyElement = function(element)
     {
         return DOM_cloneNode(element,false,true);
     }
 
     // public
-    function removeNodeButKeepChildren(node)
+    DOM_removeNodeButKeepChildren = function(node)
     {
         if (node.parentNode == null)
             throw new Error("Node "+nodeString(node)+" has no parent");
@@ -583,7 +582,7 @@ var DOM_Listener;
     }
 
     // public
-    function replaceElement(oldElement,newName)
+    DOM_replaceElement = function(oldElement,newName)
     {
         var listeners = listenersForNode(oldElement);
         var newElement = DOM_createElement(document,newName);
@@ -619,12 +618,12 @@ var DOM_Listener;
     }
 
     // public
-    function wrapNode(node,elementName)
+    DOM_wrapNode = function(node,elementName)
     {
         return DOM_wrapSiblings(node,node,elementName);
     }
 
-    function wrapSiblings(first,last,elementName)
+    DOM_wrapSiblings = function(first,last,elementName)
     {
         var parent = first.parentNode;
         var wrapper = DOM_createElement(document,elementName);
@@ -660,7 +659,7 @@ var DOM_Listener;
     }
 
     // public
-    function mergeWithNextSibling(current,whiteList)
+    DOM_mergeWithNextSibling = function(current,whiteList)
     {
         var parent = current.parentNode;
         var next = current.nextSibling;
@@ -701,7 +700,7 @@ var DOM_Listener;
     }
 
     // public
-    function nodesMergeableTypes(a,b,whiteList)
+    DOM_nodesMergeable = function(a,b,whiteList)
     {
         if ((a.nodeType == Node.TEXT_NODE) && (b.nodeType == Node.TEXT_NODE))
             return true;
@@ -764,7 +763,7 @@ var DOM_Listener;
     }
 
     // public
-    function replaceCharacters(textNode,startOffset,endOffset,replacement)
+    DOM_replaceCharacters = function(textNode,startOffset,endOffset,replacement)
     {
         // Note that we do the insertion *before* the deletion so that the position is properly
         // maintained, and ends up at the end of the replacement (unless it was previously at
@@ -774,7 +773,7 @@ var DOM_Listener;
     }
 
     // public
-    function addTrackedPosition(position)
+    DOM_addTrackedPosition = function(position)
     {
         var data = getDataForNode(position.node,true);
         if (data.trackedPositions == null)
@@ -783,7 +782,7 @@ var DOM_Listener;
     }
 
     // public
-    function removeTrackedPosition(position)
+    DOM_removeTrackedPosition = function(position)
     {
         var data = getDataForNode(position.node,false);
         if ((data == null) || (data.trackedPositions == null))
@@ -800,7 +799,7 @@ var DOM_Listener;
     }
 
     // public
-    function removeAdjacentWhitespace(node)
+    DOM_removeAdjacentWhitespace = function(node)
     {
         while ((node.previousSibling != null) && (isWhitespaceTextNode(node.previousSibling)))
             DOM_deleteNode(node.previousSibling);
@@ -809,7 +808,7 @@ var DOM_Listener;
     }
 
     // public
-    function documentHead(document)
+    DOM_documentHead = function(document)
     {
         var html = document.documentElement;
         for (var child = html.firstChild; child != null; child = child.nextSibling) {
@@ -820,7 +819,7 @@ var DOM_Listener;
     }
 
     // public
-    function ensureUniqueIds(root)
+    DOM_ensureUniqueIds = function(root)
     {
         var ids = new Object();
         var duplicates = new Array();
@@ -868,7 +867,7 @@ var DOM_Listener;
     }
 
     // public
-    function nodeOffset(node,parent)
+    DOM_nodeOffset = function(node,parent)
     {
         if ((node == null) && (parent != null))
             return DOM_maxChildOffset(parent);
@@ -879,7 +878,7 @@ var DOM_Listener;
     }
 
     // public
-    function maxChildOffset(node)
+    DOM_maxChildOffset = function(node)
     {
         if (node.nodeType == Node.TEXT_NODE)
             return node.nodeValue.length;
@@ -904,7 +903,7 @@ var DOM_Listener;
     }
 
     // public
-    function ignoreMutationsWhileExecuting(fun)
+    DOM_ignoreMutationsWhileExecuting = function(fun)
     {
         incIgnoreMutations();
         try {
@@ -916,13 +915,13 @@ var DOM_Listener;
     }
 
     // public
-    function getIgnoreMutations()
+    DOM_getIgnoreMutations = function()
     {
         return ignoreMutations;
     }
 
     // public
-    function addListener(node,listener)
+    DOM_addListener = function(node,listener)
     {
         var data = getDataForNode(node,true);
         if (data.listeners == null)
@@ -932,7 +931,7 @@ var DOM_Listener;
     }
 
     // public
-    function removeListener(node,listener)
+    DOM_removeListener = function(node,listener)
     {
         var list = listenersForNode(node);
         var index = list.indexOf(listener);
@@ -947,56 +946,6 @@ var DOM_Listener;
 
     Listener.prototype.afterReplaceElement = function(oldElement,newElement) {}
 
-    // Helper functions
-    DOM_assignNodeIds = trace(assignNodeIds);
-
-    // Primitive node creation operations
-    DOM_createElement = trace(createElement);
-    DOM_createElementNS = trace(createElementNS);
-    DOM_createTextNode = trace(createTextNode);
-    DOM_createComment = trace(createComment);
-    DOM_cloneNode = trace(cloneNode);
-
-    // Primitive and high-level node mutation operations
-    DOM_appendChild = trace(appendChild);
-    DOM_insertBefore = trace(insertBefore);
-    DOM_deleteNode = trace(deleteNode);
-    DOM_setAttribute = trace(setAttribute);
-    DOM_setAttributeNS = trace(setAttributeNS);
-    DOM_removeAttribute = trace(removeAttribute);
-    DOM_removeAttributeNS = trace(removeAttributeNS);
-    DOM_setStyleProperties = trace(setStyleProperties);
-    DOM_insertCharacters = trace(insertCharacters);
-    DOM_moveCharacters = moveCharacters;
-    DOM_deleteCharacters = trace(deleteCharacters);
-    DOM_setNodeValue = trace(setNodeValue);
-
-    // High-level DOM operations
-    DOM_getAttribute = trace(getAttribute);
-    DOM_getAttributeNS = trace(getAttributeNS);
-    DOM_getStringAttribute = trace(getStringAttribute);
-    DOM_getStringAttributeNS = trace(getStringAttributeNS);
-    DOM_getStyleProperties = trace(getStyleProperties);
-    DOM_deleteAllChildren = trace(deleteAllChildren);
-    DOM_shallowCopyElement = trace(shallowCopyElement);
-    DOM_removeNodeButKeepChildren = trace(removeNodeButKeepChildren);
-    DOM_replaceElement = trace(replaceElement);
-    DOM_wrapNode = trace(wrapNode);
-    DOM_wrapSiblings = trace(wrapSiblings);
-    DOM_mergeWithNextSibling = trace(mergeWithNextSibling);
-    DOM_nodesMergeable = trace(nodesMergeableTypes);
-    DOM_replaceCharacters = trace(replaceCharacters);
-    DOM_addTrackedPosition = trace(addTrackedPosition);
-    DOM_removeTrackedPosition = trace(removeTrackedPosition);
-    DOM_removeAdjacentWhitespace = trace(removeAdjacentWhitespace);
-    DOM_documentHead = trace(documentHead);
-    DOM_ensureUniqueIds = trace(ensureUniqueIds);
-    DOM_nodeOffset = trace(nodeOffset);
-    DOM_maxChildOffset = trace(maxChildOffset);
-    DOM_ignoreMutationsWhileExecuting = trace(ignoreMutationsWhileExecuting);
-    DOM_getIgnoreMutations = trace(getIgnoreMutations);
-    DOM_addListener = trace(addListener);
-    DOM_removeListener = trace(removeListener);
     DOM_Listener = Listener;
 
 })();

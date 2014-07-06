@@ -27,7 +27,7 @@ var Range_getText;
         this.end = new Position(endNode,endOffset);
     }
 
-    Range_assertValid = trace(function _Range_assertValid(range,description)
+    Range_assertValid = function(range,description)
     {
         if (description == null)
             description = "Range";
@@ -35,28 +35,28 @@ var Range_getText;
             throw new Error(description+" is null");
         Position_assertValid(range.start,description+" start");
         Position_assertValid(range.end,description+" end");
-    });
+    }
 
-    Range_isEmpty = trace(function isEmpty(range)
+    Range_isEmpty = function(range)
     {
         return ((range.start.node == range.end.node) &&
                 (range.start.offset == range.end.offset));
-    });
+    }
 
     Range.prototype.toString = function()
     {
         return this.start.toString() + " - " + this.end.toString();
     }
 
-    Range_trackWhileExecuting = trace(function trackWhileExecuting(range,fun)
+    Range_trackWhileExecuting = function(range,fun)
     {
         if (range == null)
             return fun();
         else
             return Position_trackWhileExecuting([range.start,range.end],fun);
-    });
+    }
 
-    Range_expand = trace(function expand(range)
+    Range_expand = function(range)
     {
         var doc = range.start.node.ownerDocument;
         while ((range.start.offset == 0) && (range.start.node != doc.body)) {
@@ -71,14 +71,14 @@ var Range_getText;
             range.end.node = range.end.node.parentNode;
             range.end.offset = offset+1;
         }
-    });
+    }
 
-    Range_isForwards = trace(function isForwards(range)
+    Range_isForwards = function(range)
     {
         return (Position_compare(range.start,range.end) <= 0);
-    });
+    }
 
-    Range_getAllNodes = trace(function getAllNodes(range,atLeastOne)
+    Range_getAllNodes = function(range,atLeastOne)
     {
         var result = new Array();
         var outermost = Range_getOutermostNodes(range,atLeastOne);
@@ -92,32 +92,32 @@ var Range_getText;
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 addRecursive(child);
         }
-    });
+    }
 
-    Range_singleNode = trace(function singleNode(range)
+    Range_singleNode = function(range)
     {
         return Position_closestActualNode(range.start,true);
-    });
+    }
 
-    Range_ensureInlineNodesInParagraph = trace(function ensureInlineNodesInParagraph(range)
+    Range_ensureInlineNodesInParagraph = function(range)
     {
         Range_trackWhileExecuting(range,function() {
             var nodes = Range_getAllNodes(range,true);
             for (var i = 0; i < nodes.length; i++)
                 Hierarchy_ensureInlineNodesInParagraph(nodes[i]);
         });
-    });
+    }
 
-    Range_ensureValidHierarchy = trace(function ensureValidHierarchy(range,allowDirectInline)
+    Range_ensureValidHierarchy = function(range,allowDirectInline)
     {
         Range_trackWhileExecuting(range,function() {
             var nodes = Range_getAllNodes(range,true);
             for (var i = nodes.length-1; i >= 0; i--)
                 Hierarchy_ensureValidHierarchy(nodes[i],true,allowDirectInline);
         });
-    });
+    }
 
-    Range_forwards = trace(function forwards(range)
+    Range_forwards = function(range)
     {
         if (Range_isForwards(range)) {
             return range;
@@ -129,9 +129,9 @@ var Range_getText;
                 throw new Error("Both range "+range+" and its reverse are not forwards");
             return reverse;
         }
-    });
+    }
 
-    Range_detail = trace(function detail(range)
+    Range_detail = function(range)
     {
         if (!Range_isForwards(range)) {
             var reverse = new Range(range.end.node,range.end.offset,
@@ -190,9 +190,9 @@ var Range_getText;
             startP = startP.parentNode;
         }
         throw new Error("Start and end of range have no common ancestor");
-    });
+    }
 
-    Range_getOutermostNodes = trace(function getOutermostNodes(range,atLeastOne,info)
+    Range_getOutermostNodes = function(range,atLeastOne,info)
     {
         var beforeNodes = new Array();
         var middleNodes = new Array();
@@ -305,9 +305,9 @@ var Range_getText;
             return ((descendantParent == ancestorParent) &&
                     (descendantChild == ancestorChild));
         }
-    });
+    }
 
-    Range_getClientRects = trace(function getClientRects(range)
+    Range_getClientRects = function(range)
     {
         var nodes = Range_getOutermostNodes(range,true);
 
@@ -349,9 +349,9 @@ var Range_getText;
             }
         }
         return result;
-    });
+    }
 
-    Range_cloneContents = trace(function cloneContents(range)
+    Range_cloneContents = function(range)
     {
         var nodeSet = new NodeSet();
         var ancestorSet = new NodeSet();
@@ -427,9 +427,9 @@ var Range_getText;
             }
             return clone;
         }
-    });
+    }
 
-    Range_hasContent = trace(function hasContent(range)
+    Range_hasContent = function(range)
     {
         var outermost = Range_getOutermostNodes(range);
         for (var i = 0; i < outermost.length; i++) {
@@ -459,9 +459,9 @@ var Range_getText;
             }
         }
         return false;
-    });
+    }
 
-    Range_getText = trace(function getText(range)
+    Range_getText = function(range)
     {
         range = Range_forwards(range);
 
@@ -546,6 +546,6 @@ var Range_getText;
             if (isParagraphNode(n))
                 significantParagraph = false;
         }
-    });
+    }
 
 })();

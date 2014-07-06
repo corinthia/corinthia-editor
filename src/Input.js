@@ -54,7 +54,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     var firstDynamicPosId = 5;
     var nextPosId = firstDynamicPosId;
 
-    var addPosition = trace(function addPosition(pos)
+    function addPosition(pos)
     {
         if (pos == null)
             return 0;
@@ -65,11 +65,11 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         positions[pos.posId] = pos;
         Position_track(pos);
         return pos.posId;
-    });
+    }
 
     Input_addPosition = addPosition;
 
-    var getPosition = trace(function getPosition(posId)
+    function getPosition(posId)
     {
         if (posId instanceof Position) // for tests
             return posId;
@@ -103,12 +103,12 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         if (positions[posId] == null)
             throw new Error("No position for pos id "+posId);
         return positions[posId];
-    });
+    }
 
     Input_getPosition = getPosition;
 
     // void
-    Input_removePosition = trace(function removePosition(posId)
+    Input_removePosition = function(posId)
     {
         //idebug("Input_removePosition("+posId+")");
         var pos = positions[posId];
@@ -117,10 +117,10 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         }
         Position_untrack(pos);
         delete positions[posId];
-    });
+    }
 
     // string
-    Input_textInRange = trace(function textInRange(startId,startAdjust,endId,endAdjust)
+    Input_textInRange = function(startId,startAdjust,endId,endAdjust)
     {
         var start = getPosition(startId);
         var end = getPosition(endId);
@@ -134,10 +134,10 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         //idebug("Input_textInRange("+startId+","+startAdjust+","+endId+","+endAdjust+") = "+
         //       JSON.stringify(result));
         return result;
-    });
+    }
 
     // void
-    Input_replaceRange = trace(function replaceRange(startId,endId,text)
+    Input_replaceRange = function(startId,endId,text)
     {
         //idebug("Input_replaceRange("+startId+","+endId+","+JSON.stringify(text)+")");
         var start = getPosition(startId);
@@ -164,11 +164,10 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
             DOM_insertBefore(node,textNode,node.childNodes[offset]);
             Cursor_set(node,offset+1);
         }
-
-    });
+    }
 
     // { startId, endId }
-    Input_selectedTextRange = trace(function selectedTextRange()
+    Input_selectedTextRange = function()
     {
         var range = Selection_get();
         if (range == null) {
@@ -182,10 +181,10 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
             return { startId: startId,
                      endId: endId };
         }
-    });
+    }
 
     // void
-    Input_setSelectedTextRange = trace(function setSelectedTextRange(startId,endId)
+    Input_setSelectedTextRange = function(startId,endId)
     {
         //idebug("Input_setSelectedTextRange("+startId+","+endId+")");
         var start = getPosition(startId);
@@ -208,17 +207,17 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
             Cursor_ensurePositionVisible(end);
         else if (Position_equal(oldEnd,end) && !Position_equal(oldStart,start))
             Cursor_ensurePositionVisible(start);
-    });
+    }
 
     // { startId, endId }
-    Input_markedTextRange = trace(function markedTextRange()
+    Input_markedTextRange = function()
     {
         //idebug("Input_markedTextRange");
         return null;
-    });
+    }
 
     // void
-    Input_setMarkedText = trace(function setMarkedText(text,startOffset,endOffset)
+    Input_setMarkedText = function(text,startOffset,endOffset)
     {
         Selection_deleteContents(true);
         var oldSel = Selection_get();
@@ -229,31 +228,31 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
 
         Selection_set(oldSel.start.node,oldSel.start.offset,
                       newSel.end.node,newSel.end.offset,false,true);
-    });
+    }
 
     // void
-    Input_unmarkText = trace(function unmarkText()
+    Input_unmarkText = function()
     {
         var range = Selection_get();
         Cursor_set(range.end.node,range.end.offset);
         //idebug("Input_unmarkText");
-    });
+    }
 
     // boolean
-    Input_forwardSelectionAffinity = trace(function forwardSelectionAffinity()
+    Input_forwardSelectionAffinity = function()
     {
         //idebug("Input_forwardSelectionAffinity");
         return forwardSelection;
-    });
+    }
 
     // void
-    Input_setForwardSelectionAffinity = trace(function setForwardSelectionAffinity(value)
+    Input_setForwardSelectionAffinity = function(value)
     {
         //idebug("Input_setForwardSelectionAffinity");
         forwardSelection = value;
-    });
+    }
 
-    var positionRight = trace(function positionRight(pos,offset)
+    function positionRight(pos,offset)
     {
         if (offset > 0) {
             for (; offset > 0; offset--) {
@@ -272,9 +271,9 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
             }
         }
         return pos;
-    });
+    }
 
-    var positionDown = trace(function positionDown(pos,offset)
+    function positionDown(pos,offset)
     {
         if (offset > 0) {
             for (; offset > 0; offset--) {
@@ -293,20 +292,19 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
             }
         }
         return pos;
-    });
+    }
 
     // posId
-    Input_positionFromPositionOffset = trace(function positionFromPositionOffset(posId,offset)
+    Input_positionFromPositionOffset = function(posId,offset)
     {
         var pos = getPosition(posId);
         var res = addPosition(positionRight(pos,offset));
         //idebug("Input_positionFromPositionOffset("+posId+","+offset+") = "+res);
         return res;
-    });
+    }
 
     // posId
-    Input_positionFromPositionInDirectionOffset =
-        trace(function positionFromPositionInDirectionOffset(posId,direction,offset)
+    Input_positionFromPositionInDirectionOffset = function(posId,direction,offset)
     {
         //idebug("Input_positionFromPositionInDirectionOffset("+posId+","+direction+","+offset+")");
         var pos = getPosition(posId);
@@ -320,10 +318,10 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
             return addPosition(positionDown(pos,offset));
         else
             throw new Error("unknown direction: "+direction);
-    });
+    }
 
     // int
-    Input_comparePositionToPosition = trace(function comparePositionToPosition(posId1,posId2)
+    Input_comparePositionToPosition = function(posId1,posId2)
     {
         //idebug("Input_comparePositionToPosition("+posId1+","+posId2+")");
         var pos1 = getPosition(posId1);
@@ -333,31 +331,29 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         if (pos2 == null)
             throw new Error("pos2 is null");
         return Position_compare(pos1,pos2);
-    });
+    }
 
     // int
-    Input_offsetFromPositionToPosition = trace(function offsetFromPositionToPosition(fromId,toId)
+    Input_offsetFromPositionToPosition = function(fromId,toId)
     {
         //idebug("Input_offsetFromPositionToPosition("+fromId+","+toId+")");
         throw new Error("offsetFromPositionToPosition: not implemented");
-    });
+    }
 
-    Input_positionWithinRangeFarthestInDirection =
-        trace(function positionWithinRangeFarthestInDirection(startId,endId,direction)
+    Input_positionWithinRangeFarthestInDirection = function(startId,endId,direction)
     {
         //idebug("Input_positionWithinRangeFarthestInDirection("+startId+","+endId+","+direction);
         throw new Error("positionWithinRangeFarthestInDirection: not implemented");
-    });
+    }
 
     // { startId, endId }
-    Input_characterRangeByExtendingPositionInDirection =
-        trace(function characterRangeByExtendingPositionInDirection(posId,direction)
+    Input_characterRangeByExtendingPositionInDirection = function(posId,direction)
     {
         //idebug("Input_characterRangeByExtendingPositionInDirection("+posId+","+direction);
         throw new Error("characterRangeByExtendingPositionInDirection: not implemented");
-    });
+    }
 
-    Input_firstRectForRange = trace(function firstRectForRange(startId,endId)
+    Input_firstRectForRange = function(startId,endId)
     {
         //idebug("Input_firstRectForRange("+startId+","+endId+")");
         var start = getPosition(startId);
@@ -369,9 +365,9 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         else
             return { x: rects[0].left, y: rects[0].top,
                      width: rects[0].width, height: rects[0].height };
-    });
+    }
 
-    Input_caretRectForPosition = trace(function caretRectForPosition(posId)
+    Input_caretRectForPosition = function(posId)
     {
         //idebug("Input_caretRectForPosition("+posId+")");
         var pos = getPosition(posId);
@@ -380,45 +376,42 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
             return { x: 0, y: 0, width: 0, height: 0 };
         else
             return { x: rect.left, y: rect.top, width: rect.width, height: rect.height };
-    });
+    }
 
     // posId
-    Input_closestPositionToPoint = trace(function closestPositionToPoint(x,y)
+    Input_closestPositionToPoint = function(x,y)
     {
         //idebug("Input_closestPositionToPoint("+x+","+y+")");
         throw new Error("closestPositionToPoint: not implemented");
-    });
+    }
 
     // posId
-    Input_closestPositionToPointWithinRange =
-        trace(function closestPositionToPointWithinRange(x,y,startId,endId)
+    Input_closestPositionToPointWithinRange = function(x,y,startId,endId)
     {
         //idebug("Input_closestPositionToPointWithinRange("+x+","+y+")");
         throw new Error("closestPositionToPointWithinRange: not implemented");
-    });
+    }
 
     // { startId, endId }
-    Input_characterRangeAtPoint = trace(function characterRangeAtPoint(x,y)
+    Input_characterRangeAtPoint = function(x,y)
     {
         //idebug("Input_characterRangeAtPoint("+x+","+y+")");
         throw new Error("characterRangeAtPoint: not implemented");
-    });
+    }
 
     // posId
-    Input_positionWithinRangeAtCharacterOffset =
-        trace(function positionWithinRangeAtCharacterOffset(startId,endId,offset)
+    Input_positionWithinRangeAtCharacterOffset = function(startId,endId,offset)
     {
         //idebug("Input_positionWithinRangeAtCharacterOffset("+startId+","+endId+","+offset+")");
         throw new Error("positionWithinRangeAtCharacterOffset: not implemented");
-    });
+    }
 
     // int
-    Input_characterOffsetOfPositionWithinRange =
-        trace(function characterOffsetOfPositionWithinRange(posId,startId,endId)
+    Input_characterOffsetOfPositionWithinRange = function(posId,startId,endId)
     {
         //idebug("Input_characterOffsetOfPositionWithinRange("+posId+","+startId+","+endId+")");
         throw new Error("characterOffsetOfPositionWithinRange: not implemented");
-    });
+    }
 
     // UITextInputTokenizer methods
 
@@ -436,7 +429,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
                 (direction == "down"));
     }
 
-    Input_isAtWordBoundary = trace(function isAtWordBoundary(pos,direction)
+    Input_isAtWordBoundary = function(pos,direction)
     {
         if (pos.node.nodeType != Node.TEXT_NODE)
             return false;
@@ -459,14 +452,13 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
             return beforeMatch && !afterMatch;
         else
             return !beforeMatch;
-    });
+    }
 
-    Input_isAtParagraphBoundary = trace(function isAtParagraphBoundary(pos,direction)
+    Input_isAtParagraphBoundary = function(pos,direction)
     {
-    });
+    }
 
-    Input_isPositionAtBoundaryGranularityInDirection =
-        trace(function isPositionAtBoundaryGranularityInDirection(posId,granularity,direction)
+    Input_isPositionAtBoundaryGranularityInDirection = function(posId,granularity,direction)
     {
         //idebug("Input_isPositionAtBoundaryGranularityInDirection("+
         //       posId+","+granularity+","+direction+")");
@@ -491,10 +483,9 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         else if (granularity == "document") {
         }
         throw new Error("unsupported granularity: "+granularity);
-    });
+    }
 
-    Input_isPositionWithinTextUnitInDirection =
-        trace(function isPositionWithinTextUnitInDirection(posId,granularity,direction)
+    Input_isPositionWithinTextUnitInDirection = function(posId,granularity,direction)
     {
         //idebug("Input_isPositionWithinTextUnitInDirection("+
         //       posId+","+granularity+","+direction+")");
@@ -543,9 +534,9 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         else if (granularity == "document") {
         }
         throw new Error("unsupported granularity: "+granularity);
-    });
+    }
 
-    Input_toWordBoundary = trace(function toWordBoundary(pos,direction)
+    Input_toWordBoundary = function(pos,direction)
     {
         pos = Text_closestPosInDirection(pos,direction);
         if (pos == null)
@@ -590,9 +581,9 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
                 return Paragraph_positionAtOffset(paragraph,newOffset);
             }
         }
-    });
+    }
 
-    Input_toParagraphBoundary = trace(function toParagraphBoundary(pos,direction)
+    Input_toParagraphBoundary = function(pos,direction)
     {
         if (isForward(direction)) {
             var end = Text_toEndOfBoundary(pos,"paragraph");
@@ -612,9 +603,9 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
             }
             return start ? start : pos;
         }
-    });
+    }
 
-    Input_toLineBoundary = trace(function toLineBoundary(pos,direction)
+    Input_toLineBoundary = function(pos,direction)
     {
         if (isForward(direction)) {
             var end = Text_toEndOfBoundary(pos,"line");
@@ -624,10 +615,9 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
             var start = Text_toStartOfBoundary(pos,"line");
             return start ? start : pos;
         }
-    });
+    }
 
-    Input_positionFromPositionToBoundaryInDirection =
-        trace(function positionFromPositionToBoundaryInDirection(posId,granularity,direction)
+    Input_positionFromPositionToBoundaryInDirection = function(posId,granularity,direction)
     {
         //idebug("Input_positionFromPositionToBoundaryInDirection("+
         //       posId+","+granularity+","+direction+")");
@@ -647,10 +637,9 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
             return isForward(direction) ? BaseIdDocumentEnd : BaseIdDocumentStart;
         else
             throw new Error("unsupported granularity: "+granularity);
-    });
+    }
 
-    Input_rangeEnclosingPositionWithGranularityInDirection =
-        trace(function rangeEnclosingPositionWithGranularityInDirection(posId,granularity,direction)
+    Input_rangeEnclosingPositionWithGranularityInDirection = function(posId,granularity,direction)
     {
         //idebug("Input_rangeEnclosingPositionWithGranularityInDirection("+
         //       posId+","+granularity+","+direction);
@@ -719,6 +708,6 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         else {
             throw new Error("unsupported granularity: "+granularity);
         }
-    });
+    }
 
 })();

@@ -9,7 +9,7 @@ var Figures_getGeometry;
 (function() {
 
     // public
-    Figures_insertFigure = trace(function insertFigure(filename,width,numbered,caption)
+    Figures_insertFigure = function(filename,width,numbered,caption)
     {
         UndoManager_newGroup("Insert figure");
 
@@ -39,16 +39,16 @@ var Figures_getGeometry;
         Selection_set(pos.node,pos.offset,pos.node,pos.offset);
 
         PostponedActions_add(UndoManager_newGroup);
-    });
+    }
 
-    Figures_getSelectedFigureId = trace(function getAdjacentFigureId()
+    Figures_getSelectedFigureId = function()
     {
         var element = Cursor_getAdjacentNodeWithType(HTML_FIGURE);
         return element ? element.getAttribute("id") : null;
-    });
+    }
 
     // public
-    Figures_getProperties = trace(function getProperties(itemId)
+    Figures_getProperties = function(itemId)
     {
         var figure = document.getElementById(itemId);
         if (figure == null)
@@ -65,10 +65,10 @@ var Figures_getGeometry;
                 result.width = DOM_getAttribute(img,"width");
         }
         return result;
-    });
+    }
 
     // public
-    Figures_setProperties = trace(function setProperties(itemId,width,src)
+    Figures_setProperties = function(itemId,width,src)
     {
         var figure = document.getElementById(itemId);
         if (figure == null)
@@ -85,10 +85,10 @@ var Figures_getGeometry;
                 DOM_removeAttribute(img,"style");
             Selection_update();
         }
-    });
+    }
 
     // public
-    Figures_getGeometry = trace(function getGeometry(itemId)
+    Figures_getGeometry = function(itemId)
     {
         var figure = document.getElementById(itemId);
         if ((figure == null) || (figure.parentNode == null))
@@ -105,6 +105,6 @@ var Figures_getGeometry;
         result.parentRect = xywhAbsElementRect(figure.parentNode);
         result.hasCaption = (figcaption != null);
         return result;
-    });
+    }
 
 })();

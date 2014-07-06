@@ -22,13 +22,14 @@ var Scan_goToMatch;
     var curPos = null;
     var curParagraph = null;
 
-    Scan_reset = trace(function _Scan_reset() {
+    Scan_reset = function()
+    {
         curPos = new Position(document.body,0);
         curParagraph = null;
         clearMatches();
-    });
+    }
 
-    Scan_next = trace(function _Scan_next() {
+    Scan_next = function() {
         if (curPos == null)
             return null;
         curPos = Text_toEndOfBoundary(curPos,"paragraph");
@@ -50,9 +51,9 @@ var Scan_goToMatch;
 
         return { text: curParagraph.text,
                  sectionId: sectionId };
-    });
+    }
 
-    Scan_addMatch = trace(function _Scan_addMatch(start,end) {
+    Scan_addMatch = function(start,end) {
         if (curParagraph == null)
             throw new Error("curParagraph is null");
         if ((start < 0) || (start > curParagraph.text.length))
@@ -78,9 +79,9 @@ var Scan_goToMatch;
         var match = new Match(matchId,startPos,endPos);
         matchesById[matchId] = match;
         return matchId;
-    });
+    }
 
-    Scan_showMatch = trace(function _Scan_showMatch(matchId)
+    Scan_showMatch = function(matchId)
     {
         var match = matchesById[matchId];
         if (match == null)
@@ -96,9 +97,9 @@ var Scan_goToMatch;
             DOM_setAttribute(span,"class",Keys.MATCH_CLASS);
             match.spans.push(span);
         }
-    });
+    }
 
-    Scan_replaceMatch = trace(function _Scan_replaceMatch(matchId,replacement)
+    Scan_replaceMatch = function(matchId,replacement)
     {
         var match = matchesById[matchId];
         if (match == null)
@@ -120,21 +121,21 @@ var Scan_goToMatch;
         });
 
         delete matchesById[matchId];
-    });
+    }
 
-    var removeSpansForMatch = trace(function _removeSpansForMatch(match)
+    function removeSpansForMatch(match)
     {
         for (var i = 0; i < match.spans.length; i++)
             DOM_removeNodeButKeepChildren(match.spans[i]);
-    });
+    }
 
-    Scan_removeMatch = trace(function _Scan_removeMatch(matchId)
+    Scan_removeMatch = function(matchId)
     {
         removeSpansForMatch(matchesById[matchId]);
         delete matchesById[matchId];
-    });
+    }
 
-    Scan_goToMatch = trace(function _Scan_goToMatch(matchId)
+    Scan_goToMatch = function(matchId)
     {
         var match = matchesById[matchId];
         if (match == null)
@@ -143,9 +144,9 @@ var Scan_goToMatch;
         Selection_set(match.startPos.node,match.startPos.offset,
                       match.endPos.node,match.endPos.offset);
         Cursor_ensurePositionVisible(match.startPos,true);
-    });
+    }
 
-    var clearMatches = trace(function _clearMatches()
+    function clearMatches()
     {
         for (var matchId in matchesById) {
             var match = matchesById[matchId];
@@ -156,6 +157,6 @@ var Scan_goToMatch;
 
         matchesById = new Object();
         nextMatchId = 1;
-    });
+    }
 
 })();

@@ -71,7 +71,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     };
 
     // private
-    var getStyleProperties = trace(function getStyleProperties(element,dontReplace)
+    function getStyleProperties(element,dontReplace)
     {
         var properties = new Object();
 
@@ -93,10 +93,10 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                 properties[replacement] = value;
         }
         return properties;
-    });
+    }
 
     // public (for testing purposes only)
-    Formatting_splitAroundSelection = trace(function splitAroundSelection(range,allowDirectInline)
+    Formatting_splitAroundSelection = function(range,allowDirectInline)
     {
         Range_trackWhileExecuting(range,function() {
             if (!allowDirectInline)
@@ -144,19 +144,19 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
             range.end.node = endNode;
             range.end.offset = endOffset;
         });
-    });
+    }
 
     // public
-    Formatting_mergeUpwards = trace(function mergeUpwards(node,whiteList)
+    Formatting_mergeUpwards = function(node,whiteList)
     {
         while ((node != null) && whiteList[node._type]) {
             var parent = node.parentNode;
             Formatting_mergeWithNeighbours(node,whiteList,true);
             node = parent;
         }
-    });
+    }
 
-    var isDiscardable = trace(function _isDiscardable(node)
+    function isDiscardable(node)
     {
         if (node.nodeType != Node.ELEMENT_NODE)
             return false;
@@ -173,10 +173,10 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         }
 
         return true;
-    });
+    }
 
     // public (for use by tests)
-    Formatting_mergeWithNeighbours = trace(function mergeWithNeighbours(node,whiteList,trim)
+    Formatting_mergeWithNeighbours = function(node,whiteList,trim)
     {
         var parent = node.parentNode;
         if (parent == null)
@@ -215,10 +215,10 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                     Formatting_mergeWithNeighbours(lastChild,whiteList);
             } while (!lastMerge);
         }
-    });
+    }
 
     // private
-    var mergeRange = trace(function mergeRange(range,whiteList)
+    function mergeRange(range,whiteList)
     {
         var nodes = Range_getAllNodes(range);
         for (var i = 0; i < nodes.length; i++) {
@@ -228,10 +228,10 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                 Formatting_mergeWithNeighbours(p,whiteList);
             }
         }
-    });
+    }
 
     // public (called from cursor.js)
-    Formatting_splitTextBefore = trace(function splitTextBefore(pos,parentCheckFn,force)
+    Formatting_splitTextBefore = function(pos,parentCheckFn,force)
     {
         var node = pos.node;
         var offset = pos.offset;
@@ -251,10 +251,10 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                                      parentCheckFn,force);
             return pos;
         }
-    });
+    }
 
     // public
-    Formatting_splitTextAfter = trace(function splitTextAfter(pos,parentCheckFn,force)
+    Formatting_splitTextAfter = function(pos,parentCheckFn,force)
     {
         var node = pos.node;
         var offset = pos.offset;
@@ -274,14 +274,14 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                                      parentCheckFn,force);
             return pos;
         }
-    });
+    }
 
     // FIXME: movePreceding and moveNext could possibly be optimised by passing in a (parent,child)
     // pair instead of (node,offset), i.e. parent is the same as node, but rather than passing the
     // index of a child, we pass the child itself (or null if the offset is equal to
     // childNodes.length)
     // public
-    Formatting_movePreceding = trace(function movePreceding(pos,parentCheckFn,force)
+    Formatting_movePreceding = function(pos,parentCheckFn,force)
     {
         var node = pos.node;
         var offset = pos.offset;
@@ -315,10 +315,10 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         Formatting_movePreceding(new Position(node.parentNode,DOM_nodeOffset(node)),
                                  parentCheckFn,force);
         return result;
-    });
+    }
 
     // public
-    Formatting_moveFollowing = trace(function moveFollowing(pos,parentCheckFn,force)
+    Formatting_moveFollowing = function(pos,parentCheckFn,force)
     {
         var node = pos.node;
         var offset = pos.offset;
@@ -352,10 +352,10 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         Formatting_moveFollowing(new Position(node.parentNode,DOM_nodeOffset(node)+1),
                                  parentCheckFn,force);
         return result;
-    });
+    }
 
     // public
-    Formatting_paragraphTextUpToPosition = trace(function paragraphTextUpToPosition(pos)
+    Formatting_paragraphTextUpToPosition = function(pos)
     {
         if (pos.node.nodeType == Node.TEXT_NODE) {
             return stringToStartOfParagraph(pos.node,pos.offset);
@@ -387,10 +387,10 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
             }
             return components.reverse().join("");
         }
-    });
+    }
 
     // public
-    Formatting_getFormatting = trace(function getFormatting()
+    Formatting_getFormatting = function()
     {
         // FIXME: implement a more efficient version of this algorithm which avoids duplicate checks
 
@@ -510,10 +510,10 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                     findLeafNodes(child,result);
             }
         }
-    });
+    }
 
     // public
-    Formatting_getAllNodeProperties = trace(function _getAllNodeProperties(node)
+    Formatting_getAllNodeProperties = function(node)
     {
         if (node == null)
             throw new Error("Node is not in tree");
@@ -599,7 +599,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         }
 
         return properties;
-    });
+    }
 
     var PARAGRAPH_PROPERTIES = {
         "margin-left": true,
@@ -656,8 +656,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     // private
-    var putDirectInlineChildrenInParagraphs = trace(
-        function putDirectInlineChildrenInParagraphs(parent)
+    function putDirectInlineChildrenInParagraphs(parent)
     {
         var inlineChildren = new Array();
         for (var child = parent.firstChild; child != null; child = child.nextSibling)
@@ -669,10 +668,10 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                     Hierarchy_wrapInlineNodesInParagraph(inlineChildren[i]);
             }
         }
-    });
+    }
 
     // private
-    var getParagraphs = trace(function getParagraphs(nodes)
+    function getParagraphs(nodes)
     {
         var array = new Array();
         var set = new NodeSet();
@@ -722,10 +721,10 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                 set.add(node);
             }
         }
-    });
+    }
 
     // private
-    var setParagraphStyle = trace(function setParagraphStyle(paragraph,selector)
+    function setParagraphStyle(paragraph,selector)
     {
         var wasHeading = isHeadingNode(paragraph);
         DOM_removeAttribute(paragraph,"class");
@@ -765,17 +764,17 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         var isHeading = isHeadingNode(paragraph);
         if (wasHeading && !isHeading)
             DOM_removeAttribute(paragraph,"id");
-    });
+    }
 
     // public
-    Formatting_pushDownInlineProperties = trace(function pushDownInlineProperties(outermost)
+    Formatting_pushDownInlineProperties = function(outermost)
     {
         for (var i = 0; i < outermost.length; i++)
             outermost[i] = pushDownInlinePropertiesSingle(outermost[i]);
-    });
+    }
 
     // private
-    var pushDownInlinePropertiesSingle = trace(function pushDownInlinePropertiesSingle(target)
+    function pushDownInlinePropertiesSingle(target)
     {
         recurse(target.parentNode);
         return target;
@@ -846,10 +845,10 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                 break;
             }
         }
-    });
+    }
 
     // private
-    var wrapInline = trace(function wrapInline(node,elementName)
+    function wrapInline(node,elementName)
     {
         if (!isInlineNode(node) || isAbstractSpan(node)) {
             var next;
@@ -862,11 +861,10 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         else {
             return DOM_wrapNode(node,elementName);
         }
-    });
+    }
 
     // private
-    var applyInlineFormatting = trace(function applyInlineFormatting(target,inlineProperties,
-                                                                     special,applyToWhitespace)
+    function applyInlineFormatting(target,inlineProperties,special,applyToWhitespace)
     {
         if (!applyToWhitespace && isWhitespaceTextNode(target))
             return;
@@ -903,10 +901,10 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         DOM_setStyleProperties(target,propertiesToSet);
 
         return target;
-    });
+    }
 
     // private
-    var extractSpecial = trace(function extractSpecial(properties)
+    function extractSpecial(properties)
     {
         var special = { bold: null, italic: null, underline: null };
         var fontWeight = properties["font-weight"];
@@ -947,10 +945,10 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
             }
         }
         return special;
-    });
+    }
 
     // private
-    var removeProperties = trace(function removeProperties(outermost,properties)
+    function removeProperties(outermost,properties)
     {
         properties = clone(properties);
         var special = extractSpecial(properties);
@@ -959,10 +957,10 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
             removePropertiesSingle(outermost[i],properties,special,remaining);
         }
         return remaining;
-    });
+    }
 
     // private
-    var getOutermostParagraphs = trace(function getOutermostParagraphs(paragraphs)
+    function getOutermostParagraphs(paragraphs)
     {
         var all = new NodeSet();
         for (var i = 0; i < paragraphs.length; i++)
@@ -981,11 +979,10 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                 result.push(paragraphs[i]);
         }
         return result;
-    });
+    }
 
     // private
-    var removePropertiesSingle = trace(function removePropertiesSingle(node,properties,
-                                                                       special,remaining)
+    function removePropertiesSingle(node,properties,special,remaining)
     {
         if ((node.nodeType == Node.ELEMENT_NODE) && (node.hasAttribute("style"))) {
             var remove = new Object();
@@ -1022,7 +1019,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
             DOM_removeNodeButKeepChildren(node);
         else if (remaining != null)
             remaining.push(node);
-    });
+    }
 
     function isSpecialSpan(span)
     {
@@ -1039,17 +1036,17 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     // private
-    var containsOnlyWhitespace = trace(function containsOnlyWhitespace(ancestor)
+    function containsOnlyWhitespace(ancestor)
     {
         for (child = ancestor.firstChild; child != null; child = child.nextSibling) {
             if (!isWhitespaceTextNode(child))
                 return false;
         }
         return true;
-    });
+    }
 
     // public
-    Formatting_applyFormattingChanges = trace(function applyFormattingChanges(style,properties)
+    Formatting_applyFormattingChanges = function(style,properties)
     {
         UndoManager_newGroup("Apply formatting changes");
 
@@ -1196,14 +1193,14 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
             }
             return true;
         }
-    });
+    }
 
-    Formatting_formatInlineNode = trace(function formatInlineNode(node,properties)
+    Formatting_formatInlineNode = function(node,properties)
     {
         properties = clone(properties);
         var special = extractSpecial(properties);
         return applyInlineFormatting(node,properties,special,true);
-    });
+    }
 
     Formatting_MERGEABLE_INLINE = new Array(HTML_COUNT);
 

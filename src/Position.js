@@ -169,7 +169,7 @@ var Position_atPoint;
     }
 
     // public
-    Position_assertValid = trace(function _Position_assertValid(pos,description)
+    Position_assertValid = function(pos,description)
     {
         if (description == null)
             description = "Position";
@@ -191,10 +191,10 @@ var Position_atPoint;
             throw new Error(description+" (in "+pos.node.nodeName+") has invalid offset "+
                             pos.offset+" (max allowed is "+max+")");
         }
-    });
+    }
 
     // public
-    Position_prev = trace(function prev(pos)
+    Position_prev = function(pos)
     {
         if (pos.node.nodeType == Node.ELEMENT_NODE) {
             var r = positionSpecial(pos,false,true);
@@ -225,10 +225,10 @@ var Position_atPoint;
             else
                 return new Position(pos.node.parentNode,DOM_nodeOffset(pos.node));
         }
-    });
+    }
 
     // public
-    Position_next = trace(function next(pos)
+    Position_next = function(pos)
     {
         if (pos.node.nodeType == Node.ELEMENT_NODE) {
             var r = positionSpecial(pos,true,false);
@@ -256,10 +256,10 @@ var Position_atPoint;
             else
                 return new Position(pos.node.parentNode,DOM_nodeOffset(pos.node)+1);
         }
-    });
+    }
 
     // public
-    Position_trackWhileExecuting = trace(function trackWhileExecuting(positions,fun)
+    Position_trackWhileExecuting = function(positions,fun)
     {
         for (var i = 0; i < positions.length; i++)
             startTracking(positions[i].self);
@@ -270,10 +270,10 @@ var Position_atPoint;
             for (var i = 0; i < positions.length; i++)
                 stopTracking(positions[i].self);
         }
-    });
+    }
 
     // public
-    Position_closestActualNode = trace(function closestActualNode(pos,preferElement)
+    Position_closestActualNode = function(pos,preferElement)
     {
         var node = pos.node;
         var offset = pos.offset;
@@ -294,20 +294,20 @@ var Position_atPoint;
         else {
             return next;
         }
-    });
+    }
 
     // public
-    Position_okForInsertion = trace(function okForInsertion(pos)
+    Position_okForInsertion = function(pos)
     {
         return Position_okForMovement(pos,true);
-    });
+    }
 
-    var nodeCausesLineBreak = trace(function nodeCausesLineBreak(node)
+    function nodeCausesLineBreak(node)
     {
         return ((node._type == HTML_BR) || !isInlineNode(node));
-    });
+    }
 
-    var spacesUntilNextContent = trace(function spacesUntilNextContent(node)
+    function spacesUntilNextContent(node)
     {
         var spaces = 0;
         while (true) {
@@ -346,10 +346,10 @@ var Position_atPoint;
                 }
             }
         }
-    });
+    }
 
     // public
-    Position_okForMovement = trace(function okForMovement(pos,insertion)
+    Position_okForMovement = function(pos,insertion)
     {
         var node = pos.node;
         var offset = pos.offset;
@@ -520,25 +520,25 @@ var Position_atPoint;
         }
 
         return false;
-    });
+    }
 
-    Position_prevMatch = trace(function prevCursorPosition(pos,fun)
+    Position_prevMatch = function(pos,fun)
     {
         do {
             pos = Position_prev(pos);
         } while ((pos != null) && !fun(pos));
         return pos;
-    });
+    }
 
-    Position_nextMatch = trace(function nextCursorPosition(pos,fun)
+    Position_nextMatch = function(pos,fun)
     {
         do {
             pos = Position_next(pos);
         } while ((pos != null) && !fun(pos));
         return pos;
-    });
+    }
 
-    var findEquivalentValidPosition = trace(function findEquivalentValidPosition(pos,fun)
+    function findEquivalentValidPosition(pos,fun)
     {
         var node = pos.node;
         var offset = pos.offset;
@@ -568,10 +568,10 @@ var Position_atPoint;
             }
         }
         return pos;
-    });
+    }
 
     // public
-    Position_closestMatchForwards = trace(function closestMatchForwards(pos,fun)
+    Position_closestMatchForwards = function(pos,fun)
     {
         if (pos == null)
             return null;
@@ -591,10 +591,10 @@ var Position_atPoint;
             return prev;
 
         return new Position(document.body,document.body.childNodes.length);
-    });
+    }
 
     // public
-    Position_closestMatchBackwards = trace(function closestMatchBackwards(pos,fun)
+    Position_closestMatchBackwards = function(pos,fun)
     {
         if (pos == null)
             return null;
@@ -614,19 +614,19 @@ var Position_atPoint;
             return next;
 
         return new Position(document.body,0);
-    });
+    }
 
-    Position_track = trace(function track(pos)
+    Position_track = function(pos)
     {
         startTracking(pos.self);
-    });
+    }
 
-    Position_untrack = trace(function untrack(pos)
+    Position_untrack = function(pos)
     {
         stopTracking(pos.self);
-    });
+    }
 
-    Position_rectAtPos = trace(function rectAtPos(pos)
+    Position_rectAtPos = function(pos)
     {
         if (pos == null)
             return null;
@@ -644,7 +644,7 @@ var Position_atPoint;
         }
 
         return null;
-    });
+    }
 
     function posAtStartOfParagraph(pos,paragraph)
     {
@@ -689,7 +689,7 @@ var Position_atPoint;
                  height: rect.height };
     }
 
-    Position_noteAncestor = trace(function _Position_noteAncestor(pos)
+    Position_noteAncestor = function(pos)
     {
         var node = Position_closestActualNode(pos);
         for (; node != null; node = node.parentNode) {
@@ -697,9 +697,9 @@ var Position_atPoint;
                 return node;
         }
         return null;
-    });
+    }
 
-    Position_captionAncestor = trace(function _Position_captionAncestor(pos)
+    Position_captionAncestor = function(pos)
     {
         var node = Position_closestActualNode(pos);
         for (; node != null; node = node.parentNode) {
@@ -707,9 +707,9 @@ var Position_atPoint;
                 return node;
         }
         return null;
-    });
+    }
 
-    Position_figureOrTableAncestor = trace(function _figureOrTableAncestor(pos)
+    Position_figureOrTableAncestor = function(pos)
     {
         var node = Position_closestActualNode(pos);
         for (; node != null; node = node.parentNode) {
@@ -717,9 +717,9 @@ var Position_atPoint;
                 return node;
         }
         return null;
-    });
+    }
 
-    var exactRectAtPos = trace(function exactRectAtPos(pos)
+    function exactRectAtPos(pos)
     {
         var node = pos.node;
         var offset = pos.offset;
@@ -774,9 +774,9 @@ var Position_atPoint;
                 return null;
             return zeroWidthRightRect(rects[rects.length-1]);
         }
-    });
+    }
 
-    var tempSpaceRect = trace(function _tempSpaceRect(parentNode,nextSibling)
+    function tempSpaceRect(parentNode,nextSibling)
     {
         var space = DOM_createTextNode(document,String.fromCharCode(160));
         DOM_insertBefore(parentNode,space,nextSibling);
@@ -787,9 +787,9 @@ var Position_atPoint;
             return rects[0];
         else
             return nil;
-    });
+    }
 
-    Position_displayRectAtPos = trace(function displayRectAtPos(pos)
+    Position_displayRectAtPos = function(pos)
     {
         rect = exactRectAtPos(pos);
         if (rect != null)
@@ -854,9 +854,9 @@ var Position_atPoint;
                 node = node.parentNode;
             return zeroWidthLeftRect(node.getBoundingClientRect());
         }
-    });
+    }
 
-    Position_equal = trace(function equal(a,b)
+    Position_equal = function(a,b)
     {
         if ((a == null) && (b == null))
             return true;
@@ -864,9 +864,9 @@ var Position_atPoint;
             (a.node == b.node) && (a.offset == b.offset))
             return true;
         return false;
-    });
+    }
 
-    Position_preferTextPosition = trace(function preferTextPosition(pos)
+    Position_preferTextPosition = function(pos)
     {
         var node = pos.node;
         var offset = pos.offset;
@@ -879,9 +879,9 @@ var Position_atPoint;
                 return new Position(after,0);
         }
         return pos;
-    });
+    }
 
-    Position_preferElementPosition = trace(function preferElementPosition(pos)
+    Position_preferElementPosition = function(pos)
     {
         if (pos.node.nodeType == Node.TEXT_NODE) {
             if (pos.node.parentNode == null)
@@ -892,9 +892,9 @@ var Position_atPoint;
                 return new Position(pos.node.parentNode,DOM_nodeOffset(pos.node)+1);
         }
         return pos;
-    });
+    }
 
-    Position_compare = trace(function compare(first,second)
+    Position_compare = function(first,second)
     {
         if ((first.node == second.node) && (first.offset == second.offset))
             return 0;
@@ -963,8 +963,7 @@ var Position_atPoint;
             firstP = firstP.parentNode;
         }
         throw new Error("Could not find common ancestor");
-    });
-
+    }
 
     // This function works around a bug in WebKit where caretRangeFromPoint sometimes returns an
     // incorrect node (the last text node in the document). In a previous attempt to fix this bug,
@@ -983,7 +982,7 @@ var Position_atPoint;
     // intended if the document's last text node is a direct child of the body (as it may be in some
     // HTML documents that users open).
 
-    var posOutsideSelection = trace(function _posOutsideSelection(pos)
+    function posOutsideSelection(pos)
     {
         pos = Position_preferElementPosition(pos);
 
@@ -996,9 +995,9 @@ var Position_atPoint;
             return new Position(pos.node.parentNode,DOM_nodeOffset(pos.node)+1);
         else
             return pos;
-    });
+    }
 
-    Position_atPoint = trace(function atPoint(x,y)
+    Position_atPoint = function(x,y)
     {
         // In general, we can use document.caretRangeFromPoint(x,y) to determine the location of the
         // cursor based on screen coordinates. However, this doesn't work if the screen coordinates
@@ -1060,31 +1059,31 @@ var Position_atPoint;
         pos = adjustPositionForFigure(pos);
 
         return pos;
-    });
+    }
 
     // This is used for nodes that can potentially be the right match for a hit test, but for
     // which caretRangeFromPoint() returns the wrong result
-    var nodeMayContainPos = trace(function _nodeMayContainPos(node)
+    function nodeMayContainPos(node)
     {
         return ((node._type == HTML_IMG) || isEmptyNoteNode(node));
-    });
+    }
 
-    var elementContainsPoint = trace(function elementContainsPoint(element,x,y)
+    function elementContainsPoint(element,x,y)
     {
         var rect = element.getBoundingClientRect();
         return ((x >= rect.left) && (x <= rect.right) &&
                 (y >= rect.top) && (y <= rect.bottom));
-    });
+    }
 
-    var isEmptyParagraphNode = trace(function _isEmptyParagraphNode(node)
+    function isEmptyParagraphNode(node)
     {
         return ((node._type == HTML_P) &&
                 (node.lastChild != null) &&
                 (node.lastChild._type == HTML_BR) &&
                 !nodeHasContent(node));
-    });
+    }
 
-    var findLastTextRect = trace(function findLastTextRect()
+    function findLastTextRect()
     {
         var node = lastDescendant(document.body);
 
@@ -1104,9 +1103,9 @@ var Position_atPoint;
                 return rects[rects.length-1];
         }
         return null;
-    });
+    }
 
-    var findFirstTextRect = trace(function findFirstTextRect()
+    function findFirstTextRect()
     {
         var node = firstDescendant(document.body);
 
@@ -1126,9 +1125,9 @@ var Position_atPoint;
                 return rects[0];
         }
         return null;
-    });
+    }
 
-    var adjustPositionForFigure = trace(function adjustPositionForFigure(position)
+    function adjustPositionForFigure(position)
     {
         if (position == null)
             return null;
@@ -1145,6 +1144,6 @@ var Position_atPoint;
             }
         }
         return position;
-    });
+    }
 
 })();

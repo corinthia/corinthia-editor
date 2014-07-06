@@ -56,7 +56,7 @@ var TableRegion_splitCells;
         this.right = this.left + this.colspan - 1;
     }
 
-    var Cell_setRowspan = trace(function _Cell_setRowspan(cell,rowspan)
+    function Cell_setRowspan(cell,rowspan)
     {
         if (rowspan < 1)
             rowspan = 1;
@@ -66,9 +66,9 @@ var TableRegion_splitCells;
             DOM_removeAttribute(cell.element,"rowspan");
         else
             DOM_setAttribute(cell.element,"rowspan",rowspan);
-    });
+    }
 
-    var Cell_setColspan = trace(function _Cell_setColspan(cell,colspan)
+    function Cell_setColspan(cell,colspan)
     {
         if (colspan < 1)
             colspan = 1;
@@ -78,7 +78,7 @@ var TableRegion_splitCells;
             DOM_removeAttribute(cell.element,"colspan");
         else
             DOM_setAttribute(cell.element,"colspan",colspan);
-    });
+    }
 
     function Table(element)
     {
@@ -94,15 +94,15 @@ var TableRegion_splitCells;
     }
 
     // public
-    Table_get = trace(function _Table_get(table,row,col)
+    Table_get = function(table,row,col)
     {
         if (table.cells[row] == null)
             return null;
         return table.cells[row][col];
-    });
+    }
 
     // public
-    Table_set = trace(function _Table_set(table,row,col,cell)
+    Table_set = function(table,row,col,cell)
     {
         if (table.numRows < row+1)
             table.numRows = row+1;
@@ -111,10 +111,10 @@ var TableRegion_splitCells;
         if (table.cells[row] == null)
             table.cells[row] = new Array();
         table.cells[row][col] = cell;
-    });
+    }
 
     // public
-    Table_setRegion = trace(function _Table_setRegion(table,top,left,bottom,right,cell)
+    Table_setRegion = function(table,top,left,bottom,right,cell)
     {
         for (var row = top; row <= bottom; row++) {
             for (var col = left; col <= right; col++) {
@@ -123,9 +123,9 @@ var TableRegion_splitCells;
                 Table_set(table,row,col,cell);
             }
         }
-    });
+    }
 
-    var Table_processTable = trace(function _Table_processTable(table,node)
+    function Table_processTable(table,node)
     {
         var type = node._type;
         switch (node._type) {
@@ -156,10 +156,10 @@ var TableRegion_splitCells;
                 Table_processTable(table,child);
             break;
         }
-    });
+    }
 
     // public
-    Tables_insertTable = trace(function insertTable(rows,cols,width,numbered,caption,className)
+    Tables_insertTable = function(rows,cols,width,numbered,caption,className)
     {
         UndoManager_newGroup("Insert table");
 
@@ -226,10 +226,10 @@ var TableRegion_splitCells;
         Selection_set(pos.node,pos.offset,pos.node,pos.offset);
 
         PostponedActions_add(UndoManager_newGroup);
-    });
+    }
 
     // private
-    var createEmptyTableCell = trace(function createEmptyTableCell(elementName)
+    function createEmptyTableCell(elementName)
     {
         var br = DOM_createElement(document,"BR");
         var p = DOM_createElement(document,"P");
@@ -237,18 +237,18 @@ var TableRegion_splitCells;
         DOM_appendChild(p,br);
         DOM_appendChild(td,p);
         return td;
-    });
+    }
 
     // private
-    var addEmptyTableCell = trace(function addEmptyTableCell(newTR,elementName)
+    function addEmptyTableCell(newTR,elementName)
     {
         var td = createEmptyTableCell(elementName);
         DOM_appendChild(newTR,td);
         return td;
-    });
+    }
 
     // private
-    var populateNewRow = trace(function populateNewRow(structure,newTR,newRow,oldRow)
+    function populateNewRow(structure,newTR,newRow,oldRow)
     {
         var col = 0;
         while (col < structure.numCols) {
@@ -264,10 +264,10 @@ var TableRegion_splitCells;
             }
             col += existingCell.colspan;
         }
-    });
+    }
 
     // public
-    Tables_insertRowAbove = trace(function insertRowAbove()
+    Tables_insertRowAbove = function()
     {
         UndoManager_newGroup("Insert row above");
         Selection_preserveWhileExecuting(function() {
@@ -281,10 +281,10 @@ var TableRegion_splitCells;
             }
         });
         UndoManager_newGroup();
-    });
+    }
 
     // public
-    Tables_insertRowBelow = trace(function insertRowBelow()
+    Tables_insertRowBelow = function()
     {
         UndoManager_newGroup("Insert row below");
         Selection_preserveWhileExecuting(function() {
@@ -298,10 +298,10 @@ var TableRegion_splitCells;
             }
         });
         UndoManager_newGroup();
-    });
+    }
 
     // private
-    var getColElements = trace(function getColElements(table)
+    function getColElements(table)
     {
         var cols = new Array();
         for (child = table.firstChild; child != null; child = child.nextSibling) {
@@ -318,10 +318,10 @@ var TableRegion_splitCells;
             }
         }
         return cols;
-    });
+    }
 
     // private
-    var getColWidths = trace(function getColWidths(colElements,expectedCount)
+    function getColWidths(colElements,expectedCount)
     {
         // FIXME: also handle the case where the width has been set as a CSS property in the
         // style attribute. There's probably not much we can do if the width comes from a style
@@ -334,10 +334,10 @@ var TableRegion_splitCells;
                 colWidths.push("");
         }
         return colWidths;
-    });
+    }
 
     // private
-    var addMissingColElements = trace(function addMissingColElements(structure,colElements)
+    function addMissingColElements(structure,colElements)
     {
         // If there are fewer COL elements than there are colums, add extra ones, copying the
         // width value from the last one
@@ -350,10 +350,10 @@ var TableRegion_splitCells;
             colElements.push(newColElement);
             DOM_setAttribute(newColElement,"width",lastColElement.getAttribute("width"));
         }
-    });
+    }
 
     // private
-    var fixColPercentages = trace(function fixColPercentages(structure,colElements)
+    function fixColPercentages(structure,colElements)
     {
         var colWidths = getColWidths(colElements,structure.numCols);
 
@@ -383,10 +383,10 @@ var TableRegion_splitCells;
             else
                 return null;
         }
-    });
+    }
 
     // private
-    var addColElement = trace(function addColElement(structure,oldIndex,right)
+    function addColElement(structure,oldIndex,right)
     {
         var table = structure.element;
 
@@ -414,10 +414,10 @@ var TableRegion_splitCells;
         }
 
         fixColPercentages(structure,colElements);
-    });
+    }
 
     // private
-    var deleteColElements = trace(function deleteColElements(structure,left,right)
+    function deleteColElements(structure,left,right)
     {
         var table = structure.element;
 
@@ -434,10 +434,10 @@ var TableRegion_splitCells;
         colElements.splice(left,right-left+1);
 
         fixColPercentages(structure,colElements);
-    });
+    }
 
     // private
-    var addColumnCells = trace(function addColumnCells(structure,oldIndex,right)
+    function addColumnCells(structure,oldIndex,right)
     {
         for (var row = 0; row < structure.numRows; row++) {
             var cell = Table_get(structure,row,oldIndex);
@@ -460,10 +460,10 @@ var TableRegion_splitCells;
                 }
             }
         }
-    });
+    }
 
     // public
-    Tables_insertColumnLeft = trace(function insertColumnLeft()
+    Tables_insertColumnLeft = function()
     {
         UndoManager_newGroup("Insert column at left");
         Selection_preserveWhileExecuting(function() {
@@ -474,10 +474,10 @@ var TableRegion_splitCells;
             }
         });
         UndoManager_newGroup();
-    });
+    }
 
     // public
-    Tables_insertColumnRight = trace(function insertColumnRight()
+    Tables_insertColumnRight = function()
     {
         UndoManager_newGroup("Insert column at right");
         Selection_preserveWhileExecuting(function() {
@@ -488,26 +488,26 @@ var TableRegion_splitCells;
             }
         });
         UndoManager_newGroup();
-    });
+    }
 
     // private
-    var deleteTable = trace(function deleteTable(structure)
+    function deleteTable(structure)
     {
         DOM_deleteNode(structure.element);
-    });
+    }
 
     // private
-    var deleteRows = trace(function deleteRows(structure,top,bottom)
+    function deleteRows(structure,top,bottom)
     {
         var trElements = new Array();
         getTRs(structure.element,trElements);
 
         for (var row = top; row <= bottom; row++)
             DOM_deleteNode(trElements[row]);
-    });
+    }
 
     // private
-    var getTRs = trace(function getTRs(node,result)
+    function getTRs(node,result)
     {
         if (node._type == HTML_TR) {
             result.push(node);
@@ -516,10 +516,10 @@ var TableRegion_splitCells;
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 getTRs(child,result);
         }
-    });
+    }
 
     // private
-    var deleteColumns = trace(function deleteColumns(structure,left,right)
+    function deleteColumns(structure,left,right)
     {
         var nodesToDelete = new NodeSet();
         for (var row = 0; row < structure.numRows; row++) {
@@ -530,10 +530,10 @@ var TableRegion_splitCells;
         }
         nodesToDelete.forEach(DOM_deleteNode);
         deleteColElements(structure,left,right);
-    });
+    }
 
     // private
-    var deleteCellContents = trace(function deleteCellContents(region)
+    function deleteCellContents(region)
     {
         var structure = region.structure;
         for (var row = region.top; row <= region.bottom; row++) {
@@ -542,10 +542,10 @@ var TableRegion_splitCells;
                 DOM_deleteAllChildren(cell.element);
             }
         }
-    });
+    }
 
     // public
-    Tables_deleteRegion = trace(function deleteRegion(region)
+    Tables_deleteRegion = function(region)
     {
         var structure = region.structure;
 
@@ -560,15 +560,15 @@ var TableRegion_splitCells;
             deleteColumns(structure,region.left,region.right);
         else
             deleteCellContents(region);
-    });
+    }
 
     // public
-    Tables_clearCells = trace(function clearCells()
+    Tables_clearCells = function()
     {
-    });
+    }
 
     // public
-    Tables_mergeCells = trace(function mergeCells()
+    Tables_mergeCells = function()
     {
         Selection_preserveWhileExecuting(function() {
             var region = Tables_regionFromRange(Selection_get());
@@ -622,10 +622,10 @@ var TableRegion_splitCells;
             else
                 DOM_setAttribute(mergedCell.element,"colspan",totalCols);
         });
-    });
+    }
 
     // public
-    Tables_splitSelection = trace(function splitSelection()
+    Tables_splitSelection = function()
     {
         Selection_preserveWhileExecuting(function() {
             var range = Selection_get();
@@ -635,10 +635,10 @@ var TableRegion_splitCells;
                     TableRegion_splitCells(region);
             });
         });
-    });
+    }
 
     // public
-    TableRegion_splitCells = trace(function _TableRegion_splitCells(region)
+    TableRegion_splitCells = function(region)
     {
         var structure = region.structure;
         var trElements = new Array();
@@ -677,10 +677,10 @@ var TableRegion_splitCells;
                 }
             }
         }
-    });
+    }
 
     // public
-    Tables_cloneRegion = trace(function cloneRegion(region)
+    Tables_cloneRegion = function(region)
     {
         var cellNodesDone = new NodeSet();
         var table = DOM_shallowCopyElement(region.structure.element);
@@ -696,17 +696,17 @@ var TableRegion_splitCells;
             }
         }
         return table;
-    });
+    }
 
     // private
-    var pasteCells = trace(function pasteCells(fromTableElement,toRegion)
+    function pasteCells(fromTableElement,toRegion)
     {
         // FIXME
         var fromStructure = Tables_analyseStructure(fromTableElement);
-    });
+    }
 
     // public
-    Table_fix = trace(function _Table_fix(table)
+    Table_fix = function(table)
     {
         var changed = false;
 
@@ -746,10 +746,10 @@ var TableRegion_splitCells;
             return new Table(table.element);
         else
             return table;
-    });
+    }
 
     // public
-    Table_fixColumnWidths = trace(function _Table_fixColumnWidths(structure)
+    Table_fixColumnWidths = function(structure)
     {
         var colElements = getColElements(structure.element);
         if (colElements.length == 0)
@@ -761,10 +761,10 @@ var TableRegion_splitCells;
         colElements = getColElements(structure.element);
         for (var i = 0; i < widths.length; i++)
             DOM_setAttribute(colElements[i],"width",widths[i]+"%");
-    });
+    }
 
     // public
-    Tables_analyseStructure = trace(function analyseStructure(element)
+    Tables_analyseStructure = function(element)
     {
         // FIXME: we should probably be preserving the selection here, since we are modifying
         // the DOM (though I think it's unlikely it would cause problems, becausing the fixup
@@ -774,27 +774,27 @@ var TableRegion_splitCells;
         var initial = new Table(element);
         var fixed = Table_fix(initial);
         return fixed;
-    });
+    }
 
     // public
-    Tables_findContainingCell = trace(function findContainingCell(node)
+    Tables_findContainingCell = function(node)
     {
         for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {
             if (isTableCell(ancestor))
                 return ancestor;
         }
         return null;
-    });
+    }
 
     // public
-    Tables_findContainingTable = trace(function findContainingTable(node)
+    Tables_findContainingTable = function(node)
     {
         for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {
             if (ancestor._type == HTML_TABLE)
                 return ancestor;
         }
         return null;
-    });
+    }
 
     function TableRegion(structure,top,bottom,left,right)
     {
@@ -811,7 +811,7 @@ var TableRegion_splitCells;
     }
 
     // public
-    Tables_regionFromRange = trace(function regionFromRange(range,allowSameCell)
+    Tables_regionFromRange = function(range,allowSameCell)
     {
         var region = null;
 
@@ -863,10 +863,10 @@ var TableRegion_splitCells;
         var region = new TableRegion(structure,top,bottom,left,right);
         adjustRegionForSpannedCells(region);
         return region;
-    });
+    }
 
     // private
-    var adjustRegionForSpannedCells = trace(function adjustRegionForSpannedCells(region)
+    function adjustRegionForSpannedCells(region)
     {
         var structure = region.structure;
         var boundariesOk;
@@ -899,38 +899,38 @@ var TableRegion_splitCells;
                 }
             }
         } while (!boundariesOk);
-    });
+    }
 
-    Tables_getSelectedTableId = trace(function getSelectedTableId()
+    Tables_getSelectedTableId = function()
     {
         var element = Cursor_getAdjacentNodeWithType(HTML_TABLE);
         return element ? element.getAttribute("id") : null;
-    });
+    }
 
-    Tables_getProperties = trace(function getProperties(itemId)
+    Tables_getProperties = function(itemId)
     {
         var table = document.getElementById(itemId);
         if (table == null)
             return null;
         var width = table.style.width;
         return { width: width };
-    });
+    }
 
-    Tables_setProperties = trace(function setProperties(itemId,width)
+    Tables_setProperties = function(itemId,width)
     {
         var table = document.getElementById(itemId);
         if (table == null)
             return null;
         DOM_setStyleProperties(table,{ width: width });
         Selection_update(); // ensure cursor/selection drawn in correct pos
-    });
+    }
 
     // Returns an array of numbers representing the percentage widths (0 - 100) of each
     // column. This works on the assumption that all tables are supposed to have all of
     // their column widths specified, and in all cases as percentages. Any which do not
     // are considered invalid, and have any non-percentage values filled in based on the
     // average values of all valid percentage-based columns.
-    Tables_getColWidths = trace(function getColWidths(structure)
+    Tables_getColWidths = function(structure)
     {
         var colElements = getColElements(structure.element);
         var colWidths = new Array();
@@ -964,7 +964,7 @@ var TableRegion_splitCells;
             else
                 return null;
         }
-    });
+    }
 
     function fixWidths(colWidths,numCols)
     {
@@ -998,7 +998,7 @@ var TableRegion_splitCells;
     }
 
     // public
-    Tables_setColWidths = trace(function setColWidths(itemId,widths)
+    Tables_setColWidths = function(itemId,widths)
     {
         var element = document.getElementById(itemId);
         if (element == null)
@@ -1013,10 +1013,10 @@ var TableRegion_splitCells;
             DOM_setAttribute(colElements[i],"width",widths[i]+"%");
 
         Selection_update();
-    });
+    }
 
     // public
-    Tables_getGeometry = trace(function getRect(itemId)
+    Tables_getGeometry = function(itemId)
     {
         var element = document.getElementById(itemId);
         if ((element == null) || (element.parentNode == null))
@@ -1055,6 +1055,6 @@ var TableRegion_splitCells;
 
         return result;
 
-    });
+    }
 
 })();

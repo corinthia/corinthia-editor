@@ -9,7 +9,7 @@ var Viewport_setTextScale;
     var viewportMetaElement = null;
 
     // public
-    Viewport_init = trace(function init(width,textScale)
+    Viewport_init = function(width,textScale)
     {
         var head = DOM_documentHead(document);
         for (var child = head.firstChild; child != null; child = child.nextSibling) {
@@ -38,10 +38,10 @@ var Viewport_setTextScale;
             if (document.documentElement.style.getPropertyValue("-webkit-text-size-adjust") != pct)
                 DOM_setStyleProperties(document.documentElement,{"-webkit-text-size-adjust": pct});
         }
-    });
+    }
 
     // public
-    Viewport_setViewportWidth = trace(function setViewportWidth(width)
+    Viewport_setViewportWidth = function(width)
     {
         var contentValue = "width = "+width+", user-scalable = no";
         if (viewportMetaElement.getAttribute("content") != contentValue)
@@ -49,10 +49,10 @@ var Viewport_setTextScale;
 
         Selection_update();
         Cursor_ensureCursorVisible();
-    });
+    }
 
     // public
-    Viewport_setTextScale = trace(function setTextScale(textScale)
+    Viewport_setTextScale = function(textScale)
     {
         var pct = textScale+"%";
         if (document.documentElement.style.getPropertyValue("-webkit-text-size-adjust") != pct)
@@ -60,6 +60,6 @@ var Viewport_setTextScale;
 
         Selection_update();
         Cursor_ensureCursorVisible();
-    });
+    }
 
 })();

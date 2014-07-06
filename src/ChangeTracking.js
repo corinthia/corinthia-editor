@@ -9,27 +9,27 @@ var ChangeTracking_acceptSelectedChanges;
     var showChangesEnabled = false;
     var trackChangesEnabled = false;
 
-    ChangeTracking_showChanges = trace(function showChanges()
+    ChangeTracking_showChanges = function()
     {
         return showChangesEnabled;
-    });
+    }
 
-    ChangeTracking_trackChanges = trace(function trackChanges()
+    ChangeTracking_trackChanges = function()
     {
         return trackChangesEnabled;
-    });
+    }
 
-    ChangeTracking_setShowChanges = trace(function setShowChanges(enabled)
+    ChangeTracking_setShowChanges = function(enabled)
     {
         showChangesEnabled = enabled;
-    });
+    }
 
-    ChangeTracking_setTrackChanges = trace(function setTrackChanges(enabled)
+    ChangeTracking_setTrackChanges = function(enabled)
     {
         trackChangesEnabled = enabled;
-    });
+    }
 
-    ChangeTracking_acceptSelectedChanges = trace(function acceptSelectedChanges()
+    ChangeTracking_acceptSelectedChanges = function()
     {
         var selRange = Selection_get();
         if (selRange == null)
@@ -105,6 +105,6 @@ var ChangeTracking_acceptSelectedChanges;
                 DOM_removeNodeButKeepChildren(node);
             }
         }
-    });
+    }
 
 })();

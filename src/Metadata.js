@@ -3,13 +3,13 @@ var Metadata_setMetadata;
 
 (function() {
 
-    Metadata_getMetadata = trace(function getMetadata()
+    Metadata_getMetadata = function()
     {
         return {};
-    });
+    }
 
-    Metadata_setMetadata = trace(function setMetadata(metadata)
+    Metadata_setMetadata = function(metadata)
     {
-    });
+    }
 
 })();

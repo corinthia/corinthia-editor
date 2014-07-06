@@ -9,7 +9,7 @@ var Lists_setOrderedList;
 (function() {
 
     // private
-    var findLIElements = trace(function findLIElements(range)
+    function findLIElements(range)
     {
         var listItems = new Array();
 
@@ -39,10 +39,10 @@ var Lists_setOrderedList;
             if (!isWhitespaceTextNode(node))
                 addListItems(array,node.parentNode);
         }
-    });
+    }
 
     // public
-    Lists_increaseIndent = trace(function increaseIndent()
+    Lists_increaseIndent = function()
     {
         Selection_preferElementPositions();
         Selection_preserveWhileExecuting(function() {
@@ -140,10 +140,10 @@ var Lists_setOrderedList;
                 }
             }
         }
-    });
+    }
 
     // public
-    Lists_decreaseIndent = trace(function decreaseIndent()
+    Lists_decreaseIndent = function()
     {
         Selection_preferElementPositions();
         Selection_preserveWhileExecuting(function() {
@@ -230,10 +230,10 @@ var Lists_setOrderedList;
                 node = node.parentNode;
             }
         }
-    });
+    }
 
-    // public
-    var getListOperationNodes = trace(function getListOperationNodes(range)
+    // private
+    function getListOperationNodes(range)
     {
         var detail = Range_detail(range);
         var dca = detail.commonAncestor;
@@ -310,10 +310,10 @@ var Lists_setOrderedList;
                 nodes.push(node);
             }
         }
-    });
+    }
 
     // public
-    Lists_clearList = trace(function clearList()
+    Lists_clearList = function()
     {
         Selection_preferElementPositions();
         Selection_preserveWhileExecuting(function() {
@@ -384,10 +384,10 @@ var Lists_setOrderedList;
             Cursor_updateBRAtEndOfParagraph(p);
             Selection_set(p,0,p,0);
         }
-    });
+    }
 
     // private
-    var setList = trace(function setList(type)
+    function setList(type)
     {
         var range = Selection_get();
         if (range == null)
@@ -521,18 +521,18 @@ var Lists_setOrderedList;
         });
         Range_ensureValidHierarchy(range);
         Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
-    });
+    }
 
     // public
-    Lists_setUnorderedList = trace(function setUnorderedList()
+    Lists_setUnorderedList = function()
     {
         setList(HTML_UL);
-    });
+    }
 
     // public
-    Lists_setOrderedList = trace(function setOrderedList()
+    Lists_setOrderedList = function()
     {
         setList(HTML_OL);
-    });
+    }
 
 })();

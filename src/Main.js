@@ -17,16 +17,16 @@ var Main_clientRectsBug;
 (function() {
 
     // public
-    Main_getLanguage = trace(function getLanguage()
+    Main_getLanguage = function()
     {
         var lang = document.documentElement.getAttribute("lang");
         if (lang != null)
             lang = lang.replace(/-/g,"_");
         return lang;
-    });
+    }
 
     // public
-    Main_setLanguage = trace(function setLanguage(lang)
+    Main_setLanguage = function(lang)
     {
         if ((lang == null) || (lang == "")) {
             DOM_removeAttribute(document.documentElement,"lang");
@@ -35,10 +35,10 @@ var Main_clientRectsBug;
             lang = lang.replace(/_/g,"-");
             DOM_setAttribute(document.documentElement,"lang",lang);
         }
-    });
+    }
 
     // public
-    Main_removeUnsupportedInput = trace(function removeUnsupportedInput()
+    Main_removeUnsupportedInput = function()
     {
         recurse(document.documentElement);
 
@@ -57,10 +57,10 @@ var Main_clientRectsBug;
                 }
             }
         }
-    });
+    }
 
     // private
-    var addMetaCharset = trace(function addMetaCharset()
+    function addMetaCharset()
     {
         var head = DOM_documentHead(document);
         var next;
@@ -78,10 +78,10 @@ var Main_clientRectsBug;
         var meta = DOM_createElement(document,"META");
         DOM_setAttribute(meta,"charset","utf-8");
         DOM_insertBefore(head,meta,head.firstChild);
-    });
+    }
 
     // public
-    Main_setGenerator = trace(function setGenerator(generator)
+    Main_setGenerator = function(generator)
     {
         return UndoManager_disableWhileExecuting(function() {
             var head = DOM_documentHead(document);
@@ -106,30 +106,30 @@ var Main_clientRectsBug;
 
             return "";
         });
-    });
+    }
 
     // public
-    Main_isEmptyDocument = trace(function isEmptyDocument()
+    Main_isEmptyDocument = function()
     {
         return !nodeHasContent(document.body);
-    });
+    }
 
     // public
-    Main_prepareForSave = trace(function prepareForSave()
+    Main_prepareForSave = function()
     {
         // Force any end-of-group actions to be performed
         UndoManager_newGroup();
         return true;
-    });
+    }
 
     // public
-    Main_getHTML = trace(function getHTML()
+    Main_getHTML = function()
     {
         return document.documentElement.outerHTML;
-    });
+    }
 
     // public
-    Main_getErrorReportingInfo = trace(function getErrorReportingInfo()
+    Main_getErrorReportingInfo = function()
     {
         if (document.documentElement == null)
             return "(document.documentElement is null)";
@@ -243,10 +243,10 @@ var Main_clientRectsBug;
                 node.nodeValue = save.originalNodeValue;
             }
         }
-    });
+    }
 
     // public
-    Main_removeSpecial = trace(function removeSpecial(node)
+    Main_removeSpecial = function(node)
     {
         // We process the children first, so that if there are any nested removable elements (e.g.
         // a selection span inside of an autocorrect span), all levels of nesting are taken care of
@@ -279,10 +279,25 @@ var Main_clientRectsBug;
                 DOM_deleteNode(node);
             }
         }
-    });
+    }
+
+    function simplifyStackString(e)
+    {
+        if (e.stack == null)
+            return "";
+        var lines = e.stack.toString().split(/\n/);
+        for (var i = 0; i < lines.length; i++) {
+            var nameMatch = lines[i].match(/^(.*)@/);
+            var name = (nameMatch != null) ? nameMatch[1] : "(anonymous function)";
+            var locMatch = lines[i].match(/:([0-9]+:[0-9]+)$/);
+            var loc = (locMatch != null) ? locMatch[1] : "?";
+            lines[i] = "stack["+(lines.length-i-1)+"] = "+name+"@"+loc;
+        }
+        return lines.join("\n");
+    }
 
     // public
-    Main_execute = trace(function execute(fun)
+    Main_execute = function(fun)
     {
         try {
             var res = fun();
@@ -290,11 +305,13 @@ var Main_clientRectsBug;
             return res;
         }
         catch (e) {
-            Editor_error(e);
+            var message = (e.message != null) ? e.message : e.toString();
+            var stack = simplifyStackString(e);
+            Editor_error(message+"\n"+stack);
         }
-    });
+    }
 
-    var fixEmptyBody = trace(function fixEmptyBody()
+    function fixEmptyBody()
     {
         for (var child = document.body.firstChild; child != null; child = child.nextSibling) {
             if (nodeHasContent(child))
@@ -312,10 +329,10 @@ var Main_clientRectsBug;
         var br = DOM_createElement(document,"BR");
         DOM_appendChild(p,br);
         DOM_appendChild(document.body,p);
-    });
+    }
 
     // public
-    Main_init = trace(function init(width,textScale,cssURL,clientRectsBug)
+    Main_init = function(width,textScale,cssURL,clientRectsBug)
     {
         try {
             Main_clientRectsBug = clientRectsBug;
@@ -356,6 +373,6 @@ var Main_clientRectsBug;
         catch (e) {
             return e.toString();
         }
-    });
+    }
 
 })();

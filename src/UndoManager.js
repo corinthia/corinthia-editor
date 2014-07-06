@@ -65,28 +65,28 @@ var UndoManager_groupType;
     var disabled = 0;
 
     // public
-    UndoManager_getLength = trace(function getLength()
+    UndoManager_getLength = function()
     {
         return undoStack.length + redoStack.length;
-    });
+    }
 
     // public
-    UndoManager_getIndex = trace(function getIndex()
+    UndoManager_getIndex = function()
     {
         return undoStack.length;
-    });
+    }
 
     // public
-    UndoManager_setIndex = trace(function setIndex(index)
+    UndoManager_setIndex = function(index)
     {
         while (undoStack.length > index)
             UndoManager_undo();
         while (undoStack.length < index)
             UndoManager_redo();
-    });
+    }
 
     // public
-    UndoManager_print = trace(function print()
+    UndoManager_print = function()
     {
         debug("");
         debug("--------------------------------------------------------------------");
@@ -111,17 +111,17 @@ var UndoManager_groupType;
         debug("Current group = "+currentGroup);
         debug("--------------------------------------------------------------------");
         debug("");
-    });
+    }
 
-    var closeCurrentGroup = trace(function closeCurrentGroup()
+    function closeCurrentGroup()
     {
         if ((currentGroup != null) && (currentGroup.onClose != null))
             currentGroup.onClose();
         currentGroup = null;
-    });
+    }
 
     // public
-    UndoManager_undo = trace(function undo()
+    UndoManager_undo = function()
     {
         closeCurrentGroup();
         if (undoStack.length > 0) {
@@ -132,10 +132,10 @@ var UndoManager_groupType;
             inUndo = false;
         }
         closeCurrentGroup();
-    });
+    }
 
     // public
-    UndoManager_redo = trace(function redo()
+    UndoManager_redo = function()
     {
         closeCurrentGroup();
         if (redoStack.length > 0) {
@@ -146,10 +146,10 @@ var UndoManager_groupType;
             inRedo = false;
         }
         closeCurrentGroup();
-    });
+    }
 
     // public
-    UndoManager_addAction = trace(function addAction(fun)
+    UndoManager_addAction = function(fun)
     {
         if (disabled > 0)
             return;
@@ -175,10 +175,10 @@ var UndoManager_groupType;
         }
 
         currentGroup.actions.push(new UndoAction(fun,args));
-    });
+    }
 
     // public
-    UndoManager_newGroup = trace(function newGroup(type,onClose)
+    UndoManager_newGroup = function(type,onClose)
     {
         if (disabled > 0)
             return;
@@ -192,18 +192,18 @@ var UndoManager_groupType;
         if ((type == null) || (type == ""))
             type = "Anonymous";
         currentGroup = new UndoGroup(type,onClose);
-    });
+    }
 
     // public
-    UndoManager_groupType = trace(function groupType()
+    UndoManager_groupType = function()
     {
         if (undoStack.length > 0)
             return undoStack[undoStack.length-1].type;
         else
             return null;
-    });
+    }
 
-    UndoManager_disableWhileExecuting = trace(function disableWhileExecuting(fun) {
+    UndoManager_disableWhileExecuting = function(fun) {
         disabled++;
         try {
             return fun();
@@ -211,21 +211,21 @@ var UndoManager_groupType;
         finally {
             disabled--;
         }
-    });
+    }
 
-    UndoManager_isActive = trace(function isActive()
+    UndoManager_isActive = function()
     {
         return (inUndo || inRedo);
-    });
+    }
 
-    UndoManager_isDisabled = trace(function isDisabled() {
+    UndoManager_isDisabled = function() {
         return (disabled > 0);
-    });
+    }
 
-    UndoManager_clear = trace(function clear() {
+    UndoManager_clear = function() {
         undoStack.length = 0;
         redoStack.length = 0;
-    });
+    }
 
     function saveProperty(obj,name)
     {
@@ -235,29 +235,29 @@ var UndoManager_groupType;
             UndoManager_addAction(UndoManager_deleteProperty,obj,name);
     }
 
-    UndoManager_setProperty = trace(function setProperty(obj,name,value)
+    UndoManager_setProperty = function(obj,name,value)
     {
         if (obj.hasOwnProperty(name) && (obj[name] == value))
             return; // no point in adding an undo action
         saveProperty(obj,name);
         obj[name] = value;
-    });
+    }
 
-    UndoManager_deleteProperty = trace(function setProperty(obj,name)
+    UndoManager_deleteProperty = function(obj,name)
     {
         if (!obj.hasOwnProperty(name))
             return; // no point in adding an undo action
         saveProperty(obj,name);
         delete obj[name];
-    });
+    }
 
-    UndoManager_groupType = trace(function groupType()
+    UndoManager_groupType = function()
     {
         if (undoStack.length == 0)
             return null;
         else
             return undoStack[undoStack.length-1].type;
-    });
+    }
 
 })();
 

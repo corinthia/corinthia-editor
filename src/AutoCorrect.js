@@ -13,7 +13,7 @@ var AutoCorrect_replaceCorrection;
 
 (function() {
 
-    var removeCorrectionSpan = trace(function removeCorrectionSpan(span)
+    function removeCorrectionSpan(span)
     {
         if (span.parentNode == null)
             return;
@@ -23,7 +23,7 @@ var AutoCorrect_replaceCorrection;
             if (firstChild != null)
                 Formatting_mergeWithNeighbours(firstChild,{});
         });
-    });
+    }
 
     function Correction(span)
     {
@@ -47,7 +47,7 @@ var AutoCorrect_replaceCorrection;
     var correctionList = null;
 
     // private
-    var docNodeInserted = trace(function docNodeInserted(event)
+    function docNodeInserted(event)
     {
         try {
             recurse(event.target);
@@ -63,10 +63,10 @@ var AutoCorrect_replaceCorrection;
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
         }
-    });
+    }
 
     // private
-    var docNodeRemoved = trace(function docNodeRemoved(event)
+    function docNodeRemoved(event)
     {
         try {
             recurse(event.target);
@@ -82,24 +82,24 @@ var AutoCorrect_replaceCorrection;
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
         }
-    });
+    }
 
-    AutoCorrect_init = trace(function init()
+    AutoCorrect_init = function()
     {
         correctionsByNode = new NodeMap();
         correctionList = new Array();
         document.addEventListener("DOMNodeInserted",docNodeInserted);
         document.addEventListener("DOMNodeRemoved",docNodeRemoved);
-    });
+    }
 
     // public (for the undo tests, when they report results)
-    AutoCorrect_removeListeners = trace(function removeListeners()
+    AutoCorrect_removeListeners = function()
     {
         document.removeEventListener("DOMNodeInserted",docNodeInserted);
         document.removeEventListener("DOMNodeRemoved",docNodeRemoved);
-    });
+    }
 
-    AutoCorrect_addCorrection = trace(function addCorrection(span)
+    AutoCorrect_addCorrection = function(span)
     {
         var correction = new Correction(span);
         correctionsByNode.put(span,correction);
@@ -107,9 +107,9 @@ var AutoCorrect_replaceCorrection;
         Editor_updateAutoCorrect();
 
         span.addEventListener("DOMSubtreeModified",correction.modificationListener);
-    });
+    }
 
-    AutoCorrect_removeCorrection = trace(function removeCorrection(span)
+    AutoCorrect_removeCorrection = function(span)
     {
         var correction = correctionsByNode.get(span);
         if (correction == null)
@@ -129,9 +129,9 @@ var AutoCorrect_replaceCorrection;
 
         span.removeEventListener("DOMSubtreeModified",correction.modificationListener);
         correctionsByNode.remove(span);
-    });
+    }
 
-    AutoCorrect_getCorrections = trace(function getCorrections()
+    AutoCorrect_getCorrections = function()
     {
         var result = new Array();
         for (var i = 0; i < correctionList.length; i++) {
@@ -140,10 +140,9 @@ var AutoCorrect_replaceCorrection;
                           replacement: getNodeText(correction.span)});
         }
         return result;
-    });
+    }
 
-    AutoCorrect_correctPrecedingWord =
-        trace(function correctPrecedingWord(numChars,replacement,confirmed)
+    AutoCorrect_correctPrecedingWord = function(numChars,replacement,confirmed)
     {
         Selection_preserveWhileExecuting(function() {
             var selRange = Selection_get();
@@ -177,9 +176,9 @@ var AutoCorrect_replaceCorrection;
             // is not counted as a separate action
             PostponedActions_add(UndoManager_newGroup);
         });
-    });
+    }
 
-    AutoCorrect_getCorrection = trace(function getCorrection()
+    AutoCorrect_getCorrection = function()
     {
         var correction = getCurrent();
         if (correction == null)
@@ -187,9 +186,9 @@ var AutoCorrect_replaceCorrection;
 
         return { original: correction.span.getAttribute("original"),
                  replacement: getNodeText(correction.span) };
-    });
+    }
 
-    AutoCorrect_getCorrectionCoords = trace(function getCorrectionCoords()
+    AutoCorrect_getCorrectionCoords = function()
     {
         var correction = getCurrent();
         if (correction == null)
@@ -211,9 +210,9 @@ var AutoCorrect_replaceCorrection;
             return null;
 
         return { x: rect.left, y: rect.top };
-    });
+    }
 
-    var getCurrent = trace(function getCurrent()
+    function getCurrent()
     {
         var range = Selection_get();
         if (range != null) {
@@ -228,9 +227,9 @@ var AutoCorrect_replaceCorrection;
             return correctionList[correctionList.length-1];
 
         return null;
-    });
+    }
 
-    AutoCorrect_acceptCorrection = trace(function acceptCorrection()
+    AutoCorrect_acceptCorrection = function()
     {
         UndoManager_newGroup("Accept");
         var correction = getCurrent();
@@ -239,18 +238,18 @@ var AutoCorrect_replaceCorrection;
 
         removeCorrectionSpan(correction.span);
         UndoManager_newGroup();
-    });
+    }
 
-    AutoCorrect_revertCorrection = trace(function revertCorrection()
+    AutoCorrect_revertCorrection = function()
     {
         var correction = getCurrent();
         if (correction == null)
             return;
 
         AutoCorrect_replaceCorrection(correction.span.getAttribute("original"));
-    });
+    }
 
-    AutoCorrect_replaceCorrection = trace(function replaceCorrection(replacement)
+    AutoCorrect_replaceCorrection = function(replacement)
     {
         UndoManager_newGroup("Replace");
         var correction = getCurrent();
@@ -264,6 +263,6 @@ var AutoCorrect_replaceCorrection;
             Formatting_mergeWithNeighbours(text,{});
         });
         UndoManager_newGroup();
-    });
+    }
 
 })();

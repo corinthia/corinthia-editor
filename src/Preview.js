@@ -119,6 +119,6 @@ var Preview_showForStyle;
         }
     }
 
-    Preview_showForStyle = trace(showForStyle);
+    Preview_showForStyle = showForStyle;
 
 })();

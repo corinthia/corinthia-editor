@@ -66,7 +66,7 @@ var Outline_scheduleUpdateStructure;
         Editor_removeOutlineItem(item.id);
     }
 
-    var Category_add = trace(function add(category,node)
+    function Category_add(category,node)
     {
         var item = itemsByNode.get(node);
         if (item == null)
@@ -89,9 +89,9 @@ var Outline_scheduleUpdateStructure;
             while ((node != null) && !typeFun(node));
             return (node == null) ? null : itemsByNode.get(node);
         }
-    });
+    }
 
-    var findFirstTextDescendant = trace(function _findFirstTextDescendant(node)
+    function findFirstTextDescendant(node)
     {
         if (isWhitespaceTextNode(node))
             return;
@@ -103,9 +103,9 @@ var Outline_scheduleUpdateStructure;
                 return result;
         }
         return null;
-    });
+    }
 
-    var Category_remove = trace(function remove(category,node)
+    function Category_remove(category,node)
     {
         var item = itemsByNode.get(node);
         if (item == null) {
@@ -122,15 +122,15 @@ var Outline_scheduleUpdateStructure;
             DOM_deleteNode(titleNode);
         }
         scheduleUpdateStructure();
-    });
+    }
 
-    var addTOCInternal = trace(function addTOCInternal(category,node,toc)
+    function addTOCInternal(category,node,toc)
     {
         UndoManager_addAction(removeTOCInternal,category,node);
         category.tocs.put(node,toc);
-    });
+    }
 
-    var removeTOCInternal = trace(function removeTOCInternal(category,node)
+    function removeTOCInternal(category,node)
     {
         var toc = category.tocs.get(node);
         if (toc == null)
@@ -139,9 +139,9 @@ var Outline_scheduleUpdateStructure;
         UndoManager_addAction(addTOCInternal,category,node,toc);
 
         category.tocs.remove(node);
-    });
+    }
 
-    var Category_addTOC = trace(function addTOC(category,node)
+    function Category_addTOC(category,node)
     {
         var toc = new TOC(node);
         addTOCInternal(category,node,toc);
@@ -152,12 +152,12 @@ var Outline_scheduleUpdateStructure;
         }
 
         scheduleUpdateStructure();
-    });
+    }
 
-    var Category_removeTOC = trace(function removeTOC(category,node)
+    function Category_removeTOC(category,node)
     {
         removeTOCInternal(category,node);
-    });
+    }
 
     function TOC(node)
     {
@@ -165,23 +165,22 @@ var Outline_scheduleUpdateStructure;
         this.textNodes = new Object();
     }
 
-    var TOC_addOutlineItem = trace(function addOutlineItem(toc,id)
+    function TOC_addOutlineItem(toc,id)
     {
         toc.textNodes[id] = DOM_createTextNode(document,"");
-    });
+    }
 
-    var TOC_removeOutlineItem = trace(function removeOutlineItem(toc,id)
+    function TOC_removeOutlineItem(toc,id)
     {
         delete toc.textNodes[id];
-    });
+    }
 
-    var TOC_updateOutlineItem = trace(function updateOutlineItem(toc,id,title)
+    function TOC_updateOutlineItem(toc,id,title)
     {
         DOM_setNodeValue(toc.textNodes[id],title);
-    });
+    }
 
-    var TOC_updateStructure = trace(function _TOC_updateStructure(toc,structure,toplevelShadows,
-                                                                  pageNumbers)
+    function TOC_updateStructure(toc,structure,toplevelShadows,pageNumbers)
     {
         Hierarchy_ensureValidHierarchy(toc.node);
         DOM_deleteAllChildren(toc.node);
@@ -274,7 +273,7 @@ var Outline_scheduleUpdateStructure;
                 recurse(shadow.children,parent,level+1);
             }
         }
-    });
+    }
 
     function OutlineItem(category,node)
     {
@@ -332,7 +331,7 @@ var Outline_scheduleUpdateStructure;
         }
     }
 
-    var OutlineItem_getTitleNode = trace(function getTitleNode(item,create)
+    function OutlineItem_getTitleNode(item,create)
     {
         if (item.type == "section") {
             return item.node;
@@ -362,9 +361,9 @@ var Outline_scheduleUpdateStructure;
             }
             return null;
         }
-    });
+    }
 
-    var OutlineItem_updateItemTitle = trace(function updateItemTitle(item)
+    function OutlineItem_updateItemTitle(item)
     {
         var titleNode = OutlineItem_getTitleNode(item,false);
         if (titleNode != null)
@@ -380,7 +379,7 @@ var Outline_scheduleUpdateStructure;
                 TOC_updateOutlineItem(toc,item.id,item.title);
             });
         }
-    });
+    }
 
     function getNodeTextAfter(node)
     {
@@ -391,7 +390,7 @@ var Outline_scheduleUpdateStructure;
     }
 
     // private
-    var itemModified = trace(function itemModified(item)
+    function itemModified(item)
     {
         if (UndoManager_isActive())
             return;
@@ -399,17 +398,17 @@ var Outline_scheduleUpdateStructure;
             return;
         OutlineItem_updateItemTitle(item);
         updateRefsForItem(item);
-    });
+    }
 
-    var addRefForId = trace(function addRefForId(id,node)
+    function addRefForId(id,node)
     {
         UndoManager_addAction(removeRefForId,id,node);
         if (refsById[id] == null)
             refsById[id] = new Array();
         refsById[id].push(node);
-    });
+    }
 
-    var removeRefForId = trace(function removeRefForId(id,node)
+    function removeRefForId(id,node)
     {
         UndoManager_addAction(addRefForId,id,node);
         if (refsById[id] == null)
@@ -420,10 +419,10 @@ var Outline_scheduleUpdateStructure;
         refsById[id].splice(index,1);
         if (refsById[id] == null)
             delete refsById[id];
-    });
+    }
 
     // private
-    var refInserted = trace(function refInserted(node)
+    function refInserted(node)
     {
         var href = node.getAttribute("href");
         if (href.charAt(0) != "#")
@@ -431,30 +430,30 @@ var Outline_scheduleUpdateStructure;
         var id = href.substring(1);
         addRefForId(id,node);
         scheduleUpdateStructure();
-    });
+    }
 
     // private
-    var refRemoved = trace(function refRemoved(node)
+    function refRemoved(node)
     {
         var href = node.getAttribute("href");
         if (href.charAt(0) != "#")
             throw new Error("refInserted: not a # reference");
         var id = href.substring(1);
         removeRefForId(id,node);
-    });
+    }
 
     // private
-    var acceptNode = trace(function acceptNode(node)
+    function acceptNode(node)
     {
         for (var p = node; p != null; p = p.parentNode) {
             if ((p._type == HTML_SPAN) && (p.getAttribute("class") == Keys.HEADING_NUMBER))
                 return false;
         }
         return true;
-    });
+    }
 
     // private
-    var docNodeInserted = trace(function docNodeInserted(event)
+    function docNodeInserted(event)
     {
         if (UndoManager_isActive())
             return;
@@ -512,10 +511,10 @@ var Outline_scheduleUpdateStructure;
                 recurse(child);
             }
         }
-    });
+    }
 
     // private
-    var docNodeRemoved = trace(function docNodeRemoved(event)
+    function docNodeRemoved(event)
     {
         if (UndoManager_isActive())
             return;
@@ -566,10 +565,10 @@ var Outline_scheduleUpdateStructure;
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
         }
-    });
+    }
 
     // private
-    var scheduleUpdateStructure = trace(function scheduleUpdateStructure()
+    function scheduleUpdateStructure()
     {
         if (UndoManager_isActive())
             return;
@@ -577,12 +576,12 @@ var Outline_scheduleUpdateStructure;
             outlineDirty = true;
             PostponedActions_add(updateStructure);
         }
-    });
+    }
 
     Outline_scheduleUpdateStructure = scheduleUpdateStructure;
 
     // private
-    var updateStructure = trace(function updateStructure()
+    function updateStructure()
     {
         if (!outlineDirty)
             return;
@@ -592,7 +591,7 @@ var Outline_scheduleUpdateStructure;
         Selection_preserveWhileExecuting(function() {
             updateStructureReal();
         });
-    });
+    }
 
     function Shadow(node)
     {
@@ -626,15 +625,15 @@ var Outline_scheduleUpdateStructure;
         }
     }
 
-    var Shadow_last = trace(function last(shadow)
+    function Shadow_last(shadow)
     {
         if (shadow.children.length == 0)
             return shadow;
         else
             return Shadow_last(shadow.children[shadow.children.length-1]);
-    });
+    }
 
-    var Shadow_outerNext = trace(function outerNext(shadow,structure)
+    function Shadow_outerNext(shadow,structure)
     {
         var last = Shadow_last(shadow);
         if (last == null)
@@ -643,9 +642,9 @@ var Outline_scheduleUpdateStructure;
             return null;
         else
             return structure.shadowsByNode.get(last.item.next.node);
-    });
+    }
 
-    var firstTextDescendant = trace(function firstTextDescendant(node)
+    function firstTextDescendant(node)
     {
         if (node.nodeType == Node.TEXT_NODE)
             return node;
@@ -655,7 +654,7 @@ var Outline_scheduleUpdateStructure;
                 return result;
         }
         return null;
-    });
+    }
 
     function Structure()
     {
@@ -665,7 +664,7 @@ var Outline_scheduleUpdateStructure;
         this.shadowsByNode = new NodeMap();
     }
 
-    var discoverStructure = trace(function _discoverStructure()
+    function discoverStructure()
     {
         var structure = new Structure();
         var nextToplevelSectionNumber = 1;
@@ -765,9 +764,9 @@ var Outline_scheduleUpdateStructure;
         ignoreModifications--;
 
         return structure;
-    });
+    }
 
-    var updateStructureReal = trace(function updateStructureReal(pageNumbers)
+    function updateStructureReal(pageNumbers)
     {
         var structure = discoverStructure();
 
@@ -797,9 +796,9 @@ var Outline_scheduleUpdateStructure;
         });
 
         Editor_outlineUpdated();
-    });
+    }
 
-    Outline_getOutline = trace(function getOutline()
+    Outline_getOutline = function()
     {
         var structure = discoverStructure();
         var encSections = new Array();
@@ -828,9 +827,9 @@ var Outline_scheduleUpdateStructure;
                         children: encChildren };
             result.push(obj);
         }
-    });
+    }
 
-    var updateRefsForItem = trace(function _updateRefsForItem(item)
+    function updateRefsForItem(item)
     {
         var id = item.node.getAttribute("id");
         var refs = refsById[id];
@@ -902,9 +901,9 @@ var Outline_scheduleUpdateStructure;
 
             DOM_appendChild(refs[i],DOM_createTextNode(document,text));
         }
-    });
+    }
 
-    Outline_plainText = trace(function plainText()
+    Outline_plainText = function()
     {
         var strings = new Array();
         var structure = discoverStructure();
@@ -955,10 +954,10 @@ var Outline_scheduleUpdateStructure;
             for (var i = 0; i < shadow.children.length; i++)
                 printSectionRecursive(shadow.children[i],indent+"    ");
         }
-    });
+    }
 
     // public
-    Outline_init = trace(function init()
+    Outline_init = function()
     {
         Selection_preserveWhileExecuting(function() {
 
@@ -990,10 +989,10 @@ var Outline_scheduleUpdateStructure;
             docNodeInserted({target:document});
         });
         doneInit = true;
-    });
+    }
 
     // public (for the undo tests, when they report results)
-    Outline_removeListeners = trace(function removeListeners()
+    Outline_removeListeners = function()
     {
         document.removeEventListener("DOMNodeInserted",docNodeInserted);
         document.removeEventListener("DOMNodeRemoved",docNodeRemoved);
@@ -1007,19 +1006,19 @@ var Outline_scheduleUpdateStructure;
             for (var item = category.list.first; item != null; item = item.next)
                 item.node.removeEventListener("DOMSubtreeModified",item.modificationListener);
         }
-    });
+    }
 
     // private
-    var getShadowNodes = trace(function getShadowNodes(structure,shadow,result)
+    function getShadowNodes(structure,shadow,result)
     {
         var endShadow = Shadow_outerNext(shadow,structure);
         var endNode = endShadow ? endShadow.item.node : null;
         for (var n = shadow.item.node; (n != null) && (n != endNode); n = n.nextSibling)
             result.push(n);
-    });
+    }
 
     // public
-    Outline_moveSection = trace(function moveSection(sectionId,parentId,nextId)
+    Outline_moveSection = function(sectionId,parentId,nextId)
     {
         UndoManager_newGroup("Move section");
         Selection_clear();
@@ -1066,10 +1065,10 @@ var Outline_scheduleUpdateStructure;
 
         scheduleUpdateStructure();
         PostponedActions_add(UndoManager_newGroup);
-    });
+    }
 
     // public
-    Outline_deleteItem = trace(function deleteItem(itemId)
+    Outline_deleteItem = function(itemId)
     {
         UndoManager_newGroup("Delete outline item");
         var structure = discoverStructure();
@@ -1090,10 +1089,10 @@ var Outline_scheduleUpdateStructure;
 
         scheduleUpdateStructure();
         PostponedActions_add(UndoManager_newGroup);
-    });
+    }
 
     // public
-    Outline_goToItem = trace(function goToItem(itemId)
+    Outline_goToItem = function(itemId)
     {
         if (itemId == null) {
             window.scrollTo(0);
@@ -1116,16 +1115,16 @@ var Outline_scheduleUpdateStructure;
             var location = webkitConvertPointFromNodeToPage(section,new WebKitPoint(0,0));
             window.scrollTo(0,location.y);
         }
-    });
+    }
 
     // public
-    Outline_getItemElement = trace(function getItemElement(itemId)
+    Outline_getItemElement = function(itemId)
     {
         return document.getElementById(itemId);
-    });
+    }
 
     // public
-    Outline_setNumbered = trace(function setNumbered(itemId,numbered)
+    Outline_setNumbered = function(itemId,numbered)
     {
         var node = document.getElementById(itemId);
         var item = itemsByNode.get(node);
@@ -1155,10 +1154,10 @@ var Outline_scheduleUpdateStructure;
         });
 
         scheduleUpdateStructure();
-    });
+    }
 
     // public
-    Outline_setTitle = trace(function setTitle(itemId,title)
+    Outline_setTitle = function(itemId,title)
     {
         var node = document.getElementById(itemId);
         var item = itemsByNode.get(node);
@@ -1180,45 +1179,45 @@ var Outline_scheduleUpdateStructure;
             DOM_appendChild(titleNode,DOM_createTextNode(document,title));
             OutlineItem_updateItemTitle(item);
         });
-    });
+    }
 
     // private
     // FIXME: prevent a TOC from being inserted inside a heading, figure, or table
-    var insertTOC = trace(function insertTOC(key,initialText)
+    function insertTOC(key,initialText)
     {
         var div = DOM_createElement(document,"NAV");
         DOM_setAttribute(div,"class",key);
         Cursor_makeContainerInsertionPoint();
         Clipboard_pasteNodes([div]);
-    });
+    }
 
     // public
-    Outline_insertTableOfContents = trace(function insertTableOfContents()
+    Outline_insertTableOfContents = function()
     {
         insertTOC(Keys.SECTION_TOC);
-    });
+    }
 
     // public
-    Outline_insertListOfFigures = trace(function insertListOfFigures()
+    Outline_insertListOfFigures = function()
     {
         insertTOC(Keys.FIGURE_TOC);
-    });
+    }
 
     // public
-    Outline_insertListOfTables = trace(function insertListOfTables()
+    Outline_insertListOfTables = function()
     {
         insertTOC(Keys.TABLE_TOC);
-    });
+    }
 
     // public
-    Outline_setPrintMode = trace(function setPrintMode(newPrintMode)
+    Outline_setPrintMode = function(newPrintMode)
     {
         printMode = newPrintMode;
         scheduleUpdateStructure();
-    });
+    }
 
     // public
-    Outline_examinePrintLayout = trace(function examinePrintLayout(pageHeight)
+    Outline_examinePrintLayout = function(pageHeight)
     {
         var result = new Object();
         var structure = discoverStructure();
@@ -1298,17 +1297,18 @@ var Outline_scheduleUpdateStructure;
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
         }
-    });
+    }
 
-    Outline_setReferenceTarget = trace(function setReferenceTarget(node,itemId) {
+    Outline_setReferenceTarget = function(node,itemId)
+    {
         Selection_preserveWhileExecuting(function() {
             refRemoved(node);
             DOM_setAttribute(node,"href","#"+itemId);
             refInserted(node);
         });
-    });
+    }
 
-    Outline_detectSectionNumbering = trace(function detectSectionNumbering()
+    Outline_detectSectionNumbering = function()
     {
         var sectionNumbering = detectNumbering(sections);
         if (sectionNumbering)
@@ -1316,9 +1316,9 @@ var Outline_scheduleUpdateStructure;
         makeNumberingExplicit(figures);
         makeNumberingExplicit(tables);
         return sectionNumbering;
-    });
+    }
 
-    var detectNumbering = trace(function _detectNumbering(category)
+    function detectNumbering(category)
     {
         for (var item = category.list.first; item != null; item = item.next) {
 
@@ -1334,9 +1334,9 @@ var Outline_scheduleUpdateStructure;
                     return true;
             }
         }
-    });
+    }
 
-    var makeNumberingExplicit = trace(function _makeNumberingExplicit(category)
+    function makeNumberingExplicit(category)
     {
         for (var item = category.list.first; item != null; item = item.next) {
             var firstText = null;
@@ -1359,11 +1359,11 @@ var Outline_scheduleUpdateStructure;
                 }
             }
         }
-    });
+    }
 
     // Search through the document for any elements corresponding to built-in styles that are
     // normally latent (i.e. only included in the stylesheet if used)
-    Outline_findUsedStyles = trace(function findUsedStyles()
+    Outline_findUsedStyles = function()
     {
         var used = new Object();
         recurse(document.body);
@@ -1402,6 +1402,6 @@ var Outline_scheduleUpdateStructure;
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
         }
-    });
+    }
 
 })();

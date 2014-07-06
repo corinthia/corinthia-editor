@@ -50,27 +50,27 @@ var Selection_print;
 
         var selection = new Object();
 
-        Selection_isMarked = trace(function isMarked()
+        Selection_isMarked = function()
         {
             if (selection.value == null)
                 return null;
             else
                 return selection.value.isMarked;
-        });
+        }
 
         // public
-        Selection_get = trace(function get()
+        Selection_get = function()
         {
             if (selection.value == null)
                 return null;
             else
                 return new Range(selection.value.startNode,selection.value.startOffset,
                                  selection.value.endNode,selection.value.endOffset);
-        });
+        }
 
         // public
         Selection_setInternal =
-            trace(function setInternal(newStartNode,newStartOffset,newEndNode,newEndOffset,isMarked)
+            function(newStartNode,newStartOffset,newEndNode,newEndOffset,isMarked)
         {
             var range = new Range(newStartNode,newStartOffset,newEndNode,newEndOffset);
             if (!Range_isForwards(range))
@@ -83,23 +83,23 @@ var Selection_print;
                                       endNode: range.end.node,
                                       endOffset: range.end.offset,
                                       isMarked: isMarked });
-        });
+        }
 
-        Selection_set = trace(function set(newStartNode,newStartOffset,newEndNode,newEndOffset,
-                                           keepActiveHandle,isMarked)
+        Selection_set = function(newStartNode,newStartOffset,newEndNode,newEndOffset,
+                                 keepActiveHandle,isMarked)
         {
             Selection_setInternal(newStartNode,newStartOffset,newEndNode,newEndOffset,isMarked);
             Selection_update();
             if (!keepActiveHandle)
                 activeHandle = HANDLE_NONE;
-        });
+        }
 
         // public
-        Selection_clear = trace(function clear()
+        Selection_clear = function()
         {
             UndoManager_setProperty(selection,"value",null);
             Selection_update();
-        });
+        }
     })();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -113,7 +113,7 @@ var Selection_print;
     var tableSelection = null;
 
     // private
-    updateTableSelection = trace(function updateTableSelection(selRange)
+    updateTableSelection = function(selRange)
     {
         tableSelection = Tables_regionFromRange(selRange);
         if (tableSelection == null)
@@ -163,17 +163,17 @@ var Selection_print;
                               selRange.end.node,selRange.end.offset);
 
         return true;
-    });
+    }
 
-    var makeSelectionDiv = trace(function _makeSelectionDiv()
+    function makeSelectionDiv()
     {
         var div = DOM_createElement(document,"DIV");
         DOM_appendChild(document.body,div);
         selectionDivs.push(div);
         return div;
-    });
+    }
 
-    var setTableEdges = trace(function _setTableEdges(x,y,width,height)
+    function setTableEdges(x,y,width,height)
     {
         var left = makeSelectionDiv();
         var right = makeSelectionDiv();
@@ -198,10 +198,10 @@ var Selection_print;
                                          "background-color": "blue",
                                          "z-index": 1 });
         }
-    });
+    }
 
     var editorHandles = { type: "none" };
-    var setEditorHandles = trace(function setEditorHandles(info)
+    function setEditorHandles(info)
     {
         var oldEditorHandles = editorHandles;
         editorHandles = info;
@@ -228,9 +228,9 @@ var Selection_print;
         else {
             throw new Error("setEditorHandles: unknown type "+type);
         }
-    });
+    }
 
-    var getPrevHighlightText = trace(function getPrevHighlightText(node)
+    function getPrevHighlightText(node)
     {
         if ((node.previousSibling != null) &&
             isSelectionHighlight(node.previousSibling) &&
@@ -239,9 +239,9 @@ var Selection_print;
             return node.previousSibling.lastChild;
         else
             return null;
-    });
+    }
 
-    var getNextHighlightText = trace(function getNextHighlightText(node)
+    function getNextHighlightText(node)
     {
         if ((node.nextSibling != null) &&
             isSelectionHighlight(node.nextSibling) &&
@@ -250,9 +250,9 @@ var Selection_print;
             return node.nextSibling.firstChild;
         else
             return null;
-    });
+    }
 
-    var getTextNodeBefore = trace(function getTextNodeBefore(node)
+    function getTextNodeBefore(node)
     {
         var prev = node.previousSibling;
         if ((prev != null) && (prev.nodeType == Node.TEXT_NODE)) {
@@ -263,9 +263,9 @@ var Selection_print;
             DOM_insertBefore(node.parentNode,text,node);
             return text;
         }
-    });
+    }
 
-    var getTextNodeAfter = trace(function getTextNodeAfter(node)
+    function getTextNodeAfter(node)
     {
         var next = node.nextSibling;
         if ((next != null) && (next.nodeType == Node.TEXT_NODE)) {
@@ -276,15 +276,15 @@ var Selection_print;
             DOM_insertBefore(node.parentNode,text,node.nextSibling);
             return text;
         }
-    });
+    }
 
-    var setSelectionHighlights = trace(function setSelectionHighlights(highlights)
+    function setSelectionHighlights(highlights)
     {
         UndoManager_addAction(setSelectionHighlights,selectionHighlights);
         selectionHighlights = highlights;
-    });
+    }
 
-    var createSelectionHighlights = trace(function createSelectionHighlights(data)
+    function createSelectionHighlights(data)
     {
         var newHighlights = arrayCopy(selectionHighlights);
 
@@ -322,9 +322,9 @@ var Selection_print;
                 }
             }
         }
-    });
+    }
 
-    var createTextHighlight = trace(function createTextHighlight(node,data,newHighlights)
+    function createTextHighlight(node,data,newHighlights)
     {
         var selRange = data.range;
         if (isSelectionHighlight(node.parentNode)) {
@@ -401,9 +401,9 @@ var Selection_print;
             DOM_setAttribute(wrapped,"class",Keys.SELECTION_CLASS);
             newHighlights.push(wrapped);
         }
-    });
+    }
 
-    var getRangeData = trace(function getSelectionData(selRange)
+    function getRangeData(selRange)
     {
         var nodeSet = new NodeSet();
         var nodes;
@@ -419,9 +419,9 @@ var Selection_print;
             outermost = new Array();
         }
         return { range: selRange, nodeSet: nodeSet, nodes: nodes, outermost: outermost };
-    });
+    }
 
-    var removeSelectionHighlights = trace(function removeSelectionHighlights(data,force)
+    function removeSelectionHighlights(data,force)
     {
         var selectedSet = data.nodeSet;
 
@@ -449,9 +449,9 @@ var Selection_print;
                 Formatting_mergeWithNeighbours(checkMerge[i],{});
             }
         }
-    });
+    }
 
-    var containsSelection = trace(function containsSelection(selectedSet,node)
+    function containsSelection(selectedSet,node)
     {
         if (selectedSet.contains(node))
             return true;
@@ -460,9 +460,9 @@ var Selection_print;
                 return true;
         }
         return false;
-    });
+    }
 
-    Selection_update = trace(function update()
+    Selection_update = function()
     {
         var selRange = Selection_get();
         var selMarked = Selection_isMarked();
@@ -604,16 +604,16 @@ var Selection_print;
             }
             return { offsetLeft: offsetLeft, offsetTop: offsetTop };
         }
-    });
+    }
 
     // public
-    Selection_selectAll = trace(function selectAll()
+    Selection_selectAll = function()
     {
         Selection_set(document.body,0,document.body,document.body.childNodes.length);
-    });
+    }
 
     // public
-    Selection_selectParagraph = trace(function selectParagraph()
+    Selection_selectParagraph = function()
     {
         var selRange = Selection_get();
         if (selRange == null)
@@ -632,7 +632,7 @@ var Selection_print;
         endPos = Position_closestMatchBackwards(endPos,Position_okForMovement);
 
         Selection_set(startPos.node,startPos.offset,endPos.node,endPos.offset);
-    });
+    }
 
     // private
     function getPunctuationCharsForRegex()
@@ -667,7 +667,7 @@ var Selection_print;
     var reWordStart = new RegExp("^[^"+wsPunctuation+"]+");
     var reWordEnd = new RegExp("[^"+wsPunctuation+"]+$");
 
-    Selection_posAtStartOfWord = trace(function posAtStartOfWord(pos)
+    Selection_posAtStartOfWord = function(pos)
     {
         var node = pos.node;
         var offset = pos.offset;
@@ -682,9 +682,9 @@ var Selection_print;
         }
 
         return pos;
-    });
+    }
 
-    Selection_posAtEndOfWord = trace(function posAtEndOfWord(pos)
+    Selection_posAtEndOfWord = function(pos)
     {
         var node = pos.node;
         var offset = pos.offset;
@@ -699,9 +699,9 @@ var Selection_print;
         }
 
         return pos;
-    });
+    }
 
-    var rangeOfWordAtPos = trace(function rangeOfWordAtPos(pos)
+    function rangeOfWordAtPos(pos)
     {
         var node = pos.node;
         var offset = pos.offset;
@@ -752,10 +752,10 @@ var Selection_print;
         }
 
         return null;
-    });
+    }
 
     // public
-    Selection_selectWordAtCursor = trace(function selectWordAtCursor()
+    Selection_selectWordAtCursor = function()
     {
         var selRange = Selection_get();
         if (selRange == null)
@@ -766,10 +766,10 @@ var Selection_print;
         if (range != null) {
             Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
         }
-    });
+    }
 
     // public
-    Selection_dragSelectionBegin = trace(function dragSelectionBegin(x,y,selectWord)
+    Selection_dragSelectionBegin = function(x,y,selectWord)
     {
         var pos = Position_closestMatchForwards(Position_atPoint(x,y),Position_okForMovement);
 
@@ -784,28 +784,28 @@ var Selection_print;
             Selection_selectWordAtCursor();
 
         return "end";
-    });
+    }
 
     var selectionHandleEnd = true;
 
-    var toStartOfWord = trace(function toStartOfWord(pos)
+    function toStartOfWord(pos)
     {
         if (Input_isAtWordBoundary(pos,"backward"))
             return pos;
         var boundary = Input_toWordBoundary(pos,"backward");
         return (boundary != null) ? boundary : pos;
-    });
+    }
 
-    var toEndOfWord = trace(function toEndOfWord(pos)
+    function toEndOfWord(pos)
     {
         if (Input_isAtWordBoundary(pos,"forward"))
             return pos;
         var boundary = Input_toWordBoundary(pos,"forward");
         return (boundary != null) ? boundary : pos;
-    });
+    }
 
     // public
-    Selection_dragSelectionUpdate = trace(function dragSelectionUpdate(x,y,selectWord)
+    Selection_dragSelectionUpdate = function(x,y,selectWord)
     {
         y = Cursor_scrollDocumentForY(y);
 
@@ -843,9 +843,9 @@ var Selection_print;
         }
 
         return selectionHandleEnd ? "end" : "start";
-    });
+    }
 
-    var moveBoundary = trace(function moveBoundary(command)
+    function moveBoundary(command)
     {
         var range = Selection_get();
         if (range == null)
@@ -871,34 +871,34 @@ var Selection_print;
                 return "start";
         }
         return null;
-    });
+    }
 
     // public
-    Selection_moveStartLeft = trace(function moveStartLeft()
+    Selection_moveStartLeft = function()
     {
         return moveBoundary("start-left");
-    });
+    }
 
     // public
-    Selection_moveStartRight = trace(function moveStartRight()
+    Selection_moveStartRight = function()
     {
         return moveBoundary("start-right");
-    });
+    }
 
     // public
-    Selection_moveEndLeft = trace(function moveEndLeft()
+    Selection_moveEndLeft = function()
     {
         return moveBoundary("end-left");
-    });
+    }
 
     // public
-    Selection_moveEndRight = trace(function moveEndRight()
+    Selection_moveEndRight = function()
     {
         return moveBoundary("end-right");
-    });
+    }
 
     // public
-    Selection_setSelectionStartAtCoords = trace(function setSelectionStartAtCoords(x,y)
+    Selection_setSelectionStartAtCoords = function(x,y)
     {
         var position = Position_closestMatchForwards(Position_atPoint(x,y),Position_okForMovement);
         if (position != null) {
@@ -911,10 +911,10 @@ var Selection_print;
                               newRange.end.node,newRange.end.offset);
             }
         }
-    });
+    }
 
     // public
-    Selection_setSelectionEndAtCoords = trace(function setSelectionEndAtCoords(x,y)
+    Selection_setSelectionEndAtCoords = function(x,y)
     {
         var position = Position_closestMatchForwards(Position_atPoint(x,y),Position_okForMovement);
         if (position != null) {
@@ -927,10 +927,10 @@ var Selection_print;
                               newRange.end.node,newRange.end.offset);
             }
         }
-    });
+    }
 
     // public
-    Selection_setTableSelectionEdgeAtCoords = trace(function setTableSelectionEdgeAtCoords(edge,x,y)
+    Selection_setTableSelectionEdgeAtCoords = function(edge,x,y)
     {
         if (tableSelection == null)
             return;
@@ -980,16 +980,16 @@ var Selection_print;
             }
             return null;
         }
-    });
+    }
 
     // public
-    Selection_setEmptySelectionAt = trace(function setEmptySelectionAt(node,offset)
+    Selection_setEmptySelectionAt = function(node,offset)
     {
         Selection_set(node,offset,node,offset);
-    });
+    }
 
     // private
-    var deleteTextSelection = trace(function deleteTextSelection(selRange,keepEmpty)
+    function deleteTextSelection(selRange,keepEmpty)
     {
         var nodes = Range_getOutermostNodes(selRange);
         for (var i = 0; i < nodes.length; i++) {
@@ -1070,9 +1070,9 @@ var Selection_print;
         }
 
         Cursor_updateBRAtEndOfParagraph(Range_singleNode(selRange));
-    });
+    }
 
-    var delEmpty = trace(function delEmpty(selRange,node)
+    function delEmpty(selRange,node)
     {
         while ((node != document.body) &&
                (node.nodeType == Node.ELEMENT_NODE) &&
@@ -1092,9 +1092,9 @@ var Selection_print;
             });
             node = parent;
         }
-    });
+    }
 
-    var fixPositionOutside = trace(function fixPositionOutside(pos,node)
+    function fixPositionOutside(pos,node)
     {
         if (pos.node == node) {
             var before = new Position(node.parentNode,DOM_nodeOffset(node));
@@ -1115,9 +1115,9 @@ var Selection_print;
             }
         }
         return true;
-    });
+    }
 
-    Selection_deleteRangeContents = trace(function deleteRangeContents(range,keepEmpty)
+    Selection_deleteRangeContents = function(range,keepEmpty)
     {
         Range_trackWhileExecuting(range,function() {
             DOM_ignoreMutationsWhileExecuting(function() {
@@ -1132,18 +1132,18 @@ var Selection_print;
         });
 
         Selection_set(range.start.node,range.start.offset,range.start.node,range.start.offset);
-    });
+    }
 
-    Selection_deleteContents = trace(function deleteContents(keepEmpty)
+    Selection_deleteContents = function(keepEmpty)
     {
         var range = Selection_get();
         if (range == null)
             return;
         Selection_deleteRangeContents(range,keepEmpty);
-    });
+    }
 
     // private
-    var removeParagraphDescendants = trace(function removeParagraphDescendants(parent)
+    function removeParagraphDescendants(parent)
     {
         var next;
         for (var child = parent.firstChild; child != null; child = next) {
@@ -1152,10 +1152,10 @@ var Selection_print;
             if (isParagraphNode(child))
                 DOM_removeNodeButKeepChildren(child);
         }
-    });
+    }
 
     // private
-    var findFirstParagraph = trace(function findFirstParagraph(node)
+    function findFirstParagraph(node)
     {
         if (isParagraphNode(node))
             return node;
@@ -1189,10 +1189,10 @@ var Selection_print;
                 DOM_appendChild(p,parent.firstChild);
             return p;
         }
-    });
+    }
 
     // private
-    var prepareForMerge = trace(function prepareForMerge(detail)
+    function prepareForMerge(detail)
     {
         if (isParagraphNode(detail.startAncestor) && isInlineNode(detail.endAncestor)) {
             var name = detail.startAncestor.nodeName; // check-ok
@@ -1248,16 +1248,16 @@ var Selection_print;
             childDetail.endAncestor = detail.endAncestor.firstChild;
             prepareForMerge(childDetail);
         }
-    });
+    }
 
     // public
-    Selection_clearSelection = trace(function clearSelection()
+    Selection_clearSelection = function()
     {
         Selection_clear();
-    });
+    }
 
     // public
-    Selection_preserveWhileExecuting = trace(function preserveWhileExecuting(fun)
+    Selection_preserveWhileExecuting = function(fun)
     {
         var range = Selection_get();
 
@@ -1272,9 +1272,9 @@ var Selection_print;
             Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
         }
         return result;
-    });
+    }
 
-    Selection_preferElementPositions = trace(function preferElementPositions()
+    Selection_preferElementPositions = function()
     {
         var range = Selection_get();
         if (range == null)
@@ -1283,9 +1283,9 @@ var Selection_print;
         range.end = Position_preferElementPosition(range.end);
         Selection_set(range.start.node,range.start.offset,
                       range.end.node,range.end.offset);
-    });
+    }
 
-    var getBoundaryContainer = trace(function getBoundaryContainer(node,topAncestor)
+    function getBoundaryContainer(node,topAncestor)
     {
         var container = document.body;
         for (; node != topAncestor.parentNode; node = node.parentNode) {
@@ -1297,9 +1297,9 @@ var Selection_print;
             }
         }
         return container;
-    });
+    }
 
-    var boundaryCompliantRange = trace(function boundaryCompliantRange(range)
+    function boundaryCompliantRange(range)
     {
         if (range == null)
             return null;
@@ -1343,10 +1343,9 @@ var Selection_print;
             }
             return false;
         }
-    });
+    }
 
-
-    Selection_print = trace(function _Selection_print()
+    Selection_print = function()
     {
         debug("");
         debug("");
@@ -1411,6 +1410,6 @@ var Selection_print;
 
             debug(indent+JSON.stringify(value));
         }
-    });
+    }
 
 })();

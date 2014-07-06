@@ -15,11 +15,13 @@ var Styles_init;
     var rules = new Object();
     var paragraphClass = null;
 
-    Styles_getRule = trace(function _getRule(selector) {
+    Styles_getRule = function(selector)
+    {
         return rules[selector];
-    });
+    }
 
-    Styles_nextSelectorAfter = trace(function _nextSelectorAfter(element) {
+    Styles_nextSelectorAfter = function(element)
+    {
         var selector = element.nodeName.toLowerCase();
         var className = DOM_getAttribute(element,"class");
         if (className != null)
@@ -71,23 +73,25 @@ var Styles_init;
             return nextElementName;
         else
             return nextElementName+"."+nextClassName;
-    });
+    }
 
-    Styles_getParagraphClass = trace(function _getParagraphClass() {
+    Styles_getParagraphClass = function()
+    {
         return paragraphClass;
-    });
+    }
 
-    Styles_setParagraphClass = trace(function _setParagraphClass(cls) {
+    Styles_setParagraphClass = function(cls)
+    {
         paragraphClass = cls;
-    });
+    }
 
-    Styles_headingNumbering = trace(function headingNumbering()
+    Styles_headingNumbering = function()
     {
         return ((rules["h1::before"] != null) &&
                 (rules["h1::before"]["content"] != null));
-    });
+    }
 
-    Styles_getCSSText = trace(function getCSSText()
+    Styles_getCSSText = function()
     {
         var head = DOM_documentHead(document);
         var cssText = "";
@@ -100,9 +104,9 @@ var Styles_init;
             }
         }
         return cssText;
-    });
+    }
 
-    Styles_setCSSText = trace(function setCSSText(cssText,cssRules)
+    Styles_setCSSText = function(cssText,cssRules)
     {
         UndoManager_newGroup("Update styles");
         var head = DOM_documentHead(document);
@@ -118,9 +122,9 @@ var Styles_init;
         rules = cssRules; // FIXME: undo support? (must coordinate with ObjC code)
         Outline_scheduleUpdateStructure();
         return {}; // Objective C caller expects JSON result
-    });
+    }
 
-    var addBuiltinStylesheet = trace(function addBuiltinStylesheet(cssURL)
+    function addBuiltinStylesheet(cssURL)
     {
         var head = DOM_documentHead(document);
         for (var child = head.firstChild; child != null; child = child.nextSibling) {
@@ -138,23 +142,23 @@ var Styles_init;
         DOM_setAttribute(link,"rel","stylesheet");
         DOM_setAttribute(link,"href",cssURL);
         DOM_insertBefore(head,link,head.firstChild);
-    });
+    }
 
     var builtinCSSURL = null;
 
-    Styles_getBuiltinCSSURL = trace(function getBuiltinCSSURL()
+    Styles_getBuiltinCSSURL = function()
     {
         return builtinCSSURL;
-    });
+    }
 
     // public
-    Styles_init = trace(function init(cssURL)
+    Styles_init = function(cssURL)
     {
         if (cssURL != null)
             builtinCSSURL = cssURL;
 
         if (builtinCSSURL != null)
             addBuiltinStylesheet(builtinCSSURL);
-    });
+    }
 
 })();
