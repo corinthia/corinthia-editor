@@ -1080,11 +1080,12 @@ var TableRegion_splitCells;
 
     Tables_getProperties = function(itemId)
     {
-        var table = document.getElementById(itemId);
-        if (table == null)
+        var element = document.getElementById(itemId);
+        if ((element == null) || (element._type != HTML_TABLE))
             return null;
-        var width = table.style.width;
-        return { width: width };
+        var structure = Tables_analyseStructure(element);
+        var width = element.style.width;
+        return { width: width, rows: structure.numRows, cols: structure.numCols };
     }
 
     Tables_setProperties = function(itemId,width)
