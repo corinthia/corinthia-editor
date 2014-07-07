@@ -3,8 +3,8 @@
 var Tables_insertTable;
 var Tables_addAdjacentRow;
 var Tables_addAdjacentColumn;
-var Tables_deleteOneRow;
-var Tables_deleteOneColumn;
+var Tables_removeAdjacentRow;
+var Tables_removeAdjacentColumn;
 var Tables_deleteRegion;
 var Tables_clearCells;
 var Tables_mergeCells;
@@ -517,7 +517,7 @@ var TableRegion_splitCells;
         return row;
     }
 
-    Tables_deleteOneRow = function()
+    Tables_removeAdjacentRow = function()
     {
         var region = Tables_regionFromRange(Selection_get(),true);
         if ((region == null) || (region.structure.numRows <= 1))
@@ -573,7 +573,7 @@ var TableRegion_splitCells;
         UndoManager_newGroup();
     }
 
-    Tables_deleteOneColumn = function()
+    Tables_removeAdjacentColumn = function()
     {
         var region = Tables_regionFromRange(Selection_get(),true);
         if ((region == null) || (region.structure.numCols <= 1))
