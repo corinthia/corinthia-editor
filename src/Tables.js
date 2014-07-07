@@ -5,6 +5,8 @@ var Tables_insertRowAbove;
 var Tables_insertRowBelow;
 var Tables_insertColumnLeft;
 var Tables_insertColumnRight;
+var Tables_deleteOneRow;
+var Tables_deleteOneColumn;
 var Tables_deleteRegion;
 var Tables_clearCells;
 var Tables_mergeCells;
@@ -487,6 +489,175 @@ var TableRegion_splitCells;
                 addColumnCells(region.structure,region.right,true);
             }
         });
+        UndoManager_newGroup();
+    }
+
+    function columnHasContent(table,col)
+    {
+        for (var row = 0; row < table.numRows; row++) {
+            var cell = Table_get(table,row,col);
+            if ((cell != null) && (cell.col == col) && nodeHasContent(cell.element))
+                return true;
+        }
+        return false;
+    }
+
+    function rowHasContent(table,row)
+    {
+        for (var col = 0; col < table.numCols; col++) {
+            var cell = Table_get(table,row,col);
+            if ((cell != null) && (cell.row == row) && nodeHasContent(cell.element))
+                return true;
+        }
+        return false;
+    }
+
+    function selectRegion(table,top,bottom,left,right)
+    {
+        left = clampCol(table,left);
+        right = clampCol(table,right);
+        top = clampRow(table,top);
+        bottom = clampRow(table,bottom);
+
+        var tlCell = Table_get(table,top,left);
+        var brCell = Table_get(table,bottom,right);
+        if ((tlCell != null) && (brCell != null)) {
+            var tlPos = new Position(tlCell.element,0);
+            tlPos = Position_closestMatchForwards(tlPos,Position_okForMovement);
+
+            var brPos = new Position(brCell.element,brCell.element.childNodes.length);
+            brPos = Position_closestMatchBackwards(brPos,Position_okForMovement);
+
+            Selection_set(tlPos.node,tlPos.offset,brPos.node,brPos.offset);
+        }
+    }
+
+    function clampCol(table,col)
+    {
+        if (col > table.numCols-1)
+            col = table.numCols-1;
+        if (col < 0)
+            col = 0;
+        return col;
+    }
+
+    function clampRow(table,row)
+    {
+        if (row > table.numRows-1)
+            row = table.numRows-1;
+        if (row < 0)
+            row = 0;
+        return row;
+    }
+
+    Tables_deleteOneRow = function()
+    {
+        var region = Tables_regionFromRange(Selection_get(),true);
+        if ((region == null) || (region.structure.numRows <= 1))
+            return;
+
+        UndoManager_newGroup("Delete one row");
+
+        var table = region.structure;
+        var left = region.left;
+        var right = region.right;
+        var top = region.top;
+        var bottom = region.bottom;
+
+        // Is there an empty row below the selection? If so, delete it
+        if ((bottom+1 < table.numRows) && !rowHasContent(table,bottom+1)) {
+            Selection_preserveWhileExecuting(function() {
+                Tables_deleteRegion(new TableRegion(table,bottom+1,bottom+1,0,table.numCols-1));
+            });
+        }
+
+        // Is there an empty row above the selection? If so, delete it
+        else if ((top-1 >= 0) && !rowHasContent(table,top-1)) {
+            Selection_preserveWhileExecuting(function() {
+                Tables_deleteRegion(new TableRegion(table,top-1,top-1,0,table.numCols-1));
+            });
+        }
+
+
+        // There are no empty rows adjacent to the selection. Delete the right-most row
+        // of the selection (which may be the only one)
+        else {
+            Selection_preserveWhileExecuting(function() {
+                Tables_deleteRegion(new TableRegion(table,bottom,bottom,0,table.numCols-1));
+            });
+
+            table = Tables_analyseStructure(table.element);
+            var multiple = (top != bottom);
+
+            if (multiple) {
+                selectRegion(table,top,bottom-1,left,right);
+            }
+            else {
+                var newRow = clampRow(table,bottom);
+                var newCell = Table_get(table,newRow,left);
+                if (newCell != null) {
+                    var pos = new Position(newCell.element,0);
+                    pos = Position_closestMatchForwards(pos,Position_okForMovement);
+                    Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+                }
+            }
+        }
+
+        UndoManager_newGroup();
+    }
+
+    Tables_deleteOneColumn = function()
+    {
+        var region = Tables_regionFromRange(Selection_get(),true);
+        if ((region == null) || (region.structure.numCols <= 1))
+            return;
+
+        UndoManager_newGroup("Delete one column");
+
+        var table = region.structure;
+        var left = region.left;
+        var right = region.right;
+        var top = region.top;
+        var bottom = region.bottom;
+
+        // Is there an empty column to the right of the selection? If so, delete it
+        if ((right+1 < table.numCols) && !columnHasContent(table,right+1)) {
+            Selection_preserveWhileExecuting(function() {
+                Tables_deleteRegion(new TableRegion(table,0,table.numRows-1,right+1,right+1));
+            });
+        }
+
+        // Is there an empty column to the left of the selection? If so, delete it
+        else if ((left-1 >= 0) && !columnHasContent(table,left-1)) {
+            Selection_preserveWhileExecuting(function() {
+                Tables_deleteRegion(new TableRegion(table,0,table.numRows-1,left-1,left-1));
+            });
+        }
+
+        // There are no empty columns adjacent to the selection. Delete the right-most column
+        // of the selection (which may be the only one)
+        else {
+            Selection_preserveWhileExecuting(function() {
+                Tables_deleteRegion(new TableRegion(table,0,table.numRows-1,right,right));
+            });
+
+            table = Tables_analyseStructure(table.element);
+            var multiple = (left != right);
+
+            if (multiple) {
+                selectRegion(table,top,bottom,left,right-1);
+            }
+            else {
+                var newCol = clampCol(table,right);
+                var newCell = Table_get(table,top,newCol);
+                if (newCell != null) {
+                    var pos = new Position(newCell.element,0);
+                    pos = Position_closestMatchForwards(pos,Position_okForMovement);
+                    Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+                }
+            }
+        }
+
         UndoManager_newGroup();
     }
 
