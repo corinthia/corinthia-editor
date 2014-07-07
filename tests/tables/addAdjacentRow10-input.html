@@ -8,35 +8,31 @@ function performTest()
     Outline_init();
     PostponedActions_perform();
 
-    Tables_addAdjacentColumn();
+    Tables_addAdjacentRow();
     showSelection();
 }
 </script>
 </head>
 <body>
   <table style="width: 100%">
-    <col width="50%">
-    <col width="25%">
     <tr>
-      <td>[0, 0</td>
-      <td>0, 1</td>
-      <td>0, 2</td>
+      <td>[One</td>
+      <td>Two</td>
+      <td>Three</td>
+      <td rowspan="4">Four</td>
     </tr>
     <tr>
-      <td>1, 0</td>
-      <td>1, 1</td>
-      <td>1, 2</td>
+      <td>Five]</td>
+      <td>Six</td>
+      <td rowspan="3">Seven</td>
     </tr>
     <tr>
-      <td>2, 0</td>
-      <td>2, 1</td>
-      <td>2, 2</td>
+      <td>Nine</td>
+      <td rowspan="2">Ten</td>
     </tr>
     <tr>
-      <td>3, 0</td>
-      <td>3, 1</td>
-      <td>3, 2]</td>
+      <td>Thirteen</td>
     </tr>
- </table>
+  </table>
 </body>
 </html>

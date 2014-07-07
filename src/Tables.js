@@ -1,10 +1,8 @@
 // Copyright (c) 2012-2013 UX Productivity Pty Ltd. All rights reserved.
 
 var Tables_insertTable;
-var Tables_insertRowAbove;
-var Tables_insertRowBelow;
-var Tables_insertColumnLeft;
-var Tables_insertColumnRight;
+var Tables_addAdjacentRow;
+var Tables_addAdjacentColumn;
 var Tables_deleteOneRow;
 var Tables_deleteOneColumn;
 var Tables_deleteRegion;
@@ -269,24 +267,7 @@ var TableRegion_splitCells;
     }
 
     // public
-    Tables_insertRowAbove = function()
-    {
-        UndoManager_newGroup("Insert row above");
-        Selection_preserveWhileExecuting(function() {
-            var region = Tables_regionFromRange(Selection_get(),true);
-            if (region != null) {
-                var cell = Table_get(region.structure,region.top,region.left);
-                var oldTR = cell.element.parentNode;
-                var newTR = DOM_createElement(document,"TR");
-                DOM_insertBefore(oldTR.parentNode,newTR,oldTR);
-                populateNewRow(region.structure,newTR,region.top-1,region.top);
-            }
-        });
-        UndoManager_newGroup();
-    }
-
-    // public
-    Tables_insertRowBelow = function()
+    Tables_addAdjacentRow = function()
     {
         UndoManager_newGroup("Insert row below");
         Selection_preserveWhileExecuting(function() {
@@ -465,21 +446,7 @@ var TableRegion_splitCells;
     }
 
     // public
-    Tables_insertColumnLeft = function()
-    {
-        UndoManager_newGroup("Insert column at left");
-        Selection_preserveWhileExecuting(function() {
-            var region = Tables_regionFromRange(Selection_get(),true);
-            if (region != null) {
-                addColElement(region.structure,region.left,region.left-1);
-                addColumnCells(region.structure,region.left,false);
-            }
-        });
-        UndoManager_newGroup();
-    }
-
-    // public
-    Tables_insertColumnRight = function()
+    Tables_addAdjacentColumn = function()
     {
         UndoManager_newGroup("Insert column at right");
         Selection_preserveWhileExecuting(function() {
