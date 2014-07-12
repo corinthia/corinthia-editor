@@ -1048,6 +1048,13 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     // public
     Formatting_applyFormattingChanges = function(style,properties)
     {
+        debug("JS: applyFormattingChanges: style = "+JSON.stringify(style));
+        if (properties != null) {
+            var names = Object.getOwnPropertyNames(properties).sort();
+            for (var i = 0; i < names.length; i++) {
+                debug("    "+names[i]+" = "+properties[names[i]]);
+            }
+        }
         UndoManager_newGroup("Apply formatting changes");
 
         if (properties == null)
