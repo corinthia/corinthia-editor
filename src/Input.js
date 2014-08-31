@@ -466,6 +466,10 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         if (pos == null)
             return false;
 
+        // FIXME: Temporary hack to avoid exceptions when running under iOS 8
+        if ((granularity == "sentence") || (granularity == "document"))
+            return false;
+
         if (granularity == "character") {
             return true;
         }
@@ -492,6 +496,10 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         var pos = getPosition(posId);
         if (pos == null)
             return false;
+
+        // FIXME: Temporary hack to avoid exceptions when running under iOS 8
+        if ((granularity == "sentence") || (granularity == "document"))
+            return true;
 
         if (granularity == "character") {
             return true;
@@ -625,6 +633,10 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         if (pos == null)
             return null;
 
+        // FIXME: Temporary hack to avoid exceptions when running under iOS 8
+        if (granularity == "sentence")
+            granularity = "paragraph";
+
         if (granularity == "word")
             return addPosition(Input_toWordBoundary(pos,direction));
         else if (granularity == "paragraph")
@@ -646,6 +658,10 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         var pos = getPosition(posId);
         if (pos == null)
             return null;
+
+        // FIXME: Temporary hack to avoid exceptions when running under iOS 8
+        if (granularity == "sentence")
+            granularity = "paragraph";
 
         if (granularity == "word") {
             pos = Text_closestPosInDirection(pos,direction);
