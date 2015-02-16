@@ -1,0 +1,5 @@
+The copyright for this software is held by the contributors listed below.
+Full history of contributions is available from the Git repositories
+linked to from http://corinthia.io.
+
+Peter Kelly <peter@uxproductivity.com>

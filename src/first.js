@@ -1,6 +1,19 @@
-// Copyright (c) 2012-2013 UX Productivity Pty Ltd. All rights reserved.
-// If you're successfully able to decipher all this and figure out what it
-// does, please send a copy of your resume to peter@uxproductivity.com.
+// This file is part of the Corinthia project (http://corinthia.io).
+//
+// See the COPYRIGHT.txt file distributed with this work for
+// information regarding copyright ownership.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 // FIXME: The _PREFIX variables below must be replaced with functions that return the
 // appropriate namespace prefix for the document in question (since we can't rely on the
