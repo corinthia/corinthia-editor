@@ -118,44 +118,36 @@ var OPAQUE_NODE_CLASSES = {
     "uxwrite-field": true,
 };
 
-function isContainerNode(node)
-{
+function isContainerNode(node) {
     return CONTAINER_ELEMENTS[node._type];
 }
 
-function isParagraphNode(node)
-{
+function isParagraphNode(node) {
     return PARAGRAPH_ELEMENTS[node._type];
 }
 
-function isHeadingNode(node)
-{
+function isHeadingNode(node) {
     return HEADING_ELEMENTS[node._type];
 }
 
-function isBlockNode(node)
-{
+function isBlockNode(node) {
     return BLOCK_ELEMENTS[node._type];
 }
 
-function isBlockOrNoteNode(node)
-{
+function isBlockOrNoteNode(node) {
     return BLOCK_ELEMENTS[node._type] || isNoteNode(node);
 }
 
-function isInlineNode(node)
-{
+function isInlineNode(node) {
     return INLINE_ELEMENTS[node._type];
 }
 
-function isListNode(node)
-{
+function isListNode(node) {
     var type = node._type;
     return ((type == HTML_UL) || (type == HTML_OL));
 }
 
-function isTableCell(node)
-{
+function isTableCell(node) {
     switch (node._type) {
     case HTML_TD:
     case HTML_TH:
@@ -165,28 +157,24 @@ function isTableCell(node)
     }
 }
 
-function isRefNode(node)
-{
+function isRefNode(node) {
     return ((node._type == HTML_A) &&
             node.hasAttribute("href") &&
             node.getAttribute("href").charAt(0) == "#");
 }
 
-function isNoteNode(node)
-{
+function isNoteNode(node) {
     if (node._type != HTML_SPAN)
         return false;
     var className = DOM_getAttribute(node,"class");
     return ((className == "footnote") || (className == "endnote"));
 }
 
-function isEmptyNoteNode(node)
-{
+function isEmptyNoteNode(node) {
     return isNoteNode(node) && !nodeHasContent(node);
 }
 
-function isItemNumber(node)
-{
+function isItemNumber(node) {
     if (node.nodeType == Node.TEXT_NODE) {
         return isItemNumber(node.parentNode);
     }
@@ -198,8 +186,7 @@ function isItemNumber(node)
     return false;
 }
 
-function isOpaqueNode(node)
-{
+function isOpaqueNode(node) {
     if (node == null)
         return false;
 
@@ -221,27 +208,23 @@ function isOpaqueNode(node)
     }
 }
 
-function isAutoCorrectNode(node)
-{
+function isAutoCorrectNode(node) {
     return ((node._type == HTML_SPAN) &&
             (node.getAttribute("class") == Keys.AUTOCORRECT_CLASS));
 }
 
-function isSelectionHighlight(node)
-{
+function isSelectionHighlight(node) {
     return ((node.nodeType == Node.ELEMENT_NODE) &&
             node.getAttribute("class") == Keys.SELECTION_CLASS);
 }
 
-function isSelectionSpan(node)
-{
+function isSelectionSpan(node) {
     return ((node != null) &&
             (node._type == HTML_SPAN) &&
             (DOM_getAttribute(node,"class") == Keys.SELECTION_CLASS));
 };
 
-function isTOCNode(node)
-{
+function isTOCNode(node) {
     if (node._type == HTML_NAV) {
         var cls = node.getAttribute("class");
         if ((cls == Keys.SECTION_TOC) ||
@@ -252,8 +235,7 @@ function isTOCNode(node)
     return false;
 }
 
-function isInTOC(node)
-{
+function isInTOC(node) {
     if (isTOCNode(node))
         return true;
     if (node.parentNode != null)
@@ -261,8 +243,7 @@ function isInTOC(node)
     return false;
 }
 
-function isSpecialBlockNode(node)
-{
+function isSpecialBlockNode(node) {
     switch (node._type) {
     case HTML_TABLE:
     case HTML_FIGURE:
@@ -274,7 +255,6 @@ function isSpecialBlockNode(node)
     }
 }
 
-function isAbstractSpan(node)
-{
+function isAbstractSpan(node) {
     return ((node._type == HTML_SPAN) && node.hasAttribute(Keys.ABSTRACT_ELEMENT));
 }

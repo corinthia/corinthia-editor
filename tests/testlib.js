@@ -15,8 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-function testHarnessSetup()
-{
+function testHarnessSetup() {
     DOM_assignNodeIds(document);
 
     var start;
@@ -55,8 +54,7 @@ function testHarnessSetup()
 
     return;
 
-    function positionMergeWithNeighbours(pos)
-    {
+    function positionMergeWithNeighbours(pos) {
         var node = pos.node;
         var offset = pos.offset;
         if ((node.nodeType == Node.ELEMENT_NODE) && (offset < node.childNodes.length))
@@ -67,12 +65,10 @@ function testHarnessSetup()
             Formatting_mergeWithNeighbours(node,Formatting_MERGEABLE_INLINE);
     }
 
-    function extractPositionFromCharacter(c)
-    {
+    function extractPositionFromCharacter(c) {
         return recurse(document.body);
 
-        function recurse(node)
-        {
+        function recurse(node) {
             if (node.nodeType == Node.TEXT_NODE) {
                 var index = node.nodeValue.indexOf(c);
                 if (index >= 0) {
@@ -106,8 +102,7 @@ function testHarnessSetup()
     }
 }
 
-function insertAtPosition(position,node)
-{
+function insertAtPosition(position,node) {
     if (position.node.nodeType == Node.ELEMENT_NODE) {
         if (position.offset == position.node.childNodes.length)
             DOM_appendChild(position.node,node);
@@ -122,8 +117,7 @@ function insertAtPosition(position,node)
     }
 }
 
-function insertTextAtPosition(position,str)
-{
+function insertTextAtPosition(position,str) {
     if (position.node.nodeType == Node.ELEMENT_NODE) {
         var before = position.node.childNodes[position.offset-1];
         var after = position.node.childNodes[position.offset];
@@ -141,8 +135,7 @@ function insertTextAtPosition(position,str)
     }
 }
 
-function showRangeAsBrackets(range)
-{
+function showRangeAsBrackets(range) {
     if (Range_isEmpty(range)) {
         insertTextAtPosition(range.end,"[]",true);
     }
@@ -152,8 +145,7 @@ function showRangeAsBrackets(range)
     }
 }
 
-function showSelection()
-{
+function showSelection() {
     var range = Selection_get();
     if (range != null) {
         Range_assertValid(range,"Selection");
@@ -161,12 +153,10 @@ function showSelection()
     }
 }
 
-function removeIds()
-{
+function removeIds() {
     recurse(document.body);
 
-    function recurse(node)
-    {
+    function recurse(node) {
         if (node.nodeType == Node.ELEMENT_NODE) {
             DOM_removeAttribute(node,"id");
             for (var child = node.firstChild; child != null; child = child.nextSibling)
@@ -175,20 +165,17 @@ function removeIds()
     }
 }
 
-function selectNode(node)
-{
+function selectNode(node) {
     var offset = DOM_nodeOffset(node);
     Selection_set(node.parentNode,offset,node.parentNode,offset+1);
 }
 
-function removeWhitespaceAndCommentNodes(root)
-{
+function removeWhitespaceAndCommentNodes(root) {
     Selection_preserveWhileExecuting(function() {
         recurse(root);
     });
 
-    function recurse(node)
-    {
+    function recurse(node) {
         if (isWhitespaceTextNode(node) || (node.nodeType == Node.COMMENT_NODE)) {
             DOM_deleteNode(node);
         }
@@ -205,8 +192,7 @@ function removeWhitespaceAndCommentNodes(root)
 // selectionWrapElement() and selectionUnwrapElement() used to be in formatting.js but have
 // now been made obselete by the addition of applyFormattingChanges(). However there are still
 // a few tests which use them.
-function selectionWrapElement(elementName)
-{
+function selectionWrapElement(elementName) {
     if (elementName == "B")
         Formatting_applyFormattingChanges(null,{"font-weight": "bold"});
     else if (elementName == "I")
@@ -215,8 +201,7 @@ function selectionWrapElement(elementName)
         Formatting_applyFormattingChanges(null,{"text-decoration": "underline"});
 }
 
-function selectionUnwrapElement(elementName)
-{
+function selectionUnwrapElement(elementName) {
     if (elementName == "B")
         Formatting_applyFormattingChanges(null,{"font-weight": null});
     else if (elementName == "I")
@@ -225,12 +210,10 @@ function selectionUnwrapElement(elementName)
         Formatting_applyFormattingChanges(null,{"text-decoration": null});
 }
 
-function showEmptyTextNodes()
-{
+function showEmptyTextNodes() {
     recurse(document);
 
-    function recurse(node)
-    {
+    function recurse(node) {
         if ((node.nodeType == Node.TEXT_NODE) && (node.nodeValue.length == 0))
             node.nodeValue = "*";
         for (var child = node.firstChild; child != null; child = child.nextSibling)
@@ -238,8 +221,7 @@ function showEmptyTextNodes()
     }
 }
 
-function showClipboard(clipboard)
-{
+function showClipboard(clipboard) {
     var html = clipboard["text/html"];
     var text = clipboard["text/plain"];
 
@@ -265,16 +247,14 @@ function showClipboard(clipboard)
            text;
 }
 
-function setNumbering(enabled)
-{
+function setNumbering(enabled) {
     if (enabled)
         setupOutlineNumbering();
 
     recurse(document.body,enabled);
     PostponedActions_perform();
 
-    function recurse(node,enabled)
-    {
+    function recurse(node,enabled) {
         switch (node._type) {
         case HTML_H1:
         case HTML_H2:
@@ -296,8 +276,7 @@ function setNumbering(enabled)
     }
 }
 
-function readXML(filename)
-{
+function readXML(filename) {
     var req = new XMLHttpRequest();
     req.open("GET",filename,false);
     req.send();
@@ -308,8 +287,7 @@ function readXML(filename)
     return xml;
 }
 
-function findTextMatchingRecursive(node,re)
-{
+function findTextMatchingRecursive(node,re) {
     if (node.nodeType == Node.TEXT_NODE) {
         if (node.nodeValue.match(re))
             return node;
@@ -326,10 +304,8 @@ function findTextMatchingRecursive(node,re)
     }
 }
 
-function setupOutlineNumbering()
-{
-    Styles_setCSSText("",
-    {
+function setupOutlineNumbering() {
+    Styles_setCSSText("",{
         "h1": {
             "counter-reset": "h2 h3 h4 h5 h6",
             "counter-increment": "h1"
@@ -374,20 +350,17 @@ function setupOutlineNumbering()
     });
 }
 
-function prependTableOfContents()
-{
+function prependTableOfContents() {
     var nav = DOM_createElement(document,"NAV");
     DOM_setAttribute(nav,"class","tableofcontents");
     DOM_insertBefore(document.body,nav,document.body.firstChild);
     PostponedActions_perform();
 }
 
-function simplifyTOCs()
-{
+function simplifyTOCs() {
     recurse(document.body);
 
-    function recurse(node)
-    {
+    function recurse(node) {
         if ((node._type == HTML_NAV) &&
             ((DOM_getAttribute(node,"class") == "tableofcontents") ||
              (DOM_getAttribute(node,"class") == "listoffigures") ||
@@ -400,8 +373,7 @@ function simplifyTOCs()
         }
     }
 
-    function mergeAdjacentTextNodes(node)
-    {
+    function mergeAdjacentTextNodes(node) {
         var child = node.firstChild;
         while (child != null) {
             if ((child.nodeType == Node.TEXT_NODE) &&
@@ -420,12 +392,10 @@ function simplifyTOCs()
     }
 }
 
-function showNonEmptyTextNodes()
-{
+function showNonEmptyTextNodes() {
     recurse(document.body);
 
-    function recurse(node)
-    {
+    function recurse(node) {
         if (node.nodeType == Node.TEXT_NODE) {
             if (!isWhitespaceTextNode(node))
                 node.nodeValue = "{" + node.nodeValue + "}";

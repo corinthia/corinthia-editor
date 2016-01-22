@@ -56,10 +56,9 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
 
 (function() {
 
-    //function idebug(str)
-    //{
+    // function idebug(str) {
     //    debug(str);
-    //}
+    // }
 
     var forwardSelection = true;
     var positions = new Object();
@@ -71,8 +70,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     var firstDynamicPosId = 5;
     var nextPosId = firstDynamicPosId;
 
-    function addPosition(pos)
-    {
+    function addPosition(pos) {
         if (pos == null)
             return 0;
         var copy = new Position(pos.node,pos.offset);
@@ -86,8 +84,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
 
     Input_addPosition = addPosition;
 
-    function getPosition(posId)
-    {
+    function getPosition(posId) {
         if (posId instanceof Position) // for tests
             return posId;
         if (posId < firstDynamicPosId) {
@@ -125,8 +122,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     Input_getPosition = getPosition;
 
     // void
-    Input_removePosition = function(posId)
-    {
+    Input_removePosition = function(posId) {
         //idebug("Input_removePosition("+posId+")");
         var pos = positions[posId];
         if (pos == null) {
@@ -137,8 +133,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     }
 
     // string
-    Input_textInRange = function(startId,startAdjust,endId,endAdjust)
-    {
+    Input_textInRange = function(startId,startAdjust,endId,endAdjust) {
         var start = getPosition(startId);
         var end = getPosition(endId);
         start = positionRight(start,startAdjust);
@@ -154,8 +149,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     }
 
     // void
-    Input_replaceRange = function(startId,endId,text)
-    {
+    Input_replaceRange = function(startId,endId,text) {
         //idebug("Input_replaceRange("+startId+","+endId+","+JSON.stringify(text)+")");
         var start = getPosition(startId);
         var end = getPosition(endId);
@@ -184,8 +178,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     }
 
     // { startId, endId }
-    Input_selectedTextRange = function()
-    {
+    Input_selectedTextRange = function() {
         var range = Selection_get();
         if (range == null) {
             //idebug("Input_selectedTextRange = null");
@@ -201,8 +194,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     }
 
     // void
-    Input_setSelectedTextRange = function(startId,endId)
-    {
+    Input_setSelectedTextRange = function(startId,endId) {
         //idebug("Input_setSelectedTextRange("+startId+","+endId+")");
         var start = getPosition(startId);
         var end = getPosition(endId);
@@ -227,15 +219,13 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     }
 
     // { startId, endId }
-    Input_markedTextRange = function()
-    {
+    Input_markedTextRange = function() {
         //idebug("Input_markedTextRange");
         return null;
     }
 
     // void
-    Input_setMarkedText = function(text,startOffset,endOffset)
-    {
+    Input_setMarkedText = function(text,startOffset,endOffset) {
         Selection_deleteContents(true);
         var oldSel = Selection_get();
         Range_trackWhileExecuting(oldSel,function() {
@@ -248,29 +238,25 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     }
 
     // void
-    Input_unmarkText = function()
-    {
+    Input_unmarkText = function() {
         var range = Selection_get();
         Cursor_set(range.end.node,range.end.offset);
         //idebug("Input_unmarkText");
     }
 
     // boolean
-    Input_forwardSelectionAffinity = function()
-    {
+    Input_forwardSelectionAffinity = function() {
         //idebug("Input_forwardSelectionAffinity");
         return forwardSelection;
     }
 
     // void
-    Input_setForwardSelectionAffinity = function(value)
-    {
+    Input_setForwardSelectionAffinity = function(value) {
         //idebug("Input_setForwardSelectionAffinity");
         forwardSelection = value;
     }
 
-    function positionRight(pos,offset)
-    {
+    function positionRight(pos,offset) {
         if (offset > 0) {
             for (; offset > 0; offset--) {
                 var next = Position_nextMatch(pos,Position_okForMovement);
@@ -290,8 +276,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         return pos;
     }
 
-    function positionDown(pos,offset)
-    {
+    function positionDown(pos,offset) {
         if (offset > 0) {
             for (; offset > 0; offset--) {
                 var below = Text_posBelow(pos);
@@ -312,8 +297,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     }
 
     // posId
-    Input_positionFromPositionOffset = function(posId,offset)
-    {
+    Input_positionFromPositionOffset = function(posId,offset) {
         var pos = getPosition(posId);
         var res = addPosition(positionRight(pos,offset));
         //idebug("Input_positionFromPositionOffset("+posId+","+offset+") = "+res);
@@ -321,8 +305,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     }
 
     // posId
-    Input_positionFromPositionInDirectionOffset = function(posId,direction,offset)
-    {
+    Input_positionFromPositionInDirectionOffset = function(posId,direction,offset) {
         //idebug("Input_positionFromPositionInDirectionOffset("+posId+","+direction+","+offset+")");
         var pos = getPosition(posId);
         if (direction == "left")
@@ -338,8 +321,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     }
 
     // int
-    Input_comparePositionToPosition = function(posId1,posId2)
-    {
+    Input_comparePositionToPosition = function(posId1,posId2) {
         //idebug("Input_comparePositionToPosition("+posId1+","+posId2+")");
         var pos1 = getPosition(posId1);
         var pos2 = getPosition(posId2);
@@ -351,27 +333,23 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     }
 
     // int
-    Input_offsetFromPositionToPosition = function(fromId,toId)
-    {
+    Input_offsetFromPositionToPosition = function(fromId,toId) {
         //idebug("Input_offsetFromPositionToPosition("+fromId+","+toId+")");
         throw new Error("offsetFromPositionToPosition: not implemented");
     }
 
-    Input_positionWithinRangeFarthestInDirection = function(startId,endId,direction)
-    {
+    Input_positionWithinRangeFarthestInDirection = function(startId,endId,direction) {
         //idebug("Input_positionWithinRangeFarthestInDirection("+startId+","+endId+","+direction);
         throw new Error("positionWithinRangeFarthestInDirection: not implemented");
     }
 
     // { startId, endId }
-    Input_characterRangeByExtendingPositionInDirection = function(posId,direction)
-    {
+    Input_characterRangeByExtendingPositionInDirection = function(posId,direction) {
         //idebug("Input_characterRangeByExtendingPositionInDirection("+posId+","+direction);
         throw new Error("characterRangeByExtendingPositionInDirection: not implemented");
     }
 
-    Input_firstRectForRange = function(startId,endId)
-    {
+    Input_firstRectForRange = function(startId,endId) {
         //idebug("Input_firstRectForRange("+startId+","+endId+")");
         var start = getPosition(startId);
         var end = getPosition(endId);
@@ -384,8 +362,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
                      width: rects[0].width, height: rects[0].height };
     }
 
-    Input_caretRectForPosition = function(posId)
-    {
+    Input_caretRectForPosition = function(posId) {
         //idebug("Input_caretRectForPosition("+posId+")");
         var pos = getPosition(posId);
         var rect = Position_rectAtPos(pos);
@@ -396,36 +373,31 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     }
 
     // posId
-    Input_closestPositionToPoint = function(x,y)
-    {
+    Input_closestPositionToPoint = function(x,y) {
         //idebug("Input_closestPositionToPoint("+x+","+y+")");
         throw new Error("closestPositionToPoint: not implemented");
     }
 
     // posId
-    Input_closestPositionToPointWithinRange = function(x,y,startId,endId)
-    {
+    Input_closestPositionToPointWithinRange = function(x,y,startId,endId) {
         //idebug("Input_closestPositionToPointWithinRange("+x+","+y+")");
         throw new Error("closestPositionToPointWithinRange: not implemented");
     }
 
     // { startId, endId }
-    Input_characterRangeAtPoint = function(x,y)
-    {
+    Input_characterRangeAtPoint = function(x,y) {
         //idebug("Input_characterRangeAtPoint("+x+","+y+")");
         throw new Error("characterRangeAtPoint: not implemented");
     }
 
     // posId
-    Input_positionWithinRangeAtCharacterOffset = function(startId,endId,offset)
-    {
+    Input_positionWithinRangeAtCharacterOffset = function(startId,endId,offset) {
         //idebug("Input_positionWithinRangeAtCharacterOffset("+startId+","+endId+","+offset+")");
         throw new Error("positionWithinRangeAtCharacterOffset: not implemented");
     }
 
     // int
-    Input_characterOffsetOfPositionWithinRange = function(posId,startId,endId)
-    {
+    Input_characterOffsetOfPositionWithinRange = function(posId,startId,endId) {
         //idebug("Input_characterOffsetOfPositionWithinRange("+posId+","+startId+","+endId+")");
         throw new Error("characterOffsetOfPositionWithinRange: not implemented");
     }
@@ -439,15 +411,13 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     var wordAtEndRE = new RegExp("[^\\s"+punctuation+"]+$");
     var nonWordAtEndRE = new RegExp("[\\s"+punctuation+"]+$");
 
-    function isForward(direction)
-    {
+    function isForward(direction) {
         return ((direction == "forward") ||
                 (direction == "right") ||
                 (direction == "down"));
     }
 
-    Input_isAtWordBoundary = function(pos,direction)
-    {
+    Input_isAtWordBoundary = function(pos,direction) {
         if (pos.node.nodeType != Node.TEXT_NODE)
             return false;
         var paragraph = Text_analyseParagraph(pos);
@@ -471,12 +441,10 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
             return !beforeMatch;
     }
 
-    Input_isAtParagraphBoundary = function(pos,direction)
-    {
+    Input_isAtParagraphBoundary = function(pos,direction) {
     }
 
-    Input_isPositionAtBoundaryGranularityInDirection = function(posId,granularity,direction)
-    {
+    Input_isPositionAtBoundaryGranularityInDirection = function(posId,granularity,direction) {
         //idebug("Input_isPositionAtBoundaryGranularityInDirection("+
         //       posId+","+granularity+","+direction+")");
         var pos = getPosition(posId);
@@ -506,8 +474,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         throw new Error("unsupported granularity: "+granularity);
     }
 
-    Input_isPositionWithinTextUnitInDirection = function(posId,granularity,direction)
-    {
+    Input_isPositionWithinTextUnitInDirection = function(posId,granularity,direction) {
         //idebug("Input_isPositionWithinTextUnitInDirection("+
         //       posId+","+granularity+","+direction+")");
         var pos = getPosition(posId);
@@ -561,8 +528,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         throw new Error("unsupported granularity: "+granularity);
     }
 
-    Input_toWordBoundary = function(pos,direction)
-    {
+    Input_toWordBoundary = function(pos,direction) {
         pos = Text_closestPosInDirection(pos,direction);
         if (pos == null)
             return null;
@@ -608,8 +574,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         }
     }
 
-    Input_toParagraphBoundary = function(pos,direction)
-    {
+    Input_toParagraphBoundary = function(pos,direction) {
         if (isForward(direction)) {
             var end = Text_toEndOfBoundary(pos,"paragraph");
             if (Position_equal(pos,end)) {
@@ -630,8 +595,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         }
     }
 
-    Input_toLineBoundary = function(pos,direction)
-    {
+    Input_toLineBoundary = function(pos,direction) {
         if (isForward(direction)) {
             var end = Text_toEndOfBoundary(pos,"line");
             return end ? end : pos;
@@ -642,8 +606,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         }
     }
 
-    Input_positionFromPositionToBoundaryInDirection = function(posId,granularity,direction)
-    {
+    Input_positionFromPositionToBoundaryInDirection = function(posId,granularity,direction) {
         //idebug("Input_positionFromPositionToBoundaryInDirection("+
         //       posId+","+granularity+","+direction+")");
         var pos = getPosition(posId);
@@ -668,8 +631,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
             throw new Error("unsupported granularity: "+granularity);
     }
 
-    Input_rangeEnclosingPositionWithGranularityInDirection = function(posId,granularity,direction)
-    {
+    Input_rangeEnclosingPositionWithGranularityInDirection = function(posId,granularity,direction) {
         //idebug("Input_rangeEnclosingPositionWithGranularityInDirection("+
         //       posId+","+granularity+","+direction);
         var pos = getPosition(posId);

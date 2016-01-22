@@ -35,8 +35,7 @@ var Preview_showForStyle;
         "venenatis, leo in pulvinar pharetra, eros nisi convallis elit, vitae luctus \n"+
         "magna velit ut lorem."
 
-    function setTableCellContents(node)
-    {
+    function setTableCellContents(node) {
         if (isTableCell(node)) {
             DOM_deleteAllChildren(node);
             DOM_appendChild(node,DOM_createTextNode(document,"Cell contents"));
@@ -47,8 +46,7 @@ var Preview_showForStyle;
         }
     }
 
-    function showForStyle(styleId,uiName,titleText)
-    {
+    function showForStyle(styleId,uiName,titleText) {
         var elementName = null;
         var className = null;
 
@@ -125,8 +123,7 @@ var Preview_showForStyle;
             DOM_appendChild(document.body,text);
         }
 
-        function createParagraphElement(elementName,className)
-        {
+        function createParagraphElement(elementName,className) {
             var element = DOM_createElement(document,elementName);
             if (className != null)
                 DOM_setAttribute(element,"class",className);

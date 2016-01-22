@@ -26,28 +26,23 @@ var ChangeTracking_acceptSelectedChanges;
     var showChangesEnabled = false;
     var trackChangesEnabled = false;
 
-    ChangeTracking_showChanges = function()
-    {
+    ChangeTracking_showChanges = function() {
         return showChangesEnabled;
     }
 
-    ChangeTracking_trackChanges = function()
-    {
+    ChangeTracking_trackChanges = function() {
         return trackChangesEnabled;
     }
 
-    ChangeTracking_setShowChanges = function(enabled)
-    {
+    ChangeTracking_setShowChanges = function(enabled) {
         showChangesEnabled = enabled;
     }
 
-    ChangeTracking_setTrackChanges = function(enabled)
-    {
+    ChangeTracking_setTrackChanges = function(enabled) {
         trackChangesEnabled = enabled;
     }
 
-    ChangeTracking_acceptSelectedChanges = function()
-    {
+    ChangeTracking_acceptSelectedChanges = function() {
         var selRange = Selection_get();
         if (selRange == null)
             return;
@@ -104,8 +99,7 @@ var ChangeTracking_acceptSelectedChanges;
             Selection_set(start.node,start.offset,end.node,end.offset);
         }
 
-        function recurse(node)
-        {
+        function recurse(node) {
             if (node._type == HTML_DEL) {
                 checkEmpty.push(node.parentNode);
                 DOM_deleteNode(node);

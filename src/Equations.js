@@ -19,8 +19,7 @@ var Equations_insertEquation;
 
 (function() {
 
-    Equations_insertEquation = function()
-    {
+    Equations_insertEquation = function() {
         var math = DOM_createElementNS(document,"http://www.w3.org/1998/Math/MathML","math");
         var mrow = DOM_createElementNS(document,"http://www.w3.org/1998/Math/MathML","mrow");
         var msup = DOM_createElementNS(document,"http://www.w3.org/1998/Math/MathML","msup");

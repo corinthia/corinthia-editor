@@ -18,13 +18,11 @@
 var allPositions;
 var allPositionsIndexMap;
 
-function positionKey(pos)
-{
+function positionKey(pos) {
     return pos.node._nodeId+","+pos.offset;
 }
 
-function removeWhitespaceTextNodes(parent)
-{
+function removeWhitespaceTextNodes(parent) {
     var next;
     for (var child = parent.firstChild; child != null; child = next) {
         next = child.nextSibling;
@@ -35,8 +33,7 @@ function removeWhitespaceTextNodes(parent)
     }
 }
 
-function setup(root)
-{
+function setup(root) {
     allPositions = getAllPositions(root);
 
     allPositionsIndexMap = new Object();
@@ -46,8 +43,7 @@ function setup(root)
     }
 }
 
-function comparePositionsBeforeAndAfter(fun)
-{
+function comparePositionsBeforeAndAfter(fun) {
     var messages = new Array();
     var positions = getAllPositions(document.body);
     var positionStrings = new Array();
@@ -73,8 +69,7 @@ function comparePositionsBeforeAndAfter(fun)
     return messages.join("\n");
 }
 
-function getAllPositions(root)
-{
+function getAllPositions(root) {
     var includeEmptyElements = true;
 
     var positions = new Array();
@@ -84,8 +79,7 @@ function getAllPositions(root)
 //    positions.push(new Position(root.parentNode,rootOffset+1));
     return positions;
 
-    function recurse(node)
-    {
+    function recurse(node) {
         if (node.nodeType == Node.TEXT_NODE) {
             for (var offset = 0; offset <= node.nodeValue.length; offset++)
                 positions.push(new Position(node,offset));
@@ -103,24 +97,21 @@ function getAllPositions(root)
     }
 }
 
-function getPositionIndex(pos)
-{
+function getPositionIndex(pos) {
     var result = allPositionsIndexMap[pos.node._nodeId+","+pos.offset];
     if (result == null)
         throw new Error(pos+": no index for position");
     return result;
 }
 
-function isForwardsSimple(range)
-{
+function isForwardsSimple(range) {
     var startIndex = getPositionIndex(range.start);
     var endIndex = getPositionIndex(range.end);
 //    debug("startIndex = "+indices.startIndex+", endIndex = "+indices.endIndex);
     return (endIndex >= startIndex);
 }
 
-function getOutermostNodesSimple(range)
-{
+function getOutermostNodesSimple(range) {
     if (!isForwardsSimple(range)) {
         var reverse = new Range(range.end.node,range.end.offset,
                                 range.start.node,range.start.offset);
@@ -171,8 +162,7 @@ function getOutermostNodesSimple(range)
 
     return outermostArray;
 
-    function setContainsAncestor(set,node)
-    {
+    function setContainsAncestor(set,node) {
         for (var ancestor = node.parentNode; ancestor != null; ancestor = ancestor.parentNode) {
             if (set.contains(ancestor))
                 return true;

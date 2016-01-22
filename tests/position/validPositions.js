@@ -15,8 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-function oldInsertCharacter(character)
-{
+function oldInsertCharacter(character) {
     var selectionRange = Selection_get();
     if (selectionRange == null)
         return;
@@ -43,8 +42,7 @@ function oldInsertCharacter(character)
     Selection_set(node,offset+1,node,offset+1);
 }
 
-function showValidPositions()
-{
+function showValidPositions() {
     var validPositions = new Array();
     var pos = new Position(document.body,0);
     while (pos != null) {
@@ -65,14 +63,12 @@ function showValidPositions()
     });
 }
 
-function flattenTreeToString(node)
-{
+function flattenTreeToString(node) {
     var result = new Array();
     recurse(node);
     return result.join("").replace(/\n/g," ");
 
-    function recurse(node)
-    {
+    function recurse(node) {
         switch (node._type) {
         case HTML_TEXT:
             result.push(node.nodeValue);
@@ -94,8 +90,7 @@ function flattenTreeToString(node)
     }
 }
 
-function findCursorPositionErrors(text)
-{
+function findCursorPositionErrors(text) {
     var detail = "";
     for (var i = 0; i < text.length; i++) {
         var prevChar = (i > 0) ? text.charAt(i-1) : null;
@@ -127,15 +122,13 @@ function findCursorPositionErrors(text)
     return detail;
 }
 
-function checkCursorPositions(node)
-{
+function checkCursorPositions(node) {
     var text = flattenTreeToString(document.body);
     var detail = findCursorPositionErrors(text);
     return text+"\n"+detail;
 }
 
-function addEmptyTextNode(parent)
-{
+function addEmptyTextNode(parent) {
     var text = DOM_createTextNode(document,"");
     DOM_appendChild(parent,text);
 }

@@ -24,8 +24,7 @@ var Lists_setOrderedList;
 (function() {
 
     // private
-    function findLIElements(range)
-    {
+    function findLIElements(range) {
         var listItems = new Array();
 
         var node = range.start.node;
@@ -40,8 +39,7 @@ var Lists_setOrderedList;
         }
         return listItems;
 
-        function addListItems(array,node)
-        {
+        function addListItems(array,node) {
             if (node == null)
                 return;
 
@@ -57,8 +55,7 @@ var Lists_setOrderedList;
     }
 
     // public
-    Lists_increaseIndent = function()
-    {
+    Lists_increaseIndent = function() {
         Selection_preferElementPositions();
         Selection_preserveWhileExecuting(function() {
             var range = Selection_get();
@@ -128,8 +125,7 @@ var Lists_setOrderedList;
             }
         });
 
-        function firstDescendentList(node)
-        {
+        function firstDescendentList(node) {
             while (true) {
                 var node = firstChildElement(node);
                 if (node == null)
@@ -142,8 +138,7 @@ var Lists_setOrderedList;
             }
         }
 
-        function lastDescendentList(node)
-        {
+        function lastDescendentList(node) {
             while (true) {
                 var node = lastChildElement(node);
                 if (node == null)
@@ -158,8 +153,7 @@ var Lists_setOrderedList;
     }
 
     // public
-    Lists_decreaseIndent = function()
-    {
+    Lists_decreaseIndent = function() {
         Selection_preferElementPositions();
         Selection_preserveWhileExecuting(function() {
             var range = Selection_get();
@@ -192,8 +186,7 @@ var Lists_setOrderedList;
                     i++;
             }
 
-            function haveContentAfter(node)
-            {
+            function haveContentAfter(node) {
                 for (node = node.nextSibling; node != null; node = node.nextSibling) {
                     if (nodeHasContent(node))
                         return true;
@@ -237,8 +230,7 @@ var Lists_setOrderedList;
             }
         });
 
-        function findContainerChild(node)
-        {
+        function findContainerChild(node) {
             while (node.parentNode != null) {
                 if (isContainerNode(node.parentNode) && (node.parentNode._type != HTML_LI))
                     return node;
@@ -248,8 +240,7 @@ var Lists_setOrderedList;
     }
 
     // private
-    function getListOperationNodes(range)
-    {
+    function getListOperationNodes(range) {
         var detail = Range_detail(range);
         var dca = detail.commonAncestor;
         var ds = detail.startAncestor;
@@ -316,8 +307,7 @@ var Lists_setOrderedList;
             nodes.push(dca);
         return nodes;
 
-        function addNode(node)
-        {
+        function addNode(node) {
             while (isInlineNode(node) && node.parentNode != document.body)
                 node = node.parentNode;
             if (!nodeSet.contains(node)) {
@@ -328,8 +318,7 @@ var Lists_setOrderedList;
     }
 
     // public
-    Lists_clearList = function()
-    {
+    Lists_clearList = function() {
         Selection_preferElementPositions();
         Selection_preserveWhileExecuting(function() {
             var range = Selection_get();
@@ -402,8 +391,7 @@ var Lists_setOrderedList;
     }
 
     // private
-    function setList(type)
-    {
+    function setList(type) {
         var range = Selection_get();
         if (range == null)
             return;
@@ -539,14 +527,12 @@ var Lists_setOrderedList;
     }
 
     // public
-    Lists_setUnorderedList = function()
-    {
+    Lists_setUnorderedList = function() {
         setList(HTML_UL);
     }
 
     // public
-    Lists_setOrderedList = function()
-    {
+    Lists_setOrderedList = function() {
         setList(HTML_OL);
     }
 

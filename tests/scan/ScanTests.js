@@ -15,8 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-function testNext()
-{
+function testNext() {
     var result = new Array();
     Scan_reset();
     var index = 0;

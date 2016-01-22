@@ -32,8 +32,7 @@ var Main_clientRectsBug;
 (function() {
 
     // public
-    Main_getLanguage = function()
-    {
+    Main_getLanguage = function() {
         var lang = document.documentElement.getAttribute("lang");
         if (lang != null)
             lang = lang.replace(/-/g,"_");
@@ -41,8 +40,7 @@ var Main_clientRectsBug;
     }
 
     // public
-    Main_setLanguage = function(lang)
-    {
+    Main_setLanguage = function(lang) {
         if ((lang == null) || (lang == "")) {
             DOM_removeAttribute(document.documentElement,"lang");
         }
@@ -53,12 +51,10 @@ var Main_clientRectsBug;
     }
 
     // public
-    Main_removeUnsupportedInput = function()
-    {
+    Main_removeUnsupportedInput = function() {
         recurse(document.documentElement);
 
-        function recurse(node)
-        {
+        function recurse(node) {
             // Delete comments and processing instructions
             if ((node.nodeType != Node.TEXT_NODE) &&
                 (node.nodeType != Node.ELEMENT_NODE)) {
@@ -75,8 +71,7 @@ var Main_clientRectsBug;
     }
 
     // private
-    function addMetaCharset()
-    {
+    function addMetaCharset() {
         var head = DOM_documentHead(document);
         var next;
         for (var child = head.firstChild; child != null; child = next) {
@@ -96,8 +91,7 @@ var Main_clientRectsBug;
     }
 
     // public
-    Main_setGenerator = function(generator)
-    {
+    Main_setGenerator = function(generator) {
         return UndoManager_disableWhileExecuting(function() {
             var head = DOM_documentHead(document);
             for (var child = head.firstChild; child != null; child = child.nextSibling) {
@@ -124,28 +118,24 @@ var Main_clientRectsBug;
     }
 
     // public
-    Main_isEmptyDocument = function()
-    {
+    Main_isEmptyDocument = function() {
         return !nodeHasContent(document.body);
     }
 
     // public
-    Main_prepareForSave = function()
-    {
+    Main_prepareForSave = function() {
         // Force any end-of-group actions to be performed
         UndoManager_newGroup();
         return true;
     }
 
     // public
-    Main_getHTML = function()
-    {
+    Main_getHTML = function() {
         return document.documentElement.outerHTML;
     }
 
     // public
-    Main_getErrorReportingInfo = function()
-    {
+    Main_getErrorReportingInfo = function() {
         if (document.documentElement == null)
             return "(document.documentElement is null)";
         try {
@@ -164,8 +154,7 @@ var Main_clientRectsBug;
             }
         }
 
-        function cleanse(node)
-        {
+        function cleanse(node) {
             switch (node._type) {
             case HTML_TEXT:
             case HTML_COMMENT:
@@ -186,8 +175,7 @@ var Main_clientRectsBug;
             }
         }
 
-        function cleanseAttribute(node,name)
-        {
+        function cleanseAttribute(node,name) {
             if (node.hasAttribute(name)) {
                 var value = node.getAttribute(name);
                 value = cleanseString(value);
@@ -195,13 +183,11 @@ var Main_clientRectsBug;
             }
         }
 
-        function cleanseString(str)
-        {
+        function cleanseString(str) {
             return str.replace(/[^\s\.\@\^]/g,"X");
         }
 
-        function htmlWithSelection()
-        {
+        function htmlWithSelection() {
             var selectionRange = Selection_get();
             if (selectionRange != null) {
                 selectionRange = Range_forwards(selectionRange);
@@ -233,8 +219,7 @@ var Main_clientRectsBug;
             }
         }
 
-        function addPositionMarker(pos,name,save)
-        {
+        function addPositionMarker(pos,name,save) {
             var node = pos.node;
             var offset = pos.offset;
             if (node.nodeType == Node.ELEMENT_NODE) {
@@ -247,8 +232,7 @@ var Main_clientRectsBug;
             }
         }
 
-        function removePositionMarker(pos,save)
-        {
+        function removePositionMarker(pos,save) {
             var node = pos.node;
             var offset = pos.offset;
             if (pos.node.nodeType == Node.ELEMENT_NODE) {
@@ -261,8 +245,7 @@ var Main_clientRectsBug;
     }
 
     // public
-    Main_removeSpecial = function(node)
-    {
+    Main_removeSpecial = function(node) {
         // We process the children first, so that if there are any nested removable elements (e.g.
         // a selection span inside of an autocorrect span), all levels of nesting are taken care of
         var next;
@@ -296,8 +279,7 @@ var Main_clientRectsBug;
         }
     }
 
-    function simplifyStackString(e)
-    {
+    function simplifyStackString(e) {
         if (e.stack == null)
             return "";
         var lines = e.stack.toString().split(/\n/);
@@ -312,8 +294,7 @@ var Main_clientRectsBug;
     }
 
     // public
-    Main_execute = function(fun)
-    {
+    Main_execute = function(fun) {
         try {
             var res = fun();
             PostponedActions_perform();
@@ -326,8 +307,7 @@ var Main_clientRectsBug;
         }
     }
 
-    function fixEmptyBody()
-    {
+    function fixEmptyBody() {
         for (var child = document.body.firstChild; child != null; child = child.nextSibling) {
             if (nodeHasContent(child))
                 return;
@@ -347,8 +327,7 @@ var Main_clientRectsBug;
     }
 
     // public
-    Main_init = function(width,textScale,cssURL,clientRectsBug)
-    {
+    Main_init = function(width,textScale,cssURL,clientRectsBug) {
         try {
             Main_clientRectsBug = clientRectsBug;
             if (document.documentElement == null)

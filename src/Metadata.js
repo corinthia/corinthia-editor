@@ -20,13 +20,11 @@ var Metadata_setMetadata;
 
 (function() {
 
-    Metadata_getMetadata = function()
-    {
+    Metadata_getMetadata = function() {
         return {};
     }
 
-    Metadata_setMetadata = function(metadata)
-    {
+    Metadata_setMetadata = function(metadata) {
     }
 
 })();

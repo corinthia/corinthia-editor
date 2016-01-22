@@ -15,8 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-function prevNode(node)
-{
+function prevNode(node) {
     if (node.previousSibling != null) {
         node = node.previousSibling;
         while (node.lastChild != null)
@@ -28,8 +27,7 @@ function prevNode(node)
     }
 }
 
-function nextNodeAfter(node,entering,exiting)
-{
+function nextNodeAfter(node,entering,exiting) {
     while (node != null) {
         if (node.nextSibling != null) {
             if (exiting != null)
@@ -47,8 +45,7 @@ function nextNodeAfter(node,entering,exiting)
     return node;
 }
 
-function nextNode(node,entering,exiting)
-{
+function nextNode(node,entering,exiting) {
     if (node.firstChild) {
         node = node.firstChild;
         if (entering != null)
@@ -60,54 +57,47 @@ function nextNode(node,entering,exiting)
     }
 }
 
-function prevTextNode(node)
-{
+function prevTextNode(node) {
     do {
         node = prevNode(node);
     } while ((node != null) && (node.nodeType != Node.TEXT_NODE));
     return node;
 }
 
-function nextTextNode(node)
-{
+function nextTextNode(node) {
     do {
         node = nextNode(node);
     } while ((node != null) && (node.nodeType != Node.TEXT_NODE));
     return node;
 }
 
-function firstChildElement(node)
-{
+function firstChildElement(node) {
     var first = node.firstChild;
     while ((first != null) && (first.nodeType != Node.ELEMENT_NODE))
         first = first.nextSibling;
     return first;
 }
 
-function lastChildElement(node)
-{
+function lastChildElement(node) {
     var last = node.lastChild;
     while ((last != null) && (last.nodeType != Node.ELEMENT_NODE))
         last = last.previousSibling;
     return last;
 }
 
-function firstDescendant(node)
-{
+function firstDescendant(node) {
     while (node.firstChild != null)
         node = node.firstChild;
     return node;
 }
 
-function lastDescendant(node)
-{
+function lastDescendant(node) {
     while (node.lastChild != null)
         node = node.lastChild;
     return node;
 }
 
-function firstDescendantOfType(node,type)
-{
+function firstDescendantOfType(node,type) {
     if (node._type == type)
         return node;
 
@@ -119,8 +109,7 @@ function firstDescendantOfType(node,type)
     return null;
 }
 
-function firstChildOfType(node,type)
-{
+function firstChildOfType(node,type) {
     for (var child = node.firstChild; child != null; child = child.nextSibling) {
         if (child._type == type)
             return child;
@@ -128,22 +117,19 @@ function firstChildOfType(node,type)
     return null;
 }
 
-function getNodeDepth(node)
-{
+function getNodeDepth(node) {
     var depth = 0;
     for (; node != null; node = node.parentNode)
         depth++;
     return depth;
 }
 
-function getNodeText(node)
-{
+function getNodeText(node) {
     var strings = new Array();
     recurse(node);
     return strings.join("").replace(/\s+/g," ");
 
-    function recurse(node)
-    {
+    function recurse(node) {
         if (node.nodeType == Node.TEXT_NODE)
             strings.push(node.nodeValue);
 
@@ -152,22 +138,19 @@ function getNodeText(node)
     }
 }
 
-function isWhitespaceTextNode(node)
-{
+function isWhitespaceTextNode(node) {
     if (node.nodeType != Node.TEXT_NODE)
         return false;
     return isWhitespaceString(node.nodeValue);
 }
 
-function isNonWhitespaceTextNode(node)
-{
+function isNonWhitespaceTextNode(node) {
     if (node.nodeType != Node.TEXT_NODE)
         return false;
     return !isWhitespaceString(node.nodeValue);
 }
 
-function printTree(node,indent,offset)
-{
+function printTree(node,indent,offset) {
     if (indent == null)
         indent = "";
     if (offset == null)

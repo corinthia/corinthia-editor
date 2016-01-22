@@ -37,21 +37,18 @@ var UndoManager_deleteProperty;
 
     var UNDO_LIMIT = 50;
 
-    function UndoGroup(type,onClose)
-    {
+    function UndoGroup(type,onClose) {
         this.type = type;
         this.onClose = onClose;
         this.actions = new Array();
     }
 
-    function UndoAction(fun,args)
-    {
+    function UndoAction(fun,args) {
         this.fun = fun;
         this.args = args;
     }
 
-    UndoAction.prototype.toString = function()
-    {
+    UndoAction.prototype.toString = function() {
         var name;
         if (this.fun.wrappedName != null)
             name = this.fun.wrappedName;
@@ -79,20 +76,17 @@ var UndoManager_deleteProperty;
     var disabled = 0;
 
     // public
-    UndoManager_getLength = function()
-    {
+    UndoManager_getLength = function() {
         return undoStack.length + redoStack.length;
     }
 
     // public
-    UndoManager_getIndex = function()
-    {
+    UndoManager_getIndex = function() {
         return undoStack.length;
     }
 
     // public
-    UndoManager_setIndex = function(index)
-    {
+    UndoManager_setIndex = function(index) {
         while (undoStack.length > index)
             UndoManager_undo();
         while (undoStack.length < index)
@@ -100,8 +94,7 @@ var UndoManager_deleteProperty;
     }
 
     // public
-    UndoManager_print = function()
-    {
+    UndoManager_print = function() {
         debug("");
         debug("--------------------------------------------------------------------");
         debug("Undo stack:");
@@ -127,16 +120,14 @@ var UndoManager_deleteProperty;
         debug("");
     }
 
-    function closeCurrentGroup()
-    {
+    function closeCurrentGroup() {
         if ((currentGroup != null) && (currentGroup.onClose != null))
             currentGroup.onClose();
         currentGroup = null;
     }
 
     // public
-    UndoManager_undo = function()
-    {
+    UndoManager_undo = function() {
         closeCurrentGroup();
         if (undoStack.length > 0) {
             var group = undoStack.pop();
@@ -149,8 +140,7 @@ var UndoManager_deleteProperty;
     }
 
     // public
-    UndoManager_redo = function()
-    {
+    UndoManager_redo = function() {
         closeCurrentGroup();
         if (redoStack.length > 0) {
             var group = redoStack.pop();
@@ -163,8 +153,7 @@ var UndoManager_deleteProperty;
     }
 
     // public
-    UndoManager_addAction = function(fun)
-    {
+    UndoManager_addAction = function(fun) {
         if (disabled > 0)
             return;
 
@@ -192,8 +181,7 @@ var UndoManager_deleteProperty;
     }
 
     // public
-    UndoManager_newGroup = function(type,onClose)
-    {
+    UndoManager_newGroup = function(type,onClose) {
         if (disabled > 0)
             return;
 
@@ -209,8 +197,7 @@ var UndoManager_deleteProperty;
     }
 
     // public
-    UndoManager_groupType = function()
-    {
+    UndoManager_groupType = function() {
         if (undoStack.length > 0)
             return undoStack[undoStack.length-1].type;
         else
@@ -227,8 +214,7 @@ var UndoManager_deleteProperty;
         }
     }
 
-    UndoManager_isActive = function()
-    {
+    UndoManager_isActive = function() {
         return (inUndo || inRedo);
     }
 
@@ -241,24 +227,21 @@ var UndoManager_deleteProperty;
         redoStack.length = 0;
     }
 
-    function saveProperty(obj,name)
-    {
+    function saveProperty(obj,name) {
         if (obj.hasOwnProperty(name))
             UndoManager_addAction(UndoManager_setProperty,obj,name,obj[name]);
         else
             UndoManager_addAction(UndoManager_deleteProperty,obj,name);
     }
 
-    UndoManager_setProperty = function(obj,name,value)
-    {
+    UndoManager_setProperty = function(obj,name,value) {
         if (obj.hasOwnProperty(name) && (obj[name] == value))
             return; // no point in adding an undo action
         saveProperty(obj,name);
         obj[name] = value;
     }
 
-    UndoManager_deleteProperty = function(obj,name)
-    {
+    UndoManager_deleteProperty = function(obj,name) {
         if (!obj.hasOwnProperty(name))
             return; // no point in adding an undo action
         saveProperty(obj,name);

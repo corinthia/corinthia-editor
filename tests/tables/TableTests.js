@@ -15,8 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-function showSelectedTableRegion()
-{
+function showSelectedTableRegion() {
     var region = Tables_regionFromRange(Selection_get());
     for (var row = region.top; row <= region.bottom; row++) {
         for (var col = region.left; col <= region.right; col++) {
@@ -26,13 +25,11 @@ function showSelectedTableRegion()
     }
 }
 
-function getSelectedTableRegion()
-{
+function getSelectedTableRegion() {
     return Tables_regionFromRange(Selection_get());
 }
 
-function showTableStructure()
-{
+function showTableStructure() {
     var tableElement = document.getElementsByTagName("TABLE")[0];
     var table = Tables_analyseStructure(tableElement);
     var lines = new Array();

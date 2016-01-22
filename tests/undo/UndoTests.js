@@ -15,8 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-function testUndo(versions,node)
-{
+function testUndo(versions,node) {
     var numSteps = UndoManager_getLength();
 
     var back1 = new Array();
@@ -79,8 +78,7 @@ function testUndo(versions,node)
     }
 }
 
-function placeCursorAfterElement(id)
-{
+function placeCursorAfterElement(id) {
     UndoManager_disableWhileExecuting(function() {
         var element = document.getElementById(id);
         var node = element.parentNode;

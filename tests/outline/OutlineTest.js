@@ -15,8 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-function createTestSections(topChildren)
-{
+function createTestSections(topChildren) {
     var index = 1;
 
     processChildren(1,topChildren);
@@ -25,8 +24,7 @@ function createTestSections(topChildren)
 
     setNumbering(true);
 
-    function processChildren(level,children)
-    {
+    function processChildren(level,children) {
         if (typeof children == "number") {
             for (var i = 0; i < children; i++)
                 recurse(level,null);
@@ -37,8 +35,7 @@ function createTestSections(topChildren)
         }
     }
 
-    function recurse(level,children)
-    {
+    function recurse(level,children) {
         var heading = DOM_createElement(document,"H"+level);
 
         DOM_appendChild(heading,DOM_createTextNode(document,"Section "+index));
@@ -59,15 +56,13 @@ function createTestSections(topChildren)
     }
 }
 
-function setupOutline(topChildren)
-{
+function setupOutline(topChildren) {
     Outline_init();
     PostponedActions_perform();
     createTestSections(topChildren);
 }
 
-function createTestFigures(count)
-{
+function createTestFigures(count) {
     for (var i = 0; i < count; i++) {
         var figure = DOM_createElement(document,"FIGURE");
         var figcaption = DOM_createElement(document,"FIGCAPTION");
@@ -80,8 +75,7 @@ function createTestFigures(count)
     }
 }
 
-function createTestTables(count)
-{
+function createTestTables(count) {
     for (var i = 0; i < count; i++) {
         var offset = document.body.childNodes.length;
         Selection_set(document.body,offset,document.body,offset);
@@ -90,8 +84,7 @@ function createTestTables(count)
     PostponedActions_perform();
 }
 
-function removeOutlineHTML(node)
-{
+function removeOutlineHTML(node) {
     if ((node.nodeName == "SPAN") &&
         (node.getAttribute("class") == "uxwrite-heading-number")) {
         DOM_removeNodeButKeepChildren(node);
@@ -104,8 +97,7 @@ function removeOutlineHTML(node)
     }
 }
 
-function cleanupOutline()
-{
+function cleanupOutline() {
     PostponedActions_perform();
     removeOutlineHTML(document.body);
 }

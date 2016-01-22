@@ -20,21 +20,18 @@ var PostponedActions_perform;
 
 (function() {
 
-    function PostponedAction(fun,undoDisabled)
-    {
+    function PostponedAction(fun,undoDisabled) {
         this.fun = fun;
         this.undoDisabled = undoDisabled;
     }
 
     var actions = new Array();
 
-    PostponedActions_add = function(action)
-    {
+    PostponedActions_add = function(action) {
         actions.push(new PostponedAction(action,UndoManager_isDisabled()));
     }
 
-    PostponedActions_perform = function()
-    {
+    PostponedActions_perform = function() {
         var count = 0;
         while (actions.length > 0) {
             if (count >= 10)

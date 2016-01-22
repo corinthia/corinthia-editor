@@ -24,8 +24,7 @@ var Viewport_setTextScale;
     var viewportMetaElement = null;
 
     // public
-    Viewport_init = function(width,textScale)
-    {
+    Viewport_init = function(width,textScale) {
         var head = DOM_documentHead(document);
         for (var child = head.firstChild; child != null; child = child.nextSibling) {
             if ((child._type == HTML_META) && (child.getAttribute("name") == "viewport")) {
@@ -56,8 +55,7 @@ var Viewport_setTextScale;
     }
 
     // public
-    Viewport_setViewportWidth = function(width)
-    {
+    Viewport_setViewportWidth = function(width) {
         var contentValue = "width = "+width+", user-scalable = no";
         if (viewportMetaElement.getAttribute("content") != contentValue)
             DOM_setAttribute(viewportMetaElement,"content",contentValue);
@@ -67,8 +65,7 @@ var Viewport_setTextScale;
     }
 
     // public
-    Viewport_setTextScale = function(textScale)
-    {
+    Viewport_setTextScale = function(textScale) {
         var pct = textScale+"%";
         if (document.documentElement.style.getPropertyValue("-webkit-text-size-adjust") != pct)
             DOM_setStyleProperties(document.documentElement,{"-webkit-text-size-adjust": pct});

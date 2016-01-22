@@ -33,78 +33,64 @@ var debug;
 
     var backMessages = new Array();
 
-    function addBackMessage()
-    {
+    function addBackMessage() {
         backMessages.push(arrayCopy(arguments));
         return null;
     }
 
-    Editor_getBackMessages = function()
-    {
+    Editor_getBackMessages = function() {
         var result = JSON.stringify(backMessages);
         backMessages = new Array();
         return result;
     };
 
-    Editor_debug = function(str)
-    {
+    Editor_debug = function(str) {
         addBackMessage("debug",str);
     };
 
-    Editor_error = function(error,type)
-    {
+    Editor_error = function(error,type) {
         if (type == null)
             type = "";
         addBackMessage("error",error.toString(),type);
     };
 
-    Editor_addOutlineItem = function(itemId,type,title)
-    {
+    Editor_addOutlineItem = function(itemId,type,title) {
         addBackMessage("addOutlineItem",itemId,type,title);
     };
 
-    Editor_updateOutlineItem = function(itemId,title)
-    {
+    Editor_updateOutlineItem = function(itemId,title) {
         addBackMessage("updateOutlineItem",itemId,title);
     };
 
-    Editor_removeOutlineItem = function(itemId)
-    {
+    Editor_removeOutlineItem = function(itemId) {
         addBackMessage("removeOutlineItem",itemId);
     };
 
-    Editor_outlineUpdated = function()
-    {
+    Editor_outlineUpdated = function() {
         addBackMessage("outlineUpdated");
     };
 
-    Editor_setCursor = function(x,y,width,height)
-    {
+    Editor_setCursor = function(x,y,width,height) {
         addBackMessage("setCursor",x,y,width,height);
     };
 
-    Editor_setSelectionHandles = function(x1,y1,height1,x2,y2,height2)
-    {
+    Editor_setSelectionHandles = function(x1,y1,height1,x2,y2,height2) {
         addBackMessage("setSelectionHandles",x1,y1,height1,x2,y2,height2);
     };
 
-    Editor_setTableSelection = function(x,y,width,height)
-    {
+    Editor_setTableSelection = function(x,y,width,height) {
         addBackMessage("setTableSelection",x,y,width,height);
     };
 
-    Editor_setSelectionBounds = function(left,top,right,bottom)
-    {
+    Editor_setSelectionBounds = function(left,top,right,bottom) {
         addBackMessage("setSelectionBounds",left,top,right,bottom);
     };
 
-    Editor_clearSelectionHandlesAndCursor = function()
-    {
+    Editor_clearSelectionHandlesAndCursor = function() {
         addBackMessage("clearSelectionHandlesAndCursor");
     };
 
-    Editor_updateAutoCorrect = function()
-    {
+    Editor_updateAutoCorrect = function() {
         addBackMessage("updateAutoCorrect");
     };
 

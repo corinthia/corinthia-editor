@@ -45,8 +45,7 @@ var TableRegion_splitCells;
 
 (function() {
 
-    function Cell(element,row,col)
-    {
+    function Cell(element,row,col) {
         this.element = element;
         this.row = row;
         this.col = col;
@@ -71,8 +70,7 @@ var TableRegion_splitCells;
         this.right = this.left + this.colspan - 1;
     }
 
-    function Cell_setRowspan(cell,rowspan)
-    {
+    function Cell_setRowspan(cell,rowspan) {
         if (rowspan < 1)
             rowspan = 1;
         cell.rowspan = rowspan;
@@ -83,8 +81,7 @@ var TableRegion_splitCells;
             DOM_setAttribute(cell.element,"rowspan",rowspan);
     }
 
-    function Cell_setColspan(cell,colspan)
-    {
+    function Cell_setColspan(cell,colspan) {
         if (colspan < 1)
             colspan = 1;
         cell.colspan = colspan;
@@ -95,8 +92,7 @@ var TableRegion_splitCells;
             DOM_setAttribute(cell.element,"colspan",colspan);
     }
 
-    function Table(element)
-    {
+    function Table(element) {
         this.element = element;
         this.row = 0;
         this.col = 0;
@@ -109,16 +105,14 @@ var TableRegion_splitCells;
     }
 
     // public
-    Table_get = function(table,row,col)
-    {
+    Table_get = function(table,row,col) {
         if (table.cells[row] == null)
             return null;
         return table.cells[row][col];
     }
 
     // public
-    Table_set = function(table,row,col,cell)
-    {
+    Table_set = function(table,row,col,cell) {
         if (table.numRows < row+1)
             table.numRows = row+1;
         if (table.numCols < col+1)
@@ -129,8 +123,7 @@ var TableRegion_splitCells;
     }
 
     // public
-    Table_setRegion = function(table,top,left,bottom,right,cell)
-    {
+    Table_setRegion = function(table,top,left,bottom,right,cell) {
         for (var row = top; row <= bottom; row++) {
             for (var col = left; col <= right; col++) {
                 var destCell = Table_get(table,row,col);
@@ -140,8 +133,7 @@ var TableRegion_splitCells;
         }
     }
 
-    function Table_processTable(table,node)
-    {
+    function Table_processTable(table,node) {
         var type = node._type;
         switch (node._type) {
         case HTML_TD:
@@ -174,8 +166,7 @@ var TableRegion_splitCells;
     }
 
     // public
-    Tables_insertTable = function(rows,cols,width,numbered,caption,className)
-    {
+    Tables_insertTable = function(rows,cols,width,numbered,caption,className) {
         UndoManager_newGroup("Insert table");
 
         if (rows < 1)
@@ -244,8 +235,7 @@ var TableRegion_splitCells;
     }
 
     // private
-    function createEmptyTableCell(elementName)
-    {
+    function createEmptyTableCell(elementName) {
         var br = DOM_createElement(document,"BR");
         var p = DOM_createElement(document,"P");
         var td = DOM_createElement(document,elementName);
@@ -255,16 +245,14 @@ var TableRegion_splitCells;
     }
 
     // private
-    function addEmptyTableCell(newTR,elementName)
-    {
+    function addEmptyTableCell(newTR,elementName) {
         var td = createEmptyTableCell(elementName);
         DOM_appendChild(newTR,td);
         return td;
     }
 
     // private
-    function populateNewRow(structure,newTR,newRow,oldRow)
-    {
+    function populateNewRow(structure,newTR,newRow,oldRow) {
         var col = 0;
         while (col < structure.numCols) {
             var existingCell = Table_get(structure,oldRow,col);
@@ -281,8 +269,7 @@ var TableRegion_splitCells;
         }
     }
 
-    function tableAtRightOfRange(range)
-    {
+    function tableAtRightOfRange(range) {
         if (!Range_isEmpty(range))
             return null;
 
@@ -297,8 +284,7 @@ var TableRegion_splitCells;
         return null;
     }
 
-    function tableAtLeftOfRange(range)
-    {
+    function tableAtLeftOfRange(range) {
         if (!Range_isEmpty(range))
             return null;
 
@@ -313,8 +299,7 @@ var TableRegion_splitCells;
         return null;
     }
 
-    function insertRowAbove(table,row)
-    {
+    function insertRowAbove(table,row) {
         var cell = Table_get(table,row,0);
         var oldTR = cell.element.parentNode;
         var newTR = DOM_createElement(document,"TR");
@@ -322,8 +307,7 @@ var TableRegion_splitCells;
         populateNewRow(table,newTR,row-1,row);
     }
 
-    function insertRowBelow(table,row)
-    {
+    function insertRowBelow(table,row) {
         var cell = Table_get(table,row,0);
         var oldTR = cell.element.parentNode;
         var newTR = DOM_createElement(document,"TR");
@@ -331,8 +315,7 @@ var TableRegion_splitCells;
         populateNewRow(table,newTR,row+1,row);
     }
 
-    function insertRowAdjacentToRange(range)
-    {
+    function insertRowAdjacentToRange(range) {
         var table;
 
         table = tableAtLeftOfRange(range);
@@ -349,8 +332,7 @@ var TableRegion_splitCells;
     }
 
     // public
-    Tables_addAdjacentRow = function()
-    {
+    Tables_addAdjacentRow = function() {
         UndoManager_newGroup("Insert row below");
         Selection_preserveWhileExecuting(function() {
             var range = Selection_get();
@@ -364,8 +346,7 @@ var TableRegion_splitCells;
     }
 
     // private
-    function getColElements(table)
-    {
+    function getColElements(table) {
         var cols = new Array();
         for (child = table.firstChild; child != null; child = child.nextSibling) {
             switch (child._type) {
@@ -384,8 +365,7 @@ var TableRegion_splitCells;
     }
 
     // private
-    function getColWidths(colElements,expectedCount)
-    {
+    function getColWidths(colElements,expectedCount) {
         // FIXME: also handle the case where the width has been set as a CSS property in the
         // style attribute. There's probably not much we can do if the width comes from a style
         // rule elsewhere in the document though.
@@ -400,8 +380,7 @@ var TableRegion_splitCells;
     }
 
     // private
-    function addMissingColElements(structure,colElements)
-    {
+    function addMissingColElements(structure,colElements) {
         // If there are fewer COL elements than there are colums, add extra ones, copying the
         // width value from the last one
         // FIXME: handle col elements with colspan > 1, as well as colgroups with width set
@@ -416,8 +395,7 @@ var TableRegion_splitCells;
     }
 
     // private
-    function fixColPercentages(structure,colElements)
-    {
+    function fixColPercentages(structure,colElements) {
         var colWidths = getColWidths(colElements,structure.numCols);
 
         var percentages = colWidths.map(getPercentage);
@@ -434,13 +412,11 @@ var TableRegion_splitCells;
             }
         }
 
-        function notNull(arg)
-        {
+        function notNull(arg) {
             return (arg != null);
         }
 
-        function getPercentage(str)
-        {
+        function getPercentage(str) {
             if (str.match(/^\s*\d+(\.\d+)?\s*%\s*$/))
                 return parseInt(str.replace(/\s*%\s*$/,""));
             else
@@ -449,8 +425,7 @@ var TableRegion_splitCells;
     }
 
     // private
-    function addColElement(structure,oldIndex,right)
-    {
+    function addColElement(structure,oldIndex,right) {
         var table = structure.element;
 
         var colElements = getColElements(table);
@@ -480,8 +455,7 @@ var TableRegion_splitCells;
     }
 
     // private
-    function deleteColElements(structure,left,right)
-    {
+    function deleteColElements(structure,left,right) {
         var table = structure.element;
 
         var colElements = getColElements(table);
@@ -500,8 +474,7 @@ var TableRegion_splitCells;
     }
 
     // private
-    function addColumnCells(structure,oldIndex,right)
-    {
+    function addColumnCells(structure,oldIndex,right) {
         for (var row = 0; row < structure.numRows; row++) {
             var cell = Table_get(structure,row,oldIndex);
             var oldTD = cell.element;
@@ -525,8 +498,7 @@ var TableRegion_splitCells;
         }
     }
 
-    function insertColumnAdjacentToRange(range)
-    {
+    function insertColumnAdjacentToRange(range) {
         var table;
 
         table = tableAtLeftOfRange(range);
@@ -547,8 +519,7 @@ var TableRegion_splitCells;
     }
 
     // public
-    Tables_addAdjacentColumn = function()
-    {
+    Tables_addAdjacentColumn = function() {
         UndoManager_newGroup("Insert column at right");
         Selection_preserveWhileExecuting(function() {
             var range = Selection_get();
@@ -564,8 +535,7 @@ var TableRegion_splitCells;
         UndoManager_newGroup();
     }
 
-    function columnHasContent(table,col)
-    {
+    function columnHasContent(table,col) {
         for (var row = 0; row < table.numRows; row++) {
             var cell = Table_get(table,row,col);
             if ((cell != null) && (cell.col == col) && nodeHasContent(cell.element))
@@ -574,8 +544,7 @@ var TableRegion_splitCells;
         return false;
     }
 
-    function rowHasContent(table,row)
-    {
+    function rowHasContent(table,row) {
         for (var col = 0; col < table.numCols; col++) {
             var cell = Table_get(table,row,col);
             if ((cell != null) && (cell.row == row) && nodeHasContent(cell.element))
@@ -584,8 +553,7 @@ var TableRegion_splitCells;
         return false;
     }
 
-    function selectRegion(table,top,bottom,left,right)
-    {
+    function selectRegion(table,top,bottom,left,right) {
         left = clampCol(table,left);
         right = clampCol(table,right);
         top = clampRow(table,top);
@@ -604,8 +572,7 @@ var TableRegion_splitCells;
         }
     }
 
-    function clampCol(table,col)
-    {
+    function clampCol(table,col) {
         if (col > table.numCols-1)
             col = table.numCols-1;
         if (col < 0)
@@ -613,8 +580,7 @@ var TableRegion_splitCells;
         return col;
     }
 
-    function clampRow(table,row)
-    {
+    function clampRow(table,row) {
         if (row > table.numRows-1)
             row = table.numRows-1;
         if (row < 0)
@@ -622,8 +588,7 @@ var TableRegion_splitCells;
         return row;
     }
 
-    function removeRowAdjacentToRange(range)
-    {
+    function removeRowAdjacentToRange(range) {
         var table;
 
         table = tableAtLeftOfRange(range);
@@ -644,8 +609,7 @@ var TableRegion_splitCells;
         }
     }
 
-    Tables_removeAdjacentRow = function()
-    {
+    Tables_removeAdjacentRow = function() {
         var range = Selection_get();
         var region = Tables_regionFromRange(range,true);
 
@@ -707,8 +671,7 @@ var TableRegion_splitCells;
         UndoManager_newGroup();
     }
 
-    function removeColumnAdjacentToRange(range)
-    {
+    function removeColumnAdjacentToRange(range) {
         var table;
 
         table = tableAtLeftOfRange(range);
@@ -729,8 +692,7 @@ var TableRegion_splitCells;
         }
     }
 
-    Tables_removeAdjacentColumn = function()
-    {
+    Tables_removeAdjacentColumn = function() {
         var range = Selection_get();
         var region = Tables_regionFromRange(range,true);
 
@@ -792,14 +754,12 @@ var TableRegion_splitCells;
     }
 
     // private
-    function deleteTable(structure)
-    {
+    function deleteTable(structure) {
         DOM_deleteNode(structure.element);
     }
 
     // private
-    function deleteRows(structure,top,bottom)
-    {
+    function deleteRows(structure,top,bottom) {
         var trElements = new Array();
         getTRs(structure.element,trElements);
 
@@ -808,8 +768,7 @@ var TableRegion_splitCells;
     }
 
     // private
-    function getTRs(node,result)
-    {
+    function getTRs(node,result) {
         if (node._type == HTML_TR) {
             result.push(node);
         }
@@ -820,8 +779,7 @@ var TableRegion_splitCells;
     }
 
     // private
-    function deleteColumns(structure,left,right)
-    {
+    function deleteColumns(structure,left,right) {
         var nodesToDelete = new NodeSet();
         for (var row = 0; row < structure.numRows; row++) {
             for (var col = left; col <= right; col++) {
@@ -834,8 +792,7 @@ var TableRegion_splitCells;
     }
 
     // private
-    function deleteCellContents(region)
-    {
+    function deleteCellContents(region) {
         var structure = region.structure;
         for (var row = region.top; row <= region.bottom; row++) {
             for (var col = region.left; col <= region.right; col++) {
@@ -846,8 +803,7 @@ var TableRegion_splitCells;
     }
 
     // public
-    Tables_deleteRegion = function(region)
-    {
+    Tables_deleteRegion = function(region) {
         var structure = region.structure;
 
         var coversEntireWidth = (region.left == 0) && (region.right == structure.numCols-1);
@@ -864,13 +820,11 @@ var TableRegion_splitCells;
     }
 
     // public
-    Tables_clearCells = function()
-    {
+    Tables_clearCells = function() {
     }
 
     // public
-    Tables_mergeCells = function()
-    {
+    Tables_mergeCells = function() {
         Selection_preserveWhileExecuting(function() {
             var region = Tables_regionFromRange(Selection_get());
             if (region == null)
@@ -926,8 +880,7 @@ var TableRegion_splitCells;
     }
 
     // public
-    Tables_splitSelection = function()
-    {
+    Tables_splitSelection = function() {
         Selection_preserveWhileExecuting(function() {
             var range = Selection_get();
             Range_trackWhileExecuting(range,function() {
@@ -939,8 +892,7 @@ var TableRegion_splitCells;
     }
 
     // public
-    TableRegion_splitCells = function(region)
-    {
+    TableRegion_splitCells = function(region) {
         var structure = region.structure;
         var trElements = new Array();
         getTRs(structure.element,trElements);
@@ -981,8 +933,7 @@ var TableRegion_splitCells;
     }
 
     // public
-    Tables_cloneRegion = function(region)
-    {
+    Tables_cloneRegion = function(region) {
         var cellNodesDone = new NodeSet();
         var table = DOM_shallowCopyElement(region.structure.element);
         for (var row = region.top; row <= region.bottom; row++) {
@@ -1000,15 +951,13 @@ var TableRegion_splitCells;
     }
 
     // private
-    function pasteCells(fromTableElement,toRegion)
-    {
+    function pasteCells(fromTableElement,toRegion) {
         // FIXME
         var fromStructure = Tables_analyseStructure(fromTableElement);
     }
 
     // public
-    Table_fix = function(table)
-    {
+    Table_fix = function(table) {
         var changed = false;
 
         var tbody = null;
@@ -1050,8 +999,7 @@ var TableRegion_splitCells;
     }
 
     // public
-    Table_fixColumnWidths = function(structure)
-    {
+    Table_fixColumnWidths = function(structure) {
         var colElements = getColElements(structure.element);
         if (colElements.length == 0)
             return;
@@ -1065,8 +1013,7 @@ var TableRegion_splitCells;
     }
 
     // public
-    Tables_analyseStructure = function(element)
-    {
+    Tables_analyseStructure = function(element) {
         // FIXME: we should probably be preserving the selection here, since we are modifying
         // the DOM (though I think it's unlikely it would cause problems, becausing the fixup
         // logic only adds elements). However this method is called (indirectly) from within
@@ -1078,8 +1025,7 @@ var TableRegion_splitCells;
     }
 
     // public
-    Tables_findContainingCell = function(node)
-    {
+    Tables_findContainingCell = function(node) {
         for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {
             if (isTableCell(ancestor))
                 return ancestor;
@@ -1088,8 +1034,7 @@ var TableRegion_splitCells;
     }
 
     // public
-    Tables_findContainingTable = function(node)
-    {
+    Tables_findContainingTable = function(node) {
         for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {
             if (ancestor._type == HTML_TABLE)
                 return ancestor;
@@ -1097,8 +1042,7 @@ var TableRegion_splitCells;
         return null;
     }
 
-    function TableRegion(structure,top,bottom,left,right)
-    {
+    function TableRegion(structure,top,bottom,left,right) {
         this.structure = structure;
         this.top = top;
         this.bottom = bottom;
@@ -1106,14 +1050,12 @@ var TableRegion_splitCells;
         this.right = right;
     }
 
-    TableRegion.prototype.toString = function()
-    {
+    TableRegion.prototype.toString = function() {
         return "("+this.top+","+this.left+") - ("+this.bottom+","+this.right+")";
     }
 
     // public
-    Tables_regionFromRange = function(range,allowSameCell)
-    {
+    Tables_regionFromRange = function(range,allowSameCell) {
         var region = null;
 
         if (range == null)
@@ -1167,8 +1109,7 @@ var TableRegion_splitCells;
     }
 
     // private
-    function adjustRegionForSpannedCells(region)
-    {
+    function adjustRegionForSpannedCells(region) {
         var structure = region.structure;
         var boundariesOk;
         var columnsOk;
@@ -1202,14 +1143,12 @@ var TableRegion_splitCells;
         } while (!boundariesOk);
     }
 
-    Tables_getSelectedTableId = function()
-    {
+    Tables_getSelectedTableId = function() {
         var element = Cursor_getAdjacentNodeWithType(HTML_TABLE);
         return element ? element.getAttribute("id") : null;
     }
 
-    Tables_getProperties = function(itemId)
-    {
+    Tables_getProperties = function(itemId) {
         var element = document.getElementById(itemId);
         if ((element == null) || (element._type != HTML_TABLE))
             return null;
@@ -1218,8 +1157,7 @@ var TableRegion_splitCells;
         return { width: width, rows: structure.numRows, cols: structure.numCols };
     }
 
-    Tables_setProperties = function(itemId,width)
-    {
+    Tables_setProperties = function(itemId,width) {
         var table = document.getElementById(itemId);
         if (table == null)
             return null;
@@ -1232,8 +1170,7 @@ var TableRegion_splitCells;
     // their column widths specified, and in all cases as percentages. Any which do not
     // are considered invalid, and have any non-percentage values filled in based on the
     // average values of all valid percentage-based columns.
-    Tables_getColWidths = function(structure)
-    {
+    Tables_getColWidths = function(structure) {
         var colElements = getColElements(structure.element);
         var colWidths = new Array();
 
@@ -1259,8 +1196,7 @@ var TableRegion_splitCells;
 
         return colWidths;
 
-        function parsePercentage(str)
-        {
+        function parsePercentage(str) {
             if (str.match(/^\s*\d+(\.\d+)?\s*%\s*$/))
                 return parseFloat(str.replace(/\s*%\s*$/,""));
             else
@@ -1268,8 +1204,7 @@ var TableRegion_splitCells;
         }
     }
 
-    function fixWidths(colWidths,numCols)
-    {
+    function fixWidths(colWidths,numCols) {
         var totalWidth = 0;
         var numValidCols = 0;
         for (var i = 0; i < numCols; i++) {
@@ -1300,8 +1235,7 @@ var TableRegion_splitCells;
     }
 
     // public
-    Tables_setColWidths = function(itemId,widths)
-    {
+    Tables_setColWidths = function(itemId,widths) {
         var element = document.getElementById(itemId);
         if (element == null)
             return null;
@@ -1318,8 +1252,7 @@ var TableRegion_splitCells;
     }
 
     // public
-    Tables_getGeometry = function(itemId)
-    {
+    Tables_getGeometry = function(itemId) {
         var element = document.getElementById(itemId);
         if ((element == null) || (element.parentNode == null))
             return null;

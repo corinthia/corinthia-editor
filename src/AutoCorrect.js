@@ -30,8 +30,7 @@ var AutoCorrect_replaceCorrection;
 
 (function() {
 
-    function removeCorrectionSpan(span)
-    {
+    function removeCorrectionSpan(span) {
         if (span.parentNode == null)
             return;
         Selection_preserveWhileExecuting(function() {
@@ -42,8 +41,7 @@ var AutoCorrect_replaceCorrection;
         });
     }
 
-    function Correction(span)
-    {
+    function Correction(span) {
         this.span = span;
         this.modificationListener = function(event) {
             if (DOM_getIgnoreMutations())
@@ -55,8 +53,7 @@ var AutoCorrect_replaceCorrection;
         };
     }
 
-    Correction.prototype.toString = function()
-    {
+    Correction.prototype.toString = function() {
         return this.span.getAttribute("original")+" -> "+getNodeText(this.span);
     }
 
@@ -64,8 +61,7 @@ var AutoCorrect_replaceCorrection;
     var correctionList = null;
 
     // private
-    function docNodeInserted(event)
-    {
+    function docNodeInserted(event) {
         try {
             recurse(event.target);
         }
@@ -73,8 +69,7 @@ var AutoCorrect_replaceCorrection;
             Editor_error(e);
         }
 
-        function recurse(node)
-        {
+        function recurse(node) {
             if (isAutoCorrectNode(node))
                 AutoCorrect_addCorrection(node);
             for (var child = node.firstChild; child != null; child = child.nextSibling)
@@ -83,8 +78,7 @@ var AutoCorrect_replaceCorrection;
     }
 
     // private
-    function docNodeRemoved(event)
-    {
+    function docNodeRemoved(event) {
         try {
             recurse(event.target);
         }
@@ -92,8 +86,7 @@ var AutoCorrect_replaceCorrection;
             Editor_error(e);
         }
 
-        function recurse(node)
-        {
+        function recurse(node) {
             if (isAutoCorrectNode(node))
                 AutoCorrect_removeCorrection(node);
             for (var child = node.firstChild; child != null; child = child.nextSibling)
@@ -101,8 +94,7 @@ var AutoCorrect_replaceCorrection;
         }
     }
 
-    AutoCorrect_init = function()
-    {
+    AutoCorrect_init = function() {
         correctionsByNode = new NodeMap();
         correctionList = new Array();
         document.addEventListener("DOMNodeInserted",docNodeInserted);
@@ -110,14 +102,12 @@ var AutoCorrect_replaceCorrection;
     }
 
     // public (for the undo tests, when they report results)
-    AutoCorrect_removeListeners = function()
-    {
+    AutoCorrect_removeListeners = function() {
         document.removeEventListener("DOMNodeInserted",docNodeInserted);
         document.removeEventListener("DOMNodeRemoved",docNodeRemoved);
     }
 
-    AutoCorrect_addCorrection = function(span)
-    {
+    AutoCorrect_addCorrection = function(span) {
         var correction = new Correction(span);
         correctionsByNode.put(span,correction);
         correctionList.push(correction);
@@ -126,8 +116,7 @@ var AutoCorrect_replaceCorrection;
         span.addEventListener("DOMSubtreeModified",correction.modificationListener);
     }
 
-    AutoCorrect_removeCorrection = function(span)
-    {
+    AutoCorrect_removeCorrection = function(span) {
         var correction = correctionsByNode.get(span);
         if (correction == null)
             throw new Error("No autocorrect entry for "+JSON.stringify(getNodeText(span)));
@@ -148,8 +137,7 @@ var AutoCorrect_replaceCorrection;
         correctionsByNode.remove(span);
     }
 
-    AutoCorrect_getCorrections = function()
-    {
+    AutoCorrect_getCorrections = function() {
         var result = new Array();
         for (var i = 0; i < correctionList.length; i++) {
             var correction = correctionList[i];
@@ -159,8 +147,7 @@ var AutoCorrect_replaceCorrection;
         return result;
     }
 
-    AutoCorrect_correctPrecedingWord = function(numChars,replacement,confirmed)
-    {
+    AutoCorrect_correctPrecedingWord = function(numChars,replacement,confirmed) {
         Selection_preserveWhileExecuting(function() {
             var selRange = Selection_get();
             if ((selRange == null) && !Range_isEmpty(selRange))
@@ -195,8 +182,7 @@ var AutoCorrect_replaceCorrection;
         });
     }
 
-    AutoCorrect_getCorrection = function()
-    {
+    AutoCorrect_getCorrection = function() {
         var correction = getCurrent();
         if (correction == null)
             return null;
@@ -205,8 +191,7 @@ var AutoCorrect_replaceCorrection;
                  replacement: getNodeText(correction.span) };
     }
 
-    AutoCorrect_getCorrectionCoords = function()
-    {
+    AutoCorrect_getCorrectionCoords = function() {
         var correction = getCurrent();
         if (correction == null)
             return null;
@@ -229,8 +214,7 @@ var AutoCorrect_replaceCorrection;
         return { x: rect.left, y: rect.top };
     }
 
-    function getCurrent()
-    {
+    function getCurrent() {
         var range = Selection_get();
         if (range != null) {
             var endNode = Position_closestActualNode(range.end);
@@ -246,8 +230,7 @@ var AutoCorrect_replaceCorrection;
         return null;
     }
 
-    AutoCorrect_acceptCorrection = function()
-    {
+    AutoCorrect_acceptCorrection = function() {
         UndoManager_newGroup("Accept");
         var correction = getCurrent();
         if (correction == null)
@@ -257,8 +240,7 @@ var AutoCorrect_replaceCorrection;
         UndoManager_newGroup();
     }
 
-    AutoCorrect_revertCorrection = function()
-    {
+    AutoCorrect_revertCorrection = function() {
         var correction = getCurrent();
         if (correction == null)
             return;
@@ -266,8 +248,7 @@ var AutoCorrect_replaceCorrection;
         AutoCorrect_replaceCorrection(correction.span.getAttribute("original"));
     }
 
-    AutoCorrect_replaceCorrection = function(replacement)
-    {
+    AutoCorrect_replaceCorrection = function(replacement) {
         UndoManager_newGroup("Replace");
         var correction = getCurrent();
         if (correction == null)

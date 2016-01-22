@@ -15,32 +15,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-function pad(str,length)
-{
+function pad(str,length) {
     str = ""+str;
     while (str.length < length)
         str += " ";
     return str;
 }
 
-function selectRange(p,start,end)
-{
+function selectRange(p,start,end) {
     var paragraph = Text_analyseParagraph(new Position(p,0));
     var startPos = Paragraph_positionAtOffset(paragraph,start);
     var endPos = Paragraph_positionAtOffset(paragraph,end);
     Selection_set(startPos.node,startPos.offset,endPos.node,endPos.offset);
 }
 
-function makeStringArray(input)
-{
+function makeStringArray(input) {
     var result = new Array();
     for (var i = 0; i < input.length; i++)
         result.push(input[i].toString());
     return result;
 }
 
-function createTable(arrays)
-{
+function createTable(arrays) {
     var maxLength = 0;
     for (var col = 0; col < arrays.length; col++) {
         if (maxLength < arrays[col].length)
@@ -69,8 +65,7 @@ function createTable(arrays)
     return output.join("");
 }
 
-function rangeString(text,start,end)
-{
+function rangeString(text,start,end) {
     return JSON.stringify(text.substring(0,start) + "[" +
                           text.substring(start,end) + "]" +
                           text.substring(end));
@@ -78,8 +73,7 @@ function rangeString(text,start,end)
 
 var positionList = null
 
-function setPositionList(newList)
-{
+function setPositionList(newList) {
     UndoManager_addAction(setPositionList,positionList);
     if (newList == null)
         positionList = null;
@@ -87,13 +81,11 @@ function setPositionList(newList)
         positionList = newList.map(function (pos) { return new Position(pos.node,pos.offset); });
 }
 
-function getPositionList()
-{
+function getPositionList() {
     return positionList;
 }
 
-function positionTest(start1,end1,start2,end2)
-{
+function positionTest(start1,end1,start2,end2) {
     var ps = document.getElementsByTagName("P");
 
     var p = ps[0];

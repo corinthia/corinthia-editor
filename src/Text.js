@@ -35,8 +35,7 @@ var Text_toEndOfBoundary;
 
 (function() {
 
-    function Paragraph(node,startOffset,endOffset,runs,text)
-    {
+    function Paragraph(node,startOffset,endOffset,runs,text) {
         this.node = node;
         this.startOffset = startOffset;
         this.endOffset = endOffset;
@@ -53,8 +52,7 @@ var Text_toEndOfBoundary;
             enumerable: true });
     }
 
-    function Run(node,start,end)
-    {
+    function Run(node,start,end) {
         this.node = node;
         this.start = start;
         this.end = end;
@@ -66,8 +64,7 @@ var Text_toEndOfBoundary;
     //
     // <p>...</p> Some <i>inline</i> nodes <p>...</p>
 
-    Text_findParagraphBoundaries = function(pos)
-    {
+    Text_findParagraphBoundaries = function(pos) {
         Position_assertValid(pos);
         var startOffset = pos.offset;
         var endOffset = pos.offset;
@@ -90,8 +87,7 @@ var Text_toEndOfBoundary;
         return { node: node, startOffset: startOffset, endOffset: endOffset };
     }
 
-    Text_analyseParagraph = function(pos)
-    {
+    Text_analyseParagraph = function(pos) {
         var initial = pos.node;
         var strings = new Array();
         var runs = new Array();
@@ -108,8 +104,7 @@ var Text_toEndOfBoundary;
 
         return new Paragraph(boundaries.node,boundaries.startOffset,boundaries.endOffset,runs,text);
 
-        function recurse(node)
-        {
+        function recurse(node) {
             if (node.nodeType == Node.TEXT_NODE) {
                 strings.push(node.nodeValue);
                 var start = offset;
@@ -122,8 +117,7 @@ var Text_toEndOfBoundary;
         }
     }
 
-    Text_posAbove = function(pos,cursorRect,cursorX)
-    {
+    Text_posAbove = function(pos,cursorRect,cursorX) {
         if (cursorX == null)
             cursorX = pos.targetX;
         pos = Position_closestMatchBackwards(pos,Position_okForMovement);
@@ -193,8 +187,7 @@ var Text_toEndOfBoundary;
         }
     }
 
-    var findHighestTop = function(rects)
-    {
+    var findHighestTop = function(rects) {
         var top = null;
         for (var i = 0; i < rects.length; i++) {
             if ((top == null) || (top > rects[i].top))
@@ -203,8 +196,7 @@ var Text_toEndOfBoundary;
         return top;
     }
 
-    var findLowestBottom = function(rects)
-    {
+    var findLowestBottom = function(rects) {
         var bottom = null;
         for (var i = 0; i < rects.length; i++) {
             if ((bottom == null) || (bottom < rects[i].bottom))
@@ -213,8 +205,7 @@ var Text_toEndOfBoundary;
         return bottom;
     }
 
-    var findRightMostRect = function(rects)
-    {
+    var findRightMostRect = function(rects) {
         var rightMost = null;
         for (var i = 0; i < rects.length; i++) {
             if ((rightMost == null) || (rightMost.right < rects[i].right))
@@ -223,8 +214,7 @@ var Text_toEndOfBoundary;
         return rightMost;
     }
 
-    var offsetRects = function(rects,offsetX,offsetY)
-    {
+    var offsetRects = function(rects,offsetX,offsetY) {
         var result = new Array();
         for (var i = 0; i < rects.length; i++) {
             result.push({ top: rects[i].top + offsetY,
@@ -237,8 +227,7 @@ var Text_toEndOfBoundary;
         return result;
     }
 
-    Text_posBelow = function(pos,cursorRect,cursorX)
-    {
+    Text_posBelow = function(pos,cursorRect,cursorX) {
         if (cursorX == null)
             cursorX = pos.targetX;
         pos = Position_closestMatchForwards(pos,Position_okForMovement);
@@ -306,8 +295,7 @@ var Text_toEndOfBoundary;
         }
     }
 
-    Text_closestPosBackwards = function(pos)
-    {
+    Text_closestPosBackwards = function(pos) {
         if (isNonWhitespaceTextNode(pos.node))
             return pos;
         var node;
@@ -328,8 +316,7 @@ var Text_toEndOfBoundary;
             return new Position(node,node.nodeValue.length);
     }
 
-    Text_closestPosForwards = function(pos)
-    {
+    Text_closestPosForwards = function(pos) {
         if (isNonWhitespaceTextNode(pos.node))
             return pos;
         var node;
@@ -352,8 +339,7 @@ var Text_toEndOfBoundary;
             return new Position(node,0);
     }
 
-    Text_closestPosInDirection = function(pos,direction)
-    {
+    Text_closestPosInDirection = function(pos,direction) {
         if ((direction == "forward") ||
             (direction == "right") ||
             (direction == "down")) {
@@ -364,8 +350,7 @@ var Text_toEndOfBoundary;
         }
     }
 
-    Paragraph_runFromOffset = function(paragraph,offset,end)
-    {
+    Paragraph_runFromOffset = function(paragraph,offset,end) {
         if (paragraph.runs.length == 0)
             throw new Error("Paragraph has no runs");
         if (!end) {
@@ -392,8 +377,7 @@ var Text_toEndOfBoundary;
         }
     }
 
-    Paragraph_runFromNode = function(paragraph,node)
-    {
+    Paragraph_runFromNode = function(paragraph,node) {
         for (var i = 0; i < paragraph.runs.length; i++) {
             if (paragraph.runs[i].node == node)
                 return paragraph.runs[i];
@@ -401,22 +385,19 @@ var Text_toEndOfBoundary;
         throw new Error("Run for text node not found");
     }
 
-    Paragraph_positionAtOffset = function(paragraph,offset,end)
-    {
+    Paragraph_positionAtOffset = function(paragraph,offset,end) {
         var run = Paragraph_runFromOffset(paragraph,offset,end);
         if (run == null)
             throw new Error("Run at offset "+offset+" not found");
         return new Position(run.node,offset-run.start);
     }
 
-    Paragraph_offsetAtPosition = function(paragraph,pos)
-    {
+    Paragraph_offsetAtPosition = function(paragraph,pos) {
         var run = Paragraph_runFromNode(paragraph,pos.node);
         return run.start + pos.offset;
     }
 
-    Paragraph_getRunRects = function(paragraph)
-    {
+    Paragraph_getRunRects = function(paragraph) {
         var rects = new Array();
         for (var i = 0; i < paragraph.runs.length; i++) {
             var run = paragraph.runs[i];
@@ -427,8 +408,7 @@ var Text_toEndOfBoundary;
         return rects;
     }
 
-    Paragraph_getRunOrFallbackRects = function(paragraph,pos)
-    {
+    Paragraph_getRunOrFallbackRects = function(paragraph,pos) {
         var rects = Paragraph_getRunRects(paragraph);
         if ((rects.length == 0) && (paragraph.node.nodeType == Node.ELEMENT_NODE)) {
             if (isBlockNode(paragraph.node) &&
@@ -450,8 +430,7 @@ var Text_toEndOfBoundary;
         return rects;
     }
 
-    function toStartOfParagraph(pos)
-    {
+    function toStartOfParagraph(pos) {
         pos = Position_closestMatchBackwards(pos,Position_okForMovement);
         if (pos == null)
             return null;
@@ -463,8 +442,7 @@ var Text_toEndOfBoundary;
         return Position_closestMatchForwards(newPos,Position_okForMovement);
     }
 
-    function toEndOfParagraph(pos)
-    {
+    function toEndOfParagraph(pos) {
         pos = Position_closestMatchForwards(pos,Position_okForMovement);
         if (pos == null)
             return null;
@@ -476,8 +454,7 @@ var Text_toEndOfBoundary;
         return Position_closestMatchBackwards(newPos,Position_okForMovement);
     }
 
-    function toStartOfLine(pos)
-    {
+    function toStartOfLine(pos) {
         var posRect = Position_rectAtPos(pos);
         if (posRect == null) {
             pos = Text_closestPosBackwards(pos);
@@ -498,8 +475,7 @@ var Text_toEndOfBoundary;
         }
     }
 
-    function toEndOfLine(pos)
-    {
+    function toEndOfLine(pos) {
         var posRect = Position_rectAtPos(pos);
         if (posRect == null) {
             pos = Text_closestPosForwards(pos);
@@ -520,8 +496,7 @@ var Text_toEndOfBoundary;
         }
     }
 
-    Text_toStartOfBoundary = function(pos,boundary)
-    {
+    Text_toStartOfBoundary = function(pos,boundary) {
         if (boundary == "paragraph")
             return toStartOfParagraph(pos);
         else if (boundary == "line")
@@ -530,8 +505,7 @@ var Text_toEndOfBoundary;
             throw new Error("Unsupported boundary: "+boundary);
     }
 
-    Text_toEndOfBoundary = function(pos,boundary)
-    {
+    Text_toEndOfBoundary = function(pos,boundary) {
         if (boundary == "paragraph")
             return toEndOfParagraph(pos);
         else if (boundary == "line")

@@ -25,8 +25,7 @@ var Scan_goToMatch;
 
 (function() {
 
-    function Match(matchId,startPos,endPos)
-    {
+    function Match(matchId,startPos,endPos) {
         this.matchId = matchId;
         this.startPos = startPos;
         this.endPos = endPos;
@@ -39,8 +38,7 @@ var Scan_goToMatch;
     var curPos = null;
     var curParagraph = null;
 
-    Scan_reset = function()
-    {
+    Scan_reset = function() {
         curPos = new Position(document.body,0);
         curParagraph = null;
         clearMatches();
@@ -98,8 +96,7 @@ var Scan_goToMatch;
         return matchId;
     }
 
-    Scan_showMatch = function(matchId)
-    {
+    Scan_showMatch = function(matchId) {
         var match = matchesById[matchId];
         if (match == null)
             throw new Error("Match "+matchId+" not found");
@@ -116,8 +113,7 @@ var Scan_goToMatch;
         }
     }
 
-    Scan_replaceMatch = function(matchId,replacement)
-    {
+    Scan_replaceMatch = function(matchId,replacement) {
         var match = matchesById[matchId];
         if (match == null)
             throw new Error("Match "+matchId+" not found");
@@ -140,20 +136,17 @@ var Scan_goToMatch;
         delete matchesById[matchId];
     }
 
-    function removeSpansForMatch(match)
-    {
+    function removeSpansForMatch(match) {
         for (var i = 0; i < match.spans.length; i++)
             DOM_removeNodeButKeepChildren(match.spans[i]);
     }
 
-    Scan_removeMatch = function(matchId)
-    {
+    Scan_removeMatch = function(matchId) {
         removeSpansForMatch(matchesById[matchId]);
         delete matchesById[matchId];
     }
 
-    Scan_goToMatch = function(matchId)
-    {
+    Scan_goToMatch = function(matchId) {
         var match = matchesById[matchId];
         if (match == null)
             throw new Error("Match "+matchId+" not found");
@@ -163,8 +156,7 @@ var Scan_goToMatch;
         Cursor_ensurePositionVisible(match.startPos,true);
     }
 
-    function clearMatches()
-    {
+    function clearMatches() {
         for (var matchId in matchesById) {
             var match = matchesById[matchId];
             removeSpansForMatch(match);

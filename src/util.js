@@ -15,8 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-function arrayContains(array,value)
-{
+function arrayContains(array,value) {
     for (var i = 0; i < array.length; i++) {
         if (array[i] == value)
             return true;
@@ -27,8 +26,7 @@ function arrayContains(array,value)
 // Note: you can use slice() to copy a real javascript array, but this function can be used to copy
 // DOM NodeLists (e.g. as returned by document.getElementsByTagName) as well, since they don't
 // support the slice method
-function arrayCopy(array)
-{
+function arrayCopy(array) {
     if (array == null)
         return null;
     var copy = new Array();
@@ -37,8 +35,7 @@ function arrayCopy(array)
     return copy;
 }
 
-function quoteString(str)
-{
+function quoteString(str) {
     if (str == null)
         return null;
 
@@ -55,8 +52,7 @@ function quoteString(str)
     return quoted;
 }
 
-function nodeString(node)
-{
+function nodeString(node) {
     if (node == null)
         return "null";
     var id = "";
@@ -77,36 +73,31 @@ function nodeString(node)
     }
 }
 
-function rectString(rect)
-{
+function rectString(rect) {
     if (rect == null)
         return null;
     else
         return "("+rect.left+","+rect.top+") - ("+rect.right+","+rect.bottom+")";
 }
 
-function rectIsEmpty(rect)
-{
+function rectIsEmpty(rect) {
     return ((rect == null) ||
             ((rect.width == 0) && (rect.height == 0)));
 }
 
-function rectContainsPoint(rect,x,y)
-{
+function rectContainsPoint(rect,x,y) {
     return ((x >= rect.left) && (x < rect.right) &&
             (y >= rect.top) && (y < rect.bottom));
 }
 
-function clone(object)
-{
+function clone(object) {
     var result = new Object();
     for (var name in object)
         result[name] = object[name];
     return result;
 }
 
-function nodeHasContent(node)
-{
+function nodeHasContent(node) {
     switch (node._type) {
     case HTML_TEXT:
         return !isWhitespaceString(node.nodeValue);
@@ -125,29 +116,25 @@ function nodeHasContent(node)
     }
 }
 
-function isWhitespaceString(str)
-{
+function isWhitespaceString(str) {
     return (str.match(isWhitespaceString.regexp) != null);
 }
 
 isWhitespaceString.regexp = /^\s*$/;
 
-function normalizeWhitespace(str)
-{
+function normalizeWhitespace(str) {
     str = str.replace(/^\s+/,"");
     str = str.replace(/\s+$/,"");
     str = str.replace(/\s+/g," ");
     return str;
 }
 
-function DoublyLinkedList()
-{
+function DoublyLinkedList() {
     this.first = null;
     this.last = null;
 }
 
-DoublyLinkedList.prototype.insertAfter = function(item,after)
-{
+DoublyLinkedList.prototype.insertAfter = function(item,after) {
     item.prev = null;
     item.next = null;
 
@@ -172,8 +159,7 @@ DoublyLinkedList.prototype.insertAfter = function(item,after)
         item.prev.next = item;
 };
 
-DoublyLinkedList.prototype.remove = function(item)
-{
+DoublyLinkedList.prototype.remove = function(item) {
     if (this.first == item)
         this.first = this.first.next;
     if (this.last == item)
@@ -186,8 +172,7 @@ DoublyLinkedList.prototype.remove = function(item)
     item.next = null;
 };
 
-function diff(src,dest)
-{
+function diff(src,dest) {
     var traces = new Array();
 
     traces[1] = new DiffEntry(0,0,0,0,null);
@@ -234,8 +219,7 @@ function diff(src,dest)
         }
     }
 
-    function DiffEntry(srcStart,destStart,srcEnd,destEnd,prev)
-    {
+    function DiffEntry(srcStart,destStart,srcEnd,destEnd,prev) {
         this.srcStart = srcStart;
         this.destStart = destStart;
         this.srcEnd = srcEnd;
@@ -243,8 +227,7 @@ function diff(src,dest)
         this.prev = prev;
     }
 
-    function entryToArray(src,dest,entry)
-    {
+    function entryToArray(src,dest,entry) {
         var results = new Array();
         results.push(entry);
         for (entry = entry.prev; entry != null; entry = entry.prev) {
@@ -255,27 +238,23 @@ function diff(src,dest)
     }
 }
 
-function TimingEntry(name,time)
-{
+function TimingEntry(name,time) {
     this.name = name;
     this.time = time;
 }
 
-function TimingInfo()
-{
+function TimingInfo() {
     this.entries = new Array();
     this.total = 0;
     this.lastTime = null;
 }
 
-TimingInfo.prototype.start = function()
-{
+TimingInfo.prototype.start = function() {
     this.entries.length = 0;
     this.lastTime = new Date();
-};
+}
 
-TimingInfo.prototype.addEntry = function(name)
-{
+TimingInfo.prototype.addEntry = function(name) {
     if (this.lastTime == null)
         this.start();
 
@@ -284,19 +263,17 @@ TimingInfo.prototype.addEntry = function(name)
     this.entries.push(new TimingEntry(name,interval));
     this.total += interval;
     this.lastTime = now;
-};
+}
 
-TimingInfo.prototype.print = function(title)
-{
+TimingInfo.prototype.print = function(title) {
     debug(title);
     for (var i = 0; i < this.entries.length; i++) {
         var entry = this.entries[i];
         debug("    "+entry.name+": "+entry.time+"ms");
     }
-};
+}
 
-function readFileApp(filename)
-{
+function readFileApp(filename) {
     var req = new XMLHttpRequest("file:///read/"+filename);
     req.open("POST","/read/"+encodeURI(filename),false);
     req.send();
@@ -310,8 +287,7 @@ function readFileApp(filename)
     return doc;
 }
 
-function readFileTest(filename)
-{
+function readFileTest(filename) {
     var req = new XMLHttpRequest();
     req.open("GET",filename,false);
     req.send();
@@ -322,8 +298,7 @@ function readFileTest(filename)
     return xml;
 }
 
-function fromTokenList(value)
-{
+function fromTokenList(value) {
     var result = new Object();
     if (value != null) {
         var components = value.toLowerCase().split(/\s+/);
@@ -335,8 +310,7 @@ function fromTokenList(value)
     return result;
 }
 
-function toTokenList(properties)
-{
+function toTokenList(properties) {
     var tokens = new Array();
 
     if (properties != null) {
@@ -355,8 +329,7 @@ function toTokenList(properties)
         return tokens.join(" ");
 }
 
-function xywhAbsElementRect(element)
-{
+function xywhAbsElementRect(element) {
     var rect = element.getBoundingClientRect();
     return { x: rect.left + window.scrollX,
              y: rect.top + window.scrollY,

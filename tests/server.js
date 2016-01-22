@@ -15,8 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-function debug(str)
-{
+function debug(str) {
     console.log("%s",str);
 }
 
@@ -34,8 +33,7 @@ var mimeTypes = {
     "jpg": "image/jpg",
 };
 
-function handler(request,response)
-{
+function handler(request,response) {
     var dotpos = request.url.lastIndexOf(".");
     var extension = null;
     var mimeType = "text/plain";

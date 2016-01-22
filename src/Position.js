@@ -42,8 +42,7 @@ var Position_atPoint;
 (function() {
 
     // public
-    Position = function(node,offset)
-    {
+    Position = function(node,offset) {
         if (node == document.documentElement)
             throw new Error("node is root element");
         Object.defineProperty(this,"self",{value: {}});
@@ -72,32 +71,27 @@ var Position_atPoint;
         Object.preventExtensions(this);
     }
 
-    function actuallyStartTracking(self)
-    {
+    function actuallyStartTracking(self) {
         DOM_addTrackedPosition(self.this);
     }
 
-    function actuallyStopTracking(self)
-    {
+    function actuallyStopTracking(self) {
         DOM_removeTrackedPosition(self.this);
     }
 
-    function startTracking(self)
-    {
+    function startTracking(self) {
         if (self.tracking == 0)
             actuallyStartTracking(self);
         self.tracking++;
     }
 
-    function stopTracking(self)
-    {
+    function stopTracking(self) {
         self.tracking--;
         if (self.tracking == 0)
             actuallyStopTracking(self);
     }
 
-    function setNode(node)
-    {
+    function setNode(node) {
         var self = this.self;
         if (self.tracking > 0)
             actuallyStopTracking(self);
@@ -108,15 +102,13 @@ var Position_atPoint;
             actuallyStartTracking(self);
     }
 
-    function setNodeAndOffset(self,node,offset)
-    {
+    function setNodeAndOffset(self,node,offset) {
         self.this.node = node;
         self.this.offset = offset;
     }
 
     // public
-    Position.prototype.toString = function()
-    {
+    Position.prototype.toString = function() {
         var self = this.self;
         var result;
         if (self.node.nodeType == Node.TEXT_NODE) {
@@ -139,8 +131,7 @@ var Position_atPoint;
         return result;
     }
 
-    function positionSpecial(pos,forwards,backwards)
-    {
+    function positionSpecial(pos,forwards,backwards) {
         var node = pos.node;
         var offset = pos.offset;
 
@@ -184,8 +175,7 @@ var Position_atPoint;
     }
 
     // public
-    Position_assertValid = function(pos,description)
-    {
+    Position_assertValid = function(pos,description) {
         if (description == null)
             description = "Position";
 
@@ -209,8 +199,7 @@ var Position_atPoint;
     }
 
     // public
-    Position_prev = function(pos)
-    {
+    Position_prev = function(pos) {
         if (pos.node.nodeType == Node.ELEMENT_NODE) {
             var r = positionSpecial(pos,false,true);
             if (r != null)
@@ -233,8 +222,7 @@ var Position_atPoint;
             return null;
         }
 
-        function upAndBack(pos)
-        {
+        function upAndBack(pos) {
             if (pos.node == pos.node.ownerDocument.body)
                 return null;
             else
@@ -243,8 +231,7 @@ var Position_atPoint;
     }
 
     // public
-    Position_next = function(pos)
-    {
+    Position_next = function(pos) {
         if (pos.node.nodeType == Node.ELEMENT_NODE) {
             var r = positionSpecial(pos,true,false);
             if (r != null)
@@ -264,8 +251,7 @@ var Position_atPoint;
             return null;
         }
 
-        function upAndForwards(pos)
-        {
+        function upAndForwards(pos) {
             if (pos.node == pos.node.ownerDocument.body)
                 return null;
             else
@@ -274,8 +260,7 @@ var Position_atPoint;
     }
 
     // public
-    Position_trackWhileExecuting = function(positions,fun)
-    {
+    Position_trackWhileExecuting = function(positions,fun) {
         for (var i = 0; i < positions.length; i++)
             startTracking(positions[i].self);
         try {
@@ -288,8 +273,7 @@ var Position_atPoint;
     }
 
     // public
-    Position_closestActualNode = function(pos,preferElement)
-    {
+    Position_closestActualNode = function(pos,preferElement) {
         var node = pos.node;
         var offset = pos.offset;
         if ((node.nodeType != Node.ELEMENT_NODE) || (node.firstChild == null))
@@ -312,18 +296,15 @@ var Position_atPoint;
     }
 
     // public
-    Position_okForInsertion = function(pos)
-    {
+    Position_okForInsertion = function(pos) {
         return Position_okForMovement(pos,true);
     }
 
-    function nodeCausesLineBreak(node)
-    {
+    function nodeCausesLineBreak(node) {
         return ((node._type == HTML_BR) || !isInlineNode(node));
     }
 
-    function spacesUntilNextContent(node)
-    {
+    function spacesUntilNextContent(node) {
         var spaces = 0;
         while (true) {
             if (node.firstChild) {
@@ -364,8 +345,7 @@ var Position_atPoint;
     }
 
     // public
-    Position_okForMovement = function(pos,insertion)
-    {
+    Position_okForMovement = function(pos,insertion) {
         var node = pos.node;
         var offset = pos.offset;
         var type = node._type;
@@ -537,24 +517,21 @@ var Position_atPoint;
         return false;
     }
 
-    Position_prevMatch = function(pos,fun)
-    {
+    Position_prevMatch = function(pos,fun) {
         do {
             pos = Position_prev(pos);
         } while ((pos != null) && !fun(pos));
         return pos;
     }
 
-    Position_nextMatch = function(pos,fun)
-    {
+    Position_nextMatch = function(pos,fun) {
         do {
             pos = Position_next(pos);
         } while ((pos != null) && !fun(pos));
         return pos;
     }
 
-    function findEquivalentValidPosition(pos,fun)
-    {
+    function findEquivalentValidPosition(pos,fun) {
         var node = pos.node;
         var offset = pos.offset;
         if (node.nodeType == Node.ELEMENT_NODE) {
@@ -586,8 +563,7 @@ var Position_atPoint;
     }
 
     // public
-    Position_closestMatchForwards = function(pos,fun)
-    {
+    Position_closestMatchForwards = function(pos,fun) {
         if (pos == null)
             return null;
 
@@ -609,8 +585,7 @@ var Position_atPoint;
     }
 
     // public
-    Position_closestMatchBackwards = function(pos,fun)
-    {
+    Position_closestMatchBackwards = function(pos,fun) {
         if (pos == null)
             return null;
 
@@ -631,18 +606,15 @@ var Position_atPoint;
         return new Position(document.body,0);
     }
 
-    Position_track = function(pos)
-    {
+    Position_track = function(pos) {
         startTracking(pos.self);
     }
 
-    Position_untrack = function(pos)
-    {
+    Position_untrack = function(pos) {
         stopTracking(pos.self);
     }
 
-    Position_rectAtPos = function(pos)
-    {
+    Position_rectAtPos = function(pos) {
         if (pos == null)
             return null;
         var range = new Range(pos.node,pos.offset,pos.node,pos.offset);
@@ -661,20 +633,17 @@ var Position_atPoint;
         return null;
     }
 
-    function posAtStartOfParagraph(pos,paragraph)
-    {
+    function posAtStartOfParagraph(pos,paragraph) {
         return ((pos.node == paragraph.node) &&
                 (pos.offset == paragraph.startOffset));
     }
 
-    function posAtEndOfParagraph(pos,paragraph)
-    {
+    function posAtEndOfParagraph(pos,paragraph) {
         return ((pos.node == paragraph.node) &&
                 (pos.offset == paragraph.endOffset));
     }
 
-    function zeroWidthRightRect(rect)
-    {
+    function zeroWidthRightRect(rect) {
         return { left: rect.right, // 0 width
                  right: rect.right,
                  top: rect.top,
@@ -683,8 +652,7 @@ var Position_atPoint;
                  height: rect.height };
     }
 
-    function zeroWidthLeftRect(rect)
-    {
+    function zeroWidthLeftRect(rect) {
         return { left: rect.left,
                  right: rect.left, // 0 width
                  top: rect.top,
@@ -693,8 +661,7 @@ var Position_atPoint;
                  height: rect.height };
     }
 
-    function zeroWidthMidRect(rect)
-    {
+    function zeroWidthMidRect(rect) {
         var mid = rect.left + rect.width/2;
         return { left: mid,
                  right: mid, // 0 width
@@ -704,8 +671,7 @@ var Position_atPoint;
                  height: rect.height };
     }
 
-    Position_noteAncestor = function(pos)
-    {
+    Position_noteAncestor = function(pos) {
         var node = Position_closestActualNode(pos);
         for (; node != null; node = node.parentNode) {
             if (isNoteNode(node))
@@ -714,8 +680,7 @@ var Position_atPoint;
         return null;
     }
 
-    Position_captionAncestor = function(pos)
-    {
+    Position_captionAncestor = function(pos) {
         var node = Position_closestActualNode(pos);
         for (; node != null; node = node.parentNode) {
             if ((node._type == HTML_FIGCAPTION) || (node._type == HTML_CAPTION))
@@ -724,8 +689,7 @@ var Position_atPoint;
         return null;
     }
 
-    Position_figureOrTableAncestor = function(pos)
-    {
+    Position_figureOrTableAncestor = function(pos) {
         var node = Position_closestActualNode(pos);
         for (; node != null; node = node.parentNode) {
             if ((node._type == HTML_FIGURE) || (node._type == HTML_TABLE))
@@ -734,8 +698,7 @@ var Position_atPoint;
         return null;
     }
 
-    function exactRectAtPos(pos)
-    {
+    function exactRectAtPos(pos) {
         var node = pos.node;
         var offset = pos.offset;
 
@@ -782,8 +745,7 @@ var Position_atPoint;
             return null;
         }
 
-        function rectAtRightOfRange(range)
-        {
+        function rectAtRightOfRange(range) {
             var rects = Range_getClientRects(range);
             if ((rects == null) || (rects.length == 0) || (rects[rects.length-1].height == 0))
                 return null;
@@ -791,8 +753,7 @@ var Position_atPoint;
         }
     }
 
-    function tempSpaceRect(parentNode,nextSibling)
-    {
+    function tempSpaceRect(parentNode,nextSibling) {
         var space = DOM_createTextNode(document,String.fromCharCode(160));
         DOM_insertBefore(parentNode,space,nextSibling);
         var range = new Range(space,0,space,1);
@@ -804,8 +765,7 @@ var Position_atPoint;
             return nil;
     }
 
-    Position_displayRectAtPos = function(pos)
-    {
+    Position_displayRectAtPos = function(pos) {
         rect = exactRectAtPos(pos);
         if (rect != null)
             return rect;
@@ -871,8 +831,7 @@ var Position_atPoint;
         }
     }
 
-    Position_equal = function(a,b)
-    {
+    Position_equal = function(a,b) {
         if ((a == null) && (b == null))
             return true;
         if ((a != null) && (b != null) &&
@@ -881,8 +840,7 @@ var Position_atPoint;
         return false;
     }
 
-    Position_preferTextPosition = function(pos)
-    {
+    Position_preferTextPosition = function(pos) {
         var node = pos.node;
         var offset = pos.offset;
         if (node.nodeType == Node.ELEMENT_NODE) {
@@ -896,8 +854,7 @@ var Position_atPoint;
         return pos;
     }
 
-    Position_preferElementPosition = function(pos)
-    {
+    Position_preferElementPosition = function(pos) {
         if (pos.node.nodeType == Node.TEXT_NODE) {
             if (pos.node.parentNode == null)
                 throw new Error("Position "+pos+" has no parent node");
@@ -909,8 +866,7 @@ var Position_atPoint;
         return pos;
     }
 
-    Position_compare = function(first,second)
-    {
+    Position_compare = function(first,second) {
         if ((first.node == second.node) && (first.offset == second.offset))
             return 0;
 
@@ -997,8 +953,7 @@ var Position_atPoint;
     // intended if the document's last text node is a direct child of the body (as it may be in some
     // HTML documents that users open).
 
-    function posOutsideSelection(pos)
-    {
+    function posOutsideSelection(pos) {
         pos = Position_preferElementPosition(pos);
 
         if (!isSelectionSpan(pos.node))
@@ -1012,8 +967,7 @@ var Position_atPoint;
             return pos;
     }
 
-    Position_atPoint = function(x,y)
-    {
+    Position_atPoint = function(x,y) {
         // In general, we can use document.caretRangeFromPoint(x,y) to determine the location of the
         // cursor based on screen coordinates. However, this doesn't work if the screen coordinates
         // are outside the bounding box of the document's body. So when this is true, we find either
@@ -1078,28 +1032,24 @@ var Position_atPoint;
 
     // This is used for nodes that can potentially be the right match for a hit test, but for
     // which caretRangeFromPoint() returns the wrong result
-    function nodeMayContainPos(node)
-    {
+    function nodeMayContainPos(node) {
         return ((node._type == HTML_IMG) || isEmptyNoteNode(node));
     }
 
-    function elementContainsPoint(element,x,y)
-    {
+    function elementContainsPoint(element,x,y) {
         var rect = element.getBoundingClientRect();
         return ((x >= rect.left) && (x <= rect.right) &&
                 (y >= rect.top) && (y <= rect.bottom));
     }
 
-    function isEmptyParagraphNode(node)
-    {
+    function isEmptyParagraphNode(node) {
         return ((node._type == HTML_P) &&
                 (node.lastChild != null) &&
                 (node.lastChild._type == HTML_BR) &&
                 !nodeHasContent(node));
     }
 
-    function findLastTextRect()
-    {
+    function findLastTextRect() {
         var node = lastDescendant(document.body);
 
         while ((node != null) &&
@@ -1120,8 +1070,7 @@ var Position_atPoint;
         return null;
     }
 
-    function findFirstTextRect()
-    {
+    function findFirstTextRect() {
         var node = firstDescendant(document.body);
 
         while ((node != null) &&
@@ -1142,8 +1091,7 @@ var Position_atPoint;
         return null;
     }
 
-    function adjustPositionForFigure(position)
-    {
+    function adjustPositionForFigure(position) {
         if (position == null)
             return null;
         if (position.node._type == HTML_FIGURE) {

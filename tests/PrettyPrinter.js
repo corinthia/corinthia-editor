@@ -23,8 +23,7 @@
     // showNamespaceDetails (boolean)
     // separateLines (boolean)
 
-    function getHTML(root,options)
-    {
+    function getHTML(root,options) {
         var copy;
         UndoManager_disableWhileExecuting(function() {
             if (options == null)
@@ -45,8 +44,7 @@
         return output.join("");
     }
 
-    function removeSelectionSpans(root)
-    {
+    function removeSelectionSpans(root) {
         var checkMerge = new Array();
         recurse(root);
 
@@ -72,13 +70,11 @@
         }
     }
 
-    function entityFix(str)
-    {
+    function entityFix(str) {
         return str.replace(/\u00a0/g,"&nbsp;");
     }
 
-    function singleDescendents(node)
-    {
+    function singleDescendents(node) {
         var count = 0;
         for (var child = node.firstChild; child != null; child = child.nextSibling) {
             if ((child.nodeType == Node.TEXT_NODE) && (textNodeDisplayValue(child).length == 0))
@@ -92,8 +88,7 @@
         return true;
     }
 
-    function sortCSSProperties(value)
-    {
+    function sortCSSProperties(value) {
         // Make sure the CSS properties on the "style" attribute appear in a consistent order
         var items = value.trim().split(/\s*;\s*/);
         if ((items.length > 0) && (items[items.length-1] == ""))
@@ -102,8 +97,7 @@
         return items.join("; ");
     }
 
-    function attributeString(options,node)
-    {
+    function attributeString(options,node) {
         // Make sure the attributes appear in a consistent order
         var names = new Array();
         for (var i = 0; i < node.attributes.length; i++) {
@@ -127,8 +121,7 @@
         return str;
     }
 
-    function textNodeDisplayValue(node)
-    {
+    function textNodeDisplayValue(node) {
         var value = entityFix(node.nodeValue);
         if ((node.parentNode != null) &&
             (node.parentNode.getAttribute("xml:space") != "preserve"))
@@ -136,8 +129,7 @@
         return value;
     }
 
-    function prettyPrintOneLine(output,options,node)
-    {
+    function prettyPrintOneLine(output,options,node) {
         if ((node.nodeType == Node.ELEMENT_NODE) && (node.nodeName != "SCRIPT")) {
             var name = options.preserveCase ? node.nodeName : node.nodeName.toLowerCase();
             if (node.firstChild == null) {
@@ -160,8 +152,7 @@
         }
     }
 
-    function isContainer(node)
-    {
+    function isContainer(node) {
         switch (node._type) {
         case HTML_BODY:
         case HTML_SECTION:
@@ -182,8 +173,7 @@
         }
     }
 
-    function prettyPrint(output,options,node,indent)
-    {
+    function prettyPrint(output,options,node,indent) {
         if ((node.nodeType == Node.ELEMENT_NODE) && (node.nodeName != "SCRIPT")) {
             var name = options.preserveCase ? node.nodeName : node.nodeName.toLowerCase();
             if (node.firstChild == null) {

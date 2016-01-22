@@ -22,22 +22,19 @@ var leftLoadedContinuation = null;
 var results = new Object();
 var allCode = null;
 
-function Result(actual,expected)
-{
+function Result(actual,expected) {
     this.actual = actual;
     this.expected = expected;
 }
 
-function readFile(filename)
-{
+function readFile(filename) {
     var req = new XMLHttpRequest();
     req.open("GET",filename,false);
     req.send();
     return req.responseText;
 }
 
-function loadCode()
-{
+function loadCode() {
     // Sync with Editor.m
     var javascriptFiles = ["../src/first.js", // must be first
                            "../src/ElementTypes.js", // must be second
@@ -80,13 +77,11 @@ function loadCode()
     allCode = allCodeArray.join("\n");
 }
 
-function loadTestIndex()
-{
+function loadTestIndex() {
     window.eval(readFile("index.js"));
 }
 
-function doPerformTest()
-{
+function doPerformTest() {
     var testDocument = leftArea.contentDocument;
     var w = leftArea.contentWindow;
     w.outputOptions = new Object();
@@ -106,8 +101,7 @@ function doPerformTest()
     return resultText;
 }
 
-function showTest(dir,name)
-{
+function showTest(dir,name) {
     leftLoadedContinuation = function() {
         setLeftTitle("Working area");
         setRightTitle("Result");
@@ -117,8 +111,7 @@ function showTest(dir,name)
     leftArea.src = dir+"/"+name+"-input.html";
 }
 
-function showResult(dirname,filename)
-{
+function showResult(dirname,filename) {
     var fullname = dirname+"-"+filename;
     setLeftTitle("Actual result for "+dirname+"/"+filename);
     setRightTitle("Expected result for "+dirname+"/"+filename);
@@ -127,24 +120,20 @@ function showResult(dirname,filename)
     setPanelText(rightArea,results[fullname].expected);
 }
 
-function setLeftTitle(title)
-{
+function setLeftTitle(title) {
     document.getElementById("leftTitle").firstChild.nodeValue = title;
 }
 
-function setRightTitle(title)
-{
+function setRightTitle(title) {
     document.getElementById("rightTitle").firstChild.nodeValue = title;
 }
 
-function clearPanel(panel)
-{
+function clearPanel(panel) {
     panel.contentDocument.open();
     panel.contentDocument.close();
 }
 
-function setPanelText(panel,text)
-{
+function setPanelText(panel,text) {
     clearPanel(panel);
     var pre = panel.contentDocument.createElement("PRE");
     panel.contentDocument.body.appendChild(pre);
@@ -153,16 +142,14 @@ function setPanelText(panel,text)
 
 
 
-function readJSCode(filename)
-{
+function readJSCode(filename) {
     var req = new XMLHttpRequest();
     req.open("GET",filename,false);
     req.send();
     return req.responseText;
 }
 
-function leftLoaded()
-{
+function leftLoaded() {
     if (leftLoadedContinuation == null)
         return;
     var continuation = leftLoadedContinuation;
@@ -178,8 +165,7 @@ function leftLoaded()
     return;
 }
 
-function runAllTests()
-{
+function runAllTests() {
     var dirno = 0;
     var fileno = 0;
     var haveTest = false;
@@ -199,8 +185,7 @@ function runAllTests()
     runNextTest();
     return;
 
-    function updateStatistics()
-    {
+    function updateStatistics() {
         var statistics = document.getElementById("statistics");
         while (statistics.firstChild != null)
             statistics.removeChild(statistics.firstChild);
@@ -211,8 +196,7 @@ function runAllTests()
         statistics.appendChild(document.createTextNode(str));
     }
 
-    function runNextTest()
-    {
+    function runNextTest() {
         if (haveTest) {
             var expected = readFile(dirname+"/"+filename+"-expected.html");
 
@@ -258,8 +242,7 @@ function runAllTests()
         }
     }
 
-    function incrementPosition()
-    {
+    function incrementPosition() {
         fileno++;
         if (fileno == tests[dirno].files.length) {
             dirno++;
@@ -268,8 +251,7 @@ function runAllTests()
     }
 }
 
-function loaded()
-{
+function loaded() {
     topArea = document.getElementById("topInner");
     leftArea = document.getElementById("leftInner");
     rightArea = document.getElementById("rightInner");

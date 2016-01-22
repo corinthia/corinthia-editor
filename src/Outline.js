@@ -54,8 +54,7 @@ var Outline_scheduleUpdateStructure;
     var doneInit = false;
     var printMode = false;
 
-    function Category(type,nodeFilter,numberRegex)
-    {
+    function Category(type,nodeFilter,numberRegex) {
         this.type = type;
         this.nodeFilter = nodeFilter;
         this.numberRegex = numberRegex;
@@ -63,8 +62,7 @@ var Outline_scheduleUpdateStructure;
         this.tocs = new NodeMap();
     }
 
-    function addItemInternal(category,item,prevItem,title)
-    {
+    function addItemInternal(category,item,prevItem,title) {
         UndoManager_addAction(removeItemInternal,category,item);
         category.list.insertAfter(item,prevItem);
         item.title = title;
@@ -72,8 +70,7 @@ var Outline_scheduleUpdateStructure;
         Editor_addOutlineItem(item.id,category.type,title);
     }
 
-    function removeItemInternal(category,item)
-    {
+    function removeItemInternal(category,item) {
         UndoManager_addAction(addItemInternal,category,item,item.prev,item.title);
         category.list.remove(item);
         category.tocs.forEach(function(node,toc) { TOC_removeOutlineItem(toc,item.id); });
@@ -81,8 +78,7 @@ var Outline_scheduleUpdateStructure;
         Editor_removeOutlineItem(item.id);
     }
 
-    function Category_add(category,node)
-    {
+    function Category_add(category,node) {
         var item = itemsByNode.get(node);
         if (item == null)
             item = new OutlineItem(category,node);
@@ -98,16 +94,14 @@ var Outline_scheduleUpdateStructure;
         scheduleUpdateStructure();
         return item;
 
-        function findPrevItemOfType(node,typeFun)
-        {
+        function findPrevItemOfType(node,typeFun) {
             do node = prevNode(node);
             while ((node != null) && !typeFun(node));
             return (node == null) ? null : itemsByNode.get(node);
         }
     }
 
-    function findFirstTextDescendant(node)
-    {
+    function findFirstTextDescendant(node) {
         if (isWhitespaceTextNode(node))
             return;
         if (node.nodeType == Node.TEXT_NODE)
@@ -120,8 +114,7 @@ var Outline_scheduleUpdateStructure;
         return null;
     }
 
-    function Category_remove(category,node)
-    {
+    function Category_remove(category,node) {
         var item = itemsByNode.get(node);
         if (item == null) {
             throw new Error("Attempt to remove non-existant "+node.nodeName+
@@ -139,14 +132,12 @@ var Outline_scheduleUpdateStructure;
         scheduleUpdateStructure();
     }
 
-    function addTOCInternal(category,node,toc)
-    {
+    function addTOCInternal(category,node,toc) {
         UndoManager_addAction(removeTOCInternal,category,node);
         category.tocs.put(node,toc);
     }
 
-    function removeTOCInternal(category,node)
-    {
+    function removeTOCInternal(category,node) {
         var toc = category.tocs.get(node);
         if (toc == null)
             throw new Error("Attempt to remove ItemList that doesn't exist");
@@ -156,8 +147,7 @@ var Outline_scheduleUpdateStructure;
         category.tocs.remove(node);
     }
 
-    function Category_addTOC(category,node)
-    {
+    function Category_addTOC(category,node) {
         var toc = new TOC(node);
         addTOCInternal(category,node,toc);
 
@@ -169,34 +159,28 @@ var Outline_scheduleUpdateStructure;
         scheduleUpdateStructure();
     }
 
-    function Category_removeTOC(category,node)
-    {
+    function Category_removeTOC(category,node) {
         removeTOCInternal(category,node);
     }
 
-    function TOC(node)
-    {
+    function TOC(node) {
         this.node = node;
         this.textNodes = new Object();
     }
 
-    function TOC_addOutlineItem(toc,id)
-    {
+    function TOC_addOutlineItem(toc,id) {
         toc.textNodes[id] = DOM_createTextNode(document,"");
     }
 
-    function TOC_removeOutlineItem(toc,id)
-    {
+    function TOC_removeOutlineItem(toc,id) {
         delete toc.textNodes[id];
     }
 
-    function TOC_updateOutlineItem(toc,id,title)
-    {
+    function TOC_updateOutlineItem(toc,id,title) {
         DOM_setNodeValue(toc.textNodes[id],title);
     }
 
-    function TOC_updateStructure(toc,structure,toplevelShadows,pageNumbers)
-    {
+    function TOC_updateStructure(toc,structure,toplevelShadows,pageNumbers) {
         Hierarchy_ensureValidHierarchy(toc.node);
         DOM_deleteAllChildren(toc.node);
 
@@ -215,8 +199,7 @@ var Outline_scheduleUpdateStructure;
             DOM_appendChild(toc.node,brk);
         }
 
-        function createEmptyTOC(parent)
-        {
+        function createEmptyTOC(parent) {
             if (!printMode) {
                 var str = "";
 
@@ -236,8 +219,7 @@ var Outline_scheduleUpdateStructure;
             }
         }
 
-        function recurse(shadows,parent,level)
-        {
+        function recurse(shadows,parent,level) {
             if (level > 3)
                 return;
 
@@ -290,8 +272,7 @@ var Outline_scheduleUpdateStructure;
         }
     }
 
-    function OutlineItem(category,node)
-    {
+    function OutlineItem(category,node) {
         var type = category.type;
         var item = this;
         if ((node != null) && (node.hasAttribute("id"))) {
@@ -336,8 +317,7 @@ var Outline_scheduleUpdateStructure;
         Object.seal(this);
         return;
 
-        function generateItemId()
-        {
+        function generateItemId() {
             var id;
             do {
                 id = "item"+(nextItemId++);
@@ -346,8 +326,7 @@ var Outline_scheduleUpdateStructure;
         }
     }
 
-    function OutlineItem_getTitleNode(item,create)
-    {
+    function OutlineItem_getTitleNode(item,create) {
         if (item.type == "section") {
             return item.node;
         }
@@ -368,8 +347,7 @@ var Outline_scheduleUpdateStructure;
             return titleNode;
         }
 
-        function findChild(node,type)
-        {
+        function findChild(node,type) {
             for (var child = node.firstChild; child != null; child = child.nextSibling) {
                 if (child._type == type)
                     return child;
@@ -378,8 +356,7 @@ var Outline_scheduleUpdateStructure;
         }
     }
 
-    function OutlineItem_updateItemTitle(item)
-    {
+    function OutlineItem_updateItemTitle(item) {
         var titleNode = OutlineItem_getTitleNode(item,false);
         if (titleNode != null)
             newTitle = normalizeWhitespace(getNodeText(titleNode));
@@ -396,8 +373,7 @@ var Outline_scheduleUpdateStructure;
         }
     }
 
-    function getNodeTextAfter(node)
-    {
+    function getNodeTextAfter(node) {
         var text = "";
         for (var child = node.nextSibling; child != null; child = child.nextSibling)
             text += getNodeText(child);
@@ -405,8 +381,7 @@ var Outline_scheduleUpdateStructure;
     }
 
     // private
-    function itemModified(item)
-    {
+    function itemModified(item) {
         if (UndoManager_isActive())
             return;
         if (ignoreModifications > 0)
@@ -415,16 +390,14 @@ var Outline_scheduleUpdateStructure;
         updateRefsForItem(item);
     }
 
-    function addRefForId(id,node)
-    {
+    function addRefForId(id,node) {
         UndoManager_addAction(removeRefForId,id,node);
         if (refsById[id] == null)
             refsById[id] = new Array();
         refsById[id].push(node);
     }
 
-    function removeRefForId(id,node)
-    {
+    function removeRefForId(id,node) {
         UndoManager_addAction(addRefForId,id,node);
         if (refsById[id] == null)
             throw new Error("refRemoved: refsById["+id+"] is null");
@@ -437,8 +410,7 @@ var Outline_scheduleUpdateStructure;
     }
 
     // private
-    function refInserted(node)
-    {
+    function refInserted(node) {
         var href = node.getAttribute("href");
         if (href.charAt(0) != "#")
             throw new Error("refInserted: not a # reference");
@@ -448,8 +420,7 @@ var Outline_scheduleUpdateStructure;
     }
 
     // private
-    function refRemoved(node)
-    {
+    function refRemoved(node) {
         var href = node.getAttribute("href");
         if (href.charAt(0) != "#")
             throw new Error("refInserted: not a # reference");
@@ -458,8 +429,7 @@ var Outline_scheduleUpdateStructure;
     }
 
     // private
-    function acceptNode(node)
-    {
+    function acceptNode(node) {
         for (var p = node; p != null; p = p.parentNode) {
             if ((p._type == HTML_SPAN) && (p.getAttribute("class") == Keys.HEADING_NUMBER))
                 return false;
@@ -468,8 +438,7 @@ var Outline_scheduleUpdateStructure;
     }
 
     // private
-    function docNodeInserted(event)
-    {
+    function docNodeInserted(event) {
         if (UndoManager_isActive())
             return;
         if (DOM_getIgnoreMutations())
@@ -483,8 +452,7 @@ var Outline_scheduleUpdateStructure;
             Editor_error(e);
         }
 
-        function recurse(node)
-        {
+        function recurse(node) {
             switch (node._type) {
             case HTML_H1:
             case HTML_H2:
@@ -529,8 +497,7 @@ var Outline_scheduleUpdateStructure;
     }
 
     // private
-    function docNodeRemoved(event)
-    {
+    function docNodeRemoved(event) {
         if (UndoManager_isActive())
             return;
         if (DOM_getIgnoreMutations())
@@ -544,8 +511,7 @@ var Outline_scheduleUpdateStructure;
             Editor_error(e);
         }
 
-        function recurse(node)
-        {
+        function recurse(node) {
             switch (node._type) {
             case HTML_H1:
             case HTML_H2:
@@ -583,8 +549,7 @@ var Outline_scheduleUpdateStructure;
     }
 
     // private
-    function scheduleUpdateStructure()
-    {
+    function scheduleUpdateStructure() {
         if (UndoManager_isActive())
             return;
         if (!outlineDirty) {
@@ -596,8 +561,7 @@ var Outline_scheduleUpdateStructure;
     Outline_scheduleUpdateStructure = scheduleUpdateStructure;
 
     // private
-    function updateStructure()
-    {
+    function updateStructure() {
         if (!outlineDirty)
             return;
         outlineDirty = false;
@@ -608,8 +572,7 @@ var Outline_scheduleUpdateStructure;
         });
     }
 
-    function Shadow(node)
-    {
+    function Shadow(node) {
         this.node = node;
         this.item = itemsByNode.get(node);
         this.children = [];
@@ -640,16 +603,14 @@ var Outline_scheduleUpdateStructure;
         }
     }
 
-    function Shadow_last(shadow)
-    {
+    function Shadow_last(shadow) {
         if (shadow.children.length == 0)
             return shadow;
         else
             return Shadow_last(shadow.children[shadow.children.length-1]);
     }
 
-    function Shadow_outerNext(shadow,structure)
-    {
+    function Shadow_outerNext(shadow,structure) {
         var last = Shadow_last(shadow);
         if (last == null)
             return null;
@@ -659,8 +620,7 @@ var Outline_scheduleUpdateStructure;
             return structure.shadowsByNode.get(last.item.next.node);
     }
 
-    function firstTextDescendant(node)
-    {
+    function firstTextDescendant(node) {
         if (node.nodeType == Node.TEXT_NODE)
             return node;
         for (var child = node.firstChild; child != null; child = child.nextSibling) {
@@ -671,16 +631,14 @@ var Outline_scheduleUpdateStructure;
         return null;
     }
 
-    function Structure()
-    {
+    function Structure() {
         this.toplevelSections = new Array();
         this.toplevelFigures = new Array();
         this.toplevelTables = new Array();
         this.shadowsByNode = new NodeMap();
     }
 
-    function discoverStructure()
-    {
+    function discoverStructure() {
         var structure = new Structure();
         var nextToplevelSectionNumber = 1;
         var nextFigureNumber = 1;
@@ -781,8 +739,7 @@ var Outline_scheduleUpdateStructure;
         return structure;
     }
 
-    function updateStructureReal(pageNumbers)
-    {
+    function updateStructureReal(pageNumbers) {
         var structure = discoverStructure();
 
         for (var section = sections.list.first; section != null; section = section.next) {
@@ -813,8 +770,7 @@ var Outline_scheduleUpdateStructure;
         Editor_outlineUpdated();
     }
 
-    Outline_getOutline = function()
-    {
+    Outline_getOutline = function() {
         var structure = discoverStructure();
         var encSections = new Array();
         var encFigures = new Array();
@@ -831,8 +787,7 @@ var Outline_scheduleUpdateStructure;
                  figures: encFigures,
                  tables: encTables };
 
-        function encodeShadow(shadow,result)
-        {
+        function encodeShadow(shadow,result) {
             var encChildren = new Array();
             for (var i = 0; i < shadow.children.length; i++)
                 encodeShadow(shadow.children[i],encChildren);
@@ -844,8 +799,7 @@ var Outline_scheduleUpdateStructure;
         }
     }
 
-    function updateRefsForItem(item)
-    {
+    function updateRefsForItem(item) {
         var id = item.node.getAttribute("id");
         var refs = refsById[id];
         if (refs == null)
@@ -918,8 +872,7 @@ var Outline_scheduleUpdateStructure;
         }
     }
 
-    Outline_plainText = function()
-    {
+    Outline_plainText = function() {
         var strings = new Array();
         var structure = discoverStructure();
 
@@ -957,8 +910,7 @@ var Outline_scheduleUpdateStructure;
         }
         return strings.join("");
 
-        function printSectionRecursive(shadow,indent)
-        {
+        function printSectionRecursive(shadow,indent) {
             var titleNode = OutlineItem_getTitleNode(shadow.item,false);
             var content = getNodeText(titleNode);
             if (shadow.item.computedNumber != null)
@@ -972,22 +924,18 @@ var Outline_scheduleUpdateStructure;
     }
 
     // public
-    Outline_init = function()
-    {
+    Outline_init = function() {
         Selection_preserveWhileExecuting(function() {
 
-            function isTableNode(node)
-            {
+            function isTableNode(node) {
                 return (node._type == HTML_TABLE);
             }
 
-            function isFigureNode(node)
-            {
+            function isFigureNode(node) {
                 return (node._type == HTML_FIGURE);
             }
 
-            function isNonTOCHeadingNode(node)
-            {
+            function isNonTOCHeadingNode(node) {
                 return (HEADING_ELEMENTS[node._type] && !isInTOC(node));
             }
 
@@ -1007,8 +955,7 @@ var Outline_scheduleUpdateStructure;
     }
 
     // public (for the undo tests, when they report results)
-    Outline_removeListeners = function()
-    {
+    Outline_removeListeners = function() {
         document.removeEventListener("DOMNodeInserted",docNodeInserted);
         document.removeEventListener("DOMNodeRemoved",docNodeRemoved);
 
@@ -1016,16 +963,14 @@ var Outline_scheduleUpdateStructure;
         removeCategoryListeners(figures);
         removeCategoryListeners(tables);
 
-        function removeCategoryListeners(category)
-        {
+        function removeCategoryListeners(category) {
             for (var item = category.list.first; item != null; item = item.next)
                 item.node.removeEventListener("DOMSubtreeModified",item.modificationListener);
         }
     }
 
     // private
-    function getShadowNodes(structure,shadow,result)
-    {
+    function getShadowNodes(structure,shadow,result) {
         var endShadow = Shadow_outerNext(shadow,structure);
         var endNode = endShadow ? endShadow.item.node : null;
         for (var n = shadow.item.node; (n != null) && (n != endNode); n = n.nextSibling)
@@ -1033,8 +978,7 @@ var Outline_scheduleUpdateStructure;
     }
 
     // public
-    Outline_moveSection = function(sectionId,parentId,nextId)
-    {
+    Outline_moveSection = function(sectionId,parentId,nextId) {
         UndoManager_newGroup("Move section");
         Selection_clear();
 
@@ -1083,8 +1027,7 @@ var Outline_scheduleUpdateStructure;
     }
 
     // public
-    Outline_deleteItem = function(itemId)
-    {
+    Outline_deleteItem = function(itemId) {
         UndoManager_newGroup("Delete outline item");
         var structure = discoverStructure();
         Selection_preserveWhileExecuting(function() {
@@ -1119,8 +1062,7 @@ var Outline_scheduleUpdateStructure;
     }
 
     // public
-    Outline_goToItem = function(itemId)
-    {
+    Outline_goToItem = function(itemId) {
         if (itemId == null) {
             window.scrollTo(0);
         }
@@ -1145,14 +1087,12 @@ var Outline_scheduleUpdateStructure;
     }
 
     // public
-    Outline_getItemElement = function(itemId)
-    {
+    Outline_getItemElement = function(itemId) {
         return document.getElementById(itemId);
     }
 
     // public
-    Outline_setNumbered = function(itemId,numbered)
-    {
+    Outline_setNumbered = function(itemId,numbered) {
         var node = document.getElementById(itemId);
         var item = itemsByNode.get(node);
 
@@ -1184,8 +1124,7 @@ var Outline_scheduleUpdateStructure;
     }
 
     // public
-    Outline_setTitle = function(itemId,title)
-    {
+    Outline_setTitle = function(itemId,title) {
         var node = document.getElementById(itemId);
         var item = itemsByNode.get(node);
         Selection_preserveWhileExecuting(function() {
@@ -1210,8 +1149,7 @@ var Outline_scheduleUpdateStructure;
 
     // private
     // FIXME: prevent a TOC from being inserted inside a heading, figure, or table
-    function insertTOC(key,initialText)
-    {
+    function insertTOC(key,initialText) {
         var div = DOM_createElement(document,"NAV");
         DOM_setAttribute(div,"class",key);
         Cursor_makeContainerInsertionPoint();
@@ -1219,33 +1157,28 @@ var Outline_scheduleUpdateStructure;
     }
 
     // public
-    Outline_insertTableOfContents = function()
-    {
+    Outline_insertTableOfContents = function() {
         insertTOC(Keys.SECTION_TOC);
     }
 
     // public
-    Outline_insertListOfFigures = function()
-    {
+    Outline_insertListOfFigures = function() {
         insertTOC(Keys.FIGURE_TOC);
     }
 
     // public
-    Outline_insertListOfTables = function()
-    {
+    Outline_insertListOfTables = function() {
         insertTOC(Keys.TABLE_TOC);
     }
 
     // public
-    Outline_setPrintMode = function(newPrintMode)
-    {
+    Outline_setPrintMode = function(newPrintMode) {
         printMode = newPrintMode;
         scheduleUpdateStructure();
     }
 
     // public
-    Outline_examinePrintLayout = function(pageHeight)
-    {
+    Outline_examinePrintLayout = function(pageHeight) {
         var result = new Object();
         var structure = discoverStructure();
         var pageNumbers = new NodeMap();
@@ -1300,8 +1233,7 @@ var Outline_scheduleUpdateStructure;
         return result;
 
 
-        function recurse(node)
-        {
+        function recurse(node) {
             if (node.firstChild == null) {
                 var offset = DOM_nodeOffset(node);
                 var range = new Range(node.parentNode,offset,node.parentNode,offset+1);
@@ -1326,8 +1258,7 @@ var Outline_scheduleUpdateStructure;
         }
     }
 
-    Outline_setReferenceTarget = function(node,itemId)
-    {
+    Outline_setReferenceTarget = function(node,itemId) {
         Selection_preserveWhileExecuting(function() {
             refRemoved(node);
             DOM_setAttribute(node,"href","#"+itemId);
@@ -1335,8 +1266,7 @@ var Outline_scheduleUpdateStructure;
         });
     }
 
-    Outline_detectSectionNumbering = function()
-    {
+    Outline_detectSectionNumbering = function() {
         var sectionNumbering = detectNumbering(sections);
         if (sectionNumbering)
             makeNumberingExplicit(sections);
@@ -1345,8 +1275,7 @@ var Outline_scheduleUpdateStructure;
         return sectionNumbering;
     }
 
-    function detectNumbering(category)
-    {
+    function detectNumbering(category) {
         for (var item = category.list.first; item != null; item = item.next) {
 
             var firstText = null;
@@ -1363,8 +1292,7 @@ var Outline_scheduleUpdateStructure;
         }
     }
 
-    function makeNumberingExplicit(category)
-    {
+    function makeNumberingExplicit(category) {
         for (var item = category.list.first; item != null; item = item.next) {
             var firstText = null;
             var titleNode = OutlineItem_getTitleNode(item);
@@ -1390,14 +1318,12 @@ var Outline_scheduleUpdateStructure;
 
     // Search through the document for any elements corresponding to built-in styles that are
     // normally latent (i.e. only included in the stylesheet if used)
-    Outline_findUsedStyles = function()
-    {
+    Outline_findUsedStyles = function() {
         var used = new Object();
         recurse(document.body);
         return used;
 
-        function recurse(node)
-        {
+        function recurse(node) {
             switch (node._type) {
             case HTML_NAV: {
                 var className = DOM_getAttribute(node,"class");

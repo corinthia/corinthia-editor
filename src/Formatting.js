@@ -86,8 +86,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     };
 
     // private
-    function getStyleProperties(element,dontReplace)
-    {
+    function getStyleProperties(element,dontReplace) {
         var properties = new Object();
 
         for (var i = 0; i < element.style.length; i++) {
@@ -111,8 +110,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     // public (for testing purposes only)
-    Formatting_splitAroundSelection = function(range,allowDirectInline)
-    {
+    Formatting_splitAroundSelection = function(range,allowDirectInline) {
         Range_trackWhileExecuting(range,function() {
             if (!allowDirectInline)
                 Range_ensureInlineNodesInParagraph(range);
@@ -162,8 +160,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     // public
-    Formatting_mergeUpwards = function(node,whiteList)
-    {
+    Formatting_mergeUpwards = function(node,whiteList) {
         while ((node != null) && whiteList[node._type]) {
             var parent = node.parentNode;
             Formatting_mergeWithNeighbours(node,whiteList,true);
@@ -171,8 +168,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         }
     }
 
-    function isDiscardable(node)
-    {
+    function isDiscardable(node) {
         if (node.nodeType != Node.ELEMENT_NODE)
             return false;
 
@@ -191,8 +187,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     // public (for use by tests)
-    Formatting_mergeWithNeighbours = function(node,whiteList,trim)
-    {
+    Formatting_mergeWithNeighbours = function(node,whiteList,trim) {
         var parent = node.parentNode;
         if (parent == null)
             return;
@@ -233,8 +228,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     // private
-    function mergeRange(range,whiteList)
-    {
+    function mergeRange(range,whiteList) {
         var nodes = Range_getAllNodes(range);
         for (var i = 0; i < nodes.length; i++) {
             var next;
@@ -246,8 +240,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     // public (called from cursor.js)
-    Formatting_splitTextBefore = function(pos,parentCheckFn,force)
-    {
+    Formatting_splitTextBefore = function(pos,parentCheckFn,force) {
         var node = pos.node;
         var offset = pos.offset;
         if (parentCheckFn == null)
@@ -269,8 +262,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     // public
-    Formatting_splitTextAfter = function(pos,parentCheckFn,force)
-    {
+    Formatting_splitTextAfter = function(pos,parentCheckFn,force) {
         var node = pos.node;
         var offset = pos.offset;
         if (parentCheckFn == null)
@@ -296,8 +288,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     // index of a child, we pass the child itself (or null if the offset is equal to
     // childNodes.length)
     // public
-    Formatting_movePreceding = function(pos,parentCheckFn,force)
-    {
+    Formatting_movePreceding = function(pos,parentCheckFn,force) {
         var node = pos.node;
         var offset = pos.offset;
         if (parentCheckFn(node) || (node == document.body))
@@ -333,8 +324,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     // public
-    Formatting_moveFollowing = function(pos,parentCheckFn,force)
-    {
+    Formatting_moveFollowing = function(pos,parentCheckFn,force) {
         var node = pos.node;
         var offset = pos.offset;
         if (parentCheckFn(node) || (node == document.body))
@@ -370,8 +360,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     // public
-    Formatting_paragraphTextUpToPosition = function(pos)
-    {
+    Formatting_paragraphTextUpToPosition = function(pos) {
         if (pos.node.nodeType == Node.TEXT_NODE) {
             return stringToStartOfParagraph(pos.node,pos.offset);
         }
@@ -379,8 +368,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
             return stringToStartOfParagraph(Position_closestActualNode(pos),0);
         }
 
-        function stringToStartOfParagraph(node,offset)
-        {
+        function stringToStartOfParagraph(node,offset) {
             var start = node;
             var components = new Array();
             while (isInlineNode(node)) {
@@ -405,8 +393,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     // public
-    Formatting_getFormatting = function()
-    {
+    Formatting_getFormatting = function() {
         // FIXME: implement a more efficient version of this algorithm which avoids duplicate checks
 
         var range = Selection_get();
@@ -484,8 +471,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 
         return commonProperties;
 
-        function getFlags(pos,commonProperties)
-        {
+        function getFlags(pos,commonProperties) {
             var strBeforeCursor = Formatting_paragraphTextUpToPosition(pos);
 
             if (isWhitespaceString(strBeforeCursor)) {
@@ -505,8 +491,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                 commonProperties["-uxwrite-in-quotes"] = "true";
         }
 
-        function intersection(a,b)
-        {
+        function intersection(a,b) {
             var result = new Object();
             for (var name in a) {
                 if (a[name] == b[name])
@@ -515,8 +500,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
             return result;
         }
 
-        function findLeafNodes(node,result)
-        {
+        function findLeafNodes(node,result) {
             if (node.firstChild == null) {
                 result.push(node);
             }
@@ -528,8 +512,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     // public
-    Formatting_getAllNodeProperties = function(node)
-    {
+    Formatting_getAllNodeProperties = function(node) {
         if (node == null)
             throw new Error("Node is not in tree");
 
@@ -660,19 +643,16 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         "-webkit-text-size-adjust": true, // set on HTML element for text scaling purposes
     };
 
-    function isParagraphProperty(name)
-    {
+    function isParagraphProperty(name) {
         return PARAGRAPH_PROPERTIES[name];
     }
 
-    function isInlineProperty(name)
-    {
+    function isInlineProperty(name) {
         return !PARAGRAPH_PROPERTIES[name] && !SPECIAL_PROPERTIES[name];
     }
 
     // private
-    function putDirectInlineChildrenInParagraphs(parent)
-    {
+    function putDirectInlineChildrenInParagraphs(parent) {
         var inlineChildren = new Array();
         for (var child = parent.firstChild; child != null; child = child.nextSibling)
             if (isInlineNode(child))
@@ -686,8 +666,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     // private
-    function getParagraphs(nodes)
-    {
+    function getParagraphs(nodes) {
         var array = new Array();
         var set = new NodeSet();
         for (var i = 0; i < nodes.length; i++) {
@@ -712,8 +691,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 
         return modified;
 
-        function recurse(node)
-        {
+        function recurse(node) {
             if (node._type == HTML_LI)
                 putDirectInlineChildrenInParagraphs(node);
             if (node.firstChild == null) {
@@ -729,8 +707,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
             }
         }
 
-        function add(node)
-        {
+        function add(node) {
             if (!set.contains(node)) {
                 array.push(node);
                 set.add(node);
@@ -739,8 +716,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     // private
-    function setParagraphStyle(paragraph,selector)
-    {
+    function setParagraphStyle(paragraph,selector) {
         var wasHeading = isHeadingNode(paragraph);
         DOM_removeAttribute(paragraph,"class");
         if (selector == "") {
@@ -782,20 +758,17 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     // public
-    Formatting_pushDownInlineProperties = function(outermost)
-    {
+    Formatting_pushDownInlineProperties = function(outermost) {
         for (var i = 0; i < outermost.length; i++)
             outermost[i] = pushDownInlinePropertiesSingle(outermost[i]);
     }
 
     // private
-    function pushDownInlinePropertiesSingle(target)
-    {
+    function pushDownInlinePropertiesSingle(target) {
         recurse(target.parentNode);
         return target;
 
-        function recurse(node)
-        {
+        function recurse(node) {
             if (node.nodeType == Node.DOCUMENT_NODE)
                 return;
 
@@ -863,8 +836,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     // private
-    function wrapInline(node,elementName)
-    {
+    function wrapInline(node,elementName) {
         if (!isInlineNode(node) || isAbstractSpan(node)) {
             var next;
             for (var child = node.firstChild; child != null; child = next) {
@@ -879,8 +851,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     // private
-    function applyInlineFormatting(target,inlineProperties,special,applyToWhitespace)
-    {
+    function applyInlineFormatting(target,inlineProperties,special,applyToWhitespace) {
         if (!applyToWhitespace && isWhitespaceTextNode(target))
             return;
 
@@ -919,8 +890,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     // private
-    function extractSpecial(properties)
-    {
+    function extractSpecial(properties) {
         var special = { bold: null, italic: null, underline: null };
         var fontWeight = properties["font-weight"];
         var fontStyle = properties["font-style"];
@@ -963,8 +933,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     // private
-    function removeProperties(outermost,properties)
-    {
+    function removeProperties(outermost,properties) {
         properties = clone(properties);
         var special = extractSpecial(properties);
         var remaining = new Array();
@@ -975,8 +944,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     // private
-    function getOutermostParagraphs(paragraphs)
-    {
+    function getOutermostParagraphs(paragraphs) {
         var all = new NodeSet();
         for (var i = 0; i < paragraphs.length; i++)
             all.add(paragraphs[i]);
@@ -997,8 +965,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     // private
-    function removePropertiesSingle(node,properties,special,remaining)
-    {
+    function removePropertiesSingle(node,properties,special,remaining) {
         if ((node.nodeType == Node.ELEMENT_NODE) && (node.hasAttribute("style"))) {
             var remove = new Object();
             for (var name in properties)
@@ -1036,8 +1003,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
             remaining.push(node);
     }
 
-    function isSpecialSpan(span)
-    {
+    function isSpecialSpan(span) {
         if (span._type == HTML_SPAN) {
             if (span.hasAttribute(Keys.ABSTRACT_ELEMENT))
                 return true;
@@ -1051,8 +1017,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     // private
-    function containsOnlyWhitespace(ancestor)
-    {
+    function containsOnlyWhitespace(ancestor) {
         for (child = ancestor.firstChild; child != null; child = child.nextSibling) {
             if (!isWhitespaceTextNode(child))
                 return false;
@@ -1061,8 +1026,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     // public
-    Formatting_applyFormattingChanges = function(style,properties)
-    {
+    Formatting_applyFormattingChanges = function(style,properties) {
         debug("JS: applyFormattingChanges: style = "+JSON.stringify(style));
         if (properties != null) {
             var names = Object.getOwnPropertyNames(properties).sort();
@@ -1207,8 +1171,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         end = tempRange.end;
         Selection_set(start.node,start.offset,end.node,end.offset);
 
-        function containsOnlyInlineChildren(node)
-        {
+        function containsOnlyInlineChildren(node) {
             for (var child = node.firstChild; child != null; child = child.nextSibling) {
                 if (!isInlineNode(child))
                     return false;
@@ -1217,8 +1180,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         }
     }
 
-    Formatting_formatInlineNode = function(node,properties)
-    {
+    Formatting_formatInlineNode = function(node,properties) {
         properties = clone(properties);
         var special = extractSpecial(properties);
         return applyInlineFormatting(node,properties,special,true);

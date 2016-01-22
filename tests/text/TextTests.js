@@ -15,8 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-function showRuns()
-{
+function showRuns() {
     var range = Selection_get();
     var paragraph = Text_analyseParagraph(range.start);
     var runs = paragraph.runs;

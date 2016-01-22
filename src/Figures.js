@@ -24,8 +24,7 @@ var Figures_getGeometry;
 (function() {
 
     // public
-    Figures_insertFigure = function(filename,width,numbered,caption)
-    {
+    Figures_insertFigure = function(filename,width,numbered,caption) {
         UndoManager_newGroup("Insert figure");
 
         var figure = DOM_createElement(document,"FIGURE");
@@ -56,15 +55,13 @@ var Figures_getGeometry;
         PostponedActions_add(UndoManager_newGroup);
     }
 
-    Figures_getSelectedFigureId = function()
-    {
+    Figures_getSelectedFigureId = function() {
         var element = Cursor_getAdjacentNodeWithType(HTML_FIGURE);
         return element ? element.getAttribute("id") : null;
     }
 
     // public
-    Figures_getProperties = function(itemId)
-    {
+    Figures_getProperties = function(itemId) {
         var figure = document.getElementById(itemId);
         if (figure == null)
             return null;
@@ -83,8 +80,7 @@ var Figures_getGeometry;
     }
 
     // public
-    Figures_setProperties = function(itemId,width,src)
-    {
+    Figures_setProperties = function(itemId,width,src) {
         var figure = document.getElementById(itemId);
         if (figure == null)
             return null;
@@ -103,8 +99,7 @@ var Figures_getGeometry;
     }
 
     // public
-    Figures_getGeometry = function(itemId)
-    {
+    Figures_getGeometry = function(itemId) {
         var figure = document.getElementById(itemId);
         if ((figure == null) || (figure.parentNode == null))
             return null;

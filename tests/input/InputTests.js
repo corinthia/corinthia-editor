@@ -15,23 +15,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-function getNodeArrayText(nodes)
-{
+function getNodeArrayText(nodes) {
     var strings = new Array();
     for (var i = 0; i < nodes.length; i++)
         strings.push(getNodeText(nodes[i]));
     return strings.join("");
 }
 
-function textBetweenPositions(from,to)
-{
+function textBetweenPositions(from,to) {
     var range = new Range(from.node,from.offset,to.node,to.offset);
     var contents = Range_cloneContents(range);
     return getNodeArrayText(contents);
 }
 
-function testMovement(direction,count)
-{
+function testMovement(direction,count) {
     Outline_init();
     PostponedActions_perform();
     var posId = Input_addPosition(Selection_get().start);
@@ -41,8 +38,7 @@ function testMovement(direction,count)
     showSelection();
 }
 
-function testPositionFun(fun,granularity,direction)
-{
+function testPositionFun(fun,granularity,direction) {
     var lines = new Array();
     var start = new Position(document.body,0);
     var end = new Position(document.body,document.body.childNodes.length);
@@ -66,18 +62,15 @@ function testPositionFun(fun,granularity,direction)
     return lines.join("");
 }
 
-function testPositionWithin(granularity,direction)
-{
+function testPositionWithin(granularity,direction) {
     return testPositionFun(Input_isPositionWithinTextUnitInDirection,granularity,direction);
 }
 
-function testPositionAtBoundary(granularity,direction)
-{
+function testPositionAtBoundary(granularity,direction) {
     return testPositionFun(Input_isPositionAtBoundaryGranularityInDirection,granularity,direction);
 }
 
-function testPositionToBoundary(granularity,direction)
-{
+function testPositionToBoundary(granularity,direction) {
     var lines = new Array();
     var start = new Position(document.body,0);
     var end = new Position(document.body,document.body.childNodes.length);
@@ -107,8 +100,7 @@ function testPositionToBoundary(granularity,direction)
     return lines.join("");
 }
 
-function testRangeEnclosing(granularity,direction)
-{
+function testRangeEnclosing(granularity,direction) {
     var lines = new Array();
     var start = new Position(document.body,0);
     var end = new Position(document.body,document.body.childNodes.length);

@@ -26,8 +26,7 @@ var Clipboard_pasteNodes;
 (function() {
 
     // private
-    function blockToText(md,node,indent,nextIndent,listType,listNo)
-    {
+    function blockToText(md,node,indent,nextIndent,listType,listNo) {
         var linesBetweenChildren = 1;
         var childIndent = indent;
         switch (node._type) {
@@ -113,8 +112,7 @@ var Clipboard_pasteNodes;
     }
 
     // private
-    function shipOutParagraph(md)
-    {
+    function shipOutParagraph(md) {
         var text = md.buildParagraph.join("");
         if (md.buildPre) {
             text = text.replace(/\n$/,"");
@@ -132,8 +130,7 @@ var Clipboard_pasteNodes;
     }
 
     // private
-    function beginParagraph(md,blankLines,indent,nextIndent,paraPrefix,paraSuffix)
-    {
+    function beginParagraph(md,blankLines,indent,nextIndent,paraPrefix,paraSuffix) {
         if (blankLines == null)
             blankLines = 1;
         if (indent == null)
@@ -167,8 +164,7 @@ var Clipboard_pasteNodes;
     }
 
     // private
-    function inlineToText(md,node)
-    {
+    function inlineToText(md,node) {
         switch (node._type) {
         case HTML_TEXT: {
             var text = node.nodeValue;
@@ -205,8 +201,7 @@ var Clipboard_pasteNodes;
             break;
         }
 
-        function processChildren()
-        {
+        function processChildren() {
             for (var child = node.firstChild; child != null; child = child.nextSibling) {
                 inlineToText(md,child);
             }
@@ -214,8 +209,7 @@ var Clipboard_pasteNodes;
     }
 
     // private
-    function resetBuild(md)
-    {
+    function resetBuild(md) {
         md.buildParagraph = new Array();
         md.buildLines = 0;
         md.buildPrefix = "";
@@ -226,13 +220,11 @@ var Clipboard_pasteNodes;
     }
 
     // private
-    function MarkdownBuilder()
-    {
+    function MarkdownBuilder() {
     }
 
     // public
-    Markdown_htmlToMarkdown = function(node)
-    {
+    Markdown_htmlToMarkdown = function(node) {
         var md = new MarkdownBuilder();
         md.allText = new Array();
         md.preDepth = 0;
@@ -253,8 +245,7 @@ var Clipboard_pasteNodes;
 
 (function() {
 
-    function expandRangeForCopy(range)
-    {
+    function expandRangeForCopy(range) {
         if (range == null)
             return range;
 
@@ -287,8 +278,7 @@ var Clipboard_pasteNodes;
         return range;
     }
 
-    function copyRange(range)
-    {
+    function copyRange(range) {
         var html = "";
         var text = "";
 
@@ -316,14 +306,12 @@ var Clipboard_pasteNodes;
     }
 
     // public (FIXME: temp: for testing)
-    Clipboard_htmlToText = function(node)
-    {
+    Clipboard_htmlToText = function(node) {
         return Markdown_htmlToMarkdown(node);
     }
 
     // public
-    Clipboard_cut = function()
-    {
+    Clipboard_cut = function() {
         UndoManager_newGroup("Cut");
         var content;
 
@@ -373,16 +361,14 @@ var Clipboard_pasteNodes;
     }
 
     // public
-    Clipboard_copy = function()
-    {
+    Clipboard_copy = function() {
         var range = Selection_get();
         range = expandRangeForCopy(range);
         return copyRange(range);
     }
 
     // public
-    Clipboard_pasteText = function(text)
-    {
+    Clipboard_pasteText = function(text) {
         var converter = new Showdown.converter();
         var html = converter.makeHtml(text);
         UndoManager_newGroup("Paste");
@@ -391,8 +377,7 @@ var Clipboard_pasteNodes;
     }
 
     // public
-    Clipboard_pasteHTML = function(html)
-    {
+    Clipboard_pasteHTML = function(html) {
         if (html.match(/^\s*<thead/i))
             html = "<table>" + html + "</table>";
         else if (html.match(/^\s*<tbody/i))
@@ -426,8 +411,7 @@ var Clipboard_pasteNodes;
         UndoManager_newGroup();
     }
 
-    function pasteTable(srcTable,dest)
-    {
+    function pasteTable(srcTable,dest) {
         var src = Tables_analyseStructure(srcTable);
 
         // In the destination table, the region into which we will paste the cells will the
@@ -470,8 +454,7 @@ var Clipboard_pasteNodes;
         Selection_set(node,node.childNodes.length,node,node.childNodes.length);
     }
 
-    function replaceCells(src,dest,destRow,destCol)
-    {
+    function replaceCells(src,dest,destRow,destCol) {
         // By this point, all of the cells have been split. So it is guaranteed that every cell
         // in dest will have rowspan = 1 and colspan = 1.
         for (var srcRow = 0; srcRow < src.numRows; srcRow++) {
@@ -498,8 +481,7 @@ var Clipboard_pasteNodes;
         }
     }
 
-    function insertChildrenBefore(parent,child,nextSibling,pastedNodes)
-    {
+    function insertChildrenBefore(parent,child,nextSibling,pastedNodes) {
         var next;
         for (var grandChild = child.firstChild; grandChild != null; grandChild = next) {
             next = grandChild.nextSibling;
@@ -508,8 +490,7 @@ var Clipboard_pasteNodes;
         }
     }
 
-    function fixParagraphStyles(node,paragraphClass)
-    {
+    function fixParagraphStyles(node,paragraphClass) {
         if (isParagraphNode(node)) {
             if (node._type == HTML_P) {
                 var className = DOM_getAttribute(node,"class");
@@ -527,8 +508,7 @@ var Clipboard_pasteNodes;
     }
 
     // public
-    Clipboard_pasteNodes = function(nodes)
-    {
+    Clipboard_pasteNodes = function(nodes) {
         if (nodes.length == 0)
             return;
 
@@ -731,8 +711,7 @@ var Clipboard_pasteNodes;
         Cursor_ensureCursorVisible();
     }
 
-    function removeDuplicateIds(node,found)
-    {
+    function removeDuplicateIds(node,found) {
         if ((node.nodeType == Node.ELEMENT_NODE) && node.hasAttribute("id")) {
             var id = node.getAttribute("id");
 
@@ -749,8 +728,7 @@ var Clipboard_pasteNodes;
             removeDuplicateIds(child,found);
     }
 
-    function pasteImage(href)
-    {
+    function pasteImage(href) {
         // FIXME
     }
 

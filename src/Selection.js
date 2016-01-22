@@ -65,8 +65,7 @@ var Selection_print;
 
         var selection = new Object();
 
-        Selection_isMarked = function()
-        {
+        Selection_isMarked = function() {
             if (selection.value == null)
                 return null;
             else
@@ -74,8 +73,7 @@ var Selection_print;
         }
 
         // public
-        Selection_get = function()
-        {
+        Selection_get = function() {
             if (selection.value == null)
                 return null;
             else
@@ -85,8 +83,7 @@ var Selection_print;
 
         // public
         Selection_setInternal =
-            function(newStartNode,newStartOffset,newEndNode,newEndOffset,isMarked)
-        {
+            function(newStartNode,newStartOffset,newEndNode,newEndOffset,isMarked) {
             var range = new Range(newStartNode,newStartOffset,newEndNode,newEndOffset);
             if (!Range_isForwards(range))
                 range = new Range(newEndNode,newEndOffset,newStartNode,newStartOffset);
@@ -101,8 +98,7 @@ var Selection_print;
         }
 
         Selection_set = function(newStartNode,newStartOffset,newEndNode,newEndOffset,
-                                 keepActiveHandle,isMarked)
-        {
+                                 keepActiveHandle,isMarked) {
             Selection_setInternal(newStartNode,newStartOffset,newEndNode,newEndOffset,isMarked);
             Selection_update();
             if (!keepActiveHandle)
@@ -110,8 +106,7 @@ var Selection_print;
         }
 
         // public
-        Selection_clear = function()
-        {
+        Selection_clear = function() {
             UndoManager_setProperty(selection,"value",null);
             Selection_update();
         }
@@ -128,8 +123,7 @@ var Selection_print;
     var tableSelection = null;
 
     // private
-    updateTableSelection = function(selRange)
-    {
+    updateTableSelection = function(selRange) {
         tableSelection = Tables_regionFromRange(selRange);
         if (tableSelection == null)
             return false;
@@ -180,16 +174,14 @@ var Selection_print;
         return true;
     }
 
-    function makeSelectionDiv()
-    {
+    function makeSelectionDiv() {
         var div = DOM_createElement(document,"DIV");
         DOM_appendChild(document.body,div);
         selectionDivs.push(div);
         return div;
     }
 
-    function setTableEdges(x,y,width,height)
-    {
+    function setTableEdges(x,y,width,height) {
         var left = makeSelectionDiv();
         var right = makeSelectionDiv();
         var top = makeSelectionDiv();
@@ -203,8 +195,7 @@ var Selection_print;
         setBoxCoords(top,x-thick,y-thick,width+2*thick,thick);
         setBoxCoords(bottom,x-thick,y+height,width+2*thick,thick);
 
-        function setBoxCoords(box,x,y,width,height)
-        {
+        function setBoxCoords(box,x,y,width,height) {
             DOM_setStyleProperties(box,{ "position": "absolute",
                                          "left": x+"px",
                                          "top": y+"px",
@@ -216,8 +207,7 @@ var Selection_print;
     }
 
     var editorHandles = { type: "none" };
-    function setEditorHandles(info)
-    {
+    function setEditorHandles(info) {
         var oldEditorHandles = editorHandles;
         editorHandles = info;
         UndoManager_addAction(function() {
@@ -245,8 +235,7 @@ var Selection_print;
         }
     }
 
-    function getPrevHighlightText(node)
-    {
+    function getPrevHighlightText(node) {
         if ((node.previousSibling != null) &&
             isSelectionHighlight(node.previousSibling) &&
             (node.previousSibling.lastChild != null) &&
@@ -256,8 +245,7 @@ var Selection_print;
             return null;
     }
 
-    function getNextHighlightText(node)
-    {
+    function getNextHighlightText(node) {
         if ((node.nextSibling != null) &&
             isSelectionHighlight(node.nextSibling) &&
             (node.nextSibling.firstChild != null) &&
@@ -267,8 +255,7 @@ var Selection_print;
             return null;
     }
 
-    function getTextNodeBefore(node)
-    {
+    function getTextNodeBefore(node) {
         var prev = node.previousSibling;
         if ((prev != null) && (prev.nodeType == Node.TEXT_NODE)) {
             return prev;
@@ -280,8 +267,7 @@ var Selection_print;
         }
     }
 
-    function getTextNodeAfter(node)
-    {
+    function getTextNodeAfter(node) {
         var next = node.nextSibling;
         if ((next != null) && (next.nodeType == Node.TEXT_NODE)) {
             return next;
@@ -293,14 +279,12 @@ var Selection_print;
         }
     }
 
-    function setSelectionHighlights(highlights)
-    {
+    function setSelectionHighlights(highlights) {
         UndoManager_addAction(setSelectionHighlights,selectionHighlights);
         selectionHighlights = highlights;
     }
 
-    function createSelectionHighlights(data)
-    {
+    function createSelectionHighlights(data) {
         var newHighlights = arrayCopy(selectionHighlights);
 
         var outermost = data.outermost;
@@ -310,8 +294,7 @@ var Selection_print;
 
         setSelectionHighlights(newHighlights);
 
-        function recurse(node)
-        {
+        function recurse(node) {
             if (isSpecialBlockNode(node)) {
                 if (!isSelectionHighlight(node.parentNode)) {
                     var wrapped = DOM_wrapNode(node,"DIV");
@@ -339,8 +322,7 @@ var Selection_print;
         }
     }
 
-    function createTextHighlight(node,data,newHighlights)
-    {
+    function createTextHighlight(node,data,newHighlights) {
         var selRange = data.range;
         if (isSelectionHighlight(node.parentNode)) {
 
@@ -375,7 +357,7 @@ var Selection_print;
             if (isWhitespaceString(node.nodeValue.substring(0,selRange.end.offset)))
                 return;
             Formatting_splitTextAfter(selRange.end,
-                                      function() { return true; });a
+                                      function() { return true; });
         }
 
 
@@ -418,8 +400,7 @@ var Selection_print;
         }
     }
 
-    function getRangeData(selRange)
-    {
+    function getRangeData(selRange) {
         var nodeSet = new NodeSet();
         var nodes;
         var outermost;
@@ -436,8 +417,7 @@ var Selection_print;
         return { range: selRange, nodeSet: nodeSet, nodes: nodes, outermost: outermost };
     }
 
-    function removeSelectionHighlights(data,force)
-    {
+    function removeSelectionHighlights(data,force) {
         var selectedSet = data.nodeSet;
 
         var remainingHighlights = new Array();
@@ -466,8 +446,7 @@ var Selection_print;
         }
     }
 
-    function containsSelection(selectedSet,node)
-    {
+    function containsSelection(selectedSet,node) {
         if (selectedSet.contains(node))
             return true;
         for (var child = node.firstChild; child != null; child = child.nextSibling) {
@@ -477,8 +456,7 @@ var Selection_print;
         return false;
     }
 
-    Selection_update = function()
-    {
+    Selection_update = function() {
         var selRange = Selection_get();
         var selMarked = Selection_isMarked();
 
@@ -607,8 +585,7 @@ var Selection_print;
         }
         return;
 
-        function getAbsoluteOffset(node)
-        {
+        function getAbsoluteOffset(node) {
             var offsetLeft = 0;
             var offsetTop = 0;
             for (; node != null; node = node.parentNode) {
@@ -622,14 +599,12 @@ var Selection_print;
     }
 
     // public
-    Selection_selectAll = function()
-    {
+    Selection_selectAll = function() {
         Selection_set(document.body,0,document.body,document.body.childNodes.length);
     }
 
     // public
-    Selection_selectParagraph = function()
-    {
+    Selection_selectParagraph = function() {
         var selRange = Selection_get();
         if (selRange == null)
             return;
@@ -650,8 +625,7 @@ var Selection_print;
     }
 
     // private
-    function getPunctuationCharsForRegex()
-    {
+    function getPunctuationCharsForRegex() {
         var escaped = "^$\\.*+?()[]{}|"; // From ECMAScript regexp spec (PatternCharacter)
         var unescaped = "";
         for (var i = 32; i <= 127; i++) {
@@ -682,8 +656,7 @@ var Selection_print;
     var reWordStart = new RegExp("^[^"+wsPunctuation+"]+");
     var reWordEnd = new RegExp("[^"+wsPunctuation+"]+$");
 
-    Selection_posAtStartOfWord = function(pos)
-    {
+    Selection_posAtStartOfWord = function(pos) {
         var node = pos.node;
         var offset = pos.offset;
 
@@ -699,8 +672,7 @@ var Selection_print;
         return pos;
     }
 
-    Selection_posAtEndOfWord = function(pos)
-    {
+    Selection_posAtEndOfWord = function(pos) {
         var node = pos.node;
         var offset = pos.offset;
 
@@ -716,8 +688,7 @@ var Selection_print;
         return pos;
     }
 
-    function rangeOfWordAtPos(pos)
-    {
+    function rangeOfWordAtPos(pos) {
         var node = pos.node;
         var offset = pos.offset;
 
@@ -770,8 +741,7 @@ var Selection_print;
     }
 
     // public
-    Selection_selectWordAtCursor = function()
-    {
+    Selection_selectWordAtCursor = function() {
         var selRange = Selection_get();
         if (selRange == null)
             return;
@@ -784,8 +754,7 @@ var Selection_print;
     }
 
     // public
-    Selection_dragSelectionBegin = function(x,y,selectWord)
-    {
+    Selection_dragSelectionBegin = function(x,y,selectWord) {
         var pos = Position_closestMatchForwards(Position_atPoint(x,y),Position_okForMovement);
 
         if (pos == null) {
@@ -803,16 +772,14 @@ var Selection_print;
 
     var selectionHandleEnd = true;
 
-    function toStartOfWord(pos)
-    {
+    function toStartOfWord(pos) {
         if (Input_isAtWordBoundary(pos,"backward"))
             return pos;
         var boundary = Input_toWordBoundary(pos,"backward");
         return (boundary != null) ? boundary : pos;
     }
 
-    function toEndOfWord(pos)
-    {
+    function toEndOfWord(pos) {
         if (Input_isAtWordBoundary(pos,"forward"))
             return pos;
         var boundary = Input_toWordBoundary(pos,"forward");
@@ -820,8 +787,7 @@ var Selection_print;
     }
 
     // public
-    Selection_dragSelectionUpdate = function(x,y,selectWord)
-    {
+    Selection_dragSelectionUpdate = function(x,y,selectWord) {
         y = Cursor_scrollDocumentForY(y);
 
         var pos = Position_closestMatchForwards(Position_atPoint(x,y),Position_okForMovement);
@@ -860,8 +826,7 @@ var Selection_print;
         return selectionHandleEnd ? "end" : "start";
     }
 
-    function moveBoundary(command)
-    {
+    function moveBoundary(command) {
         var range = Selection_get();
         if (range == null)
             return;
@@ -889,32 +854,27 @@ var Selection_print;
     }
 
     // public
-    Selection_moveStartLeft = function()
-    {
+    Selection_moveStartLeft = function() {
         return moveBoundary("start-left");
     }
 
     // public
-    Selection_moveStartRight = function()
-    {
+    Selection_moveStartRight = function() {
         return moveBoundary("start-right");
     }
 
     // public
-    Selection_moveEndLeft = function()
-    {
+    Selection_moveEndLeft = function() {
         return moveBoundary("end-left");
     }
 
     // public
-    Selection_moveEndRight = function()
-    {
+    Selection_moveEndRight = function() {
         return moveBoundary("end-right");
     }
 
     // public
-    Selection_setSelectionStartAtCoords = function(x,y)
-    {
+    Selection_setSelectionStartAtCoords = function(x,y) {
         var position = Position_closestMatchForwards(Position_atPoint(x,y),Position_okForMovement);
         if (position != null) {
             position = Position_closestMatchBackwards(position,Position_okForMovement);
@@ -929,8 +889,7 @@ var Selection_print;
     }
 
     // public
-    Selection_setSelectionEndAtCoords = function(x,y)
-    {
+    Selection_setSelectionEndAtCoords = function(x,y) {
         var position = Position_closestMatchForwards(Position_atPoint(x,y),Position_okForMovement);
         if (position != null) {
             position = Position_closestMatchBackwards(position,Position_okForMovement);
@@ -945,8 +904,7 @@ var Selection_print;
     }
 
     // public
-    Selection_setTableSelectionEdgeAtCoords = function(edge,x,y)
-    {
+    Selection_setTableSelectionEdgeAtCoords = function(edge,x,y) {
         if (tableSelection == null)
             return;
 
@@ -980,8 +938,7 @@ var Selection_print;
         Selection_set(topLeftNode,topLeftOffset,bottomRightNode,bottomRightOffset);
 
         // FIXME: this could possibly be optimised
-        function findCellInTable(structure,x,y)
-        {
+        function findCellInTable(structure,x,y) {
             for (var r = 0; r < structure.numRows; r++) {
                 for (var c = 0; c < structure.numCols; c++) {
                     var cell = Table_get(structure,r,c);
@@ -998,14 +955,12 @@ var Selection_print;
     }
 
     // public
-    Selection_setEmptySelectionAt = function(node,offset)
-    {
+    Selection_setEmptySelectionAt = function(node,offset) {
         Selection_set(node,offset,node,offset);
     }
 
     // private
-    function deleteTextSelection(selRange,keepEmpty)
-    {
+    function deleteTextSelection(selRange,keepEmpty) {
         var nodes = Range_getOutermostNodes(selRange);
         for (var i = 0; i < nodes.length; i++) {
             var node = nodes[i];
@@ -1087,8 +1042,7 @@ var Selection_print;
         Cursor_updateBRAtEndOfParagraph(Range_singleNode(selRange));
     }
 
-    function delEmpty(selRange,node)
-    {
+    function delEmpty(selRange,node) {
         while ((node != document.body) &&
                (node.nodeType == Node.ELEMENT_NODE) &&
                (node.firstChild == null)) {
@@ -1109,8 +1063,7 @@ var Selection_print;
         }
     }
 
-    function fixPositionOutside(pos,node)
-    {
+    function fixPositionOutside(pos,node) {
         if (pos.node == node) {
             var before = new Position(node.parentNode,DOM_nodeOffset(node));
             var after = new Position(node.parentNode,DOM_nodeOffset(node)+1);
@@ -1132,8 +1085,7 @@ var Selection_print;
         return true;
     }
 
-    Selection_deleteRangeContents = function(range,keepEmpty)
-    {
+    Selection_deleteRangeContents = function(range,keepEmpty) {
         Range_trackWhileExecuting(range,function() {
             DOM_ignoreMutationsWhileExecuting(function() {
                 removeSelectionHighlights(getRangeData(range),true);
@@ -1149,8 +1101,7 @@ var Selection_print;
         Selection_set(range.start.node,range.start.offset,range.start.node,range.start.offset);
     }
 
-    Selection_deleteContents = function(keepEmpty)
-    {
+    Selection_deleteContents = function(keepEmpty) {
         var range = Selection_get();
         if (range == null)
             return;
@@ -1158,8 +1109,7 @@ var Selection_print;
     }
 
     // private
-    function removeParagraphDescendants(parent)
-    {
+    function removeParagraphDescendants(parent) {
         var next;
         for (var child = parent.firstChild; child != null; child = next) {
             next = child.nextSibling;
@@ -1170,8 +1120,7 @@ var Selection_print;
     }
 
     // private
-    function findFirstParagraph(node)
-    {
+    function findFirstParagraph(node) {
         if (isParagraphNode(node))
             return node;
         if (node._type == HTML_LI) {
@@ -1197,8 +1146,7 @@ var Selection_print;
         }
         return null;
 
-        function putPrecedingSiblingsInParagraph(parent,node)
-        {
+        function putPrecedingSiblingsInParagraph(parent,node) {
             var p = DOM_createElement(document,"P");
             while (parent.firstChild != node)
                 DOM_appendChild(p,parent.firstChild);
@@ -1207,8 +1155,7 @@ var Selection_print;
     }
 
     // private
-    function prepareForMerge(detail)
-    {
+    function prepareForMerge(detail) {
         if (isParagraphNode(detail.startAncestor) && isInlineNode(detail.endAncestor)) {
             var name = detail.startAncestor.nodeName; // check-ok
             var newParagraph = DOM_createElement(document,name);
@@ -1266,14 +1213,12 @@ var Selection_print;
     }
 
     // public
-    Selection_clearSelection = function()
-    {
+    Selection_clearSelection = function() {
         Selection_clear();
     }
 
     // public
-    Selection_preserveWhileExecuting = function(fun)
-    {
+    Selection_preserveWhileExecuting = function(fun) {
         var range = Selection_get();
 
         // Since the selection may have changed as a result of changes to the document, we
@@ -1289,8 +1234,7 @@ var Selection_print;
         return result;
     }
 
-    Selection_preferElementPositions = function()
-    {
+    Selection_preferElementPositions = function() {
         var range = Selection_get();
         if (range == null)
             return;
@@ -1300,8 +1244,7 @@ var Selection_print;
                       range.end.node,range.end.offset);
     }
 
-    function getBoundaryContainer(node,topAncestor)
-    {
+    function getBoundaryContainer(node,topAncestor) {
         var container = document.body;
         for (; node != topAncestor.parentNode; node = node.parentNode) {
             switch (node._type) {
@@ -1314,8 +1257,7 @@ var Selection_print;
         return container;
     }
 
-    function boundaryCompliantRange(range)
-    {
+    function boundaryCompliantRange(range) {
         if (range == null)
             return null;
 
@@ -1350,8 +1292,7 @@ var Selection_print;
         }
         return new Range(start.node,start.offset,end.node,end.offset);
 
-        function nodeHasAncestor(node,ancestor)
-        {
+        function nodeHasAncestor(node,ancestor) {
             for (; node != null; node = node.parentNode) {
                 if (node == ancestor)
                     return true;
@@ -1360,8 +1301,7 @@ var Selection_print;
         }
     }
 
-    Selection_print = function()
-    {
+    Selection_print = function() {
         debug("");
         debug("");
         debug("");
@@ -1375,8 +1315,7 @@ var Selection_print;
 
         printSelectionElement(document.body,"");
 
-        function printSelectionElement(node,indent)
-        {
+        function printSelectionElement(node,indent) {
             var className = DOM_getAttribute(node,"class");
             if (className != null)
                 debug(indent+node.nodeName+" ("+className+")");
@@ -1409,8 +1348,7 @@ var Selection_print;
             }
         }
 
-        function printSelectionText(node,indent)
-        {
+        function printSelectionText(node,indent) {
             var value = node.nodeValue;
 
             if (sel.end.node == node) {

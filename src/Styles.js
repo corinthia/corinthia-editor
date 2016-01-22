@@ -30,13 +30,11 @@ var Styles_init;
     var rules = new Object();
     var paragraphClass = null;
 
-    Styles_getRule = function(selector)
-    {
+    Styles_getRule = function(selector) {
         return rules[selector];
     }
 
-    Styles_nextSelectorAfter = function(element)
-    {
+    Styles_nextSelectorAfter = function(element) {
         var selector = element.nodeName.toLowerCase();
         var className = DOM_getAttribute(element,"class");
         if (className != null)
@@ -90,24 +88,20 @@ var Styles_init;
             return nextElementName+"."+nextClassName;
     }
 
-    Styles_getParagraphClass = function()
-    {
+    Styles_getParagraphClass = function() {
         return paragraphClass;
     }
 
-    Styles_setParagraphClass = function(cls)
-    {
+    Styles_setParagraphClass = function(cls) {
         paragraphClass = cls;
     }
 
-    Styles_headingNumbering = function()
-    {
+    Styles_headingNumbering = function() {
         return ((rules["h1::before"] != null) &&
                 (rules["h1::before"]["content"] != null));
     }
 
-    Styles_getCSSText = function()
-    {
+    Styles_getCSSText = function() {
         var head = DOM_documentHead(document);
         var cssText = "";
         for (var child = head.firstChild; child != null; child = child.nextSibling) {
@@ -121,8 +115,7 @@ var Styles_init;
         return cssText;
     }
 
-    Styles_setCSSText = function(cssText,cssRules)
-    {
+    Styles_setCSSText = function(cssText,cssRules) {
         UndoManager_newGroup("Update styles");
         var head = DOM_documentHead(document);
         var next;
@@ -139,8 +132,7 @@ var Styles_init;
         return {}; // Objective C caller expects JSON result
     }
 
-    function addBuiltinStylesheet(cssURL)
-    {
+    function addBuiltinStylesheet(cssURL) {
         var head = DOM_documentHead(document);
         for (var child = head.firstChild; child != null; child = child.nextSibling) {
             if ((child._type == HTML_LINK) &&
@@ -161,14 +153,12 @@ var Styles_init;
 
     var builtinCSSURL = null;
 
-    Styles_getBuiltinCSSURL = function()
-    {
+    Styles_getBuiltinCSSURL = function() {
         return builtinCSSURL;
     }
 
     // public
-    Styles_init = function(cssURL)
-    {
+    Styles_init = function(cssURL) {
         if (cssURL != null)
             builtinCSSURL = cssURL;
 

@@ -44,8 +44,7 @@ var Cursor_insertEndnote;
 
     var cursorX = null;
 
-    Cursor_ensurePositionVisible = function(pos,center)
-    {
+    Cursor_ensurePositionVisible = function(pos,center) {
         // If we can't find the cursor rect for some reason, just don't do anything.
         // This is better than using an incorrect position or throwing an exception.
         var rect = Position_displayRectAtPos(pos)
@@ -72,15 +71,13 @@ var Cursor_insertEndnote;
     }
 
     // public
-    Cursor_ensureCursorVisible = function(center)
-    {
+    Cursor_ensureCursorVisible = function(center) {
         var selRange = Selection_get();
         if (selRange != null)
             Cursor_ensurePositionVisible(selRange.end,center);
     }
 
-    Cursor_scrollDocumentForY = function(y)
-    {
+    Cursor_scrollDocumentForY = function(y) {
         var absY = window.scrollY + y;
         if (absY-44 < window.scrollY) {
             window.scrollTo(window.scrollX,absY-44);
@@ -94,8 +91,7 @@ var Cursor_insertEndnote;
     }
 
     // public
-    Cursor_positionCursor = function(x,y,wordBoundary)
-    {
+    Cursor_positionCursor = function(x,y,wordBoundary) {
         if (UndoManager_groupType() != "Cursor movement")
             UndoManager_newGroup("Cursor movement");
 
@@ -186,8 +182,7 @@ var Cursor_insertEndnote;
     }
 
     // public
-    Cursor_getCursorPosition = function()
-    {
+    Cursor_getCursorPosition = function() {
         var selRange = Selection_get();
         if (selRange == null)
             return null;
@@ -205,8 +200,7 @@ var Cursor_insertEndnote;
     }
 
     // public
-    Cursor_moveLeft = function()
-    {
+    Cursor_moveLeft = function() {
         var range = Selection_get();
         if (range == null)
             return;
@@ -218,8 +212,7 @@ var Cursor_insertEndnote;
     }
 
     // public
-    Cursor_moveRight = function()
-    {
+    Cursor_moveRight = function() {
         var range = Selection_get();
         if (range == null)
             return;
@@ -231,8 +224,7 @@ var Cursor_insertEndnote;
     }
 
     // public
-    Cursor_moveToStartOfDocument = function()
-    {
+    Cursor_moveToStartOfDocument = function() {
         var pos = new Position(document.body,0);
         pos = Position_closestMatchBackwards(pos,Position_okForMovement);
         Cursor_set(pos.node,pos.offset);
@@ -240,8 +232,7 @@ var Cursor_insertEndnote;
     }
 
     // public
-    Cursor_moveToEndOfDocument = function()
-    {
+    Cursor_moveToEndOfDocument = function() {
         var pos = new Position(document.body,document.body.childNodes.length);
         pos = Position_closestMatchForwards(pos,Position_okForMovement);
         Cursor_set(pos.node,pos.offset);
@@ -251,8 +242,7 @@ var Cursor_insertEndnote;
     // An empty paragraph does not get shown and cannot be edited. We can fix this by adding
     // a BR element as a child
     // public
-    Cursor_updateBRAtEndOfParagraph = function(node)
-    {
+    Cursor_updateBRAtEndOfParagraph = function(node) {
         var paragraph = node;
         while ((paragraph != null) && !isParagraphNode(paragraph))
             paragraph = paragraph.parentNode;
@@ -290,16 +280,14 @@ var Cursor_insertEndnote;
     }
 
     // public
-    Cursor_insertReference = function(itemId)
-    {
+    Cursor_insertReference = function(itemId) {
         var a = DOM_createElement(document,"A");
         DOM_setAttribute(a,"href","#"+itemId);
         Clipboard_pasteNodes([a]);
     }
 
     // public
-    Cursor_insertLink = function(text,url)
-    {
+    Cursor_insertLink = function(text,url) {
         var a = DOM_createElement(document,"A");
         DOM_setAttribute(a,"href",url);
         DOM_appendChild(a,DOM_createTextNode(document,text));
@@ -308,8 +296,7 @@ var Cursor_insertEndnote;
 
     var nbsp = String.fromCharCode(160);
 
-    function spaceToNbsp(pos)
-    {
+    function spaceToNbsp(pos) {
         var node = pos.node;
         var offset = pos.offset;
 
@@ -321,8 +308,7 @@ var Cursor_insertEndnote;
         }
     }
 
-    function nbspToSpace(pos)
-    {
+    function nbspToSpace(pos) {
         var node = pos.node;
         var offset = pos.offset;
 
@@ -334,8 +320,7 @@ var Cursor_insertEndnote;
         }
     }
 
-    function checkNbsp()
-    {
+    function checkNbsp() {
         Selection_preserveWhileExecuting(function() {
             var selRange = Selection_get();
             if (selRange != null)
@@ -343,8 +328,7 @@ var Cursor_insertEndnote;
         });
     }
 
-    function isPosAtStartOfParagraph(pos)
-    {
+    function isPosAtStartOfParagraph(pos) {
         if ((pos.node.nodeType == Node.ELEMENT_NODE) && (pos.offset == 0) &&
             !isInlineNode(pos.node)) {
             return true;
@@ -374,8 +358,7 @@ var Cursor_insertEndnote;
     }
 
     // public
-    Cursor_insertCharacter = function(str,allowInvalidPos,allowNoParagraph)
-    {
+    Cursor_insertCharacter = function(str,allowInvalidPos,allowNoParagraph) {
         var firstInsertion = (UndoManager_groupType() != "Insert text");
 
         if (firstInsertion)
@@ -497,8 +480,7 @@ var Cursor_insertEndnote;
         Cursor_ensureCursorVisible();
     }
 
-    function tryDeleteEmptyCaption(pos)
-    {
+    function tryDeleteEmptyCaption(pos) {
         var caption = Position_captionAncestor(pos);
         if ((caption == null) || nodeHasContent(caption))
             return false;
@@ -515,8 +497,7 @@ var Cursor_insertEndnote;
         return true;
     }
 
-    function tryDeleteEmptyNote(pos)
-    {
+    function tryDeleteEmptyNote(pos) {
         var note = Position_noteAncestor(pos);
         if ((note == null) || nodeHasContent(note))
             return false;
@@ -531,8 +512,7 @@ var Cursor_insertEndnote;
     }
 
     // public
-    Cursor_deleteCharacter = function()
-    {
+    Cursor_deleteCharacter = function() {
         if (UndoManager_groupType() != "Delete text")
             UndoManager_newGroup("Delete text",checkNbsp);
 
@@ -605,8 +585,7 @@ var Cursor_insertEndnote;
         Selection_update();
         Cursor_ensureCursorVisible();
 
-        function firstBlockAncestor(node)
-        {
+        function firstBlockAncestor(node) {
             while (isInlineNode(node))
                 node = node.parentNode;
             return node;
@@ -614,8 +593,7 @@ var Cursor_insertEndnote;
     }
 
     // public
-    Cursor_enterPressed = function()
-    {
+    Cursor_enterPressed = function() {
         UndoManager_newGroup("New paragraph");
 
         Selection_preferElementPositions();
@@ -816,8 +794,7 @@ var Cursor_insertEndnote;
         cursorX = null;
         Cursor_ensureCursorVisible();
 
-        function getBlockToSplit(pos)
-        {
+        function getBlockToSplit(pos) {
             var blockToSplit = null;
             for (var n = pos.node; n != null; n = n.parentNode) {
                 if (n._type == HTML_LI) {
@@ -833,15 +810,13 @@ var Cursor_insertEndnote;
             return blockToSplit;
         }
 
-        function getContainerOrParagraph(node)
-        {
+        function getContainerOrParagraph(node) {
             while ((node != null) && isInlineNode(node))
                 node = node.parentNode;
             return node;
         }
 
-        function positionAtStartOfHeading(pos)
-        {
+        function positionAtStartOfHeading(pos) {
             var container = getContainerOrParagraph(pos.node);
             if (isHeadingNode(container)) {
                 var startOffset = 0;
@@ -868,8 +843,7 @@ var Cursor_insertEndnote;
         return node.nodeValue.substring(0,offset);
     }
 
-    Cursor_getAdjacentNodeWithType = function(type)
-    {
+    Cursor_getAdjacentNodeWithType = function(type) {
         var selRange = Selection_get();
         var pos = Position_preferElementPosition(selRange.start);
         var node = pos.node;
@@ -898,8 +872,7 @@ var Cursor_insertEndnote;
         }
     }
 
-    Cursor_getLinkProperties = function()
-    {
+    Cursor_getLinkProperties = function() {
         var a = Cursor_getAdjacentNodeWithType(HTML_A);
         if (a == null)
             return null;
@@ -908,8 +881,7 @@ var Cursor_insertEndnote;
                  text: getNodeText(a) };
     }
 
-    Cursor_setLinkProperties = function(properties)
-    {
+    Cursor_setLinkProperties = function(properties) {
         var a = Cursor_getAdjacentNodeWithType(HTML_A);
         if (a == null)
             return null;
@@ -921,8 +893,7 @@ var Cursor_insertEndnote;
         });
     }
 
-    Cursor_setReferenceTarget = function(itemId)
-    {
+    Cursor_setReferenceTarget = function(itemId) {
         var a = Cursor_getAdjacentNodeWithType(HTML_A);
         if (a != null)
             Outline_setReferenceTarget(a,itemId);
@@ -931,8 +902,7 @@ var Cursor_insertEndnote;
     // Deletes the current selection contents and ensures that the cursor is located directly
     // inside the nearest container element, i.e. not inside a paragraph or inline node. This
     // is intended for preventing things like inserting a table of contants inside a heading
-    Cursor_makeContainerInsertionPoint = function()
-    {
+    Cursor_makeContainerInsertionPoint = function() {
         var selRange = Selection_get();
         if (selRange == null)
             return;
@@ -982,15 +952,13 @@ var Cursor_insertEndnote;
         cursorX = null;
     }
 
-    Cursor_set = function(node,offset,keepCursorX)
-    {
+    Cursor_set = function(node,offset,keepCursorX) {
         Selection_set(node,offset,node,offset);
         if (!keepCursorX)
             cursorX = null;
     }
 
-    function moveRangeOutsideOfNote(range)
-    {
+    function moveRangeOutsideOfNote(range) {
         var node = range.start.node;
         var offset = range.start.offset;
 
@@ -1005,8 +973,7 @@ var Cursor_insertEndnote;
         return range;
     }
 
-    function insertNote(className,content)
-    {
+    function insertNote(className,content) {
         var footnote = DOM_createElement(document,"span");
         DOM_setAttribute(footnote,"class",className);
         DOM_appendChild(footnote,DOM_createTextNode(document,content));
@@ -1037,13 +1004,11 @@ var Cursor_insertEndnote;
         Cursor_updateBRAtEndOfParagraph(footnote);
     }
 
-    Cursor_insertFootnote = function(content)
-    {
+    Cursor_insertFootnote = function(content) {
         insertNote("footnote",content);
     }
 
-    Cursor_insertEndnote = function(content)
-    {
+    Cursor_insertEndnote = function(content) {
         insertNote("endnote",content);
     }
 

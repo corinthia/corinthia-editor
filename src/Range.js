@@ -36,14 +36,12 @@ var Range_getText;
 
 (function() {
 
-    Range = function(startNode,startOffset,endNode,endOffset)
-    {
+    Range = function(startNode,startOffset,endNode,endOffset) {
         this.start = new Position(startNode,startOffset);
         this.end = new Position(endNode,endOffset);
     }
 
-    Range_assertValid = function(range,description)
-    {
+    Range_assertValid = function(range,description) {
         if (description == null)
             description = "Range";
         if (range == null)
@@ -52,27 +50,23 @@ var Range_getText;
         Position_assertValid(range.end,description+" end");
     }
 
-    Range_isEmpty = function(range)
-    {
+    Range_isEmpty = function(range) {
         return ((range.start.node == range.end.node) &&
                 (range.start.offset == range.end.offset));
     }
 
-    Range.prototype.toString = function()
-    {
+    Range.prototype.toString = function() {
         return this.start.toString() + " - " + this.end.toString();
     }
 
-    Range_trackWhileExecuting = function(range,fun)
-    {
+    Range_trackWhileExecuting = function(range,fun) {
         if (range == null)
             return fun();
         else
             return Position_trackWhileExecuting([range.start,range.end],fun);
     }
 
-    Range_expand = function(range)
-    {
+    Range_expand = function(range) {
         var doc = range.start.node.ownerDocument;
         while ((range.start.offset == 0) && (range.start.node != doc.body)) {
             var offset = DOM_nodeOffset(range.start.node);
@@ -88,34 +82,29 @@ var Range_getText;
         }
     }
 
-    Range_isForwards = function(range)
-    {
+    Range_isForwards = function(range) {
         return (Position_compare(range.start,range.end) <= 0);
     }
 
-    Range_getAllNodes = function(range,atLeastOne)
-    {
+    Range_getAllNodes = function(range,atLeastOne) {
         var result = new Array();
         var outermost = Range_getOutermostNodes(range,atLeastOne);
         for (var i = 0; i < outermost.length; i++)
             addRecursive(outermost[i]);
         return result;
 
-        function addRecursive(node)
-        {
+        function addRecursive(node) {
             result.push(node);
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 addRecursive(child);
         }
     }
 
-    Range_singleNode = function(range)
-    {
+    Range_singleNode = function(range) {
         return Position_closestActualNode(range.start,true);
     }
 
-    Range_ensureInlineNodesInParagraph = function(range)
-    {
+    Range_ensureInlineNodesInParagraph = function(range) {
         Range_trackWhileExecuting(range,function() {
             var nodes = Range_getAllNodes(range,true);
             for (var i = 0; i < nodes.length; i++)
@@ -123,8 +112,7 @@ var Range_getText;
         });
     }
 
-    Range_ensureValidHierarchy = function(range,allowDirectInline)
-    {
+    Range_ensureValidHierarchy = function(range,allowDirectInline) {
         Range_trackWhileExecuting(range,function() {
             var nodes = Range_getAllNodes(range,true);
             for (var i = nodes.length-1; i >= 0; i--)
@@ -132,8 +120,7 @@ var Range_getText;
         });
     }
 
-    Range_forwards = function(range)
-    {
+    Range_forwards = function(range) {
         if (Range_isForwards(range)) {
             return range;
         }
@@ -146,8 +133,7 @@ var Range_getText;
         }
     }
 
-    Range_detail = function(range)
-    {
+    Range_detail = function(range) {
         if (!Range_isForwards(range)) {
             var reverse = new Range(range.end.node,range.end.offset,
                                     range.start.node,range.start.offset);
@@ -207,8 +193,7 @@ var Range_getText;
         throw new Error("Start and end of range have no common ancestor");
     }
 
-    Range_getOutermostNodes = function(range,atLeastOne,info)
-    {
+    Range_getOutermostNodes = function(range,atLeastOne,info) {
         var beforeNodes = new Array();
         var middleNodes = new Array();
         var afterNodes = new Array();
@@ -298,8 +283,7 @@ var Range_getText;
         else
             return result;
 
-        function getPreviousSibling(parent,child)
-        {
+        function getPreviousSibling(parent,child) {
             if (child != null)
                 return child.previousSibling;
             else if (parent.lastChild != null)
@@ -309,8 +293,7 @@ var Range_getText;
         }
 
         function isAncestorLocation(ancestorParent,ancestorChild,
-                                    descendantParent,descendantChild)
-        {
+                                    descendantParent,descendantChild) {
             while ((descendantParent != null) &&
                    ((descendantParent != ancestorParent) || (descendantChild != ancestorChild))) {
                 descendantChild = descendantParent;
@@ -322,8 +305,7 @@ var Range_getText;
         }
     }
 
-    Range_getClientRects = function(range)
-    {
+    Range_getClientRects = function(range) {
         var nodes = Range_getOutermostNodes(range,true);
 
         // WebKit in iOS 5.0 and 5.1 has a bug where if the selection spans multiple paragraphs,
@@ -366,8 +348,7 @@ var Range_getText;
         return result;
     }
 
-    Range_cloneContents = function(range)
-    {
+    Range_cloneContents = function(range) {
         var nodeSet = new NodeSet();
         var ancestorSet = new NodeSet();
         var detail = Range_detail(range);
@@ -410,8 +391,7 @@ var Range_getText;
 
         return childArray;
 
-        function recurse(parent)
-        {
+        function recurse(parent) {
             var clone = DOM_cloneNode(parent,false);
             for (var child = parent.firstChild; child != null; child = child.nextSibling) {
                 if (nodeSet.contains(child)) {
@@ -444,8 +424,7 @@ var Range_getText;
         }
     }
 
-    Range_hasContent = function(range)
-    {
+    Range_hasContent = function(range) {
         var outermost = Range_getOutermostNodes(range);
         for (var i = 0; i < outermost.length; i++) {
             var node = outermost[i];
@@ -476,8 +455,7 @@ var Range_getText;
         return false;
     }
 
-    Range_getText = function(range)
-    {
+    Range_getText = function(range) {
         range = Range_forwards(range);
 
         var start = range.start;
@@ -548,16 +526,14 @@ var Range_getText;
         }
         return components.join("");
 
-        function entering(n)
-        {
+        function entering(n) {
             if (isParagraphNode(n)) {
                 significantParagraph = true;
                 components.push("\n");
             }
         }
 
-        function exiting(n)
-        {
+        function exiting(n) {
             if (isParagraphNode(n))
                 significantParagraph = false;
         }

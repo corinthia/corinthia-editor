@@ -15,8 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-function figurePropertiesString(index)
-{
+function figurePropertiesString(index) {
     var figure = document.getElementsByTagName("FIGURE")[0];
     var parent = figure.parentNode;
     var offset = DOM_nodeOffset(figure);

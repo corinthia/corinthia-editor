@@ -15,12 +15,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-function findTextMatching(re)
-{
+function findTextMatching(re) {
     return recurse(document.body);
 
-    function recurse(node)
-    {
+    function recurse(node) {
         if (node.nodeType == Node.TEXT_NODE) {
             if (node.nodeValue.match(re))
                 return node;
@@ -38,8 +36,7 @@ function findTextMatching(re)
     }
 }
 
-function showCorrections()
-{
+function showCorrections() {
     var corrections = AutoCorrect_getCorrections();
     var lines = new Array();
     lines.push("Corrections:\n");
