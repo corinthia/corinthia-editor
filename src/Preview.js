@@ -36,7 +36,7 @@ var Preview_showForStyle;
         "magna velit ut lorem."
 
     function setTableCellContents(node) {
-        if (isTableCell(node)) {
+        if (Types_isTableCell(node)) {
             DOM_deleteAllChildren(node);
             DOM_appendChild(node,DOM_createTextNode(document,"Cell contents"));
         }
@@ -66,7 +66,7 @@ var Preview_showForStyle;
         Selection_clear();
         DOM_deleteAllChildren(document.body);
 
-        if (PARAGRAPH_ELEMENTS[ElementTypes[elementName]]) {
+        if (Types_PARAGRAPH_ELEMENTS[ElementTypes[elementName]]) {
             var paragraph1 = createParagraphElement(elementName,className);
             var paragraph2 = createParagraphElement(elementName,className);
             DOM_appendChild(paragraph1,title);

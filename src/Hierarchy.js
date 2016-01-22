@@ -59,7 +59,7 @@ var Hierarchy_avoidInlineChildren;
         var child = node.firstChild;
         while (true) {
             var next = (child != null) ? child.nextSibling : null;
-            if ((child == null) || !isInlineNode(child)) {
+            if ((child == null) || !Types_isInlineNode(child)) {
 
                 if ((firstInline != null) && (lastInline != null)) {
                     wrapInlineChildren(firstInline,lastInline,ancestors);
@@ -83,14 +83,14 @@ var Hierarchy_avoidInlineChildren;
     function checkInvalidNesting(node) {
         var parent = node.parentNode;
         if ((parent._type == HTML_DIV) &&
-            (DOM_getAttribute(parent,"class") == Keys.SELECTION_CLASS)) {
+            (DOM_getAttribute(parent,"class") == Types_Keys.SELECTION_CLASS)) {
             parent = parent.parentNode;
         }
 
-        var invalidNesting = !isContainerNode(parent);
+        var invalidNesting = !Types_isContainerNode(parent);
         switch (parent._type) {
         case HTML_DIV:
-            if (isParagraphNode(node) || isListNode(node))
+            if (Types_isParagraphNode(node) || Types_isListNode(node))
                 invalidNesting = false; // this case is ok
             break;
         case HTML_CAPTION:
@@ -173,13 +173,13 @@ var Hierarchy_avoidInlineChildren;
 
                 continue;
             }
-            else if (isContainerNode(node) || isParagraphNode(node)) {
+            else if (Types_isContainerNode(node) || Types_isParagraphNode(node)) {
                 var invalidNesting = checkInvalidNesting(node);
                 if (invalidNesting) {
                     var ancestors = new Array();
                     var child = node;
-                    while (!isContainerNode(child.parentNode)) {
-                        if (isInlineNode(child.parentNode)) {
+                    while (!Types_isContainerNode(child.parentNode)) {
+                        if (Types_isInlineNode(child.parentNode)) {
                             var keep = false;
                             if (child.parentNode._type == HTML_SPAN) {
                                 for (var i = 0; i < child.attributes.length; i++) {
@@ -201,7 +201,7 @@ var Hierarchy_avoidInlineChildren;
                         var offset = DOM_nodeOffset(node);
                         var parent = node.parentNode;
                         Formatting_moveFollowing(new Position(node.parentNode,offset+1),
-                                                 isContainerNode);
+                                                 Types_isContainerNode);
                         DOM_insertBefore(node.parentNode.parentNode,
                                          node,
                                          node.parentNode.nextSibling);
@@ -223,9 +223,9 @@ var Hierarchy_avoidInlineChildren;
             count++;
             if (count > 200)
                 throw new Error("too many iterations");
-            if (isInlineNode(node) &&
-                isContainerNode(node.parentNode) && (node.parentNode._type != HTML_LI) &&
-                (!weak || !isTableCell(node.parentNode)) &&
+            if (Types_isInlineNode(node) &&
+                Types_isContainerNode(node.parentNode) && (node.parentNode._type != HTML_LI) &&
+                (!weak || !Types_isTableCell(node.parentNode)) &&
                 !isWhitespaceTextNode(node)) {
                 Hierarchy_wrapInlineNodesInParagraph(node);
                 return;
@@ -239,9 +239,9 @@ var Hierarchy_avoidInlineChildren;
         var start = node;
         var end = node;
 
-        while ((start.previousSibling != null) && isInlineNode(start.previousSibling))
+        while ((start.previousSibling != null) && Types_isInlineNode(start.previousSibling))
             start = start.previousSibling;
-        while ((end.nextSibling != null) && isInlineNode(end.nextSibling))
+        while ((end.nextSibling != null) && Types_isInlineNode(end.nextSibling))
             end = end.nextSibling;
 
         return DOM_wrapSiblings(start,end,"P");
@@ -251,11 +251,11 @@ var Hierarchy_avoidInlineChildren;
         var child = parent.firstChild;
 
         while (child != null) {
-            if (isInlineNode(child)) {
+            if (Types_isInlineNode(child)) {
                 var start = child;
                 var end = child;
                 var haveContent = nodeHasContent(end);
-                while ((end.nextSibling != null) && isInlineNode(end.nextSibling)) {
+                while ((end.nextSibling != null) && Types_isInlineNode(end.nextSibling)) {
                     end = end.nextSibling;
                     if (nodeHasContent(end))
                         haveContent = true;

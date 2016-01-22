@@ -1027,7 +1027,7 @@ var TableRegion_splitCells;
     // public
     Tables_findContainingCell = function(node) {
         for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {
-            if (isTableCell(ancestor))
+            if (Types_isTableCell(ancestor))
                 return ancestor;
         }
         return null;
@@ -1067,7 +1067,7 @@ var TableRegion_splitCells;
         var startTD = Tables_findContainingCell(start);
         var endTD = Tables_findContainingCell(end);
 
-        if (!isTableCell(start) || !isTableCell(end)) {
+        if (!Types_isTableCell(start) || !Types_isTableCell(end)) {
             if (!allowSameCell) {
                 if (startTD == endTD) // not in cell, or both in same cell
                     return null;

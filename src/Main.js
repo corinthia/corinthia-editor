@@ -258,12 +258,12 @@ var Main_clientRectsBug;
         if ((node.nodeType == Node.ELEMENT_NODE) && node.hasAttribute("class"))
             cssClass = node.getAttribute("class");
 
-        if ((cssClass == Keys.HEADING_NUMBER) ||
-            (cssClass == Keys.FIGURE_NUMBER) ||
-            (cssClass == Keys.TABLE_NUMBER) ||
-            (cssClass == Keys.AUTOCORRECT_CLASS) ||
-            (cssClass == Keys.SELECTION_CLASS) ||
-            (cssClass == Keys.SELECTION_HIGHLIGHT)) {
+        if ((cssClass == Types_Keys.HEADING_NUMBER) ||
+            (cssClass == Types_Keys.FIGURE_NUMBER) ||
+            (cssClass == Types_Keys.TABLE_NUMBER) ||
+            (cssClass == Types_Keys.AUTOCORRECT_CLASS) ||
+            (cssClass == Types_Keys.SELECTION_CLASS) ||
+            (cssClass == Types_Keys.SELECTION_HIGHLIGHT)) {
             DOM_removeNodeButKeepChildren(node);
         }
         else if ((node._type == HTML_META) &&

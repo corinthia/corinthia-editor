@@ -124,12 +124,12 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                 range.start.offset = 0;
             }
             else if (range.start.node.nodeType == Node.ELEMENT_NODE) {
-                Formatting_movePreceding(range.start,isBlockOrNoteNode);
+                Formatting_movePreceding(range.start,Types_isBlockOrNoteNode);
             }
             else {
                 Formatting_movePreceding(new Position(range.start.node.parentNode,
                                                       DOM_nodeOffset(range.start.node)),
-                                         isBlockOrNoteNode);
+                                         Types_isBlockOrNoteNode);
             }
 
             // Save the start and end position of the range. The mutation listeners will move it
@@ -144,12 +144,12 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                 Formatting_splitTextAfter(range.end);
             }
             else if (range.end.node.nodeType == Node.ELEMENT_NODE) {
-                Formatting_moveFollowing(range.end,isBlockOrNoteNode);
+                Formatting_moveFollowing(range.end,Types_isBlockOrNoteNode);
             }
             else {
                 Formatting_moveFollowing(new Position(range.end.node.parentNode,
                                                       DOM_nodeOffset(range.end.node)+1),
-                                         isBlockOrNoteNode);
+                                         Types_isBlockOrNoteNode);
             }
 
             range.start.node = startNode;
@@ -172,10 +172,10 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         if (node.nodeType != Node.ELEMENT_NODE)
             return false;
 
-        if (!isInlineNode(node))
+        if (!Types_isInlineNode(node))
             return false;
 
-        if (isOpaqueNode(node))
+        if (Types_isOpaqueNode(node))
             return false;
 
         for (var child = node.firstChild; child != null; child = child.nextSibling) {
@@ -244,7 +244,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         var node = pos.node;
         var offset = pos.offset;
         if (parentCheckFn == null)
-            parentCheckFn = isBlockNode;
+            parentCheckFn = Types_isBlockNode;
 
         if (force || (offset > 0)) {
             var before = DOM_createTextNode(document,"");
@@ -266,7 +266,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         var node = pos.node;
         var offset = pos.offset;
         if (parentCheckFn == null)
-            parentCheckFn = isBlockNode;
+            parentCheckFn = Types_isBlockNode;
 
         if (force || (offset < pos.node.nodeValue.length)) {
             var after = DOM_createTextNode(document,"");
@@ -371,7 +371,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         function stringToStartOfParagraph(node,offset) {
             var start = node;
             var components = new Array();
-            while (isInlineNode(node)) {
+            while (Types_isInlineNode(node)) {
                 if (node.nodeType == Node.TEXT_NODE) {
                     if (node == start)
                         components.push(node.nodeValue.slice(0,offset));
@@ -381,7 +381,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 
                 if (node.previousSibling != null) {
                     node = node.previousSibling;
-                    while (isInlineNode(node) && (node.lastChild != null))
+                    while (Types_isInlineNode(node) && (node.lastChild != null))
                         node = node.lastChild;
                 }
                 else {
@@ -415,7 +415,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
             if (!isWhitespaceTextNode(leafNodes[i]) || empty) {
                 var leafNodeProperties = Formatting_getAllNodeProperties(leafNodes[i]);
                 if (leafNodeProperties["-uxwrite-paragraph-style"] == null)
-                    leafNodeProperties["-uxwrite-paragraph-style"] = Keys.NONE_STYLE;
+                    leafNodeProperties["-uxwrite-paragraph-style"] = Types_Keys.NONE_STYLE;
                 if (commonProperties == null)
                     commonProperties = leafNodeProperties;
                 else
@@ -424,7 +424,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         }
 
         if (commonProperties == null)
-            commonProperties = {"-uxwrite-paragraph-style": Keys.NONE_STYLE};
+            commonProperties = {"-uxwrite-paragraph-style": Types_Keys.NONE_STYLE};
 
         for (var i = 0; i < leafNodes.length; i++) {
             var leaf = leafNodes[i];
@@ -476,7 +476,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 
             if (isWhitespaceString(strBeforeCursor)) {
                 var firstInParagraph = true;
-                for (var p = pos.node; isInlineNode(p); p = p.parentNode) {
+                for (var p = pos.node; Types_isInlineNode(p); p = p.parentNode) {
                     if (p.previousSibling != null)
                         firstInParagraph = false;
                 }
@@ -573,14 +573,14 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                 break;
             case HTML_NAV: {
                 var className = DOM_getAttribute(node,"class");
-                if ((className == Keys.SECTION_TOC) ||
-                    (className == Keys.FIGURE_TOC) ||
-                    (className == Keys.TABLE_TOC))
+                if ((className == Types_Keys.SECTION_TOC) ||
+                    (className == Types_Keys.FIGURE_TOC) ||
+                    (className == Types_Keys.TABLE_TOC))
                     properties["-uxwrite-in-toc"] = "true";
                 break;
             }
             default:
-                if (PARAGRAPH_ELEMENTS[type]) {
+                if (Types_PARAGRAPH_ELEMENTS[type]) {
                     var name = node.nodeName.toLowerCase();
                     var selector;
                     if (node.hasAttribute("class"))
@@ -592,7 +592,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                 break;
             }
 
-            if (OUTLINE_TITLE_ELEMENTS[type] && node.hasAttribute("id"))
+            if (Types_OUTLINE_TITLE_ELEMENTS[type] && node.hasAttribute("id"))
                 properties["-uxwrite-in-item-title"] = node.getAttribute("id");
         }
 
@@ -655,7 +655,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     function putDirectInlineChildrenInParagraphs(parent) {
         var inlineChildren = new Array();
         for (var child = parent.firstChild; child != null; child = child.nextSibling)
-            if (isInlineNode(child))
+            if (Types_isInlineNode(child))
                 inlineChildren.push(child);
         for (var i = 0; i < inlineChildren.length; i++) {
             if (inlineChildren[i].parentNode == parent) { // may already have been moved
@@ -697,7 +697,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
             if (node.firstChild == null) {
                 // Leaf node
                 for (var anc = node; anc != null; anc = anc.parentNode)
-                    if (isParagraphNode(anc)) {
+                    if (Types_isParagraphNode(anc)) {
                         add(anc);
                     }
             }
@@ -717,7 +717,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 
     // private
     function setParagraphStyle(paragraph,selector) {
-        var wasHeading = isHeadingNode(paragraph);
+        var wasHeading = Types_isHeadingNode(paragraph);
         DOM_removeAttribute(paragraph,"class");
         if (selector == "") {
             if (paragraph._type != HTML_P)
@@ -737,7 +737,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 
                 var elementType = ElementTypes[elementName];
 
-                if (!PARAGRAPH_ELEMENTS[elementType])
+                if (!Types_PARAGRAPH_ELEMENTS[elementType])
                     return; // better than throwing an exception
 
                 if (paragraph._type != elementType)
@@ -752,7 +752,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 
         // FIXME: this will need to change when we add Word/ODF support, because the ids serve
         // a purpose other than simply being targets for references
-        var isHeading = isHeadingNode(paragraph);
+        var isHeading = Types_isHeadingNode(paragraph);
         if (wasHeading && !isHeading)
             DOM_removeAttribute(paragraph,"id");
     }
@@ -837,7 +837,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 
     // private
     function wrapInline(node,elementName) {
-        if (!isInlineNode(node) || isAbstractSpan(node)) {
+        if (!Types_isInlineNode(node) || Types_isAbstractSpan(node)) {
             var next;
             for (var child = node.firstChild; child != null; child = next) {
                 next = child.nextSibling;
@@ -1005,10 +1005,10 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 
     function isSpecialSpan(span) {
         if (span._type == HTML_SPAN) {
-            if (span.hasAttribute(Keys.ABSTRACT_ELEMENT))
+            if (span.hasAttribute(Types_Keys.ABSTRACT_ELEMENT))
                 return true;
             var className = DOM_getStringAttribute(span,"class");
-            if (className.indexOf(Keys.UXWRITE_PREFIX) == 0)
+            if (className.indexOf(Types_Keys.UXWRITE_PREFIX) == 0)
                 return true;
             if ((className == "footnote") || (className == "endnote"))
                 return true;
@@ -1039,7 +1039,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         if (properties == null)
             properties = new Object();
 
-        if (style == Keys.NONE_STYLE)
+        if (style == Types_Keys.NONE_STYLE)
             style = null;
 
         var paragraphProperties = new Object();
@@ -1074,9 +1074,9 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 
         if ((style != null) && Range_isEmpty(selectionRange)) {
             var node = Range_singleNode(selectionRange);
-            while (isInlineNode(node))
+            while (Types_isInlineNode(node))
                 node = node.parentNode;
-            if (isContainerNode(node) && containsOnlyInlineChildren(node)) {
+            if (Types_isContainerNode(node) && containsOnlyInlineChildren(node)) {
                 var p = DOM_createElement(document,"P");
                 DOM_appendChild(node,p);
                 while (node.firstChild != p)
@@ -1173,7 +1173,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 
         function containsOnlyInlineChildren(node) {
             for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                if (!isInlineNode(child))
+                if (!Types_isInlineNode(child))
                     return false;
             }
             return true;

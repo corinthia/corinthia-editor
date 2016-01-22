@@ -369,7 +369,7 @@ var Range_getText;
         var clone = recurse(detail.commonAncestor);
 
         var ancestor = detail.commonAncestor;
-        while (isInlineNode(ancestor)) {
+        while (Types_isInlineNode(ancestor)) {
             var ancestorClone = DOM_cloneNode(ancestor.parentNode,false);
             DOM_appendChild(ancestorClone,clone);
             ancestor = ancestor.parentNode;
@@ -527,14 +527,14 @@ var Range_getText;
         return components.join("");
 
         function entering(n) {
-            if (isParagraphNode(n)) {
+            if (Types_isParagraphNode(n)) {
                 significantParagraph = true;
                 components.push("\n");
             }
         }
 
         function exiting(n) {
-            if (isParagraphNode(n))
+            if (Types_isParagraphNode(n))
                 significantParagraph = false;
         }
     }

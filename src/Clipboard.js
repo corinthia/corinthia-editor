@@ -87,7 +87,7 @@ var Clipboard_pasteNodes;
 
         var foundNonWhitespaceChild = false;
         for (var child = node.firstChild; child != null; child = child.nextSibling) {
-            if (isContainerNode(child) || isParagraphNode(child)) {
+            if (Types_isContainerNode(child) || Types_isParagraphNode(child)) {
                 beginParagraph(md,linesBetweenChildren,indent,nextIndent);
                 blockToText(md,child,indent,nextIndent,listType,listNo);
                 beginParagraph(md,linesBetweenChildren);
@@ -230,7 +230,7 @@ var Clipboard_pasteNodes;
         md.preDepth = 0;
         resetBuild(md);
 
-        if (isContainerNode(node) || isParagraphNode(node)) {
+        if (Types_isContainerNode(node) || Types_isParagraphNode(node)) {
             blockToText(md,node,"","","UL",{value: 1});
             beginParagraph(md);
             return md.allText.join("");
@@ -491,7 +491,7 @@ var Clipboard_pasteNodes;
     }
 
     function fixParagraphStyles(node,paragraphClass) {
-        if (isParagraphNode(node)) {
+        if (Types_isParagraphNode(node)) {
             if (node._type == HTML_P) {
                 var className = DOM_getAttribute(node,"class");
                 if ((className == null) || (className == "")) {
@@ -579,7 +579,7 @@ var Clipboard_pasteNodes;
         var containerParent = null;
 
         for (var temp = parent; temp != null; temp = temp.parentNode) {
-            if (isContainerNode(temp)) {
+            if (Types_isContainerNode(temp)) {
                 switch (temp._type) {
                 case HTML_LI:
                     inItem = temp;
@@ -689,7 +689,7 @@ var Clipboard_pasteNodes;
             while (true) {
                 if (pos.node == document.body)
                     break;
-                if (isContainerNode(pos.node) && (pos.node._type != HTML_LI))
+                if (Types_isContainerNode(pos.node) && (pos.node._type != HTML_LI))
                     break;
                 if (!nodeHasContent(pos.node)) {
                     var oldNode = pos.node;
@@ -703,7 +703,7 @@ var Clipboard_pasteNodes;
         });
 
         pos = new Position(pastedRange.end.node,pastedRange.end.offset);
-        while (isOpaqueNode(pos.node))
+        while (Types_isOpaqueNode(pos.node))
             pos = new Position(pos.node.parentNode,DOM_nodeOffset(pos.node)+1);
         pos = Position_closestMatchBackwards(pos,Position_okForInsertion);
 

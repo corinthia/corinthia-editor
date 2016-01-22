@@ -203,11 +203,11 @@ var Outline_scheduleUpdateStructure;
             if (!printMode) {
                 var str = "";
 
-                if (cls == Keys.SECTION_TOC)
+                if (cls == Types_Keys.SECTION_TOC)
                     str = "[No sections defined]";
-                else if (cls == Keys.FIGURE_TOC)
+                else if (cls == Types_Keys.FIGURE_TOC)
                     str = "[No figures defined]";
-                else if (cls == Keys.TABLE_TOC)
+                else if (cls == Types_Keys.TABLE_TOC)
                     str = "[No tables defined]";
 
                 var text = DOM_createTextNode(document,str);
@@ -293,11 +293,11 @@ var Outline_scheduleUpdateStructure;
         DOM_appendChild(this.spareSpan,DOM_createTextNode(document,""));
         var spanClass = null;
         if (this.type == "section")
-            spanClass = Keys.HEADING_NUMBER;
+            spanClass = Types_Keys.HEADING_NUMBER;
         else if (this.type == "figure")
-            spanClass = Keys.FIGURE_NUMBER;
+            spanClass = Types_Keys.FIGURE_NUMBER;
         else if (this.type == "table")
-            spanClass = Keys.TABLE_NUMBER;
+            spanClass = Types_Keys.TABLE_NUMBER;
         DOM_setAttribute(this.spareSpan,"class",spanClass);
 
         // titleNode
@@ -431,7 +431,7 @@ var Outline_scheduleUpdateStructure;
     // private
     function acceptNode(node) {
         for (var p = node; p != null; p = p.parentNode) {
-            if ((p._type == HTML_SPAN) && (p.getAttribute("class") == Keys.HEADING_NUMBER))
+            if ((p._type == HTML_SPAN) && (p.getAttribute("class") == Types_Keys.HEADING_NUMBER))
                 return false;
         }
         return true;
@@ -460,7 +460,7 @@ var Outline_scheduleUpdateStructure;
             case HTML_H4:
             case HTML_H5:
             case HTML_H6: {
-                if (!isInTOC(node))
+                if (!Types_isInTOC(node))
                     Category_add(sections,node);
                 break;
             }
@@ -471,18 +471,18 @@ var Outline_scheduleUpdateStructure;
                 Category_add(tables,node);
                 break;
             case HTML_A: {
-                if (isRefNode(node) && !isInTOC(node)) {
+                if (Types_isRefNode(node) && !Types_isInTOC(node)) {
                     refInserted(node);
                 }
                 break;
             }
             case HTML_NAV: {
                 var cls = node.getAttribute("class");
-                if (cls == Keys.SECTION_TOC)
+                if (cls == Types_Keys.SECTION_TOC)
                     Category_addTOC(sections,node);
-                else if (cls == Keys.FIGURE_TOC)
+                else if (cls == Types_Keys.FIGURE_TOC)
                     Category_addTOC(figures,node);
-                else if (cls == Keys.TABLE_TOC)
+                else if (cls == Types_Keys.TABLE_TOC)
                     Category_addTOC(tables,node);
                 break;
             }
@@ -519,7 +519,7 @@ var Outline_scheduleUpdateStructure;
             case HTML_H4:
             case HTML_H5:
             case HTML_H6:
-                if (!isInTOC(node))
+                if (!Types_isInTOC(node))
                     Category_remove(sections,node);
                 break;
             case HTML_FIGURE:
@@ -529,16 +529,16 @@ var Outline_scheduleUpdateStructure;
                 Category_remove(tables,node);
                 break;
             case HTML_A:
-                if (isRefNode(node) && !isInTOC(node))
+                if (Types_isRefNode(node) && !Types_isInTOC(node))
                     refRemoved(node);
                 break;
             case HTML_NAV:
                 var cls = node.getAttribute("class");
-                if (cls == Keys.SECTION_TOC)
+                if (cls == Types_Keys.SECTION_TOC)
                     Category_removeTOC(sections,node);
-                else if (cls == Keys.FIGURE_TOC)
+                else if (cls == Types_Keys.FIGURE_TOC)
                     Category_removeTOC(figures,node);
-                else if (cls == Keys.TABLE_TOC)
+                else if (cls == Types_Keys.TABLE_TOC)
                     Category_removeTOC(tables,node);
                 break;
             }
@@ -936,7 +936,7 @@ var Outline_scheduleUpdateStructure;
             }
 
             function isNonTOCHeadingNode(node) {
-                return (HEADING_ELEMENTS[node._type] && !isInTOC(node));
+                return (Types_HEADING_ELEMENTS[node._type] && !Types_isInTOC(node));
             }
 
             sections = new Category("section",isNonTOCHeadingNode,sectionNumberRegex);
@@ -1158,17 +1158,17 @@ var Outline_scheduleUpdateStructure;
 
     // public
     Outline_insertTableOfContents = function() {
-        insertTOC(Keys.SECTION_TOC);
+        insertTOC(Types_Keys.SECTION_TOC);
     }
 
     // public
     Outline_insertListOfFigures = function() {
-        insertTOC(Keys.FIGURE_TOC);
+        insertTOC(Types_Keys.FIGURE_TOC);
     }
 
     // public
     Outline_insertListOfTables = function() {
-        insertTOC(Keys.TABLE_TOC);
+        insertTOC(Types_Keys.TABLE_TOC);
     }
 
     // public

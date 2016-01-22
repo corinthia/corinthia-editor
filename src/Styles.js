@@ -70,12 +70,12 @@ var Styles_init;
 
         if ((nextElementName == null) ||
             (ElementTypes[nextElementName] == null) ||
-            (!PARAGRAPH_ELEMENTS[ElementTypes[nextElementName]])) {
+            (!Types_PARAGRAPH_ELEMENTS[ElementTypes[nextElementName]])) {
             nextElementName = null;
             nextClassName = null;
         }
 
-        if (isHeadingNode(element)) {
+        if (Types_isHeadingNode(element)) {
             nextElementName = "p";
             nextClassName = Styles_getParagraphClass();
         }

@@ -685,7 +685,7 @@ var DOM_Listener;
             return false;
 
         function elementsMergableTypes(a,b) {
-            if (whiteList["force"] && isParagraphNode(a) && isParagraphNode(b))
+            if (whiteList["force"] && Types_isParagraphNode(a) && Types_isParagraphNode(b))
                 return true;
             if ((a._type == b._type) &&
                 whiteList[a._type] &&

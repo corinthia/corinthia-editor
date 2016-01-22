@@ -70,7 +70,7 @@ var AutoCorrect_replaceCorrection;
         }
 
         function recurse(node) {
-            if (isAutoCorrectNode(node))
+            if (Types_isAutoCorrectNode(node))
                 AutoCorrect_addCorrection(node);
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
@@ -87,7 +87,7 @@ var AutoCorrect_replaceCorrection;
         }
 
         function recurse(node) {
-            if (isAutoCorrectNode(node))
+            if (Types_isAutoCorrectNode(node))
                 AutoCorrect_removeCorrection(node);
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
@@ -170,7 +170,7 @@ var AutoCorrect_replaceCorrection;
             var beforeText = DOM_createTextNode(document,before);
             var replacementText = DOM_createTextNode(document,replacement);
             var span = DOM_createElement(document,"SPAN");
-            DOM_setAttribute(span,"class",Keys.AUTOCORRECT_CLASS);
+            DOM_setAttribute(span,"class",Types_Keys.AUTOCORRECT_CLASS);
             DOM_setAttribute(span,"original",original);
             DOM_appendChild(span,replacementText);
             DOM_insertBefore(node.parentNode,beforeText,node);
@@ -219,7 +219,7 @@ var AutoCorrect_replaceCorrection;
         if (range != null) {
             var endNode = Position_closestActualNode(range.end);
             for (; endNode != null; endNode = endNode.parentNode) {
-                if (isAutoCorrectNode(endNode))
+                if (Types_isAutoCorrectNode(endNode))
                     return correctionsByNode.get(endNode);
             }
         }

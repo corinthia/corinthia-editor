@@ -55,7 +55,7 @@
         }
 
         function recurse(node) {
-            if (isSelectionHighlight(node)) {
+            if (Types_isSelectionHighlight(node)) {
                 checkMerge.push(node.firstChild);
                 checkMerge.push(node.lastChild);
                 DOM_removeNodeButKeepChildren(node);

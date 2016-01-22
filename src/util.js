@@ -105,7 +105,7 @@ function nodeHasContent(node) {
     case HTML_TABLE:
         return true;
     default:
-        if (isOpaqueNode(node))
+        if (Types_isOpaqueNode(node))
             return true;
 
         for (var child = node.firstChild; child != null; child = child.nextSibling) {

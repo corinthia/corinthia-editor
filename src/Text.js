@@ -70,7 +70,7 @@ var Text_toEndOfBoundary;
         var endOffset = pos.offset;
         var node = pos.node;
 
-        while (isInlineNode(node)) {
+        while (Types_isInlineNode(node)) {
             startOffset = DOM_nodeOffset(node);
             endOffset = DOM_nodeOffset(node)+1;
             node = node.parentNode;
@@ -79,9 +79,9 @@ var Text_toEndOfBoundary;
         if (node.nodeType != Node.ELEMENT_NODE)
             throw new Error("Not an element node: "+nodeString(node));
 
-        while ((startOffset > 0) && isInlineNode(node.childNodes[startOffset-1]))
+        while ((startOffset > 0) && Types_isInlineNode(node.childNodes[startOffset-1]))
             startOffset--;
-        while ((endOffset < node.childNodes.length) && isInlineNode(node.childNodes[endOffset]))
+        while ((endOffset < node.childNodes.length) && Types_isInlineNode(node.childNodes[endOffset]))
             endOffset++;
 
         return { node: node, startOffset: startOffset, endOffset: endOffset };
@@ -411,7 +411,7 @@ var Text_toEndOfBoundary;
     Paragraph_getRunOrFallbackRects = function(paragraph,pos) {
         var rects = Paragraph_getRunRects(paragraph);
         if ((rects.length == 0) && (paragraph.node.nodeType == Node.ELEMENT_NODE)) {
-            if (isBlockNode(paragraph.node) &&
+            if (Types_isBlockNode(paragraph.node) &&
                 (paragraph.startOffset == 0) &&
                 (paragraph.endOffset == paragraph.node.childNodes.length)) {
                 rects = [paragraph.node.getBoundingClientRect()];
@@ -419,10 +419,10 @@ var Text_toEndOfBoundary;
             else {
                 var beforeNode = paragraph.node.childNodes[paragraph.startOffset-1];
                 var afterNode = paragraph.node.childNodes[paragraph.endOffset];
-                if ((afterNode != null) && isBlockNode(afterNode)) {
+                if ((afterNode != null) && Types_isBlockNode(afterNode)) {
                     rects = [afterNode.getBoundingClientRect()];
                 }
-                else if ((beforeNode != null) && isBlockNode(beforeNode)) {
+                else if ((beforeNode != null) && Types_isBlockNode(beforeNode)) {
                     rects = [beforeNode.getBoundingClientRect()];
                 }
             }

@@ -264,7 +264,7 @@ function setNumbering(enabled) {
         case HTML_H6:
         case HTML_FIGURE:
         case HTML_TABLE:
-            if (!isInTOC(node)) {
+            if (!Types_isInTOC(node)) {
                 Outline_setNumbered(node.getAttribute("id"),enabled);
                 return;
             }

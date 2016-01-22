@@ -301,7 +301,7 @@ var Position_atPoint;
     }
 
     function nodeCausesLineBreak(node) {
-        return ((node._type == HTML_BR) || !isInlineNode(node));
+        return ((node._type == HTML_BR) || !Types_isInlineNode(node));
     }
 
     function spacesUntilNextContent(node) {
@@ -327,7 +327,7 @@ var Position_atPoint;
 
             if ((node == null) || nodeCausesLineBreak(node))
                 return null;
-            if (isOpaqueNode(node))
+            if (Types_isOpaqueNode(node))
                 return spaces;
             if (node.nodeType == Node.TEXT_NODE) {
                 if (isWhitespaceTextNode(node)) {
@@ -350,7 +350,7 @@ var Position_atPoint;
         var offset = pos.offset;
         var type = node._type;
 
-        if (isOpaqueNode(node))
+        if (Types_isOpaqueNode(node))
             return false;
 
         for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {
@@ -410,8 +410,8 @@ var Position_atPoint;
                         return true;
                     }
                     if (insertion && (node.previousSibling != null) &&
-                        isInlineNode(node.previousSibling) &&
-                        !isOpaqueNode(node.previousSibling) &&
+                        Types_isInlineNode(node.previousSibling) &&
+                        !Types_isOpaqueNode(node.previousSibling) &&
                         (node.previousSibling._type != HTML_BR))
                         return true;
                 }
@@ -426,10 +426,10 @@ var Position_atPoint;
                 return (haveNextChar &&
                         ((node.previousSibling == null) ||
                          (node.previousSibling._type == HTML_BR) ||
-                         isNoteNode(node.previousSibling) ||
-                         (isParagraphNode(node.previousSibling)) ||
+                         Types_isNoteNode(node.previousSibling) ||
+                         (Types_isParagraphNode(node.previousSibling)) ||
                          (getNodeText(node.previousSibling).match(/\s$/)) ||
-                         isItemNumber(node.previousSibling) ||
+                         Types_isItemNumber(node.previousSibling) ||
                          ((precedingText.length > 0))));
             }
 
@@ -437,7 +437,7 @@ var Position_atPoint;
             if (isWhitespaceString(followingText)) {
                 return (havePrevChar &&
                         ((node.nextSibling == null) ||
-                         isNoteNode(node.nextSibling) ||
+                         Types_isNoteNode(node.nextSibling) ||
                          (followingText.length > 0) ||
                          (spacesUntilNextContent(node) != 0)));
             }
@@ -452,7 +452,7 @@ var Position_atPoint;
                 case HTML_TD:
                     return true;
                 default:
-                    if (PARAGRAPH_ELEMENTS[type])
+                    if (Types_PARAGRAPH_ELEMENTS[type])
                         return true;
                     else
                         break;
@@ -464,8 +464,8 @@ var Position_atPoint;
             var prevType = (prevNode != null) ? prevNode._type : 0;
             var nextType = (nextNode != null) ? nextNode._type : 0;
 
-            var prevIsNote = (prevNode != null) && isNoteNode(prevNode);
-            var nextIsNote = (nextNode != null) && isNoteNode(nextNode);
+            var prevIsNote = (prevNode != null) && Types_isNoteNode(prevNode);
+            var nextIsNote = (nextNode != null) && Types_isNoteNode(nextNode);
             if (((nextNode == null) || !nodeHasContent(nextNode)) && prevIsNote)
                 return true;
             if (((prevNode == null) || !nodeHasContent(prevNode)) && nextIsNote)
@@ -474,24 +474,24 @@ var Position_atPoint;
                 return true;
 
             if ((prevNode == null) && (nextNode == null) &&
-                (CONTAINERS_ALLOWING_CHILDREN[type] ||
-                (isInlineNode(node) && !isOpaqueNode(node) && (type != HTML_BR))))
+                (Types_CONTAINERS_ALLOWING_CHILDREN[type] ||
+                (Types_isInlineNode(node) && !Types_isOpaqueNode(node) && (type != HTML_BR))))
                 return true;
 
-            if ((prevNode != null) && isSpecialBlockNode(prevNode))
+            if ((prevNode != null) && Types_isSpecialBlockNode(prevNode))
                 return true;
-            if ((nextNode != null) && isSpecialBlockNode(nextNode))
+            if ((nextNode != null) && Types_isSpecialBlockNode(nextNode))
                 return true;
 
-            if ((nextNode != null) && isItemNumber(nextNode))
+            if ((nextNode != null) && Types_isItemNumber(nextNode))
                 return false;
-            if ((prevNode != null) && isItemNumber(prevNode))
+            if ((prevNode != null) && Types_isItemNumber(prevNode))
                 return ((nextNode == null) || isWhitespaceTextNode(nextNode));
 
             if ((nextNode != null) && (nextType == HTML_BR))
                 return ((prevType == 0) || (prevType != HTML_TEXT));
 
-            if ((prevNode != null) && (isOpaqueNode(prevNode) || (prevType == HTML_TABLE))) {
+            if ((prevNode != null) && (Types_isOpaqueNode(prevNode) || (prevType == HTML_TABLE))) {
 
                 switch (nextType) {
                 case 0:
@@ -499,17 +499,17 @@ var Position_atPoint;
                 case HTML_TABLE:
                     return true;
                 default:
-                    return isOpaqueNode(nextNode);
+                    return Types_isOpaqueNode(nextNode);
                 }
             }
-            if ((nextNode != null) && (isOpaqueNode(nextNode) || (nextType == HTML_TABLE))) {
+            if ((nextNode != null) && (Types_isOpaqueNode(nextNode) || (nextType == HTML_TABLE))) {
                 switch (prevType) {
                 case 0:
                 case HTML_TEXT:
                 case HTML_TABLE:
                     return true;
                 default:
-                    return isOpaqueNode(prevNode);
+                    return Types_isOpaqueNode(prevNode);
                 }
             }
         }
@@ -624,7 +624,7 @@ var Position_atPoint;
             return rects[0];
         }
 
-        if (isParagraphNode(pos.node) && (pos.offset == 0)) {
+        if (Types_isParagraphNode(pos.node) && (pos.offset == 0)) {
             var rect = pos.node.getBoundingClientRect();
             if (!rectIsEmpty(rect))
                 return rect;
@@ -674,7 +674,7 @@ var Position_atPoint;
     Position_noteAncestor = function(pos) {
         var node = Position_closestActualNode(pos);
         for (; node != null; node = node.parentNode) {
-            if (isNoteNode(node))
+            if (Types_isNoteNode(node))
                 return node;
         }
         return null;
@@ -710,16 +710,16 @@ var Position_atPoint;
             var after = node.childNodes[offset];
 
             // Cursor is immediately before table -> return table rect
-            if ((before != null) && isSpecialBlockNode(before))
+            if ((before != null) && Types_isSpecialBlockNode(before))
                 return zeroWidthRightRect(before.getBoundingClientRect());
 
             // Cursor is immediately after table -> return table rect
-            else if ((after != null) && isSpecialBlockNode(after))
+            else if ((after != null) && Types_isSpecialBlockNode(after))
                 return zeroWidthLeftRect(after.getBoundingClientRect());
 
             // Start of empty paragraph
             if ((node.nodeType == Node.ELEMENT_NODE) && (offset == 0) &&
-                isParagraphNode(node) && !nodeHasContent(node)) {
+                Types_isParagraphNode(node) && !nodeHasContent(node)) {
                 return zeroWidthLeftRect(node.getBoundingClientRect());
             }
 
@@ -781,8 +781,8 @@ var Position_atPoint;
         if ((pos.node.nodeType == Node.ELEMENT_NODE)) {
             var before = pos.node.childNodes[pos.offset-1];
             var after = pos.node.childNodes[pos.offset];
-            if (((before != null) && isNoteNode(before)) ||
-                ((after != null) && isNoteNode(after))) {
+            if (((before != null) && Types_isNoteNode(before)) ||
+                ((after != null) && Types_isNoteNode(after))) {
                 var rect = tempSpaceRect(pos.node,pos.node.childNodes[pos.offset]);
                 if (rect != null)
                     return zeroWidthLeftRect(rect);
@@ -956,7 +956,7 @@ var Position_atPoint;
     function posOutsideSelection(pos) {
         pos = Position_preferElementPosition(pos);
 
-        if (!isSelectionSpan(pos.node))
+        if (!Types_isSelectionSpan(pos.node))
             return pos;
 
         if (pos.offset == 0)
@@ -1011,13 +1011,13 @@ var Position_atPoint;
                 var nextNode = outside.node;
                 var nextOffset = outside.offset+1;
 
-                if (isSelectionSpan(next) && (next.firstChild != null)) {
+                if (Types_isSelectionSpan(next) && (next.firstChild != null)) {
                     nextNode = next;
                     nextOffset = 1;
                     next = next.firstChild;
                 }
 
-                if ((next != null) && isEmptyNoteNode(next)) {
+                if ((next != null) && Types_isEmptyNoteNode(next)) {
                     var rect = next.getBoundingClientRect();
                     if (x > rect.right)
                         return new Position(nextNode,nextOffset);
@@ -1033,7 +1033,7 @@ var Position_atPoint;
     // This is used for nodes that can potentially be the right match for a hit test, but for
     // which caretRangeFromPoint() returns the wrong result
     function nodeMayContainPos(node) {
-        return ((node._type == HTML_IMG) || isEmptyNoteNode(node));
+        return ((node._type == HTML_IMG) || Types_isEmptyNoteNode(node));
     }
 
     function elementContainsPoint(element,x,y) {

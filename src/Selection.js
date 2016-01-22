@@ -155,7 +155,7 @@ var Selection_print;
             y += window.scrollY;
 
             var div = makeSelectionDiv();
-            DOM_setAttribute(div,"class",Keys.SELECTION_HIGHLIGHT);
+            DOM_setAttribute(div,"class",Types_Keys.SELECTION_HIGHLIGHT);
             DOM_setStyleProperties(div,{ "position": "absolute",
                                          "left": x+"px",
                                          "top": y+"px",
@@ -237,7 +237,7 @@ var Selection_print;
 
     function getPrevHighlightText(node) {
         if ((node.previousSibling != null) &&
-            isSelectionHighlight(node.previousSibling) &&
+            Types_isSelectionHighlight(node.previousSibling) &&
             (node.previousSibling.lastChild != null) &&
             (node.previousSibling.lastChild.nodeType == Node.TEXT_NODE))
             return node.previousSibling.lastChild;
@@ -247,7 +247,7 @@ var Selection_print;
 
     function getNextHighlightText(node) {
         if ((node.nextSibling != null) &&
-            isSelectionHighlight(node.nextSibling) &&
+            Types_isSelectionHighlight(node.nextSibling) &&
             (node.nextSibling.firstChild != null) &&
             (node.nextSibling.firstChild.nodeType == Node.TEXT_NODE))
             return node.nextSibling.firstChild;
@@ -295,17 +295,17 @@ var Selection_print;
         setSelectionHighlights(newHighlights);
 
         function recurse(node) {
-            if (isSpecialBlockNode(node)) {
-                if (!isSelectionHighlight(node.parentNode)) {
+            if (Types_isSpecialBlockNode(node)) {
+                if (!Types_isSelectionHighlight(node.parentNode)) {
                     var wrapped = DOM_wrapNode(node,"DIV");
-                    DOM_setAttribute(wrapped,"class",Keys.SELECTION_CLASS);
+                    DOM_setAttribute(wrapped,"class",Types_Keys.SELECTION_CLASS);
                     newHighlights.push(wrapped);
                 }
             }
-            else if (isNoteNode(node)) {
-                if (!isSelectionHighlight(node.parentNode)) {
+            else if (Types_isNoteNode(node)) {
+                if (!Types_isSelectionHighlight(node.parentNode)) {
                     var wrapped = DOM_wrapNode(node,"SPAN");
-                    DOM_setAttribute(wrapped,"class",Keys.SELECTION_CLASS);
+                    DOM_setAttribute(wrapped,"class",Types_Keys.SELECTION_CLASS);
                     newHighlights.push(wrapped);
                 }
             }
@@ -324,7 +324,7 @@ var Selection_print;
 
     function createTextHighlight(node,data,newHighlights) {
         var selRange = data.range;
-        if (isSelectionHighlight(node.parentNode)) {
+        if (Types_isSelectionHighlight(node.parentNode)) {
 
             if ((node == selRange.end.node) && (node.nodeValue.length > selRange.end.offset)) {
                 var destTextNode = getTextNodeAfter(node.parentNode);
@@ -349,7 +349,7 @@ var Selection_print;
         var anext;
         for (var a = node; a != null; a = anext) {
             anext = a.parentNode;
-            if (isSelectionHighlight(a))
+            if (Types_isSelectionHighlight(a))
                 DOM_removeNodeButKeepChildren(a);
         }
 
@@ -395,7 +395,7 @@ var Selection_print;
             }
 
             var wrapped = DOM_wrapNode(node,"SPAN");
-            DOM_setAttribute(wrapped,"class",Keys.SELECTION_CLASS);
+            DOM_setAttribute(wrapped,"class",Types_Keys.SELECTION_CLASS);
             newHighlights.push(wrapped);
         }
     }
@@ -609,11 +609,11 @@ var Selection_print;
         if (selRange == null)
             return;
         var startNode = Position_closestActualNode(selRange.start);
-        while (!isParagraphNode(startNode) && !isContainerNode(startNode))
+        while (!Types_isParagraphNode(startNode) && !Types_isContainerNode(startNode))
             startNode = startNode.parentNode;
 
         var endNode = Position_closestActualNode(selRange.end);
-        while (!isParagraphNode(endNode) && !isContainerNode(endNode))
+        while (!Types_isParagraphNode(endNode) && !Types_isContainerNode(endNode))
             endNode = endNode.parentNode;
 
         var startPos = new Position(startNode,0);
@@ -1025,7 +1025,7 @@ var Selection_print;
             prepareForMerge(detail);
             DOM_mergeWithNextSibling(detail.startAncestor,
                                           Formatting_MERGEABLE_BLOCK_AND_INLINE);
-            if (isParagraphNode(detail.startAncestor) &&
+            if (Types_isParagraphNode(detail.startAncestor) &&
                 (detail.startAncestor._type != HTML_DIV))
                 removeParagraphDescendants(detail.startAncestor);
         }
@@ -1047,7 +1047,7 @@ var Selection_print;
                (node.nodeType == Node.ELEMENT_NODE) &&
                (node.firstChild == null)) {
 
-            if (isTableCell(node) || isTableCell(node.parentNode))
+            if (Types_isTableCell(node) || Types_isTableCell(node.parentNode))
                 return;
 
             if (!fixPositionOutside(selRange.start,node))
@@ -1114,28 +1114,28 @@ var Selection_print;
         for (var child = parent.firstChild; child != null; child = next) {
             next = child.nextSibling;
             removeParagraphDescendants(child);
-            if (isParagraphNode(child))
+            if (Types_isParagraphNode(child))
                 DOM_removeNodeButKeepChildren(child);
         }
     }
 
     // private
     function findFirstParagraph(node) {
-        if (isParagraphNode(node))
+        if (Types_isParagraphNode(node))
             return node;
         if (node._type == HTML_LI) {
             var nonWhitespaceInline = false;
 
             for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                if (isInlineNode(child) && !isWhitespaceTextNode(child))
+                if (Types_isInlineNode(child) && !isWhitespaceTextNode(child))
                     nonWhitespaceInline = true;
 
-                if (isParagraphNode(child)) {
+                if (Types_isParagraphNode(child)) {
                     if (nonWhitespaceInline)
                         return putPrecedingSiblingsInParagraph(node,child);
                     return child;
                 }
-                else if (isListNode(child)) {
+                else if (Types_isListNode(child)) {
                     if (nonWhitespaceInline)
                         return putPrecedingSiblingsInParagraph(node,child);
                     return findFirstParagraph(child);
@@ -1156,14 +1156,14 @@ var Selection_print;
 
     // private
     function prepareForMerge(detail) {
-        if (isParagraphNode(detail.startAncestor) && isInlineNode(detail.endAncestor)) {
+        if (Types_isParagraphNode(detail.startAncestor) && Types_isInlineNode(detail.endAncestor)) {
             var name = detail.startAncestor.nodeName; // check-ok
             var newParagraph = DOM_createElement(document,name);
             DOM_insertBefore(detail.endAncestor.parentNode,newParagraph,detail.endAncestor);
             DOM_appendChild(newParagraph,detail.endAncestor);
             detail.endAncestor = newParagraph;
         }
-        else if (isInlineNode(detail.startAncestor) && isParagraphNode(detail.endAncestor)) {
+        else if (Types_isInlineNode(detail.startAncestor) && Types_isParagraphNode(detail.endAncestor)) {
             var name = detail.endAncestor.nodeName; // check-ok
             var newParagraph = DOM_createElement(document,name);
             DOM_insertBefore(detail.startAncestor.parentNode,newParagraph,
@@ -1171,8 +1171,8 @@ var Selection_print;
             DOM_appendChild(newParagraph,detail.startAncestor);
             detail.startAncestor = newParagraph;
         }
-        else if (isParagraphNode(detail.startAncestor) &&
-                 isListNode(detail.endAncestor) &&
+        else if (Types_isParagraphNode(detail.startAncestor) &&
+                 Types_isListNode(detail.endAncestor) &&
                  (detail.endAncestor.firstChild._type == HTML_LI)) {
             var list = detail.endAncestor;
             var li = detail.endAncestor.firstChild;
@@ -1188,8 +1188,8 @@ var Selection_print;
             if (firstChildElement(list) == null)
                 DOM_deleteNode(list);
         }
-        else if (isParagraphNode(detail.endAncestor) &&
-                 isListNode(detail.startAncestor) &&
+        else if (Types_isParagraphNode(detail.endAncestor) &&
+                 Types_isListNode(detail.startAncestor) &&
                  (detail.startAncestor.lastChild._type == HTML_LI)) {
             var list = detail.startAncestor;
             var li = detail.startAncestor.lastChild;

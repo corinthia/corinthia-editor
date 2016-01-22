@@ -77,7 +77,7 @@ function flattenTreeToString(node) {
             result.push("I");
             break;
         default:
-            if (isOpaqueNode(node)) {
+            if (Types_isOpaqueNode(node)) {
                 result.push("O");
             }
             else if (node.nodeType == Node.ELEMENT_NODE) {

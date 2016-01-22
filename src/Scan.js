@@ -58,7 +58,7 @@ var Scan_goToMatch;
         curPos = Position_nextMatch(curPos,Position_okForMovement);
 
         var sectionId = null;
-        if (isHeadingNode(curParagraph.node) &&
+        if (Types_isHeadingNode(curParagraph.node) &&
             (curParagraph.startOffset == 0) &&
             (curParagraph.endOffset == curParagraph.node.childNodes.length)) {
             sectionId = DOM_getAttribute(curParagraph.node,"id");
@@ -108,7 +108,7 @@ var Scan_goToMatch;
         var outermost = Range_getOutermostNodes(range);
         for (var i = 0; i < outermost.length; i++) {
             var span = DOM_wrapNode(outermost[i],"SPAN");
-            DOM_setAttribute(span,"class",Keys.MATCH_CLASS);
+            DOM_setAttribute(span,"class",Types_Keys.MATCH_CLASS);
             match.spans.push(span);
         }
     }

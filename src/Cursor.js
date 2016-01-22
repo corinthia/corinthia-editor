@@ -120,7 +120,7 @@ var Cursor_insertEndnote;
                 if (insideLink) {
                     var href = node.getAttribute("href");
                     if ((href != null) && (href.charAt(0) == "#")) {
-                        if (isInTOC(node))
+                        if (Types_isInTOC(node))
                             result = "intocreference-"+href.substring(1);
                         else
                             result = "inreference";
@@ -138,10 +138,10 @@ var Cursor_insertEndnote;
                     }
                 }
             }
-            else if (isAutoCorrectNode(node) && (result == null)) {
+            else if (Types_isAutoCorrectNode(node) && (result == null)) {
                 result = "incorrection";
             }
-            else if (isTOCNode(node)) {
+            else if (Types_isTOCNode(node)) {
                 var rect = node.getBoundingClientRect();
                 if (x >= rect.left + rect.width/2)
                     position = new Position(node.parentNode,DOM_nodeOffset(node)+1);
@@ -152,7 +152,7 @@ var Cursor_insertEndnote;
         }
 
         var position = Position_closestMatchForwards(position,Position_okForMovement);
-        if ((position != null) && isOpaqueNode(position.node))
+        if ((position != null) && Types_isOpaqueNode(position.node))
             position = Position_nextMatch(position,Position_okForMovement);
         if (position == null)
             return false;
@@ -244,7 +244,7 @@ var Cursor_insertEndnote;
     // public
     Cursor_updateBRAtEndOfParagraph = function(node) {
         var paragraph = node;
-        while ((paragraph != null) && !isParagraphNode(paragraph))
+        while ((paragraph != null) && !Types_isParagraphNode(paragraph))
             paragraph = paragraph.parentNode;
         if (paragraph != null) {
 
@@ -261,7 +261,7 @@ var Cursor_insertEndnote;
 
                 last = last.lastChild;
 
-            } while ((last != null) && isInlineNode(last));
+            } while ((last != null) && Types_isInlineNode(last));
 
             if (nodeHasContent(paragraph)) {
                 // Paragraph has content: don't want BR at end
@@ -330,7 +330,7 @@ var Cursor_insertEndnote;
 
     function isPosAtStartOfParagraph(pos) {
         if ((pos.node.nodeType == Node.ELEMENT_NODE) && (pos.offset == 0) &&
-            !isInlineNode(pos.node)) {
+            !Types_isInlineNode(pos.node)) {
             return true;
         }
 
@@ -338,7 +338,7 @@ var Cursor_insertEndnote;
 
         while (pos != null) {
             if (pos.node.nodeType == Node.ELEMENT_NODE) {
-                if ((pos.offset == 0) && !isInlineNode(pos.node))
+                if ((pos.offset == 0) && !Types_isInlineNode(pos.node))
                     return true;
                 else
                     pos = Position_prev(pos);
@@ -532,7 +532,7 @@ var Cursor_insertEndnote;
             var back = Position_closestMatchBackwards(currentPos,Position_okForMovement);
             if ((back != null) && (back.node.nodeType == Node.ELEMENT_NODE) && (back.offset > 0)) {
                 var prevNode = back.node.childNodes[back.offset-1];
-                if (isSpecialBlockNode(prevNode)) {
+                if (Types_isSpecialBlockNode(prevNode)) {
                     var p = DOM_createElement(document,"P");
                     DOM_insertBefore(prevNode.parentNode,p,prevNode);
                     DOM_deleteNode(prevNode);
@@ -541,7 +541,7 @@ var Cursor_insertEndnote;
                     Cursor_ensureCursorVisible();
                     return;
                 }
-                if ((prevNode._type == HTML_A) || isNoteNode(prevNode)) {
+                if ((prevNode._type == HTML_A) || Types_isNoteNode(prevNode)) {
                     Cursor_set(back.node,back.offset-1);
                     Selection_preserveWhileExecuting(function() {
                         DOM_deleteNode(prevNode);
@@ -567,7 +567,7 @@ var Cursor_insertEndnote;
                 var startBlock = firstBlockAncestor(Position_closestActualNode(prevPos));
                 var endBlock = firstBlockAncestor(Position_closestActualNode(selRange.end));
                 if ((startBlock != endBlock) &&
-                    isParagraphNode(startBlock) && !nodeHasContent(startBlock)) {
+                    Types_isParagraphNode(startBlock) && !nodeHasContent(startBlock)) {
                     DOM_deleteNode(startBlock);
                     Cursor_set(selRange.end.node,selRange.end.offset)
                 }
@@ -586,7 +586,7 @@ var Cursor_insertEndnote;
         Cursor_ensureCursorVisible();
 
         function firstBlockAncestor(node) {
-            while (isInlineNode(node))
+            while (Types_isInlineNode(node))
                 node = node.parentNode;
             return node;
         }
@@ -642,7 +642,7 @@ var Cursor_insertEndnote;
             // the paragraph *before* the note, not after
             var checkNode = selRange.start.node;
             for (var anc = checkNode; anc != null; anc = anc.parentNode) {
-                if (isNoteNode(anc)) {
+                if (Types_isNoteNode(anc)) {
                     note = anc;
                     break;
                 }
@@ -657,8 +657,8 @@ var Cursor_insertEndnote;
         if (check.node.nodeType == Node.ELEMENT_NODE) {
             var before = check.node.childNodes[check.offset-1];
             var after = check.node.childNodes[check.offset];
-            if (((before != null) && isSpecialBlockNode(before)) ||
-                ((after != null) && isSpecialBlockNode(after))) {
+            if (((before != null) && Types_isSpecialBlockNode(before)) ||
+                ((after != null) && Types_isSpecialBlockNode(after))) {
                 var p = DOM_createElement(document,"P");
                 DOM_insertBefore(check.node,p,check.node.childNodes[check.offset]);
                 Cursor_updateBRAtEndOfParagraph(p);
@@ -688,7 +688,7 @@ var Cursor_insertEndnote;
         }
         }
 
-        if (isAutoCorrectNode(pos.node)) {
+        if (Types_isAutoCorrectNode(pos.node)) {
             pos = Position_preferTextPosition(pos);
             selRange.start = selRange.end = pos;
         }
@@ -697,7 +697,7 @@ var Cursor_insertEndnote;
 
             // If we're directly in a container node, add a paragraph, so we have something to
             // split.
-            if (isContainerNode(pos.node) && (pos.node._type != HTML_LI)) {
+            if (Types_isContainerNode(pos.node) && (pos.node._type != HTML_LI)) {
                 var p = DOM_createElement(document,"P");
                 DOM_insertBefore(pos.node,p,pos.node.childNodes[pos.offset]);
                 pos = new Position(p,0);
@@ -734,7 +734,7 @@ var Cursor_insertEndnote;
             var start = detail.startChild ? detail.startChild : detail.startParent;
             for (var ancestor = start; ancestor != null; ancestor = ancestor.parentNode) {
                 var prev = ancestor.previousSibling;
-                if ((prev != null) && isParagraphNode(prev) && !nodeHasContent(prev)) {
+                if ((prev != null) && Types_isParagraphNode(prev) && !nodeHasContent(prev)) {
                     DOM_deleteAllChildren(prev);
                     Cursor_updateBRAtEndOfParagraph(prev);
                     break;
@@ -754,7 +754,7 @@ var Cursor_insertEndnote;
 
             for (var ancestor = start; ancestor != null; ancestor = ancestor.parentNode) {
 
-                if (isParagraphNode(ancestor)) {
+                if (Types_isParagraphNode(ancestor)) {
                     var nextSelector = Styles_nextSelectorAfter(ancestor);
                     if (nextSelector != null) {
                         var nextElementName = null;
@@ -776,7 +776,7 @@ var Cursor_insertEndnote;
                     }
                 }
 
-                if (isParagraphNode(ancestor) && !nodeHasContent(ancestor)) {
+                if (Types_isParagraphNode(ancestor) && !nodeHasContent(ancestor)) {
                     Cursor_updateBRAtEndOfParagraph(prev);
                     break;
                 }
@@ -804,23 +804,23 @@ var Cursor_insertEndnote;
             }
             if (blockToSplit == null) {
                 blockToSplit = pos.node;
-                while (isInlineNode(blockToSplit))
+                while (Types_isInlineNode(blockToSplit))
                     blockToSplit = blockToSplit.parentNode;
             }
             return blockToSplit;
         }
 
         function getContainerOrParagraph(node) {
-            while ((node != null) && isInlineNode(node))
+            while ((node != null) && Types_isInlineNode(node))
                 node = node.parentNode;
             return node;
         }
 
         function positionAtStartOfHeading(pos) {
             var container = getContainerOrParagraph(pos.node);
-            if (isHeadingNode(container)) {
+            if (Types_isHeadingNode(container)) {
                 var startOffset = 0;
-                if (isOpaqueNode(container.firstChild))
+                if (Types_isOpaqueNode(container.firstChild))
                     startOffset = 1;
                 var range = new Range(container,startOffset,pos.node,pos.offset);
                 return !Range_hasContent(range);
@@ -929,19 +929,19 @@ var Cursor_insertEndnote;
 
         var offset = DOM_nodeOffset(nextSibling,parent);
 
-        if (isContainerNode(parent)) {
+        if (Types_isContainerNode(parent)) {
             Cursor_set(parent,offset);
             return;
         }
 
-        if ((offset > 0) && isItemNumber(parent.childNodes[offset-1]))
+        if ((offset > 0) && Types_isItemNumber(parent.childNodes[offset-1]))
             offset--;
 
-        Formatting_moveFollowing(new Position(parent,offset),isContainerNode);
-        Formatting_movePreceding(new Position(parent,offset),isContainerNode);
+        Formatting_moveFollowing(new Position(parent,offset),Types_isContainerNode);
+        Formatting_movePreceding(new Position(parent,offset),Types_isContainerNode);
 
         offset = 0;
-        while (!isContainerNode(parent)) {
+        while (!Types_isContainerNode(parent)) {
             var old = parent;
             offset = DOM_nodeOffset(parent);
             parent = parent.parentNode;
@@ -963,7 +963,7 @@ var Cursor_insertEndnote;
         var offset = range.start.offset;
 
         for (var anc = node; anc != null; anc = anc.parentNode) {
-            if (isNoteNode(anc) && (anc.parentNode != null)) {
+            if (Types_isNoteNode(anc) && (anc.parentNode != null)) {
                 node = anc.parentNode;
                 offset = DOM_nodeOffset(anc)+1;
                 return new Range(node,offset,node,offset);
