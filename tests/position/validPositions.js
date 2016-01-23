@@ -103,7 +103,7 @@ function findCursorPositionErrors(text) {
                 detail += "^";
             }
             else if ((prevChar != null) && (nextChar != null) &&
-                     isWhitespaceString(prevChar) && isWhitespaceString(nextChar)) {
+                     Util_isWhitespaceString(prevChar) && Util_isWhitespaceString(nextChar)) {
                 // A position between two spaces
                 detail += "^";
             }
@@ -112,7 +112,7 @@ function findCursorPositionErrors(text) {
                 detail += " ";
             }
         }
-        else if (!isWhitespaceString(curChar)) {
+        else if (!Util_isWhitespaceString(curChar)) {
             if ((prevChar != '.') || (nextChar != '.'))
                 detail += "^";
             else

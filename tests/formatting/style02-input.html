@@ -8,7 +8,7 @@ function performTest()
 
     // Need to make a copy of this array, because it is "live" and the H1 elements will disappear
     // from it as we apply formatting changes, changing them into heading elements
-    var h1s = arrayCopy(document.getElementsByTagName("H1"));
+    var h1s = Util_arrayCopy(document.getElementsByTagName("H1"));
 
     selectNode(h1s[0]);
     Formatting_applyFormattingChanges("",null);

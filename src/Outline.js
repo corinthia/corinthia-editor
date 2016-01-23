@@ -58,7 +58,7 @@ var Outline_scheduleUpdateStructure;
         this.type = type;
         this.nodeFilter = nodeFilter;
         this.numberRegex = numberRegex;
-        this.list = new DoublyLinkedList();
+        this.list = new Util_DoublyLinkedList();
         this.tocs = new NodeMap();
     }
 
@@ -359,7 +359,7 @@ var Outline_scheduleUpdateStructure;
     function OutlineItem_updateItemTitle(item) {
         var titleNode = OutlineItem_getTitleNode(item,false);
         if (titleNode != null)
-            newTitle = normalizeWhitespace(Traversal_getNodeText(titleNode));
+            newTitle = Util_normalizeWhitespace(Traversal_getNodeText(titleNode));
         else
             newTitle = "";
 
@@ -817,7 +817,7 @@ var Outline_scheduleUpdateStructure;
                     if (item.numberSpan != null)
                         text = getNodeTextAfter(item.numberSpan);
                     else
-                        text = normalizeWhitespace(Traversal_getNodeText(item.node));
+                        text = Util_normalizeWhitespace(Traversal_getNodeText(item.node));
                 }
                 else if ((item.type == "figure") || (item.type == "table")) {
                     var titleNode = OutlineItem_getTitleNode(item,false);
@@ -836,7 +836,7 @@ var Outline_scheduleUpdateStructure;
                     if (item.numberSpan != null)
                         text = getNodeTextAfter(item.numberSpan);
                     else
-                        text = normalizeWhitespace(Traversal_getNodeText(item.node));
+                        text = Util_normalizeWhitespace(Traversal_getNodeText(item.node));
                 }
                 else if ((item.type == "figure") || (item.type == "table")) {
                     var titleNode = OutlineItem_getTitleNode(item,false);
@@ -844,7 +844,7 @@ var Outline_scheduleUpdateStructure;
                         if (item.numberSpan != null)
                             text = getNodeTextAfter(item.numberSpan);
                         else
-                            text = normalizeWhitespace(Traversal_getNodeText(titleNode));
+                            text = Util_normalizeWhitespace(Traversal_getNodeText(titleNode));
                     }
                 }
             }
@@ -915,7 +915,7 @@ var Outline_scheduleUpdateStructure;
             var content = Traversal_getNodeText(titleNode);
             if (shadow.item.computedNumber != null)
                 content = shadow.item.computedNumber+" "+content;
-            if (isWhitespaceString(content))
+            if (Util_isWhitespaceString(content))
                 content = "[empty]";
             strings.push(indent+content+" ("+shadow.item.id+")\n");
             for (var i = 0; i < shadow.children.length; i++)
@@ -1111,7 +1111,7 @@ var Outline_scheduleUpdateStructure;
                 else {
                     var caption = OutlineItem_getTitleNode(item,false);
                     if (caption != null) {
-                        if (nodeHasContent(caption))
+                        if (Util_nodeHasContent(caption))
                             DOM_setAttribute(caption,"class","Unnumbered");
                         else
                             DOM_deleteNode(caption);

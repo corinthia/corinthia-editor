@@ -538,7 +538,7 @@ var TableRegion_splitCells;
     function columnHasContent(table,col) {
         for (var row = 0; row < table.numRows; row++) {
             var cell = Table_get(table,row,col);
-            if ((cell != null) && (cell.col == col) && nodeHasContent(cell.element))
+            if ((cell != null) && (cell.col == col) && Util_nodeHasContent(cell.element))
                 return true;
         }
         return false;
@@ -547,7 +547,7 @@ var TableRegion_splitCells;
     function rowHasContent(table,row) {
         for (var col = 0; col < table.numCols; col++) {
             var cell = Table_get(table,row,col);
-            if ((cell != null) && (cell.row == row) && nodeHasContent(cell.element))
+            if ((cell != null) && (cell.row == row) && Util_nodeHasContent(cell.element))
                 return true;
         }
         return false;
@@ -1280,8 +1280,8 @@ var TableRegion_splitCells;
         var bottom = bottomRightRect.bottom + window.scrollY;
 
         result.contentRect = { x: left, y: top, width: right - left, height: bottom - top };
-        result.fullRect = xywhAbsElementRect(element);
-        result.parentRect = xywhAbsElementRect(element.parentNode);
+        result.fullRect = Util_xywhAbsElementRect(element);
+        result.parentRect = Util_xywhAbsElementRect(element.parentNode);
 
         result.columnWidths = Tables_getColWidths(structure);
 

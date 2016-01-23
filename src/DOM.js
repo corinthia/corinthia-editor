@@ -80,7 +80,7 @@ var DOM_Listener;
 
     function addUndoAction() {
         if (window.undoSupported)
-            UndoManager_addAction.apply(null,arrayCopy(arguments));
+            UndoManager_addAction.apply(null,Util_arrayCopy(arguments));
     }
 
     function assignNodeId(node) {
@@ -222,7 +222,7 @@ var DOM_Listener;
         addUndoAction(insertBeforeInternal,node.parentNode,node,node.nextSibling);
 
         if (node.parentNode == null)
-            throw new Error("Undo delete "+nodeString(node)+": parent is null");
+            throw new Error("Undo delete "+Util_nodeString(node)+": parent is null");
         node.parentNode.removeChild(node); // check-ok
 
         // Delete all data associated with the node. This is not preserved across undo/redo;
@@ -316,7 +316,7 @@ var DOM_Listener;
     // public
     DOM_deleteCharacters = function(textNode,startOffset,endOffset) {
         if (textNode.nodeType != Node.TEXT_NODE)
-            throw new Error("DOM_deleteCharacters called on non-text node "+nodeString(textNode));
+            throw new Error("DOM_deleteCharacters called on non-text node "+Util_nodeString(textNode));
         if (endOffset == null)
             endOffset = textNode.nodeValue.length;
         if (endOffset < startOffset)
@@ -537,7 +537,7 @@ var DOM_Listener;
     // public
     DOM_removeNodeButKeepChildren = function(node) {
         if (node.parentNode == null)
-            throw new Error("Node "+nodeString(node)+" has no parent");
+            throw new Error("Node "+Util_nodeString(node)+" has no parent");
         var offset = DOM_nodeOffset(node);
         var childCount = node.childNodes.length;
 
@@ -571,7 +571,7 @@ var DOM_Listener;
             DOM_setAttribute(newElement,name,value);
         }
 
-        var positions = arrayCopy(trackedPositionsForNode(oldElement));
+        var positions = Util_arrayCopy(trackedPositionsForNode(oldElement));
         if (positions != null) {
             for (var i = 0; i < positions.length; i++) {
                 if (positions[i].node != oldElement)
@@ -718,7 +718,7 @@ var DOM_Listener;
                 if (data.trackedPositions[i].node != node)
                     throw new Error("Position "+data.trackedPositions[i]+" has wrong node");
             }
-            return arrayCopy(data.trackedPositions);
+            return Util_arrayCopy(data.trackedPositions);
         }
         else {
             return [];

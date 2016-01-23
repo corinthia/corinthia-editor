@@ -34,7 +34,7 @@ var debug;
     var backMessages = new Array();
 
     function addBackMessage() {
-        backMessages.push(arrayCopy(arguments));
+        backMessages.push(Util_arrayCopy(arguments));
         return null;
     }
 

@@ -124,7 +124,7 @@ var Position_atPoint;
                                        self.node.nodeValue.slice(self.offset));
         }
         else {
-            result = "("+nodeString(self.node)+","+self.offset+")";
+            result = "("+Util_nodeString(self.node)+","+self.offset+")";
         }
         if (this.posId != null)
             result = "["+this.posId+"]"+result;
@@ -385,8 +385,8 @@ var Position_atPoint;
 
             var prevChar = value.charAt(offset-1);
             var nextChar = value.charAt(offset);
-            var havePrevChar = ((prevChar != null) && !isWhitespaceString(prevChar));
-            var haveNextChar = ((nextChar != null) && !isWhitespaceString(nextChar));
+            var havePrevChar = ((prevChar != null) && !Util_isWhitespaceString(prevChar));
+            var haveNextChar = ((nextChar != null) && !Util_isWhitespaceString(nextChar));
             if (havePrevChar && haveNextChar) {
                 var prevCode = value.charCodeAt(offset-1);
                 var nextCode = value.charCodeAt(offset);
@@ -397,7 +397,7 @@ var Position_atPoint;
                 return true;
             }
 
-            if (isWhitespaceString(value)) {
+            if (Util_isWhitespaceString(value)) {
                 if (offset == 0) {
                     if ((node == firstNode) &&
                         (firstNode.previousSibling == null) && (lastNode.nextSibling == null))
@@ -422,7 +422,7 @@ var Position_atPoint;
                 return true;
 
             var precedingText = value.substring(0,offset);
-            if (isWhitespaceString(precedingText)) {
+            if (Util_isWhitespaceString(precedingText)) {
                 return (haveNextChar &&
                         ((node.previousSibling == null) ||
                          (node.previousSibling._type == HTML_BR) ||
@@ -434,7 +434,7 @@ var Position_atPoint;
             }
 
             var followingText = value.substring(offset);
-            if (isWhitespaceString(followingText)) {
+            if (Util_isWhitespaceString(followingText)) {
                 return (havePrevChar &&
                         ((node.nextSibling == null) ||
                          Types_isNoteNode(node.nextSibling) ||
@@ -466,9 +466,9 @@ var Position_atPoint;
 
             var prevIsNote = (prevNode != null) && Types_isNoteNode(prevNode);
             var nextIsNote = (nextNode != null) && Types_isNoteNode(nextNode);
-            if (((nextNode == null) || !nodeHasContent(nextNode)) && prevIsNote)
+            if (((nextNode == null) || !Util_nodeHasContent(nextNode)) && prevIsNote)
                 return true;
-            if (((prevNode == null) || !nodeHasContent(prevNode)) && nextIsNote)
+            if (((prevNode == null) || !Util_nodeHasContent(prevNode)) && nextIsNote)
                 return true;
             if (prevIsNote && nextIsNote)
                 return true;
@@ -550,7 +550,7 @@ var Position_atPoint;
         }
 
         if ((pos.node.nodeType == Node.TEXT_NODE) &&
-            isWhitespaceString(pos.node.nodeValue.slice(pos.offset))) {
+            Util_isWhitespaceString(pos.node.nodeValue.slice(pos.offset))) {
             var str = pos.node.nodeValue;
             var whitespace = str.match(/\s+$/);
             if (whitespace) {
@@ -620,13 +620,13 @@ var Position_atPoint;
         var range = new Range(pos.node,pos.offset,pos.node,pos.offset);
         var rects = Range_getClientRects(range);
 
-        if ((rects.length > 0) && !rectIsEmpty(rects[0])) {
+        if ((rects.length > 0) && !Util_rectIsEmpty(rects[0])) {
             return rects[0];
         }
 
         if (Types_isParagraphNode(pos.node) && (pos.offset == 0)) {
             var rect = pos.node.getBoundingClientRect();
-            if (!rectIsEmpty(rect))
+            if (!Util_rectIsEmpty(rect))
                 return rect;
         }
 
@@ -719,7 +719,7 @@ var Position_atPoint;
 
             // Start of empty paragraph
             if ((node.nodeType == Node.ELEMENT_NODE) && (offset == 0) &&
-                Types_isParagraphNode(node) && !nodeHasContent(node)) {
+                Types_isParagraphNode(node) && !Util_nodeHasContent(node)) {
                 return zeroWidthLeftRect(node.getBoundingClientRect());
             }
 
@@ -771,7 +771,7 @@ var Position_atPoint;
             return rect;
 
         var noteNode = Position_noteAncestor(pos);
-        if ((noteNode != null) && !nodeHasContent(noteNode)) // In empty footnote or endnote
+        if ((noteNode != null) && !Util_nodeHasContent(noteNode)) // In empty footnote or endnote
             return zeroWidthMidRect(noteNode.getBoundingClientRect());
 
         // If we're immediately before or after a footnote or endnote, calculate the rect by
@@ -790,7 +790,7 @@ var Position_atPoint;
         }
 
         var captionNode = Position_captionAncestor(pos);
-        if ((captionNode != null) && !nodeHasContent(captionNode)) {
+        if ((captionNode != null) && !Util_nodeHasContent(captionNode)) {
             // Even if an empty caption has generated content (e.g. "Figure X: ") preceding it,
             // we can't directly get the rect of that generated content. So we temporarily insert
             // a text node containing a single space character, get the position to the right of
@@ -1046,7 +1046,7 @@ var Position_atPoint;
         return ((node._type == HTML_P) &&
                 (node.lastChild != null) &&
                 (node.lastChild._type == HTML_BR) &&
-                !nodeHasContent(node));
+                !Util_nodeHasContent(node));
     }
 
     function findLastTextRect() {

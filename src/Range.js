@@ -431,24 +431,24 @@ var Range_getText;
             if (node.nodeType == Node.TEXT_NODE) {
                 var value = node.nodeValue;
                 if ((node == range.start.node) && (node == range.end.node)) {
-                    if (!isWhitespaceString(value.substring(range.start.offset,range.end.offset)))
+                    if (!Util_isWhitespaceString(value.substring(range.start.offset,range.end.offset)))
                         return true;
                 }
                 else if (node == range.start.node) {
-                    if (!isWhitespaceString(value.substring(range.start.offset)))
+                    if (!Util_isWhitespaceString(value.substring(range.start.offset)))
                         return true;
                 }
                 else if (node == range.end.node) {
-                    if (!isWhitespaceString(value.substring(0,range.end.offset)))
+                    if (!Util_isWhitespaceString(value.substring(0,range.end.offset)))
                         return true;
                 }
                 else {
-                    if (!isWhitespaceString(value))
+                    if (!Util_isWhitespaceString(value))
                         return true;
                 }
             }
             else if (node.nodeType == Node.ELEMENT_NODE) {
-                if (nodeHasContent(node))
+                if (Util_nodeHasContent(node))
                     return true;
             }
         }
@@ -497,7 +497,7 @@ var Range_getText;
 
             if (node.nodeType == Node.TEXT_NODE) {
 
-                if (!significantParagraph && !isWhitespaceString(node.nodeValue)) {
+                if (!significantParagraph && !Util_isWhitespaceString(node.nodeValue)) {
                     significantParagraph = true;
                     components.push("\n");
                 }

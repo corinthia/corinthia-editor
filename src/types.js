@@ -200,7 +200,7 @@ var Types_isAbstractSpan;
     }
 
     Types_isEmptyNoteNode = function(node) {
-        return Types_isNoteNode(node) && !nodeHasContent(node);
+        return Types_isNoteNode(node) && !Util_nodeHasContent(node);
     }
 
     Types_isItemNumber = function(node) {

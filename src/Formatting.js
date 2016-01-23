@@ -474,7 +474,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         function getFlags(pos,commonProperties) {
             var strBeforeCursor = Formatting_paragraphTextUpToPosition(pos);
 
-            if (isWhitespaceString(strBeforeCursor)) {
+            if (Util_isWhitespaceString(strBeforeCursor)) {
                 var firstInParagraph = true;
                 for (var p = pos.node; Types_isInlineNode(p); p = p.parentNode) {
                     if (p.previousSibling != null)
@@ -934,7 +934,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 
     // private
     function removeProperties(outermost,properties) {
-        properties = clone(properties);
+        properties = Util_clone(properties);
         var special = extractSpecial(properties);
         var remaining = new Array();
         for (var i = 0; i < outermost.length; i++) {
@@ -1181,7 +1181,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     Formatting_formatInlineNode = function(node,properties) {
-        properties = clone(properties);
+        properties = Util_clone(properties);
         var special = extractSpecial(properties);
         return applyInlineFormatting(node,properties,special,true);
     }

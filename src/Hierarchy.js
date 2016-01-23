@@ -254,15 +254,15 @@ var Hierarchy_avoidInlineChildren;
             if (Types_isInlineNode(child)) {
                 var start = child;
                 var end = child;
-                var haveContent = nodeHasContent(end);
+                var haveContent = Util_nodeHasContent(end);
                 while ((end.nextSibling != null) && Types_isInlineNode(end.nextSibling)) {
                     end = end.nextSibling;
-                    if (nodeHasContent(end))
+                    if (Util_nodeHasContent(end))
                         haveContent = true;
                 }
                 child = DOM_wrapSiblings(start,end,"P");
                 var next = child.nextSibling;
-                if (!nodeHasContent(child))
+                if (!Util_nodeHasContent(child))
                     DOM_deleteNode(child);
                 child = next;
             }

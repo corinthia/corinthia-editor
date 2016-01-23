@@ -119,7 +119,7 @@ var Clipboard_pasteNodes;
             text = "    "+text.replace(/\n/g,"\n"+md.nextIndent+"    ");
         }
         else {
-            text = normalizeWhitespace(text);
+            text = Util_normalizeWhitespace(text);
         }
         if (md.allText.length > 0) {
             for (var i = 0; i < md.buildLines; i++)
@@ -237,7 +237,7 @@ var Clipboard_pasteNodes;
         }
         else {
             inlineToText(md,node);
-            return normalizeWhitespace(md.buildParagraph.join(""));
+            return Util_normalizeWhitespace(md.buildParagraph.join(""));
         }
     }
 
@@ -329,7 +329,7 @@ var Clipboard_pasteNodes;
                     var parent = node.parentNode;
                     switch (node._type) {
                     case HTML_LI:
-                        if (!nodeHasContent(node))
+                        if (!Util_nodeHasContent(node))
                             DOM_deleteNode(node);
                         break;
                     case HTML_UL:
@@ -691,7 +691,7 @@ var Clipboard_pasteNodes;
                     break;
                 if (Types_isContainerNode(pos.node) && (pos.node._type != HTML_LI))
                     break;
-                if (!nodeHasContent(pos.node)) {
+                if (!Util_nodeHasContent(pos.node)) {
                     var oldNode = pos.node;
                     pos = new Position(pos.node.parentNode,DOM_nodeOffset(pos.node));
                     DOM_deleteNode(oldNode);

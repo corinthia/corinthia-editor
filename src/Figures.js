@@ -110,9 +110,9 @@ var Figures_getGeometry;
         var figcaption = Traversal_firstChildOfType(figure,HTML_FIGCAPTION);
 
         var result = new Object();
-        result.contentRect = xywhAbsElementRect(img);
-        result.fullRect = xywhAbsElementRect(figure);
-        result.parentRect = xywhAbsElementRect(figure.parentNode);
+        result.contentRect = Util_xywhAbsElementRect(img);
+        result.fullRect = Util_xywhAbsElementRect(figure);
+        result.parentRect = Util_xywhAbsElementRect(figure.parentNode);
         result.hasCaption = (figcaption != null);
         return result;
     }

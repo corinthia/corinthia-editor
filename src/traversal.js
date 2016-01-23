@@ -160,13 +160,13 @@ var Traversal_printTree;
     Traversal_isWhitespaceTextNode = function(node) {
         if (node.nodeType != Node.TEXT_NODE)
             return false;
-        return isWhitespaceString(node.nodeValue);
+        return Util_isWhitespaceString(node.nodeValue);
     }
 
     Traversal_isNonWhitespaceTextNode = function(node) {
         if (node.nodeType != Node.TEXT_NODE)
             return false;
-        return !isWhitespaceString(node.nodeValue);
+        return !Util_isWhitespaceString(node.nodeValue);
     }
 
     Traversal_printTree = function(node,indent,offset) {
@@ -175,9 +175,9 @@ var Traversal_printTree;
         if (offset == null)
             offset = "";
         if ((node.nodeType == Node.ELEMENT_NODE) && node.hasAttribute("class"))
-            debug(indent+offset+nodeString(node)+"."+node.getAttribute("class"));
+            debug(indent+offset+Util_nodeString(node)+"."+node.getAttribute("class"));
         else
-            debug(indent+offset+nodeString(node));
+            debug(indent+offset+Util_nodeString(node));
         var childOffset = 0;
         for (var child = node.firstChild; child != null; child = child.nextSibling) {
             Traversal_printTree(child,indent+"    ",childOffset+" ");

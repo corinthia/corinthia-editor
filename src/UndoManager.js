@@ -58,7 +58,7 @@ var UndoManager_deleteProperty;
         var argStrings = new Array();
         for (var i = 0; i < this.args.length; i++) {
             if (this.args[i] instanceof Node)
-                argStrings.push(nodeString(this.args[i]));
+                argStrings.push(Util_nodeString(this.args[i]));
             else if (this.args[i] == null)
                 argStrings.push("null");
             else

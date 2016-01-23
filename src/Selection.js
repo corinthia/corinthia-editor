@@ -285,7 +285,7 @@ var Selection_print;
     }
 
     function createSelectionHighlights(data) {
-        var newHighlights = arrayCopy(selectionHighlights);
+        var newHighlights = Util_arrayCopy(selectionHighlights);
 
         var outermost = data.outermost;
         for (var i = 0; i < outermost.length; i++) {
@@ -354,7 +354,7 @@ var Selection_print;
         }
 
         if (node == selRange.end.node) {
-            if (isWhitespaceString(node.nodeValue.substring(0,selRange.end.offset)))
+            if (Util_isWhitespaceString(node.nodeValue.substring(0,selRange.end.offset)))
                 return;
             Formatting_splitTextAfter(selRange.end,
                                       function() { return true; });
@@ -362,7 +362,7 @@ var Selection_print;
 
 
         if (node == selRange.start.node) {
-            if (isWhitespaceString(node.nodeValue.substring(selRange.start.offset)))
+            if (Util_isWhitespaceString(node.nodeValue.substring(selRange.start.offset)))
                 return;
             Formatting_splitTextBefore(selRange.start,
                                        function() { return true; });
@@ -1183,7 +1183,7 @@ var Selection_print;
                 var name = detail.startAncestor.nodeName; // check-ok
                 DOM_replaceElement(paragraph,name);
             }
-            if (!nodeHasContent(li))
+            if (!Util_nodeHasContent(li))
                 DOM_deleteNode(li);
             if (Traversal_firstChildElement(list) == null)
                 DOM_deleteNode(list);

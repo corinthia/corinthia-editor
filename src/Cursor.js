@@ -113,7 +113,7 @@ var Cursor_insertEndnote;
                 var rects = Range_getClientRects(arange);
                 var insideLink = false;
                 for (var i = 0; i < rects.length; i++) {
-                    if (rectContainsPoint(rects[i],x,y))
+                    if (Util_rectContainsPoint(rects[i],x,y))
                         insideLink = true;
                 }
 
@@ -263,7 +263,7 @@ var Cursor_insertEndnote;
 
             } while ((last != null) && Types_isInlineNode(last));
 
-            if (nodeHasContent(paragraph)) {
+            if (Util_nodeHasContent(paragraph)) {
                 // Paragraph has content: don't want BR at end
                 if (br != null) {
                     DOM_deleteNode(br);
@@ -301,7 +301,7 @@ var Cursor_insertEndnote;
         var offset = pos.offset;
 
         if ((node.nodeType == Node.TEXT_NODE) && (offset > 0) &&
-            (isWhitespaceString(node.nodeValue.charAt(offset-1)))) {
+            (Util_isWhitespaceString(node.nodeValue.charAt(offset-1)))) {
             // Insert first, to preserve any tracked positions
             DOM_insertCharacters(node,offset-1,nbsp);
             DOM_deleteCharacters(node,offset,offset+1);
@@ -416,9 +416,9 @@ var Cursor_insertEndnote;
             }
         }
 
-        if (isWhitespaceString(str) && (node.nodeType == Node.TEXT_NODE) && (offset > 0)) {
+        if (Util_isWhitespaceString(str) && (node.nodeType == Node.TEXT_NODE) && (offset > 0)) {
             var prevChar = node.nodeValue.charAt(offset-1);
-            if (isWhitespaceString(prevChar) || (prevChar == nbsp)) {
+            if (Util_isWhitespaceString(prevChar) || (prevChar == nbsp)) {
                 Selection_update();
                 Cursor_ensureCursorVisible();
                 return;
@@ -482,7 +482,7 @@ var Cursor_insertEndnote;
 
     function tryDeleteEmptyCaption(pos) {
         var caption = Position_captionAncestor(pos);
-        if ((caption == null) || nodeHasContent(caption))
+        if ((caption == null) || Util_nodeHasContent(caption))
             return false;
 
         var container = Position_figureOrTableAncestor(pos);
@@ -499,7 +499,7 @@ var Cursor_insertEndnote;
 
     function tryDeleteEmptyNote(pos) {
         var note = Position_noteAncestor(pos);
-        if ((note == null) || nodeHasContent(note))
+        if ((note == null) || Util_nodeHasContent(note))
             return false;
 
         var parent = note.parentNode;
@@ -567,7 +567,7 @@ var Cursor_insertEndnote;
                 var startBlock = firstBlockAncestor(Position_closestActualNode(prevPos));
                 var endBlock = firstBlockAncestor(Position_closestActualNode(selRange.end));
                 if ((startBlock != endBlock) &&
-                    Types_isParagraphNode(startBlock) && !nodeHasContent(startBlock)) {
+                    Types_isParagraphNode(startBlock) && !Util_nodeHasContent(startBlock)) {
                     DOM_deleteNode(startBlock);
                     Cursor_set(selRange.end.node,selRange.end.offset)
                 }
@@ -734,12 +734,12 @@ var Cursor_insertEndnote;
             var start = detail.startChild ? detail.startChild : detail.startParent;
             for (var ancestor = start; ancestor != null; ancestor = ancestor.parentNode) {
                 var prev = ancestor.previousSibling;
-                if ((prev != null) && Types_isParagraphNode(prev) && !nodeHasContent(prev)) {
+                if ((prev != null) && Types_isParagraphNode(prev) && !Util_nodeHasContent(prev)) {
                     DOM_deleteAllChildren(prev);
                     Cursor_updateBRAtEndOfParagraph(prev);
                     break;
                 }
-                else if ((prev != null) && (prev._type == HTML_LI) && !nodeHasContent(prev)) {
+                else if ((prev != null) && (prev._type == HTML_LI) && !Util_nodeHasContent(prev)) {
                     var next;
                     for (var child = prev.firstChild; child != null; child = next) {
                         next = child.nextSibling;
@@ -776,11 +776,11 @@ var Cursor_insertEndnote;
                     }
                 }
 
-                if (Types_isParagraphNode(ancestor) && !nodeHasContent(ancestor)) {
+                if (Types_isParagraphNode(ancestor) && !Util_nodeHasContent(ancestor)) {
                     Cursor_updateBRAtEndOfParagraph(prev);
                     break;
                 }
-                else if ((ancestor._type == HTML_LI) && !nodeHasContent(ancestor)) {
+                else if ((ancestor._type == HTML_LI) && !Util_nodeHasContent(ancestor)) {
                     DOM_deleteAllChildren(ancestor);
                     break;
                 }

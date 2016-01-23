@@ -77,7 +77,7 @@ var Text_toEndOfBoundary;
         }
 
         if (node.nodeType != Node.ELEMENT_NODE)
-            throw new Error("Not an element node: "+nodeString(node));
+            throw new Error("Not an element node: "+Util_nodeString(node));
 
         while ((startOffset > 0) && Types_isInlineNode(node.childNodes[startOffset-1]))
             startOffset--;
@@ -329,7 +329,7 @@ var Text_toEndOfBoundary;
             node = Traversal_nextNodeAfter(pos.node);
         }
         while ((node != null) && !Traversal_isNonWhitespaceTextNode(node)) {
-            var old = nodeString(node);
+            var old = Util_nodeString(node);
             node = Traversal_nextNode(node);
         }
 

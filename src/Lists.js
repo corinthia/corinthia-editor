@@ -44,7 +44,7 @@ var Lists_setOrderedList;
                 return;
 
             if (node._type == HTML_LI) {
-                if (!arrayContains(array,node))
+                if (!Util_arrayContains(array,node))
                     array.push(node);
                 return;
             }
@@ -176,7 +176,7 @@ var Lists_setOrderedList;
                 for (var ancestor = node.parentNode;
                      ancestor != null;
                      ancestor = ancestor.parentNode) {
-                    if (arrayContains(listItems,ancestor))
+                    if (Util_arrayContains(listItems,ancestor))
                         ancestorToBeRemoved = true;
                 }
 
@@ -188,7 +188,7 @@ var Lists_setOrderedList;
 
             function haveContentAfter(node) {
                 for (node = node.nextSibling; node != null; node = node.nextSibling) {
-                    if (nodeHasContent(node))
+                    if (Util_nodeHasContent(node))
                         return true;
                 }
                 return false;
@@ -225,7 +225,7 @@ var Lists_setOrderedList;
                     DOM_removeNodeButKeepChildren(liNode);
                 }
 
-                if (!nodeHasContent(listNode))
+                if (!Util_nodeHasContent(listNode))
                     DOM_deleteNode(listNode);
             }
         });

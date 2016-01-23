@@ -119,7 +119,7 @@ var Main_clientRectsBug;
 
     // public
     Main_isEmptyDocument = function() {
-        return !nodeHasContent(document.body);
+        return !Util_nodeHasContent(document.body);
     }
 
     // public
@@ -309,7 +309,7 @@ var Main_clientRectsBug;
 
     function fixEmptyBody() {
         for (var child = document.body.firstChild; child != null; child = child.nextSibling) {
-            if (nodeHasContent(child))
+            if (Util_nodeHasContent(child))
                 return;
         }
 
@@ -334,7 +334,7 @@ var Main_clientRectsBug;
                 throw new Error("document.documentElement is null");
             if (document.body == null)
                 throw new Error("document.body is null");
-            var timing = new TimingInfo();
+            var timing = new Util_TimingInfo();
             timing.start();
             DOM_assignNodeIds(document);
             timing.addEntry("DOM_assignNodeIds");
