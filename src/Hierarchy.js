@@ -26,7 +26,7 @@ var Hierarchy_avoidInlineChildren;
     function wrapInlineChildren(first,last,ancestors) {
         var haveNonWhitespace = false;
         for (var node = first; node != last.nextSibling; node = node.nextSibling) {
-            if (!isWhitespaceTextNode(node))
+            if (!Traversal_isWhitespaceTextNode(node))
                 haveNonWhitespace = true;
         }
         if (!haveNonWhitespace)
@@ -138,7 +138,7 @@ var Hierarchy_avoidInlineChildren;
 
     function nodeHasSignificantChildren(node) {
         for (var child = node.firstChild; child != null; child = child.nextSibling) {
-            if (!isWhitespaceTextNode(child))
+            if (!Traversal_isWhitespaceTextNode(child))
                 return true;
         }
         return false;
@@ -226,7 +226,7 @@ var Hierarchy_avoidInlineChildren;
             if (Types_isInlineNode(node) &&
                 Types_isContainerNode(node.parentNode) && (node.parentNode._type != HTML_LI) &&
                 (!weak || !Types_isTableCell(node.parentNode)) &&
-                !isWhitespaceTextNode(node)) {
+                !Traversal_isWhitespaceTextNode(node)) {
                 Hierarchy_wrapInlineNodesInParagraph(node);
                 return;
             }

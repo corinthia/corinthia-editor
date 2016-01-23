@@ -1285,7 +1285,7 @@ var TableRegion_splitCells;
 
         result.columnWidths = Tables_getColWidths(structure);
 
-        var caption = firstChildOfType(element,HTML_CAPTION);
+        var caption = Traversal_firstChildOfType(element,HTML_CAPTION);
         result.hasCaption = (caption != null);
 
         return result;

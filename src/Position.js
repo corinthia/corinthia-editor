@@ -148,21 +148,21 @@ var Position_atPoint;
 
         // Moving left from just after a table - go to the end of the caption (if there is one)
         if ((prev != null) && (prev._type == HTML_TABLE) && backwards) {
-            var firstChild = firstChildElement(prev);
+            var firstChild = Traversal_firstChildElement(prev);
             if ((firstChild._type == HTML_CAPTION))
                 return new Position(firstChild,firstChild.childNodes.length);
         }
 
         // Moving right from just before a table - bypass the the caption (if there is one)
         if ((next != null) && (next._type == HTML_TABLE) && forwards) {
-            var firstChild = firstChildElement(next);
+            var firstChild = Traversal_firstChildElement(next);
             if (firstChild._type == HTML_CAPTION)
                 return new Position(next,DOM_nodeOffset(firstChild)+1);
         }
 
         // Moving right from the end of a table - go to the start of the caption (if there is one)
         if ((node._type == HTML_TABLE) && (next == null) && forwards) {
-            var firstChild = firstChildElement(node);
+            var firstChild = Traversal_firstChildElement(node);
             if (firstChild._type == HTML_CAPTION)
                 return new Position(firstChild,0);
         }
@@ -330,7 +330,7 @@ var Position_atPoint;
             if (Types_isOpaqueNode(node))
                 return spaces;
             if (node.nodeType == Node.TEXT_NODE) {
-                if (isWhitespaceTextNode(node)) {
+                if (Traversal_isWhitespaceTextNode(node)) {
                     spaces += node.nodeValue.length;
                 }
                 else {
@@ -428,7 +428,7 @@ var Position_atPoint;
                          (node.previousSibling._type == HTML_BR) ||
                          Types_isNoteNode(node.previousSibling) ||
                          (Types_isParagraphNode(node.previousSibling)) ||
-                         (getNodeText(node.previousSibling).match(/\s$/)) ||
+                         (Traversal_getNodeText(node.previousSibling).match(/\s$/)) ||
                          Types_isItemNumber(node.previousSibling) ||
                          ((precedingText.length > 0))));
             }
@@ -486,7 +486,7 @@ var Position_atPoint;
             if ((nextNode != null) && Types_isItemNumber(nextNode))
                 return false;
             if ((prevNode != null) && Types_isItemNumber(prevNode))
-                return ((nextNode == null) || isWhitespaceTextNode(nextNode));
+                return ((nextNode == null) || Traversal_isWhitespaceTextNode(nextNode));
 
             if ((nextNode != null) && (nextType == HTML_BR))
                 return ((prevType == 0) || (prevType != HTML_TEXT));
@@ -1050,13 +1050,13 @@ var Position_atPoint;
     }
 
     function findLastTextRect() {
-        var node = lastDescendant(document.body);
+        var node = Traversal_lastDescendant(document.body);
 
         while ((node != null) &&
-               ((node.nodeType != Node.TEXT_NODE) || isWhitespaceTextNode(node))) {
+               ((node.nodeType != Node.TEXT_NODE) || Traversal_isWhitespaceTextNode(node))) {
             if (isEmptyParagraphNode(node))
                 return node.getBoundingClientRect();
-            node = prevNode(node);
+            node = Traversal_prevNode(node);
         }
 
         if (node != null) {
@@ -1071,13 +1071,13 @@ var Position_atPoint;
     }
 
     function findFirstTextRect() {
-        var node = firstDescendant(document.body);
+        var node = Traversal_firstDescendant(document.body);
 
         while ((node != null) &&
-               ((node.nodeType != Node.TEXT_NODE) || isWhitespaceTextNode(node))) {
+               ((node.nodeType != Node.TEXT_NODE) || Traversal_isWhitespaceTextNode(node))) {
             if (isEmptyParagraphNode(node))
                 return node.getBoundingClientRect();
-            node = nextNode(node);
+            node = Traversal_nextNode(node);
         }
 
         if (node != null) {

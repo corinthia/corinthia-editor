@@ -176,7 +176,7 @@ function removeWhitespaceAndCommentNodes(root) {
     });
 
     function recurse(node) {
-        if (isWhitespaceTextNode(node) || (node.nodeType == Node.COMMENT_NODE)) {
+        if (Traversal_isWhitespaceTextNode(node) || (node.nodeType == Node.COMMENT_NODE)) {
             DOM_deleteNode(node);
         }
         else {
@@ -397,7 +397,7 @@ function showNonEmptyTextNodes() {
 
     function recurse(node) {
         if (node.nodeType == Node.TEXT_NODE) {
-            if (!isWhitespaceTextNode(node))
+            if (!Traversal_isWhitespaceTextNode(node))
                 node.nodeValue = "{" + node.nodeValue + "}";
         }
         else {

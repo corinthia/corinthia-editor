@@ -298,7 +298,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         var justWhitespace = true;
         var result = new Position(node,offset);
         for (var i = 0; i < offset; i++) {
-            if (!isWhitespaceTextNode(node.childNodes[i]))
+            if (!Traversal_isWhitespaceTextNode(node.childNodes[i]))
                 justWhitespace = false;
             toMove.push(node.childNodes[i]);
         }
@@ -334,7 +334,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         var justWhitespace = true;
         var result =  new Position(node,offset);
         for (var i = offset; i < node.childNodes.length; i++) {
-            if (!isWhitespaceTextNode(node.childNodes[i]))
+            if (!Traversal_isWhitespaceTextNode(node.childNodes[i]))
                 justWhitespace = false;
             toMove.push(node.childNodes[i]);
         }
@@ -412,7 +412,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 
         var commonProperties = null;
         for (var i = 0; i < leafNodes.length; i++) {
-            if (!isWhitespaceTextNode(leafNodes[i]) || empty) {
+            if (!Traversal_isWhitespaceTextNode(leafNodes[i]) || empty) {
                 var leafNodeProperties = Formatting_getAllNodeProperties(leafNodes[i]);
                 if (leafNodeProperties["-uxwrite-paragraph-style"] == null)
                     leafNodeProperties["-uxwrite-paragraph-style"] = Types_Keys.NONE_STYLE;
@@ -446,7 +446,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                     if (ancestor.parentNode._type == HTML_LI) {
                         var havePrev = false;
                         for (var c = ancestor.previousSibling; c != null; c = c.previousSibling) {
-                            if (!isWhitespaceTextNode(c)) {
+                            if (!Traversal_isWhitespaceTextNode(c)) {
                                 havePrev = true;
                                 break;
                             }
@@ -659,7 +659,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                 inlineChildren.push(child);
         for (var i = 0; i < inlineChildren.length; i++) {
             if (inlineChildren[i].parentNode == parent) { // may already have been moved
-                if (!isWhitespaceTextNode(inlineChildren[i]))
+                if (!Traversal_isWhitespaceTextNode(inlineChildren[i]))
                     Hierarchy_wrapInlineNodesInParagraph(inlineChildren[i]);
             }
         }
@@ -813,7 +813,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                 for (var child = node.firstChild; child != null; child = next) {
                     next = child.nextSibling;
 
-                    if (isWhitespaceTextNode(child))
+                    if (Traversal_isWhitespaceTextNode(child))
                         continue;
 
                     var replacement = applyInlineFormatting(child,inlineProperties,special);
@@ -852,7 +852,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 
     // private
     function applyInlineFormatting(target,inlineProperties,special,applyToWhitespace) {
-        if (!applyToWhitespace && isWhitespaceTextNode(target))
+        if (!applyToWhitespace && Traversal_isWhitespaceTextNode(target))
             return;
 
         if (special.underline)
@@ -1019,7 +1019,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     // private
     function containsOnlyWhitespace(ancestor) {
         for (child = ancestor.firstChild; child != null; child = child.nextSibling) {
-            if (!isWhitespaceTextNode(child))
+            if (!Traversal_isWhitespaceTextNode(child))
                 return false;
         }
         return true;

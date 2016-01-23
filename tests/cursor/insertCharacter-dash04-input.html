@@ -6,7 +6,7 @@ function performTest()
 {
     Cursor_insertCharacter(" ",true);
     Cursor_insertCharacter("-",true);
-    var text = getNodeText(document.body).replace(/\s+$/,"");
+    var text = Traversal_getNodeText(document.body).replace(/\s+$/,"");
     var charCode = text.charCodeAt(text.length-1);
     var p = DOM_createElement(document,"P");
     DOM_appendChild(p,DOM_createTextNode(document,"charCode = "+charCode));

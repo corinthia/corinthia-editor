@@ -54,7 +54,7 @@ var AutoCorrect_replaceCorrection;
     }
 
     Correction.prototype.toString = function() {
-        return this.span.getAttribute("original")+" -> "+getNodeText(this.span);
+        return this.span.getAttribute("original")+" -> "+Traversal_getNodeText(this.span);
     }
 
     var correctionsByNode = null;
@@ -119,7 +119,7 @@ var AutoCorrect_replaceCorrection;
     AutoCorrect_removeCorrection = function(span) {
         var correction = correctionsByNode.get(span);
         if (correction == null)
-            throw new Error("No autocorrect entry for "+JSON.stringify(getNodeText(span)));
+            throw new Error("No autocorrect entry for "+JSON.stringify(Traversal_getNodeText(span)));
 
         var index = null;
         for (var i = 0; i < correctionList.length; i++) {
@@ -142,7 +142,7 @@ var AutoCorrect_replaceCorrection;
         for (var i = 0; i < correctionList.length; i++) {
             var correction = correctionList[i];
             result.push({ original: correction.span.getAttribute("original"),
-                          replacement: getNodeText(correction.span)});
+                          replacement: Traversal_getNodeText(correction.span)});
         }
         return result;
     }
@@ -188,7 +188,7 @@ var AutoCorrect_replaceCorrection;
             return null;
 
         return { original: correction.span.getAttribute("original"),
-                 replacement: getNodeText(correction.span) };
+                 replacement: Traversal_getNodeText(correction.span) };
     }
 
     AutoCorrect_getCorrectionCoords = function() {

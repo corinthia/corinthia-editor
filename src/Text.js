@@ -296,7 +296,7 @@ var Text_toEndOfBoundary;
     }
 
     Text_closestPosBackwards = function(pos) {
-        if (isNonWhitespaceTextNode(pos.node))
+        if (Traversal_isNonWhitespaceTextNode(pos.node))
             return pos;
         var node;
         if ((pos.node.nodeType == Node.ELEMENT_NODE) && (pos.offset > 0)) {
@@ -307,8 +307,8 @@ var Text_toEndOfBoundary;
         else {
             node = pos.node;
         }
-        while ((node != null) && (node != document.body) && !isNonWhitespaceTextNode(node))
-            node = prevNode(node);
+        while ((node != null) && (node != document.body) && !Traversal_isNonWhitespaceTextNode(node))
+            node = Traversal_prevNode(node);
 
         if ((node == null) || (node == document.body))
             return null;
@@ -317,7 +317,7 @@ var Text_toEndOfBoundary;
     }
 
     Text_closestPosForwards = function(pos) {
-        if (isNonWhitespaceTextNode(pos.node))
+        if (Traversal_isNonWhitespaceTextNode(pos.node))
             return pos;
         var node;
         if ((pos.node.nodeType == Node.ELEMENT_NODE) && (pos.offset < pos.node.childNodes.length)) {
@@ -326,11 +326,11 @@ var Text_toEndOfBoundary;
                 node = node.firstChild;
         }
         else {
-            node = nextNodeAfter(pos.node);
+            node = Traversal_nextNodeAfter(pos.node);
         }
-        while ((node != null) && !isNonWhitespaceTextNode(node)) {
+        while ((node != null) && !Traversal_isNonWhitespaceTextNode(node)) {
             var old = nodeString(node);
-            node = nextNode(node);
+            node = Traversal_nextNode(node);
         }
 
         if (node == null)

@@ -768,9 +768,9 @@ var DOM_Listener;
 
     // public
     DOM_removeAdjacentWhitespace = function(node) {
-        while ((node.previousSibling != null) && (isWhitespaceTextNode(node.previousSibling)))
+        while ((node.previousSibling != null) && (Traversal_isWhitespaceTextNode(node.previousSibling)))
             DOM_deleteNode(node.previousSibling);
-        while ((node.nextSibling != null) && (isWhitespaceTextNode(node.nextSibling)))
+        while ((node.nextSibling != null) && (Traversal_isWhitespaceTextNode(node.nextSibling)))
             DOM_deleteNode(node.nextSibling);
     }
 

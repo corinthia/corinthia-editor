@@ -18,7 +18,7 @@
 function getNodeArrayText(nodes) {
     var strings = new Array();
     for (var i = 0; i < nodes.length; i++)
-        strings.push(getNodeText(nodes[i]));
+        strings.push(Traversal_getNodeText(nodes[i]));
     return strings.join("");
 }
 

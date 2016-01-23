@@ -35,7 +35,7 @@ var Lists_setOrderedList;
             if (node == range.end.node)
                 break;
 
-            node = nextNode(node);
+            node = Traversal_nextNode(node);
         }
         return listItems;
 
@@ -49,7 +49,7 @@ var Lists_setOrderedList;
                 return;
             }
 
-            if (!isWhitespaceTextNode(node))
+            if (!Traversal_isWhitespaceTextNode(node))
                 addListItems(array,node.parentNode);
         }
     }
@@ -127,7 +127,7 @@ var Lists_setOrderedList;
 
         function firstDescendentList(node) {
             while (true) {
-                var node = firstChildElement(node);
+                var node = Traversal_firstChildElement(node);
                 if (node == null)
                     return null;
                 switch (node._type) {
@@ -140,7 +140,7 @@ var Lists_setOrderedList;
 
         function lastDescendentList(node) {
             while (true) {
-                var node = lastChildElement(node);
+                var node = Traversal_lastChildElement(node);
                 if (node == null)
                     return null;
                 switch (node._type) {
@@ -288,7 +288,7 @@ var Lists_setOrderedList;
             case HTML_UL:
             case HTML_OL:
                 for (var gc = child.firstChild; gc != null; gc = gc.nextSibling) {
-                    if (!isWhitespaceTextNode(gc))
+                    if (!Traversal_isWhitespaceTextNode(gc))
                         addNode(gc);
                 }
                 break;
@@ -297,7 +297,7 @@ var Lists_setOrderedList;
                      child.getAttribute("class") == Types_Keys.SELECTION_HIGHLIGHT) {
                     // skip
                 }
-                else if (!isWhitespaceTextNode(child)) {
+                else if (!Traversal_isWhitespaceTextNode(child)) {
                     addNode(child);
                 }
                 break;
@@ -358,7 +358,7 @@ var Lists_setOrderedList;
                     var child = li.firstChild;
                     while (child != null) {
                         var next = child.nextSibling;
-                        if (Types_isInlineNode(child) && !isWhitespaceTextNode(child)) {
+                        if (Types_isInlineNode(child) && !Traversal_isWhitespaceTextNode(child)) {
                             child = Hierarchy_wrapInlineNodesInParagraph(child);
                             next = child.nextSibling;
                         }
@@ -513,7 +513,7 @@ var Lists_setOrderedList;
                 if ((list.nextSibling != null) && (list.nextSibling._type == type)) {
                     var followingList = list.nextSibling;
                     while (followingList.firstChild != null) {
-                        if (isWhitespaceTextNode(followingList.firstChild))
+                        if (Traversal_isWhitespaceTextNode(followingList.firstChild))
                             DOM_deleteNode(followingList.firstChild);
                         else
                             DOM_insertBefore(list,followingList.firstChild,null);

@@ -72,7 +72,7 @@ var ChangeTracking_acceptSelectedChanges;
                     continue;
                 var empty = true;
                 for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                    if (!isWhitespaceTextNode(child)) {
+                    if (!Traversal_isWhitespaceTextNode(child)) {
                         empty = false;
                         break;
                     }

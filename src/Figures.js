@@ -68,7 +68,7 @@ var Figures_getGeometry;
         var rect = figure.getBoundingClientRect();
         var result = { width: null, src: null };
 
-        var img = firstDescendantOfType(figure,HTML_IMG);
+        var img = Traversal_firstDescendantOfType(figure,HTML_IMG);
         if (img != null) {
             result.src = decodeURI(img.getAttribute("src"));
             result.width = img.style.width;
@@ -84,7 +84,7 @@ var Figures_getGeometry;
         var figure = document.getElementById(itemId);
         if (figure == null)
             return null;
-        var img = firstDescendantOfType(figure,HTML_IMG);
+        var img = Traversal_firstDescendantOfType(figure,HTML_IMG);
         if (img != null) {
             if (src == null)
                 DOM_removeAttribute(img,"src");
@@ -103,11 +103,11 @@ var Figures_getGeometry;
         var figure = document.getElementById(itemId);
         if ((figure == null) || (figure.parentNode == null))
             return null;
-        var img = firstDescendantOfType(figure,HTML_IMG);
+        var img = Traversal_firstDescendantOfType(figure,HTML_IMG);
         if (img == null)
             return null;
 
-        var figcaption = firstChildOfType(figure,HTML_FIGCAPTION);
+        var figcaption = Traversal_firstChildOfType(figure,HTML_FIGCAPTION);
 
         var result = new Object();
         result.contentRect = xywhAbsElementRect(img);

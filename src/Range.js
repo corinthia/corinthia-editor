@@ -356,7 +356,7 @@ var Range_getText;
 
         var haveContent = false;
         for (var i = 0; i < outermost.length; i++) {
-            if (!isWhitespaceTextNode(outermost[i]))
+            if (!Traversal_isWhitespaceTextNode(outermost[i]))
                 haveContent = true;
             nodeSet.add(outermost[i]);
             for (var node = outermost[i]; node != null; node = node.parentNode)
@@ -467,7 +467,7 @@ var Range_getText;
         if (start.node.nodeType == Node.ELEMENT_NODE) {
             if ((start.node.offset == start.node.childNodes.length) &&
                 (start.node.offset > 0))
-                startNode = nextNodeAfter(start.node);
+                startNode = Traversal_nextNodeAfter(start.node);
             else
                 startNode = start.node.childNodes[start.offset];
             startOffset = 0;
@@ -479,7 +479,7 @@ var Range_getText;
         if (end.node.nodeType == Node.ELEMENT_NODE) {
             if ((end.node.offset == end.node.childNodes.length) &&
                 (end.node.offset > 0))
-                endNode = nextNodeAfter(end.node);
+                endNode = Traversal_nextNodeAfter(end.node);
             else
                 endNode = end.node.childNodes[end.offset];
             endOffset = 0;
@@ -521,7 +521,7 @@ var Range_getText;
                 break;
 
 
-            var next = nextNode(node,entering,exiting);
+            var next = Traversal_nextNode(node,entering,exiting);
             node = next;
         }
         return components.join("");

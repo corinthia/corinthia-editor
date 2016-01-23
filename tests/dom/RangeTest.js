@@ -26,7 +26,7 @@ function removeWhitespaceTextNodes(parent) {
     var next;
     for (var child = parent.firstChild; child != null; child = next) {
         next = child.nextSibling;
-        if (isWhitespaceTextNode(child) || (child.nodeType == Node.COMMENT_NODE))
+        if (Traversal_isWhitespaceTextNode(child) || (child.nodeType == Node.COMMENT_NODE))
             DOM_deleteNode(child);
         else
             removeWhitespaceTextNodes(child);

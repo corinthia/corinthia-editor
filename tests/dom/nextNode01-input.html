@@ -9,7 +9,7 @@ function performTest()
     var current = document.body;
     while (current != null) {
         result.push(stringForNode(current));
-        current = nextNode(current);
+        current = Traversal_nextNode(current);
     }
     return result.join("\n");
 

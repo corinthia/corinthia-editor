@@ -95,14 +95,14 @@ var Outline_scheduleUpdateStructure;
         return item;
 
         function findPrevItemOfType(node,typeFun) {
-            do node = prevNode(node);
+            do node = Traversal_prevNode(node);
             while ((node != null) && !typeFun(node));
             return (node == null) ? null : itemsByNode.get(node);
         }
     }
 
     function findFirstTextDescendant(node) {
-        if (isWhitespaceTextNode(node))
+        if (Traversal_isWhitespaceTextNode(node))
             return;
         if (node.nodeType == Node.TEXT_NODE)
             return node;
@@ -359,7 +359,7 @@ var Outline_scheduleUpdateStructure;
     function OutlineItem_updateItemTitle(item) {
         var titleNode = OutlineItem_getTitleNode(item,false);
         if (titleNode != null)
-            newTitle = normalizeWhitespace(getNodeText(titleNode));
+            newTitle = normalizeWhitespace(Traversal_getNodeText(titleNode));
         else
             newTitle = "";
 
@@ -376,7 +376,7 @@ var Outline_scheduleUpdateStructure;
     function getNodeTextAfter(node) {
         var text = "";
         for (var child = node.nextSibling; child != null; child = child.nextSibling)
-            text += getNodeText(child);
+            text += Traversal_getNodeText(child);
         return text;
     }
 
@@ -817,12 +817,12 @@ var Outline_scheduleUpdateStructure;
                     if (item.numberSpan != null)
                         text = getNodeTextAfter(item.numberSpan);
                     else
-                        text = normalizeWhitespace(getNodeText(item.node));
+                        text = normalizeWhitespace(Traversal_getNodeText(item.node));
                 }
                 else if ((item.type == "figure") || (item.type == "table")) {
                     var titleNode = OutlineItem_getTitleNode(item,false);
                     if (titleNode != null) {
-                        text = getNodeText(titleNode);
+                        text = Traversal_getNodeText(titleNode);
 
                         if ((item.computedNumber != null) && (item.type == "figure"))
                             text = "Figure "+item.computedNumber+": "+text;
@@ -836,7 +836,7 @@ var Outline_scheduleUpdateStructure;
                     if (item.numberSpan != null)
                         text = getNodeTextAfter(item.numberSpan);
                     else
-                        text = normalizeWhitespace(getNodeText(item.node));
+                        text = normalizeWhitespace(Traversal_getNodeText(item.node));
                 }
                 else if ((item.type == "figure") || (item.type == "table")) {
                     var titleNode = OutlineItem_getTitleNode(item,false);
@@ -844,7 +844,7 @@ var Outline_scheduleUpdateStructure;
                         if (item.numberSpan != null)
                             text = getNodeTextAfter(item.numberSpan);
                         else
-                            text = normalizeWhitespace(getNodeText(titleNode));
+                            text = normalizeWhitespace(Traversal_getNodeText(titleNode));
                     }
                 }
             }
@@ -886,7 +886,7 @@ var Outline_scheduleUpdateStructure;
         for (var figure = figures.list.first; figure != null; figure = figure.next) {
             var shadow = structure.shadowsByNode.get(figure.node);
             var titleNode = OutlineItem_getTitleNode(figure,false);
-            var title = titleNode ? getNodeText(titleNode) : "[no caption]";
+            var title = titleNode ? Traversal_getNodeText(titleNode) : "[no caption]";
             if (shadow.item.computedNumber != null) {
                 if (title.length > 0)
                     title = shadow.item.computedNumber+" "+title;
@@ -899,7 +899,7 @@ var Outline_scheduleUpdateStructure;
         for (var table = tables.list.first; table != null; table = table.next) {
             var shadow = structure.shadowsByNode.get(table.node);
             var titleNode = OutlineItem_getTitleNode(table,false);
-            var title = titleNode ? getNodeText(titleNode) : "[no caption]";
+            var title = titleNode ? Traversal_getNodeText(titleNode) : "[no caption]";
             if (shadow.item.computedNumber != null) {
                 if (title.length > 0)
                     title = shadow.item.computedNumber+" "+title;
@@ -912,7 +912,7 @@ var Outline_scheduleUpdateStructure;
 
         function printSectionRecursive(shadow,indent) {
             var titleNode = OutlineItem_getTitleNode(shadow.item,false);
-            var content = getNodeText(titleNode);
+            var content = Traversal_getNodeText(titleNode);
             if (shadow.item.computedNumber != null)
                 content = shadow.item.computedNumber+" "+content;
             if (isWhitespaceString(content))

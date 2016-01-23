@@ -96,7 +96,7 @@ var Clipboard_pasteNodes;
             }
             else {
                 if (!foundNonWhitespaceChild) {
-                    if (isWhitespaceTextNode(child))
+                    if (Traversal_isWhitespaceTextNode(child))
                         continue;
                     beginParagraph(md,0,indent,nextIndent);
                     indent = nextIndent;
@@ -641,7 +641,7 @@ var Clipboard_pasteNodes;
                     prevLI = null;
                     break;
                 default:
-                    if (!isWhitespaceTextNode(child)) {
+                    if (!Traversal_isWhitespaceTextNode(child)) {
                         if (prevLI == null)
                             prevLI = DOM_createElement(document,"LI");
                         DOM_appendChild(prevLI,child);

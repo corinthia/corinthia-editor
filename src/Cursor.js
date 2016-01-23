@@ -253,7 +253,7 @@ var Cursor_insertEndnote;
             do {
 
                 var child = last;
-                while ((child != null) && isWhitespaceTextNode(child))
+                while ((child != null) && Traversal_isWhitespaceTextNode(child))
                     child = child.previousSibling;
 
                 if ((child != null) && (child._type == HTML_BR))
@@ -743,7 +743,7 @@ var Cursor_insertEndnote;
                     var next;
                     for (var child = prev.firstChild; child != null; child = next) {
                         next = child.nextSibling;
-                        if (isWhitespaceTextNode(child))
+                        if (Traversal_isWhitespaceTextNode(child))
                             DOM_deleteNode(child);
                         else
                             Cursor_updateBRAtEndOfParagraph(child);
@@ -878,7 +878,7 @@ var Cursor_insertEndnote;
             return null;
 
         return { href: a.getAttribute("href"),
-                 text: getNodeText(a) };
+                 text: Traversal_getNodeText(a) };
     }
 
     Cursor_setLinkProperties = function(properties) {

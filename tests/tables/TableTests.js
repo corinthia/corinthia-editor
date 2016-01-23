@@ -44,7 +44,7 @@ function showTableStructure() {
             else {
                 lines.push("Cell at ("+row+","+col+") = "+
                            cell.rowspan+"x"+cell.colspan+" "+
-                           JSON.stringify(getNodeText(cell.element)));
+                           JSON.stringify(Traversal_getNodeText(cell.element)));
             }
         }
     }

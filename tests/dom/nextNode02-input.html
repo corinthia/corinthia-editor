@@ -10,7 +10,7 @@ function performTest()
     var indent = "";
     while (current != null) {
         result.push(indent+"Current "+stringForNode(current));
-        current = nextNode(current,entering,exiting);
+        current = Traversal_nextNode(current,entering,exiting);
     }
     return result.join("\n");
 

@@ -381,7 +381,7 @@ var Selection_print;
                                nextText,0,false,true);
             DOM_deleteNode(node);
         }
-        else if (!isWhitespaceTextNode(node)) {
+        else if (!Traversal_isWhitespaceTextNode(node)) {
             // Call moveCharacters() with an empty range, to force any tracked positions
             // that are at the end of prevText or the start of nextText to move into this
             // node
@@ -731,9 +731,9 @@ var Selection_print;
             var nodeBefore = node.childNodes[offset-1];
             var nodeAfter = node.childNodes[offset];
 
-            if ((nodeBefore != null) && !isWhitespaceTextNode(nodeBefore))
+            if ((nodeBefore != null) && !Traversal_isWhitespaceTextNode(nodeBefore))
                 return new Range(node,offset-1,node,offset);
-            else if ((nodeAfter != null) && !isWhitespaceTextNode(nodeAfter))
+            else if ((nodeAfter != null) && !Traversal_isWhitespaceTextNode(nodeAfter))
                 return new Range(node,offset,node,offset+1);
         }
 
@@ -1127,7 +1127,7 @@ var Selection_print;
             var nonWhitespaceInline = false;
 
             for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                if (Types_isInlineNode(child) && !isWhitespaceTextNode(child))
+                if (Types_isInlineNode(child) && !Traversal_isWhitespaceTextNode(child))
                     nonWhitespaceInline = true;
 
                 if (Types_isParagraphNode(child)) {
@@ -1185,7 +1185,7 @@ var Selection_print;
             }
             if (!nodeHasContent(li))
                 DOM_deleteNode(li);
-            if (firstChildElement(list) == null)
+            if (Traversal_firstChildElement(list) == null)
                 DOM_deleteNode(list);
         }
         else if (Types_isParagraphNode(detail.endAncestor) &&
