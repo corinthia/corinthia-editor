@@ -60,7 +60,6 @@ function loadCode() {
                            "../src/Selection.js",
                            "../src/3rdparty/showdown/showdown.js",
                            "../src/Scan.js",
-                           "../src/StringBuilder.js",
                            "../src/Styles.js",
                            "../src/Tables.js",
                            "../src/Text.js",
