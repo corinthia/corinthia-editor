@@ -10,7 +10,7 @@ function performTest()
     Tables_insertTable(2,3,"100%",true,"Test caption");
     PostponedActions_perform();
 
-    var pos = new Position(document.body,document.body.childNodes.length);
+    var pos = new Position_Position(document.body,document.body.childNodes.length);
     pos = Position_closestMatchBackwards(pos,Position_okForMovement);
     Selection_set(pos.node,pos.offset,pos.node,pos.offset);
 

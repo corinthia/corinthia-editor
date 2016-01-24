@@ -182,7 +182,7 @@ var Text_toEndOfBoundary;
             }
 
 
-            pos = new Position(paragraph.node,paragraph.startOffset);
+            pos = new Position_Position(paragraph.node,paragraph.startOffset);
             pos = Position_prevMatch(pos,Position_okForMovement);
         }
     }
@@ -290,7 +290,7 @@ var Text_toEndOfBoundary;
                 }
             }
 
-            pos = new Position(paragraph.node,paragraph.endOffset);
+            pos = new Position_Position(paragraph.node,paragraph.endOffset);
             pos = Position_nextMatch(pos,Position_okForMovement);
         }
     }
@@ -313,7 +313,7 @@ var Text_toEndOfBoundary;
         if ((node == null) || (node == document.body))
             return null;
         else
-            return new Position(node,node.nodeValue.length);
+            return new Position_Position(node,node.nodeValue.length);
     }
 
     Text_closestPosForwards = function(pos) {
@@ -336,7 +336,7 @@ var Text_toEndOfBoundary;
         if (node == null)
             return null;
         else
-            return new Position(node,0);
+            return new Position_Position(node,0);
     }
 
     Text_closestPosInDirection = function(pos,direction) {
@@ -389,7 +389,7 @@ var Text_toEndOfBoundary;
         var run = Paragraph_runFromOffset(paragraph,offset,end);
         if (run == null)
             throw new Error("Run at offset "+offset+" not found");
-        return new Position(run.node,offset-run.start);
+        return new Position_Position(run.node,offset-run.start);
     }
 
     Paragraph_offsetAtPosition = function(paragraph,pos) {
@@ -438,7 +438,7 @@ var Text_toEndOfBoundary;
         if (paragraph == null)
             return null;
 
-        var newPos = new Position(paragraph.node,paragraph.startOffset);
+        var newPos = new Position_Position(paragraph.node,paragraph.startOffset);
         return Position_closestMatchForwards(newPos,Position_okForMovement);
     }
 
@@ -450,7 +450,7 @@ var Text_toEndOfBoundary;
         if (paragraph == null)
             return null;
 
-        var newPos = new Position(paragraph.node,paragraph.endOffset);
+        var newPos = new Position_Position(paragraph.node,paragraph.endOffset);
         return Position_closestMatchBackwards(newPos,Position_okForMovement);
     }
 

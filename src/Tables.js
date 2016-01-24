@@ -227,7 +227,7 @@ var TableRegion_splitCells;
         Outline_setNumbered(table.getAttribute("id"),numbered);
 
         // Place the cursor at the start of the first cell on the first row
-        var pos = new Position(firstTD,0);
+        var pos = new Position_Position(firstTD,0);
         pos = Position_closestMatchForwards(pos,Position_okForMovement);
         Selection_set(pos.node,pos.offset,pos.node,pos.offset);
 
@@ -562,10 +562,10 @@ var TableRegion_splitCells;
         var tlCell = Table_get(table,top,left);
         var brCell = Table_get(table,bottom,right);
         if ((tlCell != null) && (brCell != null)) {
-            var tlPos = new Position(tlCell.element,0);
+            var tlPos = new Position_Position(tlCell.element,0);
             tlPos = Position_closestMatchForwards(tlPos,Position_okForMovement);
 
-            var brPos = new Position(brCell.element,brCell.element.childNodes.length);
+            var brPos = new Position_Position(brCell.element,brCell.element.childNodes.length);
             brPos = Position_closestMatchBackwards(brPos,Position_okForMovement);
 
             Selection_set(tlPos.node,tlPos.offset,brPos.node,brPos.offset);
@@ -661,7 +661,7 @@ var TableRegion_splitCells;
                 var newRow = clampRow(table,bottom);
                 var newCell = Table_get(table,newRow,left);
                 if (newCell != null) {
-                    var pos = new Position(newCell.element,0);
+                    var pos = new Position_Position(newCell.element,0);
                     pos = Position_closestMatchForwards(pos,Position_okForMovement);
                     Selection_set(pos.node,pos.offset,pos.node,pos.offset);
                 }
@@ -743,7 +743,7 @@ var TableRegion_splitCells;
                 var newCol = clampCol(table,right);
                 var newCell = Table_get(table,top,newCol);
                 if (newCell != null) {
-                    var pos = new Position(newCell.element,0);
+                    var pos = new Position_Position(newCell.element,0);
                     pos = Position_closestMatchForwards(pos,Position_okForMovement);
                     Selection_set(pos.node,pos.offset,pos.node,pos.offset);
                 }

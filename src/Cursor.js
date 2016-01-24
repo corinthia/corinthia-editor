@@ -144,9 +144,9 @@ var Cursor_insertEndnote;
             else if (Types_isTOCNode(node)) {
                 var rect = node.getBoundingClientRect();
                 if (x >= rect.left + rect.width/2)
-                    position = new Position(node.parentNode,DOM_nodeOffset(node)+1);
+                    position = new Position_Position(node.parentNode,DOM_nodeOffset(node)+1);
                 else
-                    position = new Position(node.parentNode,DOM_nodeOffset(node));
+                    position = new Position_Position(node.parentNode,DOM_nodeOffset(node));
                 break;
             }
         }
@@ -225,7 +225,7 @@ var Cursor_insertEndnote;
 
     // public
     Cursor_moveToStartOfDocument = function() {
-        var pos = new Position(document.body,0);
+        var pos = new Position_Position(document.body,0);
         pos = Position_closestMatchBackwards(pos,Position_okForMovement);
         Cursor_set(pos.node,pos.offset);
         Cursor_ensureCursorVisible();
@@ -233,7 +233,7 @@ var Cursor_insertEndnote;
 
     // public
     Cursor_moveToEndOfDocument = function() {
-        var pos = new Position(document.body,document.body.childNodes.length);
+        var pos = new Position_Position(document.body,document.body.childNodes.length);
         pos = Position_closestMatchForwards(pos,Position_okForMovement);
         Cursor_set(pos.node,pos.offset);
         Cursor_ensureCursorVisible();
@@ -466,7 +466,7 @@ var Cursor_insertEndnote;
 
         offset += str.length;
 
-        pos = new Position(node,offset);
+        pos = new Position_Position(node,offset);
         Position_trackWhileExecuting([pos],function() {
             Formatting_mergeWithNeighbours(pos.node,Formatting_MERGEABLE_INLINE);
         });
@@ -700,7 +700,7 @@ var Cursor_insertEndnote;
             if (Types_isContainerNode(pos.node) && (pos.node._type != HTML_LI)) {
                 var p = DOM_createElement(document,"P");
                 DOM_insertBefore(pos.node,p,pos.node.childNodes[pos.offset]);
-                pos = new Position(p,0);
+                pos = new Position_Position(p,0);
             }
 
             var blockToSplit = getBlockToSplit(pos);
@@ -708,7 +708,7 @@ var Cursor_insertEndnote;
 
             if (positionAtStartOfHeading(pos)) {
                 var container = getContainerOrParagraph(pos.node);
-                pos = new Position(container,0);
+                pos = new Position_Position(container,0);
                 pos = Formatting_movePreceding(pos,function(n) { return (n == stopAt); },true);
             }
             else if (pos.node.nodeType == Node.TEXT_NODE) {
@@ -937,8 +937,8 @@ var Cursor_insertEndnote;
         if ((offset > 0) && Types_isItemNumber(parent.childNodes[offset-1]))
             offset--;
 
-        Formatting_moveFollowing(new Position(parent,offset),Types_isContainerNode);
-        Formatting_movePreceding(new Position(parent,offset),Types_isContainerNode);
+        Formatting_moveFollowing(new Position_Position(parent,offset),Types_isContainerNode);
+        Formatting_movePreceding(new Position_Position(parent,offset),Types_isContainerNode);
 
         offset = 0;
         while (!Types_isContainerNode(parent)) {
@@ -992,7 +992,7 @@ var Cursor_insertEndnote;
         if ((pos.node._type == HTML_TEXT) &&
             (pos.node.nodeValue.length == 0)) {
             var empty = pos.node;
-            pos = new Position(empty.parentNode,DOM_nodeOffset(empty));
+            pos = new Position_Position(empty.parentNode,DOM_nodeOffset(empty));
             DOM_deleteNode(empty);
         }
         else {

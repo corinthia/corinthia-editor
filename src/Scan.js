@@ -39,7 +39,7 @@ var Scan_goToMatch;
     var curParagraph = null;
 
     Scan_reset = function() {
-        curPos = new Position(document.body,0);
+        curPos = new Position_Position(document.body,0);
         curParagraph = null;
         clearMatches();
     }
@@ -86,8 +86,8 @@ var Scan_goToMatch;
         if (endRun == null)
             throw new Error("No end run");
 
-        var startPos = new Position(startRun.node,start - startRun.start);
-        var endPos = new Position(endRun.node,end - endRun.start);
+        var startPos = new Position_Position(startRun.node,start - startRun.start);
+        var endPos = new Position_Position(endRun.node,end - endRun.start);
         Position_track(startPos);
         Position_track(endPos);
 

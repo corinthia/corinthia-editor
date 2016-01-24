@@ -48,7 +48,7 @@ var Figures_getGeometry;
 
         // Place the cursor directly after the figure
         var offset = DOM_nodeOffset(figure);
-        var pos = new Position(figure.parentNode,offset);
+        var pos = new Position_Position(figure.parentNode,offset);
         pos = Position_closestMatchForwards(pos,Position_okForMovement);
         Selection_set(pos.node,pos.offset,pos.node,pos.offset);
 

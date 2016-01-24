@@ -616,8 +616,8 @@ var Selection_print;
         while (!Types_isParagraphNode(endNode) && !Types_isContainerNode(endNode))
             endNode = endNode.parentNode;
 
-        var startPos = new Position(startNode,0);
-        var endPos = new Position(endNode,DOM_maxChildOffset(endNode));
+        var startPos = new Position_Position(startNode,0);
+        var endPos = new Position_Position(endNode,DOM_maxChildOffset(endNode));
         startPos = Position_closestMatchForwards(startPos,Position_okForMovement);
         endPos = Position_closestMatchBackwards(endPos,Position_okForMovement);
 
@@ -665,7 +665,7 @@ var Selection_print;
             var matches = before.match(reWordEnd);
             if (matches) {
                 var wordStart = offset - matches[0].length;
-                return new Position(node,wordStart);
+                return new Position_Position(node,wordStart);
             }
         }
 
@@ -681,7 +681,7 @@ var Selection_print;
             var matches = after.match(reWordStart);
             if (matches) {
                 var wordEnd = offset + matches[0].length;
-                return new Position(node,wordEnd);
+                return new Position_Position(node,wordEnd);
             }
         }
 
@@ -1065,8 +1065,8 @@ var Selection_print;
 
     function fixPositionOutside(pos,node) {
         if (pos.node == node) {
-            var before = new Position(node.parentNode,DOM_nodeOffset(node));
-            var after = new Position(node.parentNode,DOM_nodeOffset(node)+1);
+            var before = new Position_Position(node.parentNode,DOM_nodeOffset(node));
+            var after = new Position_Position(node.parentNode,DOM_nodeOffset(node)+1);
             before = Position_prevMatch(before,Position_okForMovement);
             after = Position_nextMatch(after,Position_okForMovement);
 
@@ -1286,9 +1286,9 @@ var Selection_print;
             }
 
             if (doStart && (startContainer != document.body))
-                start = new Position(startContainer.parentNode,DOM_nodeOffset(startContainer));
+                start = new Position_Position(startContainer.parentNode,DOM_nodeOffset(startContainer));
             if (doEnd && (endContainer != document.body))
-                end = new Position(endContainer.parentNode,DOM_nodeOffset(endContainer)+1);
+                end = new Position_Position(endContainer.parentNode,DOM_nodeOffset(endContainer)+1);
         }
         return new Range(start.node,start.offset,end.node,end.offset);
 

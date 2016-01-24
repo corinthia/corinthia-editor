@@ -1018,7 +1018,7 @@ var Outline_scheduleUpdateStructure;
                 DOM_insertBefore(next.item.node.parentNode,sectionNodes[i],next.item.node);
         }
 
-        var pos = new Position(node,0,node,0);
+        var pos = new Position_Position(node,0,node,0);
         pos = Position_closestMatchForwards(pos,Position_okForInsertion);
         Selection_set(pos.node,pos.offset,pos.node,pos.offset);
 
@@ -1076,7 +1076,7 @@ var Outline_scheduleUpdateStructure;
                 // be thrown.
                 return;
             }
-            var position = new Position(node,0);
+            var position = new Position_Position(node,0);
             position = Position_closestMatchForwards(position,Position_okForMovement);
             Selection_set(position.node,position.offset,position.node,position.offset);
 

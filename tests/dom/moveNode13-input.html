@@ -5,7 +5,7 @@
 function performTest()
 {
     var ps = document.getElementsByTagName("P");
-    var position = new Position(ps[0],0);
+    var position = new Position_Position(ps[0],0);
 
     Position_trackWhileExecuting([position],function() {
         DOM_insertBefore(document.body,ps[0],ps[1]);

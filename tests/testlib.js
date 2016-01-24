@@ -75,18 +75,18 @@ function testHarnessSetup() {
                     var offsetInParent = DOM_nodeOffset(node);
                     if (index == 0) {
                         node.nodeValue = node.nodeValue.substring(1);
-                        return new Position(node.parentNode,offsetInParent);
+                        return new Position_Position(node.parentNode,offsetInParent);
                     }
                     else if (index == node.nodeValue.length - 1) {
                         node.nodeValue = node.nodeValue.substring(0,node.nodeValue.length-1);
-                        return new Position(node.parentNode,offsetInParent+1);
+                        return new Position_Position(node.parentNode,offsetInParent+1);
                     }
                     else {
                         var rest = node.nodeValue.substring(index+1);
                         node.nodeValue = node.nodeValue.substring(0,index);
                         var restNode = DOM_createTextNode(document,rest);
                         DOM_insertBefore(node.parentNode,restNode,node.nextSibling);
-                        return new Position(node.parentNode,offsetInParent+1);
+                        return new Position_Position(node.parentNode,offsetInParent+1);
                     }
                 }
             }
@@ -122,9 +122,9 @@ function insertTextAtPosition(position,str) {
         var before = position.node.childNodes[position.offset-1];
         var after = position.node.childNodes[position.offset];
         if ((after != null) && (after.nodeType == Node.TEXT_NODE))
-            position = new Position(after,0);
+            position = new Position_Position(after,0);
         else if ((before != null) && (before.nodeType == Node.TEXT_NODE))
-            position = new Position(before,before.nodeValue.length);
+            position = new Position_Position(before,before.nodeValue.length);
     }
     if (position.node.nodeType == Node.ELEMENT_NODE) {
         insertAtPosition(position,DOM_createTextNode(document,str));

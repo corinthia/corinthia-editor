@@ -127,7 +127,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                 Formatting_movePreceding(range.start,Types_isBlockOrNoteNode);
             }
             else {
-                Formatting_movePreceding(new Position(range.start.node.parentNode,
+                Formatting_movePreceding(new Position_Position(range.start.node.parentNode,
                                                       DOM_nodeOffset(range.start.node)),
                                          Types_isBlockOrNoteNode);
             }
@@ -147,7 +147,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                 Formatting_moveFollowing(range.end,Types_isBlockOrNoteNode);
             }
             else {
-                Formatting_moveFollowing(new Position(range.end.node.parentNode,
+                Formatting_moveFollowing(new Position_Position(range.end.node.parentNode,
                                                       DOM_nodeOffset(range.end.node)+1),
                                          Types_isBlockOrNoteNode);
             }
@@ -250,12 +250,12 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
             var before = DOM_createTextNode(document,"");
             DOM_insertBefore(node.parentNode,before,node);
             DOM_moveCharacters(node,0,offset,before,0,false,true);
-            Formatting_movePreceding(new Position(node.parentNode,DOM_nodeOffset(node)),
+            Formatting_movePreceding(new Position_Position(node.parentNode,DOM_nodeOffset(node)),
                                      parentCheckFn,force);
-            return new Position(before,before.nodeValue.length);
+            return new Position_Position(before,before.nodeValue.length);
         }
         else {
-            Formatting_movePreceding(new Position(node.parentNode,DOM_nodeOffset(node)),
+            Formatting_movePreceding(new Position_Position(node.parentNode,DOM_nodeOffset(node)),
                                      parentCheckFn,force);
             return pos;
         }
@@ -272,12 +272,12 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
             var after = DOM_createTextNode(document,"");
             DOM_insertBefore(node.parentNode,after,node.nextSibling);
             DOM_moveCharacters(node,offset,node.nodeValue.length,after,0,true,false);
-            Formatting_moveFollowing(new Position(node.parentNode,DOM_nodeOffset(node)+1),
+            Formatting_moveFollowing(new Position_Position(node.parentNode,DOM_nodeOffset(node)+1),
                                      parentCheckFn,force);
-            return new Position(after,0);
+            return new Position_Position(after,0);
         }
         else {
-            Formatting_moveFollowing(new Position(node.parentNode,DOM_nodeOffset(node)+1),
+            Formatting_moveFollowing(new Position_Position(node.parentNode,DOM_nodeOffset(node)+1),
                                      parentCheckFn,force);
             return pos;
         }
@@ -292,11 +292,11 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         var node = pos.node;
         var offset = pos.offset;
         if (parentCheckFn(node) || (node == document.body))
-            return new Position(node,offset);
+            return new Position_Position(node,offset);
 
         var toMove = new Array();
         var justWhitespace = true;
-        var result = new Position(node,offset);
+        var result = new Position_Position(node,offset);
         for (var i = 0; i < offset; i++) {
             if (!Traversal_isWhitespaceTextNode(node.childNodes[i]))
                 justWhitespace = false;
@@ -314,11 +314,11 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 
                 for (var i = 0; i < toMove.length; i++)
                     DOM_insertBefore(copy,toMove[i],null);
-                result = new Position(copy,copy.childNodes.length);
+                result = new Position_Position(copy,copy.childNodes.length);
             }
         }
 
-        Formatting_movePreceding(new Position(node.parentNode,DOM_nodeOffset(node)),
+        Formatting_movePreceding(new Position_Position(node.parentNode,DOM_nodeOffset(node)),
                                  parentCheckFn,force);
         return result;
     }
@@ -328,11 +328,11 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         var node = pos.node;
         var offset = pos.offset;
         if (parentCheckFn(node) || (node == document.body))
-            return new Position(node,offset);
+            return new Position_Position(node,offset);
 
         var toMove = new Array();
         var justWhitespace = true;
-        var result =  new Position(node,offset);
+        var result =  new Position_Position(node,offset);
         for (var i = offset; i < node.childNodes.length; i++) {
             if (!Traversal_isWhitespaceTextNode(node.childNodes[i]))
                 justWhitespace = false;
@@ -350,11 +350,11 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 
                 for (var i = 0; i < toMove.length; i++)
                     DOM_insertBefore(copy,toMove[i],null);
-                result = new Position(copy,0);
+                result = new Position_Position(copy,0);
             }
         }
 
-        Formatting_moveFollowing(new Position(node.parentNode,DOM_nodeOffset(node)+1),
+        Formatting_moveFollowing(new Position_Position(node.parentNode,DOM_nodeOffset(node)+1),
                                  parentCheckFn,force);
         return result;
     }

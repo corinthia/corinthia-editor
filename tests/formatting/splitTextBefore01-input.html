@@ -17,14 +17,14 @@ function performTest()
 
     var positions = new Array();
     for (var i = 0; i <= text1.nodeValue.length; i++)
-        positions.push(new Position(text1,i));
+        positions.push(new Position_Position(text1,i));
 
     var origStrings = new Array();
     for (var i = 0; i < positions.length; i++)
         origStrings.push(positions[i].toString());
 
     Position_trackWhileExecuting(positions,function() {
-        Formatting_splitTextBefore(new Position(text1,5));
+        Formatting_splitTextBefore(new Position_Position(text1,5));
     });
 
     var movedStrings = new Array();

@@ -23,7 +23,7 @@ function pad(str,length) {
 }
 
 function selectRange(p,start,end) {
-    var paragraph = Text_analyseParagraph(new Position(p,0));
+    var paragraph = Text_analyseParagraph(new Position_Position(p,0));
     var startPos = Paragraph_positionAtOffset(paragraph,start);
     var endPos = Paragraph_positionAtOffset(paragraph,end);
     Selection_set(startPos.node,startPos.offset,endPos.node,endPos.offset);
@@ -78,7 +78,7 @@ function setPositionList(newList) {
     if (newList == null)
         positionList = null;
     else
-        positionList = newList.map(function (pos) { return new Position(pos.node,pos.offset); });
+        positionList = newList.map(function (pos) { return new Position_Position(pos.node,pos.offset); });
 }
 
 function getPositionList() {
@@ -96,7 +96,7 @@ function positionTest(start1,end1,start2,end2) {
 
     var positions = new Array();
     for (var i = 0; i <= text.length; i++)
-        positions.push(new Position(text,i));
+        positions.push(new Position_Position(text,i));
     setPositionList(positions);
 
     var origStrings = makeStringArray(positions);

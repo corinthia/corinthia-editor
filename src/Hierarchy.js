@@ -159,7 +159,7 @@ var Hierarchy_avoidInlineChildren;
             if (checkInvalidHeadingNesting(node)) {
                 var offset = DOM_nodeOffset(node);
                 var parent = node.parentNode;
-                Formatting_moveFollowing(new Position(node.parentNode,offset+1),
+                Formatting_moveFollowing(new Position_Position(node.parentNode,offset+1),
                                          function() { return false; });
                 DOM_insertBefore(node.parentNode.parentNode,
                                  node,
@@ -200,7 +200,7 @@ var Hierarchy_avoidInlineChildren;
                     while (checkInvalidNesting(node)) {
                         var offset = DOM_nodeOffset(node);
                         var parent = node.parentNode;
-                        Formatting_moveFollowing(new Position(node.parentNode,offset+1),
+                        Formatting_moveFollowing(new Position_Position(node.parentNode,offset+1),
                                                  Types_isContainerNode);
                         DOM_insertBefore(node.parentNode.parentNode,
                                          node,

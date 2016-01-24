@@ -15,7 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var Position;
+var Position_Position;
 var Position_assertValid;
 var Position_prev;
 var Position_next;
@@ -42,7 +42,7 @@ var Position_atPoint;
 (function() {
 
     // public
-    Position = function(node,offset) {
+    Position_Position = function(node,offset) {
         if (node == document.documentElement)
             throw new Error("node is root element");
         Object.defineProperty(this,"self",{value: {}});
@@ -108,7 +108,7 @@ var Position_atPoint;
     }
 
     // public
-    Position.prototype.toString = function() {
+    Position_Position.prototype.toString = function() {
         var self = this.self;
         var result;
         if (self.node.nodeType == Node.TEXT_NODE) {
@@ -140,36 +140,36 @@ var Position_atPoint;
 
         // Moving left from the start of a caption - go to the end of the table
         if ((node._type == HTML_CAPTION) && backwards && (prev == null))
-            return new Position(node.parentNode,node.parentNode.childNodes.length);
+            return new Position_Position(node.parentNode,node.parentNode.childNodes.length);
 
         // Moving right from the end of a caption - go after the table
         if ((node._type == HTML_CAPTION) && forwards && (next == null))
-            return new Position(node.parentNode.parentNode,DOM_nodeOffset(node.parentNode)+1);
+            return new Position_Position(node.parentNode.parentNode,DOM_nodeOffset(node.parentNode)+1);
 
         // Moving left from just after a table - go to the end of the caption (if there is one)
         if ((prev != null) && (prev._type == HTML_TABLE) && backwards) {
             var firstChild = Traversal_firstChildElement(prev);
             if ((firstChild._type == HTML_CAPTION))
-                return new Position(firstChild,firstChild.childNodes.length);
+                return new Position_Position(firstChild,firstChild.childNodes.length);
         }
 
         // Moving right from just before a table - bypass the the caption (if there is one)
         if ((next != null) && (next._type == HTML_TABLE) && forwards) {
             var firstChild = Traversal_firstChildElement(next);
             if (firstChild._type == HTML_CAPTION)
-                return new Position(next,DOM_nodeOffset(firstChild)+1);
+                return new Position_Position(next,DOM_nodeOffset(firstChild)+1);
         }
 
         // Moving right from the end of a table - go to the start of the caption (if there is one)
         if ((node._type == HTML_TABLE) && (next == null) && forwards) {
             var firstChild = Traversal_firstChildElement(node);
             if (firstChild._type == HTML_CAPTION)
-                return new Position(firstChild,0);
+                return new Position_Position(firstChild,0);
         }
 
         // Moving left just after a caption node - skip the caption
         if ((prev != null) && (prev._type == HTML_CAPTION) && backwards)
-            return new Position(node,offset-1);
+            return new Position_Position(node,offset-1);
 
         return null;
     }
@@ -209,12 +209,12 @@ var Position_atPoint;
             }
             else {
                 var child = pos.node.childNodes[pos.offset-1];
-                return new Position(child,DOM_maxChildOffset(child));
+                return new Position_Position(child,DOM_maxChildOffset(child));
             }
         }
         else if (pos.node.nodeType == Node.TEXT_NODE) {
             if (pos.offset > 0)
-                return new Position(pos.node,pos.offset-1);
+                return new Position_Position(pos.node,pos.offset-1);
             else
                 return upAndBack(pos);
         }
@@ -226,7 +226,7 @@ var Position_atPoint;
             if (pos.node == pos.node.ownerDocument.body)
                 return null;
             else
-                return new Position(pos.node.parentNode,DOM_nodeOffset(pos.node));
+                return new Position_Position(pos.node.parentNode,DOM_nodeOffset(pos.node));
         }
     }
 
@@ -239,11 +239,11 @@ var Position_atPoint;
             if (pos.offset == pos.node.childNodes.length)
                 return upAndForwards(pos);
             else
-                return new Position(pos.node.childNodes[pos.offset],0);
+                return new Position_Position(pos.node.childNodes[pos.offset],0);
         }
         else if (pos.node.nodeType == Node.TEXT_NODE) {
             if (pos.offset < pos.node.nodeValue.length)
-                return new Position(pos.node,pos.offset+1);
+                return new Position_Position(pos.node,pos.offset+1);
             else
                 return upAndForwards(pos);
         }
@@ -255,7 +255,7 @@ var Position_atPoint;
             if (pos.node == pos.node.ownerDocument.body)
                 return null;
             else
-                return new Position(pos.node.parentNode,DOM_nodeOffset(pos.node)+1);
+                return new Position_Position(pos.node.parentNode,DOM_nodeOffset(pos.node)+1);
         }
     }
 
@@ -538,12 +538,12 @@ var Position_atPoint;
             var before = node.childNodes[offset-1];
             var after = node.childNodes[offset];
             if ((before != null) && (before.nodeType == Node.TEXT_NODE)) {
-                var candidate = new Position(before,before.nodeValue.length);
+                var candidate = new Position_Position(before,before.nodeValue.length);
                 if (fun(candidate))
                     return candidate;
             }
             if ((after != null) && (after.nodeType == Node.TEXT_NODE)) {
-                var candidate = new Position(after,0);
+                var candidate = new Position_Position(after,0);
                 if (fun(candidate))
                     return candidate;
             }
@@ -554,7 +554,7 @@ var Position_atPoint;
             var str = pos.node.nodeValue;
             var whitespace = str.match(/\s+$/);
             if (whitespace) {
-                var adjusted = new Position(pos.node,
+                var adjusted = new Position_Position(pos.node,
                                             str.length - whitespace[0].length + 1);
                 return adjusted;
             }
@@ -581,7 +581,7 @@ var Position_atPoint;
         if (prev != null)
             return prev;
 
-        return new Position(document.body,document.body.childNodes.length);
+        return new Position_Position(document.body,document.body.childNodes.length);
     }
 
     // public
@@ -603,7 +603,7 @@ var Position_atPoint;
         if (next != null)
             return next;
 
-        return new Position(document.body,0);
+        return new Position_Position(document.body,0);
     }
 
     Position_track = function(pos) {
@@ -847,9 +847,9 @@ var Position_atPoint;
             var before = node.childNodes[offset-1];
             var after = node.childNodes[offset];
             if ((before != null) && (before.nodeType == Node.TEXT_NODE))
-                return new Position(before,before.nodeValue.length);
+                return new Position_Position(before,before.nodeValue.length);
             if ((after != null) && (after.nodeType == Node.TEXT_NODE))
-                return new Position(after,0);
+                return new Position_Position(after,0);
         }
         return pos;
     }
@@ -859,9 +859,9 @@ var Position_atPoint;
             if (pos.node.parentNode == null)
                 throw new Error("Position "+pos+" has no parent node");
             if (pos.offset == 0)
-                return new Position(pos.node.parentNode,DOM_nodeOffset(pos.node));
+                return new Position_Position(pos.node.parentNode,DOM_nodeOffset(pos.node));
             if (pos.offset == pos.node.nodeValue.length)
-                return new Position(pos.node.parentNode,DOM_nodeOffset(pos.node)+1);
+                return new Position_Position(pos.node.parentNode,DOM_nodeOffset(pos.node)+1);
         }
         return pos;
     }
@@ -960,9 +960,9 @@ var Position_atPoint;
             return pos;
 
         if (pos.offset == 0)
-            return new Position(pos.node.parentNode,DOM_nodeOffset(pos.node));
+            return new Position_Position(pos.node.parentNode,DOM_nodeOffset(pos.node));
         else if (pos.offset == pos.node.childNodes.length)
-            return new Position(pos.node.parentNode,DOM_nodeOffset(pos.node)+1);
+            return new Position_Position(pos.node.parentNode,DOM_nodeOffset(pos.node)+1);
         else
             return pos;
     }
@@ -993,7 +993,7 @@ var Position_atPoint;
         if (range == null)
             return null;
 
-        var pos = new Position(range.startContainer,range.startOffset);
+        var pos = new Position_Position(range.startContainer,range.startOffset);
         pos = Position_preferElementPosition(pos);
 
         if (pos.node.nodeType == Node.ELEMENT_NODE) {
@@ -1002,10 +1002,10 @@ var Position_atPoint;
             var next = outside.node.childNodes[outside.offset];
 
             if ((prev != null) && nodeMayContainPos(prev) && elementContainsPoint(prev,x,y))
-                return new Position(prev,0);
+                return new Position_Position(prev,0);
 
             if ((next != null) && nodeMayContainPos(next) && elementContainsPoint(next,x,y))
-                return new Position(next,0);
+                return new Position_Position(next,0);
 
             if (next != null) {
                 var nextNode = outside.node;
@@ -1020,7 +1020,7 @@ var Position_atPoint;
                 if ((next != null) && Types_isEmptyNoteNode(next)) {
                     var rect = next.getBoundingClientRect();
                     if (x > rect.right)
-                        return new Position(nextNode,nextOffset);
+                        return new Position_Position(nextNode,nextOffset);
                 }
             }
         }
@@ -1098,11 +1098,11 @@ var Position_atPoint;
             var prev = position.node.childNodes[position.offset-1];
             var next = position.node.childNodes[position.offset];
             if ((prev != null) && (prev._type == HTML_IMG)) {
-                position = new Position(position.node.parentNode,
+                position = new Position_Position(position.node.parentNode,
                                         DOM_nodeOffset(position.node)+1);
             }
             else if ((next != null) && (next._type == HTML_IMG)) {
-                position = new Position(position.node.parentNode,
+                position = new Position_Position(position.node.parentNode,
                                         DOM_nodeOffset(position.node));
             }
         }

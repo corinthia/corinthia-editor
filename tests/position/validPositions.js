@@ -44,7 +44,7 @@ function oldInsertCharacter(character) {
 
 function showValidPositions() {
     var validPositions = new Array();
-    var pos = new Position(document.body,0);
+    var pos = new Position_Position(document.body,0);
     while (pos != null) {
         if (Position_okForMovement(pos)) {
 //            debug("Valid position: "+pos);

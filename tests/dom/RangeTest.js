@@ -74,25 +74,25 @@ function getAllPositions(root) {
 
     var positions = new Array();
     var rootOffset = DOM_nodeOffset(root);
-//    positions.push(new Position(root.parentNode,rootOffset));
+//    positions.push(new Position_Position(root.parentNode,rootOffset));
     recurse(root);
-//    positions.push(new Position(root.parentNode,rootOffset+1));
+//    positions.push(new Position_Position(root.parentNode,rootOffset+1));
     return positions;
 
     function recurse(node) {
         if (node.nodeType == Node.TEXT_NODE) {
             for (var offset = 0; offset <= node.nodeValue.length; offset++)
-                positions.push(new Position(node,offset));
+                positions.push(new Position_Position(node,offset));
         }
         else if ((node.nodeType == Node.ELEMENT_NODE) &&
                  (node.firstChild != null) || includeEmptyElements) {
             var offset = 0;
             for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                positions.push(new Position(node,offset));
+                positions.push(new Position_Position(node,offset));
                 recurse(child);
                 offset++;
             }
-            positions.push(new Position(node,offset));
+            positions.push(new Position_Position(node,offset));
         }
     }
 }
@@ -139,7 +139,7 @@ function getOutermostNodesSimple(range) {
             allSet.add(pos.node);
         }
         else if (pos.node.nodeType == Node.ELEMENT_NODE) {
-            var prev = new Position(pos.node,pos.offset-1);
+            var prev = new Position_Position(pos.node,pos.offset-1);
             if (havePositions[positionKey(prev)]) {
                 var target = pos.node.childNodes[pos.offset-1];
                 allArray.push(target);

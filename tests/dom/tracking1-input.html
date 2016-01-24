@@ -10,7 +10,7 @@ function performTest()
     var nodeCount = document.body.childNodes.length;
     for (var posOffset = 0; posOffset <= nodeCount; posOffset++) {
         for (var nodeOffset = 0; nodeOffset <= nodeCount; nodeOffset++) {
-            var position = new Position(document.body,posOffset);
+            var position = new Position_Position(document.body,posOffset);
             var temp = DOM_createElement(document,"B");
             Position_trackWhileExecuting([position],function() {
                 var message = "posOffset "+posOffset+", nodeOffset "+nodeOffset+": "+position;

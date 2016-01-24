@@ -12,9 +12,9 @@ function performTest()
         var b = DOM_createElement(document,"B");
         DOM_appendChild(b,DOM_createTextNode(document,String.fromCharCode(baseCode+i)));
         DOM_appendChild(p,b);
-        positions.push(new Position(p,i));
+        positions.push(new Position_Position(p,i));
     }
-    positions.push(new Position(p,nchildren));
+    positions.push(new Position_Position(p,nchildren));
     DOM_appendChild(document.body,p);
 
     Position_trackWhileExecuting(positions,function() {

@@ -7,14 +7,14 @@ function performTest()
     var messages = new Array();
 
     var ps = document.getElementsByTagName("P");
-    var position = new Position(document.body,document.body.childNodes.length);
+    var position = new Position_Position(document.body,document.body.childNodes.length);
     messages.push("Before insertion: position = "+position);
     Position_trackWhileExecuting([position],function() {
         DOM_appendChild(ps[0],DOM_createTextNode(document,"X"));
     });
     messages.push("After insertion: position = "+position);
 
-    var position = new Position(document.body,document.body.childNodes.length);
+    var position = new Position_Position(document.body,document.body.childNodes.length);
     messages.push("Before removal: position = "+position);
     Position_trackWhileExecuting([position],function() {
         DOM_deleteNode(ps[0].firstChild);

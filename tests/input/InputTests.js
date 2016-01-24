@@ -40,8 +40,8 @@ function testMovement(direction,count) {
 
 function testPositionFun(fun,granularity,direction) {
     var lines = new Array();
-    var start = new Position(document.body,0);
-    var end = new Position(document.body,document.body.childNodes.length);
+    var start = new Position_Position(document.body,0);
+    var end = new Position_Position(document.body,document.body.childNodes.length);
 
     start = Position_closestMatchForwards(start,Position_okForMovement);
     end = Position_closestMatchBackwards(end,Position_okForMovement);
@@ -72,8 +72,8 @@ function testPositionAtBoundary(granularity,direction) {
 
 function testPositionToBoundary(granularity,direction) {
     var lines = new Array();
-    var start = new Position(document.body,0);
-    var end = new Position(document.body,document.body.childNodes.length);
+    var start = new Position_Position(document.body,0);
+    var end = new Position_Position(document.body,document.body.childNodes.length);
 
     start = Position_closestMatchForwards(start,Position_okForMovement);
     end = Position_closestMatchBackwards(end,Position_okForMovement);
@@ -102,8 +102,8 @@ function testPositionToBoundary(granularity,direction) {
 
 function testRangeEnclosing(granularity,direction) {
     var lines = new Array();
-    var start = new Position(document.body,0);
-    var end = new Position(document.body,document.body.childNodes.length);
+    var start = new Position_Position(document.body,0);
+    var end = new Position_Position(document.body,document.body.childNodes.length);
 
     start = Position_closestMatchForwards(start,Position_okForMovement);
     end = Position_closestMatchBackwards(end,Position_okForMovement);

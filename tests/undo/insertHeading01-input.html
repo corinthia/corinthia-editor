@@ -15,7 +15,7 @@ function insertHeading(numbered,title)
 
     // Place the cursor directly after the heading
     var offset = DOM_nodeOffset(h1);
-    var pos = new Position(h1.parentNode,offset);
+    var pos = new Position_Position(h1.parentNode,offset);
     pos = Position_closestMatchForwards(pos,Position_okForMovement);
     Selection_set(pos.node,pos.offset,pos.node,pos.offset);
 

@@ -605,12 +605,12 @@ var Clipboard_pasteNodes;
                 switch (child._type) {
                 case HTML_UL:
                 case HTML_OL:
-                    Formatting_movePreceding(new Position(parent,offset),
+                    Formatting_movePreceding(new Position_Position(parent,offset),
                                              function(x) { return (x == containerParent); });
                     insertChildrenBefore(inItem.parentNode,child,inItem,pastedNodes);
                     break;
                 case HTML_LI:
-                    Formatting_movePreceding(new Position(parent,offset),
+                    Formatting_movePreceding(new Position_Position(parent,offset),
                                              function(x) { return (x == containerParent); });
                     DOM_insertBefore(inItem.parentNode,child,inItem);
                     pastedNodes.push(child);
@@ -683,7 +683,7 @@ var Clipboard_pasteNodes;
             Range_ensureValidHierarchy(pastedRange,true);
         })});
 
-        var pos = new Position(origRange.end.node,origRange.end.offset);
+        var pos = new Position_Position(origRange.end.node,origRange.end.offset);
         Range_trackWhileExecuting(pastedRange,function() {
         Position_trackWhileExecuting(pos,function() {
             while (true) {
@@ -693,7 +693,7 @@ var Clipboard_pasteNodes;
                     break;
                 if (!Util_nodeHasContent(pos.node)) {
                     var oldNode = pos.node;
-                    pos = new Position(pos.node.parentNode,DOM_nodeOffset(pos.node));
+                    pos = new Position_Position(pos.node.parentNode,DOM_nodeOffset(pos.node));
                     DOM_deleteNode(oldNode);
                 }
                 else
@@ -702,9 +702,9 @@ var Clipboard_pasteNodes;
         });
         });
 
-        pos = new Position(pastedRange.end.node,pastedRange.end.offset);
+        pos = new Position_Position(pastedRange.end.node,pastedRange.end.offset);
         while (Types_isOpaqueNode(pos.node))
-            pos = new Position(pos.node.parentNode,DOM_nodeOffset(pos.node)+1);
+            pos = new Position_Position(pos.node.parentNode,DOM_nodeOffset(pos.node)+1);
         pos = Position_closestMatchBackwards(pos,Position_okForInsertion);
 
         Selection_set(pos.node,pos.offset,pos.node,pos.offset);

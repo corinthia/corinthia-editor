@@ -37,8 +37,8 @@ var Range_getText;
 (function() {
 
     Range = function(startNode,startOffset,endNode,endOffset) {
-        this.start = new Position(startNode,startOffset);
-        this.end = new Position(endNode,endOffset);
+        this.start = new Position_Position(startNode,startOffset);
+        this.end = new Position_Position(endNode,endOffset);
     }
 
     Range_assertValid = function(range,description) {

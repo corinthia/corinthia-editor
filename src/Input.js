@@ -73,7 +73,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     function addPosition(pos) {
         if (pos == null)
             return 0;
-        var copy = new Position(pos.node,pos.offset);
+        var copy = new Position_Position(pos.node,pos.offset);
         copy.targetX = pos.targetX;
         pos = copy;
         pos.posId = nextPosId++;
@@ -85,7 +85,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
     Input_addPosition = addPosition;
 
     function getPosition(posId) {
-        if (posId instanceof Position) // for tests
+        if (posId instanceof Position_Position) // for tests
             return posId;
         if (posId < firstDynamicPosId) {
             switch (posId) {
@@ -93,12 +93,12 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
                 return null;
             }
             case BaseIdDocumentStart: {
-                var pos = new Position(document.body,0);
+                var pos = new Position_Position(document.body,0);
                 pos = Position_closestMatchForwards(pos,Position_okForMovement);
                 return pos;
             }
             case BaseIdDocumentEnd: {
-                var pos = new Position(document.body,document.body.childNodes.length);
+                var pos = new Position_Position(document.body,document.body.childNodes.length);
                 pos = Position_closestMatchBackwards(pos,Position_okForMovement);
                 return pos;
             }
