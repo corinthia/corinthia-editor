@@ -12,7 +12,7 @@ function performTest()
     DOM_appendChild(document.body,text2);
     DOM_appendChild(document.body,text3);
 
-    var range = new Range(document.body,1,document.body,2);
+    var range = new Range_Range(document.body,1,document.body,2);
 
     Range_trackWhileExecuting(range,function() {
         Hierarchy_ensureInlineNodesInParagraph(text2);

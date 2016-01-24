@@ -113,7 +113,7 @@ function isForwardsSimple(range) {
 
 function getOutermostNodesSimple(range) {
     if (!isForwardsSimple(range)) {
-        var reverse = new Range(range.end.node,range.end.offset,
+        var reverse = new Range_Range(range.end.node,range.end.offset,
                                 range.start.node,range.start.offset);
         if (!Range_isForwards(reverse)) {
             var startIndex = getPositionIndex(range.start);

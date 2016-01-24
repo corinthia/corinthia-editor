@@ -94,7 +94,7 @@ var ChangeTracking_acceptSelectedChanges;
         if (selRange != null) {
             var start = Position_closestMatchForwards(selRange.start,Position_okForInsertion);
             var end = Position_closestMatchBackwards(selRange.end,Position_okForInsertion);
-            if (!Range_isForwards(new Range(start.node,start.offset,end.node,end.offset)))
+            if (!Range_isForwards(new Range_Range(start.node,start.offset,end.node,end.offset)))
                 end = Position_closestMatchForwards(selRange.end,Position_okForInsertion);
             Selection_set(start.node,start.offset,end.node,end.offset);
         }

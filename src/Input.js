@@ -141,7 +141,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         if ((start == null) || (end == null))
             return "";
 
-        var range = new Range(start.node,start.offset,end.node,end.offset);
+        var range = new Range_Range(start.node,start.offset,end.node,end.offset);
         var result = Range_getText(range);
         //idebug("Input_textInRange("+startId+","+startAdjust+","+endId+","+endAdjust+") = "+
         //       JSON.stringify(result));
@@ -158,7 +158,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         if (end == null)
             throw new Error("end is null");
 
-        var range = new Range(start.node,start.offset,end.node,end.offset);
+        var range = new Range_Range(start.node,start.offset,end.node,end.offset);
         Range_trackWhileExecuting(range,function() {
             Selection_deleteRangeContents(range,true);
         });
@@ -353,7 +353,7 @@ var Input_rangeEnclosingPositionWithGranularityInDirection;
         //idebug("Input_firstRectForRange("+startId+","+endId+")");
         var start = getPosition(startId);
         var end = getPosition(endId);
-        var range = new Range(start.node,start.offset,end.node,end.offset);
+        var range = new Range_Range(start.node,start.offset,end.node,end.offset);
         var rects = Range_getClientRects(range);
         if (rects.length == 0)
             return { x: 0, y: 0, width: 0, height: 0 };

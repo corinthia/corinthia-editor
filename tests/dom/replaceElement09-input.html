@@ -5,7 +5,7 @@
 function performTest()
 {
     var p = document.getElementsByTagName("P")[2];
-    var range = new Range(p,2,p,7);
+    var range = new Range_Range(p,2,p,7);
     Range_trackWhileExecuting(range,function() {
         DOM_replaceElement(p,"DIV");
     });

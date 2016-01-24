@@ -401,7 +401,7 @@ var Text_toEndOfBoundary;
         var rects = new Array();
         for (var i = 0; i < paragraph.runs.length; i++) {
             var run = paragraph.runs[i];
-            var runRange = new Range(run.node,0,run.node,run.node.nodeValue.length);
+            var runRange = new Range_Range(run.node,0,run.node,run.node.nodeValue.length);
             var runRects = Range_getClientRects(runRange);
             Array.prototype.push.apply(rects,runRects);
         }

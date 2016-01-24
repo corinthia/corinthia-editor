@@ -101,7 +101,7 @@ var Scan_goToMatch;
         if (match == null)
             throw new Error("Match "+matchId+" not found");
 
-        var range = new Range(match.startPos.node,match.startPos.offset,
+        var range = new Range_Range(match.startPos.node,match.startPos.offset,
                               match.endPos.node,match.endPos.offset);
         var text = Range_getText(range);
         Formatting_splitAroundSelection(range,true);

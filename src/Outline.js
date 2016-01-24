@@ -1209,7 +1209,7 @@ var Outline_scheduleUpdateStructure;
                 continue;
 
             var offset = DOM_nodeOffset(a);
-            var range = new Range(a.parentNode,offset,a.parentNode,offset+1);
+            var range = new Range_Range(a.parentNode,offset,a.parentNode,offset+1);
             var rects = Range_getClientRects(range);
             for (var rectIndex = 0; rectIndex < rects.length; rectIndex++) {
                 var rect = rects[rectIndex];
@@ -1236,7 +1236,7 @@ var Outline_scheduleUpdateStructure;
         function recurse(node) {
             if (node.firstChild == null) {
                 var offset = DOM_nodeOffset(node);
-                var range = new Range(node.parentNode,offset,node.parentNode,offset+1);
+                var range = new Range_Range(node.parentNode,offset,node.parentNode,offset+1);
                 var rects = Range_getClientRects(range);
                 for (var i = 0; i < rects.length; i++) {
                     var rect = rects[i];

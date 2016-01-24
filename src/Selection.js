@@ -77,16 +77,16 @@ var Selection_print;
             if (selection.value == null)
                 return null;
             else
-                return new Range(selection.value.startNode,selection.value.startOffset,
+                return new Range_Range(selection.value.startNode,selection.value.startOffset,
                                  selection.value.endNode,selection.value.endOffset);
         }
 
         // public
         Selection_setInternal =
             function(newStartNode,newStartOffset,newEndNode,newEndOffset,isMarked) {
-            var range = new Range(newStartNode,newStartOffset,newEndNode,newEndOffset);
+            var range = new Range_Range(newStartNode,newStartOffset,newEndNode,newEndOffset);
             if (!Range_isForwards(range))
-                range = new Range(newEndNode,newEndOffset,newStartNode,newStartOffset);
+                range = new Range_Range(newEndNode,newEndOffset,newStartNode,newStartOffset);
             range = boundaryCompliantRange(range);
 
             UndoManager_setProperty(selection,"value",
@@ -725,16 +725,16 @@ var Selection_print;
                 endOffset = offset + wordOtherAfter.length;
             }
 
-            return new Range(node,startOffset,node,endOffset);
+            return new Range_Range(node,startOffset,node,endOffset);
         }
         else if (node.nodeType == Node.ELEMENT_NODE) {
             var nodeBefore = node.childNodes[offset-1];
             var nodeAfter = node.childNodes[offset];
 
             if ((nodeBefore != null) && !Traversal_isWhitespaceTextNode(nodeBefore))
-                return new Range(node,offset-1,node,offset);
+                return new Range_Range(node,offset-1,node,offset);
             else if ((nodeAfter != null) && !Traversal_isWhitespaceTextNode(nodeAfter))
-                return new Range(node,offset,node,offset+1);
+                return new Range_Range(node,offset,node,offset+1);
         }
 
         return null;
@@ -879,7 +879,7 @@ var Selection_print;
         if (position != null) {
             position = Position_closestMatchBackwards(position,Position_okForMovement);
             var selRange = Selection_get();
-            var newRange = new Range(position.node,position.offset,
+            var newRange = new Range_Range(position.node,position.offset,
                                      selRange.end.node,selRange.end.offset);
             if (Range_isForwards(newRange)) {
                 Selection_set(newRange.start.node,newRange.start.offset,
@@ -894,7 +894,7 @@ var Selection_print;
         if (position != null) {
             position = Position_closestMatchBackwards(position,Position_okForMovement);
             var selRange = Selection_get();
-            var newRange = new Range(selRange.start.node,selRange.start.offset,
+            var newRange = new Range_Range(selRange.start.node,selRange.start.offset,
                                      position.node,position.offset);
             if (Range_isForwards(newRange)) {
                 Selection_set(newRange.start.node,newRange.start.offset,
@@ -1290,7 +1290,7 @@ var Selection_print;
             if (doEnd && (endContainer != document.body))
                 end = new Position_Position(endContainer.parentNode,DOM_nodeOffset(endContainer)+1);
         }
-        return new Range(start.node,start.offset,end.node,end.offset);
+        return new Range_Range(start.node,start.offset,end.node,end.offset);
 
         function nodeHasAncestor(node,ancestor) {
             for (; node != null; node = node.parentNode) {

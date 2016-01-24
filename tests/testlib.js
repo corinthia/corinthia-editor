@@ -37,7 +37,7 @@ function testHarnessSetup() {
         throw new Error("End of selection specified, but not start");
 
     if ((start != null) && (end != null)) {
-        var range = new Range(start.node,start.offset,end.node,end.offset);
+        var range = new Range_Range(start.node,start.offset,end.node,end.offset);
 
         UndoManager_disableWhileExecuting(function() {
             Range_trackWhileExecuting(range,function() {

@@ -12,7 +12,7 @@ function performTest()
     DOM_appendChild(document.body,text2);
     DOM_appendChild(document.body,text3);
 
-    var range = new Range(document.body,0,document.body,3);
+    var range = new Range_Range(document.body,0,document.body,3);
 
     Range_trackWhileExecuting(range,function() {
         Range_ensureInlineNodesInParagraph(range);

@@ -17,7 +17,7 @@ function performTest()
     DOM_appendChild(p,text5);
     DOM_appendChild(document.body,p);
 
-    var range = new Range(text1,1,text5,3);
+    var range = new Range_Range(text1,1,text5,3);
     Range_trackWhileExecuting(range,function() {
         Formatting_mergeWithNeighbours(text3,Formatting_MERGEABLE_INLINE);
     });

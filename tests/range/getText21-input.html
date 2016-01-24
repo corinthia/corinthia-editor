@@ -7,7 +7,7 @@ function performTest()
     var p = document.getElementsByTagName("P")[0];
     var output = new Array();
     for (var i = 0; i <= p.childNodes.length; i++) {
-        var range = new Range(p,i,p,i);
+        var range = new Range_Range(p,i,p,i);
         output.push("At offset "+i+": "+JSON.stringify(Range_getText(range)));
     }
     return output.join("\n");

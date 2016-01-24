@@ -262,9 +262,9 @@ var Clipboard_pasteNodes;
         }
 
         if ((startInLI != null) && (startInLI == endInLI)) {
-            var beforeRange = new Range(startInLI,0,
+            var beforeRange = new Range_Range(startInLI,0,
                                         range.start.node,range.start.offset);
-            var afterRange = new Range(range.end.node,range.end.offset,
+            var afterRange = new Range_Range(range.end.node,range.end.offset,
                                        endInLI,DOM_maxChildOffset(endInLI));
             var contentBefore = Range_hasContent(beforeRange);
             var contentAfter = Range_hasContent(afterRange);
@@ -272,7 +272,7 @@ var Clipboard_pasteNodes;
             if (!contentBefore && !contentAfter) {
                 var li = startInLI;
                 var offset = DOM_nodeOffset(li);
-                range = new Range(li.parentNode,offset,li.parentNode,offset+1);
+                range = new Range_Range(li.parentNode,offset,li.parentNode,offset+1);
             }
         }
         return range;
@@ -666,11 +666,11 @@ var Clipboard_pasteNodes;
             prevOffset = DOM_nodeOffset(previousSibling);
         var nextOffset = DOM_nodeOffset(nextSibling,parent);
 
-        var origRange = new Range(parent,prevOffset,parent,nextOffset);
+        var origRange = new Range_Range(parent,prevOffset,parent,nextOffset);
 
         var firstPasted = pastedNodes[0];
         var lastPasted = pastedNodes[pastedNodes.length-1];
-        var pastedRange = new Range(firstPasted,0,lastPasted,DOM_maxChildOffset(lastPasted));
+        var pastedRange = new Range_Range(firstPasted,0,lastPasted,DOM_maxChildOffset(lastPasted));
         Range_trackWhileExecuting(origRange,function() {
         Range_trackWhileExecuting(pastedRange,function() {
             if (previousSibling != null)

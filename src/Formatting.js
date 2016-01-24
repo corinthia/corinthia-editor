@@ -1086,7 +1086,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         }
 
 
-        var range = new Range(selectionRange.start.node,selectionRange.start.offset,
+        var range = new Range_Range(selectionRange.start.node,selectionRange.start.offset,
                               selectionRange.end.node,selectionRange.end.offset);
         var positions = [selectionRange.start,selectionRange.end,
                          range.start,range.end];
@@ -1164,7 +1164,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         // and the cursor is at a position that is now immediately before the span.
         var start = Position_closestMatchForwards(selectionRange.start,Position_okForInsertion);
         var end = Position_closestMatchBackwards(selectionRange.end,Position_okForInsertion);
-        var tempRange = new Range(start.node,start.offset,end.node,end.offset);
+        var tempRange = new Range_Range(start.node,start.offset,end.node,end.offset);
         tempRange = Range_forwards(tempRange);
         Range_ensureValidHierarchy(tempRange);
         start = tempRange.start;

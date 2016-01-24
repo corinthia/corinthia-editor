@@ -109,7 +109,7 @@ var Cursor_insertEndnote;
                 (node.hasAttribute("href")) &&
                 (result == null)) {
 
-                var arange = new Range(node,0,node,node.childNodes.length);
+                var arange = new Range_Range(node,0,node,node.childNodes.length);
                 var rects = Range_getClientRects(arange);
                 var insideLink = false;
                 for (var i = 0; i < rects.length; i++) {
@@ -392,7 +392,7 @@ var Cursor_insertEndnote;
             else {
                 var oldPos = pos;
                 pos = Position_closestMatchForwards(selRange.start,Position_okForInsertion);
-                var difference = new Range(oldPos.node,oldPos.offset,pos.node,pos.offset);
+                var difference = new Range_Range(oldPos.node,oldPos.offset,pos.node,pos.offset);
                 difference = Range_forwards(difference);
                 Position_trackWhileExecuting([pos],function() {
                     if (!Range_hasContent(difference)) {
@@ -572,7 +572,7 @@ var Cursor_insertEndnote;
                     Cursor_set(selRange.end.node,selRange.end.offset)
                 }
                 else {
-                    var range = new Range(prevPos.node,prevPos.offset,
+                    var range = new Range_Range(prevPos.node,prevPos.offset,
                                           selRange.end.node,selRange.end.offset);
                     Selection_deleteRangeContents(range,true);
                 }
@@ -650,7 +650,7 @@ var Cursor_insertEndnote;
         }
         if (note != null) {
             var noteOffset = DOM_nodeOffset(note);
-            selRange = new Range(note.parentNode,noteOffset+1,note.parentNode,noteOffset+1);
+            selRange = new Range_Range(note.parentNode,noteOffset+1,note.parentNode,noteOffset+1);
         }
 
         var check = Position_preferElementPosition(selRange.start);
@@ -822,7 +822,7 @@ var Cursor_insertEndnote;
                 var startOffset = 0;
                 if (Types_isOpaqueNode(container.firstChild))
                     startOffset = 1;
-                var range = new Range(container,startOffset,pos.node,pos.offset);
+                var range = new Range_Range(container,startOffset,pos.node,pos.offset);
                 return !Range_hasContent(range);
             }
             else
@@ -966,7 +966,7 @@ var Cursor_insertEndnote;
             if (Types_isNoteNode(anc) && (anc.parentNode != null)) {
                 node = anc.parentNode;
                 offset = DOM_nodeOffset(anc)+1;
-                return new Range(node,offset,node,offset);
+                return new Range_Range(node,offset,node,offset);
             }
         }
 

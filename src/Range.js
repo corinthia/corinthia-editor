@@ -15,7 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var Range;
+var Range_Range;
 
 var Range_assertValid;
 var Range_isEmpty;
@@ -36,7 +36,7 @@ var Range_getText;
 
 (function() {
 
-    Range = function(startNode,startOffset,endNode,endOffset) {
+    Range_Range = function(startNode,startOffset,endNode,endOffset) {
         this.start = new Position_Position(startNode,startOffset);
         this.end = new Position_Position(endNode,endOffset);
     }
@@ -55,7 +55,7 @@ var Range_getText;
                 (range.start.offset == range.end.offset));
     }
 
-    Range.prototype.toString = function() {
+    Range_Range.prototype.toString = function() {
         return this.start.toString() + " - " + this.end.toString();
     }
 
@@ -125,7 +125,7 @@ var Range_getText;
             return range;
         }
         else {
-            var reverse = new Range(range.end.node,range.end.offset,
+            var reverse = new Range_Range(range.end.node,range.end.offset,
                                     range.start.node,range.start.offset);
             if (!Range_isForwards(reverse))
                 throw new Error("Both range "+range+" and its reverse are not forwards");
@@ -135,7 +135,7 @@ var Range_getText;
 
     Range_detail = function(range) {
         if (!Range_isForwards(range)) {
-            var reverse = new Range(range.end.node,range.end.offset,
+            var reverse = new Range_Range(range.end.node,range.end.offset,
                                     range.start.node,range.start.offset);
             if (!Range_isForwards(reverse))
                 throw new Error("Both range "+range+" and its reverse are not forwards");

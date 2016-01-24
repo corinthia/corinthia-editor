@@ -617,7 +617,7 @@ var Position_atPoint;
     Position_rectAtPos = function(pos) {
         if (pos == null)
             return null;
-        var range = new Range(pos.node,pos.offset,pos.node,pos.offset);
+        var range = new Range_Range(pos.node,pos.offset,pos.node,pos.offset);
         var rects = Range_getClientRects(range);
 
         if ((rects.length > 0) && !Util_rectIsEmpty(rects[0])) {
@@ -728,13 +728,13 @@ var Position_atPoint;
         else if (node.nodeType == Node.TEXT_NODE) {
             // First see if the client rects returned by the range gives us a valid value. This
             // won't be the case if the cursor is surrounded by both sides on whitespace.
-            var result = rectAtRightOfRange(new Range(node,offset,node,offset));
+            var result = rectAtRightOfRange(new Range_Range(node,offset,node,offset));
             if (result != null)
                 return result;
 
             if (offset > 0) {
                 // Try and get the rect of the previous character; the cursor goes after that
-                var result = rectAtRightOfRange(new Range(node,offset-1,node,offset));
+                var result = rectAtRightOfRange(new Range_Range(node,offset-1,node,offset));
                 if (result != null)
                     return result;
             }
@@ -756,7 +756,7 @@ var Position_atPoint;
     function tempSpaceRect(parentNode,nextSibling) {
         var space = DOM_createTextNode(document,String.fromCharCode(160));
         DOM_insertBefore(parentNode,space,nextSibling);
-        var range = new Range(space,0,space,1);
+        var range = new Range_Range(space,0,space,1);
         var rects = Range_getClientRects(range);
         DOM_deleteNode(space);
         if (rects.length > 0)
