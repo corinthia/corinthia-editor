@@ -95,7 +95,7 @@ var AutoCorrect_replaceCorrection;
     }
 
     AutoCorrect_init = function() {
-        correctionsByNode = new NodeMap();
+        correctionsByNode = new Collections_NodeMap();
         correctionList = new Array();
         document.addEventListener("DOMNodeInserted",docNodeInserted);
         document.addEventListener("DOMNodeRemoved",docNodeRemoved);

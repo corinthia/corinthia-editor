@@ -401,7 +401,7 @@ var Selection_print;
     }
 
     function getRangeData(selRange) {
-        var nodeSet = new NodeSet();
+        var nodeSet = new Collections_NodeSet();
         var nodes;
         var outermost;
         if (selRange != null) {

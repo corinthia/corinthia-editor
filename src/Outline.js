@@ -59,7 +59,7 @@ var Outline_scheduleUpdateStructure;
         this.nodeFilter = nodeFilter;
         this.numberRegex = numberRegex;
         this.list = new Util_DoublyLinkedList();
-        this.tocs = new NodeMap();
+        this.tocs = new Collections_NodeMap();
     }
 
     function addItemInternal(category,item,prevItem,title) {
@@ -635,7 +635,7 @@ var Outline_scheduleUpdateStructure;
         this.toplevelSections = new Array();
         this.toplevelFigures = new Array();
         this.toplevelTables = new Array();
-        this.shadowsByNode = new NodeMap();
+        this.shadowsByNode = new Collections_NodeMap();
     }
 
     function discoverStructure() {
@@ -942,7 +942,7 @@ var Outline_scheduleUpdateStructure;
             sections = new Category("section",isNonTOCHeadingNode,sectionNumberRegex);
             figures = new Category("figure",isFigureNode,figureNumberRegex);
             tables = new Category("table",isTableNode,tableNumberRegex);
-            itemsByNode = new NodeMap();
+            itemsByNode = new Collections_NodeMap();
             refsById = new Object();
 
             DOM_ensureUniqueIds(document.documentElement);
@@ -1181,7 +1181,7 @@ var Outline_scheduleUpdateStructure;
     Outline_examinePrintLayout = function(pageHeight) {
         var result = new Object();
         var structure = discoverStructure();
-        var pageNumbers = new NodeMap();
+        var pageNumbers = new Collections_NodeMap();
 
         result.destsByPage = new Object();
         result.linksByPage = new Object();

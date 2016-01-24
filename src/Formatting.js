@@ -668,7 +668,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     // private
     function getParagraphs(nodes) {
         var array = new Array();
-        var set = new NodeSet();
+        var set = new Collections_NodeSet();
         for (var i = 0; i < nodes.length; i++) {
             for (var anc = nodes[i].parentNode; anc != null; anc = anc.parentNode) {
                 if (anc._type == HTML_LI)
@@ -677,7 +677,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
             recurse(nodes[i]);
         }
 
-        var remove = new NodeSet();
+        var remove = new Collections_NodeSet();
         for (var i = 0; i < array.length; i++) {
             for (var anc = array[i].parentNode; anc != null; anc = anc.parentNode)
                 remove.add(anc);
@@ -945,7 +945,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 
     // private
     function getOutermostParagraphs(paragraphs) {
-        var all = new NodeSet();
+        var all = new Collections_NodeSet();
         for (var i = 0; i < paragraphs.length; i++)
             all.add(paragraphs[i]);
 

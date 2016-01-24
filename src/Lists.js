@@ -253,7 +253,7 @@ var Lists_setOrderedList;
         }
 
         var nodes = new Array();
-        var nodeSet = new NodeSet();
+        var nodeSet = new Collections_NodeSet();
 
         if (dca._type == HTML_LI)
             return [dca];

@@ -129,7 +129,7 @@ function getOutermostNodesSimple(range) {
     var havePositions = new Object();
 
     var allArray = new Array();
-    var allSet = new NodeSet();
+    var allSet = new Collections_NodeSet();
 
     for (var i = startIndex; i <= endIndex; i++) {
         var pos = allPositions[i];
@@ -151,7 +151,7 @@ function getOutermostNodesSimple(range) {
     }
 
     var outermostArray = new Array();
-    var outermostSet = new NodeSet();
+    var outermostSet = new Collections_NodeSet();
 
     allArray.forEach(function (node) {
         if (!outermostSet.contains(node) && !setContainsAncestor(allSet,node)) {

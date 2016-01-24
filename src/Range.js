@@ -349,8 +349,8 @@ var Range_getText;
     }
 
     Range_cloneContents = function(range) {
-        var nodeSet = new NodeSet();
-        var ancestorSet = new NodeSet();
+        var nodeSet = new Collections_NodeSet();
+        var ancestorSet = new Collections_NodeSet();
         var detail = Range_detail(range);
         var outermost = Range_getOutermostNodes(range);
 

@@ -100,7 +100,7 @@ var TableRegion_splitCells;
         this.numRows = 0;
         this.numCols = 0;
         this.translated = false;
-        this.cellsByElement = new NodeMap();
+        this.cellsByElement = new Collections_NodeMap();
         Table_processTable(this,element);
     }
 
@@ -780,7 +780,7 @@ var TableRegion_splitCells;
 
     // private
     function deleteColumns(structure,left,right) {
-        var nodesToDelete = new NodeSet();
+        var nodesToDelete = new Collections_NodeSet();
         for (var row = 0; row < structure.numRows; row++) {
             for (var col = left; col <= right; col++) {
                 var cell = Table_get(structure,row,col);
@@ -934,7 +934,7 @@ var TableRegion_splitCells;
 
     // public
     Tables_cloneRegion = function(region) {
-        var cellNodesDone = new NodeSet();
+        var cellNodesDone = new Collections_NodeSet();
         var table = DOM_shallowCopyElement(region.structure.element);
         for (var row = region.top; row <= region.bottom; row++) {
             var tr = DOM_createElement(document,"TR");
