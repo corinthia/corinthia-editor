@@ -428,12 +428,12 @@ var Clipboard_pasteNodes;
             dest.structure.numRows = dest.bottom + 1;
         if (dest.structure.numCols < dest.right + 1)
             dest.structure.numCols = dest.right + 1;
-        dest.structure = Table_fix(dest.structure);
+        dest.structure = Tables_Table_fix(dest.structure);
 
         // To simplify the paste, split any merged cells that are in the region of the destination
         // table we're pasting into. We have to re-analyse the table structure after this to
         // get the correct cell array.
-        TableRegion_splitCells(dest);
+        Tables_TableRegion_splitCells(dest);
         dest.structure = Tables_analyseStructure(dest.structure.element);
 
         // Do the actual paste
@@ -442,14 +442,14 @@ var Clipboard_pasteNodes;
         });
 
         // If any new columns were added, calculate a width for them
-        Table_fixColumnWidths(dest.structure);
+        Tables_Table_fixColumnWidths(dest.structure);
 
         // Remove duplicate ids
         var found = new Object();
         removeDuplicateIds(dest.structure.element,found);
 
         // Place the cursor in the bottom-right cell that was pasted
-        var bottomRightCell = Table_get(dest.structure,dest.bottom,dest.right);
+        var bottomRightCell = Tables_Table_get(dest.structure,dest.bottom,dest.right);
         var node = bottomRightCell.element;
         Selection_set(node,node.childNodes.length,node,node.childNodes.length);
     }
@@ -459,8 +459,8 @@ var Clipboard_pasteNodes;
         // in dest will have rowspan = 1 and colspan = 1.
         for (var srcRow = 0; srcRow < src.numRows; srcRow++) {
             for (var srcCol = 0; srcCol < src.numCols; srcCol++) {
-                var srcCell = Table_get(src,srcRow,srcCol);
-                var destCell = Table_get(dest,srcRow+destRow,srcCol+destCol);
+                var srcCell = Tables_Table_get(src,srcRow,srcCol);
+                var destCell = Tables_Table_get(dest,srcRow+destRow,srcCol+destCol);
 
                 if ((srcRow != srcCell.row) || (srcCol != srcCell.col))
                     continue;
@@ -476,7 +476,7 @@ var Clipboard_pasteNodes;
                 var destLeft = destCol + srcCol;
                 var destBottom = destTop + srcCell.rowspan - 1;
                 var destRight = destLeft + srcCell.colspan - 1;
-                Table_setRegion(dest,destTop,destLeft,destBottom,destRight,srcCell);
+                Tables_Table_setRegion(dest,destTop,destLeft,destBottom,destRight,srcCell);
             }
         }
     }

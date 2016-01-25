@@ -14,7 +14,7 @@ function performTest()
     var region = TableTests_getSelectedTableRegion();
     for (var row = region.top; row <= region.bottom; row++) {
         for (var col = region.left; col <= region.right; col++) {
-            var cell = Table_get(region.structure,row,col);
+            var cell = Tables_Table_get(region.structure,row,col);
             DOM_setStyleProperties(cell.element,{"background-color": "silver"});
         }
     }

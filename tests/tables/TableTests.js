@@ -25,7 +25,7 @@ var TableTests_showTableStructure;
         var region = Tables_regionFromRange(Selection_get());
         for (var row = region.top; row <= region.bottom; row++) {
             for (var col = region.left; col <= region.right; col++) {
-                var cell = Table_get(region.structure,row,col);
+                var cell = Tables_Table_get(region.structure,row,col);
                 DOM_setStyleProperties(cell.element,{"background-color": "silver"});
             }
         }
@@ -43,7 +43,7 @@ var TableTests_showTableStructure;
 
         for (var row = 0; row < table.numRows; row++) {
             for (var col = 0; col < table.numCols; col++) {
-                var cell = Table_get(table,row,col);
+                var cell = Tables_Table_get(table,row,col);
                 if (cell == null) {
                     lines.push("Cell at ("+row+","+col+") = "+null);
                 }

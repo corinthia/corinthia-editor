@@ -134,8 +134,8 @@ var Selection_print;
 
             var sel = tableSelection;
 
-            var topLeftTD = Table_get(sel.structure,sel.top,sel.left);
-            var bottomRightTD = Table_get(sel.structure,sel.bottom,sel.right);
+            var topLeftTD = Tables_Table_get(sel.structure,sel.top,sel.left);
+            var bottomRightTD = Tables_Table_get(sel.structure,sel.bottom,sel.right);
 
             var topLeftRect = topLeftTD.element.getBoundingClientRect();
             var bottomRightRect = bottomRightTD.element.getBoundingClientRect();
@@ -927,8 +927,8 @@ var Selection_print;
         }
 
         // FIXME: handle the case where there is no cell at the specified row and column
-        var topLeftCell = Table_get(structure,tableSelection.top,tableSelection.left);
-        var bottomRightCell = Table_get(structure,tableSelection.bottom,tableSelection.right);
+        var topLeftCell = Tables_Table_get(structure,tableSelection.top,tableSelection.left);
+        var bottomRightCell = Tables_Table_get(structure,tableSelection.bottom,tableSelection.right);
 
         var topLeftNode = topLeftCell.element.parentNode;
         var topLeftOffset = DOM_nodeOffset(topLeftCell.element);
@@ -941,7 +941,7 @@ var Selection_print;
         function findCellInTable(structure,x,y) {
             for (var r = 0; r < structure.numRows; r++) {
                 for (var c = 0; c < structure.numCols; c++) {
-                    var cell = Table_get(structure,r,c);
+                    var cell = Tables_Table_get(structure,r,c);
                     if (cell != null) {
                         var rect = cell.element.getBoundingClientRect();
                         if ((x >= rect.left) && (x <= rect.right) &&
