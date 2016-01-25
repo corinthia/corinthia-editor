@@ -45,7 +45,7 @@ function performTest()
     DOM_appendChild(span4,createElementWithId("BR","br8"));
     DOM_appendChild(span4,createElementWithId("BR","br9"));
 
-    var result = comparePositionsBeforeAndAfter(function() {
+    var result = RangeTests_comparePositionsBeforeAndAfter(function() {
 
         // Temporarily remove id attributes so that elements will be considered mergeable
         DOM_removeAttribute(span1,"id");

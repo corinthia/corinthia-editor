@@ -10,28 +10,28 @@ function performTest()
     // from it as we apply formatting changes, changing them into heading elements
     var ps = Util_arrayCopy(document.getElementsByTagName("P"));
 
-    selectNode(ps[0]);
+    TestLib_selectNode(ps[0]);
     Formatting_applyFormattingChanges("",null);
-    selectNode(ps[1]);
+    TestLib_selectNode(ps[1]);
     Formatting_applyFormattingChanges("H1",null);
-    selectNode(ps[2]);
+    TestLib_selectNode(ps[2]);
     Formatting_applyFormattingChanges("H2",null);
-    selectNode(ps[3]);
+    TestLib_selectNode(ps[3]);
     Formatting_applyFormattingChanges("H3",null);
-    selectNode(ps[4]);
+    TestLib_selectNode(ps[4]);
     Formatting_applyFormattingChanges("H4",null);
-    selectNode(ps[5]);
+    TestLib_selectNode(ps[5]);
     Formatting_applyFormattingChanges("H5",null);
-    selectNode(ps[6]);
+    TestLib_selectNode(ps[6]);
     Formatting_applyFormattingChanges("H6",null);
-    selectNode(ps[7]);
+    TestLib_selectNode(ps[7]);
     Formatting_applyFormattingChanges(".hello",null);
-    selectNode(ps[8]);
+    TestLib_selectNode(ps[8]);
     Formatting_applyFormattingChanges(null,null);
 
     // An unrelated part of the code adds "id" attributes to heading elements to keep track of
     // sections - we're not testing that functionality here, so we want to ignore them
-    removeIds();
+    TestLib_removeIds();
 }
 </script>
 </head>

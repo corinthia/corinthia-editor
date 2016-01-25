@@ -9,7 +9,7 @@ function performTest()
     // DOM_wrapNode() should only affect positions which come directly
     // before or after the node.
 
-    var result = comparePositionsBeforeAndAfter(function() {
+    var result = RangeTests_comparePositionsBeforeAndAfter(function() {
         DOM_wrapNode(document.getElementById("p2"),"DIV");
     });
 

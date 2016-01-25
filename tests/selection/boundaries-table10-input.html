@@ -9,7 +9,7 @@ function performTest()
     var offset = DOM_nodeOffset(table);
     range.end = new Position_Position(table.parentNode,DOM_nodeOffset(table)+1);
     Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
-    showSelection();
+    TestLib_showSelection();
 }
 </script>
 </head>

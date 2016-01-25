@@ -15,19 +15,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-function testNext() {
-    var result = new Array();
-    Scan_reset();
-    var index = 0;
-    while (true) {
-        var paragraph = Scan_next();
-        if (paragraph == null)
-            break;
-        if (paragraph.sectionId != null)
-            result.push(index+" ("+paragraph.sectionId+"): "+JSON.stringify(paragraph.text));
-        else
-            result.push(index+": "+JSON.stringify(paragraph.text));
-        index++;
+var ScanTests_testNext;
+
+(function() {
+
+    ScanTests_testNext = function() {
+        var result = new Array();
+        Scan_reset();
+        var index = 0;
+        while (true) {
+            var paragraph = Scan_next();
+            if (paragraph == null)
+                break;
+            if (paragraph.sectionId != null)
+                result.push(index+" ("+paragraph.sectionId+"): "+JSON.stringify(paragraph.text));
+            else
+                result.push(index+": "+JSON.stringify(paragraph.text));
+            index++;
+        }
+        return result.join("\n");
     }
-    return result.join("\n");
-}
+
+})();

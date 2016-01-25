@@ -6,15 +6,15 @@
 
 function performTest()
 {
-    setupOutlineNumbering();
-    setupOutline(3);
+    TestLib_setupOutlineNumbering();
+    OutlineTests_setupOutline(3);
 
     Selection_selectAll();
 
     Outline_moveSection("item3",null,"item2");
 
-    Selection_preserveWhileExecuting(cleanupOutline);
-    showSelection();
+    Selection_preserveWhileExecuting(OutlineTests_cleanupOutline);
+    TestLib_showSelection();
 }
 </script>
 </head>

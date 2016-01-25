@@ -15,23 +15,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-function showRuns() {
-    var range = Selection_get();
-    var paragraph = Text_analyseParagraph(range.start);
-    var runs = paragraph.runs;
-    var lines = new Array();
-    for (var i = 0; i < runs.length; i++) {
+var TextTests_showRuns;
 
-        var elementNames = new Array();
-        for (var anc = runs[i].node.parentNode; anc != paragraph.node; anc = anc.parentNode) {
-            elementNames.push(anc.nodeName+" ");
+(function() {
+
+    TextTests_showRuns = function() {
+        var range = Selection_get();
+        var paragraph = Text_analyseParagraph(range.start);
+        var runs = paragraph.runs;
+        var lines = new Array();
+        for (var i = 0; i < runs.length; i++) {
+
+            var elementNames = new Array();
+            for (var anc = runs[i].node.parentNode; anc != paragraph.node; anc = anc.parentNode) {
+                elementNames.push(anc.nodeName+" ");
+            }
+
+            lines.push("Run "+i+" ("+runs[i].start+"): "+
+                       elementNames.reverse().join("")+
+                       JSON.stringify(runs[i].node.nodeValue));
         }
-
-        lines.push("Run "+i+" ("+runs[i].start+"): "+
-                   elementNames.reverse().join("")+
-                   JSON.stringify(runs[i].node.nodeValue));
+        lines.push("");
+        lines.push("Text: "+JSON.stringify(paragraph.text));
+        return lines.join("\n");
     }
-    lines.push("");
-    lines.push("Text: "+JSON.stringify(paragraph.text));
-    return lines.join("\n");
-}
+
+})();

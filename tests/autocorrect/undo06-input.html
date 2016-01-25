@@ -35,7 +35,7 @@ function performTest()
     Clipboard_pasteHTML(clip["text/html"]);
     versions.push(DOM_cloneNode(p,true));
 
-    testUndo(versions,p);
+    UndoTests_testUndo(versions,p);
 }
 </script>
 </head>

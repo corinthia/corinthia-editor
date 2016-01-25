@@ -8,11 +8,11 @@ function performTest()
 {
     Outline_init();
     if (Outline_detectSectionNumbering())
-        setupOutlineNumbering();
+        TestLib_setupOutlineNumbering();
     PostponedActions_perform();
 
     // Create a series of headings
-    createTestSections([2,[2,2]]);
+    OutlineTests_createTestSections([2,[2,2]]);
 
     // Add a table of contents
     Selection_set(document.body,0,document.body,0);
@@ -20,7 +20,7 @@ function performTest()
     PostponedActions_perform();
 
     // Turn numbering off for all headings
-    setNumbering(false);
+    TestLib_setNumbering(false);
     PostponedActions_perform();
 }
 </script>

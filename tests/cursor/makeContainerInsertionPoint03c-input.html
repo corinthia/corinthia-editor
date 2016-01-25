@@ -6,11 +6,11 @@ function performTest()
 {
     Outline_init();
     if (Outline_detectSectionNumbering())
-        setupOutlineNumbering();
+        TestLib_setupOutlineNumbering();
     PostponedActions_perform();
     Cursor_makeContainerInsertionPoint();
     PostponedActions_perform();
-    showSelection();
+    TestLib_showSelection();
 }
 </script>
 </head>

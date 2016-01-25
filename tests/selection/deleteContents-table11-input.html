@@ -10,7 +10,7 @@ function performTest()
     var tableOffset = DOM_nodeOffset(table);
     Selection_set(table.parentNode,tableOffset,tr.parentNode,trOffset+1);
     Selection_deleteContents();
-    showSelection();
+    TestLib_showSelection();
 }
 </script>
 </head>

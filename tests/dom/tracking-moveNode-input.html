@@ -9,12 +9,12 @@ function performTest()
     // DOM_wrapNode() should not affect any positions, because the node itself remains in the
     // tree unmodified.
 
-    removeWhitespaceAndCommentNodes(document.body);
+    TestLib_removeWhitespaceAndCommentNodes(document.body);
 
     var p1 = document.getElementById("p1");
     var p2 = document.getElementById("p2");
 
-    var result = comparePositionsBeforeAndAfter(function() {
+    var result = RangeTests_comparePositionsBeforeAndAfter(function() {
         DOM_insertBefore(p2,p1.childNodes[1],p2.childNodes[3]);
     });
 

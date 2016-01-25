@@ -9,9 +9,9 @@ function performTest()
     Outline_init();
     PostponedActions_perform();
 
-    showSelection();
+    TestLib_showSelection();
 
-    var region = getSelectedTableRegion();
+    var region = TableTests_getSelectedTableRegion();
     for (var row = region.top; row <= region.bottom; row++) {
         for (var col = region.left; col <= region.right; col++) {
             var cell = Table_get(region.structure,row,col);

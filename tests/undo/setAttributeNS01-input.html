@@ -29,7 +29,7 @@ function performTest()
     versions.push(DOM_cloneNode(element,true));
     UndoManager_newGroup();
 
-    testUndo(versions,element);
+    UndoTests_testUndo(versions,element);
 
     outputOptions.showNamespaceDetails = true;
 }

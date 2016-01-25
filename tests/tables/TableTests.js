@@ -15,39 +15,47 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-function showSelectedTableRegion() {
-    var region = Tables_regionFromRange(Selection_get());
-    for (var row = region.top; row <= region.bottom; row++) {
-        for (var col = region.left; col <= region.right; col++) {
-            var cell = Table_get(region.structure,row,col);
-            DOM_setStyleProperties(cell.element,{"background-color": "silver"});
-        }
-    }
-}
+var TableTests_showSelectedTableRegion;
+var TableTests_getSelectedTableRegion;
+var TableTests_showTableStructure;
 
-function getSelectedTableRegion() {
-    return Tables_regionFromRange(Selection_get());
-}
+(function() {
 
-function showTableStructure() {
-    var tableElement = document.getElementsByTagName("TABLE")[0];
-    var table = Tables_analyseStructure(tableElement);
-    var lines = new Array();
-    lines.push(PrettyPrinter.getHTML(document.documentElement));
-
-    for (var row = 0; row < table.numRows; row++) {
-        for (var col = 0; col < table.numCols; col++) {
-            var cell = Table_get(table,row,col);
-            if (cell == null) {
-                lines.push("Cell at ("+row+","+col+") = "+null);
-            }
-            else {
-                lines.push("Cell at ("+row+","+col+") = "+
-                           cell.rowspan+"x"+cell.colspan+" "+
-                           JSON.stringify(Traversal_getNodeText(cell.element)));
+    TableTests_showSelectedTableRegion = function() {
+        var region = Tables_regionFromRange(Selection_get());
+        for (var row = region.top; row <= region.bottom; row++) {
+            for (var col = region.left; col <= region.right; col++) {
+                var cell = Table_get(region.structure,row,col);
+                DOM_setStyleProperties(cell.element,{"background-color": "silver"});
             }
         }
     }
 
-    return lines.join("\n");
-}
+    TableTests_getSelectedTableRegion = function() {
+        return Tables_regionFromRange(Selection_get());
+    }
+
+    TableTests_showTableStructure = function() {
+        var tableElement = document.getElementsByTagName("TABLE")[0];
+        var table = Tables_analyseStructure(tableElement);
+        var lines = new Array();
+        lines.push(PrettyPrinter.getHTML(document.documentElement));
+
+        for (var row = 0; row < table.numRows; row++) {
+            for (var col = 0; col < table.numCols; col++) {
+                var cell = Table_get(table,row,col);
+                if (cell == null) {
+                    lines.push("Cell at ("+row+","+col+") = "+null);
+                }
+                else {
+                    lines.push("Cell at ("+row+","+col+") = "+
+                               cell.rowspan+"x"+cell.colspan+" "+
+                               JSON.stringify(Traversal_getNodeText(cell.element)));
+                }
+            }
+        }
+
+        return lines.join("\n");
+    }
+
+})();

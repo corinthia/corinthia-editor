@@ -17,13 +17,13 @@ function performTest()
     AutoCorrect_correctPrecedingWord(5,"four");
     Cursor_insertCharacter(" five");
     PostponedActions_perform();
-    showSelection();
+    TestLib_showSelection();
 
-    var text = findTextMatching(/four/);
+    var text = AutoCorrectTests_findTextMatching(/four/);
     text.nodeValue = "a";
     PostponedActions_perform();
 
-    return showCorrections();
+    return AutoCorrectTests_showCorrections();
 }
 </script>
 </head>

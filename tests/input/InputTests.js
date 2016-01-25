@@ -15,128 +15,141 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-function getNodeArrayText(nodes) {
-    var strings = new Array();
-    for (var i = 0; i < nodes.length; i++)
-        strings.push(Traversal_getNodeText(nodes[i]));
-    return strings.join("");
-}
+var InputTests_getNodeArrayText;
+var InputTests_textBetweenPositions;
+var InputTests_testMovement;
+var InputTests_testPositionFun;
+var InputTests_testPositionWithin;
+var InputTests_testPositionAtBoundary;
+var InputTests_testPositionToBoundary;
+var InputTests_testRangeEnclosing;
 
-function textBetweenPositions(from,to) {
-    var range = new Range_Range(from.node,from.offset,to.node,to.offset);
-    var contents = Range_cloneContents(range);
-    return getNodeArrayText(contents);
-}
+(function() {
 
-function testMovement(direction,count) {
-    Outline_init();
-    PostponedActions_perform();
-    var posId = Input_addPosition(Selection_get().start);
-    for (var i = 0; i < count; i++)
-        posId = Input_positionFromPositionInDirectionOffset(posId,direction,1);
-    Input_setSelectedTextRange(posId,posId);
-    showSelection();
-}
-
-function testPositionFun(fun,granularity,direction) {
-    var lines = new Array();
-    var start = new Position_Position(document.body,0);
-    var end = new Position_Position(document.body,document.body.childNodes.length);
-
-    start = Position_closestMatchForwards(start,Position_okForMovement);
-    end = Position_closestMatchBackwards(end,Position_okForMovement);
-
-    var pos = start;
-    while (pos != null) {
-
-        var before = textBetweenPositions(start,pos);
-        var after = textBetweenPositions(pos,end);
-        var total = before+"|"+after;
-
-        var result = fun(pos,granularity,direction);
-        lines.push(JSON.stringify(total)+" -- "+result+"\n");
-
-        pos = Position_nextMatch(pos,Position_okForMovement);
+    InputTests_getNodeArrayText = function(nodes) {
+        var strings = new Array();
+        for (var i = 0; i < nodes.length; i++)
+            strings.push(Traversal_getNodeText(nodes[i]));
+        return strings.join("");
     }
 
-    return lines.join("");
-}
-
-function testPositionWithin(granularity,direction) {
-    return testPositionFun(Input_isPositionWithinTextUnitInDirection,granularity,direction);
-}
-
-function testPositionAtBoundary(granularity,direction) {
-    return testPositionFun(Input_isPositionAtBoundaryGranularityInDirection,granularity,direction);
-}
-
-function testPositionToBoundary(granularity,direction) {
-    var lines = new Array();
-    var start = new Position_Position(document.body,0);
-    var end = new Position_Position(document.body,document.body.childNodes.length);
-
-    start = Position_closestMatchForwards(start,Position_okForMovement);
-    end = Position_closestMatchBackwards(end,Position_okForMovement);
-
-    var pos = start;
-    while (pos != null) {
-
-        var oldBefore = textBetweenPositions(start,pos);
-        var oldAfter = textBetweenPositions(pos,end);
-        var oldTotal = oldBefore+"|"+oldAfter;
-
-        var resultId = Input_positionFromPositionToBoundaryInDirection(pos,granularity,direction);
-        var result = Input_getPosition(resultId);
-
-        var newBefore = textBetweenPositions(start,result);
-        var newAfter = textBetweenPositions(result,end);
-        var newTotal = newBefore+"|"+newAfter;
-
-        lines.push(JSON.stringify(oldTotal)+" -- "+JSON.stringify(newTotal)+"\n");
-
-        pos = Position_nextMatch(pos,Position_okForMovement);
+    InputTests_textBetweenPositions = function(from,to) {
+        var range = new Range_Range(from.node,from.offset,to.node,to.offset);
+        var contents = Range_cloneContents(range);
+        return InputTests_getNodeArrayText(contents);
     }
 
-    return lines.join("");
-}
+    InputTests_testMovement = function(direction,count) {
+        Outline_init();
+        PostponedActions_perform();
+        var posId = Input_addPosition(Selection_get().start);
+        for (var i = 0; i < count; i++)
+            posId = Input_positionFromPositionInDirectionOffset(posId,direction,1);
+        Input_setSelectedTextRange(posId,posId);
+        TestLib_showSelection();
+    }
 
-function testRangeEnclosing(granularity,direction) {
-    var lines = new Array();
-    var start = new Position_Position(document.body,0);
-    var end = new Position_Position(document.body,document.body.childNodes.length);
+    InputTests_testPositionFun = function(fun,granularity,direction) {
+        var lines = new Array();
+        var start = new Position_Position(document.body,0);
+        var end = new Position_Position(document.body,document.body.childNodes.length);
 
-    start = Position_closestMatchForwards(start,Position_okForMovement);
-    end = Position_closestMatchBackwards(end,Position_okForMovement);
+        start = Position_closestMatchForwards(start,Position_okForMovement);
+        end = Position_closestMatchBackwards(end,Position_okForMovement);
 
-    var pos = start;
-    while (pos != null) {
+        var pos = start;
+        while (pos != null) {
 
-        var oldBefore = textBetweenPositions(start,pos);
-        var oldAfter = textBetweenPositions(pos,end);
-        var oldTotal = oldBefore+"|"+oldAfter;
+            var before = InputTests_textBetweenPositions(start,pos);
+            var after = InputTests_textBetweenPositions(pos,end);
+            var total = before+"|"+after;
 
-        var resultIds =
-            Input_rangeEnclosingPositionWithGranularityInDirection(pos,granularity,direction);
-        if (resultIds != null) {
-            var startId = resultIds.startId;
-            var endId = resultIds.endId;
-            var rangeStart = Input_getPosition(startId);
-            var rangeEnd = Input_getPosition(endId);
+            var result = fun(pos,granularity,direction);
+            lines.push(JSON.stringify(total)+" -- "+result+"\n");
 
-            var before = textBetweenPositions(start,rangeStart);
-            var middle = textBetweenPositions(rangeStart,rangeEnd);
-            var after = textBetweenPositions(rangeEnd,end);
+            pos = Position_nextMatch(pos,Position_okForMovement);
+        }
 
-            var newTotal = before+"["+middle+"]"+after;
+        return lines.join("");
+    }
+
+    InputTests_testPositionWithin = function(granularity,direction) {
+        return InputTests_testPositionFun(Input_isPositionWithinTextUnitInDirection,granularity,direction);
+    }
+
+    InputTests_testPositionAtBoundary = function(granularity,direction) {
+        return InputTests_testPositionFun(Input_isPositionAtBoundaryGranularityInDirection,granularity,direction);
+    }
+
+    InputTests_testPositionToBoundary = function(granularity,direction) {
+        var lines = new Array();
+        var start = new Position_Position(document.body,0);
+        var end = new Position_Position(document.body,document.body.childNodes.length);
+
+        start = Position_closestMatchForwards(start,Position_okForMovement);
+        end = Position_closestMatchBackwards(end,Position_okForMovement);
+
+        var pos = start;
+        while (pos != null) {
+
+            var oldBefore = InputTests_textBetweenPositions(start,pos);
+            var oldAfter = InputTests_textBetweenPositions(pos,end);
+            var oldTotal = oldBefore+"|"+oldAfter;
+
+            var resultId = Input_positionFromPositionToBoundaryInDirection(pos,granularity,direction);
+            var result = Input_getPosition(resultId);
+
+            var newBefore = InputTests_textBetweenPositions(start,result);
+            var newAfter = InputTests_textBetweenPositions(result,end);
+            var newTotal = newBefore+"|"+newAfter;
 
             lines.push(JSON.stringify(oldTotal)+" -- "+JSON.stringify(newTotal)+"\n");
-        }
-        else {
-            lines.push(JSON.stringify(oldTotal)+" -- null\n");
+
+            pos = Position_nextMatch(pos,Position_okForMovement);
         }
 
-        pos = Position_nextMatch(pos,Position_okForMovement);
+        return lines.join("");
     }
 
-    return lines.join("");
-}
+    InputTests_testRangeEnclosing = function(granularity,direction) {
+        var lines = new Array();
+        var start = new Position_Position(document.body,0);
+        var end = new Position_Position(document.body,document.body.childNodes.length);
+
+        start = Position_closestMatchForwards(start,Position_okForMovement);
+        end = Position_closestMatchBackwards(end,Position_okForMovement);
+
+        var pos = start;
+        while (pos != null) {
+
+            var oldBefore = InputTests_textBetweenPositions(start,pos);
+            var oldAfter = InputTests_textBetweenPositions(pos,end);
+            var oldTotal = oldBefore+"|"+oldAfter;
+
+            var resultIds =
+                Input_rangeEnclosingPositionWithGranularityInDirection(pos,granularity,direction);
+            if (resultIds != null) {
+                var startId = resultIds.startId;
+                var endId = resultIds.endId;
+                var rangeStart = Input_getPosition(startId);
+                var rangeEnd = Input_getPosition(endId);
+
+                var before = InputTests_textBetweenPositions(start,rangeStart);
+                var middle = InputTests_textBetweenPositions(rangeStart,rangeEnd);
+                var after = InputTests_textBetweenPositions(rangeEnd,end);
+
+                var newTotal = before+"["+middle+"]"+after;
+
+                lines.push(JSON.stringify(oldTotal)+" -- "+JSON.stringify(newTotal)+"\n");
+            }
+            else {
+                lines.push(JSON.stringify(oldTotal)+" -- null\n");
+            }
+
+            pos = Position_nextMatch(pos,Position_okForMovement);
+        }
+
+        return lines.join("");
+    }
+
+})();

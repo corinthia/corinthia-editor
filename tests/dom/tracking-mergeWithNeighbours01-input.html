@@ -25,7 +25,7 @@ function performTest()
     DOM_appendChild(p,br2);
     DOM_appendChild(document.body,p);
 
-    var result = comparePositionsBeforeAndAfter(function() {
+    var result = RangeTests_comparePositionsBeforeAndAfter(function() {
         Formatting_mergeWithNeighbours(text2,Formatting_MERGEABLE_INLINE);
     });
 

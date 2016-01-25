@@ -20,19 +20,19 @@ function arraysEqual(a,b)
 function performTest()
 {
     var root = document.body;
-    removeWhitespaceTextNodes(root);
-    setup(root);
+    RangeTests_removeWhitespaceTextNodes(root);
+    RangeTests_setup(root);
 
     var total = 0;
     var pass = 0;
     var fail = 0;
-    for (var index = 0; index < allPositions.length; index++) {
-        var pos = allPositions[index];
+    for (var index = 0; index < RangeTests_allPositions.length; index++) {
+        var pos = RangeTests_allPositions[index];
 
         total++;
 
         var actual = Position_prev(pos);
-        var expected = allPositions[index-1];
+        var expected = RangeTests_allPositions[index-1];
 
         if (comparePositions(actual,expected))
             pass++;
@@ -40,7 +40,7 @@ function performTest()
             fail++;
     }
 
-    var message1 = "allPositions.length = "+allPositions.length;
+    var message1 = "allPositions.length = "+RangeTests_allPositions.length;
     var message2 = "Test results: total "+total+", pass "+pass+", fail "+fail;
     DOM_deleteAllChildren(document.body);
     DOM_appendChild(document.body,DOM_createTextNode(document,message1));

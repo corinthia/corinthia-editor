@@ -12,7 +12,7 @@ function performTest()
     UndoManager_undo();
     PostponedActions_perform();
 
-    selectNode(document.getElementsByTagName("P")[2]);
+    TestLib_selectNode(document.getElementsByTagName("P")[2]);
 
     outputOptions.keepSelectionHighlights = true;
 }

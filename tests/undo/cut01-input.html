@@ -5,13 +5,13 @@
 <script>
 function performTest()
 {
-    setupOutlineNumbering();
+    TestLib_setupOutlineNumbering();
     var versions = new Array();
     versions.push(DOM_cloneNode(document.body,true));
 
     Outline_init();
     if (Outline_detectSectionNumbering())
-        setupOutlineNumbering();
+        TestLib_setupOutlineNumbering();
     PostponedActions_perform();
     versions.push(DOM_cloneNode(document.body,true));
 
@@ -24,7 +24,7 @@ function performTest()
     PostponedActions_perform();
     versions.push(DOM_cloneNode(document.body,true));
 
-    testUndo(versions,document.body);
+    UndoTests_testUndo(versions,document.body);
 }
 </script>
 </head>

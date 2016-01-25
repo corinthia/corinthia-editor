@@ -6,12 +6,12 @@
 <script>
 function performTest()
 {
-    setupOutlineNumbering();
+    TestLib_setupOutlineNumbering();
     Outline_init();
     PostponedActions_perform();
     Formatting_applyFormattingChanges("H1",{});
     PostponedActions_perform();
-    simplifyTOCs();
+    TestLib_simplifyTOCs();
 }
 </script>
 </head>

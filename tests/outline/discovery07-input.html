@@ -8,9 +8,9 @@ function performTest()
 {
     Outline_init();
     if (Outline_detectSectionNumbering())
-        setupOutlineNumbering();
+        TestLib_setupOutlineNumbering();
     PostponedActions_perform();
-    setNumbering(false);
+    TestLib_setNumbering(false);
     return Outline_plainText()+PrettyPrinter.getHTML(document.documentElement);
 }
 </script>

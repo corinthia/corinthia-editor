@@ -4,13 +4,13 @@
 <script>
 function performTest()
 {
-    setupOutlineNumbering();
+    TestLib_setupOutlineNumbering();
     Outline_init();
     PostponedActions_perform();
     Cursor_insertReference("test");
     PostponedActions_perform();
     Cursor_deleteCharacter();
-    showSelection();
+    TestLib_showSelection();
 }
 </script>
 </head>

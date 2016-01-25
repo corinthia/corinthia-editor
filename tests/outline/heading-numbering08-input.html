@@ -8,11 +8,11 @@ function performTest()
 {
     Outline_init();
     if (Outline_detectSectionNumbering())
-        setupOutlineNumbering();
+        TestLib_setupOutlineNumbering();
     PostponedActions_perform();
     Formatting_applyFormattingChanges("H1",{});
     PostponedActions_perform();
-    simplifyTOCs();
+    TestLib_simplifyTOCs();
 }
 </script>
 </head>

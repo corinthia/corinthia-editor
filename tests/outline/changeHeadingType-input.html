@@ -9,10 +9,10 @@
 
 function performTest()
 {
-    setupOutlineNumbering();
+    TestLib_setupOutlineNumbering();
     Outline_init();
     PostponedActions_perform();
-    setNumbering(true);
+    TestLib_setNumbering(true);
     PostponedActions_perform();
     Formatting_applyFormattingChanges("H1",{});
     PostponedActions_perform();

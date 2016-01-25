@@ -8,7 +8,7 @@ function performTest()
     var offset = DOM_nodeOffset(table);
     Cursor_set(table.parentNode,offset+1,table.parentNode,offset+1);
     Cursor_deleteCharacter();
-    showSelection();
+    TestLib_showSelection();
 }
 </script>
 </head>

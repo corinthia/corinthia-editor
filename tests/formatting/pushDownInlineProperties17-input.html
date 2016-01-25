@@ -7,7 +7,7 @@ function performTest()
     Selection_preserveWhileExecuting(function() {
         var range = Selection_get();
         Range_trackWhileExecuting(range,function() {
-            removeWhitespaceAndCommentNodes(document.body);
+            TestLib_removeWhitespaceAndCommentNodes(document.body);
         });
         var outermost = Range_getOutermostNodes(range);
         Formatting_pushDownInlineProperties(outermost);

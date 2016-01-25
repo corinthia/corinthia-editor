@@ -8,7 +8,7 @@ function performTest()
     var clip = Clipboard_cut();
     Selection_set(dest,dest.childNodes.length,dest,dest.childNodes.length);
     Clipboard_pasteHTML(clip["text/html"]);
-    showSelection();
+    TestLib_showSelection();
 }
 </script>
 </head>

@@ -8,14 +8,14 @@ function performTest()
 {
     Outline_init();
     if (Outline_detectSectionNumbering())
-        setupOutlineNumbering();
+        TestLib_setupOutlineNumbering();
     PostponedActions_perform();
 
     var h1 = document.getElementsByTagName("h1")[0];
     Selection_set(h1,0,h1,0);
     Outline_insertTableOfContents();
     PostponedActions_perform();
-    simplifyTOCs();
+    TestLib_simplifyTOCs();
 }
 </script>
 </head>

@@ -9,9 +9,9 @@ function performTest()
     Outline_init();
     PostponedActions_perform();
 
-    showSelection();
+    TestLib_showSelection();
 
-    var region = getSelectedTableRegion();
+    var region = TableTests_getSelectedTableRegion();
     return "top "+region.top+"\n"+
         "left "+region.left+"\n"+
         "bottom "+region.bottom+"\n"+

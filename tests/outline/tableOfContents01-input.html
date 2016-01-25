@@ -6,19 +6,19 @@
 <script>
 function performTest()
 {
-    setupOutlineNumbering();
+    TestLib_setupOutlineNumbering();
     Outline_init();
     PostponedActions_perform();
 
     // Create a series of headings
-    createTestSections([2,[2,2]]);
+    OutlineTests_createTestSections([2,[2,2]]);
 
     // Add a table of contents
     Selection_set(document.body,0,document.body,0);
     Outline_insertTableOfContents();
     PostponedActions_perform();
 
-    simplifyTOCs();
+    TestLib_simplifyTOCs();
 }
 </script>
 </head>

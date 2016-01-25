@@ -11,7 +11,7 @@ function performTest()
 {
     Outline_init();
     PostponedActions_perform();
-    setNumbering(true);
+    TestLib_setNumbering(true);
     return Outline_plainText()+PrettyPrinter.getHTML(document.documentElement);
 }
 </script>

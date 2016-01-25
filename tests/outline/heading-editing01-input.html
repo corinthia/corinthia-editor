@@ -5,14 +5,14 @@
 
 function performTest()
 {
-    setupOutlineNumbering();
+    TestLib_setupOutlineNumbering();
     Outline_init();
     PostponedActions_perform();
     var heading = document.getElementsByTagName("H1")[0];
     Selection_set(heading.lastChild,0,heading.lastChild,heading.lastChild.nodeValue.length);
     Cursor_insertCharacter("d");
     PostponedActions_perform();
-    showSelection();
+    TestLib_showSelection();
 }
 </script>
 </head>

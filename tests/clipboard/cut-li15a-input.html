@@ -5,9 +5,9 @@
 function performTest()
 {
     var clip = Clipboard_cut();
-    showSelection();
+    TestLib_showSelection();
     var html = PrettyPrinter.getHTML(document.documentElement);
-    return html+"\n"+showClipboard(clip);
+    return html+"\n"+TestLib_showClipboard(clip);
 }
 </script>
 </head>

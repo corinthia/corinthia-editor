@@ -21,7 +21,7 @@ function performTest()
     AutoCorrect_correctPrecedingWord(4,"six");
     Cursor_insertCharacter(" seven");
     PostponedActions_perform();
-    showSelection();
+    TestLib_showSelection();
 
     UndoManager_clear();
     var versions = new Array();
@@ -32,7 +32,7 @@ function performTest()
         versions.push(DOM_cloneNode(document.body,true));
     }
 
-    testUndo(versions,document.body);
+    UndoTests_testUndo(versions,document.body);
 }
 </script>
 </head>

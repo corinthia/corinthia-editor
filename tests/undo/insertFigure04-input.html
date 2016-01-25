@@ -19,23 +19,23 @@ function performTest()
     PostponedActions_perform();
     versions.push(DOM_cloneNode(body,true));
 
-    placeCursorAfterElement("item1");
+    UndoTests_placeCursorAfterElement("item1");
     Figures_insertFigure("second.png","90%",false,null);
     PostponedActions_perform();
     versions.push(DOM_cloneNode(body,true));
 
-    placeCursorAfterElement("item1");
+    UndoTests_placeCursorAfterElement("item1");
 
     Figures_insertFigure("third.png","80%",false,null);
     PostponedActions_perform();
     versions.push(DOM_cloneNode(body,true));
 
-    placeCursorAfterElement("item2");
+    UndoTests_placeCursorAfterElement("item2");
     Figures_insertFigure("fourth.png","70%",false,null);
     PostponedActions_perform();
     versions.push(DOM_cloneNode(body,true));
 
-    testUndo(versions,body);
+    UndoTests_testUndo(versions,body);
 }
 </script>
 </head>

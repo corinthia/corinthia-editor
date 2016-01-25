@@ -20,15 +20,15 @@ function performTest()
     AutoCorrect_correctPrecedingWord(4,"six");
     Cursor_insertCharacter(" seven");
     PostponedActions_perform();
-    showSelection();
+    TestLib_showSelection();
 
-    var text = findTextMatching("six");
+    var text = AutoCorrectTests_findTextMatching("six");
     Selection_set(text,0,text,0);
 
     AutoCorrect_replaceCorrection("A");
     PostponedActions_perform();
 
-    return showCorrections();
+    return AutoCorrectTests_showCorrections();
 }
 </script>
 </head>

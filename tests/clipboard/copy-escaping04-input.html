@@ -10,7 +10,7 @@ function performTest()
         text = text.lastChild;
     var str = " [Daring Fireball](http://daringfireball.net)";
     DOM_insertCharacters(text,text.nodeValue.length,str);
-    return showClipboard(Clipboard_copy());
+    return TestLib_showClipboard(Clipboard_copy());
 }
 </script>
 </head>

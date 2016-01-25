@@ -158,7 +158,7 @@ function leftLoaded() {
     w.eval(allCode);
     w.debug = function(str) { console.log(str); };
 
-    w.testHarnessSetup();
+    w.TestLib_testHarnessSetup();
     continuation();
 
     return;

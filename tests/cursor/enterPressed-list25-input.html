@@ -6,11 +6,11 @@ function performTest()
 {
     Cursor_enterPressed();
     var range = Selection_get();
-    Range_trackWhileExecuting(range,showEmptyTextNodes);
+    Range_trackWhileExecuting(range,TestLib_showEmptyTextNodes);
     var u = document.getElementsByTagName("U")[0];
     Selection_set(u,0,u,0);
     Cursor_insertCharacter("X");
-    showSelection();
+    TestLib_showSelection();
 }
 </script>
 </head>

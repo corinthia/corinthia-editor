@@ -6,12 +6,12 @@
 
 function performTest()
 {
-    setupOutlineNumbering();
-    setupOutline([[2,2,2],0,0]);
+    TestLib_setupOutlineNumbering();
+    OutlineTests_setupOutline([[2,2,2],0,0]);
 
     Outline_moveSection("item2","item1","item5");
 
-    cleanupOutline();
+    OutlineTests_cleanupOutline();
 }
 </script>
 </head>
