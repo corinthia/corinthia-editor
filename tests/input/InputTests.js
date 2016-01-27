@@ -17,7 +17,7 @@
 
 (function(api) {
 
-    var InputTests = api.tests.InputTests = {}; // export
+    var InputTests = api.tests.InputTests; // export
 
     var Input = api.Input; // import
     var Outline = api.Outline; // import
@@ -25,6 +25,7 @@
     var PostponedActions = api.PostponedActions; // import
     var Range = api.Range; // import
     var Selection = api.Selection; // import
+    var TestLib = api.tests.TestLib; // import
     var Traversal = api.Traversal; // import
 
     InputTests.getNodeArrayText = function(nodes) {
@@ -47,7 +48,7 @@
         for (var i = 0; i < count; i++)
             posId = Input.positionFromPositionInDirectionOffset(posId,direction,1);
         Input.setSelectedTextRange(posId,posId);
-        api.tests.TestLib.showSelection();
+        TestLib.showSelection();
     }
 
     InputTests.testPositionFun = function(fun,granularity,direction) {

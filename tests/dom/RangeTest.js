@@ -17,7 +17,7 @@
 
 (function(api) {
 
-    var RangeTests = api.tests.RangeTests = {}; // export
+    var RangeTests = api.tests.RangeTests; // export
 
     var Collections = api.Collections; // import
     var DOM = api.DOM; // import

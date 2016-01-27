@@ -17,7 +17,7 @@
 
 (function(api) {
 
-    var UndoTests = api.tests.UndoTests = {}; // export
+    var UndoTests = api.tests.UndoTests; // export
 
     var AutoCorrect = api.AutoCorrect; // import
     var DOM = api.DOM; // import

@@ -17,7 +17,7 @@
 
 (function(api) {
 
-    var TextTests = api.tests.TextTests = {}; // export
+    var TextTests = api.tests.TextTests; // export
 
     var Selection = api.Selection; // import
     var Text = api.Text; // import

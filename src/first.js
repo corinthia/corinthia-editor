@@ -77,5 +77,18 @@ var globalAPI = {
     UndoManager: {},
     Util: {},
     Viewport: {},
-    tests: {}
+    tests: {
+        AutoCorrectTests: {},
+        RangeTests: {},
+        FiguresTests: {},
+        InputTests: {},
+        OutlineTests: {},
+        ValidPositions: {},
+        ScanTests: {},
+        PositionTests: {},
+        TableTests: {},
+        TestLib: {},
+        TextTests: {},
+        UndoTests: {}
+    }
 }

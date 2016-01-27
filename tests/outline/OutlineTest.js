@@ -17,13 +17,14 @@
 
 (function(api) {
 
-    var OutlineTests = api.tests.OutlineTests = {}; // export
+    var OutlineTests = api.tests.OutlineTests; // export
 
     var DOM = api.DOM; // import
     var Formatting = api.Formatting; // import
     var Outline = api.Outline; // import
     var PostponedActions = api.PostponedActions; // import
     var Selection = api.Selection; // import
+    var TestLib = api.tests.TestLib; // import
     var Tables = api.Tables; // import
 
     OutlineTests.createTestSections = function(topChildren) {
@@ -33,7 +34,7 @@
 
         PostponedActions.perform();
 
-        api.tests.TestLib.setNumbering(true);
+        TestLib.setNumbering(true);
 
         function processChildren(level,children) {
             if (typeof children == "number") {

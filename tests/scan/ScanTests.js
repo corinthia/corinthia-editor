@@ -17,7 +17,7 @@
 
 (function(api) {
 
-    var ScanTests = api.tests.ScanTests = {}; // export
+    var ScanTests = api.tests.ScanTests; // export
 
     var Scan = api.Scan; // import
 

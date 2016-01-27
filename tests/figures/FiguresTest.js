@@ -17,7 +17,7 @@
 
 (function(api) {
 
-    var FiguresTests = api.tests.FiguresTests = {}; // export
+    var FiguresTests = api.tests.FiguresTests; // export
 
     var DOM = api.DOM; // import
     var Figures = api.Figures; // import

@@ -17,7 +17,7 @@
 
 (function(api) {
 
-    var ValidPositions = api.tests.ValidPositions = {}; // export
+    var ValidPositions = api.tests.ValidPositions; // export
 
     var DOM = api.DOM; // import
     var Position = api.Position; // import

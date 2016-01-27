@@ -17,7 +17,7 @@
 
 (function(api) {
 
-    var TestLib = api.tests.TestLib = {}; // export
+    var TestLib = api.tests.TestLib; // export
 
     var DOM = api.DOM; // import
     var Formatting = api.Formatting; // import

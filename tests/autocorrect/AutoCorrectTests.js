@@ -17,7 +17,7 @@
 
 (function(api) {
 
-    var AutoCorrectTests = api.tests.AutoCorrectTests = {}; // export
+    var AutoCorrectTests = api.tests.AutoCorrectTests; // export
 
     var AutoCorrect = api.AutoCorrect; // import
 

@@ -17,7 +17,7 @@
 
 (function(api) {
 
-    var TableTests = api.tests.TableTests = {}; // export
+    var TableTests = api.tests.TableTests; // export
 
     var DOM = api.DOM; // import
     var Selection = api.Selection; // import

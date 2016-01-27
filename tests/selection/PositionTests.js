@@ -17,7 +17,7 @@
 
 (function(api) {
 
-    var PositionTests = api.tests.PositionTests = {}; // export
+    var PositionTests = api.tests.PositionTests; // export
 
     var Paragraph = api.Paragraph; // import
     var Position = api.Position; // import
