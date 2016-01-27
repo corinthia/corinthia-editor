@@ -2,13 +2,13 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     var p = document.getElementsByTagName("P")[2];
-    var offset = DOM_nodeOffset(p);
-    Selection_set(document.body,offset,document.body,offset+1);
-    DOM_replaceElement(p,"DIV");
-    TestLib_showSelection();
+    var offset = api.DOM.nodeOffset(p);
+    api.Selection.set(document.body,offset,document.body,offset+1);
+    api.DOM.replaceElement(p,"DIV");
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

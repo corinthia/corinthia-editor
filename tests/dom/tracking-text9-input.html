@@ -2,30 +2,30 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     var p = document.getElementsByTagName("P")[0];
     var text = p.firstChild;
     var positions = new Array();
     for (var i = 0; i <= text.nodeValue.length; i++)
-        positions.push(new Position_Position(text,i));
+        positions.push(new api.Position.Position(text,i));
 
     var messages = new Array();
     messages.push("Before text change:");
     for (var i = 0; i < positions.length; i++)
         messages.push("positions["+i+"] = "+positions[i]);
 
-    Position_trackWhileExecuting(positions,function() {
-        DOM_deleteCharacters(text,0,13);
-        DOM_insertCharacters(text,text.nodeValue.length,"(inserted)");
+    api.Position.trackWhileExecuting(positions,function() {
+        api.DOM.deleteCharacters(text,0,13);
+        api.DOM.insertCharacters(text,text.nodeValue.length,"(inserted)");
     });
 
     messages.push("After text change:");
     for (var i = 0; i < positions.length; i++)
         messages.push("positions["+i+"] = "+positions[i]);
 
-    DOM_deleteAllChildren(document.body);
-    DOM_appendChild(document.body,DOM_createTextNode(document,"-\n"+messages.join("\n")+"\n-"));
+    api.DOM.deleteAllChildren(document.body);
+    api.DOM.appendChild(document.body,api.DOM.createTextNode(document,"-\n"+messages.join("\n")+"\n-"));
 }
 </script>
 </head>

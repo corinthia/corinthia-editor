@@ -15,34 +15,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var Position_Position;
-var Position_assertValid;
-var Position_prev;
-var Position_next;
-var Position_trackWhileExecuting;
-var Position_closestActualNode;
-var Position_okForInsertion;
-var Position_okForMovement;
-var Position_prevMatch;
-var Position_nextMatch;
-var Position_closestMatchForwards;
-var Position_closestMatchBackwards;
-var Position_track;
-var Position_untrack;
-var Position_rectAtPos;
-var Position_noteAncestor;
-var Position_captionAncestor;
-var Position_figureOrTableAncestor;
-var Position_displayRectAtPos;
-var Position_preferTextPosition;
-var Position_preferElementPosition;
-var Position_compare;
-var Position_atPoint;
+(function(api) {
 
-(function() {
+    var Position = api.Position; // export
+
+    var DOM = api.DOM; // import
+    var Range = api.Range; // import
+    var Text = api.Text; // import
+    var Traversal = api.Traversal; // import
+    var Types = api.Types; // import
+    var Util = api.Util; // import
 
     // public
-    Position_Position = function(node,offset) {
+    Position.Position = function(node,offset) {
         if (node == document.documentElement)
             throw new Error("node is root element");
         Object.defineProperty(this,"self",{value: {}});
@@ -72,11 +57,11 @@ var Position_atPoint;
     }
 
     function actuallyStartTracking(self) {
-        DOM_addTrackedPosition(self.this);
+        DOM.addTrackedPosition(self.this);
     }
 
     function actuallyStopTracking(self) {
-        DOM_removeTrackedPosition(self.this);
+        DOM.removeTrackedPosition(self.this);
     }
 
     function startTracking(self) {
@@ -108,7 +93,7 @@ var Position_atPoint;
     }
 
     // public
-    Position_Position.prototype.toString = function() {
+    Position.Position.prototype.toString = function() {
         var self = this.self;
         var result;
         if (self.node.nodeType == Node.TEXT_NODE) {
@@ -124,7 +109,7 @@ var Position_atPoint;
                                        self.node.nodeValue.slice(self.offset));
         }
         else {
-            result = "("+Util_nodeString(self.node)+","+self.offset+")";
+            result = "("+Util.nodeString(self.node)+","+self.offset+")";
         }
         if (this.posId != null)
             result = "["+this.posId+"]"+result;
@@ -140,42 +125,42 @@ var Position_atPoint;
 
         // Moving left from the start of a caption - go to the end of the table
         if ((node._type == HTML_CAPTION) && backwards && (prev == null))
-            return new Position_Position(node.parentNode,node.parentNode.childNodes.length);
+            return new Position.Position(node.parentNode,node.parentNode.childNodes.length);
 
         // Moving right from the end of a caption - go after the table
         if ((node._type == HTML_CAPTION) && forwards && (next == null))
-            return new Position_Position(node.parentNode.parentNode,DOM_nodeOffset(node.parentNode)+1);
+            return new Position.Position(node.parentNode.parentNode,DOM.nodeOffset(node.parentNode)+1);
 
         // Moving left from just after a table - go to the end of the caption (if there is one)
         if ((prev != null) && (prev._type == HTML_TABLE) && backwards) {
-            var firstChild = Traversal_firstChildElement(prev);
+            var firstChild = Traversal.firstChildElement(prev);
             if ((firstChild._type == HTML_CAPTION))
-                return new Position_Position(firstChild,firstChild.childNodes.length);
+                return new Position.Position(firstChild,firstChild.childNodes.length);
         }
 
         // Moving right from just before a table - bypass the the caption (if there is one)
         if ((next != null) && (next._type == HTML_TABLE) && forwards) {
-            var firstChild = Traversal_firstChildElement(next);
+            var firstChild = Traversal.firstChildElement(next);
             if (firstChild._type == HTML_CAPTION)
-                return new Position_Position(next,DOM_nodeOffset(firstChild)+1);
+                return new Position.Position(next,DOM.nodeOffset(firstChild)+1);
         }
 
         // Moving right from the end of a table - go to the start of the caption (if there is one)
         if ((node._type == HTML_TABLE) && (next == null) && forwards) {
-            var firstChild = Traversal_firstChildElement(node);
+            var firstChild = Traversal.firstChildElement(node);
             if (firstChild._type == HTML_CAPTION)
-                return new Position_Position(firstChild,0);
+                return new Position.Position(firstChild,0);
         }
 
         // Moving left just after a caption node - skip the caption
         if ((prev != null) && (prev._type == HTML_CAPTION) && backwards)
-            return new Position_Position(node,offset-1);
+            return new Position.Position(node,offset-1);
 
         return null;
     }
 
     // public
-    Position_assertValid = function(pos,description) {
+    Position.assertValid = function(pos,description) {
         if (description == null)
             description = "Position";
 
@@ -199,7 +184,7 @@ var Position_atPoint;
     }
 
     // public
-    Position_prev = function(pos) {
+    Position.prev = function(pos) {
         if (pos.node.nodeType == Node.ELEMENT_NODE) {
             var r = positionSpecial(pos,false,true);
             if (r != null)
@@ -209,12 +194,12 @@ var Position_atPoint;
             }
             else {
                 var child = pos.node.childNodes[pos.offset-1];
-                return new Position_Position(child,DOM_maxChildOffset(child));
+                return new Position.Position(child,DOM.maxChildOffset(child));
             }
         }
         else if (pos.node.nodeType == Node.TEXT_NODE) {
             if (pos.offset > 0)
-                return new Position_Position(pos.node,pos.offset-1);
+                return new Position.Position(pos.node,pos.offset-1);
             else
                 return upAndBack(pos);
         }
@@ -226,12 +211,12 @@ var Position_atPoint;
             if (pos.node == pos.node.ownerDocument.body)
                 return null;
             else
-                return new Position_Position(pos.node.parentNode,DOM_nodeOffset(pos.node));
+                return new Position.Position(pos.node.parentNode,DOM.nodeOffset(pos.node));
         }
     }
 
     // public
-    Position_next = function(pos) {
+    Position.next = function(pos) {
         if (pos.node.nodeType == Node.ELEMENT_NODE) {
             var r = positionSpecial(pos,true,false);
             if (r != null)
@@ -239,11 +224,11 @@ var Position_atPoint;
             if (pos.offset == pos.node.childNodes.length)
                 return upAndForwards(pos);
             else
-                return new Position_Position(pos.node.childNodes[pos.offset],0);
+                return new Position.Position(pos.node.childNodes[pos.offset],0);
         }
         else if (pos.node.nodeType == Node.TEXT_NODE) {
             if (pos.offset < pos.node.nodeValue.length)
-                return new Position_Position(pos.node,pos.offset+1);
+                return new Position.Position(pos.node,pos.offset+1);
             else
                 return upAndForwards(pos);
         }
@@ -255,12 +240,12 @@ var Position_atPoint;
             if (pos.node == pos.node.ownerDocument.body)
                 return null;
             else
-                return new Position_Position(pos.node.parentNode,DOM_nodeOffset(pos.node)+1);
+                return new Position.Position(pos.node.parentNode,DOM.nodeOffset(pos.node)+1);
         }
     }
 
     // public
-    Position_trackWhileExecuting = function(positions,fun) {
+    Position.trackWhileExecuting = function(positions,fun) {
         for (var i = 0; i < positions.length; i++)
             startTracking(positions[i].self);
         try {
@@ -273,7 +258,7 @@ var Position_atPoint;
     }
 
     // public
-    Position_closestActualNode = function(pos,preferElement) {
+    Position.closestActualNode = function(pos,preferElement) {
         var node = pos.node;
         var offset = pos.offset;
         if ((node.nodeType != Node.ELEMENT_NODE) || (node.firstChild == null))
@@ -296,12 +281,12 @@ var Position_atPoint;
     }
 
     // public
-    Position_okForInsertion = function(pos) {
-        return Position_okForMovement(pos,true);
+    Position.okForInsertion = function(pos) {
+        return Position.okForMovement(pos,true);
     }
 
     function nodeCausesLineBreak(node) {
-        return ((node._type == HTML_BR) || !Types_isInlineNode(node));
+        return ((node._type == HTML_BR) || !Types.isInlineNode(node));
     }
 
     function spacesUntilNextContent(node) {
@@ -327,10 +312,10 @@ var Position_atPoint;
 
             if ((node == null) || nodeCausesLineBreak(node))
                 return null;
-            if (Types_isOpaqueNode(node))
+            if (Types.isOpaqueNode(node))
                 return spaces;
             if (node.nodeType == Node.TEXT_NODE) {
-                if (Traversal_isWhitespaceTextNode(node)) {
+                if (Traversal.isWhitespaceTextNode(node)) {
                     spaces += node.nodeValue.length;
                 }
                 else {
@@ -345,12 +330,12 @@ var Position_atPoint;
     }
 
     // public
-    Position_okForMovement = function(pos,insertion) {
+    Position.okForMovement = function(pos,insertion) {
         var node = pos.node;
         var offset = pos.offset;
         var type = node._type;
 
-        if (Types_isOpaqueNode(node))
+        if (Types.isOpaqueNode(node))
             return false;
 
         for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {
@@ -385,8 +370,8 @@ var Position_atPoint;
 
             var prevChar = value.charAt(offset-1);
             var nextChar = value.charAt(offset);
-            var havePrevChar = ((prevChar != null) && !Util_isWhitespaceString(prevChar));
-            var haveNextChar = ((nextChar != null) && !Util_isWhitespaceString(nextChar));
+            var havePrevChar = ((prevChar != null) && !Util.isWhitespaceString(prevChar));
+            var haveNextChar = ((nextChar != null) && !Util.isWhitespaceString(nextChar));
             if (havePrevChar && haveNextChar) {
                 var prevCode = value.charCodeAt(offset-1);
                 var nextCode = value.charCodeAt(offset);
@@ -397,7 +382,7 @@ var Position_atPoint;
                 return true;
             }
 
-            if (Util_isWhitespaceString(value)) {
+            if (Util.isWhitespaceString(value)) {
                 if (offset == 0) {
                     if ((node == firstNode) &&
                         (firstNode.previousSibling == null) && (lastNode.nextSibling == null))
@@ -410,8 +395,8 @@ var Position_atPoint;
                         return true;
                     }
                     if (insertion && (node.previousSibling != null) &&
-                        Types_isInlineNode(node.previousSibling) &&
-                        !Types_isOpaqueNode(node.previousSibling) &&
+                        Types.isInlineNode(node.previousSibling) &&
+                        !Types.isOpaqueNode(node.previousSibling) &&
                         (node.previousSibling._type != HTML_BR))
                         return true;
                 }
@@ -422,22 +407,22 @@ var Position_atPoint;
                 return true;
 
             var precedingText = value.substring(0,offset);
-            if (Util_isWhitespaceString(precedingText)) {
+            if (Util.isWhitespaceString(precedingText)) {
                 return (haveNextChar &&
                         ((node.previousSibling == null) ||
                          (node.previousSibling._type == HTML_BR) ||
-                         Types_isNoteNode(node.previousSibling) ||
-                         (Types_isParagraphNode(node.previousSibling)) ||
-                         (Traversal_getNodeText(node.previousSibling).match(/\s$/)) ||
-                         Types_isItemNumber(node.previousSibling) ||
+                         Types.isNoteNode(node.previousSibling) ||
+                         (Types.isParagraphNode(node.previousSibling)) ||
+                         (Traversal.getNodeText(node.previousSibling).match(/\s$/)) ||
+                         Types.isItemNumber(node.previousSibling) ||
                          ((precedingText.length > 0))));
             }
 
             var followingText = value.substring(offset);
-            if (Util_isWhitespaceString(followingText)) {
+            if (Util.isWhitespaceString(followingText)) {
                 return (havePrevChar &&
                         ((node.nextSibling == null) ||
-                         Types_isNoteNode(node.nextSibling) ||
+                         Types.isNoteNode(node.nextSibling) ||
                          (followingText.length > 0) ||
                          (spacesUntilNextContent(node) != 0)));
             }
@@ -452,7 +437,7 @@ var Position_atPoint;
                 case HTML_TD:
                     return true;
                 default:
-                    if (Types_PARAGRAPH_ELEMENTS[type])
+                    if (Types.PARAGRAPH_ELEMENTS[type])
                         return true;
                     else
                         break;
@@ -464,34 +449,34 @@ var Position_atPoint;
             var prevType = (prevNode != null) ? prevNode._type : 0;
             var nextType = (nextNode != null) ? nextNode._type : 0;
 
-            var prevIsNote = (prevNode != null) && Types_isNoteNode(prevNode);
-            var nextIsNote = (nextNode != null) && Types_isNoteNode(nextNode);
-            if (((nextNode == null) || !Util_nodeHasContent(nextNode)) && prevIsNote)
+            var prevIsNote = (prevNode != null) && Types.isNoteNode(prevNode);
+            var nextIsNote = (nextNode != null) && Types.isNoteNode(nextNode);
+            if (((nextNode == null) || !Util.nodeHasContent(nextNode)) && prevIsNote)
                 return true;
-            if (((prevNode == null) || !Util_nodeHasContent(prevNode)) && nextIsNote)
+            if (((prevNode == null) || !Util.nodeHasContent(prevNode)) && nextIsNote)
                 return true;
             if (prevIsNote && nextIsNote)
                 return true;
 
             if ((prevNode == null) && (nextNode == null) &&
-                (Types_CONTAINERS_ALLOWING_CHILDREN[type] ||
-                (Types_isInlineNode(node) && !Types_isOpaqueNode(node) && (type != HTML_BR))))
+                (Types.CONTAINERS_ALLOWING_CHILDREN[type] ||
+                (Types.isInlineNode(node) && !Types.isOpaqueNode(node) && (type != HTML_BR))))
                 return true;
 
-            if ((prevNode != null) && Types_isSpecialBlockNode(prevNode))
+            if ((prevNode != null) && Types.isSpecialBlockNode(prevNode))
                 return true;
-            if ((nextNode != null) && Types_isSpecialBlockNode(nextNode))
+            if ((nextNode != null) && Types.isSpecialBlockNode(nextNode))
                 return true;
 
-            if ((nextNode != null) && Types_isItemNumber(nextNode))
+            if ((nextNode != null) && Types.isItemNumber(nextNode))
                 return false;
-            if ((prevNode != null) && Types_isItemNumber(prevNode))
-                return ((nextNode == null) || Traversal_isWhitespaceTextNode(nextNode));
+            if ((prevNode != null) && Types.isItemNumber(prevNode))
+                return ((nextNode == null) || Traversal.isWhitespaceTextNode(nextNode));
 
             if ((nextNode != null) && (nextType == HTML_BR))
                 return ((prevType == 0) || (prevType != HTML_TEXT));
 
-            if ((prevNode != null) && (Types_isOpaqueNode(prevNode) || (prevType == HTML_TABLE))) {
+            if ((prevNode != null) && (Types.isOpaqueNode(prevNode) || (prevType == HTML_TABLE))) {
 
                 switch (nextType) {
                 case 0:
@@ -499,17 +484,17 @@ var Position_atPoint;
                 case HTML_TABLE:
                     return true;
                 default:
-                    return Types_isOpaqueNode(nextNode);
+                    return Types.isOpaqueNode(nextNode);
                 }
             }
-            if ((nextNode != null) && (Types_isOpaqueNode(nextNode) || (nextType == HTML_TABLE))) {
+            if ((nextNode != null) && (Types.isOpaqueNode(nextNode) || (nextType == HTML_TABLE))) {
                 switch (prevType) {
                 case 0:
                 case HTML_TEXT:
                 case HTML_TABLE:
                     return true;
                 default:
-                    return Types_isOpaqueNode(prevNode);
+                    return Types.isOpaqueNode(prevNode);
                 }
             }
         }
@@ -517,16 +502,16 @@ var Position_atPoint;
         return false;
     }
 
-    Position_prevMatch = function(pos,fun) {
+    Position.prevMatch = function(pos,fun) {
         do {
-            pos = Position_prev(pos);
+            pos = Position.prev(pos);
         } while ((pos != null) && !fun(pos));
         return pos;
     }
 
-    Position_nextMatch = function(pos,fun) {
+    Position.nextMatch = function(pos,fun) {
         do {
-            pos = Position_next(pos);
+            pos = Position.next(pos);
         } while ((pos != null) && !fun(pos));
         return pos;
     }
@@ -538,23 +523,23 @@ var Position_atPoint;
             var before = node.childNodes[offset-1];
             var after = node.childNodes[offset];
             if ((before != null) && (before.nodeType == Node.TEXT_NODE)) {
-                var candidate = new Position_Position(before,before.nodeValue.length);
+                var candidate = new Position.Position(before,before.nodeValue.length);
                 if (fun(candidate))
                     return candidate;
             }
             if ((after != null) && (after.nodeType == Node.TEXT_NODE)) {
-                var candidate = new Position_Position(after,0);
+                var candidate = new Position.Position(after,0);
                 if (fun(candidate))
                     return candidate;
             }
         }
 
         if ((pos.node.nodeType == Node.TEXT_NODE) &&
-            Util_isWhitespaceString(pos.node.nodeValue.slice(pos.offset))) {
+            Util.isWhitespaceString(pos.node.nodeValue.slice(pos.offset))) {
             var str = pos.node.nodeValue;
             var whitespace = str.match(/\s+$/);
             if (whitespace) {
-                var adjusted = new Position_Position(pos.node,
+                var adjusted = new Position.Position(pos.node,
                                             str.length - whitespace[0].length + 1);
                 return adjusted;
             }
@@ -563,7 +548,7 @@ var Position_atPoint;
     }
 
     // public
-    Position_closestMatchForwards = function(pos,fun) {
+    Position.closestMatchForwards = function(pos,fun) {
         if (pos == null)
             return null;
 
@@ -573,19 +558,19 @@ var Position_atPoint;
         if (fun(pos))
             return pos;
 
-        var next = Position_nextMatch(pos,fun);
+        var next = Position.nextMatch(pos,fun);
         if (next != null)
             return next;
 
-        var prev = Position_prevMatch(pos,fun);
+        var prev = Position.prevMatch(pos,fun);
         if (prev != null)
             return prev;
 
-        return new Position_Position(document.body,document.body.childNodes.length);
+        return new Position.Position(document.body,document.body.childNodes.length);
     }
 
     // public
-    Position_closestMatchBackwards = function(pos,fun) {
+    Position.closestMatchBackwards = function(pos,fun) {
         if (pos == null)
             return null;
 
@@ -595,38 +580,38 @@ var Position_atPoint;
         if (fun(pos))
             return pos;
 
-        var prev = Position_prevMatch(pos,fun);
+        var prev = Position.prevMatch(pos,fun);
         if (prev != null)
             return prev;
 
-        var next = Position_nextMatch(pos,fun);
+        var next = Position.nextMatch(pos,fun);
         if (next != null)
             return next;
 
-        return new Position_Position(document.body,0);
+        return new Position.Position(document.body,0);
     }
 
-    Position_track = function(pos) {
+    Position.track = function(pos) {
         startTracking(pos.self);
     }
 
-    Position_untrack = function(pos) {
+    Position.untrack = function(pos) {
         stopTracking(pos.self);
     }
 
-    Position_rectAtPos = function(pos) {
+    Position.rectAtPos = function(pos) {
         if (pos == null)
             return null;
-        var range = new Range_Range(pos.node,pos.offset,pos.node,pos.offset);
-        var rects = Range_getClientRects(range);
+        var range = new Range.Range(pos.node,pos.offset,pos.node,pos.offset);
+        var rects = Range.getClientRects(range);
 
-        if ((rects.length > 0) && !Util_rectIsEmpty(rects[0])) {
+        if ((rects.length > 0) && !Util.rectIsEmpty(rects[0])) {
             return rects[0];
         }
 
-        if (Types_isParagraphNode(pos.node) && (pos.offset == 0)) {
+        if (Types.isParagraphNode(pos.node) && (pos.offset == 0)) {
             var rect = pos.node.getBoundingClientRect();
-            if (!Util_rectIsEmpty(rect))
+            if (!Util.rectIsEmpty(rect))
                 return rect;
         }
 
@@ -671,17 +656,17 @@ var Position_atPoint;
                  height: rect.height };
     }
 
-    Position_noteAncestor = function(pos) {
-        var node = Position_closestActualNode(pos);
+    Position.noteAncestor = function(pos) {
+        var node = Position.closestActualNode(pos);
         for (; node != null; node = node.parentNode) {
-            if (Types_isNoteNode(node))
+            if (Types.isNoteNode(node))
                 return node;
         }
         return null;
     }
 
-    Position_captionAncestor = function(pos) {
-        var node = Position_closestActualNode(pos);
+    Position.captionAncestor = function(pos) {
+        var node = Position.closestActualNode(pos);
         for (; node != null; node = node.parentNode) {
             if ((node._type == HTML_FIGCAPTION) || (node._type == HTML_CAPTION))
                 return node;
@@ -689,8 +674,8 @@ var Position_atPoint;
         return null;
     }
 
-    Position_figureOrTableAncestor = function(pos) {
-        var node = Position_closestActualNode(pos);
+    Position.figureOrTableAncestor = function(pos) {
+        var node = Position.closestActualNode(pos);
         for (; node != null; node = node.parentNode) {
             if ((node._type == HTML_FIGURE) || (node._type == HTML_TABLE))
                 return node;
@@ -710,16 +695,16 @@ var Position_atPoint;
             var after = node.childNodes[offset];
 
             // Cursor is immediately before table -> return table rect
-            if ((before != null) && Types_isSpecialBlockNode(before))
+            if ((before != null) && Types.isSpecialBlockNode(before))
                 return zeroWidthRightRect(before.getBoundingClientRect());
 
             // Cursor is immediately after table -> return table rect
-            else if ((after != null) && Types_isSpecialBlockNode(after))
+            else if ((after != null) && Types.isSpecialBlockNode(after))
                 return zeroWidthLeftRect(after.getBoundingClientRect());
 
             // Start of empty paragraph
             if ((node.nodeType == Node.ELEMENT_NODE) && (offset == 0) &&
-                Types_isParagraphNode(node) && !Util_nodeHasContent(node)) {
+                Types.isParagraphNode(node) && !Util.nodeHasContent(node)) {
                 return zeroWidthLeftRect(node.getBoundingClientRect());
             }
 
@@ -728,13 +713,13 @@ var Position_atPoint;
         else if (node.nodeType == Node.TEXT_NODE) {
             // First see if the client rects returned by the range gives us a valid value. This
             // won't be the case if the cursor is surrounded by both sides on whitespace.
-            var result = rectAtRightOfRange(new Range_Range(node,offset,node,offset));
+            var result = rectAtRightOfRange(new Range.Range(node,offset,node,offset));
             if (result != null)
                 return result;
 
             if (offset > 0) {
                 // Try and get the rect of the previous character; the cursor goes after that
-                var result = rectAtRightOfRange(new Range_Range(node,offset-1,node,offset));
+                var result = rectAtRightOfRange(new Range.Range(node,offset-1,node,offset));
                 if (result != null)
                     return result;
             }
@@ -746,7 +731,7 @@ var Position_atPoint;
         }
 
         function rectAtRightOfRange(range) {
-            var rects = Range_getClientRects(range);
+            var rects = Range.getClientRects(range);
             if ((rects == null) || (rects.length == 0) || (rects[rects.length-1].height == 0))
                 return null;
             return zeroWidthRightRect(rects[rects.length-1]);
@@ -754,24 +739,24 @@ var Position_atPoint;
     }
 
     function tempSpaceRect(parentNode,nextSibling) {
-        var space = DOM_createTextNode(document,String.fromCharCode(160));
-        DOM_insertBefore(parentNode,space,nextSibling);
-        var range = new Range_Range(space,0,space,1);
-        var rects = Range_getClientRects(range);
-        DOM_deleteNode(space);
+        var space = DOM.createTextNode(document,String.fromCharCode(160));
+        DOM.insertBefore(parentNode,space,nextSibling);
+        var range = new Range.Range(space,0,space,1);
+        var rects = Range.getClientRects(range);
+        DOM.deleteNode(space);
         if (rects.length > 0)
             return rects[0];
         else
             return nil;
     }
 
-    Position_displayRectAtPos = function(pos) {
+    Position.displayRectAtPos = function(pos) {
         rect = exactRectAtPos(pos);
         if (rect != null)
             return rect;
 
-        var noteNode = Position_noteAncestor(pos);
-        if ((noteNode != null) && !Util_nodeHasContent(noteNode)) // In empty footnote or endnote
+        var noteNode = Position.noteAncestor(pos);
+        if ((noteNode != null) && !Util.nodeHasContent(noteNode)) // In empty footnote or endnote
             return zeroWidthMidRect(noteNode.getBoundingClientRect());
 
         // If we're immediately before or after a footnote or endnote, calculate the rect by
@@ -781,16 +766,16 @@ var Position_atPoint;
         if ((pos.node.nodeType == Node.ELEMENT_NODE)) {
             var before = pos.node.childNodes[pos.offset-1];
             var after = pos.node.childNodes[pos.offset];
-            if (((before != null) && Types_isNoteNode(before)) ||
-                ((after != null) && Types_isNoteNode(after))) {
+            if (((before != null) && Types.isNoteNode(before)) ||
+                ((after != null) && Types.isNoteNode(after))) {
                 var rect = tempSpaceRect(pos.node,pos.node.childNodes[pos.offset]);
                 if (rect != null)
                     return zeroWidthLeftRect(rect);
             }
         }
 
-        var captionNode = Position_captionAncestor(pos);
-        if ((captionNode != null) && !Util_nodeHasContent(captionNode)) {
+        var captionNode = Position.captionAncestor(pos);
+        if ((captionNode != null) && !Util.nodeHasContent(captionNode)) {
             // Even if an empty caption has generated content (e.g. "Figure X: ") preceding it,
             // we can't directly get the rect of that generated content. So we temporarily insert
             // a text node containing a single space character, get the position to the right of
@@ -800,17 +785,17 @@ var Position_atPoint;
                 return zeroWidthRightRect(rect);
         }
 
-        var paragraph = Text_findParagraphBoundaries(pos);
+        var paragraph = Text.findParagraphBoundaries(pos);
 
         var backRect = null;
-        for (var backPos = pos; backPos != null; backPos = Position_prev(backPos)) {
+        for (var backPos = pos; backPos != null; backPos = Position.prev(backPos)) {
             backRect = exactRectAtPos(backPos);
             if ((backRect != null) || posAtStartOfParagraph(backPos,paragraph))
                 break;
         }
 
         var forwardRect = null;
-        for (var forwardPos = pos; forwardPos != null; forwardPos = Position_next(forwardPos)) {
+        for (var forwardPos = pos; forwardPos != null; forwardPos = Position.next(forwardPos)) {
             forwardRect = exactRectAtPos(forwardPos);
             if ((forwardRect != null) || posAtEndOfParagraph(forwardPos,paragraph))
                 break;
@@ -831,7 +816,7 @@ var Position_atPoint;
         }
     }
 
-    Position_equal = function(a,b) {
+    Position.equal = function(a,b) {
         if ((a == null) && (b == null))
             return true;
         if ((a != null) && (b != null) &&
@@ -840,33 +825,33 @@ var Position_atPoint;
         return false;
     }
 
-    Position_preferTextPosition = function(pos) {
+    Position.preferTextPosition = function(pos) {
         var node = pos.node;
         var offset = pos.offset;
         if (node.nodeType == Node.ELEMENT_NODE) {
             var before = node.childNodes[offset-1];
             var after = node.childNodes[offset];
             if ((before != null) && (before.nodeType == Node.TEXT_NODE))
-                return new Position_Position(before,before.nodeValue.length);
+                return new Position.Position(before,before.nodeValue.length);
             if ((after != null) && (after.nodeType == Node.TEXT_NODE))
-                return new Position_Position(after,0);
+                return new Position.Position(after,0);
         }
         return pos;
     }
 
-    Position_preferElementPosition = function(pos) {
+    Position.preferElementPosition = function(pos) {
         if (pos.node.nodeType == Node.TEXT_NODE) {
             if (pos.node.parentNode == null)
                 throw new Error("Position "+pos+" has no parent node");
             if (pos.offset == 0)
-                return new Position_Position(pos.node.parentNode,DOM_nodeOffset(pos.node));
+                return new Position.Position(pos.node.parentNode,DOM.nodeOffset(pos.node));
             if (pos.offset == pos.node.nodeValue.length)
-                return new Position_Position(pos.node.parentNode,DOM_nodeOffset(pos.node)+1);
+                return new Position.Position(pos.node.parentNode,DOM.nodeOffset(pos.node)+1);
         }
         return pos;
     }
 
-    Position_compare = function(first,second) {
+    Position.compare = function(first,second) {
         if ((first.node == second.node) && (first.offset == second.offset))
             return 0;
 
@@ -954,20 +939,20 @@ var Position_atPoint;
     // HTML documents that users open).
 
     function posOutsideSelection(pos) {
-        pos = Position_preferElementPosition(pos);
+        pos = Position.preferElementPosition(pos);
 
-        if (!Types_isSelectionSpan(pos.node))
+        if (!Types.isSelectionSpan(pos.node))
             return pos;
 
         if (pos.offset == 0)
-            return new Position_Position(pos.node.parentNode,DOM_nodeOffset(pos.node));
+            return new Position.Position(pos.node.parentNode,DOM.nodeOffset(pos.node));
         else if (pos.offset == pos.node.childNodes.length)
-            return new Position_Position(pos.node.parentNode,DOM_nodeOffset(pos.node)+1);
+            return new Position.Position(pos.node.parentNode,DOM.nodeOffset(pos.node)+1);
         else
             return pos;
     }
 
-    Position_atPoint = function(x,y) {
+    Position.atPoint = function(x,y) {
         // In general, we can use document.caretRangeFromPoint(x,y) to determine the location of the
         // cursor based on screen coordinates. However, this doesn't work if the screen coordinates
         // are outside the bounding box of the document's body. So when this is true, we find either
@@ -993,8 +978,8 @@ var Position_atPoint;
         if (range == null)
             return null;
 
-        var pos = new Position_Position(range.startContainer,range.startOffset);
-        pos = Position_preferElementPosition(pos);
+        var pos = new Position.Position(range.startContainer,range.startOffset);
+        pos = Position.preferElementPosition(pos);
 
         if (pos.node.nodeType == Node.ELEMENT_NODE) {
             var outside = posOutsideSelection(pos);
@@ -1002,25 +987,25 @@ var Position_atPoint;
             var next = outside.node.childNodes[outside.offset];
 
             if ((prev != null) && nodeMayContainPos(prev) && elementContainsPoint(prev,x,y))
-                return new Position_Position(prev,0);
+                return new Position.Position(prev,0);
 
             if ((next != null) && nodeMayContainPos(next) && elementContainsPoint(next,x,y))
-                return new Position_Position(next,0);
+                return new Position.Position(next,0);
 
             if (next != null) {
                 var nextNode = outside.node;
                 var nextOffset = outside.offset+1;
 
-                if (Types_isSelectionSpan(next) && (next.firstChild != null)) {
+                if (Types.isSelectionSpan(next) && (next.firstChild != null)) {
                     nextNode = next;
                     nextOffset = 1;
                     next = next.firstChild;
                 }
 
-                if ((next != null) && Types_isEmptyNoteNode(next)) {
+                if ((next != null) && Types.isEmptyNoteNode(next)) {
                     var rect = next.getBoundingClientRect();
                     if (x > rect.right)
-                        return new Position_Position(nextNode,nextOffset);
+                        return new Position.Position(nextNode,nextOffset);
                 }
             }
         }
@@ -1033,7 +1018,7 @@ var Position_atPoint;
     // This is used for nodes that can potentially be the right match for a hit test, but for
     // which caretRangeFromPoint() returns the wrong result
     function nodeMayContainPos(node) {
-        return ((node._type == HTML_IMG) || Types_isEmptyNoteNode(node));
+        return ((node._type == HTML_IMG) || Types.isEmptyNoteNode(node));
     }
 
     function elementContainsPoint(element,x,y) {
@@ -1046,17 +1031,17 @@ var Position_atPoint;
         return ((node._type == HTML_P) &&
                 (node.lastChild != null) &&
                 (node.lastChild._type == HTML_BR) &&
-                !Util_nodeHasContent(node));
+                !Util.nodeHasContent(node));
     }
 
     function findLastTextRect() {
-        var node = Traversal_lastDescendant(document.body);
+        var node = Traversal.lastDescendant(document.body);
 
         while ((node != null) &&
-               ((node.nodeType != Node.TEXT_NODE) || Traversal_isWhitespaceTextNode(node))) {
+               ((node.nodeType != Node.TEXT_NODE) || Traversal.isWhitespaceTextNode(node))) {
             if (isEmptyParagraphNode(node))
                 return node.getBoundingClientRect();
-            node = Traversal_prevNode(node);
+            node = Traversal.prevNode(node);
         }
 
         if (node != null) {
@@ -1071,13 +1056,13 @@ var Position_atPoint;
     }
 
     function findFirstTextRect() {
-        var node = Traversal_firstDescendant(document.body);
+        var node = Traversal.firstDescendant(document.body);
 
         while ((node != null) &&
-               ((node.nodeType != Node.TEXT_NODE) || Traversal_isWhitespaceTextNode(node))) {
+               ((node.nodeType != Node.TEXT_NODE) || Traversal.isWhitespaceTextNode(node))) {
             if (isEmptyParagraphNode(node))
                 return node.getBoundingClientRect();
-            node = Traversal_nextNode(node);
+            node = Traversal.nextNode(node);
         }
 
         if (node != null) {
@@ -1098,15 +1083,15 @@ var Position_atPoint;
             var prev = position.node.childNodes[position.offset-1];
             var next = position.node.childNodes[position.offset];
             if ((prev != null) && (prev._type == HTML_IMG)) {
-                position = new Position_Position(position.node.parentNode,
-                                        DOM_nodeOffset(position.node)+1);
+                position = new Position.Position(position.node.parentNode,
+                                        DOM.nodeOffset(position.node)+1);
             }
             else if ((next != null) && (next._type == HTML_IMG)) {
-                position = new Position_Position(position.node.parentNode,
-                                        DOM_nodeOffset(position.node));
+                position = new Position.Position(position.node.parentNode,
+                                        DOM.nodeOffset(position.node));
             }
         }
         return position;
     }
 
-})();
+})(globalAPI);

@@ -7,36 +7,36 @@
 </style>
 <script type="text/javascript">
 
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    if (Outline_detectSectionNumbering())
-        TestLib_setupOutlineNumbering();
-    PostponedActions_perform();
-    TestLib_setNumbering(true);
+    api.Outline.init();
+    if (api.Outline.detectSectionNumbering())
+        api.tests.TestLib.setupOutlineNumbering();
+    api.PostponedActions.perform();
+    api.tests.TestLib.setNumbering(true);
 
     for (var i = 0; i < 3; i++) {
-        var ref = DOM_createElement(document,"A");
-        DOM_setAttribute(ref,"href","#hb");
-        DOM_appendChild(ref,DOM_createTextNode(document,"abcde"));
+        var ref = api.DOM.createElement(document,"A");
+        api.DOM.setAttribute(ref,"href","#hb");
+        api.DOM.appendChild(ref,api.DOM.createTextNode(document,"abcde"));
 
-        var p = DOM_createElement(document,"P");
-        DOM_appendChild(p,DOM_createTextNode(document,"Dynamically added reference: "));
-        DOM_appendChild(p,ref);
-        DOM_insertBefore(document.body,p,document.body.firstChild);
+        var p = api.DOM.createElement(document,"P");
+        api.DOM.appendChild(p,api.DOM.createTextNode(document,"Dynamically added reference: "));
+        api.DOM.appendChild(p,ref);
+        api.DOM.insertBefore(document.body,p,document.body.firstChild);
     }
 
-    var newSection = DOM_createElement(document,"H1");
-    DOM_appendChild(newSection,DOM_createTextNode(document,"New section"));
+    var newSection = api.DOM.createElement(document,"H1");
+    api.DOM.appendChild(newSection,api.DOM.createTextNode(document,"New section"));
 
-    var newFigure = DOM_createElement(document,"FIGURE");
-    var newTable = DOM_createElement(document,"TABLE");
-    DOM_appendChild(newFigure,DOM_createElement(document,"FIGCAPTION"));
-    DOM_appendChild(newTable,DOM_createElement(document,"CAPTION"));
-    DOM_insertBefore(document.body,newTable,document.body.firstChild);
-    DOM_insertBefore(document.body,newFigure,document.body.firstChild);
-    DOM_insertBefore(document.body,newSection,document.body.firstChild);
-    PostponedActions_perform();
+    var newFigure = api.DOM.createElement(document,"FIGURE");
+    var newTable = api.DOM.createElement(document,"TABLE");
+    api.DOM.appendChild(newFigure,api.DOM.createElement(document,"FIGCAPTION"));
+    api.DOM.appendChild(newTable,api.DOM.createElement(document,"CAPTION"));
+    api.DOM.insertBefore(document.body,newTable,document.body.firstChild);
+    api.DOM.insertBefore(document.body,newFigure,document.body.firstChild);
+    api.DOM.insertBefore(document.body,newSection,document.body.firstChild);
+    api.PostponedActions.perform();
 }
 </script>
 </head>

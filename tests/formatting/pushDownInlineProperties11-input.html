@@ -2,13 +2,13 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    Selection_preserveWhileExecuting(function() {
-        var range = Selection_get();
-        Formatting_splitAroundSelection(range);
-        var outermost = Range_getOutermostNodes(range);
-        Formatting_pushDownInlineProperties(outermost);
+    api.Selection.preserveWhileExecuting(function() {
+        var range = api.Selection.get();
+        api.Formatting.splitAroundSelection(range);
+        var outermost = api.Range.getOutermostNodes(range);
+        api.Formatting.pushDownInlineProperties(outermost);
     });
 }
 </script>

@@ -2,18 +2,18 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    Selection_selectAll();
-    PostponedActions_perform();
-    Clipboard_cut();
-    PostponedActions_perform();
+    api.Selection.selectAll();
+    api.PostponedActions.perform();
+    api.Clipboard.cut();
+    api.PostponedActions.perform();
 
-    UndoManager_undo();
-    PostponedActions_perform();
+    api.UndoManager.undo();
+    api.PostponedActions.perform();
 
-    UndoManager_undo();
-    PostponedActions_perform();
+    api.UndoManager.undo();
+    api.PostponedActions.perform();
 
     outputOptions.keepSelectionHighlights = true;
 }

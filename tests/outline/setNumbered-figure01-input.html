@@ -2,13 +2,13 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
-    Outline_setNumbered("item1",true);
-    PostponedActions_perform();
-    TestLib_showSelection();
+    api.Outline.init();
+    api.PostponedActions.perform();
+    api.Outline.setNumbered("item1",true);
+    api.PostponedActions.perform();
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

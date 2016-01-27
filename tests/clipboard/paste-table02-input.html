@@ -2,12 +2,12 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    Clipboard_pasteHTML("<th>First</th>"+
+    api.Clipboard.pasteHTML("<th>First</th>"+
                         "<th>Second</th>"+
                         "<th>Third</th>");
-    TestLib_showSelection();
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

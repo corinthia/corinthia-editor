@@ -2,61 +2,60 @@
 <html>
 <head>
 <script>
-
-var value = 0;
-var strings = new Array();
-
-function setValue(newValue)
+function performTest(api)
 {
-    var oldValue = value;
-    UndoManager_addAction(setValue,oldValue);
+    var value = 0;
+    var strings = new Array();
 
-    strings.push("value = "+newValue);
-    value = newValue;
-}
+    function setValue(newValue)
+    {
+        var oldValue = value;
+        api.UndoManager.addAction(setValue,oldValue);
 
-function performTest()
-{
+        strings.push("value = "+newValue);
+        value = newValue;
+    }
+
     setValue(1);
     setValue(2);
-    UndoManager_newGroup();
+    api.UndoManager.newGroup();
 
     setValue(3);
     setValue(4);
-    UndoManager_newGroup();
+    api.UndoManager.newGroup();
 
     setValue(5);
     setValue(6);
-    UndoManager_newGroup();
+    api.UndoManager.newGroup();
 
     setValue(7);
     setValue(8);
-    UndoManager_newGroup();
+    api.UndoManager.newGroup();
 
     strings.push("\nTwo steps backwards");
-    UndoManager_undo();
-    UndoManager_undo();
+    api.UndoManager.undo();
+    api.UndoManager.undo();
 
     strings.push("\nMore changes");
-    UndoManager_newGroup();
+    api.UndoManager.newGroup();
     setValue(20);
     setValue(21);
 
     strings.push("\nOne step forwards (should do nothing)");
-    UndoManager_redo();
+    api.UndoManager.redo();
 
     strings.push("\nOne step backwards, one step forwards");
-    UndoManager_undo();
-    UndoManager_redo();
+    api.UndoManager.undo();
+    api.UndoManager.redo();
 
     strings.push("\nTwo steps backwards, two steps forwards");
-    UndoManager_undo();
-    UndoManager_undo();
-    UndoManager_redo();
-    UndoManager_redo();
+    api.UndoManager.undo();
+    api.UndoManager.undo();
+    api.UndoManager.redo();
+    api.UndoManager.redo();
 
     strings.push("\nOne step forwards (should do nothing)");
-    UndoManager_redo();
+    api.UndoManager.redo();
 
     return strings.join("\n");
 }

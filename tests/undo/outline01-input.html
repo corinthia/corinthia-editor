@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="UndoTests.js"></script>
+<script></script>
 <script>
 
 // Tests that the set of outline items present in a TOC is correctly updated during undo/redo.
@@ -13,34 +13,34 @@
 // Now TOC_addOutlineItem() and TOC_removeOutlineItem() are called within addItemInternal() and
 // removeItemInternal(), ensuring undo compliance.
 
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
+    api.Outline.init();
+    api.PostponedActions.perform();
 
-    UndoManager_newGroup();
+    api.UndoManager.newGroup();
 
-    var first = DOM_createElement(document,"H1");
-    DOM_appendChild(first,DOM_createTextNode(document,"First section"));
-    DOM_appendChild(document.body,first);
+    var first = api.DOM.createElement(document,"H1");
+    api.DOM.appendChild(first,api.DOM.createTextNode(document,"First section"));
+    api.DOM.appendChild(document.body,first);
 
-    PostponedActions_perform();
-    UndoManager_newGroup();
+    api.PostponedActions.perform();
+    api.UndoManager.newGroup();
 
-    var firstOffset = DOM_nodeOffset(first);
-    Selection_set(first.parentNode,firstOffset,first.parentNode,firstOffset+1);
-    Selection_deleteContents();
+    var firstOffset = api.DOM.nodeOffset(first);
+    api.Selection.set(first.parentNode,firstOffset,first.parentNode,firstOffset+1);
+    api.Selection.deleteContents();
 
-    PostponedActions_perform();
-    UndoManager_newGroup();
+    api.PostponedActions.perform();
+    api.UndoManager.newGroup();
 
-    UndoManager_undo();
+    api.UndoManager.undo();
 
-    var second = DOM_createElement(document,"H1");
-    DOM_appendChild(second,DOM_createTextNode(document,"Second section"));
-    DOM_appendChild(document.body,second);
+    var second = api.DOM.createElement(document,"H1");
+    api.DOM.appendChild(second,api.DOM.createTextNode(document,"Second section"));
+    api.DOM.appendChild(document.body,second);
 
-    PostponedActions_perform();
+    api.PostponedActions.perform();
 }
 </script>
 </head>

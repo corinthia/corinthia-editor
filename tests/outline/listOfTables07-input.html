@@ -4,22 +4,22 @@
 <link href="../generic.css" rel="stylesheet"/>
 <script type="text/javascript" src="OutlineTest.js"></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
+    api.Outline.init();
+    api.PostponedActions.perform();
 
     // Create a series of tables
-    OutlineTests_createTestTables(4);
+    api.tests.OutlineTests.createTestTables(4);
 
     // Turn numbering off for all tables
-    TestLib_setNumbering(false);
-    PostponedActions_perform();
+    api.tests.TestLib.setNumbering(false);
+    api.PostponedActions.perform();
 
     // Add a list of tables
-    Selection_set(document.body,0,document.body,0);
-    Outline_insertListOfTables();
-    PostponedActions_perform();
+    api.Selection.set(document.body,0,document.body,0);
+    api.Outline.insertListOfTables();
+    api.PostponedActions.perform();
 }
 </script>
 </head>

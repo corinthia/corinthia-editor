@@ -15,27 +15,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var Text_findParagraphBoundaries;
-var Text_analyseParagraph;
-var Text_posAbove;
-var Text_posBelow;
-var Text_closestPosBackwards;
-var Text_closestPosForwards;
-var Text_closestPosInDirection;
+(function(api) {
 
-var Paragraph_runFromOffset;
-var Paragraph_runFromNode;
-var Paragraph_positionAtOffset;
-var Paragraph_offsetAtPosition;
-var Paragraph_getRunRects;
-var Paragraph_getRunOrFallbackRects;
+    var Text = api.Text; // export
 
-var Text_toStartOfBoundary;
-var Text_toEndOfBoundary;
+    var DOM = api.DOM; // import
+    var Paragraph = api.Paragraph; // import
+    var Position = api.Position; // import
+    var Range = api.Range; // import
+    var Traversal = api.Traversal; // import
+    var Types = api.Types; // import
+    var Util = api.Util; // import
 
-(function() {
-
-    function Paragraph(node,startOffset,endOffset,runs,text) {
+    function ParagraphInfo(node,startOffset,endOffset,runs,text) {
         this.node = node;
         this.startOffset = startOffset;
         this.endOffset = endOffset;
@@ -64,36 +56,36 @@ var Text_toEndOfBoundary;
     //
     // <p>...</p> Some <i>inline</i> nodes <p>...</p>
 
-    Text_findParagraphBoundaries = function(pos) {
-        Position_assertValid(pos);
+    Text.findParagraphBoundaries = function(pos) {
+        Position.assertValid(pos);
         var startOffset = pos.offset;
         var endOffset = pos.offset;
         var node = pos.node;
 
-        while (Types_isInlineNode(node)) {
-            startOffset = DOM_nodeOffset(node);
-            endOffset = DOM_nodeOffset(node)+1;
+        while (Types.isInlineNode(node)) {
+            startOffset = DOM.nodeOffset(node);
+            endOffset = DOM.nodeOffset(node)+1;
             node = node.parentNode;
         }
 
         if (node.nodeType != Node.ELEMENT_NODE)
-            throw new Error("Not an element node: "+Util_nodeString(node));
+            throw new Error("Not an element node: "+Util.nodeString(node));
 
-        while ((startOffset > 0) && Types_isInlineNode(node.childNodes[startOffset-1]))
+        while ((startOffset > 0) && Types.isInlineNode(node.childNodes[startOffset-1]))
             startOffset--;
-        while ((endOffset < node.childNodes.length) && Types_isInlineNode(node.childNodes[endOffset]))
+        while ((endOffset < node.childNodes.length) && Types.isInlineNode(node.childNodes[endOffset]))
             endOffset++;
 
         return { node: node, startOffset: startOffset, endOffset: endOffset };
     }
 
-    Text_analyseParagraph = function(pos) {
+    Text.analyseParagraph = function(pos) {
         var initial = pos.node;
         var strings = new Array();
         var runs = new Array();
         var offset = 0;
 
-        var boundaries = Text_findParagraphBoundaries(pos);
+        var boundaries = Text.findParagraphBoundaries(pos);
         if (boundaries == null)
             return null;
 
@@ -102,7 +94,7 @@ var Text_toEndOfBoundary;
 
         var text = strings.join("");
 
-        return new Paragraph(boundaries.node,boundaries.startOffset,boundaries.endOffset,runs,text);
+        return new ParagraphInfo(boundaries.node,boundaries.startOffset,boundaries.endOffset,runs,text);
 
         function recurse(node) {
             if (node.nodeType == Node.TEXT_NODE) {
@@ -117,12 +109,12 @@ var Text_toEndOfBoundary;
         }
     }
 
-    Text_posAbove = function(pos,cursorRect,cursorX) {
+    Text.posAbove = function(pos,cursorRect,cursorX) {
         if (cursorX == null)
             cursorX = pos.targetX;
-        pos = Position_closestMatchBackwards(pos,Position_okForMovement);
+        pos = Position.closestMatchBackwards(pos,Position.okForMovement);
         if (cursorRect == null) {
-            cursorRect = Position_rectAtPos(pos);
+            cursorRect = Position.rectAtPos(pos);
             if (cursorRect == null)
                 return null;
         }
@@ -132,15 +124,15 @@ var Text_toEndOfBoundary;
         }
 
         while (true) {
-            pos = Position_closestMatchBackwards(pos,Position_okForMovement);
+            pos = Position.closestMatchBackwards(pos,Position.okForMovement);
             if (pos == null)
                 return null;
 
-            var paragraph = Text_analyseParagraph(pos);
+            var paragraph = Text.analyseParagraph(pos);
             if (paragraph == null)
                 return null;
 
-            var rects = Paragraph_getRunOrFallbackRects(paragraph,pos);
+            var rects = Paragraph.getRunOrFallbackRects(paragraph,pos);
 
             rects = rects.filter(function (rect) {
                 return (rect.bottom <= cursorRect.top);
@@ -162,9 +154,9 @@ var Text_toEndOfBoundary;
 
             for (var i = 0; i < rects.length; i++) {
                 if ((cursorX >= rects[i].left) && (cursorX <= rects[i].right)) {
-                    var newPos = Position_atPoint(cursorX,rects[i].top + rects[i].height/2);
+                    var newPos = Position.atPoint(cursorX,rects[i].top + rects[i].height/2);
                     if (newPos != null) {
-                        newPos = Position_closestMatchBackwards(newPos,Position_okForInsertion);
+                        newPos = Position.closestMatchBackwards(newPos,Position.okForInsertion);
                         newPos.targetX = cursorX;
                         return newPos;
                     }
@@ -173,17 +165,17 @@ var Text_toEndOfBoundary;
 
             var rightMost = findRightMostRect(rects);
             if (rightMost != null) {
-                var newPos = Position_atPoint(rightMost.right,rightMost.top + rightMost.height/2);
+                var newPos = Position.atPoint(rightMost.right,rightMost.top + rightMost.height/2);
                 if (newPos != null) {
-                    newPos = Position_closestMatchBackwards(newPos,Position_okForInsertion);
+                    newPos = Position.closestMatchBackwards(newPos,Position.okForInsertion);
                     newPos.targetX = cursorX;
                     return newPos;
                 }
             }
 
 
-            pos = new Position_Position(paragraph.node,paragraph.startOffset);
-            pos = Position_prevMatch(pos,Position_okForMovement);
+            pos = new Position.Position(paragraph.node,paragraph.startOffset);
+            pos = Position.prevMatch(pos,Position.okForMovement);
         }
     }
 
@@ -227,12 +219,12 @@ var Text_toEndOfBoundary;
         return result;
     }
 
-    Text_posBelow = function(pos,cursorRect,cursorX) {
+    Text.posBelow = function(pos,cursorRect,cursorX) {
         if (cursorX == null)
             cursorX = pos.targetX;
-        pos = Position_closestMatchForwards(pos,Position_okForMovement);
+        pos = Position.closestMatchForwards(pos,Position.okForMovement);
         if (cursorRect == null) {
-            cursorRect = Position_rectAtPos(pos);
+            cursorRect = Position.rectAtPos(pos);
             if (cursorRect == null)
                 return null;
         }
@@ -243,15 +235,15 @@ var Text_toEndOfBoundary;
 
 
         while (true) {
-            pos = Position_closestMatchForwards(pos,Position_okForMovement);
+            pos = Position.closestMatchForwards(pos,Position.okForMovement);
             if (pos == null)
                 return null;
 
-            var paragraph = Text_analyseParagraph(pos);
+            var paragraph = Text.analyseParagraph(pos);
             if (paragraph == null)
                 return null;
 
-            var rects = Paragraph_getRunOrFallbackRects(paragraph,pos);
+            var rects = Paragraph.getRunOrFallbackRects(paragraph,pos);
 
             rects = rects.filter(function (rect) {
                 return (rect.top >= cursorRect.bottom);
@@ -271,9 +263,9 @@ var Text_toEndOfBoundary;
 
             for (var i = 0; i < rects.length; i++) {
                 if ((cursorX >= rects[i].left) && (cursorX <= rects[i].right)) {
-                    var newPos = Position_atPoint(cursorX,rects[i].top + rects[i].height/2);
+                    var newPos = Position.atPoint(cursorX,rects[i].top + rects[i].height/2);
                     if (newPos != null) {
-                        newPos = Position_closestMatchForwards(newPos,Position_okForInsertion);
+                        newPos = Position.closestMatchForwards(newPos,Position.okForInsertion);
                         newPos.targetX = cursorX;
                         return newPos;
                     }
@@ -282,21 +274,21 @@ var Text_toEndOfBoundary;
 
             var rightMost = findRightMostRect(rects);
             if (rightMost != null) {
-                var newPos = Position_atPoint(rightMost.right,rightMost.top + rightMost.height/2);
+                var newPos = Position.atPoint(rightMost.right,rightMost.top + rightMost.height/2);
                 if (newPos != null) {
-                    newPos = Position_closestMatchForwards(newPos,Position_okForInsertion);
+                    newPos = Position.closestMatchForwards(newPos,Position.okForInsertion);
                     newPos.targetX = cursorX;
                     return newPos;
                 }
             }
 
-            pos = new Position_Position(paragraph.node,paragraph.endOffset);
-            pos = Position_nextMatch(pos,Position_okForMovement);
+            pos = new Position.Position(paragraph.node,paragraph.endOffset);
+            pos = Position.nextMatch(pos,Position.okForMovement);
         }
     }
 
-    Text_closestPosBackwards = function(pos) {
-        if (Traversal_isNonWhitespaceTextNode(pos.node))
+    Text.closestPosBackwards = function(pos) {
+        if (Traversal.isNonWhitespaceTextNode(pos.node))
             return pos;
         var node;
         if ((pos.node.nodeType == Node.ELEMENT_NODE) && (pos.offset > 0)) {
@@ -307,17 +299,17 @@ var Text_toEndOfBoundary;
         else {
             node = pos.node;
         }
-        while ((node != null) && (node != document.body) && !Traversal_isNonWhitespaceTextNode(node))
-            node = Traversal_prevNode(node);
+        while ((node != null) && (node != document.body) && !Traversal.isNonWhitespaceTextNode(node))
+            node = Traversal.prevNode(node);
 
         if ((node == null) || (node == document.body))
             return null;
         else
-            return new Position_Position(node,node.nodeValue.length);
+            return new Position.Position(node,node.nodeValue.length);
     }
 
-    Text_closestPosForwards = function(pos) {
-        if (Traversal_isNonWhitespaceTextNode(pos.node))
+    Text.closestPosForwards = function(pos) {
+        if (Traversal.isNonWhitespaceTextNode(pos.node))
             return pos;
         var node;
         if ((pos.node.nodeType == Node.ELEMENT_NODE) && (pos.offset < pos.node.childNodes.length)) {
@@ -326,31 +318,31 @@ var Text_toEndOfBoundary;
                 node = node.firstChild;
         }
         else {
-            node = Traversal_nextNodeAfter(pos.node);
+            node = Traversal.nextNodeAfter(pos.node);
         }
-        while ((node != null) && !Traversal_isNonWhitespaceTextNode(node)) {
-            var old = Util_nodeString(node);
-            node = Traversal_nextNode(node);
+        while ((node != null) && !Traversal.isNonWhitespaceTextNode(node)) {
+            var old = Util.nodeString(node);
+            node = Traversal.nextNode(node);
         }
 
         if (node == null)
             return null;
         else
-            return new Position_Position(node,0);
+            return new Position.Position(node,0);
     }
 
-    Text_closestPosInDirection = function(pos,direction) {
+    Text.closestPosInDirection = function(pos,direction) {
         if ((direction == "forward") ||
             (direction == "right") ||
             (direction == "down")) {
-            return Text_closestPosForwards(pos);
+            return Text.closestPosForwards(pos);
         }
         else {
-            return Text_closestPosBackwards(pos);
+            return Text.closestPosBackwards(pos);
         }
     }
 
-    Paragraph_runFromOffset = function(paragraph,offset,end) {
+    Paragraph.runFromOffset = function(paragraph,offset,end) {
         if (paragraph.runs.length == 0)
             throw new Error("Paragraph has no runs");
         if (!end) {
@@ -377,7 +369,7 @@ var Text_toEndOfBoundary;
         }
     }
 
-    Paragraph_runFromNode = function(paragraph,node) {
+    Paragraph.runFromNode = function(paragraph,node) {
         for (var i = 0; i < paragraph.runs.length; i++) {
             if (paragraph.runs[i].node == node)
                 return paragraph.runs[i];
@@ -385,33 +377,33 @@ var Text_toEndOfBoundary;
         throw new Error("Run for text node not found");
     }
 
-    Paragraph_positionAtOffset = function(paragraph,offset,end) {
-        var run = Paragraph_runFromOffset(paragraph,offset,end);
+    Paragraph.positionAtOffset = function(paragraph,offset,end) {
+        var run = Paragraph.runFromOffset(paragraph,offset,end);
         if (run == null)
             throw new Error("Run at offset "+offset+" not found");
-        return new Position_Position(run.node,offset-run.start);
+        return new Position.Position(run.node,offset-run.start);
     }
 
-    Paragraph_offsetAtPosition = function(paragraph,pos) {
-        var run = Paragraph_runFromNode(paragraph,pos.node);
+    Paragraph.offsetAtPosition = function(paragraph,pos) {
+        var run = Paragraph.runFromNode(paragraph,pos.node);
         return run.start + pos.offset;
     }
 
-    Paragraph_getRunRects = function(paragraph) {
+    Paragraph.getRunRects = function(paragraph) {
         var rects = new Array();
         for (var i = 0; i < paragraph.runs.length; i++) {
             var run = paragraph.runs[i];
-            var runRange = new Range_Range(run.node,0,run.node,run.node.nodeValue.length);
-            var runRects = Range_getClientRects(runRange);
+            var runRange = new Range.Range(run.node,0,run.node,run.node.nodeValue.length);
+            var runRects = Range.getClientRects(runRange);
             Array.prototype.push.apply(rects,runRects);
         }
         return rects;
     }
 
-    Paragraph_getRunOrFallbackRects = function(paragraph,pos) {
-        var rects = Paragraph_getRunRects(paragraph);
+    Paragraph.getRunOrFallbackRects = function(paragraph,pos) {
+        var rects = Paragraph.getRunRects(paragraph);
         if ((rects.length == 0) && (paragraph.node.nodeType == Node.ELEMENT_NODE)) {
-            if (Types_isBlockNode(paragraph.node) &&
+            if (Types.isBlockNode(paragraph.node) &&
                 (paragraph.startOffset == 0) &&
                 (paragraph.endOffset == paragraph.node.childNodes.length)) {
                 rects = [paragraph.node.getBoundingClientRect()];
@@ -419,10 +411,10 @@ var Text_toEndOfBoundary;
             else {
                 var beforeNode = paragraph.node.childNodes[paragraph.startOffset-1];
                 var afterNode = paragraph.node.childNodes[paragraph.endOffset];
-                if ((afterNode != null) && Types_isBlockNode(afterNode)) {
+                if ((afterNode != null) && Types.isBlockNode(afterNode)) {
                     rects = [afterNode.getBoundingClientRect()];
                 }
-                else if ((beforeNode != null) && Types_isBlockNode(beforeNode)) {
+                else if ((beforeNode != null) && Types.isBlockNode(beforeNode)) {
                     rects = [beforeNode.getBoundingClientRect()];
                 }
             }
@@ -431,42 +423,42 @@ var Text_toEndOfBoundary;
     }
 
     function toStartOfParagraph(pos) {
-        pos = Position_closestMatchBackwards(pos,Position_okForMovement);
+        pos = Position.closestMatchBackwards(pos,Position.okForMovement);
         if (pos == null)
             return null;
-        var paragraph = Text_analyseParagraph(pos);
+        var paragraph = Text.analyseParagraph(pos);
         if (paragraph == null)
             return null;
 
-        var newPos = new Position_Position(paragraph.node,paragraph.startOffset);
-        return Position_closestMatchForwards(newPos,Position_okForMovement);
+        var newPos = new Position.Position(paragraph.node,paragraph.startOffset);
+        return Position.closestMatchForwards(newPos,Position.okForMovement);
     }
 
     function toEndOfParagraph(pos) {
-        pos = Position_closestMatchForwards(pos,Position_okForMovement);
+        pos = Position.closestMatchForwards(pos,Position.okForMovement);
         if (pos == null)
             return null;
-        var paragraph = Text_analyseParagraph(pos);
+        var paragraph = Text.analyseParagraph(pos);
         if (paragraph == null)
             return null;
 
-        var newPos = new Position_Position(paragraph.node,paragraph.endOffset);
-        return Position_closestMatchBackwards(newPos,Position_okForMovement);
+        var newPos = new Position.Position(paragraph.node,paragraph.endOffset);
+        return Position.closestMatchBackwards(newPos,Position.okForMovement);
     }
 
     function toStartOfLine(pos) {
-        var posRect = Position_rectAtPos(pos);
+        var posRect = Position.rectAtPos(pos);
         if (posRect == null) {
-            pos = Text_closestPosBackwards(pos);
-            posRect = Position_rectAtPos(pos);
+            pos = Text.closestPosBackwards(pos);
+            posRect = Position.rectAtPos(pos);
             if (posRect == null) {
                 return null;
             }
         }
 
         while (true) {
-            var check = Position_prevMatch(pos,Position_okForMovement);
-            var checkRect = Position_rectAtPos(check); // handles check == null case
+            var check = Position.prevMatch(pos,Position.okForMovement);
+            var checkRect = Position.rectAtPos(check); // handles check == null case
             if (checkRect == null)
                 return pos;
             if ((checkRect.bottom <= posRect.top) || (checkRect.top >= posRect.bottom))
@@ -476,18 +468,18 @@ var Text_toEndOfBoundary;
     }
 
     function toEndOfLine(pos) {
-        var posRect = Position_rectAtPos(pos);
+        var posRect = Position.rectAtPos(pos);
         if (posRect == null) {
-            pos = Text_closestPosForwards(pos);
-            posRect = Position_rectAtPos(pos);
+            pos = Text.closestPosForwards(pos);
+            posRect = Position.rectAtPos(pos);
             if (posRect == null) {
                 return null;
             }
         }
 
         while (true) {
-            var check = Position_nextMatch(pos,Position_okForMovement);
-            var checkRect = Position_rectAtPos(check); // handles check == null case
+            var check = Position.nextMatch(pos,Position.okForMovement);
+            var checkRect = Position.rectAtPos(check); // handles check == null case
             if (checkRect == null)
                 return pos;
             if ((checkRect.bottom <= posRect.top) || (checkRect.top >= posRect.bottom))
@@ -496,7 +488,7 @@ var Text_toEndOfBoundary;
         }
     }
 
-    Text_toStartOfBoundary = function(pos,boundary) {
+    Text.toStartOfBoundary = function(pos,boundary) {
         if (boundary == "paragraph")
             return toStartOfParagraph(pos);
         else if (boundary == "line")
@@ -505,7 +497,7 @@ var Text_toEndOfBoundary;
             throw new Error("Unsupported boundary: "+boundary);
     }
 
-    Text_toEndOfBoundary = function(pos,boundary) {
+    Text.toEndOfBoundary = function(pos,boundary) {
         if (boundary == "paragraph")
             return toEndOfParagraph(pos);
         else if (boundary == "line")
@@ -514,4 +506,4 @@ var Text_toEndOfBoundary;
             throw new Error("Unsupported boundary: "+boundary);
     }
 
-})();
+})(globalAPI);

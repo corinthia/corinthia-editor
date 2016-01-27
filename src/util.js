@@ -15,30 +15,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var Util_arrayContains;
-var Util_arrayCopy;
-var Util_quoteString;
-var Util_nodeString;
-var Util_rectString;
-var Util_rectIsEmpty;
-var Util_rectContainsPoint;
-var Util_clone;
-var Util_nodeHasContent;
-var Util_isWhitespaceString;
-var Util_normalizeWhitespace;
-var Util_DoublyLinkedList;
-var Util_diff;
-var Util_TimingEntry;
-var Util_TimingInfo;
-var Util_readFileApp;
-var Util_readFileTest;
-var Util_fromTokenList;
-var Util_toTokenList;
-var Util_xywhAbsElementRect;
+(function(api) {
 
-(function(){
+    var Util = api.Util; // export
 
-    Util_arrayContains = function(array,value) {
+    var DOM = api.DOM; // import
+    var Types = api.Types; // import
+
+    Util.arrayContains = function(array,value) {
         for (var i = 0; i < array.length; i++) {
             if (array[i] == value)
                 return true;
@@ -49,7 +33,7 @@ var Util_xywhAbsElementRect;
     // Note: you can use slice() to copy a real javascript array, but this function can be used to copy
     // DOM NodeLists (e.g. as returned by document.getElementsByTagName) as well, since they don't
     // support the slice method
-    Util_arrayCopy = function(array) {
+    Util.arrayCopy = function(array) {
         if (array == null)
             return null;
         var copy = new Array();
@@ -58,7 +42,7 @@ var Util_xywhAbsElementRect;
         return copy;
     }
 
-    Util_quoteString = function(str) {
+    Util.quoteString = function(str) {
         if (str == null)
             return null;
 
@@ -75,7 +59,7 @@ var Util_xywhAbsElementRect;
         return quoted;
     }
 
-    Util_nodeString = function(node) {
+    Util.nodeString = function(node) {
         if (node == null)
             return "null";
         var id = "";
@@ -96,68 +80,68 @@ var Util_xywhAbsElementRect;
         }
     }
 
-    Util_rectString = function(rect) {
+    Util.rectString = function(rect) {
         if (rect == null)
             return null;
         else
             return "("+rect.left+","+rect.top+") - ("+rect.right+","+rect.bottom+")";
     }
 
-    Util_rectIsEmpty = function(rect) {
+    Util.rectIsEmpty = function(rect) {
         return ((rect == null) ||
                 ((rect.width == 0) && (rect.height == 0)));
     }
 
-    Util_rectContainsPoint = function(rect,x,y) {
+    Util.rectContainsPoint = function(rect,x,y) {
         return ((x >= rect.left) && (x < rect.right) &&
                 (y >= rect.top) && (y < rect.bottom));
     }
 
-    Util_clone = function(object) {
+    Util.clone = function(object) {
         var result = new Object();
         for (var name in object)
             result[name] = object[name];
         return result;
     }
 
-    Util_nodeHasContent = function(node) {
+    Util.nodeHasContent = function(node) {
         switch (node._type) {
         case HTML_TEXT:
-            return !Util_isWhitespaceString(node.nodeValue);
+            return !Util.isWhitespaceString(node.nodeValue);
         case HTML_IMG:
         case HTML_TABLE:
             return true;
         default:
-            if (Types_isOpaqueNode(node))
+            if (Types.isOpaqueNode(node))
                 return true;
 
             for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                if (Util_nodeHasContent(child))
+                if (Util.nodeHasContent(child))
                     return true;
             }
             return false;
         }
     }
 
-    Util_isWhitespaceString = function(str) {
-        return (str.match(Util_isWhitespaceString.regexp) != null);
+    Util.isWhitespaceString = function(str) {
+        return (str.match(Util.isWhitespaceString.regexp) != null);
     }
 
-    Util_isWhitespaceString.regexp = /^\s*$/;
+    Util.isWhitespaceString.regexp = /^\s*$/;
 
-    Util_normalizeWhitespace = function(str) {
+    Util.normalizeWhitespace = function(str) {
         str = str.replace(/^\s+/,"");
         str = str.replace(/\s+$/,"");
         str = str.replace(/\s+/g," ");
         return str;
     }
 
-    Util_DoublyLinkedList = function() {
+    Util.DoublyLinkedList = function() {
         this.first = null;
         this.last = null;
     }
 
-    Util_DoublyLinkedList.prototype.insertAfter = function(item,after) {
+    Util.DoublyLinkedList.prototype.insertAfter = function(item,after) {
         item.prev = null;
         item.next = null;
 
@@ -182,7 +166,7 @@ var Util_xywhAbsElementRect;
             item.prev.next = item;
     };
 
-    Util_DoublyLinkedList.prototype.remove = function(item) {
+    Util.DoublyLinkedList.prototype.remove = function(item) {
         if (this.first == item)
             this.first = this.first.next;
         if (this.last == item)
@@ -195,7 +179,7 @@ var Util_xywhAbsElementRect;
         item.next = null;
     };
 
-    Util_diff = function(src,dest) {
+    Util.diff = function(src,dest) {
         var traces = new Array();
 
         traces[1] = new DiffEntry(0,0,0,0,null);
@@ -261,34 +245,34 @@ var Util_xywhAbsElementRect;
         }
     }
 
-    Util_TimingEntry = function(name,time) {
+    Util.TimingEntry = function(name,time) {
         this.name = name;
         this.time = time;
     }
 
-    Util_TimingInfo = function() {
+    Util.TimingInfo = function() {
         this.entries = new Array();
         this.total = 0;
         this.lastTime = null;
     }
 
-    Util_TimingInfo.prototype.start = function() {
+    Util.TimingInfo.prototype.start = function() {
         this.entries.length = 0;
         this.lastTime = new Date();
     }
 
-    Util_TimingInfo.prototype.addEntry = function(name) {
+    Util.TimingInfo.prototype.addEntry = function(name) {
         if (this.lastTime == null)
             this.start();
 
         var now = new Date();
         var interval = now - this.lastTime;
-        this.entries.push(new Util_TimingEntry(name,interval));
+        this.entries.push(new Util.TimingEntry(name,interval));
         this.total += interval;
         this.lastTime = now;
     }
 
-    Util_TimingInfo.prototype.print = function(title) {
+    Util.TimingInfo.prototype.print = function(title) {
         debug(title);
         for (var i = 0; i < this.entries.length; i++) {
             var entry = this.entries[i];
@@ -296,7 +280,7 @@ var Util_xywhAbsElementRect;
         }
     }
 
-    Util_readFileApp = function(filename) {
+    Util.readFileApp = function(filename) {
         var req = new XMLHttpRequest("file:///read/"+filename);
         req.open("POST","/read/"+encodeURI(filename),false);
         req.send();
@@ -306,22 +290,22 @@ var Util_xywhAbsElementRect;
             throw new Error(req.status+": "+req.responseText);
         var doc = req.responseXML;
         if (doc != null)
-            DOM_assignNodeIds(doc);
+            DOM.assignNodeIds(doc);
         return doc;
     }
 
-    Util_readFileTest = function(filename) {
+    Util.readFileTest = function(filename) {
         var req = new XMLHttpRequest();
         req.open("GET",filename,false);
         req.send();
         var xml = req.responseXML;
         if (xml == null)
             return null;
-        DOM_assignNodeIds(xml.documentElement);
+        DOM.assignNodeIds(xml.documentElement);
         return xml;
     }
 
-    Util_fromTokenList = function(value) {
+    Util.fromTokenList = function(value) {
         var result = new Object();
         if (value != null) {
             var components = value.toLowerCase().split(/\s+/);
@@ -333,7 +317,7 @@ var Util_xywhAbsElementRect;
         return result;
     }
 
-    Util_toTokenList = function(properties) {
+    Util.toTokenList = function(properties) {
         var tokens = new Array();
 
         if (properties != null) {
@@ -352,7 +336,7 @@ var Util_xywhAbsElementRect;
             return tokens.join(" ");
     }
 
-    Util_xywhAbsElementRect = function(element) {
+    Util.xywhAbsElementRect = function(element) {
         var rect = element.getBoundingClientRect();
         return { x: rect.left + window.scrollX,
                  y: rect.top + window.scrollY,
@@ -360,4 +344,4 @@ var Util_xywhAbsElementRect;
                  height: rect.height };
     }
 
-})();
+})(globalAPI);

@@ -2,14 +2,14 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     var p = document.getElementsByTagName("P")[0];
-    var text = DOM_createTextNode(document,"");
-    DOM_appendChild(p,text);
-    Selection_setEmptySelectionAt(text,0);
-    Cursor_insertCharacter("X");
-    TestLib_showSelection();
+    var text = api.DOM.createTextNode(document,"");
+    api.DOM.appendChild(p,text);
+    api.Selection.setEmptySelectionAt(text,0);
+    api.Cursor.insertCharacter("X");
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

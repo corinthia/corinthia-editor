@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="validPositions.js"></script>
+<script></script>
 <script>
-function performTest()
+function performTest(api)
 {
     var li = document.getElementsByTagName("LI")[0];
-    DOM_deleteAllChildren(li);
-    ValidPositions_showValidPositions();
+    api.DOM.deleteAllChildren(li);
+    api.tests.ValidPositions.showValidPositions();
 }
 </script>
 </head>

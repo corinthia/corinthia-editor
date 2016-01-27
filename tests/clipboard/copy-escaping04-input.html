@@ -2,15 +2,15 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     var pre = document.getElementsByTagName("PRE")[0];
     var text = pre;
     while (text.lastChild != null) // will be wrapped in a selection span
         text = text.lastChild;
     var str = " [Daring Fireball](http://daringfireball.net)";
-    DOM_insertCharacters(text,text.nodeValue.length,str);
-    return TestLib_showClipboard(Clipboard_copy());
+    api.DOM.insertCharacters(text,text.nodeValue.length,str);
+    return api.tests.TestLib.showClipboard(api.Clipboard.copy());
 }
 </script>
 </head>

@@ -1,31 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="UndoTests.js"></script>
+<script></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
+    api.Outline.init();
+    api.PostponedActions.perform();
 
     var versions = new Array();
 
     var img = document.getElementsByTagName("IMG")[0];
-    versions.push(DOM_cloneNode(img,true));
+    versions.push(api.DOM.cloneNode(img,true));
 
-    DOM_setAttribute(img,"src","1.png");
-    versions.push(DOM_cloneNode(img,true));
-    UndoManager_newGroup();
+    api.DOM.setAttribute(img,"src","1.png");
+    versions.push(api.DOM.cloneNode(img,true));
+    api.UndoManager.newGroup();
 
-    DOM_setAttribute(img,"src","2.png");
-    versions.push(DOM_cloneNode(img,true));
-    UndoManager_newGroup();
+    api.DOM.setAttribute(img,"src","2.png");
+    versions.push(api.DOM.cloneNode(img,true));
+    api.UndoManager.newGroup();
 
-    DOM_setAttribute(img,"src","3.png");
-    versions.push(DOM_cloneNode(img,true));
-    UndoManager_newGroup();
+    api.DOM.setAttribute(img,"src","3.png");
+    versions.push(api.DOM.cloneNode(img,true));
+    api.UndoManager.newGroup();
 
-    UndoTests_testUndo(versions,img);
+    api.tests.UndoTests.testUndo(versions,img);
 }
 </script>
 </head>

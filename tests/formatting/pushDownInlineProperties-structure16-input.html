@@ -2,14 +2,14 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    Selection_preserveWhileExecuting(function() {
-        var range = Selection_get();
-        Range_ensureValidHierarchy(range);
-        Formatting_splitAroundSelection(range);
-        var outermost = Range_getOutermostNodes(range);
-        Formatting_pushDownInlineProperties(outermost);
+    api.Selection.preserveWhileExecuting(function() {
+        var range = api.Selection.get();
+        api.Range.ensureValidHierarchy(range);
+        api.Formatting.splitAroundSelection(range);
+        var outermost = api.Range.getOutermostNodes(range);
+        api.Formatting.pushDownInlineProperties(outermost);
     });
 }
 </script>

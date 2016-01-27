@@ -4,18 +4,18 @@
 <link href="../generic.css" rel="stylesheet"/>
 <script type="text/javascript" src="OutlineTest.js"></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    if (Outline_detectSectionNumbering())
-        TestLib_setupOutlineNumbering();
-    PostponedActions_perform();
+    api.Outline.init();
+    if (api.Outline.detectSectionNumbering())
+        api.tests.TestLib.setupOutlineNumbering();
+    api.PostponedActions.perform();
 
     var h1 = document.getElementsByTagName("h1")[0];
-    Selection_set(h1.lastChild,6,h1.lastChild,6);
-    Outline_insertTableOfContents();
-    PostponedActions_perform();
-    TestLib_simplifyTOCs();
+    api.Selection.set(h1.lastChild,6,h1.lastChild,6);
+    api.Outline.insertTableOfContents();
+    api.PostponedActions.perform();
+    api.tests.TestLib.simplifyTOCs();
 }
 </script>
 </head>

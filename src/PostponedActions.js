@@ -15,10 +15,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var PostponedActions_add;
-var PostponedActions_perform;
+(function(api) {
 
-(function() {
+    var PostponedActions = api.PostponedActions; // export
+
+    var UndoManager = api.UndoManager; // import
 
     function PostponedAction(fun,undoDisabled) {
         this.fun = fun;
@@ -27,11 +28,11 @@ var PostponedActions_perform;
 
     var actions = new Array();
 
-    PostponedActions_add = function(action) {
-        actions.push(new PostponedAction(action,UndoManager_isDisabled()));
+    PostponedActions.add = function(action) {
+        actions.push(new PostponedAction(action,UndoManager.isDisabled()));
     }
 
-    PostponedActions_perform = function() {
+    PostponedActions.perform = function() {
         var count = 0;
         while (actions.length > 0) {
             if (count >= 10)
@@ -41,7 +42,7 @@ var PostponedActions_perform;
             for (var i = 0; i < actionsToPerform.length; i++) {
                 var action = actionsToPerform[i];
                 if (action.undoDisabled)
-                    UndoManager_disableWhileExecuting(action.fun);
+                    UndoManager.disableWhileExecuting(action.fun);
                 else
                     action.fun();
             }
@@ -49,4 +50,4 @@ var PostponedActions_perform;
         }
     }
 
-})();
+})(globalAPI);

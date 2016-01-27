@@ -2,13 +2,13 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     for (var i = 0; i < 16; i++) {
-        Cursor_deleteCharacter();
-        PostponedActions_perform();
+        api.Cursor.deleteCharacter();
+        api.PostponedActions.perform();
     }
-    TestLib_showSelection();
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

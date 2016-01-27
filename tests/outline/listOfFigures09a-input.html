@@ -4,34 +4,34 @@
 <link href="../generic.css" rel="stylesheet"/>
 <script type="text/javascript" src="OutlineTest.js"></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
+    api.Outline.init();
+    api.PostponedActions.perform();
 
     // Create a series of figures
-    OutlineTests_createTestFigures(4);
+    api.tests.OutlineTests.createTestFigures(4);
 
     // Turn numbering off for all figures
-    TestLib_setNumbering(false);
-    PostponedActions_perform();
+    api.tests.TestLib.setNumbering(false);
+    api.PostponedActions.perform();
 
     // Add a list of figures
-    Selection_set(document.body,0,document.body,0);
-    Outline_insertListOfFigures();
-    PostponedActions_perform();
+    api.Selection.set(document.body,0,document.body,0);
+    api.Outline.insertListOfFigures();
+    api.PostponedActions.perform();
 
     // Turn numbering on for the last two figures
     var figcaptions = document.getElementsByTagName("figure");
-    Outline_setNumbered(figcaptions[2].getAttribute("id"),true);
-    Outline_setNumbered(figcaptions[3].getAttribute("id"),true);
-    PostponedActions_perform();
+    api.Outline.setNumbered(figcaptions[2].getAttribute("id"),true);
+    api.Outline.setNumbered(figcaptions[3].getAttribute("id"),true);
+    api.PostponedActions.perform();
 
     // Now turn numbering on for the first two figures - the numbers for the others
     // should be adjusted
-    Outline_setNumbered(figcaptions[0].getAttribute("id"),true);
-    Outline_setNumbered(figcaptions[1].getAttribute("id"),true);
-    PostponedActions_perform();
+    api.Outline.setNumbered(figcaptions[0].getAttribute("id"),true);
+    api.Outline.setNumbered(figcaptions[1].getAttribute("id"),true);
+    api.PostponedActions.perform();
 }
 </script>
 </head>

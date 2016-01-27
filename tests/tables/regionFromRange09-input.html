@@ -2,16 +2,16 @@
 <html>
 <head>
 <link href="../generic.css" rel="stylesheet"/>
-<script src="TableTests.js"></script>
+<script></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
+    api.Outline.init();
+    api.PostponedActions.perform();
 
-    TestLib_showSelection();
+    api.tests.TestLib.showSelection();
 
-    var region = TableTests_getSelectedTableRegion();
+    var region = api.tests.TableTests.getSelectedTableRegion();
     return "top "+region.top+"\n"+
         "left "+region.left+"\n"+
         "bottom "+region.bottom+"\n"+

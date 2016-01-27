@@ -2,13 +2,13 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    Cursor_enterPressed();
-    Cursor_enterPressed();
-    Cursor_enterPressed();
-    Cursor_enterPressed();
-    TestLib_showSelection();
+    api.Cursor.enterPressed();
+    api.Cursor.enterPressed();
+    api.Cursor.enterPressed();
+    api.Cursor.enterPressed();
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

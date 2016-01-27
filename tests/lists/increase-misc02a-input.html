@@ -2,13 +2,13 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     var test = document.getElementById("test");
-    DOM_deleteAllChildren(test);
-    Selection_set(test,0,test,0);
-    Lists_increaseIndent();
-    TestLib_showSelection();
+    api.DOM.deleteAllChildren(test);
+    api.Selection.set(test,0,test,0);
+    api.Lists.increaseIndent();
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

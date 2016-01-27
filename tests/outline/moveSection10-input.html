@@ -4,17 +4,17 @@
 <script type="text/javascript" src="OutlineTest.js"></script>
 <script>
 
-function performTest()
+function performTest(api)
 {
-    TestLib_setupOutlineNumbering();
-    OutlineTests_setupOutline(3);
+    api.tests.TestLib.setupOutlineNumbering();
+    api.tests.OutlineTests.setupOutline(3);
 
-    Selection_selectAll();
+    api.Selection.selectAll();
 
-    Outline_moveSection("item3",null,"item2");
+    api.Outline.moveSection("item3",null,"item2");
 
-    Selection_preserveWhileExecuting(OutlineTests_cleanupOutline);
-    TestLib_showSelection();
+    api.Selection.preserveWhileExecuting(api.tests.OutlineTests.cleanupOutline);
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

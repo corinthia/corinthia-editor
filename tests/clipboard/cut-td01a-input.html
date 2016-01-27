@@ -2,12 +2,12 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    var clip = Clipboard_cut();
-    TestLib_showSelection();
+    var clip = api.Clipboard.cut();
+    api.tests.TestLib.showSelection();
     var html = PrettyPrinter.getHTML(document.documentElement);
-    return html+"\n"+TestLib_showClipboard(clip);
+    return html+"\n"+api.tests.TestLib.showClipboard(clip);
 }
 </script>
 </head>

@@ -1,29 +1,29 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="AutoCorrectTests.js"></script>
+<script></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    AutoCorrect_init();
-    PostponedActions_perform();
+    api.Outline.init();
+    api.AutoCorrect.init();
+    api.PostponedActions.perform();
 
-    Cursor_insertCharacter("one");
-    Cursor_insertCharacter(" twox");
-    AutoCorrect_correctPrecedingWord(4,"two");
-    Cursor_insertCharacter(" three");
-    Cursor_insertCharacter(" fourx");
-    AutoCorrect_correctPrecedingWord(5,"four");
-    Cursor_insertCharacter(" five");
-    PostponedActions_perform();
-    TestLib_showSelection();
+    api.Cursor.insertCharacter("one");
+    api.Cursor.insertCharacter(" twox");
+    api.AutoCorrect.correctPrecedingWord(4,"two");
+    api.Cursor.insertCharacter(" three");
+    api.Cursor.insertCharacter(" fourx");
+    api.AutoCorrect.correctPrecedingWord(5,"four");
+    api.Cursor.insertCharacter(" five");
+    api.PostponedActions.perform();
+    api.tests.TestLib.showSelection();
 
-    var text = AutoCorrectTests_findTextMatching(/four/);
+    var text = api.tests.AutoCorrectTests.findTextMatching(/four/);
     text.nodeValue = "a";
-    PostponedActions_perform();
+    api.PostponedActions.perform();
 
-    return AutoCorrectTests_showCorrections();
+    return api.tests.AutoCorrectTests.showCorrections();
 }
 </script>
 </head>

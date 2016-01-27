@@ -1,50 +1,50 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="UndoTests.js"></script>
+<script></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
+    api.Outline.init();
+    api.PostponedActions.perform();
 
     var versions = new Array();
     var img = document.getElementsByTagName("IMG")[0];
-    versions.push(DOM_cloneNode(img,true));
+    versions.push(api.DOM.cloneNode(img,true));
 
-    DOM_setAttribute(img,"width","300");
-    versions.push(DOM_cloneNode(img,true));
-    UndoManager_newGroup();
+    api.DOM.setAttribute(img,"width","300");
+    versions.push(api.DOM.cloneNode(img,true));
+    api.UndoManager.newGroup();
 
-    DOM_setAttribute(img,"height","200");
-    versions.push(DOM_cloneNode(img,true));
-    UndoManager_newGroup();
+    api.DOM.setAttribute(img,"height","200");
+    versions.push(api.DOM.cloneNode(img,true));
+    api.UndoManager.newGroup();
 
-    DOM_setAttribute(img,"alt","An image");
-    versions.push(DOM_cloneNode(img,true));
-    UndoManager_newGroup();
+    api.DOM.setAttribute(img,"alt","An image");
+    versions.push(api.DOM.cloneNode(img,true));
+    api.UndoManager.newGroup();
 
-    DOM_setAttribute(img,"width","400");
-    versions.push(DOM_cloneNode(img,true));
-    UndoManager_newGroup();
+    api.DOM.setAttribute(img,"width","400");
+    versions.push(api.DOM.cloneNode(img,true));
+    api.UndoManager.newGroup();
 
-    DOM_setAttribute(img,"height","300");
-    versions.push(DOM_cloneNode(img,true));
-    UndoManager_newGroup();
+    api.DOM.setAttribute(img,"height","300");
+    versions.push(api.DOM.cloneNode(img,true));
+    api.UndoManager.newGroup();
 
-    DOM_removeAttribute(img,"width");
-    versions.push(DOM_cloneNode(img,true));
-    UndoManager_newGroup();
+    api.DOM.removeAttribute(img,"width");
+    versions.push(api.DOM.cloneNode(img,true));
+    api.UndoManager.newGroup();
 
-    DOM_removeAttribute(img,"height");
-    versions.push(DOM_cloneNode(img,true));
-    UndoManager_newGroup();
+    api.DOM.removeAttribute(img,"height");
+    versions.push(api.DOM.cloneNode(img,true));
+    api.UndoManager.newGroup();
 
-    DOM_removeAttribute(img,"alt");
-    versions.push(DOM_cloneNode(img,true));
-    UndoManager_newGroup();
+    api.DOM.removeAttribute(img,"alt");
+    versions.push(api.DOM.cloneNode(img,true));
+    api.UndoManager.newGroup();
 
-    UndoTests_testUndo(versions,img);
+    api.tests.UndoTests.testUndo(versions,img);
 }
 </script>
 </head>

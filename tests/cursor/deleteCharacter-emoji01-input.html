@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <link href="../generic.css" rel="stylesheet"/>
 <script>
-function performTest()
+function performTest(api)
 {
-    Cursor_deleteCharacter();
-    TestLib_showSelection();
+    api.Cursor.deleteCharacter();
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

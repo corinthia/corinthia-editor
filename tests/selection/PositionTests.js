@@ -15,9 +15,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var PositionTests_positionTest;
+(function(api) {
 
-(function() {
+    var PositionTests = api.tests.PositionTests = {}; // export
+
+    var Paragraph = api.Paragraph; // import
+    var Position = api.Position; // import
+    var Selection = api.Selection; // import
+    var Text = api.Text; // import
+    var UndoManager = api.UndoManager; // import
 
     function pad(str,length) {
         str = ""+str;
@@ -27,10 +33,10 @@ var PositionTests_positionTest;
     }
 
     function selectRange(p,start,end) {
-        var paragraph = Text_analyseParagraph(new Position_Position(p,0));
-        var startPos = Paragraph_positionAtOffset(paragraph,start);
-        var endPos = Paragraph_positionAtOffset(paragraph,end);
-        Selection_set(startPos.node,startPos.offset,endPos.node,endPos.offset);
+        var paragraph = Text.analyseParagraph(new Position.Position(p,0));
+        var startPos = Paragraph.positionAtOffset(paragraph,start);
+        var endPos = Paragraph.positionAtOffset(paragraph,end);
+        Selection.set(startPos.node,startPos.offset,endPos.node,endPos.offset);
     }
 
     function makeStringArray(input) {
@@ -78,18 +84,18 @@ var PositionTests_positionTest;
     var positionList = null
 
     function setPositionList(newList) {
-        UndoManager_addAction(setPositionList,positionList);
+        UndoManager.addAction(setPositionList,positionList);
         if (newList == null)
             positionList = null;
         else
-            positionList = newList.map(function (pos) { return new Position_Position(pos.node,pos.offset); });
+            positionList = newList.map(function (pos) { return new Position.Position(pos.node,pos.offset); });
     }
 
     function getPositionList() {
         return positionList;
     }
 
-    PositionTests_positionTest = function(start1,end1,start2,end2) {
+    PositionTests.positionTest = function(start1,end1,start2,end2) {
         var ps = document.getElementsByTagName("P");
 
         var p = ps[0];
@@ -100,27 +106,27 @@ var PositionTests_positionTest;
 
         var positions = new Array();
         for (var i = 0; i <= text.length; i++)
-            positions.push(new Position_Position(text,i));
+            positions.push(new Position.Position(text,i));
         setPositionList(positions);
 
         var origStrings = makeStringArray(positions);
-        UndoManager_newGroup();
+        UndoManager.newGroup();
 
-        Position_trackWhileExecuting(positions,function() { selectRange(p,start1,end1); });
+        Position.trackWhileExecuting(positions,function() { selectRange(p,start1,end1); });
         setPositionList(positions);
         var strings1 = makeStringArray(positions);
 
-        UndoManager_newGroup();
+        UndoManager.newGroup();
 
-        Position_trackWhileExecuting(positions,function() { selectRange(p,start2,end2); });
+        Position.trackWhileExecuting(positions,function() { selectRange(p,start2,end2); });
         setPositionList(positions);
         var strings2 = makeStringArray(positions);
 
-        UndoManager_undo();
+        UndoManager.undo();
         positions = getPositionList();
         var undo1 = makeStringArray(positions);
 
-        UndoManager_undo();
+        UndoManager.undo();
         positions = getPositionList();
         var undo2 = makeStringArray(positions);
 
@@ -142,4 +148,4 @@ var PositionTests_positionTest;
         return testDescription + "\n" + createTable([origStrings,strings1,strings2,checks]);
     }
 
-})();
+})(globalAPI);

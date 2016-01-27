@@ -2,12 +2,12 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     var lip = document.getElementsByTagName("P")[1];
-    Selection_set(lip,0,lip,0);
-    Cursor_deleteCharacter();
-    TestLib_showSelection();
+    api.Selection.set(lip,0,lip,0);
+    api.Cursor.deleteCharacter();
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

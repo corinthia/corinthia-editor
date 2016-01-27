@@ -2,27 +2,27 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     var messages = new Array();
 
     var ps = document.getElementsByTagName("P");
-    var position = new Position_Position(document.body,document.body.childNodes.length);
+    var position = new api.Position.Position(document.body,document.body.childNodes.length);
     messages.push("Before insertion: position = "+position);
-    Position_trackWhileExecuting([position],function() {
-        DOM_appendChild(ps[0],DOM_createTextNode(document,"X"));
+    api.Position.trackWhileExecuting([position],function() {
+        api.DOM.appendChild(ps[0],api.DOM.createTextNode(document,"X"));
     });
     messages.push("After insertion: position = "+position);
 
-    var position = new Position_Position(document.body,document.body.childNodes.length);
+    var position = new api.Position.Position(document.body,document.body.childNodes.length);
     messages.push("Before removal: position = "+position);
-    Position_trackWhileExecuting([position],function() {
-        DOM_deleteNode(ps[0].firstChild);
+    api.Position.trackWhileExecuting([position],function() {
+        api.DOM.deleteNode(ps[0].firstChild);
     });
     messages.push("After removal: position = "+position);
 
-    DOM_deleteAllChildren(document.body);
-    DOM_appendChild(document.body,DOM_createTextNode(document,"-\n"+messages.join("\n")+"\n-"));
+    api.DOM.deleteAllChildren(document.body);
+    api.DOM.appendChild(document.body,api.DOM.createTextNode(document,"-\n"+messages.join("\n")+"\n-"));
 }
 </script>
 </head>

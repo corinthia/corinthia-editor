@@ -4,15 +4,15 @@
 <script type="text/javascript" src="OutlineTest.js"></script>
 <script>
 
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    if (Outline_detectSectionNumbering())
-        TestLib_setupOutlineNumbering();
-    PostponedActions_perform();
-    TestLib_setNumbering(true);
-    TestLib_setNumbering(false);
-    return Outline_plainText()+PrettyPrinter.getHTML(document.documentElement);
+    api.Outline.init();
+    if (api.Outline.detectSectionNumbering())
+        api.tests.TestLib.setupOutlineNumbering();
+    api.PostponedActions.perform();
+    api.tests.TestLib.setNumbering(true);
+    api.tests.TestLib.setNumbering(false);
+    return api.Outline.plainText()+PrettyPrinter.getHTML(document.documentElement);
 }
 </script>
 </head>

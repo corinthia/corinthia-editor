@@ -1,41 +1,41 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="UndoTests.js"></script>
+<script></script>
 <script>
 
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
-    UndoManager_clear();
+    api.Outline.init();
+    api.PostponedActions.perform();
+    api.UndoManager.clear();
 
     var versions = new Array();
 
     var body = document.body;
-    versions.push(DOM_cloneNode(body,true));
+    versions.push(api.DOM.cloneNode(body,true));
 
-    Figures_insertFigure("first.png","100%",false,"First figure");
-    PostponedActions_perform();
-    versions.push(DOM_cloneNode(body,true));
+    api.Figures.insertFigure("first.png","100%",false,"First figure");
+    api.PostponedActions.perform();
+    versions.push(api.DOM.cloneNode(body,true));
 
-    UndoTests_placeCursorAfterElement("item1");
-    Figures_insertFigure("second.png","90%",false,"Second figure");
-    PostponedActions_perform();
-    versions.push(DOM_cloneNode(body,true));
+    api.tests.UndoTests.placeCursorAfterElement("item1");
+    api.Figures.insertFigure("second.png","90%",false,"Second figure");
+    api.PostponedActions.perform();
+    versions.push(api.DOM.cloneNode(body,true));
 
-    UndoTests_placeCursorAfterElement("item1");
+    api.tests.UndoTests.placeCursorAfterElement("item1");
 
-    Figures_insertFigure("third.png","80%",false,"Third figure");
-    PostponedActions_perform();
-    versions.push(DOM_cloneNode(body,true));
+    api.Figures.insertFigure("third.png","80%",false,"Third figure");
+    api.PostponedActions.perform();
+    versions.push(api.DOM.cloneNode(body,true));
 
-    UndoTests_placeCursorAfterElement("item2");
-    Figures_insertFigure("fourth.png","70%",false,"Fourth figure");
-    PostponedActions_perform();
-    versions.push(DOM_cloneNode(body,true));
+    api.tests.UndoTests.placeCursorAfterElement("item2");
+    api.Figures.insertFigure("fourth.png","70%",false,"Fourth figure");
+    api.PostponedActions.perform();
+    versions.push(api.DOM.cloneNode(body,true));
 
-    UndoTests_testUndo(versions,body);
+    api.tests.UndoTests.testUndo(versions,body);
 }
 </script>
 </head>

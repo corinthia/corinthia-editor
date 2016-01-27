@@ -15,38 +15,39 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var AutoCorrect_init;
-var AutoCorrect_removeListeners;
-var AutoCorrect_addCorrection;
-var AutoCorrect_removeCorrection;
-var AutoCorrect_getCorrections;
+(function(api) {
 
-var AutoCorrect_correctPrecedingWord;
-var AutoCorrect_getCorrection;
-var AutoCorrect_getCorrectionCoords;
-var AutoCorrect_acceptCorrection;
-var AutoCorrect_revertCorrection;
-var AutoCorrect_replaceCorrection;
+    var AutoCorrect = api.AutoCorrect; // export
 
-(function() {
+    var Collections = api.Collections; // import
+    var DOM = api.DOM; // import
+    var Editor = api.Editor; // import
+    var Formatting = api.Formatting; // import
+    var Position = api.Position; // import
+    var PostponedActions = api.PostponedActions; // import
+    var Range = api.Range; // import
+    var Selection = api.Selection; // import
+    var Traversal = api.Traversal; // import
+    var Types = api.Types; // import
+    var UndoManager = api.UndoManager; // import
 
     function removeCorrectionSpan(span) {
         if (span.parentNode == null)
             return;
-        Selection_preserveWhileExecuting(function() {
+        Selection.preserveWhileExecuting(function() {
             var firstChild = span.firstChild;
-            DOM_removeNodeButKeepChildren(span);
+            DOM.removeNodeButKeepChildren(span);
             if (firstChild != null)
-                Formatting_mergeWithNeighbours(firstChild,{});
+                Formatting.mergeWithNeighbours(firstChild,{});
         });
     }
 
     function Correction(span) {
         this.span = span;
         this.modificationListener = function(event) {
-            if (DOM_getIgnoreMutations())
+            if (DOM.getIgnoreMutations())
                 return;
-            PostponedActions_add(function() {
+            PostponedActions.add(function() {
                 // This will trigger a removeCorrection() call
                 removeCorrectionSpan(span);
             });
@@ -54,7 +55,7 @@ var AutoCorrect_replaceCorrection;
     }
 
     Correction.prototype.toString = function() {
-        return this.span.getAttribute("original")+" -> "+Traversal_getNodeText(this.span);
+        return this.span.getAttribute("original")+" -> "+Traversal.getNodeText(this.span);
     }
 
     var correctionsByNode = null;
@@ -66,12 +67,12 @@ var AutoCorrect_replaceCorrection;
             recurse(event.target);
         }
         catch (e) {
-            Editor_error(e);
+            Editor.error(e);
         }
 
         function recurse(node) {
-            if (Types_isAutoCorrectNode(node))
-                AutoCorrect_addCorrection(node);
+            if (Types.isAutoCorrectNode(node))
+                AutoCorrect.addCorrection(node);
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
         }
@@ -83,43 +84,43 @@ var AutoCorrect_replaceCorrection;
             recurse(event.target);
         }
         catch (e) {
-            Editor_error(e);
+            Editor.error(e);
         }
 
         function recurse(node) {
-            if (Types_isAutoCorrectNode(node))
-                AutoCorrect_removeCorrection(node);
+            if (Types.isAutoCorrectNode(node))
+                AutoCorrect.removeCorrection(node);
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
         }
     }
 
-    AutoCorrect_init = function() {
-        correctionsByNode = new Collections_NodeMap();
+    AutoCorrect.init = function() {
+        correctionsByNode = new Collections.NodeMap();
         correctionList = new Array();
         document.addEventListener("DOMNodeInserted",docNodeInserted);
         document.addEventListener("DOMNodeRemoved",docNodeRemoved);
     }
 
     // public (for the undo tests, when they report results)
-    AutoCorrect_removeListeners = function() {
+    AutoCorrect.removeListeners = function() {
         document.removeEventListener("DOMNodeInserted",docNodeInserted);
         document.removeEventListener("DOMNodeRemoved",docNodeRemoved);
     }
 
-    AutoCorrect_addCorrection = function(span) {
+    AutoCorrect.addCorrection = function(span) {
         var correction = new Correction(span);
         correctionsByNode.put(span,correction);
         correctionList.push(correction);
-        Editor_updateAutoCorrect();
+        Editor.updateAutoCorrect();
 
         span.addEventListener("DOMSubtreeModified",correction.modificationListener);
     }
 
-    AutoCorrect_removeCorrection = function(span) {
+    AutoCorrect.removeCorrection = function(span) {
         var correction = correctionsByNode.get(span);
         if (correction == null)
-            throw new Error("No autocorrect entry for "+JSON.stringify(Traversal_getNodeText(span)));
+            throw new Error("No autocorrect entry for "+JSON.stringify(Traversal.getNodeText(span)));
 
         var index = null;
         for (var i = 0; i < correctionList.length; i++) {
@@ -131,26 +132,26 @@ var AutoCorrect_replaceCorrection;
         if (index == null)
             throw new Error("Correction "+correction+" not found in correctionList");
         correctionList.splice(index,1);
-        Editor_updateAutoCorrect();
+        Editor.updateAutoCorrect();
 
         span.removeEventListener("DOMSubtreeModified",correction.modificationListener);
         correctionsByNode.remove(span);
     }
 
-    AutoCorrect_getCorrections = function() {
+    AutoCorrect.getCorrections = function() {
         var result = new Array();
         for (var i = 0; i < correctionList.length; i++) {
             var correction = correctionList[i];
             result.push({ original: correction.span.getAttribute("original"),
-                          replacement: Traversal_getNodeText(correction.span)});
+                          replacement: Traversal.getNodeText(correction.span)});
         }
         return result;
     }
 
-    AutoCorrect_correctPrecedingWord = function(numChars,replacement,confirmed) {
-        Selection_preserveWhileExecuting(function() {
-            var selRange = Selection_get();
-            if ((selRange == null) && !Range_isEmpty(selRange))
+    AutoCorrect.correctPrecedingWord = function(numChars,replacement,confirmed) {
+        Selection.preserveWhileExecuting(function() {
+            var selRange = Selection.get();
+            if ((selRange == null) && !Range.isEmpty(selRange))
                 return;
 
             var node = selRange.start.node;
@@ -161,37 +162,37 @@ var AutoCorrect_replaceCorrection;
             var original = node.nodeValue.substring(offset-numChars,offset);
 
             if (confirmed) {
-                DOM_replaceCharacters(node,offset-numChars,offset,replacement);
+                DOM.replaceCharacters(node,offset-numChars,offset,replacement);
                 return;
             }
 
-            UndoManager_newGroup("Auto-correct");
+            UndoManager.newGroup("Auto-correct");
             var before = node.nodeValue.substring(0,offset-numChars);
-            var beforeText = DOM_createTextNode(document,before);
-            var replacementText = DOM_createTextNode(document,replacement);
-            var span = DOM_createElement(document,"SPAN");
-            DOM_setAttribute(span,"class",Types_Keys.AUTOCORRECT_CLASS);
-            DOM_setAttribute(span,"original",original);
-            DOM_appendChild(span,replacementText);
-            DOM_insertBefore(node.parentNode,beforeText,node);
-            DOM_insertBefore(node.parentNode,span,node);
-            DOM_deleteCharacters(node,0,offset);
+            var beforeText = DOM.createTextNode(document,before);
+            var replacementText = DOM.createTextNode(document,replacement);
+            var span = DOM.createElement(document,"SPAN");
+            DOM.setAttribute(span,"class",Types.Keys.AUTOCORRECT_CLASS);
+            DOM.setAttribute(span,"original",original);
+            DOM.appendChild(span,replacementText);
+            DOM.insertBefore(node.parentNode,beforeText,node);
+            DOM.insertBefore(node.parentNode,span,node);
+            DOM.deleteCharacters(node,0,offset);
             // Add the new group in a postponed action, so that the change to the style element
             // is not counted as a separate action
-            PostponedActions_add(UndoManager_newGroup);
+            PostponedActions.add(UndoManager.newGroup);
         });
     }
 
-    AutoCorrect_getCorrection = function() {
+    AutoCorrect.getCorrection = function() {
         var correction = getCurrent();
         if (correction == null)
             return null;
 
         return { original: correction.span.getAttribute("original"),
-                 replacement: Traversal_getNodeText(correction.span) };
+                 replacement: Traversal.getNodeText(correction.span) };
     }
 
-    AutoCorrect_getCorrectionCoords = function() {
+    AutoCorrect.getCorrectionCoords = function() {
         var correction = getCurrent();
         if (correction == null)
             return null;
@@ -201,12 +202,12 @@ var AutoCorrect_replaceCorrection;
             return null;
 
         var offset = Math.floor(textNode.nodeValue.length/2);
-        Selection_set(textNode,offset,textNode,offset);
-        Cursor_ensureCursorVisible();
-        var rect = Position_displayRectAtPos(new Position_Position(textNode,offset));
+        Selection.set(textNode,offset,textNode,offset);
+        Cursor.ensureCursorVisible();
+        var rect = Position.displayRectAtPos(new Position.Position(textNode,offset));
 
         if (rect == null) // FIXME: pos
-            throw new Error("no rect for pos "+(new Position_Position(textNode,offset)));
+            throw new Error("no rect for pos "+(new Position.Position(textNode,offset)));
 
         if (rect == null)
             return null;
@@ -215,11 +216,11 @@ var AutoCorrect_replaceCorrection;
     }
 
     function getCurrent() {
-        var range = Selection_get();
+        var range = Selection.get();
         if (range != null) {
-            var endNode = Position_closestActualNode(range.end);
+            var endNode = Position.closestActualNode(range.end);
             for (; endNode != null; endNode = endNode.parentNode) {
-                if (Types_isAutoCorrectNode(endNode))
+                if (Types.isAutoCorrectNode(endNode))
                     return correctionsByNode.get(endNode);
             }
         }
@@ -230,37 +231,37 @@ var AutoCorrect_replaceCorrection;
         return null;
     }
 
-    AutoCorrect_acceptCorrection = function() {
-        UndoManager_newGroup("Accept");
+    AutoCorrect.acceptCorrection = function() {
+        UndoManager.newGroup("Accept");
         var correction = getCurrent();
         if (correction == null)
             return;
 
         removeCorrectionSpan(correction.span);
-        UndoManager_newGroup();
+        UndoManager.newGroup();
     }
 
-    AutoCorrect_revertCorrection = function() {
+    AutoCorrect.revertCorrection = function() {
         var correction = getCurrent();
         if (correction == null)
             return;
 
-        AutoCorrect_replaceCorrection(correction.span.getAttribute("original"));
+        AutoCorrect.replaceCorrection(correction.span.getAttribute("original"));
     }
 
-    AutoCorrect_replaceCorrection = function(replacement) {
-        UndoManager_newGroup("Replace");
+    AutoCorrect.replaceCorrection = function(replacement) {
+        UndoManager.newGroup("Replace");
         var correction = getCurrent();
         if (correction == null)
             return;
 
-        Selection_preserveWhileExecuting(function() {
-            var text = DOM_createTextNode(document,replacement);
-            DOM_insertBefore(correction.span.parentNode,text,correction.span);
-            DOM_deleteNode(correction.span);
-            Formatting_mergeWithNeighbours(text,{});
+        Selection.preserveWhileExecuting(function() {
+            var text = DOM.createTextNode(document,replacement);
+            DOM.insertBefore(correction.span.parentNode,text,correction.span);
+            DOM.deleteNode(correction.span);
+            Formatting.mergeWithNeighbours(text,{});
         });
-        UndoManager_newGroup();
+        UndoManager.newGroup();
     }
 
-})();
+})(globalAPI);

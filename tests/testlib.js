@@ -15,40 +15,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var TestLib_testHarnessSetup;
-var TestLib_insertAtPosition;
-var TestLib_insertTextAtPosition;
-var TestLib_showRangeAsBrackets;
-var TestLib_showSelection;
-var TestLib_removeIds;
-var TestLib_selectNode;
-var TestLib_removeWhitespaceAndCommentNodes;
-var TestLib_selectionWrapElement;
-var TestLib_selectionUnwrapElement;
-var TestLib_showEmptyTextNodes;
-var TestLib_showClipboard;
-var TestLib_setNumbering;
-var TestLib_readXML;
-var TestLib_findTextMatchingRecursive;
-var TestLib_setupOutlineNumbering;
-var TestLib_prependTableOfContents;
-var TestLib_simplifyTOCs;
-var TestLib_showNonEmptyTextNodes;
+(function(api) {
 
-(function() {
+    var TestLib = api.tests.TestLib = {}; // export
 
-    TestLib_testHarnessSetup = function() {
-        DOM_assignNodeIds(document);
+    var DOM = api.DOM; // import
+    var Formatting = api.Formatting; // import
+    var Outline = api.Outline; // import
+    var Position = api.Position; // import
+    var PostponedActions = api.PostponedActions; // import
+    var Range = api.Range; // import
+    var Selection = api.Selection; // import
+    var Styles = api.Styles; // import
+    var Traversal = api.Traversal; // import
+    var Types = api.Types; // import
+    var UndoManager = api.UndoManager; // import
+
+    TestLib.testHarnessSetup = function() {
+        DOM.assignNodeIds(document);
 
         var start;
         var track;
         var end;
 
 
-        UndoManager_disableWhileExecuting(function() {
+        UndoManager.disableWhileExecuting(function() {
             start = extractPositionFromCharacter("[");
             track = (start == null) ? [] : [start];
-            Position_trackWhileExecuting(track,function() {
+            Position.trackWhileExecuting(track,function() {
                 end = extractPositionFromCharacter("]");
             });
         });
@@ -59,19 +53,19 @@ var TestLib_showNonEmptyTextNodes;
             throw new Error("End of selection specified, but not start");
 
         if ((start != null) && (end != null)) {
-            var range = new Range_Range(start.node,start.offset,end.node,end.offset);
+            var range = new Range.Range(start.node,start.offset,end.node,end.offset);
 
-            UndoManager_disableWhileExecuting(function() {
-                Range_trackWhileExecuting(range,function() {
+            UndoManager.disableWhileExecuting(function() {
+                Range.trackWhileExecuting(range,function() {
                     positionMergeWithNeighbours(start);
                     positionMergeWithNeighbours(end);
                 });
             });
 
-            range.start = Position_preferTextPosition(range.start);
-            range.end = Position_preferTextPosition(range.end);
+            range.start = Position.preferTextPosition(range.start);
+            range.end = Position.preferTextPosition(range.end);
 
-            Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
+            Selection.set(range.start.node,range.start.offset,range.end.node,range.end.offset);
         }
 
         return;
@@ -80,11 +74,11 @@ var TestLib_showNonEmptyTextNodes;
             var node = pos.node;
             var offset = pos.offset;
             if ((node.nodeType == Node.ELEMENT_NODE) && (offset < node.childNodes.length))
-                Formatting_mergeWithNeighbours(node.childNodes[offset],Formatting_MERGEABLE_INLINE);
+                Formatting.mergeWithNeighbours(node.childNodes[offset],Formatting.MERGEABLE_INLINE);
             else if ((node.nodeType == Node.ELEMENT_NODE) && (node.lastChild != null))
-                Formatting_mergeWithNeighbours(node.lastChild,Formatting_MERGEABLE_INLINE);
+                Formatting.mergeWithNeighbours(node.lastChild,Formatting.MERGEABLE_INLINE);
             else
-                Formatting_mergeWithNeighbours(node,Formatting_MERGEABLE_INLINE);
+                Formatting.mergeWithNeighbours(node,Formatting.MERGEABLE_INLINE);
         }
 
         function extractPositionFromCharacter(c) {
@@ -94,21 +88,21 @@ var TestLib_showNonEmptyTextNodes;
                 if (node.nodeType == Node.TEXT_NODE) {
                     var index = node.nodeValue.indexOf(c);
                     if (index >= 0) {
-                        var offsetInParent = DOM_nodeOffset(node);
+                        var offsetInParent = DOM.nodeOffset(node);
                         if (index == 0) {
                             node.nodeValue = node.nodeValue.substring(1);
-                            return new Position_Position(node.parentNode,offsetInParent);
+                            return new Position.Position(node.parentNode,offsetInParent);
                         }
                         else if (index == node.nodeValue.length - 1) {
                             node.nodeValue = node.nodeValue.substring(0,node.nodeValue.length-1);
-                            return new Position_Position(node.parentNode,offsetInParent+1);
+                            return new Position.Position(node.parentNode,offsetInParent+1);
                         }
                         else {
                             var rest = node.nodeValue.substring(index+1);
                             node.nodeValue = node.nodeValue.substring(0,index);
-                            var restNode = DOM_createTextNode(document,rest);
-                            DOM_insertBefore(node.parentNode,restNode,node.nextSibling);
-                            return new Position_Position(node.parentNode,offsetInParent+1);
+                            var restNode = DOM.createTextNode(document,rest);
+                            DOM.insertBefore(node.parentNode,restNode,node.nextSibling);
+                            return new Position.Position(node.parentNode,offsetInParent+1);
                         }
                     }
                 }
@@ -124,32 +118,32 @@ var TestLib_showNonEmptyTextNodes;
         }
     }
 
-    TestLib_insertAtPosition = function(position,node) {
+    TestLib.insertAtPosition = function(position,node) {
         if (position.node.nodeType == Node.ELEMENT_NODE) {
             if (position.offset == position.node.childNodes.length)
-                DOM_appendChild(position.node,node);
+                DOM.appendChild(position.node,node);
             else
-                DOM_insertBefore(position.node,node,position.node.childNodes[position.offset]);
+                DOM.insertBefore(position.node,node,position.node.childNodes[position.offset]);
         }
         else if (position.node.nodeType == Node.TEXT_NODE) {
-            var newText = DOM_createTextNode(document,position.node.nodeValue.slice(position.offset));
+            var newText = DOM.createTextNode(document,position.node.nodeValue.slice(position.offset));
             position.node.nodeValue = position.node.nodeValue.slice(0,position.offset);
-            DOM_insertBefore(position.node.parentNode,newText,position.node.nextSibling);
-            DOM_insertBefore(position.node.parentNode,node,position.node.nextSibling);
+            DOM.insertBefore(position.node.parentNode,newText,position.node.nextSibling);
+            DOM.insertBefore(position.node.parentNode,node,position.node.nextSibling);
         }
     }
 
-    TestLib_insertTextAtPosition = function(position,str) {
+    TestLib.insertTextAtPosition = function(position,str) {
         if (position.node.nodeType == Node.ELEMENT_NODE) {
             var before = position.node.childNodes[position.offset-1];
             var after = position.node.childNodes[position.offset];
             if ((after != null) && (after.nodeType == Node.TEXT_NODE))
-                position = new Position_Position(after,0);
+                position = new Position.Position(after,0);
             else if ((before != null) && (before.nodeType == Node.TEXT_NODE))
-                position = new Position_Position(before,before.nodeValue.length);
+                position = new Position.Position(before,before.nodeValue.length);
         }
         if (position.node.nodeType == Node.ELEMENT_NODE) {
-            TestLib_insertAtPosition(position,DOM_createTextNode(document,str));
+            TestLib.insertAtPosition(position,DOM.createTextNode(document,str));
         }
         else if (position.node.nodeType == Node.TEXT_NODE) {
             position.node.nodeValue = position.node.nodeValue.slice(0,position.offset) + str +
@@ -157,49 +151,49 @@ var TestLib_showNonEmptyTextNodes;
         }
     }
 
-    TestLib_showRangeAsBrackets = function(range) {
-        if (Range_isEmpty(range)) {
-            TestLib_insertTextAtPosition(range.end,"[]",true);
+    TestLib.showRangeAsBrackets = function(range) {
+        if (Range.isEmpty(range)) {
+            TestLib.insertTextAtPosition(range.end,"[]",true);
         }
         else {
-            TestLib_insertTextAtPosition(range.end,"]",true);
-            TestLib_insertTextAtPosition(range.start,"[",true);
+            TestLib.insertTextAtPosition(range.end,"]",true);
+            TestLib.insertTextAtPosition(range.start,"[",true);
         }
     }
 
-    TestLib_showSelection = function() {
-        var range = Selection_get();
+    TestLib.showSelection = function() {
+        var range = Selection.get();
         if (range != null) {
-            Range_assertValid(range,"Selection");
-            TestLib_showRangeAsBrackets(range);
+            Range.assertValid(range,"Selection");
+            TestLib.showRangeAsBrackets(range);
         }
     }
 
-    TestLib_removeIds = function() {
+    TestLib.removeIds = function() {
         recurse(document.body);
 
         function recurse(node) {
             if (node.nodeType == Node.ELEMENT_NODE) {
-                DOM_removeAttribute(node,"id");
+                DOM.removeAttribute(node,"id");
                 for (var child = node.firstChild; child != null; child = child.nextSibling)
                     recurse(child);
             }
         }
     }
 
-    TestLib_selectNode = function(node) {
-        var offset = DOM_nodeOffset(node);
-        Selection_set(node.parentNode,offset,node.parentNode,offset+1);
+    TestLib.selectNode = function(node) {
+        var offset = DOM.nodeOffset(node);
+        Selection.set(node.parentNode,offset,node.parentNode,offset+1);
     }
 
-    TestLib_removeWhitespaceAndCommentNodes = function(root) {
-        Selection_preserveWhileExecuting(function() {
+    TestLib.removeWhitespaceAndCommentNodes = function(root) {
+        Selection.preserveWhileExecuting(function() {
             recurse(root);
         });
 
         function recurse(node) {
-            if (Traversal_isWhitespaceTextNode(node) || (node.nodeType == Node.COMMENT_NODE)) {
-                DOM_deleteNode(node);
+            if (Traversal.isWhitespaceTextNode(node) || (node.nodeType == Node.COMMENT_NODE)) {
+                DOM.deleteNode(node);
             }
             else {
                 var next;
@@ -211,28 +205,28 @@ var TestLib_showNonEmptyTextNodes;
         }
     }
 
-    // TestLib_selectionWrapElement() and TestLib_selectionUnwrapElement() used to be in formatting.js but have
+    // TestLib.selectionWrapElement() and TestLib.selectionUnwrapElement() used to be in formatting.js but have
     // now been made obselete by the addition of applyFormattingChanges(). However there are still
     // a few tests which use them.
-    TestLib_selectionWrapElement = function(elementName) {
+    TestLib.selectionWrapElement = function(elementName) {
         if (elementName == "B")
-            Formatting_applyFormattingChanges(null,{"font-weight": "bold"});
+            Formatting.applyFormattingChanges(null,{"font-weight": "bold"});
         else if (elementName == "I")
-            Formatting_applyFormattingChanges(null,{"font-style": "italic"});
+            Formatting.applyFormattingChanges(null,{"font-style": "italic"});
         else if (elementName == "U")
-            Formatting_applyFormattingChanges(null,{"text-decoration": "underline"});
+            Formatting.applyFormattingChanges(null,{"text-decoration": "underline"});
     }
 
-    TestLib_selectionUnwrapElement = function(elementName) {
+    TestLib.selectionUnwrapElement = function(elementName) {
         if (elementName == "B")
-            Formatting_applyFormattingChanges(null,{"font-weight": null});
+            Formatting.applyFormattingChanges(null,{"font-weight": null});
         else if (elementName == "I")
-            Formatting_applyFormattingChanges(null,{"font-style": null});
+            Formatting.applyFormattingChanges(null,{"font-style": null});
         else if (elementName == "U")
-            Formatting_applyFormattingChanges(null,{"text-decoration": null});
+            Formatting.applyFormattingChanges(null,{"text-decoration": null});
     }
 
-    TestLib_showEmptyTextNodes = function() {
+    TestLib.showEmptyTextNodes = function() {
         recurse(document);
 
         function recurse(node) {
@@ -243,7 +237,7 @@ var TestLib_showNonEmptyTextNodes;
         }
     }
 
-    TestLib_showClipboard = function(clipboard) {
+    TestLib.showClipboard = function(clipboard) {
         var html = clipboard["text/html"];
         var text = clipboard["text/plain"];
 
@@ -269,12 +263,12 @@ var TestLib_showNonEmptyTextNodes;
                text;
     }
 
-    TestLib_setNumbering = function(enabled) {
+    TestLib.setNumbering = function(enabled) {
         if (enabled)
-            TestLib_setupOutlineNumbering();
+            TestLib.setupOutlineNumbering();
 
         recurse(document.body,enabled);
-        PostponedActions_perform();
+        PostponedActions.perform();
 
         function recurse(node,enabled) {
             switch (node._type) {
@@ -286,8 +280,8 @@ var TestLib_showNonEmptyTextNodes;
             case HTML_H6:
             case HTML_FIGURE:
             case HTML_TABLE:
-                if (!Types_isInTOC(node)) {
-                    Outline_setNumbered(node.getAttribute("id"),enabled);
+                if (!Types.isInTOC(node)) {
+                    Outline.setNumbered(node.getAttribute("id"),enabled);
                     return;
                 }
                 break;
@@ -298,18 +292,18 @@ var TestLib_showNonEmptyTextNodes;
         }
     }
 
-    TestLib_readXML = function(filename) {
+    TestLib.readXML = function(filename) {
         var req = new XMLHttpRequest();
         req.open("GET",filename,false);
         req.send();
         var xml = req.responseXML;
         if (xml == null)
             return null;
-        DOM_assignNodeIds(xml.documentElement);
+        DOM.assignNodeIds(xml.documentElement);
         return xml;
     }
 
-    TestLib_findTextMatchingRecursive = function(node,re) {
+    TestLib.findTextMatchingRecursive = function(node,re) {
         if (node.nodeType == Node.TEXT_NODE) {
             if (node.nodeValue.match(re))
                 return node;
@@ -318,7 +312,7 @@ var TestLib_showNonEmptyTextNodes;
         }
         else {
             for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                var result = TestLib_findTextMatchingRecursive(child,re);
+                var result = TestLib.findTextMatchingRecursive(child,re);
                 if (result != null)
                     return result;
             }
@@ -326,8 +320,8 @@ var TestLib_showNonEmptyTextNodes;
         }
     }
 
-    TestLib_setupOutlineNumbering = function() {
-        Styles_setCSSText("",{
+    TestLib.setupOutlineNumbering = function() {
+        Styles.setCSSText("",{
             "h1": {
                 "counter-reset": "h2 h3 h4 h5 h6",
                 "counter-increment": "h1"
@@ -372,21 +366,21 @@ var TestLib_showNonEmptyTextNodes;
         });
     }
 
-    TestLib_prependTableOfContents = function() {
-        var nav = DOM_createElement(document,"NAV");
-        DOM_setAttribute(nav,"class","tableofcontents");
-        DOM_insertBefore(document.body,nav,document.body.firstChild);
-        PostponedActions_perform();
+    TestLib.prependTableOfContents = function() {
+        var nav = DOM.createElement(document,"NAV");
+        DOM.setAttribute(nav,"class","tableofcontents");
+        DOM.insertBefore(document.body,nav,document.body.firstChild);
+        PostponedActions.perform();
     }
 
-    TestLib_simplifyTOCs = function() {
+    TestLib.simplifyTOCs = function() {
         recurse(document.body);
 
         function recurse(node) {
             if ((node._type == HTML_NAV) &&
-                ((DOM_getAttribute(node,"class") == "tableofcontents") ||
-                 (DOM_getAttribute(node,"class") == "listoffigures") ||
-                 (DOM_getAttribute(node,"class") == "listoftables"))) {
+                ((DOM.getAttribute(node,"class") == "tableofcontents") ||
+                 (DOM.getAttribute(node,"class") == "listoffigures") ||
+                 (DOM.getAttribute(node,"class") == "listoftables"))) {
                 mergeAdjacentTextNodes(node);
             }
             else {
@@ -401,8 +395,8 @@ var TestLib_showNonEmptyTextNodes;
                 if ((child.nodeType == Node.TEXT_NODE) &&
                     (child.nextSibling != null) &&
                     (child.nextSibling.nodeType == Node.TEXT_NODE)) {
-                    DOM_insertCharacters(child,child.nodeValue.length,child.nextSibling.nodeValue);
-                    DOM_deleteNode(child.nextSibling);
+                    DOM.insertCharacters(child,child.nodeValue.length,child.nextSibling.nodeValue);
+                    DOM.deleteNode(child.nextSibling);
                 }
                 else {
                     child = child.nextSibling;
@@ -414,12 +408,12 @@ var TestLib_showNonEmptyTextNodes;
         }
     }
 
-    TestLib_showNonEmptyTextNodes = function() {
+    TestLib.showNonEmptyTextNodes = function() {
         recurse(document.body);
 
         function recurse(node) {
             if (node.nodeType == Node.TEXT_NODE) {
-                if (!Traversal_isWhitespaceTextNode(node))
+                if (!Traversal.isWhitespaceTextNode(node))
                     node.nodeValue = "{" + node.nodeValue + "}";
             }
             else {
@@ -429,4 +423,4 @@ var TestLib_showNonEmptyTextNodes;
         }
     }
 
-})();
+})(globalAPI);

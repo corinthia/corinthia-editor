@@ -2,9 +2,9 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    var formatting = Formatting_getFormatting();
+    var formatting = api.Formatting.getFormatting();
     var lines = new Array();
     var names = Object.getOwnPropertyNames(formatting).sort();
     for (var i = 0; i < names.length; i++)

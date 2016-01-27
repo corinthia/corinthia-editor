@@ -2,13 +2,13 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     // true is valid JSON string but is not a string, and should be ignored
-    Styles_setCSSText(" ",{ "p": { "-uxwrite-next": "true" } });
-    Cursor_enterPressed();
-    Selection_preserveWhileExecuting(TestLib_showEmptyTextNodes);
-    TestLib_showSelection();
+    api.Styles.setCSSText(" ",{ "p": { "-uxwrite-next": "true" } });
+    api.Cursor.enterPressed();
+    api.Selection.preserveWhileExecuting(api.tests.TestLib.showEmptyTextNodes);
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

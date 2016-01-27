@@ -3,32 +3,32 @@
 <head>
 <script type="text/javascript" src="OutlineTest.js"></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    if (Outline_detectSectionNumbering())
-        TestLib_setupOutlineNumbering();
-    PostponedActions_perform();
+    api.Outline.init();
+    if (api.Outline.detectSectionNumbering())
+        api.tests.TestLib.setupOutlineNumbering();
+    api.PostponedActions.perform();
 
     var headings = document.getElementsByTagName("h1");
 
     // Change heading text
     for (var i = 0; i < headings.length; i++) {
-        DOM_appendChild(headings[i],DOM_createTextNode(document,"XYZ"));
+        api.DOM.appendChild(headings[i],api.DOM.createTextNode(document,"XYZ"));
     }
 
     // Add another set of references
     for (var i = 0; i < headings.length; i++) {
-        var a = DOM_createElement(document,"A");
-        DOM_setAttribute(a,"href","#"+headings[i].getAttribute("id"));
-        var p = DOM_createElement(document,"P");
-        DOM_appendChild(p,a);
-        DOM_appendChild(document.body,p);
+        var a = api.DOM.createElement(document,"A");
+        api.DOM.setAttribute(a,"href","#"+headings[i].getAttribute("id"));
+        var p = api.DOM.createElement(document,"P");
+        api.DOM.appendChild(p,a);
+        api.DOM.appendChild(document.body,p);
     }
 
-    PostponedActions_perform();
+    api.PostponedActions.perform();
 
-    return Outline_plainText()+PrettyPrinter.getHTML(document.documentElement);
+    return api.Outline.plainText()+PrettyPrinter.getHTML(document.documentElement);
 }
 </script>
 </head>

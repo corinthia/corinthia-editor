@@ -2,9 +2,9 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    Formatting_applyFormattingChanges(null,{"font-weight": "bold",
+    api.Formatting.applyFormattingChanges(null,{"font-weight": "bold",
                                  "font-style": "italic",
                                  "text-decoration": "underline"});
 }

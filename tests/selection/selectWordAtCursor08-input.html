@@ -2,10 +2,10 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    Selection_selectWordAtCursor();
-    TestLib_showSelection();
+    api.Selection.selectWordAtCursor();
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

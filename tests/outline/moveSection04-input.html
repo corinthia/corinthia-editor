@@ -4,14 +4,14 @@
 <script type="text/javascript" src="OutlineTest.js"></script>
 <script>
 
-function performTest()
+function performTest(api)
 {
-    TestLib_setupOutlineNumbering();
-    OutlineTests_setupOutline(3);
+    api.tests.TestLib.setupOutlineNumbering();
+    api.tests.OutlineTests.setupOutline(3);
 
-    Outline_moveSection("item2","item0","item1");
+    api.Outline.moveSection("item2","item0","item1");
 
-    OutlineTests_cleanupOutline();
+    api.tests.OutlineTests.cleanupOutline();
 }
 </script>
 </head>

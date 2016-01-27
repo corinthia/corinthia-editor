@@ -15,16 +15,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var FiguresTests_figurePropertiesString;
+(function(api) {
 
-(function() {
+    var FiguresTests = api.tests.FiguresTests = {}; // export
 
-    FiguresTests_figurePropertiesString = function(index) {
+    var DOM = api.DOM; // import
+    var Figures = api.Figures; // import
+    var Selection = api.Selection; // import
+
+    FiguresTests.figurePropertiesString = function(index) {
         var figure = document.getElementsByTagName("FIGURE")[0];
         var parent = figure.parentNode;
-        var offset = DOM_nodeOffset(figure);
-        Selection_set(parent,offset,parent,offset+1);
-        var properties = Figures_getProperties(Figures_getSelectedFigureId());
+        var offset = DOM.nodeOffset(figure);
+        Selection.set(parent,offset,parent,offset+1);
+        var properties = Figures.getProperties(Figures.getSelectedFigureId());
         var strings = new Array();
         var names = Object.getOwnPropertyNames(properties).sort();
         for (var i = 0; i < names.length; i++) {
@@ -37,4 +41,4 @@ var FiguresTests_figurePropertiesString;
         return strings.join("\n");
     }
 
-})();
+})(globalAPI);

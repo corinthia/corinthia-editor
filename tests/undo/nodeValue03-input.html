@@ -1,35 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="UndoTests.js"></script>
+<script></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
+    api.Outline.init();
+    api.PostponedActions.perform();
 
     var versions = new Array();
 
     var p = document.getElementsByTagName("p")[0];
-    versions.push(DOM_cloneNode(p,true));
+    versions.push(api.DOM.cloneNode(p,true));
 
-    DOM_insertCharacters(p.firstChild,17," ONE");
-    versions.push(DOM_cloneNode(p,true));
-    UndoManager_newGroup();
+    api.DOM.insertCharacters(p.firstChild,17," ONE");
+    versions.push(api.DOM.cloneNode(p,true));
+    api.UndoManager.newGroup();
 
-    DOM_insertCharacters(p.firstChild,0,"TWO ");
-    versions.push(DOM_cloneNode(p,true));
-    UndoManager_newGroup();
+    api.DOM.insertCharacters(p.firstChild,0,"TWO ");
+    versions.push(api.DOM.cloneNode(p,true));
+    api.UndoManager.newGroup();
 
-    DOM_insertCharacters(p.firstChild,25," THREE");
-    versions.push(DOM_cloneNode(p,true));
-    UndoManager_newGroup();
+    api.DOM.insertCharacters(p.firstChild,25," THREE");
+    versions.push(api.DOM.cloneNode(p,true));
+    api.UndoManager.newGroup();
 
-    DOM_insertCharacters(p.firstChild,0,"FOUR ");
-    versions.push(DOM_cloneNode(p,true));
-    UndoManager_newGroup();
+    api.DOM.insertCharacters(p.firstChild,0,"FOUR ");
+    versions.push(api.DOM.cloneNode(p,true));
+    api.UndoManager.newGroup();
 
-    UndoTests_testUndo(versions,p);
+    api.tests.UndoTests.testUndo(versions,p);
 }
 </script>
 </head>

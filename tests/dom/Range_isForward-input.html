@@ -17,25 +17,25 @@ function arraysEqual(a,b)
     return true;
 }
 
-function performTest()
+function performTest(api)
 {
     var root = document.getElementById("root");
-    RangeTests_removeWhitespaceTextNodes(root);
-    RangeTests_setup(root);
+    api.tests.RangeTests.removeWhitespaceTextNodes(root);
+    api.tests.RangeTests.setup(root);
 
     var total = 0;
     var pass = 0;
     var fail = 0;
-    for (var startIndex = 0; startIndex < RangeTests_allPositions.length; startIndex++) {
-        for (var endIndex = 0; endIndex < RangeTests_allPositions.length; endIndex++) {
-            var start = RangeTests_allPositions[startIndex];
-            var end = RangeTests_allPositions[endIndex];
-            var range = new Range_Range(start.node,start.offset,end.node,end.offset);
+    for (var startIndex = 0; startIndex < api.tests.RangeTests.allPositions.length; startIndex++) {
+        for (var endIndex = 0; endIndex < api.tests.RangeTests.allPositions.length; endIndex++) {
+            var start = api.tests.RangeTests.allPositions[startIndex];
+            var end = api.tests.RangeTests.allPositions[endIndex];
+            var range = new api.Range.Range(start.node,start.offset,end.node,end.offset);
 
             total++;
 
-            var actual = Range_isForwards(range);
-            var expected = RangeTests_isForwardsSimple(range);
+            var actual = api.Range.isForwards(range);
+            var expected = api.tests.RangeTests.isForwardsSimple(range);
             if (actual == expected)
                 pass++;
             else
@@ -43,12 +43,12 @@ function performTest()
         }
     }
 
-    var message1 = "allPositions.length = "+RangeTests_allPositions.length;
+    var message1 = "allPositions.length = "+api.tests.RangeTests.allPositions.length;
     var message2 = "Test results: total "+total+", pass "+pass+", fail "+fail;
-    DOM_deleteAllChildren(document.body);
-    DOM_appendChild(document.body,DOM_createTextNode(document,message1));
-    DOM_appendChild(document.body,DOM_createElement(document,"BR"));
-    DOM_appendChild(document.body,DOM_createTextNode(document,message2));
+    api.DOM.deleteAllChildren(document.body);
+    api.DOM.appendChild(document.body,api.DOM.createTextNode(document,message1));
+    api.DOM.appendChild(document.body,api.DOM.createElement(document,"BR"));
+    api.DOM.appendChild(document.body,api.DOM.createTextNode(document,message2));
 }
 </script>
 </head>

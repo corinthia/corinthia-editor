@@ -2,23 +2,23 @@
 <html>
 <head>
 <script>
-function deleteNeighbours(node)
+function performTest(api)
 {
-    while (node.previousSibling != null)
-        DOM_deleteNode(node.previousSibling);
-    while (node.nextSibling != null)
-        DOM_deleteNode(node.nextSibling);
-}
+    function deleteNeighbours(node)
+    {
+        while (node.previousSibling != null)
+            api.DOM.deleteNode(node.previousSibling);
+        while (node.nextSibling != null)
+            api.DOM.deleteNode(node.nextSibling);
+    }
 
-function performTest()
-{
     var p = document.getElementsByTagName("P")[0];
     deleteNeighbours(p);
 
-    Selection_setEmptySelectionAt(document.body,1);
+    api.Selection.setEmptySelectionAt(document.body,1);
 
-    Cursor_insertCharacter("X");
-    TestLib_showSelection();
+    api.Cursor.insertCharacter("X");
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

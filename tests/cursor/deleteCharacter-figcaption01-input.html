@@ -3,16 +3,16 @@
 <head>
 <link href="../generic.css" rel="stylesheet"/>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
+    api.Outline.init();
+    api.PostponedActions.perform();
 
     var caption = document.getElementsByTagName("FIGCAPTION")[0];
     var last = caption.lastChild;
-    Selection_set(last,4,last,4);
-    Cursor_deleteCharacter();
-    TestLib_showSelection();
+    api.Selection.set(last,4,last,4);
+    api.Cursor.deleteCharacter();
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

@@ -1,50 +1,50 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="UndoTests.js"></script>
+<script></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
+    api.Outline.init();
+    api.PostponedActions.perform();
 
     var versions = new Array();
-    var element = DOM_createElementNS(document,"urn:somens","element");
-    versions.push(DOM_cloneNode(element,true));
+    var element = api.DOM.createElementNS(document,"urn:somens","element");
+    versions.push(api.DOM.cloneNode(element,true));
 
-    DOM_setAttributeNS(element,"urn:one","x:width","300");
-    versions.push(DOM_cloneNode(element,true));
-    UndoManager_newGroup();
+    api.DOM.setAttributeNS(element,"urn:one","x:width","300");
+    versions.push(api.DOM.cloneNode(element,true));
+    api.UndoManager.newGroup();
 
-    DOM_setAttributeNS(element,"urn:two","y:width","200");
-    versions.push(DOM_cloneNode(element,true));
-    UndoManager_newGroup();
+    api.DOM.setAttributeNS(element,"urn:two","y:width","200");
+    versions.push(api.DOM.cloneNode(element,true));
+    api.UndoManager.newGroup();
 
-    DOM_setAttributeNS(element,"urn:three","z:width","An image");
-    versions.push(DOM_cloneNode(element,true));
-    UndoManager_newGroup();
+    api.DOM.setAttributeNS(element,"urn:three","z:width","An image");
+    versions.push(api.DOM.cloneNode(element,true));
+    api.UndoManager.newGroup();
 
-    DOM_setAttributeNS(element,"urn:one","x:width","400");
-    versions.push(DOM_cloneNode(element,true));
-    UndoManager_newGroup();
+    api.DOM.setAttributeNS(element,"urn:one","x:width","400");
+    versions.push(api.DOM.cloneNode(element,true));
+    api.UndoManager.newGroup();
 
-    DOM_setAttributeNS(element,"urn:two","y:width","300");
-    versions.push(DOM_cloneNode(element,true));
-    UndoManager_newGroup();
+    api.DOM.setAttributeNS(element,"urn:two","y:width","300");
+    versions.push(api.DOM.cloneNode(element,true));
+    api.UndoManager.newGroup();
 
-    DOM_removeAttributeNS(element,"urn:one","x:width");
-    versions.push(DOM_cloneNode(element,true));
-    UndoManager_newGroup();
+    api.DOM.removeAttributeNS(element,"urn:one","x:width");
+    versions.push(api.DOM.cloneNode(element,true));
+    api.UndoManager.newGroup();
 
-    DOM_removeAttributeNS(element,"urn:two","y:width");
-    versions.push(DOM_cloneNode(element,true));
-    UndoManager_newGroup();
+    api.DOM.removeAttributeNS(element,"urn:two","y:width");
+    versions.push(api.DOM.cloneNode(element,true));
+    api.UndoManager.newGroup();
 
-    DOM_removeAttributeNS(element,"urn:three","z:width");
-    versions.push(DOM_cloneNode(element,true));
-    UndoManager_newGroup();
+    api.DOM.removeAttributeNS(element,"urn:three","z:width");
+    versions.push(api.DOM.cloneNode(element,true));
+    api.UndoManager.newGroup();
 
-    UndoTests_testUndo(versions,element);
+    api.tests.UndoTests.testUndo(versions,element);
 
     outputOptions.showNamespaceDetails = true;
 }

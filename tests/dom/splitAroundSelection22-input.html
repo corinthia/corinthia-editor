@@ -2,10 +2,10 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    Selection_preserveWhileExecuting(function() {
-        Formatting_splitAroundSelection(Selection_get());
+    api.Selection.preserveWhileExecuting(function() {
+        api.Formatting.splitAroundSelection(api.Selection.get());
     });
 }
 </script>

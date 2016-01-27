@@ -2,18 +2,18 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     // Have to set the selection manually here, since putting in [ and ] is invalid HTML and
     // WebKit's parser will move the selection to before the table if we do that
     var table = document.getElementsByTagName("TABLE")[0];
     var tds = document.getElementsByTagName("TD");
-    var td1Offset = DOM_nodeOffset(tds[1]);
-    var td2Offset = DOM_nodeOffset(tds[2]);
+    var td1Offset = api.DOM.nodeOffset(tds[1]);
+    var td2Offset = api.DOM.nodeOffset(tds[2]);
 
-    Selection_set(tds[1].parentNode,td1Offset,tds[2].parentNode,td2Offset+1);
+    api.Selection.set(tds[1].parentNode,td1Offset,tds[2].parentNode,td2Offset+1);
 
-    Formatting_applyFormattingChanges(".test",null);
+    api.Formatting.applyFormattingChanges(".test",null);
 }
 </script>
 </head>

@@ -1,59 +1,58 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="UndoTests.js"></script>
+<script></script>
 <script>
-
-function insertHeading(numbered,title)
+function performTest(api)
 {
-    UndoManager_newGroup("Insert heading");
-    var h1 = DOM_createElement(document,"H1");
-    DOM_appendChild(h1,DOM_createTextNode(document,title));
-    Clipboard_pasteNodes([h1]);
-    Outline_setNumbered(h1.getAttribute("id"),numbered);
+    function insertHeading(numbered,title)
+    {
+        api.UndoManager.newGroup("Insert heading");
+        var h1 = api.DOM.createElement(document,"H1");
+        api.DOM.appendChild(h1,api.DOM.createTextNode(document,title));
+        api.Clipboard.pasteNodes([h1]);
+        api.Outline.setNumbered(h1.getAttribute("id"),numbered);
 
 
-    // Place the cursor directly after the heading
-    var offset = DOM_nodeOffset(h1);
-    var pos = new Position_Position(h1.parentNode,offset);
-    pos = Position_closestMatchForwards(pos,Position_okForMovement);
-    Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+        // Place the cursor directly after the heading
+        var offset = api.DOM.nodeOffset(h1);
+        var pos = new api.Position.Position(h1.parentNode,offset);
+        pos = api.Position.closestMatchForwards(pos,api.Position.okForMovement);
+        api.Selection.set(pos.node,pos.offset,pos.node,pos.offset);
 
-    PostponedActions_add(UndoManager_newGroup);
-}
+        api.PostponedActions.add(api.UndoManager.newGroup);
+    }
 
-function performTest()
-{
-    Outline_init();
-    PostponedActions_perform();
-    UndoManager_clear();
+    api.Outline.init();
+    api.PostponedActions.perform();
+    api.UndoManager.clear();
 
     var versions = new Array();
 
     var body = document.body;
-    versions.push(DOM_cloneNode(body,true));
+    versions.push(api.DOM.cloneNode(body,true));
 
     insertHeading(false,"First heading");
-    PostponedActions_perform();
-    versions.push(DOM_cloneNode(body,true));
+    api.PostponedActions.perform();
+    versions.push(api.DOM.cloneNode(body,true));
 
-    UndoTests_placeCursorAfterElement("item1");
+    api.tests.UndoTests.placeCursorAfterElement("item1");
     insertHeading(false,"Second heading");
-    PostponedActions_perform();
-    versions.push(DOM_cloneNode(body,true));
+    api.PostponedActions.perform();
+    versions.push(api.DOM.cloneNode(body,true));
 
-    UndoTests_placeCursorAfterElement("item1");
+    api.tests.UndoTests.placeCursorAfterElement("item1");
 
     insertHeading(false,"Third heading");
-    PostponedActions_perform();
-    versions.push(DOM_cloneNode(body,true));
+    api.PostponedActions.perform();
+    versions.push(api.DOM.cloneNode(body,true));
 
-    UndoTests_placeCursorAfterElement("item2");
+    api.tests.UndoTests.placeCursorAfterElement("item2");
     insertHeading(false,"Fourth heading");
-    PostponedActions_perform();
-    versions.push(DOM_cloneNode(body,true));
+    api.PostponedActions.perform();
+    versions.push(api.DOM.cloneNode(body,true));
 
-    UndoTests_testUndo(versions,body);
+    api.tests.UndoTests.testUndo(versions,body);
 }
 </script>
 </head>

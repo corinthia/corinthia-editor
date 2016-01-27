@@ -2,14 +2,14 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     var dest = document.getElementById("dest");
-    var clip = Clipboard_cut();
-    Selection_set(dest,dest.childNodes.length,dest,dest.childNodes.length);
-    Clipboard_pasteHTML(clip["text/html"]);
-    Cursor_insertCharacter("X");
-    TestLib_showSelection();
+    var clip = api.Clipboard.cut();
+    api.Selection.set(dest,dest.childNodes.length,dest,dest.childNodes.length);
+    api.Clipboard.pasteHTML(clip["text/html"]);
+    api.Cursor.insertCharacter("X");
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

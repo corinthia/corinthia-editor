@@ -43,3 +43,39 @@ var XLINK_PREFIX = "xlink:";
 
 var WORD_NAMESPACE = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 var WORD_PREFIX = "w:";
+
+var globalAPI = {
+    AutoCorrect: {},
+    ChangeTracking: {},
+    Markdown: {},
+    Clipboard: {},
+    Collections: {},
+    Cursor: {},
+    DOM: {},
+    Editor: {},
+    Equations: {},
+    Figures: {},
+    Formatting: {},
+    Hierarchy: {},
+    Input: {},
+    Lists: {},
+    Main: {},
+    Metadata: {},
+    Outline: {},
+    Position: {},
+    PostponedActions: {},
+    Preview: {},
+    Range: {},
+    Scan: {},
+    Selection: {},
+    Styles: {},
+    Tables: {},
+    Text: {},
+    Paragraph: {},
+    Traversal: {},
+    Types: {},
+    UndoManager: {},
+    Util: {},
+    Viewport: {},
+    tests: {}
+}

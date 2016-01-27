@@ -10,7 +10,7 @@ function pad(str,length)
     return str;
 }
 
-function performTest()
+function performTest(api)
 {
     var ps = document.getElementsByTagName("P");
     var text1 = ps[0].firstChild;
@@ -18,25 +18,25 @@ function performTest()
 
     var positions = new Array();
     for (var i = 0; i <= text1.nodeValue.length; i++)
-        positions.push(new Position_Position(text1,i));
+        positions.push(new api.Position.Position(text1,i));
 
     for (var i = 0; i <= text2.nodeValue.length; i++)
-        positions.push(new Position_Position(text2,i));
+        positions.push(new api.Position.Position(text2,i));
 
     var origStrings = new Array();
     for (var i = 0; i < positions.length; i++)
         origStrings.push(positions[i].toString());
 
-    Position_trackWhileExecuting(positions,function() {
-        DOM_moveCharacters(text1,4,8,text2,10,true,false);
+    api.Position.trackWhileExecuting(positions,function() {
+        api.DOM.moveCharacters(text1,4,8,text2,10,true,false);
     });
 
     var movedStrings = new Array();
     for (var i = 0; i < positions.length; i++)
         movedStrings.push(positions[i].toString());
 
-    Position_trackWhileExecuting(positions,function() {
-        UndoManager_undo();
+    api.Position.trackWhileExecuting(positions,function() {
+        api.UndoManager.undo();
     });
     var undoneStrings = new Array();
     for (var i = 0; i < positions.length; i++)

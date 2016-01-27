@@ -2,13 +2,13 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     var table = document.getElementsByTagName("TABLE")[0];
-    var offset = DOM_nodeOffset(table);
-    Cursor_set(table.parentNode,offset+1,table.parentNode,offset+1);
-    Cursor_deleteCharacter();
-    TestLib_showSelection();
+    var offset = api.DOM.nodeOffset(table);
+    api.Cursor.set(table.parentNode,offset+1,table.parentNode,offset+1);
+    api.Cursor.deleteCharacter();
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

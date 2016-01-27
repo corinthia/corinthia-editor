@@ -2,19 +2,19 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    Cursor_enterPressed();
-    Cursor_enterPressed();
-    Cursor_enterPressed();
-    Cursor_enterPressed();
-    Cursor_enterPressed();
-    Cursor_deleteCharacter();
-    Cursor_deleteCharacter();
-    Cursor_deleteCharacter();
-    Cursor_deleteCharacter();
-    Cursor_deleteCharacter();
-    TestLib_showSelection();
+    api.Cursor.enterPressed();
+    api.Cursor.enterPressed();
+    api.Cursor.enterPressed();
+    api.Cursor.enterPressed();
+    api.Cursor.enterPressed();
+    api.Cursor.deleteCharacter();
+    api.Cursor.deleteCharacter();
+    api.Cursor.deleteCharacter();
+    api.Cursor.deleteCharacter();
+    api.Cursor.deleteCharacter();
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

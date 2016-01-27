@@ -1,23 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="AutoCorrectTests.js"></script>
+<script></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    AutoCorrect_init();
-    PostponedActions_perform();
+    api.Outline.init();
+    api.AutoCorrect.init();
+    api.PostponedActions.perform();
 
-    Cursor_insertCharacter("teh");
-    AutoCorrect_correctPrecedingWord(3,"the");
-    Cursor_insertCharacter(" ");
-    PostponedActions_perform();
-    Cursor_deleteCharacter();
-    PostponedActions_perform();
-    Cursor_insertCharacter("x");
-    PostponedActions_perform();
-    TestLib_showSelection();
+    api.Cursor.insertCharacter("teh");
+    api.AutoCorrect.correctPrecedingWord(3,"the");
+    api.Cursor.insertCharacter(" ");
+    api.PostponedActions.perform();
+    api.Cursor.deleteCharacter();
+    api.PostponedActions.perform();
+    api.Cursor.insertCharacter("x");
+    api.PostponedActions.perform();
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

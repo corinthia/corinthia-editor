@@ -2,14 +2,14 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     var tr = document.getElementsByTagName("TR")[1];
     var p = document.getElementsByTagName("P")[0];
-    var trOffset = DOM_nodeOffset(tr);
-    var pOffset = DOM_nodeOffset(p);
-    Selection_set(tr.parentNode,trOffset,p.parentNode,pOffset+1);
-    Selection_deleteContents();
+    var trOffset = api.DOM.nodeOffset(tr);
+    var pOffset = api.DOM.nodeOffset(p);
+    api.Selection.set(tr.parentNode,trOffset,p.parentNode,pOffset+1);
+    api.Selection.deleteContents();
 }
 </script>
 </head>

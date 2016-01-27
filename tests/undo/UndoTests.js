@@ -15,13 +15,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var UndoTests_testUndo;
-var UndoTests_placeCursorAfterElement;
+(function(api) {
 
-(function() {
+    var UndoTests = api.tests.UndoTests = {}; // export
 
-    UndoTests_testUndo = function(versions,node) {
-        var numSteps = UndoManager_getLength();
+    var AutoCorrect = api.AutoCorrect; // import
+    var DOM = api.DOM; // import
+    var Outline = api.Outline; // import
+    var PostponedActions = api.PostponedActions; // import
+    var Selection = api.Selection; // import
+    var UndoManager = api.UndoManager; // import
+
+    UndoTests.testUndo = function(versions,node) {
+        var numSteps = UndoManager.getLength();
 
         var back1 = new Array();
         var forwards2 = new Array();
@@ -32,33 +38,33 @@ var UndoTests_placeCursorAfterElement;
             expected.push(PrettyPrinter.getHTML(versions[i]));
 
         for (var i = 0; i < numSteps; i++) {
-            UndoManager_undo();
-            PostponedActions_perform();
+            UndoManager.undo();
+            PostponedActions.perform();
             var version = versions.length-2-i;
             if (PrettyPrinter.getHTML(node) == expected[version])
-                back1.push(DOM_createTextNode(document,"First undo to version "+version+": OK"));
+                back1.push(DOM.createTextNode(document,"First undo to version "+version+": OK"));
             else
-                back1.push(DOM_createTextNode(document,"First undo to version "+version+": INVALID"));
+                back1.push(DOM.createTextNode(document,"First undo to version "+version+": INVALID"));
         }
 
         for (var i = 0; i < numSteps; i++) {
-            UndoManager_redo();
-            PostponedActions_perform();
+            UndoManager.redo();
+            PostponedActions.perform();
             var version = i+1;
             if (PrettyPrinter.getHTML(node) == expected[version])
-                forwards2.push(DOM_createTextNode(document,"Redo to version "+version+": OK"));
+                forwards2.push(DOM.createTextNode(document,"Redo to version "+version+": OK"));
             else
-                forwards2.push(DOM_createTextNode(document,"Redo to version "+version+": INVALID"));
+                forwards2.push(DOM.createTextNode(document,"Redo to version "+version+": INVALID"));
         }
 
         for (var i = 0; i < numSteps; i++) {
-            UndoManager_undo();
-            PostponedActions_perform();
+            UndoManager.undo();
+            PostponedActions.perform();
             var version = versions.length-2-i;
             if (PrettyPrinter.getHTML(node) == expected[version])
-                back2.push(DOM_createTextNode(document,"Second undo to version "+version+": OK"));
+                back2.push(DOM.createTextNode(document,"Second undo to version "+version+": OK"));
             else
-                back2.push(DOM_createTextNode(document,"Second undo to version "+version+": INVALID"));
+                back2.push(DOM.createTextNode(document,"Second undo to version "+version+": INVALID"));
         }
 
         var initialLength = versions.length;
@@ -67,29 +73,29 @@ var UndoTests_placeCursorAfterElement;
         Array.prototype.push.apply(versions,forwards2);
         Array.prototype.push.apply(versions,back2);
 
-        Outline_removeListeners(); // prevent it from adding number spans etc.
-        AutoCorrect_removeListeners();
-        DOM_deleteAllChildren(document.body);
+        Outline.removeListeners(); // prevent it from adding number spans etc.
+        AutoCorrect.removeListeners();
+        DOM.deleteAllChildren(document.body);
         for (var i = 0; i < versions.length; i++) {
             if (i < initialLength) {
                 var str = "==================== Version "+i+" ====================";
-                DOM_appendChild(document.body,DOM_createTextNode(document,str));
+                DOM.appendChild(document.body,DOM.createTextNode(document,str));
             }
             else if (i == initialLength) {
                 var str = "===================================================";
-                DOM_appendChild(document.body,DOM_createTextNode(document,str));
+                DOM.appendChild(document.body,DOM.createTextNode(document,str));
             }
-            DOM_appendChild(document.body,versions[i]);
+            DOM.appendChild(document.body,versions[i]);
         }
     }
 
-    UndoTests_placeCursorAfterElement = function(id) {
-        UndoManager_disableWhileExecuting(function() {
+    UndoTests.placeCursorAfterElement = function(id) {
+        UndoManager.disableWhileExecuting(function() {
             var element = document.getElementById(id);
             var node = element.parentNode;
-            var offset = DOM_nodeOffset(element)+1;
-            Selection_set(node,offset,node,offset);
+            var offset = DOM.nodeOffset(element)+1;
+            Selection.set(node,offset,node,offset);
         });
     }
 
-})();
+})(globalAPI);

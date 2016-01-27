@@ -21,13 +21,13 @@ td, th {
 }
 </style>
 <script>
-function performTest()
+function performTest(api)
 {
     outputOptions.keepSelectionHighlights = true;
 
     var p = document.getElementsByTagName("P")[0];
     var text = p.firstChild;
-    Selection_set(text,0,text,1);
+    api.Selection.set(text,0,text,1);
 }
 </script>
 </head>

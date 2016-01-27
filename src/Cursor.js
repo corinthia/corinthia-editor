@@ -15,39 +15,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var Cursor_ensurePositionVisible;
-var Cursor_ensureCursorVisible;
-var Cursor_scrollDocumentForY;
-var Cursor_positionCursor;
-var Cursor_getCursorPosition;
-var Cursor_moveLeft;
-var Cursor_moveRight;
-var Cursor_moveToStartOfDocument;
-var Cursor_moveToEndOfDocument;
-var Cursor_updateBRAtEndOfParagraph;
-var Cursor_insertReference;
-var Cursor_insertLink;
-var Cursor_insertCharacter;
-var Cursor_deleteCharacter;
-var Cursor_enterPressed;
-var Cursor_getPrecedingWord;
-var Cursor_getAdjacentNodeWithType;
-var Cursor_getLinkProperties;
-var Cursor_setLinkProperties;
-var Cursor_setReferenceTarget;
-var Cursor_makeContainerInsertionPoint;
-var Cursor_set;
-var Cursor_insertFootnote;
-var Cursor_insertEndnote;
+(function(api) {
 
-(function() {
+    var Cursor = api.Cursor; // export
+
+    var Clipboard = api.Clipboard; // import
+    var DOM = api.DOM; // import
+    var Formatting = api.Formatting; // import
+    var Hierarchy = api.Hierarchy; // import
+    var Outline = api.Outline; // import
+    var Position = api.Position; // import
+    var Range = api.Range; // import
+    var Selection = api.Selection; // import
+    var Styles = api.Styles; // import
+    var Traversal = api.Traversal; // import
+    var Types = api.Types; // import
+    var UndoManager = api.UndoManager; // import
+    var Util = api.Util; // import
 
     var cursorX = null;
 
-    Cursor_ensurePositionVisible = function(pos,center) {
+    Cursor.ensurePositionVisible = function(pos,center) {
         // If we can't find the cursor rect for some reason, just don't do anything.
         // This is better than using an incorrect position or throwing an exception.
-        var rect = Position_displayRectAtPos(pos)
+        var rect = Position.displayRectAtPos(pos)
         if (rect != null) {
             var extraSpace = 4;
 
@@ -71,13 +62,13 @@ var Cursor_insertEndnote;
     }
 
     // public
-    Cursor_ensureCursorVisible = function(center) {
-        var selRange = Selection_get();
+    Cursor.ensureCursorVisible = function(center) {
+        var selRange = Selection.get();
         if (selRange != null)
-            Cursor_ensurePositionVisible(selRange.end,center);
+            Cursor.ensurePositionVisible(selRange.end,center);
     }
 
-    Cursor_scrollDocumentForY = function(y) {
+    Cursor.scrollDocumentForY = function(y) {
         var absY = window.scrollY + y;
         if (absY-44 < window.scrollY) {
             window.scrollTo(window.scrollX,absY-44);
@@ -91,36 +82,36 @@ var Cursor_insertEndnote;
     }
 
     // public
-    Cursor_positionCursor = function(x,y,wordBoundary) {
-        if (UndoManager_groupType() != "Cursor movement")
-            UndoManager_newGroup("Cursor movement");
+    Cursor.positionCursor = function(x,y,wordBoundary) {
+        if (UndoManager.groupType() != "Cursor movement")
+            UndoManager.newGroup("Cursor movement");
 
-        y = Cursor_scrollDocumentForY(y);
+        y = Cursor.scrollDocumentForY(y);
 
         var result = null;
-        var position = Position_atPoint(x,y);
+        var position = Position.atPoint(x,y);
         if (position == null)
             return null;
 
-        var node = Position_closestActualNode(position);
+        var node = Position.closestActualNode(position);
         for (; node != null; node = node.parentNode) {
             var type = node._type;
             if ((type == HTML_A) &&
                 (node.hasAttribute("href")) &&
                 (result == null)) {
 
-                var arange = new Range_Range(node,0,node,node.childNodes.length);
-                var rects = Range_getClientRects(arange);
+                var arange = new Range.Range(node,0,node,node.childNodes.length);
+                var rects = Range.getClientRects(arange);
                 var insideLink = false;
                 for (var i = 0; i < rects.length; i++) {
-                    if (Util_rectContainsPoint(rects[i],x,y))
+                    if (Util.rectContainsPoint(rects[i],x,y))
                         insideLink = true;
                 }
 
                 if (insideLink) {
                     var href = node.getAttribute("href");
                     if ((href != null) && (href.charAt(0) == "#")) {
-                        if (Types_isInTOC(node))
+                        if (Types.isInTOC(node))
                             result = "intocreference-"+href.substring(1);
                         else
                             result = "inreference";
@@ -138,35 +129,35 @@ var Cursor_insertEndnote;
                     }
                 }
             }
-            else if (Types_isAutoCorrectNode(node) && (result == null)) {
+            else if (Types.isAutoCorrectNode(node) && (result == null)) {
                 result = "incorrection";
             }
-            else if (Types_isTOCNode(node)) {
+            else if (Types.isTOCNode(node)) {
                 var rect = node.getBoundingClientRect();
                 if (x >= rect.left + rect.width/2)
-                    position = new Position_Position(node.parentNode,DOM_nodeOffset(node)+1);
+                    position = new Position.Position(node.parentNode,DOM.nodeOffset(node)+1);
                 else
-                    position = new Position_Position(node.parentNode,DOM_nodeOffset(node));
+                    position = new Position.Position(node.parentNode,DOM.nodeOffset(node));
                 break;
             }
         }
 
-        var position = Position_closestMatchForwards(position,Position_okForMovement);
-        if ((position != null) && Types_isOpaqueNode(position.node))
-            position = Position_nextMatch(position,Position_okForMovement);
+        var position = Position.closestMatchForwards(position,Position.okForMovement);
+        if ((position != null) && Types.isOpaqueNode(position.node))
+            position = Position.nextMatch(position,Position.okForMovement);
         if (position == null)
             return false;
 
-        var selectionRange = Selection_get();
-        var samePosition = ((selectionRange != null) && Range_isEmpty(selectionRange) &&
+        var selectionRange = Selection.get();
+        var samePosition = ((selectionRange != null) && Range.isEmpty(selectionRange) &&
                             (position.node == selectionRange.start.node) &&
                             (position.offset == selectionRange.start.offset));
         if (samePosition && (result == null))
             result = "same";
 
         if (wordBoundary) {
-            var startOfWord = Selection_posAtStartOfWord(position);
-            var endOfWord = Selection_posAtEndOfWord(position);
+            var startOfWord = Selection.posAtStartOfWord(position);
+            var endOfWord = Selection.posAtEndOfWord(position);
             if ((startOfWord.node != position.node) || (startOfWord.node != position.node))
                 throw new Error("Word boundary in different node");
             var distanceBefore = position.offset - startOfWord.offset;
@@ -177,19 +168,19 @@ var Cursor_insertEndnote;
                 position = endOfWord;
         }
 
-        Cursor_set(position.node,position.offset);
+        Cursor.set(position.node,position.offset);
         return result;
     }
 
     // public
-    Cursor_getCursorPosition = function() {
-        var selRange = Selection_get();
+    Cursor.getCursorPosition = function() {
+        var selRange = Selection.get();
         if (selRange == null)
             return null;
 
         // FIXME: in the cases where this is called from Objective C, test what happens if we
         // return a null rect
-        var rect = Position_displayRectAtPos(selRange.end);
+        var rect = Position.displayRectAtPos(selRange.end);
         if (rect == null)
             return null;
 
@@ -200,51 +191,51 @@ var Cursor_insertEndnote;
     }
 
     // public
-    Cursor_moveLeft = function() {
-        var range = Selection_get();
+    Cursor.moveLeft = function() {
+        var range = Selection.get();
         if (range == null)
             return;
 
-        var pos = Position_prevMatch(range.start,Position_okForMovement);
+        var pos = Position.prevMatch(range.start,Position.okForMovement);
         if (pos != null)
-            Cursor_set(pos.node,pos.offset);
-        Cursor_ensureCursorVisible();
+            Cursor.set(pos.node,pos.offset);
+        Cursor.ensureCursorVisible();
     }
 
     // public
-    Cursor_moveRight = function() {
-        var range = Selection_get();
+    Cursor.moveRight = function() {
+        var range = Selection.get();
         if (range == null)
             return;
 
-        var pos = Position_nextMatch(range.start,Position_okForMovement);
+        var pos = Position.nextMatch(range.start,Position.okForMovement);
         if (pos != null)
-            Cursor_set(pos.node,pos.offset);
-        Cursor_ensureCursorVisible();
+            Cursor.set(pos.node,pos.offset);
+        Cursor.ensureCursorVisible();
     }
 
     // public
-    Cursor_moveToStartOfDocument = function() {
-        var pos = new Position_Position(document.body,0);
-        pos = Position_closestMatchBackwards(pos,Position_okForMovement);
-        Cursor_set(pos.node,pos.offset);
-        Cursor_ensureCursorVisible();
+    Cursor.moveToStartOfDocument = function() {
+        var pos = new Position.Position(document.body,0);
+        pos = Position.closestMatchBackwards(pos,Position.okForMovement);
+        Cursor.set(pos.node,pos.offset);
+        Cursor.ensureCursorVisible();
     }
 
     // public
-    Cursor_moveToEndOfDocument = function() {
-        var pos = new Position_Position(document.body,document.body.childNodes.length);
-        pos = Position_closestMatchForwards(pos,Position_okForMovement);
-        Cursor_set(pos.node,pos.offset);
-        Cursor_ensureCursorVisible();
+    Cursor.moveToEndOfDocument = function() {
+        var pos = new Position.Position(document.body,document.body.childNodes.length);
+        pos = Position.closestMatchForwards(pos,Position.okForMovement);
+        Cursor.set(pos.node,pos.offset);
+        Cursor.ensureCursorVisible();
     }
 
     // An empty paragraph does not get shown and cannot be edited. We can fix this by adding
     // a BR element as a child
     // public
-    Cursor_updateBRAtEndOfParagraph = function(node) {
+    Cursor.updateBRAtEndOfParagraph = function(node) {
         var paragraph = node;
-        while ((paragraph != null) && !Types_isParagraphNode(paragraph))
+        while ((paragraph != null) && !Types.isParagraphNode(paragraph))
             paragraph = paragraph.parentNode;
         if (paragraph != null) {
 
@@ -253,7 +244,7 @@ var Cursor_insertEndnote;
             do {
 
                 var child = last;
-                while ((child != null) && Traversal_isWhitespaceTextNode(child))
+                while ((child != null) && Traversal.isWhitespaceTextNode(child))
                     child = child.previousSibling;
 
                 if ((child != null) && (child._type == HTML_BR))
@@ -261,37 +252,37 @@ var Cursor_insertEndnote;
 
                 last = last.lastChild;
 
-            } while ((last != null) && Types_isInlineNode(last));
+            } while ((last != null) && Types.isInlineNode(last));
 
-            if (Util_nodeHasContent(paragraph)) {
+            if (Util.nodeHasContent(paragraph)) {
                 // Paragraph has content: don't want BR at end
                 if (br != null) {
-                    DOM_deleteNode(br);
+                    DOM.deleteNode(br);
                 }
             }
             else {
                 // Paragraph consists only of whitespace: must have BR at end
                 if (br == null) {
-                    br = DOM_createElement(document,"BR");
-                    DOM_appendChild(paragraph,br);
+                    br = DOM.createElement(document,"BR");
+                    DOM.appendChild(paragraph,br);
                 }
             }
         }
     }
 
     // public
-    Cursor_insertReference = function(itemId) {
-        var a = DOM_createElement(document,"A");
-        DOM_setAttribute(a,"href","#"+itemId);
-        Clipboard_pasteNodes([a]);
+    Cursor.insertReference = function(itemId) {
+        var a = DOM.createElement(document,"A");
+        DOM.setAttribute(a,"href","#"+itemId);
+        Clipboard.pasteNodes([a]);
     }
 
     // public
-    Cursor_insertLink = function(text,url) {
-        var a = DOM_createElement(document,"A");
-        DOM_setAttribute(a,"href",url);
-        DOM_appendChild(a,DOM_createTextNode(document,text));
-        Clipboard_pasteNodes([a]);
+    Cursor.insertLink = function(text,url) {
+        var a = DOM.createElement(document,"A");
+        DOM.setAttribute(a,"href",url);
+        DOM.appendChild(a,DOM.createTextNode(document,text));
+        Clipboard.pasteNodes([a]);
     }
 
     var nbsp = String.fromCharCode(160);
@@ -301,10 +292,10 @@ var Cursor_insertEndnote;
         var offset = pos.offset;
 
         if ((node.nodeType == Node.TEXT_NODE) && (offset > 0) &&
-            (Util_isWhitespaceString(node.nodeValue.charAt(offset-1)))) {
+            (Util.isWhitespaceString(node.nodeValue.charAt(offset-1)))) {
             // Insert first, to preserve any tracked positions
-            DOM_insertCharacters(node,offset-1,nbsp);
-            DOM_deleteCharacters(node,offset,offset+1);
+            DOM.insertCharacters(node,offset-1,nbsp);
+            DOM.deleteCharacters(node,offset,offset+1);
         }
     }
 
@@ -315,14 +306,14 @@ var Cursor_insertEndnote;
         if ((node.nodeType == Node.TEXT_NODE) && (offset > 0) &&
             (node.nodeValue.charAt(offset-1) == nbsp)) {
             // Insert first, to preserve any tracked positions
-            DOM_insertCharacters(node,offset-1," ");
-            DOM_deleteCharacters(node,offset,offset+1);
+            DOM.insertCharacters(node,offset-1," ");
+            DOM.deleteCharacters(node,offset,offset+1);
         }
     }
 
     function checkNbsp() {
-        Selection_preserveWhileExecuting(function() {
-            var selRange = Selection_get();
+        Selection.preserveWhileExecuting(function() {
+            var selRange = Selection.get();
             if (selRange != null)
                 nbspToSpace(selRange.end);
         });
@@ -330,7 +321,7 @@ var Cursor_insertEndnote;
 
     function isPosAtStartOfParagraph(pos) {
         if ((pos.node.nodeType == Node.ELEMENT_NODE) && (pos.offset == 0) &&
-            !Types_isInlineNode(pos.node)) {
+            !Types.isInlineNode(pos.node)) {
             return true;
         }
 
@@ -338,16 +329,16 @@ var Cursor_insertEndnote;
 
         while (pos != null) {
             if (pos.node.nodeType == Node.ELEMENT_NODE) {
-                if ((pos.offset == 0) && !Types_isInlineNode(pos.node))
+                if ((pos.offset == 0) && !Types.isInlineNode(pos.node))
                     return true;
                 else
-                    pos = Position_prev(pos);
+                    pos = Position.prev(pos);
             }
             else if (pos.node.nodeType == Node.TEXT_NODE) {
                 if (pos.offset > 0)
                     return false;
                 else
-                    pos = Position_prev(pos);
+                    pos = Position.prev(pos);
             }
             else {
                 return false;
@@ -358,45 +349,45 @@ var Cursor_insertEndnote;
     }
 
     // public
-    Cursor_insertCharacter = function(str,allowInvalidPos,allowNoParagraph) {
-        var firstInsertion = (UndoManager_groupType() != "Insert text");
+    Cursor.insertCharacter = function(str,allowInvalidPos,allowNoParagraph) {
+        var firstInsertion = (UndoManager.groupType() != "Insert text");
 
         if (firstInsertion)
-            UndoManager_newGroup("Insert text",checkNbsp);
+            UndoManager.newGroup("Insert text",checkNbsp);
 
         if (str == "-") {
-            var preceding = Cursor_getPrecedingWord();
+            var preceding = Cursor.getPrecedingWord();
             if (preceding.match(/[0-9]\s*$/))
                 str = String.fromCharCode(0x2013); // en dash
             else if (preceding.match(/\s+$/))
                 str = String.fromCharCode(0x2014); // em dash
         }
 
-        var selRange = Selection_get();
+        var selRange = Selection.get();
         if (selRange == null)
             return;
 
-        if (!Range_isEmpty(selRange)) {
-            Selection_deleteContents(true);
-            selRange = Selection_get();
+        if (!Range.isEmpty(selRange)) {
+            Selection.deleteContents(true);
+            selRange = Selection.get();
         }
         var pos = selRange.start;
-        pos = Position_preferTextPosition(pos);
+        pos = Position.preferTextPosition(pos);
         if ((str == " ") && isPosAtStartOfParagraph(pos))
             return;
-        if (!allowInvalidPos && !Position_okForInsertion(pos)) {
-            var elemPos = Position_preferElementPosition(pos);
-            if (Position_okForInsertion(elemPos)) {
+        if (!allowInvalidPos && !Position.okForInsertion(pos)) {
+            var elemPos = Position.preferElementPosition(pos);
+            if (Position.okForInsertion(elemPos)) {
                 pos = elemPos;
             }
             else {
                 var oldPos = pos;
-                pos = Position_closestMatchForwards(selRange.start,Position_okForInsertion);
-                var difference = new Range_Range(oldPos.node,oldPos.offset,pos.node,pos.offset);
-                difference = Range_forwards(difference);
-                Position_trackWhileExecuting([pos],function() {
-                    if (!Range_hasContent(difference)) {
-                        Selection_deleteRangeContents(difference,true);
+                pos = Position.closestMatchForwards(selRange.start,Position.okForInsertion);
+                var difference = new Range.Range(oldPos.node,oldPos.offset,pos.node,pos.offset);
+                difference = Range.forwards(difference);
+                Position.trackWhileExecuting([pos],function() {
+                    if (!Range.hasContent(difference)) {
+                        Selection.deleteRangeContents(difference,true);
                     }
                 });
             }
@@ -411,16 +402,16 @@ var Cursor_insertEndnote;
             (node.nodeValue.charAt(offset-1) == nbsp)) {
 
             if (!node.nodeValue.substring(0,offset).match(/\.\s+$/)) {
-                DOM_deleteCharacters(node,offset-1,offset);
-                DOM_insertCharacters(node,offset-1,".");
+                DOM.deleteCharacters(node,offset-1,offset);
+                DOM.insertCharacters(node,offset-1,".");
             }
         }
 
-        if (Util_isWhitespaceString(str) && (node.nodeType == Node.TEXT_NODE) && (offset > 0)) {
+        if (Util.isWhitespaceString(str) && (node.nodeType == Node.TEXT_NODE) && (offset > 0)) {
             var prevChar = node.nodeValue.charAt(offset-1);
-            if (Util_isWhitespaceString(prevChar) || (prevChar == nbsp)) {
-                Selection_update();
-                Cursor_ensureCursorVisible();
+            if (Util.isWhitespaceString(prevChar) || (prevChar == nbsp)) {
+                Selection.update();
+                Cursor.ensureCursorVisible();
                 return;
             }
         }
@@ -431,25 +422,25 @@ var Cursor_insertEndnote;
         // just one plain double quote character
         if ((str == "”") && (node.nodeType == Node.TEXT_NODE) &&
             (offset > 0) && (node.nodeValue.charAt(offset-1) == "“")) {
-            DOM_deleteCharacters(node,offset-1,offset);
+            DOM.deleteCharacters(node,offset-1,offset);
             offset--;
             str = "\"";
         }
 
         if (node.nodeType == Node.ELEMENT_NODE) {
-            var emptyTextNode = DOM_createTextNode(document,"");
+            var emptyTextNode = DOM.createTextNode(document,"");
             if (offset >= node.childNodes.length)
-                DOM_appendChild(node,emptyTextNode);
+                DOM.appendChild(node,emptyTextNode);
             else
-                DOM_insertBefore(node,emptyTextNode,node.childNodes[offset]);
+                DOM.insertBefore(node,emptyTextNode,node.childNodes[offset]);
             node = emptyTextNode;
             offset = 0;
         }
 
         if (str == " ")
-            DOM_insertCharacters(node,offset,nbsp);
+            DOM.insertCharacters(node,offset,nbsp);
         else
-            DOM_insertCharacters(node,offset,str);
+            DOM.insertCharacters(node,offset,str);
 
                 // must be done *after* inserting the text
         if (!allowNoParagraph) {
@@ -459,92 +450,92 @@ var Cursor_insertEndnote;
                 // Do nothing
                 break;
             default:
-                Hierarchy_ensureInlineNodesInParagraph(node,true);
+                Hierarchy.ensureInlineNodesInParagraph(node,true);
                 break;
             }
         }
 
         offset += str.length;
 
-        pos = new Position_Position(node,offset);
-        Position_trackWhileExecuting([pos],function() {
-            Formatting_mergeWithNeighbours(pos.node,Formatting_MERGEABLE_INLINE);
+        pos = new Position.Position(node,offset);
+        Position.trackWhileExecuting([pos],function() {
+            Formatting.mergeWithNeighbours(pos.node,Formatting.MERGEABLE_INLINE);
         });
 
-        Cursor_set(pos.node,pos.offset);
-        Range_trackWhileExecuting(Selection_get(),function() {
-            Cursor_updateBRAtEndOfParagraph(pos.node);
+        Cursor.set(pos.node,pos.offset);
+        Range.trackWhileExecuting(Selection.get(),function() {
+            Cursor.updateBRAtEndOfParagraph(pos.node);
         });
 
-        Selection_update();
-        Cursor_ensureCursorVisible();
+        Selection.update();
+        Cursor.ensureCursorVisible();
     }
 
     function tryDeleteEmptyCaption(pos) {
-        var caption = Position_captionAncestor(pos);
-        if ((caption == null) || Util_nodeHasContent(caption))
+        var caption = Position.captionAncestor(pos);
+        if ((caption == null) || Util.nodeHasContent(caption))
             return false;
 
-        var container = Position_figureOrTableAncestor(pos);
+        var container = Position.figureOrTableAncestor(pos);
         if (container == null)
             return false;
 
-        Cursor_set(container.parentNode,DOM_nodeOffset(container)+1);
-        Selection_preserveWhileExecuting(function() {
-            DOM_deleteNode(caption);
+        Cursor.set(container.parentNode,DOM.nodeOffset(container)+1);
+        Selection.preserveWhileExecuting(function() {
+            DOM.deleteNode(caption);
         });
 
         return true;
     }
 
     function tryDeleteEmptyNote(pos) {
-        var note = Position_noteAncestor(pos);
-        if ((note == null) || Util_nodeHasContent(note))
+        var note = Position.noteAncestor(pos);
+        if ((note == null) || Util.nodeHasContent(note))
             return false;
 
         var parent = note.parentNode;
-        Cursor_set(note.parentNode,DOM_nodeOffset(note)+1);
-        Selection_preserveWhileExecuting(function() {
-            DOM_deleteNode(note);
+        Cursor.set(note.parentNode,DOM.nodeOffset(note)+1);
+        Selection.preserveWhileExecuting(function() {
+            DOM.deleteNode(note);
         });
 
         return true;
     }
 
     // public
-    Cursor_deleteCharacter = function() {
-        if (UndoManager_groupType() != "Delete text")
-            UndoManager_newGroup("Delete text",checkNbsp);
+    Cursor.deleteCharacter = function() {
+        if (UndoManager.groupType() != "Delete text")
+            UndoManager.newGroup("Delete text",checkNbsp);
 
-        Selection_preferElementPositions();
-        var selRange = Selection_get();
+        Selection.preferElementPositions();
+        var selRange = Selection.get();
         if (selRange == null)
             return;
 
-        if (!Range_isEmpty(selRange)) {
-            Selection_deleteContents(true);
+        if (!Range.isEmpty(selRange)) {
+            Selection.deleteContents(true);
         }
         else {
             var currentPos = selRange.start;
 
             // Special cases of pressing backspace after a table, figure, TOC, hyperlink,
             // footnote, or endnote. For each of these we delete the whole thing.
-            var back = Position_closestMatchBackwards(currentPos,Position_okForMovement);
+            var back = Position.closestMatchBackwards(currentPos,Position.okForMovement);
             if ((back != null) && (back.node.nodeType == Node.ELEMENT_NODE) && (back.offset > 0)) {
                 var prevNode = back.node.childNodes[back.offset-1];
-                if (Types_isSpecialBlockNode(prevNode)) {
-                    var p = DOM_createElement(document,"P");
-                    DOM_insertBefore(prevNode.parentNode,p,prevNode);
-                    DOM_deleteNode(prevNode);
-                    Cursor_updateBRAtEndOfParagraph(p);
-                    Cursor_set(p,0);
-                    Cursor_ensureCursorVisible();
+                if (Types.isSpecialBlockNode(prevNode)) {
+                    var p = DOM.createElement(document,"P");
+                    DOM.insertBefore(prevNode.parentNode,p,prevNode);
+                    DOM.deleteNode(prevNode);
+                    Cursor.updateBRAtEndOfParagraph(p);
+                    Cursor.set(p,0);
+                    Cursor.ensureCursorVisible();
                     return;
                 }
-                if ((prevNode._type == HTML_A) || Types_isNoteNode(prevNode)) {
-                    Cursor_set(back.node,back.offset-1);
-                    Selection_preserveWhileExecuting(function() {
-                        DOM_deleteNode(prevNode);
+                if ((prevNode._type == HTML_A) || Types.isNoteNode(prevNode)) {
+                    Cursor.set(back.node,back.offset-1);
+                    Selection.preserveWhileExecuting(function() {
+                        DOM.deleteNode(prevNode);
                     });
                     return;
                 }
@@ -554,8 +545,8 @@ var Cursor_insertEndnote;
             if (tryDeleteEmptyCaption(currentPos))
                 return;
 
-            currentPos = Position_preferTextPosition(currentPos);
-            var prevPos = Position_prevMatch(currentPos,Position_okForMovement);
+            currentPos = Position.preferTextPosition(currentPos);
+            var prevPos = Position.prevMatch(currentPos,Position.okForMovement);
 
             // Backspace inside or just after a footnote or endnote
             if (tryDeleteEmptyNote(currentPos))
@@ -564,52 +555,52 @@ var Cursor_insertEndnote;
                 return;
 
             if (prevPos != null) {
-                var startBlock = firstBlockAncestor(Position_closestActualNode(prevPos));
-                var endBlock = firstBlockAncestor(Position_closestActualNode(selRange.end));
+                var startBlock = firstBlockAncestor(Position.closestActualNode(prevPos));
+                var endBlock = firstBlockAncestor(Position.closestActualNode(selRange.end));
                 if ((startBlock != endBlock) &&
-                    Types_isParagraphNode(startBlock) && !Util_nodeHasContent(startBlock)) {
-                    DOM_deleteNode(startBlock);
-                    Cursor_set(selRange.end.node,selRange.end.offset)
+                    Types.isParagraphNode(startBlock) && !Util.nodeHasContent(startBlock)) {
+                    DOM.deleteNode(startBlock);
+                    Cursor.set(selRange.end.node,selRange.end.offset)
                 }
                 else {
-                    var range = new Range_Range(prevPos.node,prevPos.offset,
+                    var range = new Range.Range(prevPos.node,prevPos.offset,
                                           selRange.end.node,selRange.end.offset);
-                    Selection_deleteRangeContents(range,true);
+                    Selection.deleteRangeContents(range,true);
                 }
             }
         }
 
-        selRange = Selection_get();
+        selRange = Selection.get();
         if (selRange != null)
             spaceToNbsp(selRange.end);
-        Selection_update();
-        Cursor_ensureCursorVisible();
+        Selection.update();
+        Cursor.ensureCursorVisible();
 
         function firstBlockAncestor(node) {
-            while (Types_isInlineNode(node))
+            while (Types.isInlineNode(node))
                 node = node.parentNode;
             return node;
         }
     }
 
     // public
-    Cursor_enterPressed = function() {
-        UndoManager_newGroup("New paragraph");
+    Cursor.enterPressed = function() {
+        UndoManager.newGroup("New paragraph");
 
-        Selection_preferElementPositions();
-        var selRange = Selection_get();
+        Selection.preferElementPositions();
+        var selRange = Selection.get();
         if (selRange == null)
             return;
 
-        Range_trackWhileExecuting(selRange,function() {
-            if (!Range_isEmpty(selRange))
-                Selection_deleteContents(true);
+        Range.trackWhileExecuting(selRange,function() {
+            if (!Range.isEmpty(selRange))
+                Selection.deleteContents(true);
         });
 
         // Are we inside a figure or table caption? If so, put an empty paragraph directly after it
         var inCaption = false;
         var inFigCaption = false;
-        var closestNode = Position_closestActualNode(selRange.start);
+        var closestNode = Position.closestActualNode(selRange.start);
         for (var ancestor = closestNode; ancestor != null; ancestor = ancestor.parentNode) {
             switch (ancestor._type) {
             case HTML_CAPTION:
@@ -622,10 +613,10 @@ var Cursor_insertEndnote;
             case HTML_FIGURE:
                 if ((inCaption && (ancestor._type == HTML_TABLE)) ||
                     (inFigCaption && (ancestor._type == HTML_FIGURE))) {
-                    var p = DOM_createElement(document,"P");
-                    DOM_insertBefore(ancestor.parentNode,p,ancestor.nextSibling);
-                    Cursor_updateBRAtEndOfParagraph(p);
-                    Selection_set(p,0,p,0);
+                    var p = DOM.createElement(document,"P");
+                    DOM.insertBefore(ancestor.parentNode,p,ancestor.nextSibling);
+                    Cursor.updateBRAtEndOfParagraph(p);
+                    Selection.set(p,0,p,0);
                     return;
                 }
                 break;
@@ -635,72 +626,72 @@ var Cursor_insertEndnote;
         // Are we inside a footnote or endnote? If so, move the cursor immediately after it
         var note = null;
         if (selRange.start.node.nodeType == Node.TEXT_NODE) {
-            note = Position_noteAncestor(selRange.start);
+            note = Position.noteAncestor(selRange.start);
         }
         else {
-            // We can't use Position_noteAncestor in this case, because we want to to break
+            // We can't use Position.noteAncestor in this case, because we want to to break
             // the paragraph *before* the note, not after
             var checkNode = selRange.start.node;
             for (var anc = checkNode; anc != null; anc = anc.parentNode) {
-                if (Types_isNoteNode(anc)) {
+                if (Types.isNoteNode(anc)) {
                     note = anc;
                     break;
                 }
             }
         }
         if (note != null) {
-            var noteOffset = DOM_nodeOffset(note);
-            selRange = new Range_Range(note.parentNode,noteOffset+1,note.parentNode,noteOffset+1);
+            var noteOffset = DOM.nodeOffset(note);
+            selRange = new Range.Range(note.parentNode,noteOffset+1,note.parentNode,noteOffset+1);
         }
 
-        var check = Position_preferElementPosition(selRange.start);
+        var check = Position.preferElementPosition(selRange.start);
         if (check.node.nodeType == Node.ELEMENT_NODE) {
             var before = check.node.childNodes[check.offset-1];
             var after = check.node.childNodes[check.offset];
-            if (((before != null) && Types_isSpecialBlockNode(before)) ||
-                ((after != null) && Types_isSpecialBlockNode(after))) {
-                var p = DOM_createElement(document,"P");
-                DOM_insertBefore(check.node,p,check.node.childNodes[check.offset]);
-                Cursor_updateBRAtEndOfParagraph(p);
-                Cursor_set(p,0);
-                Cursor_ensureCursorVisible();
+            if (((before != null) && Types.isSpecialBlockNode(before)) ||
+                ((after != null) && Types.isSpecialBlockNode(after))) {
+                var p = DOM.createElement(document,"P");
+                DOM.insertBefore(check.node,p,check.node.childNodes[check.offset]);
+                Cursor.updateBRAtEndOfParagraph(p);
+                Cursor.set(p,0);
+                Cursor.ensureCursorVisible();
                 return;
             }
         }
 
-        Range_trackWhileExecuting(selRange,function() {
-            Range_ensureInlineNodesInParagraph(selRange);
-            Range_ensureValidHierarchy(selRange);
+        Range.trackWhileExecuting(selRange,function() {
+            Range.ensureInlineNodesInParagraph(selRange);
+            Range.ensureValidHierarchy(selRange);
         });
 
         var pos = selRange.start;
 
-        var detail = Range_detail(selRange);
+        var detail = Range.detail(selRange);
         switch (detail.startParent._type) {
         case HTML_OL:
         case HTML_UL: {
-            var li = DOM_createElement(document,"LI");
-            DOM_insertBefore(detail.startParent,li,detail.startChild);
+            var li = DOM.createElement(document,"LI");
+            DOM.insertBefore(detail.startParent,li,detail.startChild);
 
-            Cursor_set(li,0);
-            Cursor_ensureCursorVisible();
+            Cursor.set(li,0);
+            Cursor.ensureCursorVisible();
             return;
         }
         }
 
-        if (Types_isAutoCorrectNode(pos.node)) {
-            pos = Position_preferTextPosition(pos);
+        if (Types.isAutoCorrectNode(pos.node)) {
+            pos = Position.preferTextPosition(pos);
             selRange.start = selRange.end = pos;
         }
 
-        Range_trackWhileExecuting(selRange,function() {
+        Range.trackWhileExecuting(selRange,function() {
 
             // If we're directly in a container node, add a paragraph, so we have something to
             // split.
-            if (Types_isContainerNode(pos.node) && (pos.node._type != HTML_LI)) {
-                var p = DOM_createElement(document,"P");
-                DOM_insertBefore(pos.node,p,pos.node.childNodes[pos.offset]);
-                pos = new Position_Position(p,0);
+            if (Types.isContainerNode(pos.node) && (pos.node._type != HTML_LI)) {
+                var p = DOM.createElement(document,"P");
+                DOM.insertBefore(pos.node,p,pos.node.childNodes[pos.offset]);
+                pos = new Position.Position(p,0);
             }
 
             var blockToSplit = getBlockToSplit(pos);
@@ -708,45 +699,45 @@ var Cursor_insertEndnote;
 
             if (positionAtStartOfHeading(pos)) {
                 var container = getContainerOrParagraph(pos.node);
-                pos = new Position_Position(container,0);
-                pos = Formatting_movePreceding(pos,function(n) { return (n == stopAt); },true);
+                pos = new Position.Position(container,0);
+                pos = Formatting.movePreceding(pos,function(n) { return (n == stopAt); },true);
             }
             else if (pos.node.nodeType == Node.TEXT_NODE) {
-                pos = Formatting_splitTextAfter(pos,function(n) { return (n == stopAt); },true);
+                pos = Formatting.splitTextAfter(pos,function(n) { return (n == stopAt); },true);
             }
             else {
-                pos = Formatting_moveFollowing(pos,function(n) { return (n == stopAt); },true);
+                pos = Formatting.moveFollowing(pos,function(n) { return (n == stopAt); },true);
             }
         });
 
-        Cursor_set(pos.node,pos.offset);
-        selRange = Selection_get();
+        Cursor.set(pos.node,pos.offset);
+        selRange = Selection.get();
 
-        Range_trackWhileExecuting(selRange,function() {
+        Range.trackWhileExecuting(selRange,function() {
             if ((pos.node.nodeType == Node.TEXT_NODE) && (pos.node.nodeValue.length == 0)) {
-                DOM_deleteNode(pos.node);
+                DOM.deleteNode(pos.node);
             }
 
-            var detail = Range_detail(selRange);
+            var detail = Range.detail(selRange);
 
             // If a preceding paragraph has become empty as a result of enter being pressed
             // while the cursor was in it, then update the BR at the end of the paragraph
             var start = detail.startChild ? detail.startChild : detail.startParent;
             for (var ancestor = start; ancestor != null; ancestor = ancestor.parentNode) {
                 var prev = ancestor.previousSibling;
-                if ((prev != null) && Types_isParagraphNode(prev) && !Util_nodeHasContent(prev)) {
-                    DOM_deleteAllChildren(prev);
-                    Cursor_updateBRAtEndOfParagraph(prev);
+                if ((prev != null) && Types.isParagraphNode(prev) && !Util.nodeHasContent(prev)) {
+                    DOM.deleteAllChildren(prev);
+                    Cursor.updateBRAtEndOfParagraph(prev);
                     break;
                 }
-                else if ((prev != null) && (prev._type == HTML_LI) && !Util_nodeHasContent(prev)) {
+                else if ((prev != null) && (prev._type == HTML_LI) && !Util.nodeHasContent(prev)) {
                     var next;
                     for (var child = prev.firstChild; child != null; child = next) {
                         next = child.nextSibling;
-                        if (Traversal_isWhitespaceTextNode(child))
-                            DOM_deleteNode(child);
+                        if (Traversal.isWhitespaceTextNode(child))
+                            DOM.deleteNode(child);
                         else
-                            Cursor_updateBRAtEndOfParagraph(child);
+                            Cursor.updateBRAtEndOfParagraph(child);
                     }
                     break;
                 }
@@ -754,8 +745,8 @@ var Cursor_insertEndnote;
 
             for (var ancestor = start; ancestor != null; ancestor = ancestor.parentNode) {
 
-                if (Types_isParagraphNode(ancestor)) {
-                    var nextSelector = Styles_nextSelectorAfter(ancestor);
+                if (Types.isParagraphNode(ancestor)) {
+                    var nextSelector = Styles.nextSelectorAfter(ancestor);
                     if (nextSelector != null) {
                         var nextElementName = null;
                         var nextClassName = null;
@@ -770,29 +761,29 @@ var Cursor_insertEndnote;
                             nextElementName = nextSelector;
                         }
 
-                        ancestor = DOM_replaceElement(ancestor,nextElementName);
-                        DOM_removeAttribute(ancestor,"id");
-                        DOM_setAttribute(ancestor,"class",nextClassName);
+                        ancestor = DOM.replaceElement(ancestor,nextElementName);
+                        DOM.removeAttribute(ancestor,"id");
+                        DOM.setAttribute(ancestor,"class",nextClassName);
                     }
                 }
 
-                if (Types_isParagraphNode(ancestor) && !Util_nodeHasContent(ancestor)) {
-                    Cursor_updateBRAtEndOfParagraph(prev);
+                if (Types.isParagraphNode(ancestor) && !Util.nodeHasContent(ancestor)) {
+                    Cursor.updateBRAtEndOfParagraph(prev);
                     break;
                 }
-                else if ((ancestor._type == HTML_LI) && !Util_nodeHasContent(ancestor)) {
-                    DOM_deleteAllChildren(ancestor);
+                else if ((ancestor._type == HTML_LI) && !Util.nodeHasContent(ancestor)) {
+                    DOM.deleteAllChildren(ancestor);
                     break;
                 }
             }
 
-            Cursor_updateBRAtEndOfParagraph(Range_singleNode(selRange));
+            Cursor.updateBRAtEndOfParagraph(Range.singleNode(selRange));
         });
 
-        Selection_set(selRange.start.node,selRange.start.offset,
+        Selection.set(selRange.start.node,selRange.start.offset,
                       selRange.end.node,selRange.end.offset);
         cursorX = null;
-        Cursor_ensureCursorVisible();
+        Cursor.ensureCursorVisible();
 
         function getBlockToSplit(pos) {
             var blockToSplit = null;
@@ -804,35 +795,35 @@ var Cursor_insertEndnote;
             }
             if (blockToSplit == null) {
                 blockToSplit = pos.node;
-                while (Types_isInlineNode(blockToSplit))
+                while (Types.isInlineNode(blockToSplit))
                     blockToSplit = blockToSplit.parentNode;
             }
             return blockToSplit;
         }
 
         function getContainerOrParagraph(node) {
-            while ((node != null) && Types_isInlineNode(node))
+            while ((node != null) && Types.isInlineNode(node))
                 node = node.parentNode;
             return node;
         }
 
         function positionAtStartOfHeading(pos) {
             var container = getContainerOrParagraph(pos.node);
-            if (Types_isHeadingNode(container)) {
+            if (Types.isHeadingNode(container)) {
                 var startOffset = 0;
-                if (Types_isOpaqueNode(container.firstChild))
+                if (Types.isOpaqueNode(container.firstChild))
                     startOffset = 1;
-                var range = new Range_Range(container,startOffset,pos.node,pos.offset);
-                return !Range_hasContent(range);
+                var range = new Range.Range(container,startOffset,pos.node,pos.offset);
+                return !Range.hasContent(range);
             }
             else
                 return false;
         }
     }
 
-    Cursor_getPrecedingWord = function() {
-        var selRange = Selection_get();
-        if ((selRange == null) && !Range_isEmpty(selRange))
+    Cursor.getPrecedingWord = function() {
+        var selRange = Selection.get();
+        if ((selRange == null) && !Range.isEmpty(selRange))
             return "";
 
         var node = selRange.start.node;
@@ -843,9 +834,9 @@ var Cursor_insertEndnote;
         return node.nodeValue.substring(0,offset);
     }
 
-    Cursor_getAdjacentNodeWithType = function(type) {
-        var selRange = Selection_get();
-        var pos = Position_preferElementPosition(selRange.start);
+    Cursor.getAdjacentNodeWithType = function(type) {
+        var selRange = Selection.get();
+        var pos = Position.preferElementPosition(selRange.start);
         var node = pos.node;
         var offset = pos.offset;
 
@@ -867,49 +858,49 @@ var Cursor_insertEndnote;
             if (node.parentNode == null)
                 return null;
 
-            offset = DOM_nodeOffset(node);
+            offset = DOM.nodeOffset(node);
             node = node.parentNode;
         }
     }
 
-    Cursor_getLinkProperties = function() {
-        var a = Cursor_getAdjacentNodeWithType(HTML_A);
+    Cursor.getLinkProperties = function() {
+        var a = Cursor.getAdjacentNodeWithType(HTML_A);
         if (a == null)
             return null;
 
         return { href: a.getAttribute("href"),
-                 text: Traversal_getNodeText(a) };
+                 text: Traversal.getNodeText(a) };
     }
 
-    Cursor_setLinkProperties = function(properties) {
-        var a = Cursor_getAdjacentNodeWithType(HTML_A);
+    Cursor.setLinkProperties = function(properties) {
+        var a = Cursor.getAdjacentNodeWithType(HTML_A);
         if (a == null)
             return null;
 
-        Selection_preserveWhileExecuting(function() {
-            DOM_setAttribute(a,"href",properties.href);
-            DOM_deleteAllChildren(a);
-            DOM_appendChild(a,DOM_createTextNode(document,properties.text));
+        Selection.preserveWhileExecuting(function() {
+            DOM.setAttribute(a,"href",properties.href);
+            DOM.deleteAllChildren(a);
+            DOM.appendChild(a,DOM.createTextNode(document,properties.text));
         });
     }
 
-    Cursor_setReferenceTarget = function(itemId) {
-        var a = Cursor_getAdjacentNodeWithType(HTML_A);
+    Cursor.setReferenceTarget = function(itemId) {
+        var a = Cursor.getAdjacentNodeWithType(HTML_A);
         if (a != null)
-            Outline_setReferenceTarget(a,itemId);
+            Outline.setReferenceTarget(a,itemId);
     }
 
     // Deletes the current selection contents and ensures that the cursor is located directly
     // inside the nearest container element, i.e. not inside a paragraph or inline node. This
     // is intended for preventing things like inserting a table of contants inside a heading
-    Cursor_makeContainerInsertionPoint = function() {
-        var selRange = Selection_get();
+    Cursor.makeContainerInsertionPoint = function() {
+        var selRange = Selection.get();
         if (selRange == null)
             return;
 
-        if (!Range_isEmpty(selRange)) {
-            Selection_deleteContents();
-            selRange = Selection_get();
+        if (!Range.isEmpty(selRange)) {
+            Selection.deleteContents();
+            selRange = Selection.get();
         }
 
         var parent;
@@ -922,38 +913,38 @@ var Cursor_insertEndnote;
         }
         else {
             if (selRange.start.offset > 0)
-                Formatting_splitTextBefore(selRange.start);
+                Formatting.splitTextBefore(selRange.start);
             parent = selRange.start.node.parentNode;
             nextSibling = selRange.start.node;
         }
 
-        var offset = DOM_nodeOffset(nextSibling,parent);
+        var offset = DOM.nodeOffset(nextSibling,parent);
 
-        if (Types_isContainerNode(parent)) {
-            Cursor_set(parent,offset);
+        if (Types.isContainerNode(parent)) {
+            Cursor.set(parent,offset);
             return;
         }
 
-        if ((offset > 0) && Types_isItemNumber(parent.childNodes[offset-1]))
+        if ((offset > 0) && Types.isItemNumber(parent.childNodes[offset-1]))
             offset--;
 
-        Formatting_moveFollowing(new Position_Position(parent,offset),Types_isContainerNode);
-        Formatting_movePreceding(new Position_Position(parent,offset),Types_isContainerNode);
+        Formatting.moveFollowing(new Position.Position(parent,offset),Types.isContainerNode);
+        Formatting.movePreceding(new Position.Position(parent,offset),Types.isContainerNode);
 
         offset = 0;
-        while (!Types_isContainerNode(parent)) {
+        while (!Types.isContainerNode(parent)) {
             var old = parent;
-            offset = DOM_nodeOffset(parent);
+            offset = DOM.nodeOffset(parent);
             parent = parent.parentNode;
-            DOM_deleteNode(old);
+            DOM.deleteNode(old);
         }
 
-        Cursor_set(parent,offset);
+        Cursor.set(parent,offset);
         cursorX = null;
     }
 
-    Cursor_set = function(node,offset,keepCursorX) {
-        Selection_set(node,offset,node,offset);
+    Cursor.set = function(node,offset,keepCursorX) {
+        Selection.set(node,offset,node,offset);
         if (!keepCursorX)
             cursorX = null;
     }
@@ -963,10 +954,10 @@ var Cursor_insertEndnote;
         var offset = range.start.offset;
 
         for (var anc = node; anc != null; anc = anc.parentNode) {
-            if (Types_isNoteNode(anc) && (anc.parentNode != null)) {
+            if (Types.isNoteNode(anc) && (anc.parentNode != null)) {
                 node = anc.parentNode;
-                offset = DOM_nodeOffset(anc)+1;
-                return new Range_Range(node,offset,node,offset);
+                offset = DOM.nodeOffset(anc)+1;
+                return new Range.Range(node,offset,node,offset);
             }
         }
 
@@ -974,13 +965,13 @@ var Cursor_insertEndnote;
     }
 
     function insertNote(className,content) {
-        var footnote = DOM_createElement(document,"span");
-        DOM_setAttribute(footnote,"class",className);
-        DOM_appendChild(footnote,DOM_createTextNode(document,content));
+        var footnote = DOM.createElement(document,"span");
+        DOM.setAttribute(footnote,"class",className);
+        DOM.appendChild(footnote,DOM.createTextNode(document,content));
 
-        var range = Selection_get();
+        var range = Selection.get();
         range = moveRangeOutsideOfNote(range);
-        Formatting_splitAroundSelection(range,false);
+        Formatting.splitAroundSelection(range,false);
 
         // If we're part-way through a text node, splitAroundSelection will give us an
         // empty text node between the before and after text. For formatting purposes that's
@@ -992,24 +983,24 @@ var Cursor_insertEndnote;
         if ((pos.node._type == HTML_TEXT) &&
             (pos.node.nodeValue.length == 0)) {
             var empty = pos.node;
-            pos = new Position_Position(empty.parentNode,DOM_nodeOffset(empty));
-            DOM_deleteNode(empty);
+            pos = new Position.Position(empty.parentNode,DOM.nodeOffset(empty));
+            DOM.deleteNode(empty);
         }
         else {
-            pos = Position_preferElementPosition(pos);
+            pos = Position.preferElementPosition(pos);
         }
 
-        DOM_insertBefore(pos.node,footnote,pos.node.childNodes[pos.offset]);
-        Selection_set(footnote,0,footnote,footnote.childNodes.length);
-        Cursor_updateBRAtEndOfParagraph(footnote);
+        DOM.insertBefore(pos.node,footnote,pos.node.childNodes[pos.offset]);
+        Selection.set(footnote,0,footnote,footnote.childNodes.length);
+        Cursor.updateBRAtEndOfParagraph(footnote);
     }
 
-    Cursor_insertFootnote = function(content) {
+    Cursor.insertFootnote = function(content) {
         insertNote("footnote",content);
     }
 
-    Cursor_insertEndnote = function(content) {
+    Cursor.insertEndnote = function(content) {
         insertNote("endnote",content);
     }
 
-})();
+})(globalAPI);

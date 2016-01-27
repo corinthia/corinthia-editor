@@ -2,11 +2,11 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     var str = " one two three";
-    Cursor_insertCharacter(str);
-    TestLib_showSelection();
+    api.Cursor.insertCharacter(str);
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

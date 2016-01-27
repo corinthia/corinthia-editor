@@ -2,12 +2,12 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     var u = document.getElementsByTagName("U")[0];
-    var range = new Range_Range(u,5,u,5);
-    Formatting_splitAroundSelection(range);
-    TestLib_showRangeAsBrackets(range);
+    var range = new api.Range.Range(u,5,u,5);
+    api.Formatting.splitAroundSelection(range);
+    api.tests.TestLib.showRangeAsBrackets(range);
 }
 </script>
 </head>

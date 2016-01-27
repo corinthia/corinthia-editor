@@ -15,12 +15,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var AutoCorrectTests_findTextMatching;
-var AutoCorrectTests_showCorrections;
+(function(api) {
 
-(function() {
+    var AutoCorrectTests = api.tests.AutoCorrectTests = {}; // export
 
-    AutoCorrectTests_findTextMatching = function(re) {
+    var AutoCorrect = api.AutoCorrect; // import
+
+    AutoCorrectTests.findTextMatching = function(re) {
         return recurse(document.body);
 
         function recurse(node) {
@@ -41,8 +42,8 @@ var AutoCorrectTests_showCorrections;
         }
     }
 
-    AutoCorrectTests_showCorrections = function() {
-        var corrections = AutoCorrect_getCorrections();
+    AutoCorrectTests.showCorrections = function() {
+        var corrections = AutoCorrect.getCorrections();
         var lines = new Array();
         lines.push("Corrections:\n");
         for (var i = 0; i < corrections.length; i++) {
@@ -51,4 +52,4 @@ var AutoCorrectTests_showCorrections;
         return PrettyPrinter.getHTML(document.documentElement)+"\n"+lines.join("");
     }
 
-})();
+})(globalAPI);

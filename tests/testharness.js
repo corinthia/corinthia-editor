@@ -68,6 +68,18 @@ function loadCode() {
                            "../src/UndoManager.js",
                            "../src/util.js",
                            "../src/Viewport.js",
+                           "autocorrect/AutoCorrectTests.js",
+                           "dom/RangeTest.js",
+                           "figures/FiguresTest.js",
+                           "input/InputTests.js",
+                           "outline/OutlineTest.js",
+                           "position/validPositions.js",
+                           "scan/ScanTests.js",
+                           "selection/PositionTests.js",
+                           "tables/TableTests.js",
+                           "testlib.js",
+                           "text/TextTests.js",
+                           "undo/UndoTests.js",
                            "PrettyPrinter.js", // only used for test harness
                            "testlib.js"]; // must be last
     var allCodeArray = new Array();
@@ -85,12 +97,12 @@ function doPerformTest() {
     var w = leftArea.contentWindow;
     w.outputOptions = new Object();
     w.disableOutlineRedoHack = true;
-    var resultText = w.performTest();
+    var resultText = w.performTest(w.globalAPI);
     if (!w.outputOptions.keepSelectionHighlights)
-        w.Selection_clearSelection();
+        w.globalAPI.Selection.clearSelection();
     if (resultText == null)
         resultText = w.PrettyPrinter.getHTML(testDocument.documentElement,w.outputOptions)
-    var messages = JSON.parse(w.Editor_getBackMessages());
+    var messages = JSON.parse(w.globalAPI.Editor.getBackMessages());
     for (var i = 0; i < messages.length; i++) {
         var message = messages[i];
         if (message[0] == "error")
@@ -158,7 +170,7 @@ function leftLoaded() {
     w.eval(allCode);
     w.debug = function(str) { console.log(str); };
 
-    w.TestLib_testHarnessSetup();
+    w.globalAPI.tests.TestLib.testHarnessSetup();
     continuation();
 
     return;

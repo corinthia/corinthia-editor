@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="FiguresTest.js"></script>
+<script></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
+    api.Outline.init();
+    api.PostponedActions.perform();
 
-    Figures_insertFigure("nothing.png",null,false,null);
-    PostponedActions_perform();
+    api.Figures.insertFigure("nothing.png",null,false,null);
+    api.PostponedActions.perform();
 
-    return FiguresTests_figurePropertiesString(0);
+    return api.tests.FiguresTests.figurePropertiesString(0);
 }
 </script>
 </head>

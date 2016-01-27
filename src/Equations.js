@@ -15,40 +15,43 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var Equations_insertEquation;
+(function(api) {
 
-(function() {
+    var Equations = api.Equations; // export
 
-    Equations_insertEquation = function() {
-        var math = DOM_createElementNS(document,"http://www.w3.org/1998/Math/MathML","math");
-        var mrow = DOM_createElementNS(document,"http://www.w3.org/1998/Math/MathML","mrow");
-        var msup = DOM_createElementNS(document,"http://www.w3.org/1998/Math/MathML","msup");
-        var mi = DOM_createElementNS(document,"http://www.w3.org/1998/Math/MathML","mi");
-        var mn = DOM_createElementNS(document,"http://www.w3.org/1998/Math/MathML","mn");
-        var mfrac = DOM_createElementNS(document,"http://www.w3.org/1998/Math/MathML","mfrac");
-        var mrow1 = DOM_createElementNS(document,"http://www.w3.org/1998/Math/MathML","mrow");
-        var mrow2 = DOM_createElementNS(document,"http://www.w3.org/1998/Math/MathML","mrow");
-        var mi1 = DOM_createElementNS(document,"http://www.w3.org/1998/Math/MathML","mi");
-        var mi2 = DOM_createElementNS(document,"http://www.w3.org/1998/Math/MathML","mi");
-        var mo = DOM_createElementNS(document,"http://www.w3.org/1998/Math/MathML","mo");
+    var Clipboard = api.Clipboard; // import
+    var DOM = api.DOM; // import
 
-        DOM_appendChild(mi,DOM_createTextNode(document,"x"));
-        DOM_appendChild(mn,DOM_createTextNode(document,"2"));
-        DOM_appendChild(mo,DOM_createTextNode(document,"+"));
-        DOM_appendChild(mi1,DOM_createTextNode(document,"a"));
-        DOM_appendChild(mi2,DOM_createTextNode(document,"b"));
-        DOM_appendChild(mrow1,mi1);
-        DOM_appendChild(mrow2,mi2);
-        DOM_appendChild(mfrac,mrow1);
-        DOM_appendChild(mfrac,mrow2);
-        DOM_appendChild(msup,mi);
-        DOM_appendChild(msup,mn);
-        DOM_appendChild(mrow,msup);
-        DOM_appendChild(mrow,mo);
-        DOM_appendChild(mrow,mfrac);
-        DOM_appendChild(math,mrow);
+    Equations.insertEquation = function() {
+        var math = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","math");
+        var mrow = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mrow");
+        var msup = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","msup");
+        var mi = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mi");
+        var mn = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mn");
+        var mfrac = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mfrac");
+        var mrow1 = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mrow");
+        var mrow2 = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mrow");
+        var mi1 = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mi");
+        var mi2 = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mi");
+        var mo = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mo");
 
-        Clipboard_pasteNodes([math]);
+        DOM.appendChild(mi,DOM.createTextNode(document,"x"));
+        DOM.appendChild(mn,DOM.createTextNode(document,"2"));
+        DOM.appendChild(mo,DOM.createTextNode(document,"+"));
+        DOM.appendChild(mi1,DOM.createTextNode(document,"a"));
+        DOM.appendChild(mi2,DOM.createTextNode(document,"b"));
+        DOM.appendChild(mrow1,mi1);
+        DOM.appendChild(mrow2,mi2);
+        DOM.appendChild(mfrac,mrow1);
+        DOM.appendChild(mfrac,mrow2);
+        DOM.appendChild(msup,mi);
+        DOM.appendChild(msup,mn);
+        DOM.appendChild(mrow,msup);
+        DOM.appendChild(mrow,mo);
+        DOM.appendChild(mrow,mfrac);
+        DOM.appendChild(math,mrow);
+
+        Clipboard.pasteNodes([math]);
     }
 
-})();
+})(globalAPI);

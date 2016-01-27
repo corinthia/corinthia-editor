@@ -4,69 +4,69 @@
 <script type="text/javascript" src="RangeTest.js"></script>
 <script>
 
-function createElementWithId(elementName,id)
+function performTest(api)
 {
-    var element = DOM_createElement(document,elementName);
-    DOM_setAttribute(element,"id",id);
-    return element;
-}
+    function createElementWithId(elementName,id)
+    {
+        var element = api.DOM.createElement(document,elementName);
+        api.DOM.setAttribute(element,"id",id);
+        return element;
+    }
 
-function performTest()
-{
-    // DOM_wrapNode() should not affect any positions, because the node itself remains in the
+    // api.DOM.wrapNode() should not affect any positions, because the node itself remains in the
     // tree unmodified.
 
-    DOM_deleteAllChildren(document.body);
+    api.DOM.deleteAllChildren(document.body);
 
-    var p = DOM_createElement(document,"P");
+    var p = api.DOM.createElement(document,"P");
 
     var span1 = createElementWithId("SPAN","span1");
     var span2 = createElementWithId("SPAN","span2");
     var span3 = createElementWithId("SPAN","span3");
     var span4 = createElementWithId("SPAN","span4");
     var span5 = createElementWithId("SPAN","span5");
-    DOM_setAttribute(span1,"style","color: blue");
-    DOM_setAttribute(span5,"style","color: blue");
+    api.DOM.setAttribute(span1,"style","color: blue");
+    api.DOM.setAttribute(span5,"style","color: blue");
 
-    DOM_appendChild(document.body,p);
-    DOM_appendChild(p,span1);
-    DOM_appendChild(p,span2);
-    DOM_appendChild(p,span3);
-    DOM_appendChild(p,span4);
-    DOM_appendChild(p,span5);
+    api.DOM.appendChild(document.body,p);
+    api.DOM.appendChild(p,span1);
+    api.DOM.appendChild(p,span2);
+    api.DOM.appendChild(p,span3);
+    api.DOM.appendChild(p,span4);
+    api.DOM.appendChild(p,span5);
 
-    DOM_appendChild(span2,createElementWithId("BR","br1"));
-    DOM_appendChild(span2,createElementWithId("BR","br2"));
-    DOM_appendChild(span2,createElementWithId("BR","br3"));
-    DOM_appendChild(span3,createElementWithId("BR","br4"));
-    DOM_appendChild(span3,createElementWithId("BR","br5"));
-    DOM_appendChild(span3,createElementWithId("BR","br6"));
-    DOM_appendChild(span4,createElementWithId("BR","br7"));
-    DOM_appendChild(span4,createElementWithId("BR","br8"));
-    DOM_appendChild(span4,createElementWithId("BR","br9"));
+    api.DOM.appendChild(span2,createElementWithId("BR","br1"));
+    api.DOM.appendChild(span2,createElementWithId("BR","br2"));
+    api.DOM.appendChild(span2,createElementWithId("BR","br3"));
+    api.DOM.appendChild(span3,createElementWithId("BR","br4"));
+    api.DOM.appendChild(span3,createElementWithId("BR","br5"));
+    api.DOM.appendChild(span3,createElementWithId("BR","br6"));
+    api.DOM.appendChild(span4,createElementWithId("BR","br7"));
+    api.DOM.appendChild(span4,createElementWithId("BR","br8"));
+    api.DOM.appendChild(span4,createElementWithId("BR","br9"));
 
-    var result = RangeTests_comparePositionsBeforeAndAfter(function() {
+    var result = api.tests.RangeTests.comparePositionsBeforeAndAfter(function() {
 
         // Temporarily remove id attributes so that elements will be considered mergeable
-        DOM_removeAttribute(span1,"id");
-        DOM_removeAttribute(span2,"id");
-        DOM_removeAttribute(span3,"id");
-        DOM_removeAttribute(span4,"id");
-        DOM_removeAttribute(span5,"id");
+        api.DOM.removeAttribute(span1,"id");
+        api.DOM.removeAttribute(span2,"id");
+        api.DOM.removeAttribute(span3,"id");
+        api.DOM.removeAttribute(span4,"id");
+        api.DOM.removeAttribute(span5,"id");
 
-        Formatting_mergeWithNeighbours(span3,Formatting_MERGEABLE_INLINE);
+        api.Formatting.mergeWithNeighbours(span3,api.Formatting.MERGEABLE_INLINE);
 
-        DOM_setAttribute(span1,"id","span1");
-        DOM_setAttribute(span2,"id","span2");
-        DOM_setAttribute(span3,"id","span3");
-        DOM_setAttribute(span4,"id","span4");
-        DOM_setAttribute(span5,"id","span5");
+        api.DOM.setAttribute(span1,"id","span1");
+        api.DOM.setAttribute(span2,"id","span2");
+        api.DOM.setAttribute(span3,"id","span3");
+        api.DOM.setAttribute(span4,"id","span4");
+        api.DOM.setAttribute(span5,"id","span5");
 
     });
 
 
-    DOM_deleteAllChildren(document.body);
-    DOM_appendChild(document.body,DOM_createTextNode(document,"-\n"+result+"\n-"));
+    api.DOM.deleteAllChildren(document.body);
+    api.DOM.appendChild(document.body,api.DOM.createTextNode(document,"-\n"+result+"\n-"));
 }
 </script>
 </head>

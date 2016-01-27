@@ -4,20 +4,20 @@
 <script type="text/javascript" src="OutlineTest.js"></script>
 <script>
 
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    if (Outline_detectSectionNumbering())
-        TestLib_setupOutlineNumbering();
-    PostponedActions_perform();
+    api.Outline.init();
+    if (api.Outline.detectSectionNumbering())
+        api.tests.TestLib.setupOutlineNumbering();
+    api.PostponedActions.perform();
 
     var two = document.getElementById("two");
-    var table = DOM_createElement(document,"TABLE");
-    var caption = DOM_createElement(document,"CAPTION");
-    DOM_appendChild(table,caption);
-    DOM_appendChild(caption,DOM_createTextNode(document,""));
-    DOM_insertBefore(document.body,table,two);
-    PostponedActions_perform();
+    var table = api.DOM.createElement(document,"TABLE");
+    var caption = api.DOM.createElement(document,"CAPTION");
+    api.DOM.appendChild(table,caption);
+    api.DOM.appendChild(caption,api.DOM.createTextNode(document,""));
+    api.DOM.insertBefore(document.body,table,two);
+    api.PostponedActions.perform();
 }
 </script>
 </head>

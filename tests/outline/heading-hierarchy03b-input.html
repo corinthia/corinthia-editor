@@ -3,13 +3,13 @@
 <head>
 <script>
 
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
-    Formatting_applyFormattingChanges("H1",{});
-    PostponedActions_perform();
-    TestLib_showSelection();
+    api.Outline.init();
+    api.PostponedActions.perform();
+    api.Formatting.applyFormattingChanges("H1",{});
+    api.PostponedActions.perform();
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

@@ -3,13 +3,13 @@
 <head>
 <link href="../generic.css" rel="stylesheet"/>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
+    api.Outline.init();
+    api.PostponedActions.perform();
 
-    Figures_insertFigure("nothing.png",null,true,null);
-    PostponedActions_perform();
+    api.Figures.insertFigure("nothing.png",null,true,null);
+    api.PostponedActions.perform();
 }
 </script>
 </head>

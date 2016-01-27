@@ -3,27 +3,27 @@
 <head>
 <link href="../generic.css" rel="stylesheet"/>
 <script language="javascript">
-function performTest()
+function performTest(api)
 {
-    Outline_init();
+    api.Outline.init();
 
-    Tables_insertTable(2,3,"100%",true,"Test caption");
-    PostponedActions_perform();
+    api.Tables.insertTable(2,3,"100%",true,"Test caption");
+    api.PostponedActions.perform();
 
-    var pos = new Position_Position(document.body,document.body.childNodes.length);
-    pos = Position_closestMatchBackwards(pos,Position_okForMovement);
-    Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+    var pos = new api.Position.Position(document.body,document.body.childNodes.length);
+    pos = api.Position.closestMatchBackwards(pos,api.Position.okForMovement);
+    api.Selection.set(pos.node,pos.offset,pos.node,pos.offset);
 
     var positions = new Array();
     for (var i = 0; i <= 20; i++) {
-        positions.push(Selection_get().end);
-        Cursor_moveLeft();
+        positions.push(api.Selection.get().end);
+        api.Cursor.moveLeft();
     }
 
     for (var i = 0; i < positions.length; i++) {
         var pos = positions[i];
-        Selection_set(pos.node,pos.offset,pos.node,pos.offset);
-        Cursor_insertCharacter(i+".",false,true);
+        api.Selection.set(pos.node,pos.offset,pos.node,pos.offset);
+        api.Cursor.insertCharacter(i+".",false,true);
     }
 }
 </script>

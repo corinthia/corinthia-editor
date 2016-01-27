@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="UndoTests.js"></script>
+<script></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
+    api.Outline.init();
+    api.PostponedActions.perform();
 
     var versions = new Array();
 
@@ -21,25 +21,25 @@ function performTest()
     var s = document.getElementsByTagName("S")[0];
 
     var div = document.getElementsByTagName("DIV")[0];
-    versions.push(DOM_cloneNode(div,true));
+    versions.push(api.DOM.cloneNode(div,true));
 
-    DOM_deleteNode(s);
-    versions.push(DOM_cloneNode(div,true));
-    UndoManager_newGroup();
+    api.DOM.deleteNode(s);
+    versions.push(api.DOM.cloneNode(div,true));
+    api.UndoManager.newGroup();
 
-    DOM_deleteNode(u);
-    versions.push(DOM_cloneNode(div,true));
-    UndoManager_newGroup();
+    api.DOM.deleteNode(u);
+    versions.push(api.DOM.cloneNode(div,true));
+    api.UndoManager.newGroup();
 
-    DOM_deleteNode(i);
-    versions.push(DOM_cloneNode(div,true));
-    UndoManager_newGroup();
+    api.DOM.deleteNode(i);
+    versions.push(api.DOM.cloneNode(div,true));
+    api.UndoManager.newGroup();
 
-    DOM_deleteNode(b);
-    versions.push(DOM_cloneNode(div,true));
-    UndoManager_newGroup();
+    api.DOM.deleteNode(b);
+    versions.push(api.DOM.cloneNode(div,true));
+    api.UndoManager.newGroup();
 
-    UndoTests_testUndo(versions,div);
+    api.tests.UndoTests.testUndo(versions,div);
 }
 </script>
 </head>

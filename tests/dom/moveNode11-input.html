@@ -2,17 +2,17 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     var ps = document.getElementsByTagName("P");
-    var position = new Position_Position(ps[0],2);
+    var position = new api.Position.Position(ps[0],2);
 
-    Position_trackWhileExecuting([position],function() {
-        DOM_insertBefore(document.body,ps[0].childNodes[0],ps[0]);
+    api.Position.trackWhileExecuting([position],function() {
+        api.DOM.insertBefore(document.body,ps[0].childNodes[0],ps[0]);
     });
 
-    var tt = DOM_createElement(document,"tt");
-    TestLib_insertAtPosition(position,tt);
+    var tt = api.DOM.createElement(document,"tt");
+    api.tests.TestLib.insertAtPosition(position,tt);
 }
 </script>
 </head>

@@ -3,35 +3,35 @@
 <head>
 <script>
 
-function performTest()
+function performTest(api)
 {
 
     // Need to make a copy of this array, because it is "live" and the P elements will disappear
     // from it as we apply formatting changes, changing them into heading elements
-    var ps = Util_arrayCopy(document.getElementsByTagName("P"));
+    var ps = api.Util.arrayCopy(document.getElementsByTagName("P"));
 
-    TestLib_selectNode(ps[0]);
-    Formatting_applyFormattingChanges("",null);
-    TestLib_selectNode(ps[1]);
-    Formatting_applyFormattingChanges("H1",null);
-    TestLib_selectNode(ps[2]);
-    Formatting_applyFormattingChanges("H2",null);
-    TestLib_selectNode(ps[3]);
-    Formatting_applyFormattingChanges("H3",null);
-    TestLib_selectNode(ps[4]);
-    Formatting_applyFormattingChanges("H4",null);
-    TestLib_selectNode(ps[5]);
-    Formatting_applyFormattingChanges("H5",null);
-    TestLib_selectNode(ps[6]);
-    Formatting_applyFormattingChanges("H6",null);
-    TestLib_selectNode(ps[7]);
-    Formatting_applyFormattingChanges(".hello",null);
-    TestLib_selectNode(ps[8]);
-    Formatting_applyFormattingChanges(null,null);
+    api.tests.TestLib.selectNode(ps[0]);
+    api.Formatting.applyFormattingChanges("",null);
+    api.tests.TestLib.selectNode(ps[1]);
+    api.Formatting.applyFormattingChanges("H1",null);
+    api.tests.TestLib.selectNode(ps[2]);
+    api.Formatting.applyFormattingChanges("H2",null);
+    api.tests.TestLib.selectNode(ps[3]);
+    api.Formatting.applyFormattingChanges("H3",null);
+    api.tests.TestLib.selectNode(ps[4]);
+    api.Formatting.applyFormattingChanges("H4",null);
+    api.tests.TestLib.selectNode(ps[5]);
+    api.Formatting.applyFormattingChanges("H5",null);
+    api.tests.TestLib.selectNode(ps[6]);
+    api.Formatting.applyFormattingChanges("H6",null);
+    api.tests.TestLib.selectNode(ps[7]);
+    api.Formatting.applyFormattingChanges(".hello",null);
+    api.tests.TestLib.selectNode(ps[8]);
+    api.Formatting.applyFormattingChanges(null,null);
 
     // An unrelated part of the code adds "id" attributes to heading elements to keep track of
     // sections - we're not testing that functionality here, so we want to ignore them
-    TestLib_removeIds();
+    api.tests.TestLib.removeIds();
 }
 </script>
 </head>

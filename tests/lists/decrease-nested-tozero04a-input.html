@@ -2,12 +2,12 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     for (var i = 0; i < 4; i++)
-        Lists_decreaseIndent();
+        api.Lists.decreaseIndent();
 
-    TestLib_showSelection();
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

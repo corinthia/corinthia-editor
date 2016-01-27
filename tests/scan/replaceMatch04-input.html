@@ -2,24 +2,24 @@
 <html>
 <head>
 <link href="../generic.css" rel="stylesheet"/>
-<script src="ScanTests.js"></script>
+<script></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    Scan_reset();
-    Scan_next();
-    var id1 = Scan_addMatch(0,3);
-    Scan_showMatch(id1);
-    Scan_next();
-    var id2 = Scan_addMatch(4,9);
-    Scan_showMatch(id2);
-    Scan_next();
-    var id3 = Scan_addMatch(9,12);
-    Scan_showMatch(id3);
+    api.Scan.reset();
+    api.Scan.next();
+    var id1 = api.Scan.addMatch(0,3);
+    api.Scan.showMatch(id1);
+    api.Scan.next();
+    var id2 = api.Scan.addMatch(4,9);
+    api.Scan.showMatch(id2);
+    api.Scan.next();
+    var id3 = api.Scan.addMatch(9,12);
+    api.Scan.showMatch(id3);
 
-    Scan_replaceMatch(id1,"FIRST");
-    Scan_replaceMatch(id2,"SECOND");
-    Scan_replaceMatch(id3,"THIRD");
+    api.Scan.replaceMatch(id1,"FIRST");
+    api.Scan.replaceMatch(id2,"SECOND");
+    api.Scan.replaceMatch(id3,"THIRD");
 }
 </script>
 </head>

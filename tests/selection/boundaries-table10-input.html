@@ -2,14 +2,14 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    var range = Selection_get();
+    var range = api.Selection.get();
     var table = document.getElementsByTagName("TABLE")[0];
-    var offset = DOM_nodeOffset(table);
-    range.end = new Position_Position(table.parentNode,DOM_nodeOffset(table)+1);
-    Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
-    TestLib_showSelection();
+    var offset = api.DOM.nodeOffset(table);
+    range.end = new api.Position.Position(table.parentNode,api.DOM.nodeOffset(table)+1);
+    api.Selection.set(range.start.node,range.start.offset,range.end.node,range.end.offset);
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

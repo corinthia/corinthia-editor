@@ -4,18 +4,18 @@
 <script type="text/javascript" src="OutlineTest.js"></script>
 <script>
 
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    if (Outline_detectSectionNumbering())
-        TestLib_setupOutlineNumbering();
-    PostponedActions_perform();
+    api.Outline.init();
+    if (api.Outline.detectSectionNumbering())
+        api.tests.TestLib.setupOutlineNumbering();
+    api.PostponedActions.perform();
 
     var two = document.getElementById("two");
-    var h1 = DOM_createElement(document,"h1");
-    DOM_appendChild(h1,DOM_createTextNode(document,"New Heading"));
-    DOM_insertBefore(document.body,h1,two);
-    PostponedActions_perform();
+    var h1 = api.DOM.createElement(document,"h1");
+    api.DOM.appendChild(h1,api.DOM.createTextNode(document,"New Heading"));
+    api.DOM.insertBefore(document.body,h1,two);
+    api.PostponedActions.perform();
 }
 </script>
 </head>

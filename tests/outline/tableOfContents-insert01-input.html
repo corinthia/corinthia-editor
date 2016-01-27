@@ -4,16 +4,16 @@
 <link href="../generic.css" rel="stylesheet"/>
 <script type="text/javascript" src="OutlineTest.js"></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    if (Outline_detectSectionNumbering())
-        TestLib_setupOutlineNumbering();
-    PostponedActions_perform();
+    api.Outline.init();
+    if (api.Outline.detectSectionNumbering())
+        api.tests.TestLib.setupOutlineNumbering();
+    api.PostponedActions.perform();
 
-    Outline_insertTableOfContents();
-    PostponedActions_perform();
-    TestLib_simplifyTOCs();
+    api.Outline.insertTableOfContents();
+    api.PostponedActions.perform();
+    api.tests.TestLib.simplifyTOCs();
 }
 </script>
 </head>

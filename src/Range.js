@@ -15,80 +15,73 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var Range_Range;
+(function(api) {
 
-var Range_assertValid;
-var Range_isEmpty;
-var Range_trackWhileExecuting;
-var Range_expand;
-var Range_isForwards;
-var Range_getAllNodes;
-var Range_singleNode;
-var Range_ensureInlineNodesInParagraph;
-var Range_ensureValidHierarchy;
-var Range_forwards;
-var Range_detail;
-var Range_getOutermostNodes;
-var Range_getClientRects;
-var Range_cloneContents;
-var Range_hasContent;
-var Range_getText;
+    var Range = api.Range; // export
 
-(function() {
+    var Collections = api.Collections; // import
+    var DOM = api.DOM; // import
+    var Formatting = api.Formatting; // import
+    var Hierarchy = api.Hierarchy; // import
+    var Main = api.Main; // import
+    var Position = api.Position; // import
+    var Traversal = api.Traversal; // import
+    var Types = api.Types; // import
+    var Util = api.Util; // import
 
-    Range_Range = function(startNode,startOffset,endNode,endOffset) {
-        this.start = new Position_Position(startNode,startOffset);
-        this.end = new Position_Position(endNode,endOffset);
+    Range.Range = function(startNode,startOffset,endNode,endOffset) {
+        this.start = new Position.Position(startNode,startOffset);
+        this.end = new Position.Position(endNode,endOffset);
     }
 
-    Range_assertValid = function(range,description) {
+    Range.assertValid = function(range,description) {
         if (description == null)
             description = "Range";
         if (range == null)
             throw new Error(description+" is null");
-        Position_assertValid(range.start,description+" start");
-        Position_assertValid(range.end,description+" end");
+        Position.assertValid(range.start,description+" start");
+        Position.assertValid(range.end,description+" end");
     }
 
-    Range_isEmpty = function(range) {
+    Range.isEmpty = function(range) {
         return ((range.start.node == range.end.node) &&
                 (range.start.offset == range.end.offset));
     }
 
-    Range_Range.prototype.toString = function() {
+    Range.Range.prototype.toString = function() {
         return this.start.toString() + " - " + this.end.toString();
     }
 
-    Range_trackWhileExecuting = function(range,fun) {
+    Range.trackWhileExecuting = function(range,fun) {
         if (range == null)
             return fun();
         else
-            return Position_trackWhileExecuting([range.start,range.end],fun);
+            return Position.trackWhileExecuting([range.start,range.end],fun);
     }
 
-    Range_expand = function(range) {
+    Range.expand = function(range) {
         var doc = range.start.node.ownerDocument;
         while ((range.start.offset == 0) && (range.start.node != doc.body)) {
-            var offset = DOM_nodeOffset(range.start.node);
+            var offset = DOM.nodeOffset(range.start.node);
             range.start.node = range.start.node.parentNode;
             range.start.offset = offset;
         }
 
-        while ((range.end.offset == DOM_maxChildOffset(range.end.node)) &&
+        while ((range.end.offset == DOM.maxChildOffset(range.end.node)) &&
                (range.end.node != doc.body)) {
-            var offset = DOM_nodeOffset(range.end.node);
+            var offset = DOM.nodeOffset(range.end.node);
             range.end.node = range.end.node.parentNode;
             range.end.offset = offset+1;
         }
     }
 
-    Range_isForwards = function(range) {
-        return (Position_compare(range.start,range.end) <= 0);
+    Range.isForwards = function(range) {
+        return (Position.compare(range.start,range.end) <= 0);
     }
 
-    Range_getAllNodes = function(range,atLeastOne) {
+    Range.getAllNodes = function(range,atLeastOne) {
         var result = new Array();
-        var outermost = Range_getOutermostNodes(range,atLeastOne);
+        var outermost = Range.getOutermostNodes(range,atLeastOne);
         for (var i = 0; i < outermost.length; i++)
             addRecursive(outermost[i]);
         return result;
@@ -100,46 +93,46 @@ var Range_getText;
         }
     }
 
-    Range_singleNode = function(range) {
-        return Position_closestActualNode(range.start,true);
+    Range.singleNode = function(range) {
+        return Position.closestActualNode(range.start,true);
     }
 
-    Range_ensureInlineNodesInParagraph = function(range) {
-        Range_trackWhileExecuting(range,function() {
-            var nodes = Range_getAllNodes(range,true);
+    Range.ensureInlineNodesInParagraph = function(range) {
+        Range.trackWhileExecuting(range,function() {
+            var nodes = Range.getAllNodes(range,true);
             for (var i = 0; i < nodes.length; i++)
-                Hierarchy_ensureInlineNodesInParagraph(nodes[i]);
+                Hierarchy.ensureInlineNodesInParagraph(nodes[i]);
         });
     }
 
-    Range_ensureValidHierarchy = function(range,allowDirectInline) {
-        Range_trackWhileExecuting(range,function() {
-            var nodes = Range_getAllNodes(range,true);
+    Range.ensureValidHierarchy = function(range,allowDirectInline) {
+        Range.trackWhileExecuting(range,function() {
+            var nodes = Range.getAllNodes(range,true);
             for (var i = nodes.length-1; i >= 0; i--)
-                Hierarchy_ensureValidHierarchy(nodes[i],true,allowDirectInline);
+                Hierarchy.ensureValidHierarchy(nodes[i],true,allowDirectInline);
         });
     }
 
-    Range_forwards = function(range) {
-        if (Range_isForwards(range)) {
+    Range.forwards = function(range) {
+        if (Range.isForwards(range)) {
             return range;
         }
         else {
-            var reverse = new Range_Range(range.end.node,range.end.offset,
+            var reverse = new Range.Range(range.end.node,range.end.offset,
                                     range.start.node,range.start.offset);
-            if (!Range_isForwards(reverse))
+            if (!Range.isForwards(reverse))
                 throw new Error("Both range "+range+" and its reverse are not forwards");
             return reverse;
         }
     }
 
-    Range_detail = function(range) {
-        if (!Range_isForwards(range)) {
-            var reverse = new Range_Range(range.end.node,range.end.offset,
+    Range.detail = function(range) {
+        if (!Range.isForwards(range)) {
+            var reverse = new Range.Range(range.end.node,range.end.offset,
                                     range.start.node,range.start.offset);
-            if (!Range_isForwards(reverse))
+            if (!Range.isForwards(reverse))
                 throw new Error("Both range "+range+" and its reverse are not forwards");
-            return Range_detail(reverse);
+            return Range.detail(reverse);
         }
 
         var detail = new Object();
@@ -193,7 +186,7 @@ var Range_getText;
         throw new Error("Start and end of range have no common ancestor");
     }
 
-    Range_getOutermostNodes = function(range,atLeastOne,info) {
+    Range.getOutermostNodes = function(range,atLeastOne,info) {
         var beforeNodes = new Array();
         var middleNodes = new Array();
         var afterNodes = new Array();
@@ -204,8 +197,8 @@ var Range_getText;
             info.end = afterNodes;
         }
 
-        if (Range_isEmpty(range))
-            return atLeastOne ? [Range_singleNode(range)] : [];
+        if (Range.isEmpty(range))
+            return atLeastOne ? [Range.singleNode(range)] : [];
 
         // Note: start and end are *points* - they are always *in between* nodes or characters, never
         // *at* a node or character.
@@ -216,9 +209,9 @@ var Range_getText;
         // the child nodes in a container - in which case the child is null. The parent, however, is
         // always non-null;
 
-        var detail = Range_detail(range);
+        var detail = Range.detail(range);
         if (detail.commonAncestor == null)
-            return atLeastOne ? [Range_singleNode(range)] : [];
+            return atLeastOne ? [Range.singleNode(range)] : [];
         var startParent = detail.startParent;
         var startChild = detail.startChild;
         var endParent = detail.endParent;
@@ -279,7 +272,7 @@ var Range_getText;
         Array.prototype.push.apply(result,afterNodes);
 
         if (result.length == 0)
-            return atLeastOne ? [Range_singleNode(range)] : [];
+            return atLeastOne ? [Range.singleNode(range)] : [];
         else
             return result;
 
@@ -305,8 +298,8 @@ var Range_getText;
         }
     }
 
-    Range_getClientRects = function(range) {
-        var nodes = Range_getOutermostNodes(range,true);
+    Range.getClientRects = function(range) {
+        var nodes = Range.getOutermostNodes(range,true);
 
         // WebKit in iOS 5.0 and 5.1 has a bug where if the selection spans multiple paragraphs,
         // the complete rect for paragraphs other than the first is returned, instead of just the
@@ -325,7 +318,7 @@ var Range_getText;
                 var rects = domRange.getClientRects();
                 for (var rectIndex = 0; rectIndex < rects.length; rectIndex++) {
                     var rect = rects[rectIndex];
-                    if (Main_clientRectsBug) {
+                    if (Main.clientRectsBug) {
                         // Apple Bug ID 14682166 - getClientRects() returns coordinates relative
                         // to top of document, when it should instead return coordinates relative
                         // to the current client view (that is, taking into account scroll offsets)
@@ -348,15 +341,15 @@ var Range_getText;
         return result;
     }
 
-    Range_cloneContents = function(range) {
-        var nodeSet = new Collections_NodeSet();
-        var ancestorSet = new Collections_NodeSet();
-        var detail = Range_detail(range);
-        var outermost = Range_getOutermostNodes(range);
+    Range.cloneContents = function(range) {
+        var nodeSet = new Collections.NodeSet();
+        var ancestorSet = new Collections.NodeSet();
+        var detail = Range.detail(range);
+        var outermost = Range.getOutermostNodes(range);
 
         var haveContent = false;
         for (var i = 0; i < outermost.length; i++) {
-            if (!Traversal_isWhitespaceTextNode(outermost[i]))
+            if (!Traversal.isWhitespaceTextNode(outermost[i]))
                 haveContent = true;
             nodeSet.add(outermost[i]);
             for (var node = outermost[i]; node != null; node = node.parentNode)
@@ -369,9 +362,9 @@ var Range_getText;
         var clone = recurse(detail.commonAncestor);
 
         var ancestor = detail.commonAncestor;
-        while (Types_isInlineNode(ancestor)) {
-            var ancestorClone = DOM_cloneNode(ancestor.parentNode,false);
-            DOM_appendChild(ancestorClone,clone);
+        while (Types.isInlineNode(ancestor)) {
+            var ancestorClone = DOM.cloneNode(ancestor.parentNode,false);
+            DOM.appendChild(ancestorClone,clone);
             ancestor = ancestor.parentNode;
             clone = ancestorClone;
         }
@@ -385,14 +378,14 @@ var Range_getText;
         default:
             for (var child = clone.firstChild; child != null; child = child.nextSibling)
                 childArray.push(child);
-            Formatting_pushDownInlineProperties(childArray);
+            Formatting.pushDownInlineProperties(childArray);
             break;
         }
 
         return childArray;
 
         function recurse(parent) {
-            var clone = DOM_cloneNode(parent,false);
+            var clone = DOM.cloneNode(parent,false);
             for (var child = parent.firstChild; child != null; child = child.nextSibling) {
                 if (nodeSet.contains(child)) {
                     if ((child.nodeType == Node.TEXT_NODE) &&
@@ -400,63 +393,63 @@ var Range_getText;
                         (child == range.end.node)) {
                         var substring = child.nodeValue.substring(range.start.offset,
                                                                   range.end.offset);
-                        DOM_appendChild(clone,DOM_createTextNode(document,substring));
+                        DOM.appendChild(clone,DOM.createTextNode(document,substring));
                     }
                     else if ((child.nodeType == Node.TEXT_NODE) &&
                              (child == range.start.node)) {
                         var substring = child.nodeValue.substring(range.start.offset);
-                        DOM_appendChild(clone,DOM_createTextNode(document,substring));
+                        DOM.appendChild(clone,DOM.createTextNode(document,substring));
                     }
                     else if ((child.nodeType == Node.TEXT_NODE) &&
                              (child == range.end.node)) {
                         var substring = child.nodeValue.substring(0,range.end.offset);
-                        DOM_appendChild(clone,DOM_createTextNode(document,substring));
+                        DOM.appendChild(clone,DOM.createTextNode(document,substring));
                     }
                     else {
-                        DOM_appendChild(clone,DOM_cloneNode(child,true));
+                        DOM.appendChild(clone,DOM.cloneNode(child,true));
                     }
                 }
                 else if (ancestorSet.contains(child)) {
-                    DOM_appendChild(clone,recurse(child));
+                    DOM.appendChild(clone,recurse(child));
                 }
             }
             return clone;
         }
     }
 
-    Range_hasContent = function(range) {
-        var outermost = Range_getOutermostNodes(range);
+    Range.hasContent = function(range) {
+        var outermost = Range.getOutermostNodes(range);
         for (var i = 0; i < outermost.length; i++) {
             var node = outermost[i];
             if (node.nodeType == Node.TEXT_NODE) {
                 var value = node.nodeValue;
                 if ((node == range.start.node) && (node == range.end.node)) {
-                    if (!Util_isWhitespaceString(value.substring(range.start.offset,range.end.offset)))
+                    if (!Util.isWhitespaceString(value.substring(range.start.offset,range.end.offset)))
                         return true;
                 }
                 else if (node == range.start.node) {
-                    if (!Util_isWhitespaceString(value.substring(range.start.offset)))
+                    if (!Util.isWhitespaceString(value.substring(range.start.offset)))
                         return true;
                 }
                 else if (node == range.end.node) {
-                    if (!Util_isWhitespaceString(value.substring(0,range.end.offset)))
+                    if (!Util.isWhitespaceString(value.substring(0,range.end.offset)))
                         return true;
                 }
                 else {
-                    if (!Util_isWhitespaceString(value))
+                    if (!Util.isWhitespaceString(value))
                         return true;
                 }
             }
             else if (node.nodeType == Node.ELEMENT_NODE) {
-                if (Util_nodeHasContent(node))
+                if (Util.nodeHasContent(node))
                     return true;
             }
         }
         return false;
     }
 
-    Range_getText = function(range) {
-        range = Range_forwards(range);
+    Range.getText = function(range) {
+        range = Range.forwards(range);
 
         var start = range.start;
         var end = range.end;
@@ -467,7 +460,7 @@ var Range_getText;
         if (start.node.nodeType == Node.ELEMENT_NODE) {
             if ((start.node.offset == start.node.childNodes.length) &&
                 (start.node.offset > 0))
-                startNode = Traversal_nextNodeAfter(start.node);
+                startNode = Traversal.nextNodeAfter(start.node);
             else
                 startNode = start.node.childNodes[start.offset];
             startOffset = 0;
@@ -479,7 +472,7 @@ var Range_getText;
         if (end.node.nodeType == Node.ELEMENT_NODE) {
             if ((end.node.offset == end.node.childNodes.length) &&
                 (end.node.offset > 0))
-                endNode = Traversal_nextNodeAfter(end.node);
+                endNode = Traversal.nextNodeAfter(end.node);
             else
                 endNode = end.node.childNodes[end.offset];
             endOffset = 0;
@@ -497,7 +490,7 @@ var Range_getText;
 
             if (node.nodeType == Node.TEXT_NODE) {
 
-                if (!significantParagraph && !Util_isWhitespaceString(node.nodeValue)) {
+                if (!significantParagraph && !Util.isWhitespaceString(node.nodeValue)) {
                     significantParagraph = true;
                     components.push("\n");
                 }
@@ -521,22 +514,22 @@ var Range_getText;
                 break;
 
 
-            var next = Traversal_nextNode(node,entering,exiting);
+            var next = Traversal.nextNode(node,entering,exiting);
             node = next;
         }
         return components.join("");
 
         function entering(n) {
-            if (Types_isParagraphNode(n)) {
+            if (Types.isParagraphNode(n)) {
                 significantParagraph = true;
                 components.push("\n");
             }
         }
 
         function exiting(n) {
-            if (Types_isParagraphNode(n))
+            if (Types.isParagraphNode(n))
                 significantParagraph = false;
         }
     }
 
-})();
+})(globalAPI);

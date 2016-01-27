@@ -3,18 +3,18 @@
 <head>
 <link href="../generic.css" rel="stylesheet"/>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
+    api.Outline.init();
+    api.PostponedActions.perform();
 
-    Tables_insertTable(2,2,"100%",false,null);
-    PostponedActions_perform();
+    api.Tables.insertTable(2,2,"100%",false,null);
+    api.PostponedActions.perform();
 
-    Formatting_applyFormattingChanges(null,{"background-color": "red"});
-    PostponedActions_perform();
+    api.Formatting.applyFormattingChanges(null,{"background-color": "red"});
+    api.PostponedActions.perform();
 
-    TestLib_showSelection();
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

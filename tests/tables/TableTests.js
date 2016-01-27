@@ -15,42 +15,45 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var TableTests_showSelectedTableRegion;
-var TableTests_getSelectedTableRegion;
-var TableTests_showTableStructure;
+(function(api) {
 
-(function() {
+    var TableTests = api.tests.TableTests = {}; // export
 
-    TableTests_showSelectedTableRegion = function() {
-        var region = Tables_regionFromRange(Selection_get());
+    var DOM = api.DOM; // import
+    var Selection = api.Selection; // import
+    var Tables = api.Tables; // import
+    var Traversal = api.Traversal; // import
+
+    TableTests.showSelectedTableRegion = function() {
+        var region = Tables.regionFromRange(Selection.get());
         for (var row = region.top; row <= region.bottom; row++) {
             for (var col = region.left; col <= region.right; col++) {
-                var cell = Tables_Table_get(region.structure,row,col);
-                DOM_setStyleProperties(cell.element,{"background-color": "silver"});
+                var cell = Tables.Table_get(region.structure,row,col);
+                DOM.setStyleProperties(cell.element,{"background-color": "silver"});
             }
         }
     }
 
-    TableTests_getSelectedTableRegion = function() {
-        return Tables_regionFromRange(Selection_get());
+    TableTests.getSelectedTableRegion = function() {
+        return Tables.regionFromRange(Selection.get());
     }
 
-    TableTests_showTableStructure = function() {
+    TableTests.showTableStructure = function() {
         var tableElement = document.getElementsByTagName("TABLE")[0];
-        var table = Tables_analyseStructure(tableElement);
+        var table = Tables.analyseStructure(tableElement);
         var lines = new Array();
         lines.push(PrettyPrinter.getHTML(document.documentElement));
 
         for (var row = 0; row < table.numRows; row++) {
             for (var col = 0; col < table.numCols; col++) {
-                var cell = Tables_Table_get(table,row,col);
+                var cell = Tables.Table_get(table,row,col);
                 if (cell == null) {
                     lines.push("Cell at ("+row+","+col+") = "+null);
                 }
                 else {
                     lines.push("Cell at ("+row+","+col+") = "+
                                cell.rowspan+"x"+cell.colspan+" "+
-                               JSON.stringify(Traversal_getNodeText(cell.element)));
+                               JSON.stringify(Traversal.getNodeText(cell.element)));
                 }
             }
         }
@@ -58,4 +61,4 @@ var TableTests_showTableStructure;
         return lines.join("\n");
     }
 
-})();
+})(globalAPI);

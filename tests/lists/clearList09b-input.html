@@ -2,16 +2,16 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    Lists_setOrderedList();
-    Cursor_insertCharacter("One");
-    Cursor_enterPressed();
-    Cursor_insertCharacter("Two");
-    Cursor_enterPressed();
-    Lists_clearList();
-    Cursor_insertCharacter("End");
-    TestLib_showSelection();
+    api.Lists.setOrderedList();
+    api.Cursor.insertCharacter("One");
+    api.Cursor.enterPressed();
+    api.Cursor.insertCharacter("Two");
+    api.Cursor.enterPressed();
+    api.Lists.clearList();
+    api.Cursor.insertCharacter("End");
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

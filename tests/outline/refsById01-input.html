@@ -2,22 +2,22 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
-    UndoManager_clear();
+    api.Outline.init();
+    api.PostponedActions.perform();
+    api.UndoManager.clear();
 
-    Selection_selectAll();
-    PostponedActions_perform();
+    api.Selection.selectAll();
+    api.PostponedActions.perform();
 
-    Clipboard_cut();
-    PostponedActions_perform();
+    api.Clipboard.cut();
+    api.PostponedActions.perform();
 
-    UndoManager_undo();
-    PostponedActions_perform();
+    api.UndoManager.undo();
+    api.PostponedActions.perform();
 
-    Outline_deleteItem("item1");
+    api.Outline.deleteItem("item1");
 }
 </script>
 </head>

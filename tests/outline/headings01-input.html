@@ -3,15 +3,15 @@
 <head>
 <script>
 
-function performTest()
+function performTest(api)
 {
-    TestLib_setupOutlineNumbering();
-    Outline_init();
-    PostponedActions_perform();
-    Formatting_applyFormattingChanges("H1",{});
-    PostponedActions_perform();
-    TestLib_showSelection();
-    TestLib_prependTableOfContents();
+    api.tests.TestLib.setupOutlineNumbering();
+    api.Outline.init();
+    api.PostponedActions.perform();
+    api.Formatting.applyFormattingChanges("H1",{});
+    api.PostponedActions.perform();
+    api.tests.TestLib.showSelection();
+    api.tests.TestLib.prependTableOfContents();
 }
 </script>
 </head>

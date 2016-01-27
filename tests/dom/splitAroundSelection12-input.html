@@ -2,13 +2,13 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     var b1 = document.getElementsByTagName("B")[0];
     var b2 = document.getElementsByTagName("B")[1];
-    var range = new Range_Range(b1.firstChild,4,b2.firstChild,15);
-    Formatting_splitAroundSelection(range);
-    TestLib_showRangeAsBrackets(range);
+    var range = new api.Range.Range(b1.firstChild,4,b2.firstChild,15);
+    api.Formatting.splitAroundSelection(range);
+    api.tests.TestLib.showRangeAsBrackets(range);
 }
 </script>
 </head>

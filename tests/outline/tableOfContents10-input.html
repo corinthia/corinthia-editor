@@ -4,14 +4,14 @@
 <link href="../generic.css" rel="stylesheet"/>
 <script type="text/javascript" src="OutlineTest.js"></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
+    api.Outline.init();
+    api.PostponedActions.perform();
 
     // Add a table of contents
-    Outline_insertTableOfContents();
-    PostponedActions_perform();
+    api.Outline.insertTableOfContents();
+    api.PostponedActions.perform();
 }
 </script>
 </head>

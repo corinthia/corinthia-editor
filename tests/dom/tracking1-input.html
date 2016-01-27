@@ -2,7 +2,7 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     var ps = document.getElementsByTagName("P");
 
@@ -10,21 +10,21 @@ function performTest()
     var nodeCount = document.body.childNodes.length;
     for (var posOffset = 0; posOffset <= nodeCount; posOffset++) {
         for (var nodeOffset = 0; nodeOffset <= nodeCount; nodeOffset++) {
-            var position = new Position_Position(document.body,posOffset);
-            var temp = DOM_createElement(document,"B");
-            Position_trackWhileExecuting([position],function() {
+            var position = new api.Position.Position(document.body,posOffset);
+            var temp = api.DOM.createElement(document,"B");
+            api.Position.trackWhileExecuting([position],function() {
                 var message = "posOffset "+posOffset+", nodeOffset "+nodeOffset+": "+position;
-                DOM_insertBefore(document.body,temp,document.body.childNodes[nodeOffset]);
+                api.DOM.insertBefore(document.body,temp,document.body.childNodes[nodeOffset]);
                 message += " "+position;
-                DOM_deleteNode(temp);
+                api.DOM.deleteNode(temp);
                 message += " "+position;
                 messages.push(message);
             });
         }
     }
 
-    DOM_deleteAllChildren(document.body);
-    DOM_appendChild(document.body,DOM_createTextNode(document,"-\n"+messages.join("\n")+"\n-"));
+    api.DOM.deleteAllChildren(document.body);
+    api.DOM.appendChild(document.body,api.DOM.createTextNode(document,"-\n"+messages.join("\n")+"\n-"));
 }
 </script>
 </head>

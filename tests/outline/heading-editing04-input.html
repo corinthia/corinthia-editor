@@ -3,14 +3,14 @@
 <head>
 <script>
 
-function performTest()
+function performTest(api)
 {
-    TestLib_setupOutlineNumbering();
-    Outline_init();
-    PostponedActions_perform();
+    api.tests.TestLib.setupOutlineNumbering();
+    api.Outline.init();
+    api.PostponedActions.perform();
     for (var i = 0; i < 8; i++) {
-        Cursor_deleteCharacter();
-        PostponedActions_perform();
+        api.Cursor.deleteCharacter();
+        api.PostponedActions.perform();
    }
 }
 </script>

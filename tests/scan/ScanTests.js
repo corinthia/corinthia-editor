@@ -15,16 +15,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var ScanTests_testNext;
+(function(api) {
 
-(function() {
+    var ScanTests = api.tests.ScanTests = {}; // export
 
-    ScanTests_testNext = function() {
+    var Scan = api.Scan; // import
+
+    ScanTests.testNext = function() {
         var result = new Array();
-        Scan_reset();
+        Scan.reset();
         var index = 0;
         while (true) {
-            var paragraph = Scan_next();
+            var paragraph = Scan.next();
             if (paragraph == null)
                 break;
             if (paragraph.sectionId != null)
@@ -36,4 +38,4 @@ var ScanTests_testNext;
         return result.join("\n");
     }
 
-})();
+})(globalAPI);

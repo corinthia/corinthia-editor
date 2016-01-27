@@ -5,10 +5,10 @@
 .custom { border: 1px solid red }
 </style>
 <script>
-function performTest()
+function performTest(api)
 {
-    Formatting_applyFormattingChanges(".custom",null);
-    TestLib_showSelection();
+    api.Formatting.applyFormattingChanges(".custom",null);
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

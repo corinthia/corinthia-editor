@@ -2,11 +2,11 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    Cursor_insertLink("UX Productivity","http://www.uxproductivity.com");
-    Cursor_deleteCharacter();
-    TestLib_showSelection();
+    api.Cursor.insertLink("UX Productivity","http://www.uxproductivity.com");
+    api.Cursor.deleteCharacter();
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="UndoTests.js"></script>
+<script></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
-    UndoManager_clear();
+    api.Outline.init();
+    api.PostponedActions.perform();
+    api.UndoManager.clear();
 
-    UndoManager_newGroup();
+    api.UndoManager.newGroup();
 
     var nav = document.getElementsByTagName("NAV")[0];
 
     var versions = new Array();
 
-    versions.push(DOM_cloneNode(document.body,true));
-    DOM_deleteNode(nav);
-    PostponedActions_perform();
+    versions.push(api.DOM.cloneNode(document.body,true));
+    api.DOM.deleteNode(nav);
+    api.PostponedActions.perform();
 
-    UndoManager_undo();
-    PostponedActions_perform();
+    api.UndoManager.undo();
+    api.PostponedActions.perform();
 
-    DOM_deleteNode(nav);
+    api.DOM.deleteNode(nav);
 }
 </script>
 </head>

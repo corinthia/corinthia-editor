@@ -2,15 +2,15 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     var tr = document.getElementsByTagName("TR")[1];
     var p = document.getElementsByTagName("P")[1];
-    var trOffset = DOM_nodeOffset(tr);
-    var pOffset = DOM_nodeOffset(p);
-    Selection_set(p.parentNode,pOffset,tr.parentNode,trOffset+1);
-    Selection_deleteContents();
-    TestLib_showSelection();
+    var trOffset = api.DOM.nodeOffset(tr);
+    var pOffset = api.DOM.nodeOffset(p);
+    api.Selection.set(p.parentNode,pOffset,tr.parentNode,trOffset+1);
+    api.Selection.deleteContents();
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

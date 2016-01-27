@@ -2,14 +2,14 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     var p = document.getElementsByTagName("P")[2];
-    var range = new Range_Range(p,0,p,1);
-    Range_trackWhileExecuting(range,function() {
-        DOM_replaceElement(p,"DIV");
+    var range = new api.Range.Range(p,0,p,1);
+    api.Range.trackWhileExecuting(range,function() {
+        api.DOM.replaceElement(p,"DIV");
     });
-    TestLib_showRangeAsBrackets(range);
+    api.tests.TestLib.showRangeAsBrackets(range);
 }
 </script>
 </head>

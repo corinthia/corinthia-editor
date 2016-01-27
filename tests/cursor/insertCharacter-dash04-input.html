@@ -2,16 +2,16 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    Cursor_insertCharacter(" ",true);
-    Cursor_insertCharacter("-",true);
-    var text = Traversal_getNodeText(document.body).replace(/\s+$/,"");
+    api.Cursor.insertCharacter(" ",true);
+    api.Cursor.insertCharacter("-",true);
+    var text = api.Traversal.getNodeText(document.body).replace(/\s+$/,"");
     var charCode = text.charCodeAt(text.length-1);
-    var p = DOM_createElement(document,"P");
-    DOM_appendChild(p,DOM_createTextNode(document,"charCode = "+charCode));
-    DOM_appendChild(document.body,p);
-    TestLib_showSelection();
+    var p = api.DOM.createElement(document,"P");
+    api.DOM.appendChild(p,api.DOM.createTextNode(document,"charCode = "+charCode));
+    api.DOM.appendChild(document.body,p);
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

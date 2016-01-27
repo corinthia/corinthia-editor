@@ -2,11 +2,11 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    Cursor_enterPressed();
-    Cursor_deleteCharacter();
-    TestLib_showSelection();
+    api.Cursor.enterPressed();
+    api.Cursor.deleteCharacter();
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

@@ -2,13 +2,13 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
+    api.Outline.init();
+    api.PostponedActions.perform();
 
-    var result = Clipboard_copy()["text/html"];
-    TestLib_showSelection();
+    var result = api.Clipboard.copy()["text/html"];
+    api.tests.TestLib.showSelection();
     return result;
 }
 </script>

@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="FiguresTest.js"></script>
+<script></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
-    return FiguresTests_figurePropertiesString(0);
+    api.Outline.init();
+    api.PostponedActions.perform();
+    return api.tests.FiguresTests.figurePropertiesString(0);
 }
 </script>
 </head>

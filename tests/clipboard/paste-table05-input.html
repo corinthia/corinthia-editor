@@ -2,9 +2,9 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    Clipboard_pasteHTML("<tbody>"+
+    api.Clipboard.pasteHTML("<tbody>"+
                         "  <tr>"+
                         "    <td>One</td>"+
                         "    <td>Two</td>"+
@@ -14,7 +14,7 @@ function performTest()
                         "    <td>Four</td>"+
                         "  </tr>"+
                         "</tbody>");
-    TestLib_showSelection();
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

@@ -4,22 +4,22 @@
 <script type="text/javascript" src="OutlineTest.js"></script>
 <script>
 
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    if (Outline_detectSectionNumbering())
-        TestLib_setupOutlineNumbering();
-    PostponedActions_perform();
+    api.Outline.init();
+    if (api.Outline.detectSectionNumbering())
+        api.tests.TestLib.setupOutlineNumbering();
+    api.PostponedActions.perform();
 
-    var ref1 = DOM_createElement(document,"A");
-    var ref2 = DOM_createElement(document,"A");
-    var ref3 = DOM_createElement(document,"A");
-    DOM_setAttribute(ref1,"href","#one");
-    DOM_setAttribute(ref2,"href","#two");
-    DOM_setAttribute(ref3,"href","#three");
+    var ref1 = api.DOM.createElement(document,"A");
+    var ref2 = api.DOM.createElement(document,"A");
+    var ref3 = api.DOM.createElement(document,"A");
+    api.DOM.setAttribute(ref1,"href","#one");
+    api.DOM.setAttribute(ref2,"href","#two");
+    api.DOM.setAttribute(ref3,"href","#three");
 
-    Clipboard_pasteNodes([ref1,ref2,ref3]);
-    PostponedActions_perform();
+    api.Clipboard.pasteNodes([ref1,ref2,ref3]);
+    api.PostponedActions.perform();
 }
 </script>
 </head>

@@ -2,10 +2,10 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    Clipboard_pasteHTML("<p>test</p>");
-    TestLib_showSelection();
+    api.Clipboard.pasteHTML("<p>test</p>");
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

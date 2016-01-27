@@ -2,15 +2,15 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     var ps = document.getElementsByTagName("P");
-    var pos1 = new Position_Position(ps[0],0);
-    var pos2 = new Position_Position(ps[0],2);
+    var pos1 = new api.Position.Position(ps[0],0);
+    var pos2 = new api.Position.Position(ps[0],2);
 
-    Position_trackWhileExecuting([pos1,pos2],function() {
-        TestLib_insertAtPosition(pos1,DOM_createElement(document,"b"));
-        TestLib_insertAtPosition(pos2,DOM_createElement(document,"i"));
+    api.Position.trackWhileExecuting([pos1,pos2],function() {
+        api.tests.TestLib.insertAtPosition(pos1,api.DOM.createElement(document,"b"));
+        api.tests.TestLib.insertAtPosition(pos2,api.DOM.createElement(document,"i"));
     });
 }
 </script>

@@ -1,31 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="UndoTests.js"></script>
+<script></script>
 <script>
 
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
+    api.Outline.init();
+    api.PostponedActions.perform();
 
     var versions = new Array();
 
-    UndoManager_clear();
+    api.UndoManager.clear();
 
     var table = document.getElementsByTagName("TABLE")[0];
-    versions.push(DOM_cloneNode(table,true));
+    versions.push(api.DOM.cloneNode(table,true));
 
-    Tables_addAdjacentRow();
-    versions.push(DOM_cloneNode(table,true));
+    api.Tables.addAdjacentRow();
+    versions.push(api.DOM.cloneNode(table,true));
 
-    Tables_addAdjacentRow();
-    versions.push(DOM_cloneNode(table,true));
+    api.Tables.addAdjacentRow();
+    versions.push(api.DOM.cloneNode(table,true));
 
-    Tables_addAdjacentRow();
-    versions.push(DOM_cloneNode(table,true));
+    api.Tables.addAdjacentRow();
+    versions.push(api.DOM.cloneNode(table,true));
 
-    UndoTests_testUndo(versions,table);
+    api.tests.UndoTests.testUndo(versions,table);
 }
 </script>
 </head>

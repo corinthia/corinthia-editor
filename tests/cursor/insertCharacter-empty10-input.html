@@ -2,12 +2,12 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     var br = document.getElementsByTagName("BR")[0];
-    Selection_setEmptySelectionAt(br,0);
-    Cursor_insertCharacter("X");
-    TestLib_showSelection();
+    api.Selection.setEmptySelectionAt(br,0);
+    api.Cursor.insertCharacter("X");
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

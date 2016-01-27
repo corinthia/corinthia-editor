@@ -1,39 +1,39 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="UndoTests.js"></script>
+<script></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
+    api.Outline.init();
+    api.PostponedActions.perform();
 
     var versions = new Array();
 
     var img = document.getElementsByTagName("IMG")[0];
-    versions.push(DOM_cloneNode(img,true));
+    versions.push(api.DOM.cloneNode(img,true));
 
-    DOM_setStyleProperties(img,{"width": "200px"});
-    versions.push(DOM_cloneNode(img,true));
-    UndoManager_newGroup();
+    api.DOM.setStyleProperties(img,{"width": "200px"});
+    versions.push(api.DOM.cloneNode(img,true));
+    api.UndoManager.newGroup();
 
-    DOM_setStyleProperties(img,{"height": "150px"});
-    versions.push(DOM_cloneNode(img,true));
-    UndoManager_newGroup();
+    api.DOM.setStyleProperties(img,{"height": "150px"});
+    versions.push(api.DOM.cloneNode(img,true));
+    api.UndoManager.newGroup();
 
-    DOM_setStyleProperties(img,{"width": null});
-    versions.push(DOM_cloneNode(img,true));
-    UndoManager_newGroup();
+    api.DOM.setStyleProperties(img,{"width": null});
+    versions.push(api.DOM.cloneNode(img,true));
+    api.UndoManager.newGroup();
 
-    DOM_setStyleProperties(img,{"height": null});
-    versions.push(DOM_cloneNode(img,true));
-    UndoManager_newGroup();
+    api.DOM.setStyleProperties(img,{"height": null});
+    versions.push(api.DOM.cloneNode(img,true));
+    api.UndoManager.newGroup();
 
-    DOM_setStyleProperties(img,{"height": "100px"});
-    versions.push(DOM_cloneNode(img,true));
-    UndoManager_newGroup();
+    api.DOM.setStyleProperties(img,{"height": "100px"});
+    versions.push(api.DOM.cloneNode(img,true));
+    api.UndoManager.newGroup();
 
-    UndoTests_testUndo(versions,img);
+    api.tests.UndoTests.testUndo(versions,img);
 }
 </script>
 </head>

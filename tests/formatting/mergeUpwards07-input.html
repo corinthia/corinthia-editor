@@ -2,20 +2,20 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     var p = document.getElementsByTagName("P")[0];
     var bs = document.getElementsByTagName("B");
     var is = document.getElementsByTagName("I");
 
-    var range = Selection_get();
+    var range = api.Selection.get();
     if (range.start.node.nodeType != Node.TEXT_NODE)
         throw new Error("range start should be in a text node");
 
-    Range_trackWhileExecuting(range,function() {
-       Formatting_mergeUpwards(range.start.node,Formatting_MERGEABLE_INLINE);
+    api.Range.trackWhileExecuting(range,function() {
+       api.Formatting.mergeUpwards(range.start.node,api.Formatting.MERGEABLE_INLINE);
     });
-    TestLib_showRangeAsBrackets(range);
+    api.tests.TestLib.showRangeAsBrackets(range);
 }
 </script>
 </head>

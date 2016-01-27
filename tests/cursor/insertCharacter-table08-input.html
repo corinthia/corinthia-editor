@@ -2,14 +2,14 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     var trs = document.getElementsByTagName("TR");
     var tds = document.getElementsByTagName("TD");
     var tbody = document.getElementsByTagName("TBODY")[0];
-    Selection_setEmptySelectionAt(tds[8].parentNode,DOM_nodeOffset(tds[8])+1);
-    Cursor_insertCharacter("X");
-    TestLib_showSelection();
+    api.Selection.setEmptySelectionAt(tds[8].parentNode,api.DOM.nodeOffset(tds[8])+1);
+    api.Cursor.insertCharacter("X");
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

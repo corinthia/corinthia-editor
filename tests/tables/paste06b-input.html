@@ -3,12 +3,12 @@
 <head>
 <link href="../generic.css" rel="stylesheet"/>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
+    api.Outline.init();
+    api.PostponedActions.perform();
 
-    Clipboard_pasteHTML("<table>"+
+    api.Clipboard.pasteHTML("<table>"+
                         "<tr>"+
                         "<td id='bdt1'>A</td>"+
                         "<td id='bdt2'>B</td>"+
@@ -19,7 +19,7 @@ function performTest()
                         "</tr>"+
                         "</table>");
 
-    TestLib_showSelection();
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

@@ -15,15 +15,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var Markdown_htmlToMarkdown;
-var Clipboard_htmlToText;
-var Clipboard_cut;
-var Clipboard_copy;
-var Clipboard_pasteText;
-var Clipboard_pasteHTML;
-var Clipboard_pasteNodes;
+(function(api) {
 
-(function() {
+    var Markdown = api.Markdown; // export
+
+    var Traversal = api.Traversal; // import
+    var Types = api.Types; // import
+    var Util = api.Util; // import
 
     // private
     function blockToText(md,node,indent,nextIndent,listType,listNo) {
@@ -87,7 +85,7 @@ var Clipboard_pasteNodes;
 
         var foundNonWhitespaceChild = false;
         for (var child = node.firstChild; child != null; child = child.nextSibling) {
-            if (Types_isContainerNode(child) || Types_isParagraphNode(child)) {
+            if (Types.isContainerNode(child) || Types.isParagraphNode(child)) {
                 beginParagraph(md,linesBetweenChildren,indent,nextIndent);
                 blockToText(md,child,indent,nextIndent,listType,listNo);
                 beginParagraph(md,linesBetweenChildren);
@@ -96,7 +94,7 @@ var Clipboard_pasteNodes;
             }
             else {
                 if (!foundNonWhitespaceChild) {
-                    if (Traversal_isWhitespaceTextNode(child))
+                    if (Traversal.isWhitespaceTextNode(child))
                         continue;
                     beginParagraph(md,0,indent,nextIndent);
                     indent = nextIndent;
@@ -119,7 +117,7 @@ var Clipboard_pasteNodes;
             text = "    "+text.replace(/\n/g,"\n"+md.nextIndent+"    ");
         }
         else {
-            text = Util_normalizeWhitespace(text);
+            text = Util.normalizeWhitespace(text);
         }
         if (md.allText.length > 0) {
             for (var i = 0; i < md.buildLines; i++)
@@ -224,26 +222,44 @@ var Clipboard_pasteNodes;
     }
 
     // public
-    Markdown_htmlToMarkdown = function(node) {
+    Markdown.htmlToMarkdown = function(node) {
         var md = new MarkdownBuilder();
         md.allText = new Array();
         md.preDepth = 0;
         resetBuild(md);
 
-        if (Types_isContainerNode(node) || Types_isParagraphNode(node)) {
+        if (Types.isContainerNode(node) || Types.isParagraphNode(node)) {
             blockToText(md,node,"","","UL",{value: 1});
             beginParagraph(md);
             return md.allText.join("");
         }
         else {
             inlineToText(md,node);
-            return Util_normalizeWhitespace(md.buildParagraph.join(""));
+            return Util.normalizeWhitespace(md.buildParagraph.join(""));
         }
     }
 
-})();
+})(globalAPI);
 
-(function() {
+(function(api) {
+
+    var Clipboard = api.Clipboard; // export
+
+    var Cursor = api.Cursor; // import
+    var DOM = api.DOM; // import
+    var Formatting = api.Formatting; // import
+    var Main = api.Main; // import
+    var Markdown = api.Markdown; // import
+    var Position = api.Position; // import
+    var PostponedActions = api.PostponedActions; // import
+    var Range = api.Range; // import
+    var Selection = api.Selection; // import
+    var Styles = api.Styles; // import
+    var Tables = api.Tables; // import
+    var Traversal = api.Traversal; // import
+    var Types = api.Types; // import
+    var UndoManager = api.UndoManager; // import
+    var Util = api.Util; // import
 
     function expandRangeForCopy(range) {
         if (range == null)
@@ -262,17 +278,17 @@ var Clipboard_pasteNodes;
         }
 
         if ((startInLI != null) && (startInLI == endInLI)) {
-            var beforeRange = new Range_Range(startInLI,0,
+            var beforeRange = new Range.Range(startInLI,0,
                                         range.start.node,range.start.offset);
-            var afterRange = new Range_Range(range.end.node,range.end.offset,
-                                       endInLI,DOM_maxChildOffset(endInLI));
-            var contentBefore = Range_hasContent(beforeRange);
-            var contentAfter = Range_hasContent(afterRange);
+            var afterRange = new Range.Range(range.end.node,range.end.offset,
+                                       endInLI,DOM.maxChildOffset(endInLI));
+            var contentBefore = Range.hasContent(beforeRange);
+            var contentAfter = Range.hasContent(afterRange);
 
             if (!contentBefore && !contentAfter) {
                 var li = startInLI;
-                var offset = DOM_nodeOffset(li);
-                range = new Range_Range(li.parentNode,offset,li.parentNode,offset+1);
+                var offset = DOM.nodeOffset(li);
+                range = new Range.Range(li.parentNode,offset,li.parentNode,offset+1);
             }
         }
         return range;
@@ -284,21 +300,21 @@ var Clipboard_pasteNodes;
 
         if (range != null) {
             var nodes;
-            var region = Tables_regionFromRange(range);
+            var region = Tables.regionFromRange(range);
             if (region != null) {
-                nodes = [Tables_cloneRegion(region)];
+                nodes = [Tables.cloneRegion(region)];
             }
             else {
-                nodes = Range_cloneContents(range);
+                nodes = Range.cloneContents(range);
             };
 
-            var div = DOM_createElement(document,"DIV");
+            var div = DOM.createElement(document,"DIV");
             for (var i = 0; i < nodes.length; i++)
-                DOM_appendChild(div,nodes[i]);
-            Main_removeSpecial(div);
+                DOM.appendChild(div,nodes[i]);
+            Main.removeSpecial(div);
 
             html = div.innerHTML;
-            text = Clipboard_htmlToText(div);
+            text = Clipboard.htmlToText(div);
         }
 
         return { "text/html": html,
@@ -306,31 +322,31 @@ var Clipboard_pasteNodes;
     }
 
     // public (FIXME: temp: for testing)
-    Clipboard_htmlToText = function(node) {
-        return Markdown_htmlToMarkdown(node);
+    Clipboard.htmlToText = function(node) {
+        return Markdown.htmlToMarkdown(node);
     }
 
     // public
-    Clipboard_cut = function() {
-        UndoManager_newGroup("Cut");
+    Clipboard.cut = function() {
+        UndoManager.newGroup("Cut");
         var content;
 
-        var range = Selection_get();
+        var range = Selection.get();
         range = expandRangeForCopy(range);
         content = copyRange(range);
 
-        Selection_set(range.start.node,range.start.offset,range.end.node,range.end.offset);
-        Selection_deleteContents(false);
-        var selRange = Selection_get();
+        Selection.set(range.start.node,range.start.offset,range.end.node,range.end.offset);
+        Selection.deleteContents(false);
+        var selRange = Selection.get();
         if (selRange != null) {
-            Range_trackWhileExecuting(selRange,function() {
-                var node = Position_closestActualNode(selRange.start);
+            Range.trackWhileExecuting(selRange,function() {
+                var node = Position.closestActualNode(selRange.start);
                 while (node != null) {
                     var parent = node.parentNode;
                     switch (node._type) {
                     case HTML_LI:
-                        if (!Util_nodeHasContent(node))
-                            DOM_deleteNode(node);
+                        if (!Util.nodeHasContent(node))
+                            DOM.deleteNode(node);
                         break;
                     case HTML_UL:
                     case HTML_OL: {
@@ -342,7 +358,7 @@ var Clipboard_pasteNodes;
                             }
                         }
                         if (!haveLI)
-                            DOM_deleteNode(node);
+                            DOM.deleteNode(node);
                         break;
                     }
                     }
@@ -350,34 +366,34 @@ var Clipboard_pasteNodes;
                 }
             });
 
-            var pos = Position_closestMatchForwards(selRange.start,Position_okForMovement);
-            Selection_set(pos.node,pos.offset,pos.node,pos.offset);
+            var pos = Position.closestMatchForwards(selRange.start,Position.okForMovement);
+            Selection.set(pos.node,pos.offset,pos.node,pos.offset);
         }
 
-        Cursor_ensureCursorVisible();
+        Cursor.ensureCursorVisible();
 
-        PostponedActions_perform(UndoManager_newGroup);
+        PostponedActions.perform(UndoManager.newGroup);
         return content;
     }
 
     // public
-    Clipboard_copy = function() {
-        var range = Selection_get();
+    Clipboard.copy = function() {
+        var range = Selection.get();
         range = expandRangeForCopy(range);
         return copyRange(range);
     }
 
     // public
-    Clipboard_pasteText = function(text) {
+    Clipboard.pasteText = function(text) {
         var converter = new Showdown.converter();
         var html = converter.makeHtml(text);
-        UndoManager_newGroup("Paste");
-        Clipboard_pasteHTML(html);
-        UndoManager_newGroup();
+        UndoManager.newGroup("Paste");
+        Clipboard.pasteHTML(html);
+        UndoManager.newGroup();
     }
 
     // public
-    Clipboard_pasteHTML = function(html) {
+    Clipboard.pasteHTML = function(html) {
         if (html.match(/^\s*<thead/i))
             html = "<table>" + html + "</table>";
         else if (html.match(/^\s*<tbody/i))
@@ -393,26 +409,26 @@ var Clipboard_pasteNodes;
         else if (html.match(/^\s*<li/i))
             html = "<ul>" + html + "</ul>";
 
-        var div = DOM_createElement(document,"DIV");
+        var div = DOM.createElement(document,"DIV");
         div.innerHTML = html;
         for (var child = div.firstChild; child != null; child = child.nextSibling)
-            DOM_assignNodeIds(child);
+            DOM.assignNodeIds(child);
 
         var nodes = new Array();
         for (var child = div.firstChild; child != null; child = child.nextSibling)
             nodes.push(child);
 
-        UndoManager_newGroup("Paste");
-        var region = Tables_regionFromRange(Selection_get(),true);
+        UndoManager.newGroup("Paste");
+        var region = Tables.regionFromRange(Selection.get(),true);
         if ((region != null) && (nodes.length == 1) && (nodes[0]._type == HTML_TABLE))
             pasteTable(nodes[0],region);
         else
-            Clipboard_pasteNodes(nodes);
-        UndoManager_newGroup();
+            Clipboard.pasteNodes(nodes);
+        UndoManager.newGroup();
     }
 
     function pasteTable(srcTable,dest) {
-        var src = Tables_analyseStructure(srcTable);
+        var src = Tables.analyseStructure(srcTable);
 
         // In the destination table, the region into which we will paste the cells will the
         // the same size as that of the source table, regardless of how many rows and columns
@@ -428,30 +444,30 @@ var Clipboard_pasteNodes;
             dest.structure.numRows = dest.bottom + 1;
         if (dest.structure.numCols < dest.right + 1)
             dest.structure.numCols = dest.right + 1;
-        dest.structure = Tables_Table_fix(dest.structure);
+        dest.structure = Tables.Table_fix(dest.structure);
 
         // To simplify the paste, split any merged cells that are in the region of the destination
         // table we're pasting into. We have to re-analyse the table structure after this to
         // get the correct cell array.
-        Tables_TableRegion_splitCells(dest);
-        dest.structure = Tables_analyseStructure(dest.structure.element);
+        Tables.TableRegion_splitCells(dest);
+        dest.structure = Tables.analyseStructure(dest.structure.element);
 
         // Do the actual paste
-        Selection_preserveWhileExecuting(function() {
+        Selection.preserveWhileExecuting(function() {
             replaceCells(src,dest.structure,dest.top,dest.left);
         });
 
         // If any new columns were added, calculate a width for them
-        Tables_Table_fixColumnWidths(dest.structure);
+        Tables.Table_fixColumnWidths(dest.structure);
 
         // Remove duplicate ids
         var found = new Object();
         removeDuplicateIds(dest.structure.element,found);
 
         // Place the cursor in the bottom-right cell that was pasted
-        var bottomRightCell = Tables_Table_get(dest.structure,dest.bottom,dest.right);
+        var bottomRightCell = Tables.Table_get(dest.structure,dest.bottom,dest.right);
         var node = bottomRightCell.element;
-        Selection_set(node,node.childNodes.length,node,node.childNodes.length);
+        Selection.set(node,node.childNodes.length,node,node.childNodes.length);
     }
 
     function replaceCells(src,dest,destRow,destCol) {
@@ -459,8 +475,8 @@ var Clipboard_pasteNodes;
         // in dest will have rowspan = 1 and colspan = 1.
         for (var srcRow = 0; srcRow < src.numRows; srcRow++) {
             for (var srcCol = 0; srcCol < src.numCols; srcCol++) {
-                var srcCell = Tables_Table_get(src,srcRow,srcCol);
-                var destCell = Tables_Table_get(dest,srcRow+destRow,srcCol+destCol);
+                var srcCell = Tables.Table_get(src,srcRow,srcCol);
+                var destCell = Tables.Table_get(dest,srcRow+destRow,srcCol+destCol);
 
                 if ((srcRow != srcCell.row) || (srcCol != srcCell.col))
                     continue;
@@ -470,13 +486,13 @@ var Clipboard_pasteNodes;
                 if (destCell.colspan != 1)
                     throw new Error("unexpected colspan: "+destCell.colspan);
 
-                DOM_insertBefore(destCell.element.parentNode,srcCell.element,destCell.element);
+                DOM.insertBefore(destCell.element.parentNode,srcCell.element,destCell.element);
 
                 var destTop = destRow + srcRow;
                 var destLeft = destCol + srcCol;
                 var destBottom = destTop + srcCell.rowspan - 1;
                 var destRight = destLeft + srcCell.colspan - 1;
-                Tables_Table_setRegion(dest,destTop,destLeft,destBottom,destRight,srcCell);
+                Tables.Table_setRegion(dest,destTop,destLeft,destBottom,destRight,srcCell);
             }
         }
     }
@@ -486,17 +502,17 @@ var Clipboard_pasteNodes;
         for (var grandChild = child.firstChild; grandChild != null; grandChild = next) {
             next = grandChild.nextSibling;
             pastedNodes.push(grandChild);
-            DOM_insertBefore(parent,grandChild,nextSibling);
+            DOM.insertBefore(parent,grandChild,nextSibling);
         }
     }
 
     function fixParagraphStyles(node,paragraphClass) {
-        if (Types_isParagraphNode(node)) {
+        if (Types.isParagraphNode(node)) {
             if (node._type == HTML_P) {
-                var className = DOM_getAttribute(node,"class");
+                var className = DOM.getAttribute(node,"class");
                 if ((className == null) || (className == "")) {
                     debug("Setting paragraph class to "+paragraphClass);
-                    DOM_setAttribute(node,"class",paragraphClass);
+                    DOM.setAttribute(node,"class",paragraphClass);
                 }
             }
         }
@@ -508,11 +524,11 @@ var Clipboard_pasteNodes;
     }
 
     // public
-    Clipboard_pasteNodes = function(nodes) {
+    Clipboard.pasteNodes = function(nodes) {
         if (nodes.length == 0)
             return;
 
-        var paragraphClass = Styles_getParagraphClass();
+        var paragraphClass = Styles.getParagraphClass();
         if (paragraphClass != null) {
             for (var i = 0; i < nodes.length; i++) {
                 fixParagraphStyles(nodes[i],paragraphClass);
@@ -543,15 +559,15 @@ var Clipboard_pasteNodes;
 
 //        if ((nodes.length == 0) && (nodes[0]._type == HTML_TABLE)) {
 //            // FIXME: this won't work; selectionRange is not defined
-//            var fromRegion = Tables_getTableRegionFromTable(nodes[0]);
-//            var toRegion = Tables_regionFromRange(selectionRange);
+//            var fromRegion = Tables.getTableRegionFromTable(nodes[0]);
+//            var toRegion = Tables.regionFromRange(selectionRange);
 //            if (toRegion != null) {
 //                return;
 //            }
 //        }
 
-        Selection_deleteContents(true);
-        var range = Selection_get();
+        Selection.deleteContents(true);
+        var range = Selection.get();
         if (range == null)
             throw new Error("No current selection");
 
@@ -560,14 +576,14 @@ var Clipboard_pasteNodes;
         var nextSibling;
 
         var start = range.start;
-        start = Position_preferElementPosition(start);
+        start = Position.preferElementPosition(start);
         if (start.node.nodeType == Node.ELEMENT_NODE) {
             parent = start.node;
             nextSibling = start.node.childNodes[start.offset];
             previousSibling = start.node.childNodes[start.offset-1];
         }
         else {
-            Formatting_splitTextAfter(start);
+            Formatting.splitTextAfter(start);
             parent = start.node.parentNode;
             nextSibling = start.node.nextSibling;
             previousSibling = start.node;
@@ -579,7 +595,7 @@ var Clipboard_pasteNodes;
         var containerParent = null;
 
         for (var temp = parent; temp != null; temp = temp.parentNode) {
-            if (Types_isContainerNode(temp)) {
+            if (Types.isContainerNode(temp)) {
                 switch (temp._type) {
                 case HTML_LI:
                     inItem = temp;
@@ -600,23 +616,23 @@ var Clipboard_pasteNodes;
             for (var i = 0; i < nodes.length; i++) {
                 var child = nodes[i];
 
-                var offset = DOM_nodeOffset(nextSibling,parent);
+                var offset = DOM.nodeOffset(nextSibling,parent);
 
                 switch (child._type) {
                 case HTML_UL:
                 case HTML_OL:
-                    Formatting_movePreceding(new Position_Position(parent,offset),
+                    Formatting.movePreceding(new Position.Position(parent,offset),
                                              function(x) { return (x == containerParent); });
                     insertChildrenBefore(inItem.parentNode,child,inItem,pastedNodes);
                     break;
                 case HTML_LI:
-                    Formatting_movePreceding(new Position_Position(parent,offset),
+                    Formatting.movePreceding(new Position.Position(parent,offset),
                                              function(x) { return (x == containerParent); });
-                    DOM_insertBefore(inItem.parentNode,child,inItem);
+                    DOM.insertBefore(inItem.parentNode,child,inItem);
                     pastedNodes.push(child);
                     break;
                 default:
-                    DOM_insertBefore(parent,child,nextSibling);
+                    DOM.insertBefore(parent,child,nextSibling);
                     pastedNodes.push(child);
                     break;
                 }
@@ -627,7 +643,7 @@ var Clipboard_pasteNodes;
             for (var i = 0; i < nodes.length; i++) {
                 var child = nodes[i];
 
-                var offset = DOM_nodeOffset(nextSibling,parent);
+                var offset = DOM.nodeOffset(nextSibling,parent);
 
                 switch (child._type) {
                 case HTML_UL:
@@ -636,16 +652,16 @@ var Clipboard_pasteNodes;
                     prevLI = null;
                     break;
                 case HTML_LI:
-                    DOM_insertBefore(parent,child,nextSibling);
+                    DOM.insertBefore(parent,child,nextSibling);
                     pastedNodes.push(child);
                     prevLI = null;
                     break;
                 default:
-                    if (!Traversal_isWhitespaceTextNode(child)) {
+                    if (!Traversal.isWhitespaceTextNode(child)) {
                         if (prevLI == null)
-                            prevLI = DOM_createElement(document,"LI");
-                        DOM_appendChild(prevLI,child);
-                        DOM_insertBefore(parent,prevLI,nextSibling);
+                            prevLI = DOM.createElement(document,"LI");
+                        DOM.appendChild(prevLI,child);
+                        DOM.insertBefore(parent,prevLI,nextSibling);
                         pastedNodes.push(child);
                     }
                 }
@@ -655,7 +671,7 @@ var Clipboard_pasteNodes;
             pastedNodes = nodes;
             for (var i = 0; i < nodes.length; i++) {
                 var child = nodes[i];
-                DOM_insertBefore(parent,child,nextSibling);
+                DOM.insertBefore(parent,child,nextSibling);
             }
         }
 
@@ -663,38 +679,38 @@ var Clipboard_pasteNodes;
         if (previousSibling == null)
             prevOffset = 0;
         else
-            prevOffset = DOM_nodeOffset(previousSibling);
-        var nextOffset = DOM_nodeOffset(nextSibling,parent);
+            prevOffset = DOM.nodeOffset(previousSibling);
+        var nextOffset = DOM.nodeOffset(nextSibling,parent);
 
-        var origRange = new Range_Range(parent,prevOffset,parent,nextOffset);
+        var origRange = new Range.Range(parent,prevOffset,parent,nextOffset);
 
         var firstPasted = pastedNodes[0];
         var lastPasted = pastedNodes[pastedNodes.length-1];
-        var pastedRange = new Range_Range(firstPasted,0,lastPasted,DOM_maxChildOffset(lastPasted));
-        Range_trackWhileExecuting(origRange,function() {
-        Range_trackWhileExecuting(pastedRange,function() {
+        var pastedRange = new Range.Range(firstPasted,0,lastPasted,DOM.maxChildOffset(lastPasted));
+        Range.trackWhileExecuting(origRange,function() {
+        Range.trackWhileExecuting(pastedRange,function() {
             if (previousSibling != null)
-                Formatting_mergeWithNeighbours(previousSibling,Formatting_MERGEABLE_INLINE);
+                Formatting.mergeWithNeighbours(previousSibling,Formatting.MERGEABLE_INLINE);
             if (nextSibling != null)
-                Formatting_mergeWithNeighbours(nextSibling,Formatting_MERGEABLE_INLINE);
+                Formatting.mergeWithNeighbours(nextSibling,Formatting.MERGEABLE_INLINE);
 
-            Cursor_updateBRAtEndOfParagraph(parent);
+            Cursor.updateBRAtEndOfParagraph(parent);
 
-            Range_ensureValidHierarchy(pastedRange,true);
+            Range.ensureValidHierarchy(pastedRange,true);
         })});
 
-        var pos = new Position_Position(origRange.end.node,origRange.end.offset);
-        Range_trackWhileExecuting(pastedRange,function() {
-        Position_trackWhileExecuting(pos,function() {
+        var pos = new Position.Position(origRange.end.node,origRange.end.offset);
+        Range.trackWhileExecuting(pastedRange,function() {
+        Position.trackWhileExecuting(pos,function() {
             while (true) {
                 if (pos.node == document.body)
                     break;
-                if (Types_isContainerNode(pos.node) && (pos.node._type != HTML_LI))
+                if (Types.isContainerNode(pos.node) && (pos.node._type != HTML_LI))
                     break;
-                if (!Util_nodeHasContent(pos.node)) {
+                if (!Util.nodeHasContent(pos.node)) {
                     var oldNode = pos.node;
-                    pos = new Position_Position(pos.node.parentNode,DOM_nodeOffset(pos.node));
-                    DOM_deleteNode(oldNode);
+                    pos = new Position.Position(pos.node.parentNode,DOM.nodeOffset(pos.node));
+                    DOM.deleteNode(oldNode);
                 }
                 else
                     break;
@@ -702,13 +718,13 @@ var Clipboard_pasteNodes;
         });
         });
 
-        pos = new Position_Position(pastedRange.end.node,pastedRange.end.offset);
-        while (Types_isOpaqueNode(pos.node))
-            pos = new Position_Position(pos.node.parentNode,DOM_nodeOffset(pos.node)+1);
-        pos = Position_closestMatchBackwards(pos,Position_okForInsertion);
+        pos = new Position.Position(pastedRange.end.node,pastedRange.end.offset);
+        while (Types.isOpaqueNode(pos.node))
+            pos = new Position.Position(pos.node.parentNode,DOM.nodeOffset(pos.node)+1);
+        pos = Position.closestMatchBackwards(pos,Position.okForInsertion);
 
-        Selection_set(pos.node,pos.offset,pos.node,pos.offset);
-        Cursor_ensureCursorVisible();
+        Selection.set(pos.node,pos.offset,pos.node,pos.offset);
+        Cursor.ensureCursorVisible();
     }
 
     function removeDuplicateIds(node,found) {
@@ -720,7 +736,7 @@ var Clipboard_pasteNodes;
                 existing = found[id];
 
             if ((existing != null) && (existing != node))
-                DOM_removeAttribute(node,"id");
+                DOM.removeAttribute(node,"id");
             else
                 found[id] = node;
         }
@@ -732,4 +748,4 @@ var Clipboard_pasteNodes;
         // FIXME
     }
 
-})();
+})(globalAPI);

@@ -2,18 +2,18 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     var positions = new Array();
     for (var i = 0; i <= document.body.childNodes.length; i++)
-        positions[i] = new Position_Position(document.body,i);
+        positions[i] = new api.Position.Position(document.body,i);
     var p = document.getElementsByTagName("P")[0];
 
-    Position_trackWhileExecuting(positions,function() {
-        DOM_removeNodeButKeepChildren(p);
+    api.Position.trackWhileExecuting(positions,function() {
+        api.DOM.removeNodeButKeepChildren(p);
 
         for (var i = 0; i < positions.length; i++)
-            TestLib_insertTextAtPosition(positions[i],"("+i+")");
+            api.tests.TestLib.insertTextAtPosition(positions[i],"("+i+")");
     });
 }
 </script>

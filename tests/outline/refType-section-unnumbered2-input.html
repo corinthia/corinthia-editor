@@ -3,11 +3,11 @@
 <head>
 <script type="text/javascript" src="OutlineTest.js"></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    TestLib_setupOutlineNumbering();
-    Outline_init();
-    PostponedActions_perform();
+    api.tests.TestLib.setupOutlineNumbering();
+    api.Outline.init();
+    api.PostponedActions.perform();
 }
 </script>
 </head>

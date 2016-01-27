@@ -1,41 +1,41 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="UndoTests.js"></script>
+<script></script>
 <script>
 
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
-    UndoManager_clear();
+    api.Outline.init();
+    api.PostponedActions.perform();
+    api.UndoManager.clear();
 
     var versions = new Array();
 
     var body = document.body;
-    versions.push(DOM_cloneNode(body,true));
+    versions.push(api.DOM.cloneNode(body,true));
 
-    Tables_insertTable(1,1,"100%",true,"First table");
-    PostponedActions_perform();
-    versions.push(DOM_cloneNode(body,true));
+    api.Tables.insertTable(1,1,"100%",true,"First table");
+    api.PostponedActions.perform();
+    versions.push(api.DOM.cloneNode(body,true));
 
-    UndoTests_placeCursorAfterElement("item1");
-    Tables_insertTable(1,2,"90%",true,"Second table");
-    PostponedActions_perform();
-    versions.push(DOM_cloneNode(body,true));
+    api.tests.UndoTests.placeCursorAfterElement("item1");
+    api.Tables.insertTable(1,2,"90%",true,"Second table");
+    api.PostponedActions.perform();
+    versions.push(api.DOM.cloneNode(body,true));
 
-    UndoTests_placeCursorAfterElement("item1");
+    api.tests.UndoTests.placeCursorAfterElement("item1");
 
-    Tables_insertTable(1,3,"80%",true,"Third table");
-    PostponedActions_perform();
-    versions.push(DOM_cloneNode(body,true));
+    api.Tables.insertTable(1,3,"80%",true,"Third table");
+    api.PostponedActions.perform();
+    versions.push(api.DOM.cloneNode(body,true));
 
-    UndoTests_placeCursorAfterElement("item2");
-    Tables_insertTable(1,4,"70%",true,"Fourth table");
-    PostponedActions_perform();
-    versions.push(DOM_cloneNode(body,true));
+    api.tests.UndoTests.placeCursorAfterElement("item2");
+    api.Tables.insertTable(1,4,"70%",true,"Fourth table");
+    api.PostponedActions.perform();
+    versions.push(api.DOM.cloneNode(body,true));
 
-    UndoTests_testUndo(versions,body);
+    api.tests.UndoTests.testUndo(versions,body);
 }
 </script>
 </head>

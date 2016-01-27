@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="TableTests.js"></script>
+<script></script>
 <script>
-function performTest()
+function performTest(api)
 {
     var element = document.getElementsByTagName("table")[0];
-    var structure = Tables_analyseStructure(element);
-    return JSON.stringify(Tables_getColWidths(structure));
+    var structure = api.Tables.analyseStructure(element);
+    return JSON.stringify(api.Tables.getColWidths(structure));
 }
 </script>
 </head>

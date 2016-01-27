@@ -15,29 +15,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var Types_Keys;
-var Types_isContainerNode;
-var Types_isParagraphNode;
-var Types_isHeadingNode;
-var Types_isBlockNode;
-var Types_isBlockOrNoteNode;
-var Types_isInlineNode;
-var Types_isListNode;
-var Types_isTableCell;
-var Types_isRefNode;
-var Types_isNoteNode;
-var Types_isEmptyNoteNode;
-var Types_isItemNumber;
-var Types_isOpaqueNode;
-var Types_isAutoCorrectNode;
-var Types_isSelectionHighlight;
-var Types_isSelectionSpan;
-var Types_isTOCNode;
-var Types_isInTOC;
-var Types_isSpecialBlockNode;
-var Types_isAbstractSpan;
+(function(api) {
 
-(function() {
+    var Types = api.Types; // export
+
+    var DOM = api.DOM; // import
+    var Util = api.Util; // import
 
     var CONTAINER_ELEMENTS = new Array(HTML_COUNT);
     CONTAINER_ELEMENTS[HTML_DOCUMENT] = true;
@@ -107,12 +90,12 @@ var Types_isAbstractSpan;
     OUTLINE_TITLE_ELEMENTS[HTML_FIGCAPTION] = true;
     OUTLINE_TITLE_ELEMENTS[HTML_CAPTION] = true;
 
-    Types_PARAGRAPH_ELEMENTS = PARAGRAPH_ELEMENTS;
-    Types_HEADING_ELEMENTS = HEADING_ELEMENTS;
-    Types_CONTAINERS_ALLOWING_CHILDREN = CONTAINERS_ALLOWING_CHILDREN;
-    Types_OUTLINE_TITLE_ELEMENTS = OUTLINE_TITLE_ELEMENTS;
+    Types.PARAGRAPH_ELEMENTS = PARAGRAPH_ELEMENTS;
+    Types.HEADING_ELEMENTS = HEADING_ELEMENTS;
+    Types.CONTAINERS_ALLOWING_CHILDREN = CONTAINERS_ALLOWING_CHILDREN;
+    Types.OUTLINE_TITLE_ELEMENTS = OUTLINE_TITLE_ELEMENTS;
 
-    Types_Keys = {
+    Types.Keys = {
         HEADING_NUMBER: "uxwrite-heading-number",
         FIGURE_NUMBER: "uxwrite-figure-number",
         TABLE_NUMBER: "uxwrite-table-number",
@@ -147,36 +130,36 @@ var Types_isAbstractSpan;
         "uxwrite-field": true,
     };
 
-    Types_isContainerNode = function(node) {
+    Types.isContainerNode = function(node) {
         return CONTAINER_ELEMENTS[node._type];
     }
 
-    Types_isParagraphNode = function(node) {
+    Types.isParagraphNode = function(node) {
         return PARAGRAPH_ELEMENTS[node._type];
     }
 
-    Types_isHeadingNode = function(node) {
+    Types.isHeadingNode = function(node) {
         return HEADING_ELEMENTS[node._type];
     }
 
-    Types_isBlockNode = function(node) {
+    Types.isBlockNode = function(node) {
         return BLOCK_ELEMENTS[node._type];
     }
 
-    Types_isBlockOrNoteNode = function(node) {
-        return BLOCK_ELEMENTS[node._type] || Types_isNoteNode(node);
+    Types.isBlockOrNoteNode = function(node) {
+        return BLOCK_ELEMENTS[node._type] || Types.isNoteNode(node);
     }
 
-    Types_isInlineNode = function(node) {
+    Types.isInlineNode = function(node) {
         return INLINE_ELEMENTS[node._type];
     }
 
-    Types_isListNode = function(node) {
+    Types.isListNode = function(node) {
         var type = node._type;
         return ((type == HTML_UL) || (type == HTML_OL));
     }
 
-    Types_isTableCell = function(node) {
+    Types.isTableCell = function(node) {
         switch (node._type) {
         case HTML_TD:
         case HTML_TH:
@@ -186,26 +169,26 @@ var Types_isAbstractSpan;
         }
     }
 
-    Types_isRefNode = function(node) {
+    Types.isRefNode = function(node) {
         return ((node._type == HTML_A) &&
                 node.hasAttribute("href") &&
                 node.getAttribute("href").charAt(0) == "#");
     }
 
-    Types_isNoteNode = function(node) {
+    Types.isNoteNode = function(node) {
         if (node._type != HTML_SPAN)
             return false;
-        var className = DOM_getAttribute(node,"class");
+        var className = DOM.getAttribute(node,"class");
         return ((className == "footnote") || (className == "endnote"));
     }
 
-    Types_isEmptyNoteNode = function(node) {
-        return Types_isNoteNode(node) && !Util_nodeHasContent(node);
+    Types.isEmptyNoteNode = function(node) {
+        return Types.isNoteNode(node) && !Util.nodeHasContent(node);
     }
 
-    Types_isItemNumber = function(node) {
+    Types.isItemNumber = function(node) {
         if (node.nodeType == Node.TEXT_NODE) {
-            return Types_isItemNumber(node.parentNode);
+            return Types.isItemNumber(node.parentNode);
         }
         else if (node.nodeType == Node.ELEMENT_NODE) {
             if ((node._type == HTML_SPAN) && node.hasAttribute("class")) {
@@ -215,14 +198,14 @@ var Types_isAbstractSpan;
         return false;
     }
 
-    Types_isOpaqueNode = function(node) {
+    Types.isOpaqueNode = function(node) {
         if (node == null)
             return false;
 
         switch (node._type) {
         case HTML_TEXT:
         case HTML_COMMENT:
-            return Types_isOpaqueNode(node.parentNode);
+            return Types.isOpaqueNode(node.parentNode);
         case HTML_IMG:
             return true;
         case HTML_A:
@@ -233,59 +216,59 @@ var Types_isAbstractSpan;
             if (node.hasAttribute("class") && OPAQUE_NODE_CLASSES[node.getAttribute("class")])
                 return true;
             else
-                return Types_isOpaqueNode(node.parentNode);
+                return Types.isOpaqueNode(node.parentNode);
         }
     }
 
-    Types_isAutoCorrectNode = function(node) {
+    Types.isAutoCorrectNode = function(node) {
         return ((node._type == HTML_SPAN) &&
-                (node.getAttribute("class") == Types_Keys.AUTOCORRECT_CLASS));
+                (node.getAttribute("class") == Types.Keys.AUTOCORRECT_CLASS));
     }
 
-    Types_isSelectionHighlight = function(node) {
+    Types.isSelectionHighlight = function(node) {
         return ((node.nodeType == Node.ELEMENT_NODE) &&
-                node.getAttribute("class") == Types_Keys.SELECTION_CLASS);
+                node.getAttribute("class") == Types.Keys.SELECTION_CLASS);
     }
 
-    Types_isSelectionSpan = function(node) {
+    Types.isSelectionSpan = function(node) {
         return ((node != null) &&
                 (node._type == HTML_SPAN) &&
-                (DOM_getAttribute(node,"class") == Types_Keys.SELECTION_CLASS));
+                (DOM.getAttribute(node,"class") == Types.Keys.SELECTION_CLASS));
     };
 
-    Types_isTOCNode = function(node) {
+    Types.isTOCNode = function(node) {
         if (node._type == HTML_NAV) {
             var cls = node.getAttribute("class");
-            if ((cls == Types_Keys.SECTION_TOC) ||
-                (cls == Types_Keys.FIGURE_TOC) ||
-                (cls == Types_Keys.TABLE_TOC))
+            if ((cls == Types.Keys.SECTION_TOC) ||
+                (cls == Types.Keys.FIGURE_TOC) ||
+                (cls == Types.Keys.TABLE_TOC))
                 return true;
         }
         return false;
     }
 
-    Types_isInTOC = function(node) {
-        if (Types_isTOCNode(node))
+    Types.isInTOC = function(node) {
+        if (Types.isTOCNode(node))
             return true;
         if (node.parentNode != null)
-            return Types_isInTOC(node.parentNode);
+            return Types.isInTOC(node.parentNode);
         return false;
     }
 
-    Types_isSpecialBlockNode = function(node) {
+    Types.isSpecialBlockNode = function(node) {
         switch (node._type) {
         case HTML_TABLE:
         case HTML_FIGURE:
             return true;
         case HTML_NAV:
-            return Types_isTOCNode(node);
+            return Types.isTOCNode(node);
         default:
             return false;
         }
     }
 
-    Types_isAbstractSpan = function(node) {
-        return ((node._type == HTML_SPAN) && node.hasAttribute(Types_Keys.ABSTRACT_ELEMENT));
+    Types.isAbstractSpan = function(node) {
+        return ((node._type == HTML_SPAN) && node.hasAttribute(Types.Keys.ABSTRACT_ELEMENT));
     }
 
-})();
+})(globalAPI);

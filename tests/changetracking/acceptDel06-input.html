@@ -3,10 +3,10 @@
 <head>
 <link href="changetracking.css" rel="stylesheet"/>
 <script>
-function performTest()
+function performTest(api)
 {
-    ChangeTracking_acceptSelectedChanges();
-    TestLib_showSelection();
+    api.ChangeTracking.acceptSelectedChanges();
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

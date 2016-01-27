@@ -15,25 +15,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var Formatting_splitTextBefore;
-var Formatting_splitTextAfter;
-var Formatting_movePreceding;
-var Formatting_moveFollowing;
-var Formatting_splitAroundSelection;
-var Formatting_mergeUpwards;
-var Formatting_mergeWithNeighbours;
-var Formatting_paragraphTextUpToPosition;
-var Formatting_getAllNodeProperties;
-var Formatting_getFormatting;
-var Formatting_pushDownInlineProperties;
-var Formatting_applyFormattingChanges;
-var Formatting_formatInlineNode;
+(function(api) {
 
-var Formatting_MERGEABLE_INLINE;
-var Formatting_MERGEABLE_BLOCK;
-var Formatting_MERGEABLE_BLOCK_AND_INLINE;
+    var Formatting = api.Formatting; // export
 
-(function() {
+    var Collections = api.Collections; // import
+    var Cursor = api.Cursor; // import
+    var DOM = api.DOM; // import
+    var Hierarchy = api.Hierarchy; // import
+    var Position = api.Position; // import
+    var Range = api.Range; // import
+    var Selection = api.Selection; // import
+    var Traversal = api.Traversal; // import
+    var Types = api.Types; // import
+    var UndoManager = api.UndoManager; // import
+    var Util = api.Util; // import
 
     // Some properties in CSS, such as 'margin', 'border', and 'padding', are shorthands which
     // set multiple, more fine-grained properties. The CSS spec outlines what these are - e.g.
@@ -110,26 +106,26 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     // public (for testing purposes only)
-    Formatting_splitAroundSelection = function(range,allowDirectInline) {
-        Range_trackWhileExecuting(range,function() {
+    Formatting.splitAroundSelection = function(range,allowDirectInline) {
+        Range.trackWhileExecuting(range,function() {
             if (!allowDirectInline)
-                Range_ensureInlineNodesInParagraph(range);
-            Range_ensureValidHierarchy(range);
+                Range.ensureInlineNodesInParagraph(range);
+            Range.ensureValidHierarchy(range);
 
             if ((range.start.node.nodeType == Node.TEXT_NODE) &&
                 (range.start.offset > 0)) {
-                Formatting_splitTextBefore(range.start);
+                Formatting.splitTextBefore(range.start);
                 if (range.end.node == range.start.node)
                     range.end.offset -= range.start.offset;
                 range.start.offset = 0;
             }
             else if (range.start.node.nodeType == Node.ELEMENT_NODE) {
-                Formatting_movePreceding(range.start,Types_isBlockOrNoteNode);
+                Formatting.movePreceding(range.start,Types.isBlockOrNoteNode);
             }
             else {
-                Formatting_movePreceding(new Position_Position(range.start.node.parentNode,
-                                                      DOM_nodeOffset(range.start.node)),
-                                         Types_isBlockOrNoteNode);
+                Formatting.movePreceding(new Position.Position(range.start.node.parentNode,
+                                                      DOM.nodeOffset(range.start.node)),
+                                         Types.isBlockOrNoteNode);
             }
 
             // Save the start and end position of the range. The mutation listeners will move it
@@ -141,15 +137,15 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 
             if ((range.end.node.nodeType == Node.TEXT_NODE) &&
                 (range.end.offset < range.end.node.nodeValue.length)) {
-                Formatting_splitTextAfter(range.end);
+                Formatting.splitTextAfter(range.end);
             }
             else if (range.end.node.nodeType == Node.ELEMENT_NODE) {
-                Formatting_moveFollowing(range.end,Types_isBlockOrNoteNode);
+                Formatting.moveFollowing(range.end,Types.isBlockOrNoteNode);
             }
             else {
-                Formatting_moveFollowing(new Position_Position(range.end.node.parentNode,
-                                                      DOM_nodeOffset(range.end.node)+1),
-                                         Types_isBlockOrNoteNode);
+                Formatting.moveFollowing(new Position.Position(range.end.node.parentNode,
+                                                      DOM.nodeOffset(range.end.node)+1),
+                                         Types.isBlockOrNoteNode);
             }
 
             range.start.node = startNode;
@@ -160,10 +156,10 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     // public
-    Formatting_mergeUpwards = function(node,whiteList) {
+    Formatting.mergeUpwards = function(node,whiteList) {
         while ((node != null) && whiteList[node._type]) {
             var parent = node.parentNode;
-            Formatting_mergeWithNeighbours(node,whiteList,true);
+            Formatting.mergeWithNeighbours(node,whiteList,true);
             node = parent;
         }
     }
@@ -172,10 +168,10 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         if (node.nodeType != Node.ELEMENT_NODE)
             return false;
 
-        if (!Types_isInlineNode(node))
+        if (!Types.isInlineNode(node))
             return false;
 
-        if (Types_isOpaqueNode(node))
+        if (Types.isOpaqueNode(node))
             return false;
 
         for (var child = node.firstChild; child != null; child = child.nextSibling) {
@@ -187,7 +183,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     // public (for use by tests)
-    Formatting_mergeWithNeighbours = function(node,whiteList,trim) {
+    Formatting.mergeWithNeighbours = function(node,whiteList,trim) {
         var parent = node.parentNode;
         if (parent == null)
             return;
@@ -196,18 +192,18 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         var end = node;
 
         while ((start.previousSibling != null) &&
-               DOM_nodesMergeable(start.previousSibling,start,whiteList))
+               DOM.nodesMergeable(start.previousSibling,start,whiteList))
             start = start.previousSibling;
 
         while ((end.nextSibling != null) &&
-               DOM_nodesMergeable(end,end.nextSibling,whiteList))
+               DOM.nodesMergeable(end,end.nextSibling,whiteList))
             end = end.nextSibling;
 
         if (trim) {
             while ((start.previousSibling != null) && isDiscardable(start.previousSibling))
-                DOM_deleteNode(start.previousSibling);
+                DOM.deleteNode(start.previousSibling);
             while ((end.nextSibling != null) && isDiscardable(end.nextSibling))
-                DOM_deleteNode(end.nextSibling);
+                DOM.deleteNode(end.nextSibling);
         }
 
         if (start != end) {
@@ -219,65 +215,65 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                 if (start.nodeType == Node.ELEMENT_NODE)
                     lastChild = start.lastChild;
 
-                DOM_mergeWithNextSibling(start,whiteList);
+                DOM.mergeWithNextSibling(start,whiteList);
 
                 if (lastChild != null)
-                    Formatting_mergeWithNeighbours(lastChild,whiteList);
+                    Formatting.mergeWithNeighbours(lastChild,whiteList);
             } while (!lastMerge);
         }
     }
 
     // private
     function mergeRange(range,whiteList) {
-        var nodes = Range_getAllNodes(range);
+        var nodes = Range.getAllNodes(range);
         for (var i = 0; i < nodes.length; i++) {
             var next;
             for (var p = nodes[i]; p != null; p = next) {
                 next = p.parentNode;
-                Formatting_mergeWithNeighbours(p,whiteList);
+                Formatting.mergeWithNeighbours(p,whiteList);
             }
         }
     }
 
     // public (called from cursor.js)
-    Formatting_splitTextBefore = function(pos,parentCheckFn,force) {
+    Formatting.splitTextBefore = function(pos,parentCheckFn,force) {
         var node = pos.node;
         var offset = pos.offset;
         if (parentCheckFn == null)
-            parentCheckFn = Types_isBlockNode;
+            parentCheckFn = Types.isBlockNode;
 
         if (force || (offset > 0)) {
-            var before = DOM_createTextNode(document,"");
-            DOM_insertBefore(node.parentNode,before,node);
-            DOM_moveCharacters(node,0,offset,before,0,false,true);
-            Formatting_movePreceding(new Position_Position(node.parentNode,DOM_nodeOffset(node)),
+            var before = DOM.createTextNode(document,"");
+            DOM.insertBefore(node.parentNode,before,node);
+            DOM.moveCharacters(node,0,offset,before,0,false,true);
+            Formatting.movePreceding(new Position.Position(node.parentNode,DOM.nodeOffset(node)),
                                      parentCheckFn,force);
-            return new Position_Position(before,before.nodeValue.length);
+            return new Position.Position(before,before.nodeValue.length);
         }
         else {
-            Formatting_movePreceding(new Position_Position(node.parentNode,DOM_nodeOffset(node)),
+            Formatting.movePreceding(new Position.Position(node.parentNode,DOM.nodeOffset(node)),
                                      parentCheckFn,force);
             return pos;
         }
     }
 
     // public
-    Formatting_splitTextAfter = function(pos,parentCheckFn,force) {
+    Formatting.splitTextAfter = function(pos,parentCheckFn,force) {
         var node = pos.node;
         var offset = pos.offset;
         if (parentCheckFn == null)
-            parentCheckFn = Types_isBlockNode;
+            parentCheckFn = Types.isBlockNode;
 
         if (force || (offset < pos.node.nodeValue.length)) {
-            var after = DOM_createTextNode(document,"");
-            DOM_insertBefore(node.parentNode,after,node.nextSibling);
-            DOM_moveCharacters(node,offset,node.nodeValue.length,after,0,true,false);
-            Formatting_moveFollowing(new Position_Position(node.parentNode,DOM_nodeOffset(node)+1),
+            var after = DOM.createTextNode(document,"");
+            DOM.insertBefore(node.parentNode,after,node.nextSibling);
+            DOM.moveCharacters(node,offset,node.nodeValue.length,after,0,true,false);
+            Formatting.moveFollowing(new Position.Position(node.parentNode,DOM.nodeOffset(node)+1),
                                      parentCheckFn,force);
-            return new Position_Position(after,0);
+            return new Position.Position(after,0);
         }
         else {
-            Formatting_moveFollowing(new Position_Position(node.parentNode,DOM_nodeOffset(node)+1),
+            Formatting.moveFollowing(new Position.Position(node.parentNode,DOM.nodeOffset(node)+1),
                                      parentCheckFn,force);
             return pos;
         }
@@ -288,17 +284,17 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     // index of a child, we pass the child itself (or null if the offset is equal to
     // childNodes.length)
     // public
-    Formatting_movePreceding = function(pos,parentCheckFn,force) {
+    Formatting.movePreceding = function(pos,parentCheckFn,force) {
         var node = pos.node;
         var offset = pos.offset;
         if (parentCheckFn(node) || (node == document.body))
-            return new Position_Position(node,offset);
+            return new Position.Position(node,offset);
 
         var toMove = new Array();
         var justWhitespace = true;
-        var result = new Position_Position(node,offset);
+        var result = new Position.Position(node,offset);
         for (var i = 0; i < offset; i++) {
-            if (!Traversal_isWhitespaceTextNode(node.childNodes[i]))
+            if (!Traversal.isWhitespaceTextNode(node.childNodes[i]))
                 justWhitespace = false;
             toMove.push(node.childNodes[i]);
         }
@@ -306,35 +302,35 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         if ((toMove.length > 0) || force) {
             if (justWhitespace && !force) {
                 for (var i = 0; i < toMove.length; i++)
-                    DOM_insertBefore(node.parentNode,toMove[i],node);
+                    DOM.insertBefore(node.parentNode,toMove[i],node);
             }
             else {
-                var copy = DOM_shallowCopyElement(node);
-                DOM_insertBefore(node.parentNode,copy,node);
+                var copy = DOM.shallowCopyElement(node);
+                DOM.insertBefore(node.parentNode,copy,node);
 
                 for (var i = 0; i < toMove.length; i++)
-                    DOM_insertBefore(copy,toMove[i],null);
-                result = new Position_Position(copy,copy.childNodes.length);
+                    DOM.insertBefore(copy,toMove[i],null);
+                result = new Position.Position(copy,copy.childNodes.length);
             }
         }
 
-        Formatting_movePreceding(new Position_Position(node.parentNode,DOM_nodeOffset(node)),
+        Formatting.movePreceding(new Position.Position(node.parentNode,DOM.nodeOffset(node)),
                                  parentCheckFn,force);
         return result;
     }
 
     // public
-    Formatting_moveFollowing = function(pos,parentCheckFn,force) {
+    Formatting.moveFollowing = function(pos,parentCheckFn,force) {
         var node = pos.node;
         var offset = pos.offset;
         if (parentCheckFn(node) || (node == document.body))
-            return new Position_Position(node,offset);
+            return new Position.Position(node,offset);
 
         var toMove = new Array();
         var justWhitespace = true;
-        var result =  new Position_Position(node,offset);
+        var result =  new Position.Position(node,offset);
         for (var i = offset; i < node.childNodes.length; i++) {
-            if (!Traversal_isWhitespaceTextNode(node.childNodes[i]))
+            if (!Traversal.isWhitespaceTextNode(node.childNodes[i]))
                 justWhitespace = false;
             toMove.push(node.childNodes[i]);
         }
@@ -342,36 +338,36 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         if ((toMove.length > 0) || force) {
             if (justWhitespace && !force) {
                 for (var i = 0; i < toMove.length; i++)
-                    DOM_insertBefore(node.parentNode,toMove[i],node.nextSibling);
+                    DOM.insertBefore(node.parentNode,toMove[i],node.nextSibling);
             }
             else {
-                var copy = DOM_shallowCopyElement(node);
-                DOM_insertBefore(node.parentNode,copy,node.nextSibling);
+                var copy = DOM.shallowCopyElement(node);
+                DOM.insertBefore(node.parentNode,copy,node.nextSibling);
 
                 for (var i = 0; i < toMove.length; i++)
-                    DOM_insertBefore(copy,toMove[i],null);
-                result = new Position_Position(copy,0);
+                    DOM.insertBefore(copy,toMove[i],null);
+                result = new Position.Position(copy,0);
             }
         }
 
-        Formatting_moveFollowing(new Position_Position(node.parentNode,DOM_nodeOffset(node)+1),
+        Formatting.moveFollowing(new Position.Position(node.parentNode,DOM.nodeOffset(node)+1),
                                  parentCheckFn,force);
         return result;
     }
 
     // public
-    Formatting_paragraphTextUpToPosition = function(pos) {
+    Formatting.paragraphTextUpToPosition = function(pos) {
         if (pos.node.nodeType == Node.TEXT_NODE) {
             return stringToStartOfParagraph(pos.node,pos.offset);
         }
         else {
-            return stringToStartOfParagraph(Position_closestActualNode(pos),0);
+            return stringToStartOfParagraph(Position.closestActualNode(pos),0);
         }
 
         function stringToStartOfParagraph(node,offset) {
             var start = node;
             var components = new Array();
-            while (Types_isInlineNode(node)) {
+            while (Types.isInlineNode(node)) {
                 if (node.nodeType == Node.TEXT_NODE) {
                     if (node == start)
                         components.push(node.nodeValue.slice(0,offset));
@@ -381,7 +377,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 
                 if (node.previousSibling != null) {
                     node = node.previousSibling;
-                    while (Types_isInlineNode(node) && (node.lastChild != null))
+                    while (Types.isInlineNode(node) && (node.lastChild != null))
                         node = node.lastChild;
                 }
                 else {
@@ -393,29 +389,29 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     // public
-    Formatting_getFormatting = function() {
+    Formatting.getFormatting = function() {
         // FIXME: implement a more efficient version of this algorithm which avoids duplicate checks
 
-        var range = Selection_get();
+        var range = Selection.get();
         if (range == null)
             return {};
 
-        Range_assertValid(range,"Selection");
+        Range.assertValid(range,"Selection");
 
-        var outermost = Range_getOutermostNodes(range,true);
+        var outermost = Range.getOutermostNodes(range,true);
 
         var leafNodes = new Array();
         for (var i = 0; i < outermost.length; i++) {
             findLeafNodes(outermost[i],leafNodes);
         }
-        var empty = Range_isEmpty(range);
+        var empty = Range.isEmpty(range);
 
         var commonProperties = null;
         for (var i = 0; i < leafNodes.length; i++) {
-            if (!Traversal_isWhitespaceTextNode(leafNodes[i]) || empty) {
-                var leafNodeProperties = Formatting_getAllNodeProperties(leafNodes[i]);
+            if (!Traversal.isWhitespaceTextNode(leafNodes[i]) || empty) {
+                var leafNodeProperties = Formatting.getAllNodeProperties(leafNodes[i]);
                 if (leafNodeProperties["-uxwrite-paragraph-style"] == null)
-                    leafNodeProperties["-uxwrite-paragraph-style"] = Types_Keys.NONE_STYLE;
+                    leafNodeProperties["-uxwrite-paragraph-style"] = Types.Keys.NONE_STYLE;
                 if (commonProperties == null)
                     commonProperties = leafNodeProperties;
                 else
@@ -424,7 +420,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         }
 
         if (commonProperties == null)
-            commonProperties = {"-uxwrite-paragraph-style": Types_Keys.NONE_STYLE};
+            commonProperties = {"-uxwrite-paragraph-style": Types.Keys.NONE_STYLE};
 
         for (var i = 0; i < leafNodes.length; i++) {
             var leaf = leafNodes[i];
@@ -446,7 +442,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                     if (ancestor.parentNode._type == HTML_LI) {
                         var havePrev = false;
                         for (var c = ancestor.previousSibling; c != null; c = c.previousSibling) {
-                            if (!Traversal_isWhitespaceTextNode(c)) {
+                            if (!Traversal.isWhitespaceTextNode(c)) {
                                 havePrev = true;
                                 break;
                             }
@@ -472,11 +468,11 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         return commonProperties;
 
         function getFlags(pos,commonProperties) {
-            var strBeforeCursor = Formatting_paragraphTextUpToPosition(pos);
+            var strBeforeCursor = Formatting.paragraphTextUpToPosition(pos);
 
-            if (Util_isWhitespaceString(strBeforeCursor)) {
+            if (Util.isWhitespaceString(strBeforeCursor)) {
                 var firstInParagraph = true;
-                for (var p = pos.node; Types_isInlineNode(p); p = p.parentNode) {
+                for (var p = pos.node; Types.isInlineNode(p); p = p.parentNode) {
                     if (p.previousSibling != null)
                         firstInParagraph = false;
                 }
@@ -512,14 +508,14 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     }
 
     // public
-    Formatting_getAllNodeProperties = function(node) {
+    Formatting.getAllNodeProperties = function(node) {
         if (node == null)
             throw new Error("Node is not in tree");
 
         if (node == node.ownerDocument.body)
             return new Object();
 
-        var properties = Formatting_getAllNodeProperties(node.parentNode);
+        var properties = Formatting.getAllNodeProperties(node.parentNode);
 
         if (node.nodeType == Node.ELEMENT_NODE) {
             // Note: Style names corresponding to element names must be in lowercase, because
@@ -572,15 +568,15 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                 }
                 break;
             case HTML_NAV: {
-                var className = DOM_getAttribute(node,"class");
-                if ((className == Types_Keys.SECTION_TOC) ||
-                    (className == Types_Keys.FIGURE_TOC) ||
-                    (className == Types_Keys.TABLE_TOC))
+                var className = DOM.getAttribute(node,"class");
+                if ((className == Types.Keys.SECTION_TOC) ||
+                    (className == Types.Keys.FIGURE_TOC) ||
+                    (className == Types.Keys.TABLE_TOC))
                     properties["-uxwrite-in-toc"] = "true";
                 break;
             }
             default:
-                if (Types_PARAGRAPH_ELEMENTS[type]) {
+                if (Types.PARAGRAPH_ELEMENTS[type]) {
                     var name = node.nodeName.toLowerCase();
                     var selector;
                     if (node.hasAttribute("class"))
@@ -592,7 +588,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                 break;
             }
 
-            if (Types_OUTLINE_TITLE_ELEMENTS[type] && node.hasAttribute("id"))
+            if (Types.OUTLINE_TITLE_ELEMENTS[type] && node.hasAttribute("id"))
                 properties["-uxwrite-in-item-title"] = node.getAttribute("id");
         }
 
@@ -655,12 +651,12 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     function putDirectInlineChildrenInParagraphs(parent) {
         var inlineChildren = new Array();
         for (var child = parent.firstChild; child != null; child = child.nextSibling)
-            if (Types_isInlineNode(child))
+            if (Types.isInlineNode(child))
                 inlineChildren.push(child);
         for (var i = 0; i < inlineChildren.length; i++) {
             if (inlineChildren[i].parentNode == parent) { // may already have been moved
-                if (!Traversal_isWhitespaceTextNode(inlineChildren[i]))
-                    Hierarchy_wrapInlineNodesInParagraph(inlineChildren[i]);
+                if (!Traversal.isWhitespaceTextNode(inlineChildren[i]))
+                    Hierarchy.wrapInlineNodesInParagraph(inlineChildren[i]);
             }
         }
     }
@@ -668,7 +664,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     // private
     function getParagraphs(nodes) {
         var array = new Array();
-        var set = new Collections_NodeSet();
+        var set = new Collections.NodeSet();
         for (var i = 0; i < nodes.length; i++) {
             for (var anc = nodes[i].parentNode; anc != null; anc = anc.parentNode) {
                 if (anc._type == HTML_LI)
@@ -677,7 +673,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
             recurse(nodes[i]);
         }
 
-        var remove = new Collections_NodeSet();
+        var remove = new Collections.NodeSet();
         for (var i = 0; i < array.length; i++) {
             for (var anc = array[i].parentNode; anc != null; anc = anc.parentNode)
                 remove.add(anc);
@@ -697,7 +693,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
             if (node.firstChild == null) {
                 // Leaf node
                 for (var anc = node; anc != null; anc = anc.parentNode)
-                    if (Types_isParagraphNode(anc)) {
+                    if (Types.isParagraphNode(anc)) {
                         add(anc);
                     }
             }
@@ -717,11 +713,11 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 
     // private
     function setParagraphStyle(paragraph,selector) {
-        var wasHeading = Types_isHeadingNode(paragraph);
-        DOM_removeAttribute(paragraph,"class");
+        var wasHeading = Types.isHeadingNode(paragraph);
+        DOM.removeAttribute(paragraph,"class");
         if (selector == "") {
             if (paragraph._type != HTML_P)
-                paragraph = DOM_replaceElement(paragraph,"P");
+                paragraph = DOM.replaceElement(paragraph,"P");
         }
         else {
             var elementClassRegex = /^([a-zA-Z0-9]+)?(\.(.+))?$/;
@@ -737,28 +733,28 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 
                 var elementType = ElementTypes[elementName];
 
-                if (!Types_PARAGRAPH_ELEMENTS[elementType])
+                if (!Types.PARAGRAPH_ELEMENTS[elementType])
                     return; // better than throwing an exception
 
                 if (paragraph._type != elementType)
-                    paragraph = DOM_replaceElement(paragraph,elementName);
+                    paragraph = DOM.replaceElement(paragraph,elementName);
 
                 if (className != null)
-                    DOM_setAttribute(paragraph,"class",className);
+                    DOM.setAttribute(paragraph,"class",className);
                 else
-                    DOM_removeAttribute(paragraph,"class");
+                    DOM.removeAttribute(paragraph,"class");
             }
         }
 
         // FIXME: this will need to change when we add Word/ODF support, because the ids serve
         // a purpose other than simply being targets for references
-        var isHeading = Types_isHeadingNode(paragraph);
+        var isHeading = Types.isHeadingNode(paragraph);
         if (wasHeading && !isHeading)
-            DOM_removeAttribute(paragraph,"id");
+            DOM.removeAttribute(paragraph,"id");
     }
 
     // public
-    Formatting_pushDownInlineProperties = function(outermost) {
+    Formatting.pushDownInlineProperties = function(outermost) {
         for (var i = 0; i < outermost.length; i++)
             outermost[i] = pushDownInlinePropertiesSingle(outermost[i]);
     }
@@ -786,7 +782,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
             var remove = new Object();
             for (var name in inlineProperties)
                 remove[name] = null;
-            DOM_setStyleProperties(node,remove);
+            DOM.setStyleProperties(node,remove);
 
             var type = node._type;
             switch (type) {
@@ -813,7 +809,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                 for (var child = node.firstChild; child != null; child = next) {
                     next = child.nextSibling;
 
-                    if (Traversal_isWhitespaceTextNode(child))
+                    if (Traversal.isWhitespaceTextNode(child))
                         continue;
 
                     var replacement = applyInlineFormatting(child,inlineProperties,special);
@@ -823,13 +819,13 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
             }
 
             if (node.hasAttribute("style") && (node.style.length == 0))
-                DOM_removeAttribute(node,"style");
+                DOM.removeAttribute(node,"style");
 
             switch (type) {
             case HTML_B:
             case HTML_I:
             case HTML_U:
-                DOM_removeNodeButKeepChildren(node);
+                DOM.removeNodeButKeepChildren(node);
                 break;
             }
         }
@@ -837,7 +833,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 
     // private
     function wrapInline(node,elementName) {
-        if (!Types_isInlineNode(node) || Types_isAbstractSpan(node)) {
+        if (!Types.isInlineNode(node) || Types.isAbstractSpan(node)) {
             var next;
             for (var child = node.firstChild; child != null; child = next) {
                 next = child.nextSibling;
@@ -846,13 +842,13 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
             return node;
         }
         else {
-            return DOM_wrapNode(node,elementName);
+            return DOM.wrapNode(node,elementName);
         }
     }
 
     // private
     function applyInlineFormatting(target,inlineProperties,special,applyToWhitespace) {
-        if (!applyToWhitespace && Traversal_isWhitespaceTextNode(target))
+        if (!applyToWhitespace && Traversal.isWhitespaceTextNode(target))
             return;
 
         if (special.underline)
@@ -884,7 +880,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
             if ((existing == null) || (existing == ""))
                 propertiesToSet[name] = inlineProperties[name];
         }
-        DOM_setStyleProperties(target,propertiesToSet);
+        DOM.setStyleProperties(target,propertiesToSet);
 
         return target;
     }
@@ -934,7 +930,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 
     // private
     function removeProperties(outermost,properties) {
-        properties = Util_clone(properties);
+        properties = Util.clone(properties);
         var special = extractSpecial(properties);
         var remaining = new Array();
         for (var i = 0; i < outermost.length; i++) {
@@ -945,7 +941,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 
     // private
     function getOutermostParagraphs(paragraphs) {
-        var all = new Collections_NodeSet();
+        var all = new Collections.NodeSet();
         for (var i = 0; i < paragraphs.length; i++)
             all.add(paragraphs[i]);
 
@@ -970,7 +966,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
             var remove = new Object();
             for (var name in properties)
                 remove[name] = null;
-            DOM_setStyleProperties(node,remove);
+            DOM.setStyleProperties(node,remove);
         }
 
         var willRemove = false;
@@ -998,17 +994,17 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
         }
 
         if (willRemove)
-            DOM_removeNodeButKeepChildren(node);
+            DOM.removeNodeButKeepChildren(node);
         else if (remaining != null)
             remaining.push(node);
     }
 
     function isSpecialSpan(span) {
         if (span._type == HTML_SPAN) {
-            if (span.hasAttribute(Types_Keys.ABSTRACT_ELEMENT))
+            if (span.hasAttribute(Types.Keys.ABSTRACT_ELEMENT))
                 return true;
-            var className = DOM_getStringAttribute(span,"class");
-            if (className.indexOf(Types_Keys.UXWRITE_PREFIX) == 0)
+            var className = DOM.getStringAttribute(span,"class");
+            if (className.indexOf(Types.Keys.UXWRITE_PREFIX) == 0)
                 return true;
             if ((className == "footnote") || (className == "endnote"))
                 return true;
@@ -1019,14 +1015,14 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
     // private
     function containsOnlyWhitespace(ancestor) {
         for (child = ancestor.firstChild; child != null; child = child.nextSibling) {
-            if (!Traversal_isWhitespaceTextNode(child))
+            if (!Traversal.isWhitespaceTextNode(child))
                 return false;
         }
         return true;
     }
 
     // public
-    Formatting_applyFormattingChanges = function(style,properties) {
+    Formatting.applyFormattingChanges = function(style,properties) {
         debug("JS: applyFormattingChanges: style = "+JSON.stringify(style));
         if (properties != null) {
             var names = Object.getOwnPropertyNames(properties).sort();
@@ -1034,12 +1030,12 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                 debug("    "+names[i]+" = "+properties[names[i]]);
             }
         }
-        UndoManager_newGroup("Apply formatting changes");
+        UndoManager.newGroup("Apply formatting changes");
 
         if (properties == null)
             properties = new Object();
 
-        if (style == Types_Keys.NONE_STYLE)
+        if (style == Types.Keys.NONE_STYLE)
             style = null;
 
         var paragraphProperties = new Object();
@@ -1052,70 +1048,70 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                 inlineProperties[name] = properties[name];
         }
 
-        var selectionRange = Selection_get();
+        var selectionRange = Selection.get();
         if (selectionRange == null)
             return;
 
         // If we're applying formatting properties to an empty selection, and the node of the
         // selection start & end is an element, add an empty text node so that we have something
         // to apply the formatting to.
-        if (Range_isEmpty(selectionRange) &&
+        if (Range.isEmpty(selectionRange) &&
             (selectionRange.start.node.nodeType == Node.ELEMENT_NODE)) {
             var node = selectionRange.start.node;
             var offset = selectionRange.start.offset;
-            var text = DOM_createTextNode(document,"");
-            DOM_insertBefore(node,text,node.childNodes[offset]);
-            Selection_set(text,0,text,0);
-            selectionRange = Selection_get();
+            var text = DOM.createTextNode(document,"");
+            DOM.insertBefore(node,text,node.childNodes[offset]);
+            Selection.set(text,0,text,0);
+            selectionRange = Selection.get();
         }
 
         // If the cursor is in a container (such as BODY OR FIGCAPTION), and not inside a paragraph,
         // put it in one so we can set a paragraph style
 
-        if ((style != null) && Range_isEmpty(selectionRange)) {
-            var node = Range_singleNode(selectionRange);
-            while (Types_isInlineNode(node))
+        if ((style != null) && Range.isEmpty(selectionRange)) {
+            var node = Range.singleNode(selectionRange);
+            while (Types.isInlineNode(node))
                 node = node.parentNode;
-            if (Types_isContainerNode(node) && containsOnlyInlineChildren(node)) {
-                var p = DOM_createElement(document,"P");
-                DOM_appendChild(node,p);
+            if (Types.isContainerNode(node) && containsOnlyInlineChildren(node)) {
+                var p = DOM.createElement(document,"P");
+                DOM.appendChild(node,p);
                 while (node.firstChild != p)
-                    DOM_appendChild(p,node.firstChild);
-                Cursor_updateBRAtEndOfParagraph(p);
+                    DOM.appendChild(p,node.firstChild);
+                Cursor.updateBRAtEndOfParagraph(p);
             }
         }
 
 
-        var range = new Range_Range(selectionRange.start.node,selectionRange.start.offset,
+        var range = new Range.Range(selectionRange.start.node,selectionRange.start.offset,
                               selectionRange.end.node,selectionRange.end.offset);
         var positions = [selectionRange.start,selectionRange.end,
                          range.start,range.end];
 
         var allowDirectInline = (style == null);
-        Position_trackWhileExecuting(positions,function() {
-            Formatting_splitAroundSelection(range,allowDirectInline);
-            Range_expand(range);
+        Position.trackWhileExecuting(positions,function() {
+            Formatting.splitAroundSelection(range,allowDirectInline);
+            Range.expand(range);
             if (!allowDirectInline)
-                Range_ensureInlineNodesInParagraph(range);
-            Range_ensureValidHierarchy(range);
-            Range_expand(range);
-            var outermost = Range_getOutermostNodes(range);
+                Range.ensureInlineNodesInParagraph(range);
+            Range.ensureValidHierarchy(range);
+            Range.expand(range);
+            var outermost = Range.getOutermostNodes(range);
             var target = null;
 
             var paragraphs;
             if (outermost.length > 0)
                 paragraphs = getParagraphs(outermost);
             else
-                paragraphs = getParagraphs([Range_singleNode(range)]);
+                paragraphs = getParagraphs([Range.singleNode(range)]);
 
             // Push down inline properties
-            Formatting_pushDownInlineProperties(outermost);
+            Formatting.pushDownInlineProperties(outermost);
 
             outermost = removeProperties(outermost,inlineProperties);
 
             // Set properties on inline nodes
             for (var i = 0; i < outermost.length; i++) {
-                var existing = Formatting_getAllNodeProperties(outermost[i]);
+                var existing = Formatting.getAllNodeProperties(outermost[i]);
                 var toSet = new Object();
                 for (var name in inlineProperties) {
                     if ((inlineProperties[name] != null) &&
@@ -1141,7 +1137,7 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
 
             var outermostParagraphs = getOutermostParagraphs(paragraphs);
             for (var i = 0; i < outermostParagraphs.length; i++)
-                DOM_setStyleProperties(outermostParagraphs[i],paragraphPropertiesToSet);
+                DOM.setStyleProperties(outermostParagraphs[i],paragraphPropertiesToSet);
 
             // Set style on paragraph nodes
             if (style != null) {
@@ -1150,94 +1146,94 @@ var Formatting_MERGEABLE_BLOCK_AND_INLINE;
                 }
             }
 
-            mergeRange(range,Formatting_MERGEABLE_INLINE);
+            mergeRange(range,Formatting.MERGEABLE_INLINE);
 
             if (target != null) {
                 for (var p = target; p != null; p = next) {
                     next = p.parentNode;
-                    Formatting_mergeWithNeighbours(p,Formatting_MERGEABLE_INLINE);
+                    Formatting.mergeWithNeighbours(p,Formatting.MERGEABLE_INLINE);
                 }
             }
         });
 
         // The current cursor position may no longer be valid, e.g. if a heading span was inserted
         // and the cursor is at a position that is now immediately before the span.
-        var start = Position_closestMatchForwards(selectionRange.start,Position_okForInsertion);
-        var end = Position_closestMatchBackwards(selectionRange.end,Position_okForInsertion);
-        var tempRange = new Range_Range(start.node,start.offset,end.node,end.offset);
-        tempRange = Range_forwards(tempRange);
-        Range_ensureValidHierarchy(tempRange);
+        var start = Position.closestMatchForwards(selectionRange.start,Position.okForInsertion);
+        var end = Position.closestMatchBackwards(selectionRange.end,Position.okForInsertion);
+        var tempRange = new Range.Range(start.node,start.offset,end.node,end.offset);
+        tempRange = Range.forwards(tempRange);
+        Range.ensureValidHierarchy(tempRange);
         start = tempRange.start;
         end = tempRange.end;
-        Selection_set(start.node,start.offset,end.node,end.offset);
+        Selection.set(start.node,start.offset,end.node,end.offset);
 
         function containsOnlyInlineChildren(node) {
             for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                if (!Types_isInlineNode(child))
+                if (!Types.isInlineNode(child))
                     return false;
             }
             return true;
         }
     }
 
-    Formatting_formatInlineNode = function(node,properties) {
-        properties = Util_clone(properties);
+    Formatting.formatInlineNode = function(node,properties) {
+        properties = Util.clone(properties);
         var special = extractSpecial(properties);
         return applyInlineFormatting(node,properties,special,true);
     }
 
-    Formatting_MERGEABLE_INLINE = new Array(HTML_COUNT);
+    Formatting.MERGEABLE_INLINE = new Array(HTML_COUNT);
 
-    Formatting_MERGEABLE_INLINE[HTML_TEXT] = true;
+    Formatting.MERGEABLE_INLINE[HTML_TEXT] = true;
 
-    Formatting_MERGEABLE_INLINE[HTML_SPAN] = true;
-    Formatting_MERGEABLE_INLINE[HTML_A] = true;
-    Formatting_MERGEABLE_INLINE[HTML_Q] = true;
+    Formatting.MERGEABLE_INLINE[HTML_SPAN] = true;
+    Formatting.MERGEABLE_INLINE[HTML_A] = true;
+    Formatting.MERGEABLE_INLINE[HTML_Q] = true;
 
     // HTML 4.01 Section 9.2.1: Phrase elements
-    Formatting_MERGEABLE_INLINE[HTML_EM] = true;
-    Formatting_MERGEABLE_INLINE[HTML_STRONG] = true;
-    Formatting_MERGEABLE_INLINE[HTML_DFN] = true;
-    Formatting_MERGEABLE_INLINE[HTML_CODE] = true;
-    Formatting_MERGEABLE_INLINE[HTML_SAMP] = true;
-    Formatting_MERGEABLE_INLINE[HTML_KBD] = true;
-    Formatting_MERGEABLE_INLINE[HTML_VAR] = true;
-    Formatting_MERGEABLE_INLINE[HTML_CITE] = true;
-    Formatting_MERGEABLE_INLINE[HTML_ABBR] = true;
+    Formatting.MERGEABLE_INLINE[HTML_EM] = true;
+    Formatting.MERGEABLE_INLINE[HTML_STRONG] = true;
+    Formatting.MERGEABLE_INLINE[HTML_DFN] = true;
+    Formatting.MERGEABLE_INLINE[HTML_CODE] = true;
+    Formatting.MERGEABLE_INLINE[HTML_SAMP] = true;
+    Formatting.MERGEABLE_INLINE[HTML_KBD] = true;
+    Formatting.MERGEABLE_INLINE[HTML_VAR] = true;
+    Formatting.MERGEABLE_INLINE[HTML_CITE] = true;
+    Formatting.MERGEABLE_INLINE[HTML_ABBR] = true;
 
     // HTML 4.01 Section 9.2.3: Subscripts and superscripts
-    Formatting_MERGEABLE_INLINE[HTML_SUB] = true;
-    Formatting_MERGEABLE_INLINE[HTML_SUP] = true;
+    Formatting.MERGEABLE_INLINE[HTML_SUB] = true;
+    Formatting.MERGEABLE_INLINE[HTML_SUP] = true;
 
     // HTML 4.01 Section 15.2.1: Font style elements
-    Formatting_MERGEABLE_INLINE[HTML_I] = true;
-    Formatting_MERGEABLE_INLINE[HTML_B] = true;
-    Formatting_MERGEABLE_INLINE[HTML_SMALL] = true;
-    Formatting_MERGEABLE_INLINE[HTML_S] = true;
-    Formatting_MERGEABLE_INLINE[HTML_U] = true;
+    Formatting.MERGEABLE_INLINE[HTML_I] = true;
+    Formatting.MERGEABLE_INLINE[HTML_B] = true;
+    Formatting.MERGEABLE_INLINE[HTML_SMALL] = true;
+    Formatting.MERGEABLE_INLINE[HTML_S] = true;
+    Formatting.MERGEABLE_INLINE[HTML_U] = true;
 
-    Formatting_MERGEABLE_BLOCK = new Array(HTML_COUNT);
+    Formatting.MERGEABLE_BLOCK = new Array(HTML_COUNT);
 
-    Formatting_MERGEABLE_BLOCK[HTML_P] = true;
-    Formatting_MERGEABLE_BLOCK[HTML_H1] = true;
-    Formatting_MERGEABLE_BLOCK[HTML_H2] = true;
-    Formatting_MERGEABLE_BLOCK[HTML_H3] = true;
-    Formatting_MERGEABLE_BLOCK[HTML_H4] = true;
-    Formatting_MERGEABLE_BLOCK[HTML_H5] = true;
-    Formatting_MERGEABLE_BLOCK[HTML_H6] = true;
-    Formatting_MERGEABLE_BLOCK[HTML_DIV] = true;
-    Formatting_MERGEABLE_BLOCK[HTML_PRE] = true;
-    Formatting_MERGEABLE_BLOCK[HTML_BLOCKQUOTE] = true;
+    Formatting.MERGEABLE_BLOCK[HTML_P] = true;
+    Formatting.MERGEABLE_BLOCK[HTML_H1] = true;
+    Formatting.MERGEABLE_BLOCK[HTML_H2] = true;
+    Formatting.MERGEABLE_BLOCK[HTML_H3] = true;
+    Formatting.MERGEABLE_BLOCK[HTML_H4] = true;
+    Formatting.MERGEABLE_BLOCK[HTML_H5] = true;
+    Formatting.MERGEABLE_BLOCK[HTML_H6] = true;
+    Formatting.MERGEABLE_BLOCK[HTML_DIV] = true;
+    Formatting.MERGEABLE_BLOCK[HTML_PRE] = true;
+    Formatting.MERGEABLE_BLOCK[HTML_BLOCKQUOTE] = true;
 
-    Formatting_MERGEABLE_BLOCK[HTML_UL] = true;
-    Formatting_MERGEABLE_BLOCK[HTML_OL] = true;
-    Formatting_MERGEABLE_BLOCK[HTML_LI] = true;
+    Formatting.MERGEABLE_BLOCK[HTML_UL] = true;
+    Formatting.MERGEABLE_BLOCK[HTML_OL] = true;
+    Formatting.MERGEABLE_BLOCK[HTML_LI] = true;
 
-    Formatting_MERGEABLE_BLOCK_AND_INLINE = new Array(HTML_COUNT);
+    Formatting.MERGEABLE_BLOCK_AND_INLINE = new Array(HTML_COUNT);
     for (var i = 0; i < HTML_COUNT; i++) {
-        if (Formatting_MERGEABLE_INLINE[i] || Formatting_MERGEABLE_BLOCK[i])
-            Formatting_MERGEABLE_BLOCK_AND_INLINE[i] = true;
-        Formatting_MERGEABLE_BLOCK_AND_INLINE["force"] = true;
+        if (Formatting.MERGEABLE_INLINE[i] || Formatting.MERGEABLE_BLOCK[i])
+            Formatting.MERGEABLE_BLOCK_AND_INLINE[i] = true;
+        Formatting.MERGEABLE_BLOCK_AND_INLINE["force"] = true;
     }
 
-})();
+})(globalAPI);

@@ -3,15 +3,15 @@
 <head>
 <link href="../generic.css" rel="stylesheet"/>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
+    api.Outline.init();
+    api.PostponedActions.perform();
 
-    Figures_insertFigure("nothing.png","20%",false,null);
-    PostponedActions_perform();
+    api.Figures.insertFigure("nothing.png","20%",false,null);
+    api.PostponedActions.perform();
 
-    Figures_setProperties("item1","20%",null);
+    api.Figures.setProperties("item1","20%",null);
 }
 </script>
 </head>

@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="validPositions.js"></script>
+<script></script>
 <script>
-function performTest()
+function performTest(api)
 {
     var p = document.getElementsByTagName("P")[0];
-    DOM_deleteAllChildren(p);
-    DOM_appendChild(p,DOM_createTextNode(document,"\n"));
-    DOM_appendChild(p,DOM_createTextNode(document,"\n"));
-    DOM_appendChild(p,DOM_createTextNode(document,"\n"));
-    ValidPositions_showValidPositions();
+    api.DOM.deleteAllChildren(p);
+    api.DOM.appendChild(p,api.DOM.createTextNode(document,"\n"));
+    api.DOM.appendChild(p,api.DOM.createTextNode(document,"\n"));
+    api.DOM.appendChild(p,api.DOM.createTextNode(document,"\n"));
+    api.tests.ValidPositions.showValidPositions();
 }
 </script>
 </head>

@@ -2,14 +2,14 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    Cursor_insertCharacter("Test");
-    Formatting_applyFormattingChanges(null,{"padding-left": "80px"});
-    Cursor_enterPressed();
-    Formatting_applyFormattingChanges(null,{"padding-left": null});
-    Cursor_insertCharacter("A");
-    TestLib_showSelection();
+    api.Cursor.insertCharacter("Test");
+    api.Formatting.applyFormattingChanges(null,{"padding-left": "80px"});
+    api.Cursor.enterPressed();
+    api.Formatting.applyFormattingChanges(null,{"padding-left": null});
+    api.Cursor.insertCharacter("A");
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

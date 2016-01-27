@@ -4,28 +4,28 @@
 <link href="../generic.css" rel="stylesheet"/>
 <script type="text/javascript" src="OutlineTest.js"></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
+    api.Outline.init();
+    api.PostponedActions.perform();
 
     // Create a series of tables
-    OutlineTests_createTestTables(4);
+    api.tests.OutlineTests.createTestTables(4);
 
     // Turn numbering off for all tables
-    TestLib_setNumbering(false);
-    PostponedActions_perform();
+    api.tests.TestLib.setNumbering(false);
+    api.PostponedActions.perform();
 
     // Add a list of tables
-    Selection_set(document.body,0,document.body,0);
-    Outline_insertListOfTables();
-    PostponedActions_perform();
+    api.Selection.set(document.body,0,document.body,0);
+    api.Outline.insertListOfTables();
+    api.PostponedActions.perform();
 
     // Turn numbering on for the last two tables
     var tables = document.getElementsByTagName("table");
-    Outline_setNumbered(tables[2].getAttribute("id"),true);
-    Outline_setNumbered(tables[3].getAttribute("id"),true);
-    PostponedActions_perform();
+    api.Outline.setNumbered(tables[2].getAttribute("id"),true);
+    api.Outline.setNumbered(tables[3].getAttribute("id"),true);
+    api.PostponedActions.perform();
 }
 </script>
 </head>

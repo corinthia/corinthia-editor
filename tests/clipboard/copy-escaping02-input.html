@@ -2,16 +2,16 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     // Use DOM APIs here because we can't include literal [ and ] in page
-    TestLib_removeWhitespaceAndCommentNodes(document.body);
-    var text = DOM_createTextNode(document,
+    api.tests.TestLib.removeWhitespaceAndCommentNodes(document.body);
+    var text = api.DOM.createTextNode(document,
                                   "[Daring Fireball](http://daringfireball.net) "+
                                   "[Apple](http://www.apple.com)");
-    DOM_appendChild(document.body,text);
-    Selection_set(document.body,0,document.body,document.body.childNodes.length);
-    return TestLib_showClipboard(Clipboard_copy());
+    api.DOM.appendChild(document.body,text);
+    api.Selection.set(document.body,0,document.body,document.body.childNodes.length);
+    return api.tests.TestLib.showClipboard(api.Clipboard.copy());
 }
 </script>
 </head>

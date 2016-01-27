@@ -2,18 +2,18 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     var p = document.getElementsByTagName("P")[0];
     var bs = document.getElementsByTagName("B");
     var is = document.getElementsByTagName("I");
 
-    var range = new Range_Range(p,1,p,6);
+    var range = new api.Range.Range(p,1,p,6);
 
-    Range_trackWhileExecuting(range,function() {
-       Formatting_mergeWithNeighbours(bs[1],Formatting_MERGEABLE_INLINE);
+    api.Range.trackWhileExecuting(range,function() {
+       api.Formatting.mergeWithNeighbours(bs[1],api.Formatting.MERGEABLE_INLINE);
     });
-    TestLib_showRangeAsBrackets(range);
+    api.tests.TestLib.showRangeAsBrackets(range);
 }
 </script>
 </head>

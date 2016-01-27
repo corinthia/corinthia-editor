@@ -2,17 +2,17 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     // This tests that updateTableSelection() correctly tracks and updates the current
     // selection when it removes selection highlights
     var tds = document.getElementsByTagName("TD");
-    var selRange = Selection_get();
-    Selection_set(selRange.start.node,selRange.start.offset,
+    var selRange = api.Selection.get();
+    api.Selection.set(selRange.start.node,selRange.start.offset,
                   tds[1].firstChild,13);
-    selRange = Selection_get();
-    Range_assertValid(selRange,"Selection");
-    TestLib_showSelection();
+    selRange = api.Selection.get();
+    api.Range.assertValid(selRange,"Selection");
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

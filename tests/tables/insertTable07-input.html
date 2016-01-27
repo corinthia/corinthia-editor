@@ -3,12 +3,12 @@
 <head>
 <link href="../generic.css" rel="stylesheet"/>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
+    api.Outline.init();
 
-    Tables_insertTable(2,1,"100%",true,null);
-    PostponedActions_perform();
+    api.Tables.insertTable(2,1,"100%",true,null);
+    api.PostponedActions.perform();
 }
 </script>
 </head>

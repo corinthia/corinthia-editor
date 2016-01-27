@@ -4,12 +4,12 @@
 <style>
 </style>
 <script>
-function performTest()
+function performTest(api)
 {
-    TestLib_setupOutlineNumbering();
-    Outline_init();
-    PostponedActions_perform();
-    TestLib_simplifyTOCs();
+    api.tests.TestLib.setupOutlineNumbering();
+    api.Outline.init();
+    api.PostponedActions.perform();
+    api.tests.TestLib.simplifyTOCs();
 }
 </script>
 </head>

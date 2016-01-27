@@ -2,34 +2,34 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    var p = DOM_createElement(document,"P");
-    var text1 = DOM_createTextNode(document,"One");
-    var text2 = DOM_createTextNode(document,"Two");
-    var text3 = DOM_createTextNode(document,"Three");
-    var text4 = DOM_createTextNode(document,"Four");
-    var text5 = DOM_createTextNode(document,"Five");
-    var br1 = DOM_createElement(document,"BR");
-    var br2 = DOM_createElement(document,"BR");
-    var br3 = DOM_createElement(document,"BR");
-    var br4 = DOM_createElement(document,"BR");
-    DOM_appendChild(p,br1);
-    DOM_appendChild(p,br2);
-    DOM_appendChild(p,text1);
-    DOM_appendChild(p,text2);
-    DOM_appendChild(p,text3);
-    DOM_appendChild(p,text4);
-    DOM_appendChild(p,text5);
-    DOM_appendChild(p,br3);
-    DOM_appendChild(p,br4);
-    DOM_appendChild(document.body,p);
+    var p = api.DOM.createElement(document,"P");
+    var text1 = api.DOM.createTextNode(document,"One");
+    var text2 = api.DOM.createTextNode(document,"Two");
+    var text3 = api.DOM.createTextNode(document,"Three");
+    var text4 = api.DOM.createTextNode(document,"Four");
+    var text5 = api.DOM.createTextNode(document,"Five");
+    var br1 = api.DOM.createElement(document,"BR");
+    var br2 = api.DOM.createElement(document,"BR");
+    var br3 = api.DOM.createElement(document,"BR");
+    var br4 = api.DOM.createElement(document,"BR");
+    api.DOM.appendChild(p,br1);
+    api.DOM.appendChild(p,br2);
+    api.DOM.appendChild(p,text1);
+    api.DOM.appendChild(p,text2);
+    api.DOM.appendChild(p,text3);
+    api.DOM.appendChild(p,text4);
+    api.DOM.appendChild(p,text5);
+    api.DOM.appendChild(p,br3);
+    api.DOM.appendChild(p,br4);
+    api.DOM.appendChild(document.body,p);
 
-    var range = new Range_Range(p,2,p,7);
-    Range_trackWhileExecuting(range,function() {
-        Formatting_mergeWithNeighbours(text3,Formatting_MERGEABLE_INLINE);
+    var range = new api.Range.Range(p,2,p,7);
+    api.Range.trackWhileExecuting(range,function() {
+        api.Formatting.mergeWithNeighbours(text3,api.Formatting.MERGEABLE_INLINE);
     });
-    TestLib_showRangeAsBrackets(range);
+    api.tests.TestLib.showRangeAsBrackets(range);
 }
 </script>
 </head>

@@ -2,9 +2,9 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    Clipboard_pasteHTML(
+    api.Clipboard.pasteHTML(
                         "START"+
                         "<ul>"+
                         "  <li>AAA</li>"+
@@ -19,7 +19,7 @@ function performTest()
                         "</ul>"+
                         "END"
                         );
-    TestLib_showSelection();
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

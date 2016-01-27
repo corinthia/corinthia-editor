@@ -6,10 +6,10 @@
 .two { color: red }
 </style>
 <script>
-function performTest()
+function performTest(api)
 {
-    Selection_deleteContents();
-    TestLib_showSelection();
+    api.Selection.deleteContents();
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

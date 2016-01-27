@@ -4,22 +4,22 @@
 <script type="text/javascript" src="RangeTest.js"></script>
 <script>
 
-function performTest()
+function performTest(api)
 {
-    // DOM_wrapNode() should not affect any positions, because the node itself remains in the
+    // api.DOM.wrapNode() should not affect any positions, because the node itself remains in the
     // tree unmodified.
 
-    TestLib_removeWhitespaceAndCommentNodes(document.body);
+    api.tests.TestLib.removeWhitespaceAndCommentNodes(document.body);
 
     var p1 = document.getElementById("p1");
     var p2 = document.getElementById("p2");
 
-    var result = RangeTests_comparePositionsBeforeAndAfter(function() {
-        DOM_insertBefore(p2,p1.childNodes[1],p2.childNodes[3]);
+    var result = api.tests.RangeTests.comparePositionsBeforeAndAfter(function() {
+        api.DOM.insertBefore(p2,p1.childNodes[1],p2.childNodes[3]);
     });
 
-    DOM_deleteAllChildren(document.body);
-    DOM_appendChild(document.body,DOM_createTextNode(document,"-\n"+result+"\n-"));
+    api.DOM.deleteAllChildren(document.body);
+    api.DOM.appendChild(document.body,api.DOM.createTextNode(document,"-\n"+result+"\n-"));
 }
 </script>
 </head>

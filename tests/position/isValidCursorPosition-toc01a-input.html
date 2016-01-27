@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="validPositions.js"></script>
+<script></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
-    Outline_insertTableOfContents();
-    PostponedActions_perform();
-    Outline_removeListeners();
-    ValidPositions_showValidPositions();
+    api.Outline.init();
+    api.PostponedActions.perform();
+    api.Outline.insertTableOfContents();
+    api.PostponedActions.perform();
+    api.Outline.removeListeners();
+    api.tests.ValidPositions.showValidPositions();
 }
 </script>
 </head>

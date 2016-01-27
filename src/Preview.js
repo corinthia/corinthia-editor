@@ -15,9 +15,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var Preview_showForStyle;
+(function(api) {
 
-(function(){
+    var Preview = api.Preview; // export
+
+    var DOM = api.DOM; // import
+    var Figures = api.Figures; // import
+    var Selection = api.Selection; // import
+    var Tables = api.Tables; // import
+    var Types = api.Types; // import
 
     var previewText =
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec in diam \n"+
@@ -36,9 +42,9 @@ var Preview_showForStyle;
         "magna velit ut lorem."
 
     function setTableCellContents(node) {
-        if (Types_isTableCell(node)) {
-            DOM_deleteAllChildren(node);
-            DOM_appendChild(node,DOM_createTextNode(document,"Cell contents"));
+        if (Types.isTableCell(node)) {
+            DOM.deleteAllChildren(node);
+            DOM.appendChild(node,DOM.createTextNode(document,"Cell contents"));
         }
         else {
             for (var child = node.firstChild; child != null; child = child.nextSibling)
@@ -60,77 +66,77 @@ var Preview_showForStyle;
             className = null;
         }
 
-        var title = DOM_createTextNode(document,titleText);
-        var text = DOM_createTextNode(document,previewText);
+        var title = DOM.createTextNode(document,titleText);
+        var text = DOM.createTextNode(document,previewText);
 
-        Selection_clear();
-        DOM_deleteAllChildren(document.body);
+        Selection.clear();
+        DOM.deleteAllChildren(document.body);
 
-        if (Types_PARAGRAPH_ELEMENTS[ElementTypes[elementName]]) {
+        if (Types.PARAGRAPH_ELEMENTS[ElementTypes[elementName]]) {
             var paragraph1 = createParagraphElement(elementName,className);
             var paragraph2 = createParagraphElement(elementName,className);
-            DOM_appendChild(paragraph1,title);
-            DOM_appendChild(paragraph2,text);
-            DOM_appendChild(document.body,paragraph1);
-            DOM_appendChild(document.body,paragraph2);
+            DOM.appendChild(paragraph1,title);
+            DOM.appendChild(paragraph2,text);
+            DOM.appendChild(document.body,paragraph1);
+            DOM.appendChild(document.body,paragraph2);
 
             if (className != null) {
-                DOM_setAttribute(paragraph1,"class",className);
-                DOM_setAttribute(paragraph2,"class",className);
+                DOM.setAttribute(paragraph1,"class",className);
+                DOM.setAttribute(paragraph2,"class",className);
             }
         }
         else if (elementName == "span") {
-            var p1 = DOM_createElement(document,"P");
-            var p2 = DOM_createElement(document,"P");
-            var span1 = DOM_createElement(document,"SPAN");
-            var span2 = DOM_createElement(document,"SPAN");
+            var p1 = DOM.createElement(document,"P");
+            var p2 = DOM.createElement(document,"P");
+            var span1 = DOM.createElement(document,"SPAN");
+            var span2 = DOM.createElement(document,"SPAN");
 
             if (className != null) {
-                DOM_setAttribute(span1,"class",className);
-                DOM_setAttribute(span2,"class",className);
+                DOM.setAttribute(span1,"class",className);
+                DOM.setAttribute(span2,"class",className);
             }
 
-            DOM_appendChild(span1,title);
-            DOM_appendChild(span2,text);
+            DOM.appendChild(span1,title);
+            DOM.appendChild(span2,text);
 
-            DOM_appendChild(p1,span1);
-            DOM_appendChild(p2,span2);
+            DOM.appendChild(p1,span1);
+            DOM.appendChild(p2,span2);
 
-            DOM_appendChild(document.body,p1);
-            DOM_appendChild(document.body,p2);
+            DOM.appendChild(document.body,p1);
+            DOM.appendChild(document.body,p2);
         }
         else if ((elementName == "table") || (elementName == "caption")) {
             // FIXME: cater for different table styles
-            Selection_selectAll();
-            Tables_insertTable(3,3,"66%",true,"Table caption");
-            Selection_clear();
+            Selection.selectAll();
+            Tables.insertTable(3,3,"66%",true,"Table caption");
+            Selection.clear();
             var table = document.getElementsByTagName("TABLE")[0];
             setTableCellContents(table);
             if ((elementName == "table") && (className != null))
-                DOM_setAttribute(table,"class",className);
+                DOM.setAttribute(table,"class",className);
         }
         else if ((elementName == "figure") || (elementName == "figcaption")) {
-            Selection_selectAll();
-            Figures_insertFigure("SampleFigure.svg","75%",true,"TCP 3-way handshake");
-            Selection_clear();
+            Selection.selectAll();
+            Figures.insertFigure("SampleFigure.svg","75%",true,"TCP 3-way handshake");
+            Selection.clear();
         }
         else if (elementName == "body") {
             // We use BR here instead of separate paragraphs, since we don't want the properties
             // for the P element to be applied
-            DOM_appendChild(document.body,title);
-            DOM_appendChild(document.body,DOM_createElement(document,"BR"));
-            DOM_appendChild(document.body,DOM_createElement(document,"BR"));
-            DOM_appendChild(document.body,text);
+            DOM.appendChild(document.body,title);
+            DOM.appendChild(document.body,DOM.createElement(document,"BR"));
+            DOM.appendChild(document.body,DOM.createElement(document,"BR"));
+            DOM.appendChild(document.body,text);
         }
 
         function createParagraphElement(elementName,className) {
-            var element = DOM_createElement(document,elementName);
+            var element = DOM.createElement(document,elementName);
             if (className != null)
-                DOM_setAttribute(element,"class",className);
+                DOM.setAttribute(element,"class",className);
             return element;
         }
     }
 
-    Preview_showForStyle = showForStyle;
+    Preview.showForStyle = showForStyle;
 
-})();
+})(globalAPI);

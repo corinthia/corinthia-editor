@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="UndoTests.js"></script>
+<script></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
+    api.Outline.init();
+    api.PostponedActions.perform();
 
     var versions = new Array();
 
@@ -15,29 +15,29 @@ function performTest()
     var two = images[1];
     var three = images[2];
 
-    var b = DOM_createElement(document,"B");
-    var i = DOM_createElement(document,"I");
+    var b = api.DOM.createElement(document,"B");
+    var i = api.DOM.createElement(document,"I");
 
     var div = document.getElementsByTagName("DIV")[0];
-    versions.push(DOM_cloneNode(div,true));
+    versions.push(api.DOM.cloneNode(div,true));
 
-    DOM_insertBefore(div,b,one);
-    versions.push(DOM_cloneNode(div,true));
-    UndoManager_newGroup();
+    api.DOM.insertBefore(div,b,one);
+    versions.push(api.DOM.cloneNode(div,true));
+    api.UndoManager.newGroup();
 
-    DOM_insertBefore(div,i,two);
-    versions.push(DOM_cloneNode(div,true));
-    UndoManager_newGroup();
+    api.DOM.insertBefore(div,i,two);
+    versions.push(api.DOM.cloneNode(div,true));
+    api.UndoManager.newGroup();
 
-    DOM_insertBefore(div,b,three);
-    versions.push(DOM_cloneNode(div,true));
-    UndoManager_newGroup();
+    api.DOM.insertBefore(div,b,three);
+    versions.push(api.DOM.cloneNode(div,true));
+    api.UndoManager.newGroup();
 
-    DOM_insertBefore(div,i,null);
-    versions.push(DOM_cloneNode(div,true));
-    UndoManager_newGroup();
+    api.DOM.insertBefore(div,i,null);
+    versions.push(api.DOM.cloneNode(div,true));
+    api.UndoManager.newGroup();
 
-    UndoTests_testUndo(versions,div);
+    api.tests.UndoTests.testUndo(versions,div);
 }
 </script>
 </head>

@@ -2,15 +2,15 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    Cursor_enterPressed();
-    var range = Selection_get();
-    Range_trackWhileExecuting(range,TestLib_showEmptyTextNodes);
+    api.Cursor.enterPressed();
+    var range = api.Selection.get();
+    api.Range.trackWhileExecuting(range,api.tests.TestLib.showEmptyTextNodes);
     var u = document.getElementsByTagName("U")[0];
-    Selection_set(u,0,u,0);
-    Cursor_insertCharacter("X");
-    TestLib_showSelection();
+    api.Selection.set(u,0,u,0);
+    api.Cursor.insertCharacter("X");
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

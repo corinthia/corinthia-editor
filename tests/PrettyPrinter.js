@@ -15,7 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function() {
+(function(api) {
 
     // Applicable options:
     // keepSelectionHighlights (boolean)
@@ -25,16 +25,16 @@
 
     function getHTML(root,options) {
         var copy;
-        UndoManager_disableWhileExecuting(function() {
+        api.UndoManager.disableWhileExecuting(function() {
             if (options == null)
                 options = new Object();
-            copy = DOM_cloneNode(root,true);
+            copy = api.DOM.cloneNode(root,true);
             if (!options.keepSelectionHighlights)
                 removeSelectionSpans(copy);
             for (var body = copy.firstChild; body != null; body = body.nextSibling) {
                 if (body.nodeName == "BODY") {
-                    DOM_removeAttribute(body,"style");
-                    DOM_removeAttribute(body,"contentEditable");
+                    api.DOM.removeAttribute(body,"style");
+                    api.DOM.removeAttribute(body,"contentEditable");
                 }
             }
         });
@@ -50,15 +50,15 @@
 
         for (var i = 0; i < checkMerge.length; i++) {
             if (checkMerge[i].parentNode != null) { // if not already merged
-                Formatting_mergeWithNeighbours(checkMerge[i],{});
+                api.Formatting.mergeWithNeighbours(checkMerge[i],{});
             }
         }
 
         function recurse(node) {
-            if (Types_isSelectionHighlight(node)) {
+            if (api.Types.isSelectionHighlight(node)) {
                 checkMerge.push(node.firstChild);
                 checkMerge.push(node.lastChild);
-                DOM_removeNodeButKeepChildren(node);
+                api.DOM.removeNodeButKeepChildren(node);
             }
             else {
                 var next;
@@ -213,4 +213,4 @@
     window.PrettyPrinter = new Object();
     window.PrettyPrinter.getHTML = getHTML;
 
-})();
+})(globalAPI);

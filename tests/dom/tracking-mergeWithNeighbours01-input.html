@@ -4,33 +4,33 @@
 <script type="text/javascript" src="RangeTest.js"></script>
 <script>
 
-function performTest()
+function performTest(api)
 {
-    // DOM_wrapNode() should not affect any positions, because the node itself remains in the
+    // api.DOM.wrapNode() should not affect any positions, because the node itself remains in the
     // tree unmodified.
 
-    DOM_deleteAllChildren(document.body);
-    var p = DOM_createElement(document,"P");
-    var br1 = DOM_createElement(document,"BR");
-    var br2 = DOM_createElement(document,"BR");
-    DOM_setAttribute(br1,"id","br1");
-    DOM_setAttribute(br2,"id","br2");
-    var text1 = DOM_createTextNode(document,"One");
-    var text2 = DOM_createTextNode(document,"Two");
-    var text3 = DOM_createTextNode(document,"Three");
-    DOM_appendChild(p,br1);
-    DOM_appendChild(p,text1);
-    DOM_appendChild(p,text2);
-    DOM_appendChild(p,text3);
-    DOM_appendChild(p,br2);
-    DOM_appendChild(document.body,p);
+    api.DOM.deleteAllChildren(document.body);
+    var p = api.DOM.createElement(document,"P");
+    var br1 = api.DOM.createElement(document,"BR");
+    var br2 = api.DOM.createElement(document,"BR");
+    api.DOM.setAttribute(br1,"id","br1");
+    api.DOM.setAttribute(br2,"id","br2");
+    var text1 = api.DOM.createTextNode(document,"One");
+    var text2 = api.DOM.createTextNode(document,"Two");
+    var text3 = api.DOM.createTextNode(document,"Three");
+    api.DOM.appendChild(p,br1);
+    api.DOM.appendChild(p,text1);
+    api.DOM.appendChild(p,text2);
+    api.DOM.appendChild(p,text3);
+    api.DOM.appendChild(p,br2);
+    api.DOM.appendChild(document.body,p);
 
-    var result = RangeTests_comparePositionsBeforeAndAfter(function() {
-        Formatting_mergeWithNeighbours(text2,Formatting_MERGEABLE_INLINE);
+    var result = api.tests.RangeTests.comparePositionsBeforeAndAfter(function() {
+        api.Formatting.mergeWithNeighbours(text2,api.Formatting.MERGEABLE_INLINE);
     });
 
-    DOM_deleteAllChildren(document.body);
-    DOM_appendChild(document.body,DOM_createTextNode(document,"-\n"+result+"\n-"));
+    api.DOM.deleteAllChildren(document.body);
+    api.DOM.appendChild(document.body,api.DOM.createTextNode(document,"-\n"+result+"\n-"));
 }
 </script>
 </head>

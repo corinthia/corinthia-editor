@@ -2,35 +2,35 @@
 <html>
 <head>
 <link href="../generic.css" rel="stylesheet"/>
-<script src="ScanTests.js"></script>
+<script></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    Scan_reset();
-    Scan_next();
-    var id1 = Scan_addMatch(0,3);
-    var id2 = Scan_addMatch(10,15);
-    Scan_showMatch(id1);
-    Scan_showMatch(id2);
+    api.Scan.reset();
+    api.Scan.next();
+    var id1 = api.Scan.addMatch(0,3);
+    var id2 = api.Scan.addMatch(10,15);
+    api.Scan.showMatch(id1);
+    api.Scan.showMatch(id2);
 
-    Scan_next();
-    var id3 = Scan_addMatch(0,3);
-    var id4 = Scan_addMatch(10,14);
-    Scan_showMatch(id3);
-    Scan_showMatch(id4);
+    api.Scan.next();
+    var id3 = api.Scan.addMatch(0,3);
+    var id4 = api.Scan.addMatch(10,14);
+    api.Scan.showMatch(id3);
+    api.Scan.showMatch(id4);
 
-    Scan_next();
-    var id5 = Scan_addMatch(0,3);
-    var id6 = Scan_addMatch(9,12);
-    Scan_showMatch(id5);
-    Scan_showMatch(id6);
+    api.Scan.next();
+    var id5 = api.Scan.addMatch(0,3);
+    var id6 = api.Scan.addMatch(9,12);
+    api.Scan.showMatch(id5);
+    api.Scan.showMatch(id6);
 
-    Scan_replaceMatch(id1,"FIRST");
-    Scan_replaceMatch(id2,"SECOND");
-    Scan_replaceMatch(id3,"THIRD");
-    Scan_replaceMatch(id4,"FOURTH");
-    Scan_replaceMatch(id5,"FIFTH");
-    Scan_replaceMatch(id6,"SIXTH");
+    api.Scan.replaceMatch(id1,"FIRST");
+    api.Scan.replaceMatch(id2,"SECOND");
+    api.Scan.replaceMatch(id3,"THIRD");
+    api.Scan.replaceMatch(id4,"FOURTH");
+    api.Scan.replaceMatch(id5,"FIFTH");
+    api.Scan.replaceMatch(id6,"SIXTH");
 }
 </script>
 </head>

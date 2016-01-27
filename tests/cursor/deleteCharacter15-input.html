@@ -2,14 +2,14 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    Cursor_insertCharacter("A  B");
-    Cursor_enterPressed();
-    Cursor_deleteCharacter();
-    Cursor_deleteCharacter();
-    UndoManager_newGroup();
-    TestLib_showSelection();
+    api.Cursor.insertCharacter("A  B");
+    api.Cursor.enterPressed();
+    api.Cursor.deleteCharacter();
+    api.Cursor.deleteCharacter();
+    api.UndoManager.newGroup();
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

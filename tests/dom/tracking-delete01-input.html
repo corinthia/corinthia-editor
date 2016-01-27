@@ -2,12 +2,12 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    Selection_preserveWhileExecuting(function() {
-        DOM_deleteNode(document.getElementsByTagName("P")[0]);
+    api.Selection.preserveWhileExecuting(function() {
+        api.DOM.deleteNode(document.getElementsByTagName("P")[0]);
     });
-    TestLib_showSelection();
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

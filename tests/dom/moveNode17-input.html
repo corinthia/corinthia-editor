@@ -2,20 +2,20 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     var ps = document.getElementsByTagName("P");
-    var position = new Position_Position(ps[0],0);
+    var position = new api.Position.Position(ps[0],0);
 
-    Position_trackWhileExecuting([position],function() {
+    api.Position.trackWhileExecuting([position],function() {
         var p2 = ps[2];
         var p1 = ps[1];
-        DOM_insertBefore(ps[0],p2,ps[0].childNodes[0]);
-        DOM_insertBefore(ps[0],p1,ps[0].childNodes[0]);
+        api.DOM.insertBefore(ps[0],p2,ps[0].childNodes[0]);
+        api.DOM.insertBefore(ps[0],p1,ps[0].childNodes[0]);
    });
 
-    var tt = DOM_createElement(document,"tt");
-    TestLib_insertAtPosition(position,tt);
+    var tt = api.DOM.createElement(document,"tt");
+    api.tests.TestLib.insertAtPosition(position,tt);
 }
 </script>
 </head>

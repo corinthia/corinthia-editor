@@ -1,35 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="UndoTests.js"></script>
+<script></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
+    api.Outline.init();
+    api.PostponedActions.perform();
 
     var versions = new Array();
 
-    var element = DOM_createElementNS(document,"urn:somens","element");
-    versions.push(DOM_cloneNode(element,true));
+    var element = api.DOM.createElementNS(document,"urn:somens","element");
+    versions.push(api.DOM.cloneNode(element,true));
 
-    DOM_setAttributeNS(element,"urn:test","x:attrname","0");
-    versions.push(DOM_cloneNode(element,true));
-    UndoManager_newGroup();
+    api.DOM.setAttributeNS(element,"urn:test","x:attrname","0");
+    versions.push(api.DOM.cloneNode(element,true));
+    api.UndoManager.newGroup();
 
-    DOM_setAttributeNS(element,"urn:test","x:attrname","1");
-    versions.push(DOM_cloneNode(element,true));
-    UndoManager_newGroup();
+    api.DOM.setAttributeNS(element,"urn:test","x:attrname","1");
+    versions.push(api.DOM.cloneNode(element,true));
+    api.UndoManager.newGroup();
 
-    DOM_setAttributeNS(element,"urn:test","x:attrname","2");
-    versions.push(DOM_cloneNode(element,true));
-    UndoManager_newGroup();
+    api.DOM.setAttributeNS(element,"urn:test","x:attrname","2");
+    versions.push(api.DOM.cloneNode(element,true));
+    api.UndoManager.newGroup();
 
-    DOM_setAttributeNS(element,"urn:test","x:attrname","3");
-    versions.push(DOM_cloneNode(element,true));
-    UndoManager_newGroup();
+    api.DOM.setAttributeNS(element,"urn:test","x:attrname","3");
+    versions.push(api.DOM.cloneNode(element,true));
+    api.UndoManager.newGroup();
 
-    UndoTests_testUndo(versions,element);
+    api.tests.UndoTests.testUndo(versions,element);
 
     outputOptions.showNamespaceDetails = true;
 }

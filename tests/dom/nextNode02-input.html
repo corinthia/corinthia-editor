@@ -2,15 +2,15 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    TestLib_removeWhitespaceAndCommentNodes(document.body);
+    api.tests.TestLib.removeWhitespaceAndCommentNodes(document.body);
     var result = new Array();
     var current = document.body;
     var indent = "";
     while (current != null) {
         result.push(indent+"Current "+stringForNode(current));
-        current = Traversal_nextNode(current,entering,exiting);
+        current = api.Traversal.nextNode(current,entering,exiting);
     }
     return result.join("\n");
 

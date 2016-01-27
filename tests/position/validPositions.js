@@ -15,18 +15,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var ValidPositions_showValidPositions;
-var ValidPositions_addEmptyTextNode;
+(function(api) {
 
-(function() {
+    var ValidPositions = api.tests.ValidPositions = {}; // export
+
+    var DOM = api.DOM; // import
+    var Position = api.Position; // import
+    var Range = api.Range; // import
+    var Selection = api.Selection; // import
+    var Types = api.Types; // import
+    var Util = api.Util; // import
 
     function oldInsertCharacter(character) {
-        var selectionRange = Selection_get();
+        var selectionRange = Selection.get();
         if (selectionRange == null)
             return;
 
-        if (!Range_isEmpty(selectionRange))
-            Selection_deleteContents();
+        if (!Range.isEmpty(selectionRange))
+            Selection.deleteContents();
         var pos = selectionRange.start;
         var node = pos.node;
         var offset = pos.offset;
@@ -34,35 +40,35 @@ var ValidPositions_addEmptyTextNode;
         if (node.nodeType == Node.ELEMENT_NODE) {
             var prev = node.childNodes[offset-1];
             var next = node.childNodes[offset];
-            var emptyTextNode = DOM_createTextNode(document,"");
+            var emptyTextNode = DOM.createTextNode(document,"");
             if (offset >= node.childNodes.length)
-                DOM_appendChild(node,emptyTextNode);
+                DOM.appendChild(node,emptyTextNode);
             else
-                DOM_insertBefore(node,emptyTextNode,node.childNodes[offset]);
+                DOM.insertBefore(node,emptyTextNode,node.childNodes[offset]);
             node = emptyTextNode;
             offset = 0;
         }
 
-        DOM_insertCharacters(node,offset,character);
-        Selection_set(node,offset+1,node,offset+1);
+        DOM.insertCharacters(node,offset,character);
+        Selection.set(node,offset+1,node,offset+1);
     }
 
-    ValidPositions_showValidPositions = function() {
+    ValidPositions.showValidPositions = function() {
         var validPositions = new Array();
-        var pos = new Position_Position(document.body,0);
+        var pos = new Position.Position(document.body,0);
         while (pos != null) {
-            if (Position_okForMovement(pos)) {
+            if (Position.okForMovement(pos)) {
     //            debug("Valid position: "+pos);
                 validPositions.push(pos);
             }
-            pos = Position_next(pos);
+            pos = Position.next(pos);
         }
 
-        Position_trackWhileExecuting(validPositions,function() {
+        Position.trackWhileExecuting(validPositions,function() {
     //        for (var i = 0; i < validPositions.length; i++) {
             for (var i = validPositions.length-1; i >= 0; i--) {
                 var pos = validPositions[i];
-                Selection_setEmptySelectionAt(pos.node,pos.offset);
+                Selection.setEmptySelectionAt(pos.node,pos.offset);
                 oldInsertCharacter('.');
             }
         });
@@ -82,7 +88,7 @@ var ValidPositions_addEmptyTextNode;
                 result.push("I");
                 break;
             default:
-                if (Types_isOpaqueNode(node)) {
+                if (Types.isOpaqueNode(node)) {
                     result.push("O");
                 }
                 else if (node.nodeType == Node.ELEMENT_NODE) {
@@ -108,7 +114,7 @@ var ValidPositions_addEmptyTextNode;
                     detail += "^";
                 }
                 else if ((prevChar != null) && (nextChar != null) &&
-                         Util_isWhitespaceString(prevChar) && Util_isWhitespaceString(nextChar)) {
+                         Util.isWhitespaceString(prevChar) && Util.isWhitespaceString(nextChar)) {
                     // A position between two spaces
                     detail += "^";
                 }
@@ -117,7 +123,7 @@ var ValidPositions_addEmptyTextNode;
                     detail += " ";
                 }
             }
-            else if (!Util_isWhitespaceString(curChar)) {
+            else if (!Util.isWhitespaceString(curChar)) {
                 if ((prevChar != '.') || (nextChar != '.'))
                     detail += "^";
                 else
@@ -133,9 +139,9 @@ var ValidPositions_addEmptyTextNode;
         return text+"\n"+detail;
     }
 
-    ValidPositions_addEmptyTextNode = function(parent) {
-        var text = DOM_createTextNode(document,"");
-        DOM_appendChild(parent,text);
+    ValidPositions.addEmptyTextNode = function(parent) {
+        var text = DOM.createTextNode(document,"");
+        DOM.appendChild(parent,text);
     }
 
-})();
+})(globalAPI);

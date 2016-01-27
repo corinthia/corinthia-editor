@@ -7,15 +7,15 @@
 // actually automatic addition of numbering. Perhaps add a TOC,
 // to test that it's reflected?
 
-function performTest()
+function performTest(api)
 {
-    TestLib_setupOutlineNumbering();
-    Outline_init();
-    PostponedActions_perform();
-    TestLib_setNumbering(true);
-    PostponedActions_perform();
-    Formatting_applyFormattingChanges("H1",{});
-    PostponedActions_perform();
+    api.tests.TestLib.setupOutlineNumbering();
+    api.Outline.init();
+    api.PostponedActions.perform();
+    api.tests.TestLib.setNumbering(true);
+    api.PostponedActions.perform();
+    api.Formatting.applyFormattingChanges("H1",{});
+    api.PostponedActions.perform();
 }
 </script>
 </head>

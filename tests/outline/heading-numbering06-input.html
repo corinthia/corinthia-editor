@@ -4,15 +4,15 @@
 <style>
 </style>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    if (Outline_detectSectionNumbering())
-        TestLib_setupOutlineNumbering();
-    PostponedActions_perform();
-    Formatting_applyFormattingChanges("H1",{});
-    PostponedActions_perform();
-    TestLib_simplifyTOCs();
+    api.Outline.init();
+    if (api.Outline.detectSectionNumbering())
+        api.tests.TestLib.setupOutlineNumbering();
+    api.PostponedActions.perform();
+    api.Formatting.applyFormattingChanges("H1",{});
+    api.PostponedActions.perform();
+    api.tests.TestLib.simplifyTOCs();
 }
 </script>
 </head>

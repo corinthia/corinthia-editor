@@ -2,10 +2,10 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    Formatting_applyFormattingChanges(null,{"font-weight": "bold"});
-    Cursor_insertCharacter("X");
+    api.Formatting.applyFormattingChanges(null,{"font-weight": "bold"});
+    api.Cursor.insertCharacter("X");
 }
 </script>
 </head>

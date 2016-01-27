@@ -3,13 +3,13 @@
 <head>
 <link href="../generic.css" rel="stylesheet"/>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
+    api.Outline.init();
+    api.PostponedActions.perform();
 
-    Tables_splitSelection();
-    TestLib_showSelection();
+    api.Tables.splitSelection();
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

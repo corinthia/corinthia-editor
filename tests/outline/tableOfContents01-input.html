@@ -4,21 +4,21 @@
 <link href="../generic.css" rel="stylesheet"/>
 <script type="text/javascript" src="OutlineTest.js"></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    TestLib_setupOutlineNumbering();
-    Outline_init();
-    PostponedActions_perform();
+    api.tests.TestLib.setupOutlineNumbering();
+    api.Outline.init();
+    api.PostponedActions.perform();
 
     // Create a series of headings
-    OutlineTests_createTestSections([2,[2,2]]);
+    api.tests.OutlineTests.createTestSections([2,[2,2]]);
 
     // Add a table of contents
-    Selection_set(document.body,0,document.body,0);
-    Outline_insertTableOfContents();
-    PostponedActions_perform();
+    api.Selection.set(document.body,0,document.body,0);
+    api.Outline.insertTableOfContents();
+    api.PostponedActions.perform();
 
-    TestLib_simplifyTOCs();
+    api.tests.TestLib.simplifyTOCs();
 }
 </script>
 </head>

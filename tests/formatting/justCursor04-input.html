@@ -2,11 +2,11 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    Formatting_applyFormattingChanges(null,{"font-style": "italic",
+    api.Formatting.applyFormattingChanges(null,{"font-style": "italic",
                                             "text-align": "center"});
-    Cursor_insertCharacter("X");
+    api.Cursor.insertCharacter("X");
 }
 </script>
 </head>

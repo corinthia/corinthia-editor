@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="validPositions.js"></script>
+<script></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    DOM_deleteAllChildren(document.body);
-    DOM_appendChild(document.body,DOM_createTextNode(document,""));
-    DOM_appendChild(document.body,DOM_createTextNode(document,""));
-    DOM_appendChild(document.body,DOM_createTextNode(document,""));
-    ValidPositions_showValidPositions();
+    api.DOM.deleteAllChildren(document.body);
+    api.DOM.appendChild(document.body,api.DOM.createTextNode(document,""));
+    api.DOM.appendChild(document.body,api.DOM.createTextNode(document,""));
+    api.DOM.appendChild(document.body,api.DOM.createTextNode(document,""));
+    api.tests.ValidPositions.showValidPositions();
 }
 </script>
 </head>

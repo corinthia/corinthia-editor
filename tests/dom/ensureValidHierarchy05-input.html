@@ -2,12 +2,12 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     var p0 = document.getElementsByTagName("P")[0];
     var p1 = document.getElementsByTagName("P")[1];
-    Hierarchy_ensureValidHierarchy(p0.firstChild,true);
-    Hierarchy_ensureValidHierarchy(p1.firstChild,true);
+    api.Hierarchy.ensureValidHierarchy(p0.firstChild,true);
+    api.Hierarchy.ensureValidHierarchy(p1.firstChild,true);
 }
 </script>
 </head>

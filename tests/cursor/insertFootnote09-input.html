@@ -2,11 +2,11 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    Cursor_insertFootnote("Footnote content");
-    Selection_preserveWhileExecuting(TestLib_showEmptyTextNodes);
-    TestLib_showSelection();
+    api.Cursor.insertFootnote("Footnote content");
+    api.Selection.preserveWhileExecuting(api.tests.TestLib.showEmptyTextNodes);
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

@@ -2,20 +2,20 @@
 <html>
 <head>
 <link href="../generic.css" rel="stylesheet"/>
-<script src="TableTests.js"></script>
+<script></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
+    api.Outline.init();
+    api.PostponedActions.perform();
 
-    TestLib_showSelection();
+    api.tests.TestLib.showSelection();
 
-    var region = TableTests_getSelectedTableRegion();
+    var region = api.tests.TableTests.getSelectedTableRegion();
     for (var row = region.top; row <= region.bottom; row++) {
         for (var col = region.left; col <= region.right; col++) {
-            var cell = Tables_Table_get(region.structure,row,col);
-            DOM_setStyleProperties(cell.element,{"background-color": "silver"});
+            var cell = api.Tables.Table_get(region.structure,row,col);
+            api.DOM.setStyleProperties(cell.element,{"background-color": "silver"});
         }
     }
 }

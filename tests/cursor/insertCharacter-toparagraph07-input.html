@@ -2,27 +2,27 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    DOM_deleteAllChildren(document.body);
+    api.DOM.deleteAllChildren(document.body);
 
 
-    var p1 = DOM_createElement(document,"P");
-    var p2 = DOM_createElement(document,"P");
-    DOM_appendChild(p1,DOM_createTextNode(document,"First"));
-    DOM_appendChild(p2,DOM_createTextNode(document,"Second"));
+    var p1 = api.DOM.createElement(document,"P");
+    var p2 = api.DOM.createElement(document,"P");
+    api.DOM.appendChild(p1,api.DOM.createTextNode(document,"First"));
+    api.DOM.appendChild(p2,api.DOM.createTextNode(document,"Second"));
 
-    DOM_appendChild(document.body,p1);
-    DOM_appendChild(document.body,DOM_createTextNode(document,"  "));
-    DOM_appendChild(document.body,DOM_createTextNode(document,"  "));
-    DOM_appendChild(document.body,DOM_createTextNode(document,"  "));
-    DOM_appendChild(document.body,DOM_createTextNode(document,"  "));
-    DOM_appendChild(document.body,p2);
+    api.DOM.appendChild(document.body,p1);
+    api.DOM.appendChild(document.body,api.DOM.createTextNode(document,"  "));
+    api.DOM.appendChild(document.body,api.DOM.createTextNode(document,"  "));
+    api.DOM.appendChild(document.body,api.DOM.createTextNode(document,"  "));
+    api.DOM.appendChild(document.body,api.DOM.createTextNode(document,"  "));
+    api.DOM.appendChild(document.body,p2);
 
-    Selection_setEmptySelectionAt(document.body,3);
+    api.Selection.setEmptySelectionAt(document.body,3);
 
-    Cursor_insertCharacter("X");
-    TestLib_showSelection();
+    api.Cursor.insertCharacter("X");
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

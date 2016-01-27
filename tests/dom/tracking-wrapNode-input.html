@@ -4,17 +4,17 @@
 <script type="text/javascript" src="RangeTest.js"></script>
 <script>
 
-function performTest()
+function performTest(api)
 {
-    // DOM_wrapNode() should only affect positions which come directly
+    // api.DOM.wrapNode() should only affect positions which come directly
     // before or after the node.
 
-    var result = RangeTests_comparePositionsBeforeAndAfter(function() {
-        DOM_wrapNode(document.getElementById("p2"),"DIV");
+    var result = api.tests.RangeTests.comparePositionsBeforeAndAfter(function() {
+        api.DOM.wrapNode(document.getElementById("p2"),"DIV");
     });
 
-    DOM_deleteAllChildren(document.body);
-    DOM_appendChild(document.body,DOM_createTextNode(document,"-\n"+result+"\n-"));
+    api.DOM.deleteAllChildren(document.body);
+    api.DOM.appendChild(document.body,api.DOM.createTextNode(document,"-\n"+result+"\n-"));
 }
 </script>
 </head>

@@ -1,30 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="UndoTests.js"></script>
+<script></script>
 <script>
-function performTest()
+function performTest(api)
 {
-    TestLib_setupOutlineNumbering();
+    api.tests.TestLib.setupOutlineNumbering();
     var versions = new Array();
-    versions.push(DOM_cloneNode(document.body,true));
+    versions.push(api.DOM.cloneNode(document.body,true));
 
-    Outline_init();
-    if (Outline_detectSectionNumbering())
-        TestLib_setupOutlineNumbering();
-    PostponedActions_perform();
-    versions.push(DOM_cloneNode(document.body,true));
+    api.Outline.init();
+    if (api.Outline.detectSectionNumbering())
+        api.tests.TestLib.setupOutlineNumbering();
+    api.PostponedActions.perform();
+    versions.push(api.DOM.cloneNode(document.body,true));
 
-    UndoManager_newGroup();
-    Selection_selectAll();
-    PostponedActions_perform();
-    versions.push(DOM_cloneNode(document.body,true));
+    api.UndoManager.newGroup();
+    api.Selection.selectAll();
+    api.PostponedActions.perform();
+    versions.push(api.DOM.cloneNode(document.body,true));
 
-    Clipboard_cut();
-    PostponedActions_perform();
-    versions.push(DOM_cloneNode(document.body,true));
+    api.Clipboard.cut();
+    api.PostponedActions.perform();
+    versions.push(api.DOM.cloneNode(document.body,true));
 
-    UndoTests_testUndo(versions,document.body);
+    api.tests.UndoTests.testUndo(versions,document.body);
 }
 </script>
 </head>

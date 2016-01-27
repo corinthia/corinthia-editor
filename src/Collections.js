@@ -15,10 +15,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var Collections_NodeSet;
-var Collections_NodeMap;
+(function(api) {
 
-(function(){
+    var Collections = api.Collections; // export
 
     function NodeSet() {
         this.members = new Object();
@@ -56,7 +55,7 @@ var Collections_NodeMap;
     }
 
     NodeSet.prototype.ancestor = function() {
-        var result = new Collections_NodeSet();
+        var result = new Collections.NodeSet();
         this.forEach(function (node) {
             for (var p = node.parentNode; p != null; p = p.parentNode)
                 result.add(p);
@@ -65,7 +64,7 @@ var Collections_NodeMap;
     }
 
     NodeSet.prototype.ancestorOrSelf = function() {
-        var result = new Collections_NodeSet();
+        var result = new Collections.NodeSet();
         this.forEach(function (node) {
             for (var p = node; p != null; p = p.parentNode)
                 result.add(p);
@@ -74,7 +73,7 @@ var Collections_NodeMap;
     }
 
     NodeSet.prototype.descendant = function() {
-        var result = new Collections_NodeSet();
+        var result = new Collections.NodeSet();
         this.forEach(function (node) {
             recurse(node);
         });
@@ -89,7 +88,7 @@ var Collections_NodeMap;
     }
 
     NodeSet.prototype.descendantOrSelf = function() {
-        var result = new Collections_NodeSet();
+        var result = new Collections.NodeSet();
         this.forEach(function (node) {
             recurse(node);
         });
@@ -103,20 +102,20 @@ var Collections_NodeMap;
     }
 
     NodeSet.prototype.union = function(other) {
-        var result = new Collections_NodeSet();
+        var result = new Collections.NodeSet();
         this.forEach(function (node) { result.add(node); });
         other.forEach(function (node) { result.add(node); });
         return result;
     }
 
     NodeSet.prototype.intersection = function(other) {
-        var result = new Collections_NodeSet();
+        var result = new Collections.NodeSet();
         this.forEach(function (node) { if (other.contains(node)) { result.add(node); } });
         return result;
     }
 
     NodeSet.fromArray = function(array) {
-        var set = new Collections_NodeSet();
+        var set = new Collections.NodeSet();
         array.forEach(function(node) { set.add(node); });
         return set;
     }
@@ -173,7 +172,7 @@ var Collections_NodeMap;
     }
 
     NodeMap.fromArray = function(array,fun) {
-        var map = new Collections_NodeMap();
+        var map = new Collections.NodeMap();
         if (fun != null)
             array.forEach(function(node) { map.put(node,fun(node)); });
         else
@@ -181,7 +180,7 @@ var Collections_NodeMap;
         return map;
     };
 
-    Collections_NodeSet = NodeSet;
-    Collections_NodeMap = NodeMap;
+    Collections.NodeSet = NodeSet;
+    Collections.NodeMap = NodeMap;
 
-})();
+})(globalAPI);

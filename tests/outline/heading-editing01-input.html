@@ -3,16 +3,16 @@
 <head>
 <script>
 
-function performTest()
+function performTest(api)
 {
-    TestLib_setupOutlineNumbering();
-    Outline_init();
-    PostponedActions_perform();
+    api.tests.TestLib.setupOutlineNumbering();
+    api.Outline.init();
+    api.PostponedActions.perform();
     var heading = document.getElementsByTagName("H1")[0];
-    Selection_set(heading.lastChild,0,heading.lastChild,heading.lastChild.nodeValue.length);
-    Cursor_insertCharacter("d");
-    PostponedActions_perform();
-    TestLib_showSelection();
+    api.Selection.set(heading.lastChild,0,heading.lastChild,heading.lastChild.nodeValue.length);
+    api.Cursor.insertCharacter("d");
+    api.PostponedActions.perform();
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

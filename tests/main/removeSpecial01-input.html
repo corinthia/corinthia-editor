@@ -5,19 +5,19 @@
 
 // Test that autocorrect spans are removed
 
-function performTest()
+function performTest(api)
 {
-    AutoCorrect_init();
-    PostponedActions_perform();
+    api.AutoCorrect.init();
+    api.PostponedActions.perform();
 
-    Cursor_insertCharacter("one");
-    Cursor_insertCharacter(" twox");
-    AutoCorrect_correctPrecedingWord(4,"two");
-    Cursor_insertCharacter(" three");
-    PostponedActions_perform();
+    api.Cursor.insertCharacter("one");
+    api.Cursor.insertCharacter(" twox");
+    api.AutoCorrect.correctPrecedingWord(4,"two");
+    api.Cursor.insertCharacter(" three");
+    api.PostponedActions.perform();
 
     var before = PrettyPrinter.getHTML(document.documentElement,outputOptions);
-    Main_removeSpecial(document.documentElement);
+    api.Main.removeSpecial(document.documentElement);
     var after = PrettyPrinter.getHTML(document.documentElement,outputOptions);
     return "Before\n------\n\n"+before+"\nAfter\n-----\n\n"+after;
 }

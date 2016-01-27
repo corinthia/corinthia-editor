@@ -2,12 +2,12 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     var p = document.getElementsByTagName("P")[0];
-    var pos = new Position_Position(p,0);
-    Input_replaceRange(pos,pos,"HELLO");
-    TestLib_showSelection();
+    var pos = new api.Position.Position(p,0);
+    api.Input.replaceRange(pos,pos,"HELLO");
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

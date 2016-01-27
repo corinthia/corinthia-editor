@@ -2,9 +2,9 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    return TestLib_showClipboard(Clipboard_copy());
+    return api.tests.TestLib.showClipboard(api.Clipboard.copy());
 }
 </script>
 </head>

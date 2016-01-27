@@ -2,10 +2,10 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    Formatting_applyFormattingChanges("h1",null);
-    TestLib_showSelection();
+    api.Formatting.applyFormattingChanges("h1",null);
+    api.tests.TestLib.showSelection();
 }
 </script>
 </head>

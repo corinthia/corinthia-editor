@@ -7,12 +7,12 @@
 </style>
 <script type="text/javascript">
 
-function performTest()
+function performTest(api)
 {
-    Outline_init();
-    PostponedActions_perform();
-    TestLib_setNumbering(true);
-    return Outline_plainText()+PrettyPrinter.getHTML(document.documentElement);
+    api.Outline.init();
+    api.PostponedActions.perform();
+    api.tests.TestLib.setNumbering(true);
+    return api.Outline.plainText()+PrettyPrinter.getHTML(document.documentElement);
 }
 </script>
 </head>

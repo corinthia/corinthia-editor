@@ -2,13 +2,13 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
     var p = document.getElementsByTagName("P")[0];
     var output = new Array();
     for (var i = 0; i <= p.childNodes.length; i++) {
-        var range = new Range_Range(p,i,p,i);
-        output.push("At offset "+i+": "+JSON.stringify(Range_getText(range)));
+        var range = new api.Range.Range(p,i,p,i);
+        output.push("At offset "+i+": "+JSON.stringify(api.Range.getText(range)));
     }
     return output.join("\n");
 }

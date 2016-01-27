@@ -17,23 +17,11 @@
 
 // FIXME: place a limit on the number of undo steps recorded - say, 30-50?
 
-var UndoManager_getLength;
-var UndoManager_getIndex;
-var UndoManager_setIndex;
-var UndoManager_print;
-var UndoManager_undo;
-var UndoManager_redo;
-var UndoManager_addAction;
-var UndoManager_newGroup;
-var UndoManager_groupType;
-var UndoManager_disableWhileExecuting;
-var UndoManager_isActive;
-var UndoManager_isDisabled;
-var UndoManager_clear;
-var UndoManager_setProperty;
-var UndoManager_deleteProperty;
+(function(api) {
 
-(function() {
+    var UndoManager = api.UndoManager; // export
+
+    var Util = api.Util; // import
 
     var UNDO_LIMIT = 50;
 
@@ -58,7 +46,7 @@ var UndoManager_deleteProperty;
         var argStrings = new Array();
         for (var i = 0; i < this.args.length; i++) {
             if (this.args[i] instanceof Node)
-                argStrings.push(Util_nodeString(this.args[i]));
+                argStrings.push(Util.nodeString(this.args[i]));
             else if (this.args[i] == null)
                 argStrings.push("null");
             else
@@ -76,25 +64,25 @@ var UndoManager_deleteProperty;
     var disabled = 0;
 
     // public
-    UndoManager_getLength = function() {
+    UndoManager.getLength = function() {
         return undoStack.length + redoStack.length;
     }
 
     // public
-    UndoManager_getIndex = function() {
+    UndoManager.getIndex = function() {
         return undoStack.length;
     }
 
     // public
-    UndoManager_setIndex = function(index) {
+    UndoManager.setIndex = function(index) {
         while (undoStack.length > index)
-            UndoManager_undo();
+            UndoManager.undo();
         while (undoStack.length < index)
-            UndoManager_redo();
+            UndoManager.redo();
     }
 
     // public
-    UndoManager_print = function() {
+    UndoManager.print = function() {
         debug("");
         debug("--------------------------------------------------------------------");
         debug("Undo stack:");
@@ -127,7 +115,7 @@ var UndoManager_deleteProperty;
     }
 
     // public
-    UndoManager_undo = function() {
+    UndoManager.undo = function() {
         closeCurrentGroup();
         if (undoStack.length > 0) {
             var group = undoStack.pop();
@@ -140,7 +128,7 @@ var UndoManager_deleteProperty;
     }
 
     // public
-    UndoManager_redo = function() {
+    UndoManager.redo = function() {
         closeCurrentGroup();
         if (redoStack.length > 0) {
             var group = redoStack.pop();
@@ -153,7 +141,7 @@ var UndoManager_deleteProperty;
     }
 
     // public
-    UndoManager_addAction = function(fun) {
+    UndoManager.addAction = function(fun) {
         if (disabled > 0)
             return;
 
@@ -167,7 +155,7 @@ var UndoManager_deleteProperty;
 
         var stack = inUndo ? redoStack : undoStack;
         if (currentGroup == null)
-            UndoManager_newGroup(null);
+            UndoManager.newGroup(null);
 
         // Only add a group to the undo stack one it has at least one action, to avoid having
         // empty groups present.
@@ -181,7 +169,7 @@ var UndoManager_deleteProperty;
     }
 
     // public
-    UndoManager_newGroup = function(type,onClose) {
+    UndoManager.newGroup = function(type,onClose) {
         if (disabled > 0)
             return;
 
@@ -197,14 +185,14 @@ var UndoManager_deleteProperty;
     }
 
     // public
-    UndoManager_groupType = function() {
+    UndoManager.groupType = function() {
         if (undoStack.length > 0)
             return undoStack[undoStack.length-1].type;
         else
             return null;
     }
 
-    UndoManager_disableWhileExecuting = function(fun) {
+    UndoManager.disableWhileExecuting = function(fun) {
         disabled++;
         try {
             return fun();
@@ -214,40 +202,40 @@ var UndoManager_deleteProperty;
         }
     }
 
-    UndoManager_isActive = function() {
+    UndoManager.isActive = function() {
         return (inUndo || inRedo);
     }
 
-    UndoManager_isDisabled = function() {
+    UndoManager.isDisabled = function() {
         return (disabled > 0);
     }
 
-    UndoManager_clear = function() {
+    UndoManager.clear = function() {
         undoStack.length = 0;
         redoStack.length = 0;
     }
 
     function saveProperty(obj,name) {
         if (obj.hasOwnProperty(name))
-            UndoManager_addAction(UndoManager_setProperty,obj,name,obj[name]);
+            UndoManager.addAction(UndoManager.setProperty,obj,name,obj[name]);
         else
-            UndoManager_addAction(UndoManager_deleteProperty,obj,name);
+            UndoManager.addAction(UndoManager.deleteProperty,obj,name);
     }
 
-    UndoManager_setProperty = function(obj,name,value) {
+    UndoManager.setProperty = function(obj,name,value) {
         if (obj.hasOwnProperty(name) && (obj[name] == value))
             return; // no point in adding an undo action
         saveProperty(obj,name);
         obj[name] = value;
     }
 
-    UndoManager_deleteProperty = function(obj,name) {
+    UndoManager.deleteProperty = function(obj,name) {
         if (!obj.hasOwnProperty(name))
             return; // no point in adding an undo action
         saveProperty(obj,name);
         delete obj[name];
     }
 
-})();
+})(globalAPI);
 
 window.undoSupported = true;

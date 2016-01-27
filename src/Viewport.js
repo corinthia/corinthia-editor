@@ -15,17 +15,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var Viewport_init;
-var Viewport_setViewportWidth;
-var Viewport_setTextScale;
+(function(api) {
 
-(function() {
+    var Viewport = api.Viewport; // export
+
+    var Cursor = api.Cursor; // import
+    var DOM = api.DOM; // import
+    var Selection = api.Selection; // import
 
     var viewportMetaElement = null;
 
     // public
-    Viewport_init = function(width,textScale) {
-        var head = DOM_documentHead(document);
+    Viewport.init = function(width,textScale) {
+        var head = DOM.documentHead(document);
         for (var child = head.firstChild; child != null; child = child.nextSibling) {
             if ((child._type == HTML_META) && (child.getAttribute("name") == "viewport")) {
                 viewportMetaElement = child;
@@ -34,9 +36,9 @@ var Viewport_setTextScale;
         }
 
         if (viewportMetaElement == null) {
-            viewportMetaElement = DOM_createElement(document,"META");
-            DOM_setAttribute(viewportMetaElement,"name","viewport");
-            DOM_appendChild(head,viewportMetaElement);
+            viewportMetaElement = DOM.createElement(document,"META");
+            DOM.setAttribute(viewportMetaElement,"name","viewport");
+            DOM.appendChild(head,viewportMetaElement);
         }
 
         if (width != 0) {
@@ -44,34 +46,34 @@ var Viewport_setTextScale;
             // an extra layout at load time
             var contentValue = "width = "+width+", user-scalable = no";
             if (viewportMetaElement.getAttribute("content") != contentValue)
-                DOM_setAttribute(viewportMetaElement,"content",contentValue);
+                DOM.setAttribute(viewportMetaElement,"content",contentValue);
         }
 
         if (textScale != 0) {
             var pct = textScale+"%";
             if (document.documentElement.style.getPropertyValue("-webkit-text-size-adjust") != pct)
-                DOM_setStyleProperties(document.documentElement,{"-webkit-text-size-adjust": pct});
+                DOM.setStyleProperties(document.documentElement,{"-webkit-text-size-adjust": pct});
         }
     }
 
     // public
-    Viewport_setViewportWidth = function(width) {
+    Viewport.setViewportWidth = function(width) {
         var contentValue = "width = "+width+", user-scalable = no";
         if (viewportMetaElement.getAttribute("content") != contentValue)
-            DOM_setAttribute(viewportMetaElement,"content",contentValue);
+            DOM.setAttribute(viewportMetaElement,"content",contentValue);
 
-        Selection_update();
-        Cursor_ensureCursorVisible();
+        Selection.update();
+        Cursor.ensureCursorVisible();
     }
 
     // public
-    Viewport_setTextScale = function(textScale) {
+    Viewport.setTextScale = function(textScale) {
         var pct = textScale+"%";
         if (document.documentElement.style.getPropertyValue("-webkit-text-size-adjust") != pct)
-            DOM_setStyleProperties(document.documentElement,{"-webkit-text-size-adjust": pct});
+            DOM.setStyleProperties(document.documentElement,{"-webkit-text-size-adjust": pct});
 
-        Selection_update();
-        Cursor_ensureCursorVisible();
+        Selection.update();
+        Cursor.ensureCursorVisible();
     }
 
-})();
+})(globalAPI);

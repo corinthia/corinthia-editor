@@ -2,23 +2,23 @@
 <html>
 <head>
 <script>
-function performTest()
+function performTest(api)
 {
-    var p = DOM_createElement(document,"P");
+    var p = api.DOM.createElement(document,"P");
     var nchildren = 8;
     var positions = new Array();
     var baseCode = "A".charCodeAt(0);
     for (var i = 0; i < nchildren; i++) {
-        var b = DOM_createElement(document,"B");
-        DOM_appendChild(b,DOM_createTextNode(document,String.fromCharCode(baseCode+i)));
-        DOM_appendChild(p,b);
-        positions.push(new Position_Position(p,i));
+        var b = api.DOM.createElement(document,"B");
+        api.DOM.appendChild(b,api.DOM.createTextNode(document,String.fromCharCode(baseCode+i)));
+        api.DOM.appendChild(p,b);
+        positions.push(new api.Position.Position(p,i));
     }
-    positions.push(new Position_Position(p,nchildren));
-    DOM_appendChild(document.body,p);
+    positions.push(new api.Position.Position(p,nchildren));
+    api.DOM.appendChild(document.body,p);
 
-    Position_trackWhileExecuting(positions,function() {
-        DOM_wrapSiblings(p.childNodes[3],p.childNodes[7],"I");
+    api.Position.trackWhileExecuting(positions,function() {
+        api.DOM.wrapSiblings(p.childNodes[3],p.childNodes[7],"I");
     });
 
     var lines = new Array();
@@ -27,8 +27,8 @@ function performTest()
 
     for (var i = positions.length-1; i >= 0; i--) {
         var pos = positions[i];
-        var text = DOM_createTextNode(document,pos.toString());
-        DOM_insertBefore(pos.node,text,pos.node.childNodes[pos.offset]);
+        var text = api.DOM.createTextNode(document,pos.toString());
+        api.DOM.insertBefore(pos.node,text,pos.node.childNodes[pos.offset]);
     }
 }
 </script>
