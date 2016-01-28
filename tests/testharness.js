@@ -68,20 +68,19 @@ function loadCode() {
                            "../src/UndoManager.js",
                            "../src/util.js",
                            "../src/Viewport.js",
-                           "autocorrect/AutoCorrectTests.js",
-                           "dom/RangeTest.js",
-                           "figures/FiguresTest.js",
-                           "input/InputTests.js",
-                           "outline/OutlineTest.js",
-                           "position/validPositions.js",
-                           "scan/ScanTests.js",
-                           "selection/PositionTests.js",
-                           "tables/TableTests.js",
-                           "testlib.js",
-                           "text/TextTests.js",
-                           "undo/UndoTests.js",
-                           "PrettyPrinter.js", // only used for test harness
-                           "testlib.js"]; // must be last
+                           "AutoCorrectTests.js",
+                           "RangeTests.js",
+                           "FiguresTests.js",
+                           "InputTests.js",
+                           "OutlineTests.js",
+                           "ValidPositions.js",
+                           "ScanTests.js",
+                           "PositionTests.js",
+                           "TableTests.js",
+                           "TextTests.js",
+                           "UndoTests.js",
+                           "PrettyPrinter.js",
+                           "testlib.js"];
     var allCodeArray = new Array();
     for (var i = 0; i < javascriptFiles.length; i++)
         allCodeArray.push(readJSCode(javascriptFiles[i]));
