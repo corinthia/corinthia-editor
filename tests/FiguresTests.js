@@ -15,15 +15,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("tests.FiguresTests",function(require,exports) {
 
-    var FiguresTests = api.tests.FiguresTests; // export
+    var DOM = require("DOM");
+    var Figures = require("Figures");
+    var Selection = require("Selection");
 
-    var DOM = api.DOM; // import
-    var Figures = api.Figures; // import
-    var Selection = api.Selection; // import
-
-    FiguresTests.figurePropertiesString = function(index) {
+    function figurePropertiesString(index) {
         var figure = document.getElementsByTagName("FIGURE")[0];
         var parent = figure.parentNode;
         var offset = DOM.nodeOffset(figure);
@@ -41,4 +39,6 @@
         return strings.join("\n");
     }
 
-})(globalAPI);
+    exports.figurePropertiesString = figurePropertiesString;
+
+});

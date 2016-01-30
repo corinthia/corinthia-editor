@@ -15,15 +15,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("Metadata",function(require,exports) {
 
-    var Metadata = api.Metadata; // export
-
-    Metadata.getMetadata = function() {
+    function getMetadata() {
         return {};
     }
 
-    Metadata.setMetadata = function(metadata) {
+    function setMetadata(metadata) {
     }
 
-})(globalAPI);
+    exports.getMetadata = getMetadata;
+    exports.setMetadata = setMetadata;
+
+});

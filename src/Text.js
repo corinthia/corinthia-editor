@@ -15,16 +15,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("Text",function(require,exports) {
 
-    var Text = api.Text; // export
-
-    var DOM = api.DOM; // import
-    var Paragraph = api.Paragraph; // import
-    var Position = api.Position; // import
-    var Traversal = api.Traversal; // import
-    var Types = api.Types; // import
-    var Util = api.Util; // import
+    var DOM = require("DOM");
+    var Paragraph = require("Paragraph");
+    var Position = require("Position");
+    var Traversal = require("Traversal");
+    var Types = require("Types");
+    var Util = require("Util");
 
     function ParagraphInfo(node,startOffset,endOffset,runs,text) {
         this.node = node;
@@ -55,7 +53,7 @@
     //
     // <p>...</p> Some <i>inline</i> nodes <p>...</p>
 
-    Text.findParagraphBoundaries = function(pos) {
+    function findParagraphBoundaries(pos) {
         Position.assertValid(pos);
         var startOffset = pos.offset;
         var endOffset = pos.offset;
@@ -78,13 +76,13 @@
         return { node: node, startOffset: startOffset, endOffset: endOffset };
     }
 
-    Text.analyseParagraph = function(pos) {
+    function analyseParagraph(pos) {
         var initial = pos.node;
         var strings = new Array();
         var runs = new Array();
         var offset = 0;
 
-        var boundaries = Text.findParagraphBoundaries(pos);
+        var boundaries = findParagraphBoundaries(pos);
         if (boundaries == null)
             return null;
 
@@ -108,7 +106,7 @@
         }
     }
 
-    Text.posAbove = function(pos,cursorRect,cursorX) {
+    function posAbove(pos,cursorRect,cursorX) {
         if (cursorX == null)
             cursorX = pos.targetX;
         pos = Position.closestMatchBackwards(pos,Position.okForMovement);
@@ -127,7 +125,7 @@
             if (pos == null)
                 return null;
 
-            var paragraph = Text.analyseParagraph(pos);
+            var paragraph = analyseParagraph(pos);
             if (paragraph == null)
                 return null;
 
@@ -218,7 +216,7 @@
         return result;
     }
 
-    Text.posBelow = function(pos,cursorRect,cursorX) {
+    function posBelow(pos,cursorRect,cursorX) {
         if (cursorX == null)
             cursorX = pos.targetX;
         pos = Position.closestMatchForwards(pos,Position.okForMovement);
@@ -238,7 +236,7 @@
             if (pos == null)
                 return null;
 
-            var paragraph = Text.analyseParagraph(pos);
+            var paragraph = analyseParagraph(pos);
             if (paragraph == null)
                 return null;
 
@@ -286,7 +284,7 @@
         }
     }
 
-    Text.closestPosBackwards = function(pos) {
+    function closestPosBackwards(pos) {
         if (Traversal.isNonWhitespaceTextNode(pos.node))
             return pos;
         var node;
@@ -307,7 +305,7 @@
             return new Position.Position(node,node.nodeValue.length);
     }
 
-    Text.closestPosForwards = function(pos) {
+    function closestPosForwards(pos) {
         if (Traversal.isNonWhitespaceTextNode(pos.node))
             return pos;
         var node;
@@ -330,14 +328,14 @@
             return new Position.Position(node,0);
     }
 
-    Text.closestPosInDirection = function(pos,direction) {
+    function closestPosInDirection(pos,direction) {
         if ((direction == "forward") ||
             (direction == "right") ||
             (direction == "down")) {
-            return Text.closestPosForwards(pos);
+            return closestPosForwards(pos);
         }
         else {
-            return Text.closestPosBackwards(pos);
+            return closestPosBackwards(pos);
         }
     }
 
@@ -345,7 +343,7 @@
         pos = Position.closestMatchBackwards(pos,Position.okForMovement);
         if (pos == null)
             return null;
-        var paragraph = Text.analyseParagraph(pos);
+        var paragraph = analyseParagraph(pos);
         if (paragraph == null)
             return null;
 
@@ -357,7 +355,7 @@
         pos = Position.closestMatchForwards(pos,Position.okForMovement);
         if (pos == null)
             return null;
-        var paragraph = Text.analyseParagraph(pos);
+        var paragraph = analyseParagraph(pos);
         if (paragraph == null)
             return null;
 
@@ -368,7 +366,7 @@
     function toStartOfLine(pos) {
         var posRect = Position.rectAtPos(pos);
         if (posRect == null) {
-            pos = Text.closestPosBackwards(pos);
+            pos = closestPosBackwards(pos);
             posRect = Position.rectAtPos(pos);
             if (posRect == null) {
                 return null;
@@ -389,7 +387,7 @@
     function toEndOfLine(pos) {
         var posRect = Position.rectAtPos(pos);
         if (posRect == null) {
-            pos = Text.closestPosForwards(pos);
+            pos = closestPosForwards(pos);
             posRect = Position.rectAtPos(pos);
             if (posRect == null) {
                 return null;
@@ -407,7 +405,7 @@
         }
     }
 
-    Text.toStartOfBoundary = function(pos,boundary) {
+    function toStartOfBoundary(pos,boundary) {
         if (boundary == "paragraph")
             return toStartOfParagraph(pos);
         else if (boundary == "line")
@@ -416,7 +414,7 @@
             throw new Error("Unsupported boundary: "+boundary);
     }
 
-    Text.toEndOfBoundary = function(pos,boundary) {
+    function toEndOfBoundary(pos,boundary) {
         if (boundary == "paragraph")
             return toEndOfParagraph(pos);
         else if (boundary == "line")
@@ -425,4 +423,14 @@
             throw new Error("Unsupported boundary: "+boundary);
     }
 
-})(globalAPI);
+    exports.findParagraphBoundaries = findParagraphBoundaries;
+    exports.analyseParagraph = analyseParagraph;
+    exports.posAbove = posAbove;
+    exports.posBelow = posBelow;
+    exports.closestPosBackwards = closestPosBackwards;
+    exports.closestPosForwards = closestPosForwards;
+    exports.closestPosInDirection = closestPosInDirection;
+    exports.toStartOfBoundary = toStartOfBoundary;
+    exports.toEndOfBoundary = toEndOfBoundary;
+
+});

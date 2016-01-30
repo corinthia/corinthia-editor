@@ -15,21 +15,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("Formatting",function(require,exports) {
 
-    var Formatting = api.Formatting; // export
-
-    var Collections = api.Collections; // import
-    var Cursor = api.Cursor; // import
-    var DOM = api.DOM; // import
-    var Hierarchy = api.Hierarchy; // import
-    var Position = api.Position; // import
-    var Range = api.Range; // import
-    var Selection = api.Selection; // import
-    var Traversal = api.Traversal; // import
-    var Types = api.Types; // import
-    var UndoManager = api.UndoManager; // import
-    var Util = api.Util; // import
+    var Collections = require("Collections");
+    var Cursor = require("Cursor");
+    var DOM = require("DOM");
+    var Hierarchy = require("Hierarchy");
+    var Position = require("Position");
+    var Range = require("Range");
+    var Selection = require("Selection");
+    var Traversal = require("Traversal");
+    var Types = require("Types");
+    var UndoManager = require("UndoManager");
+    var Util = require("Util");
 
     // Some properties in CSS, such as 'margin', 'border', and 'padding', are shorthands which
     // set multiple, more fine-grained properties. The CSS spec outlines what these are - e.g.
@@ -106,7 +104,7 @@
     }
 
     // public (for testing purposes only)
-    Formatting.splitAroundSelection = function(range,allowDirectInline) {
+    function splitAroundSelection(range,allowDirectInline) {
         Range.trackWhileExecuting(range,function() {
             if (!allowDirectInline)
                 Range.ensureInlineNodesInParagraph(range);
@@ -114,18 +112,18 @@
 
             if ((range.start.node.nodeType == Node.TEXT_NODE) &&
                 (range.start.offset > 0)) {
-                Formatting.splitTextBefore(range.start);
+                splitTextBefore(range.start);
                 if (range.end.node == range.start.node)
                     range.end.offset -= range.start.offset;
                 range.start.offset = 0;
             }
             else if (range.start.node.nodeType == Node.ELEMENT_NODE) {
-                Formatting.movePreceding(range.start,Types.isBlockOrNoteNode);
+                movePreceding(range.start,Types.isBlockOrNoteNode);
             }
             else {
-                Formatting.movePreceding(new Position.Position(range.start.node.parentNode,
-                                                      DOM.nodeOffset(range.start.node)),
-                                         Types.isBlockOrNoteNode);
+                movePreceding(new Position.Position(range.start.node.parentNode,
+                                                    DOM.nodeOffset(range.start.node)),
+                              Types.isBlockOrNoteNode);
             }
 
             // Save the start and end position of the range. The mutation listeners will move it
@@ -137,15 +135,15 @@
 
             if ((range.end.node.nodeType == Node.TEXT_NODE) &&
                 (range.end.offset < range.end.node.nodeValue.length)) {
-                Formatting.splitTextAfter(range.end);
+                splitTextAfter(range.end);
             }
             else if (range.end.node.nodeType == Node.ELEMENT_NODE) {
-                Formatting.moveFollowing(range.end,Types.isBlockOrNoteNode);
+                moveFollowing(range.end,Types.isBlockOrNoteNode);
             }
             else {
-                Formatting.moveFollowing(new Position.Position(range.end.node.parentNode,
-                                                      DOM.nodeOffset(range.end.node)+1),
-                                         Types.isBlockOrNoteNode);
+                moveFollowing(new Position.Position(range.end.node.parentNode,
+                                                    DOM.nodeOffset(range.end.node)+1),
+                              Types.isBlockOrNoteNode);
             }
 
             range.start.node = startNode;
@@ -156,10 +154,10 @@
     }
 
     // public
-    Formatting.mergeUpwards = function(node,whiteList) {
+    function mergeUpwards(node,whiteList) {
         while ((node != null) && whiteList[node._type]) {
             var parent = node.parentNode;
-            Formatting.mergeWithNeighbours(node,whiteList,true);
+            mergeWithNeighbours(node,whiteList,true);
             node = parent;
         }
     }
@@ -183,7 +181,7 @@
     }
 
     // public (for use by tests)
-    Formatting.mergeWithNeighbours = function(node,whiteList,trim) {
+    function mergeWithNeighbours(node,whiteList,trim) {
         var parent = node.parentNode;
         if (parent == null)
             return;
@@ -218,7 +216,7 @@
                 DOM.mergeWithNextSibling(start,whiteList);
 
                 if (lastChild != null)
-                    Formatting.mergeWithNeighbours(lastChild,whiteList);
+                    mergeWithNeighbours(lastChild,whiteList);
             } while (!lastMerge);
         }
     }
@@ -230,13 +228,13 @@
             var next;
             for (var p = nodes[i]; p != null; p = next) {
                 next = p.parentNode;
-                Formatting.mergeWithNeighbours(p,whiteList);
+                mergeWithNeighbours(p,whiteList);
             }
         }
     }
 
     // public (called from cursor.js)
-    Formatting.splitTextBefore = function(pos,parentCheckFn,force) {
+    function splitTextBefore(pos,parentCheckFn,force) {
         var node = pos.node;
         var offset = pos.offset;
         if (parentCheckFn == null)
@@ -246,19 +244,19 @@
             var before = DOM.createTextNode(document,"");
             DOM.insertBefore(node.parentNode,before,node);
             DOM.moveCharacters(node,0,offset,before,0,false,true);
-            Formatting.movePreceding(new Position.Position(node.parentNode,DOM.nodeOffset(node)),
-                                     parentCheckFn,force);
+            movePreceding(new Position.Position(node.parentNode,DOM.nodeOffset(node)),
+                          parentCheckFn,force);
             return new Position.Position(before,before.nodeValue.length);
         }
         else {
-            Formatting.movePreceding(new Position.Position(node.parentNode,DOM.nodeOffset(node)),
-                                     parentCheckFn,force);
+            movePreceding(new Position.Position(node.parentNode,DOM.nodeOffset(node)),
+                          parentCheckFn,force);
             return pos;
         }
     }
 
     // public
-    Formatting.splitTextAfter = function(pos,parentCheckFn,force) {
+    function splitTextAfter(pos,parentCheckFn,force) {
         var node = pos.node;
         var offset = pos.offset;
         if (parentCheckFn == null)
@@ -268,13 +266,13 @@
             var after = DOM.createTextNode(document,"");
             DOM.insertBefore(node.parentNode,after,node.nextSibling);
             DOM.moveCharacters(node,offset,node.nodeValue.length,after,0,true,false);
-            Formatting.moveFollowing(new Position.Position(node.parentNode,DOM.nodeOffset(node)+1),
-                                     parentCheckFn,force);
+            moveFollowing(new Position.Position(node.parentNode,DOM.nodeOffset(node)+1),
+                          parentCheckFn,force);
             return new Position.Position(after,0);
         }
         else {
-            Formatting.moveFollowing(new Position.Position(node.parentNode,DOM.nodeOffset(node)+1),
-                                     parentCheckFn,force);
+            moveFollowing(new Position.Position(node.parentNode,DOM.nodeOffset(node)+1),
+                          parentCheckFn,force);
             return pos;
         }
     }
@@ -284,7 +282,7 @@
     // index of a child, we pass the child itself (or null if the offset is equal to
     // childNodes.length)
     // public
-    Formatting.movePreceding = function(pos,parentCheckFn,force) {
+    function movePreceding(pos,parentCheckFn,force) {
         var node = pos.node;
         var offset = pos.offset;
         if (parentCheckFn(node) || (node == document.body))
@@ -314,13 +312,13 @@
             }
         }
 
-        Formatting.movePreceding(new Position.Position(node.parentNode,DOM.nodeOffset(node)),
-                                 parentCheckFn,force);
+        movePreceding(new Position.Position(node.parentNode,DOM.nodeOffset(node)),
+                      parentCheckFn,force);
         return result;
     }
 
     // public
-    Formatting.moveFollowing = function(pos,parentCheckFn,force) {
+    function moveFollowing(pos,parentCheckFn,force) {
         var node = pos.node;
         var offset = pos.offset;
         if (parentCheckFn(node) || (node == document.body))
@@ -350,13 +348,13 @@
             }
         }
 
-        Formatting.moveFollowing(new Position.Position(node.parentNode,DOM.nodeOffset(node)+1),
-                                 parentCheckFn,force);
+        moveFollowing(new Position.Position(node.parentNode,DOM.nodeOffset(node)+1),
+                      parentCheckFn,force);
         return result;
     }
 
     // public
-    Formatting.paragraphTextUpToPosition = function(pos) {
+    function paragraphTextUpToPosition(pos) {
         if (pos.node.nodeType == Node.TEXT_NODE) {
             return stringToStartOfParagraph(pos.node,pos.offset);
         }
@@ -389,7 +387,7 @@
     }
 
     // public
-    Formatting.getFormatting = function() {
+    function getFormatting() {
         // FIXME: implement a more efficient version of this algorithm which avoids duplicate checks
 
         var range = Selection.get();
@@ -409,7 +407,7 @@
         var commonProperties = null;
         for (var i = 0; i < leafNodes.length; i++) {
             if (!Traversal.isWhitespaceTextNode(leafNodes[i]) || empty) {
-                var leafNodeProperties = Formatting.getAllNodeProperties(leafNodes[i]);
+                var leafNodeProperties = getAllNodeProperties(leafNodes[i]);
                 if (leafNodeProperties["-uxwrite-paragraph-style"] == null)
                     leafNodeProperties["-uxwrite-paragraph-style"] = Types.Keys.NONE_STYLE;
                 if (commonProperties == null)
@@ -468,7 +466,7 @@
         return commonProperties;
 
         function getFlags(pos,commonProperties) {
-            var strBeforeCursor = Formatting.paragraphTextUpToPosition(pos);
+            var strBeforeCursor = paragraphTextUpToPosition(pos);
 
             if (Util.isWhitespaceString(strBeforeCursor)) {
                 var firstInParagraph = true;
@@ -508,14 +506,14 @@
     }
 
     // public
-    Formatting.getAllNodeProperties = function(node) {
+    function getAllNodeProperties(node) {
         if (node == null)
             throw new Error("Node is not in tree");
 
         if (node == node.ownerDocument.body)
             return new Object();
 
-        var properties = Formatting.getAllNodeProperties(node.parentNode);
+        var properties = getAllNodeProperties(node.parentNode);
 
         if (node.nodeType == Node.ELEMENT_NODE) {
             // Note: Style names corresponding to element names must be in lowercase, because
@@ -754,7 +752,7 @@
     }
 
     // public
-    Formatting.pushDownInlineProperties = function(outermost) {
+    function pushDownInlineProperties(outermost) {
         for (var i = 0; i < outermost.length; i++)
             outermost[i] = pushDownInlinePropertiesSingle(outermost[i]);
     }
@@ -1022,7 +1020,7 @@
     }
 
     // public
-    Formatting.applyFormattingChanges = function(style,properties) {
+    function applyFormattingChanges(style,properties) {
         debug("JS: applyFormattingChanges: style = "+JSON.stringify(style));
         if (properties != null) {
             var names = Object.getOwnPropertyNames(properties).sort();
@@ -1089,7 +1087,7 @@
 
         var allowDirectInline = (style == null);
         Position.trackWhileExecuting(positions,function() {
-            Formatting.splitAroundSelection(range,allowDirectInline);
+            splitAroundSelection(range,allowDirectInline);
             Range.expand(range);
             if (!allowDirectInline)
                 Range.ensureInlineNodesInParagraph(range);
@@ -1105,13 +1103,13 @@
                 paragraphs = getParagraphs([Range.singleNode(range)]);
 
             // Push down inline properties
-            Formatting.pushDownInlineProperties(outermost);
+            pushDownInlineProperties(outermost);
 
             outermost = removeProperties(outermost,inlineProperties);
 
             // Set properties on inline nodes
             for (var i = 0; i < outermost.length; i++) {
-                var existing = Formatting.getAllNodeProperties(outermost[i]);
+                var existing = getAllNodeProperties(outermost[i]);
                 var toSet = new Object();
                 for (var name in inlineProperties) {
                     if ((inlineProperties[name] != null) &&
@@ -1146,12 +1144,12 @@
                 }
             }
 
-            mergeRange(range,Formatting.MERGEABLE_INLINE);
+            mergeRange(range,MERGEABLE_INLINE);
 
             if (target != null) {
                 for (var p = target; p != null; p = next) {
                     next = p.parentNode;
-                    Formatting.mergeWithNeighbours(p,Formatting.MERGEABLE_INLINE);
+                    mergeWithNeighbours(p,MERGEABLE_INLINE);
                 }
             }
         });
@@ -1176,64 +1174,81 @@
         }
     }
 
-    Formatting.formatInlineNode = function(node,properties) {
+    function formatInlineNode(node,properties) {
         properties = Util.clone(properties);
         var special = extractSpecial(properties);
         return applyInlineFormatting(node,properties,special,true);
     }
 
-    Formatting.MERGEABLE_INLINE = new Array(HTML_COUNT);
+    var MERGEABLE_INLINE = new Array(HTML_COUNT);
 
-    Formatting.MERGEABLE_INLINE[HTML_TEXT] = true;
+    MERGEABLE_INLINE[HTML_TEXT] = true;
 
-    Formatting.MERGEABLE_INLINE[HTML_SPAN] = true;
-    Formatting.MERGEABLE_INLINE[HTML_A] = true;
-    Formatting.MERGEABLE_INLINE[HTML_Q] = true;
+    MERGEABLE_INLINE[HTML_SPAN] = true;
+    MERGEABLE_INLINE[HTML_A] = true;
+    MERGEABLE_INLINE[HTML_Q] = true;
 
     // HTML 4.01 Section 9.2.1: Phrase elements
-    Formatting.MERGEABLE_INLINE[HTML_EM] = true;
-    Formatting.MERGEABLE_INLINE[HTML_STRONG] = true;
-    Formatting.MERGEABLE_INLINE[HTML_DFN] = true;
-    Formatting.MERGEABLE_INLINE[HTML_CODE] = true;
-    Formatting.MERGEABLE_INLINE[HTML_SAMP] = true;
-    Formatting.MERGEABLE_INLINE[HTML_KBD] = true;
-    Formatting.MERGEABLE_INLINE[HTML_VAR] = true;
-    Formatting.MERGEABLE_INLINE[HTML_CITE] = true;
-    Formatting.MERGEABLE_INLINE[HTML_ABBR] = true;
+    MERGEABLE_INLINE[HTML_EM] = true;
+    MERGEABLE_INLINE[HTML_STRONG] = true;
+    MERGEABLE_INLINE[HTML_DFN] = true;
+    MERGEABLE_INLINE[HTML_CODE] = true;
+    MERGEABLE_INLINE[HTML_SAMP] = true;
+    MERGEABLE_INLINE[HTML_KBD] = true;
+    MERGEABLE_INLINE[HTML_VAR] = true;
+    MERGEABLE_INLINE[HTML_CITE] = true;
+    MERGEABLE_INLINE[HTML_ABBR] = true;
 
     // HTML 4.01 Section 9.2.3: Subscripts and superscripts
-    Formatting.MERGEABLE_INLINE[HTML_SUB] = true;
-    Formatting.MERGEABLE_INLINE[HTML_SUP] = true;
+    MERGEABLE_INLINE[HTML_SUB] = true;
+    MERGEABLE_INLINE[HTML_SUP] = true;
 
     // HTML 4.01 Section 15.2.1: Font style elements
-    Formatting.MERGEABLE_INLINE[HTML_I] = true;
-    Formatting.MERGEABLE_INLINE[HTML_B] = true;
-    Formatting.MERGEABLE_INLINE[HTML_SMALL] = true;
-    Formatting.MERGEABLE_INLINE[HTML_S] = true;
-    Formatting.MERGEABLE_INLINE[HTML_U] = true;
+    MERGEABLE_INLINE[HTML_I] = true;
+    MERGEABLE_INLINE[HTML_B] = true;
+    MERGEABLE_INLINE[HTML_SMALL] = true;
+    MERGEABLE_INLINE[HTML_S] = true;
+    MERGEABLE_INLINE[HTML_U] = true;
 
-    Formatting.MERGEABLE_BLOCK = new Array(HTML_COUNT);
+    var MERGEABLE_BLOCK = new Array(HTML_COUNT);
 
-    Formatting.MERGEABLE_BLOCK[HTML_P] = true;
-    Formatting.MERGEABLE_BLOCK[HTML_H1] = true;
-    Formatting.MERGEABLE_BLOCK[HTML_H2] = true;
-    Formatting.MERGEABLE_BLOCK[HTML_H3] = true;
-    Formatting.MERGEABLE_BLOCK[HTML_H4] = true;
-    Formatting.MERGEABLE_BLOCK[HTML_H5] = true;
-    Formatting.MERGEABLE_BLOCK[HTML_H6] = true;
-    Formatting.MERGEABLE_BLOCK[HTML_DIV] = true;
-    Formatting.MERGEABLE_BLOCK[HTML_PRE] = true;
-    Formatting.MERGEABLE_BLOCK[HTML_BLOCKQUOTE] = true;
+    MERGEABLE_BLOCK[HTML_P] = true;
+    MERGEABLE_BLOCK[HTML_H1] = true;
+    MERGEABLE_BLOCK[HTML_H2] = true;
+    MERGEABLE_BLOCK[HTML_H3] = true;
+    MERGEABLE_BLOCK[HTML_H4] = true;
+    MERGEABLE_BLOCK[HTML_H5] = true;
+    MERGEABLE_BLOCK[HTML_H6] = true;
+    MERGEABLE_BLOCK[HTML_DIV] = true;
+    MERGEABLE_BLOCK[HTML_PRE] = true;
+    MERGEABLE_BLOCK[HTML_BLOCKQUOTE] = true;
 
-    Formatting.MERGEABLE_BLOCK[HTML_UL] = true;
-    Formatting.MERGEABLE_BLOCK[HTML_OL] = true;
-    Formatting.MERGEABLE_BLOCK[HTML_LI] = true;
+    MERGEABLE_BLOCK[HTML_UL] = true;
+    MERGEABLE_BLOCK[HTML_OL] = true;
+    MERGEABLE_BLOCK[HTML_LI] = true;
 
-    Formatting.MERGEABLE_BLOCK_AND_INLINE = new Array(HTML_COUNT);
+    var MERGEABLE_BLOCK_AND_INLINE = new Array(HTML_COUNT);
     for (var i = 0; i < HTML_COUNT; i++) {
-        if (Formatting.MERGEABLE_INLINE[i] || Formatting.MERGEABLE_BLOCK[i])
-            Formatting.MERGEABLE_BLOCK_AND_INLINE[i] = true;
-        Formatting.MERGEABLE_BLOCK_AND_INLINE["force"] = true;
+        if (MERGEABLE_INLINE[i] || MERGEABLE_BLOCK[i])
+            MERGEABLE_BLOCK_AND_INLINE[i] = true;
+        MERGEABLE_BLOCK_AND_INLINE["force"] = true;
     }
 
-})(globalAPI);
+    exports.splitAroundSelection = splitAroundSelection;
+    exports.mergeUpwards = mergeUpwards;
+    exports.mergeWithNeighbours = mergeWithNeighbours;
+    exports.splitTextBefore = splitTextBefore;
+    exports.splitTextAfter = splitTextAfter;
+    exports.movePreceding = movePreceding;
+    exports.moveFollowing = moveFollowing;
+    exports.paragraphTextUpToPosition = paragraphTextUpToPosition;
+    exports.getFormatting = getFormatting;
+    exports.getAllNodeProperties = getAllNodeProperties;
+    exports.pushDownInlineProperties = pushDownInlineProperties;
+    exports.applyFormattingChanges = applyFormattingChanges;
+    exports.formatInlineNode = formatInlineNode;
+    exports.MERGEABLE_INLINE = MERGEABLE_INLINE;
+    exports.MERGEABLE_BLOCK = MERGEABLE_BLOCK;
+    exports.MERGEABLE_BLOCK_AND_INLINE = MERGEABLE_BLOCK_AND_INLINE;
+
+});

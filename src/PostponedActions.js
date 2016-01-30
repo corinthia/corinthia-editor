@@ -15,11 +15,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("PostponedActions",function(require,exports) {
 
-    var PostponedActions = api.PostponedActions; // export
-
-    var UndoManager = api.UndoManager; // import
+    var UndoManager = require("UndoManager");
 
     function PostponedAction(fun,undoDisabled) {
         this.fun = fun;
@@ -28,11 +26,11 @@
 
     var actions = new Array();
 
-    PostponedActions.add = function(action) {
+    function add(action) {
         actions.push(new PostponedAction(action,UndoManager.isDisabled()));
     }
 
-    PostponedActions.perform = function() {
+    function perform() {
         var count = 0;
         while (actions.length > 0) {
             if (count >= 10)
@@ -50,4 +48,7 @@
         }
     }
 
-})(globalAPI);
+    exports.add = add;
+    exports.perform = perform;
+
+});

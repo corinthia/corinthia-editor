@@ -15,14 +15,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("Util",function(require,exports) {
 
-    var Util = api.Util; // export
+    var DOM = require("DOM");
+    var Types = require("Types");
 
-    var DOM = api.DOM; // import
-    var Types = api.Types; // import
-
-    Util.arrayContains = function(array,value) {
+    function arrayContains(array,value) {
         for (var i = 0; i < array.length; i++) {
             if (array[i] == value)
                 return true;
@@ -33,7 +31,7 @@
     // Note: you can use slice() to copy a real javascript array, but this function can be used to copy
     // DOM NodeLists (e.g. as returned by document.getElementsByTagName) as well, since they don't
     // support the slice method
-    Util.arrayCopy = function(array) {
+    function arrayCopy(array) {
         if (array == null)
             return null;
         var copy = new Array();
@@ -42,7 +40,7 @@
         return copy;
     }
 
-    Util.quoteString = function(str) {
+    function quoteString(str) {
         if (str == null)
             return null;
 
@@ -59,7 +57,7 @@
         return quoted;
     }
 
-    Util.nodeString = function(node) {
+    function nodeString(node) {
         if (node == null)
             return "null";
         var id = "";
@@ -80,34 +78,34 @@
         }
     }
 
-    Util.rectString = function(rect) {
+    function rectString(rect) {
         if (rect == null)
             return null;
         else
             return "("+rect.left+","+rect.top+") - ("+rect.right+","+rect.bottom+")";
     }
 
-    Util.rectIsEmpty = function(rect) {
+    function rectIsEmpty(rect) {
         return ((rect == null) ||
                 ((rect.width == 0) && (rect.height == 0)));
     }
 
-    Util.rectContainsPoint = function(rect,x,y) {
+    function rectContainsPoint(rect,x,y) {
         return ((x >= rect.left) && (x < rect.right) &&
                 (y >= rect.top) && (y < rect.bottom));
     }
 
-    Util.clone = function(object) {
+    function clone(object) {
         var result = new Object();
         for (var name in object)
             result[name] = object[name];
         return result;
     }
 
-    Util.nodeHasContent = function(node) {
+    function nodeHasContent(node) {
         switch (node._type) {
         case HTML_TEXT:
-            return !Util.isWhitespaceString(node.nodeValue);
+            return !isWhitespaceString(node.nodeValue);
         case HTML_IMG:
         case HTML_TABLE:
             return true;
@@ -116,32 +114,32 @@
                 return true;
 
             for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                if (Util.nodeHasContent(child))
+                if (nodeHasContent(child))
                     return true;
             }
             return false;
         }
     }
 
-    Util.isWhitespaceString = function(str) {
-        return (str.match(Util.isWhitespaceString.regexp) != null);
+    function isWhitespaceString(str) {
+        return (str.match(isWhitespaceString.regexp) != null);
     }
 
-    Util.isWhitespaceString.regexp = /^\s*$/;
+    isWhitespaceString.regexp = /^\s*$/;
 
-    Util.normalizeWhitespace = function(str) {
+    function normalizeWhitespace(str) {
         str = str.replace(/^\s+/,"");
         str = str.replace(/\s+$/,"");
         str = str.replace(/\s+/g," ");
         return str;
     }
 
-    Util.DoublyLinkedList = function() {
+    function DoublyLinkedList() {
         this.first = null;
         this.last = null;
     }
 
-    Util.DoublyLinkedList.prototype.insertAfter = function(item,after) {
+    DoublyLinkedList.prototype.insertAfter = function(item,after) {
         item.prev = null;
         item.next = null;
 
@@ -166,7 +164,7 @@
             item.prev.next = item;
     };
 
-    Util.DoublyLinkedList.prototype.remove = function(item) {
+    DoublyLinkedList.prototype.remove = function(item) {
         if (this.first == item)
             this.first = this.first.next;
         if (this.last == item)
@@ -179,7 +177,7 @@
         item.next = null;
     };
 
-    Util.diff = function(src,dest) {
+    function diff(src,dest) {
         var traces = new Array();
 
         traces[1] = new DiffEntry(0,0,0,0,null);
@@ -245,34 +243,34 @@
         }
     }
 
-    Util.TimingEntry = function(name,time) {
+    function TimingEntry(name,time) {
         this.name = name;
         this.time = time;
     }
 
-    Util.TimingInfo = function() {
+    function TimingInfo() {
         this.entries = new Array();
         this.total = 0;
         this.lastTime = null;
     }
 
-    Util.TimingInfo.prototype.start = function() {
+    TimingInfo.prototype.start = function() {
         this.entries.length = 0;
         this.lastTime = new Date();
     }
 
-    Util.TimingInfo.prototype.addEntry = function(name) {
+    TimingInfo.prototype.addEntry = function(name) {
         if (this.lastTime == null)
             this.start();
 
         var now = new Date();
         var interval = now - this.lastTime;
-        this.entries.push(new Util.TimingEntry(name,interval));
+        this.entries.push(new TimingEntry(name,interval));
         this.total += interval;
         this.lastTime = now;
     }
 
-    Util.TimingInfo.prototype.print = function(title) {
+    TimingInfo.prototype.print = function(title) {
         debug(title);
         for (var i = 0; i < this.entries.length; i++) {
             var entry = this.entries[i];
@@ -280,7 +278,7 @@
         }
     }
 
-    Util.readFileApp = function(filename) {
+    function readFileApp(filename) {
         var req = new XMLHttpRequest("file:///read/"+filename);
         req.open("POST","/read/"+encodeURI(filename),false);
         req.send();
@@ -294,7 +292,7 @@
         return doc;
     }
 
-    Util.readFileTest = function(filename) {
+    function readFileTest(filename) {
         var req = new XMLHttpRequest();
         req.open("GET",filename,false);
         req.send();
@@ -305,7 +303,7 @@
         return xml;
     }
 
-    Util.fromTokenList = function(value) {
+    function fromTokenList(value) {
         var result = new Object();
         if (value != null) {
             var components = value.toLowerCase().split(/\s+/);
@@ -317,7 +315,7 @@
         return result;
     }
 
-    Util.toTokenList = function(properties) {
+    function toTokenList(properties) {
         var tokens = new Array();
 
         if (properties != null) {
@@ -336,7 +334,7 @@
             return tokens.join(" ");
     }
 
-    Util.xywhAbsElementRect = function(element) {
+    function xywhAbsElementRect(element) {
         var rect = element.getBoundingClientRect();
         return { x: rect.left + window.scrollX,
                  y: rect.top + window.scrollY,
@@ -344,4 +342,25 @@
                  height: rect.height };
     }
 
-})(globalAPI);
+    exports.arrayContains = arrayContains;
+    exports.arrayCopy = arrayCopy;
+    exports.quoteString = quoteString;
+    exports.nodeString = nodeString;
+    exports.rectString = rectString;
+    exports.rectIsEmpty = rectIsEmpty;
+    exports.rectContainsPoint = rectContainsPoint;
+    exports.clone = clone;
+    exports.nodeHasContent = nodeHasContent;
+    exports.isWhitespaceString = isWhitespaceString;
+    exports.normalizeWhitespace = normalizeWhitespace;
+    exports.DoublyLinkedList = DoublyLinkedList;
+    exports.diff = diff;
+    exports.TimingEntry = TimingEntry;
+    exports.TimingInfo = TimingInfo;
+    exports.readFileApp = readFileApp;
+    exports.readFileTest = readFileTest;
+    exports.fromTokenList = fromTokenList;
+    exports.toTokenList = toTokenList;
+    exports.xywhAbsElementRect = xywhAbsElementRect;
+
+});

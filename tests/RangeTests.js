@@ -15,44 +15,42 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("tests.RangeTests",function(require,exports) {
 
-    var RangeTests = api.tests.RangeTests; // export
-
-    var Collections = api.Collections; // import
-    var DOM = api.DOM; // import
-    var Position = api.Position; // import
-    var Range = api.Range; // import
-    var Traversal = api.Traversal; // import
+    var Collections = require("Collections");
+    var DOM = require("DOM");
+    var Position = require("Position");
+    var Range = require("Range");
+    var Traversal = require("Traversal");
 
     function positionKey(pos) {
         return pos.node._nodeId+","+pos.offset;
     }
 
-    RangeTests.removeWhitespaceTextNodes = function(parent) {
+    function removeWhitespaceTextNodes(parent) {
         var next;
         for (var child = parent.firstChild; child != null; child = next) {
             next = child.nextSibling;
             if (Traversal.isWhitespaceTextNode(child) || (child.nodeType == Node.COMMENT_NODE))
                 DOM.deleteNode(child);
             else
-                RangeTests.removeWhitespaceTextNodes(child);
+                removeWhitespaceTextNodes(child);
         }
     }
 
-    RangeTests.setup = function(root) {
-        RangeTests.allPositions = RangeTests.getAllPositions(root);
+    function setup(root) {
+        exports.allPositions = getAllPositions(root);
 
-        RangeTests.allPositionsIndexMap = new Object();
-        for (var i = 0; i < RangeTests.allPositions.length; i++) {
-            var pos = RangeTests.allPositions[i];
-            RangeTests.allPositionsIndexMap[positionKey(pos)] = i;
+        exports.allPositionsIndexMap = new Object();
+        for (var i = 0; i < exports.allPositions.length; i++) {
+            var pos = exports.allPositions[i];
+            exports.allPositionsIndexMap[positionKey(pos)] = i;
         }
     }
 
-    RangeTests.comparePositionsBeforeAndAfter = function(fun) {
+    function comparePositionsBeforeAndAfter(fun) {
         var messages = new Array();
-        var positions = RangeTests.getAllPositions(document.body);
+        var positions = getAllPositions(document.body);
         var positionStrings = new Array();
         for (var i = 0; i < positions.length; i++) {
             messages.push("Before: positions["+i+"] = "+positions[i]);
@@ -76,7 +74,7 @@
         return messages.join("\n");
     }
 
-    RangeTests.getAllPositions = function(root) {
+    function getAllPositions(root) {
         var includeEmptyElements = true;
 
         var positions = new Array();
@@ -104,42 +102,42 @@
         }
     }
 
-    RangeTests.getPositionIndex = function(pos) {
-        var result = RangeTests.allPositionsIndexMap[pos.node._nodeId+","+pos.offset];
+    function getPositionIndex(pos) {
+        var result = exports.allPositionsIndexMap[pos.node._nodeId+","+pos.offset];
         if (result == null)
             throw new Error(pos+": no index for position");
         return result;
     }
 
-    RangeTests.isForwardsSimple = function(range) {
-        var startIndex = RangeTests.getPositionIndex(range.start);
-        var endIndex = RangeTests.getPositionIndex(range.end);
+    function isForwardsSimple(range) {
+        var startIndex = getPositionIndex(range.start);
+        var endIndex = getPositionIndex(range.end);
     //    debug("startIndex = "+indices.startIndex+", endIndex = "+indices.endIndex);
         return (endIndex >= startIndex);
     }
 
-    RangeTests.getOutermostNodesSimple = function(range) {
-        if (!RangeTests.isForwardsSimple(range)) {
+    function getOutermostNodesSimple(range) {
+        if (!isForwardsSimple(range)) {
             var reverse = new Range.Range(range.end.node,range.end.offset,
                                     range.start.node,range.start.offset);
             if (!Range.isForwards(reverse)) {
-                var startIndex = RangeTests.getPositionIndex(range.start);
-                var endIndex = RangeTests.getPositionIndex(range.end);
+                var startIndex = getPositionIndex(range.start);
+                var endIndex = getPositionIndex(range.end);
                 debug("startIndex = "+startIndex+", endIndex = "+endIndex);
                 throw new Error("Both range "+range+" and its reverse are not forwards");
             }
-            return RangeTests.getOutermostNodesSimple(reverse);
+            return getOutermostNodesSimple(reverse);
         }
 
-        var startIndex = RangeTests.getPositionIndex(range.start);
-        var endIndex = RangeTests.getPositionIndex(range.end);
+        var startIndex = getPositionIndex(range.start);
+        var endIndex = getPositionIndex(range.end);
         var havePositions = new Object();
 
         var allArray = new Array();
         var allSet = new Collections.NodeSet();
 
         for (var i = startIndex; i <= endIndex; i++) {
-            var pos = RangeTests.allPositions[i];
+            var pos = exports.allPositions[i];
 
             if ((pos.node.nodeType == Node.TEXT_NODE) && (i < endIndex)) {
                 allArray.push(pos.node);
@@ -178,4 +176,12 @@
         }
     }
 
-})(globalAPI);
+    exports.removeWhitespaceTextNodes = removeWhitespaceTextNodes;
+    exports.setup = setup;
+    exports.comparePositionsBeforeAndAfter = comparePositionsBeforeAndAfter;
+    exports.getAllPositions = getAllPositions;
+    exports.getPositionIndex = getPositionIndex;
+    exports.isForwardsSimple = isForwardsSimple;
+    exports.getOutermostNodesSimple = getOutermostNodesSimple;
+
+});

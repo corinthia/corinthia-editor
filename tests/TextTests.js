@@ -15,14 +15,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("tests.TextTests",function(require,exports) {
 
-    var TextTests = api.tests.TextTests; // export
+    var Selection = require("Selection");
+    var Text = require("Text");
 
-    var Selection = api.Selection; // import
-    var Text = api.Text; // import
-
-    TextTests.showRuns = function() {
+    function showRuns() {
         var range = Selection.get();
         var paragraph = Text.analyseParagraph(range.start);
         var runs = paragraph.runs;
@@ -43,4 +41,6 @@
         return lines.join("\n");
     }
 
-})(globalAPI);
+    exports.showRuns = showRuns;
+
+});

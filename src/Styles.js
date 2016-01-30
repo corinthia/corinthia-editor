@@ -15,23 +15,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("Styles",function(require,exports) {
 
-    var Styles = api.Styles; // export
-
-    var DOM = api.DOM; // import
-    var Outline = api.Outline; // import
-    var Types = api.Types; // import
-    var UndoManager = api.UndoManager; // import
+    var DOM = require("DOM");
+    var Outline = require("Outline");
+    var Types = require("Types");
+    var UndoManager = require("UndoManager");
 
     var rules = new Object();
     var paragraphClass = null;
 
-    Styles.getRule = function(selector) {
+    function getRule(selector) {
         return rules[selector];
     }
 
-    Styles.nextSelectorAfter = function(element) {
+    function nextSelectorAfter(element) {
         var selector = element.nodeName.toLowerCase();
         var className = DOM.getAttribute(element,"class");
         if (className != null)
@@ -40,7 +38,7 @@
         var nextElementName = null;
         var nextClassName = null;
 
-        var rule = Styles.getRule(selector);
+        var rule = getRule(selector);
         if (rule != null) {
             var nextSelector = rule["-uxwrite-next"];
             if (nextSelector != null) {
@@ -74,7 +72,7 @@
 
         if (Types.isHeadingNode(element)) {
             nextElementName = "p";
-            nextClassName = Styles.getParagraphClass();
+            nextClassName = getParagraphClass();
         }
 
         if (nextElementName == null)
@@ -85,20 +83,20 @@
             return nextElementName+"."+nextClassName;
     }
 
-    Styles.getParagraphClass = function() {
+    function getParagraphClass() {
         return paragraphClass;
     }
 
-    Styles.setParagraphClass = function(cls) {
+    function setParagraphClass(cls) {
         paragraphClass = cls;
     }
 
-    Styles.headingNumbering = function() {
+    function headingNumbering() {
         return ((rules["h1::before"] != null) &&
                 (rules["h1::before"]["content"] != null));
     }
 
-    Styles.getCSSText = function() {
+    function getCSSText() {
         var head = DOM.documentHead(document);
         var cssText = "";
         for (var child = head.firstChild; child != null; child = child.nextSibling) {
@@ -112,7 +110,7 @@
         return cssText;
     }
 
-    Styles.setCSSText = function(cssText,cssRules) {
+    function setCSSText(cssText,cssRules) {
         UndoManager.newGroup("Update styles");
         var head = DOM.documentHead(document);
         var next;
@@ -150,12 +148,12 @@
 
     var builtinCSSURL = null;
 
-    Styles.getBuiltinCSSURL = function() {
+    function getBuiltinCSSURL() {
         return builtinCSSURL;
     }
 
     // public
-    Styles.init = function(cssURL) {
+    function init(cssURL) {
         if (cssURL != null)
             builtinCSSURL = cssURL;
 
@@ -163,4 +161,14 @@
             addBuiltinStylesheet(builtinCSSURL);
     }
 
-})(globalAPI);
+    exports.getRule = getRule;
+    exports.nextSelectorAfter = nextSelectorAfter;
+    exports.getParagraphClass = getParagraphClass;
+    exports.setParagraphClass = setParagraphClass;
+    exports.headingNumbering = headingNumbering;
+    exports.getCSSText = getCSSText;
+    exports.setCSSText = setCSSText;
+    exports.getBuiltinCSSURL = getBuiltinCSSURL;
+    exports.init = init;
+
+});

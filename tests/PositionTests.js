@@ -15,15 +15,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("tests.PositionTests",function(require,exports) {
 
-    var PositionTests = api.tests.PositionTests; // export
-
-    var Paragraph = api.Paragraph; // import
-    var Position = api.Position; // import
-    var Selection = api.Selection; // import
-    var Text = api.Text; // import
-    var UndoManager = api.UndoManager; // import
+    var Paragraph = require("Paragraph");
+    var Position = require("Position");
+    var Selection = require("Selection");
+    var Text = require("Text");
+    var UndoManager = require("UndoManager");
 
     function pad(str,length) {
         str = ""+str;
@@ -95,7 +93,7 @@
         return positionList;
     }
 
-    PositionTests.positionTest = function(start1,end1,start2,end2) {
+    function positionTest(start1,end1,start2,end2) {
         var ps = document.getElementsByTagName("P");
 
         var p = ps[0];
@@ -148,4 +146,6 @@
         return testDescription + "\n" + createTable([origStrings,strings1,strings2,checks]);
     }
 
-})(globalAPI);
+    exports.positionTest = positionTest;
+
+});

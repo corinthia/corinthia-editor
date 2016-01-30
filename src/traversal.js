@@ -15,13 +15,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("Traversal",function(require,exports) {
 
-    var Traversal = api.Traversal; // export
+    var Util = require("Util");
 
-    var Util = api.Util; // import
-
-    Traversal.prevNode = function(node) {
+    function prevNode(node) {
         if (node.previousSibling != null) {
             node = node.previousSibling;
             while (node.lastChild != null)
@@ -33,7 +31,7 @@
         }
     }
 
-    Traversal.nextNodeAfter = function(node,entering,exiting) {
+    function nextNodeAfter(node,entering,exiting) {
         while (node != null) {
             if (node.nextSibling != null) {
                 if (exiting != null)
@@ -51,7 +49,7 @@
         return node;
     }
 
-    Traversal.nextNode = function(node,entering,exiting) {
+    function nextNode(node,entering,exiting) {
         if (node.firstChild) {
             node = node.firstChild;
             if (entering != null)
@@ -59,63 +57,63 @@
             return node;
         }
         else {
-            return Traversal.nextNodeAfter(node,entering,exiting);
+            return nextNodeAfter(node,entering,exiting);
         }
     }
 
-    Traversal.prevTextNode = function(node) {
+    function prevTextNode(node) {
         do {
-            node = Traversal.prevNode(node);
+            node = prevNode(node);
         } while ((node != null) && (node.nodeType != Node.TEXT_NODE));
         return node;
     }
 
-    Traversal.nextTextNode = function(node) {
+    function nextTextNode(node) {
         do {
-            node = Traversal.nextNode(node);
+            node = nextNode(node);
         } while ((node != null) && (node.nodeType != Node.TEXT_NODE));
         return node;
     }
 
-    Traversal.firstChildElement = function(node) {
+    function firstChildElement(node) {
         var first = node.firstChild;
         while ((first != null) && (first.nodeType != Node.ELEMENT_NODE))
             first = first.nextSibling;
         return first;
     }
 
-    Traversal.lastChildElement = function(node) {
+    function lastChildElement(node) {
         var last = node.lastChild;
         while ((last != null) && (last.nodeType != Node.ELEMENT_NODE))
             last = last.previousSibling;
         return last;
     }
 
-    Traversal.firstDescendant = function(node) {
+    function firstDescendant(node) {
         while (node.firstChild != null)
             node = node.firstChild;
         return node;
     }
 
-    Traversal.lastDescendant = function(node) {
+    function lastDescendant(node) {
         while (node.lastChild != null)
             node = node.lastChild;
         return node;
     }
 
-    Traversal.firstDescendantOfType = function(node,type) {
+    function firstDescendantOfType(node,type) {
         if (node._type == type)
             return node;
 
         for (var child = node.firstChild; child != null; child = child.nextSibling) {
-            var result = Traversal.firstDescendantOfType(child,type);
+            var result = firstDescendantOfType(child,type);
             if (result != null)
                 return result;
         }
         return null;
     }
 
-    Traversal.firstChildOfType = function(node,type) {
+    function firstChildOfType(node,type) {
         for (var child = node.firstChild; child != null; child = child.nextSibling) {
             if (child._type == type)
                 return child;
@@ -123,14 +121,14 @@
         return null;
     }
 
-    Traversal.getNodeDepth = function(node) {
+    function getNodeDepth(node) {
         var depth = 0;
         for (; node != null; node = node.parentNode)
             depth++;
         return depth;
     }
 
-    Traversal.getNodeText = function(node) {
+    function getNodeText(node) {
         var strings = new Array();
         recurse(node);
         return strings.join("").replace(/\s+/g," ");
@@ -144,19 +142,19 @@
         }
     }
 
-    Traversal.isWhitespaceTextNode = function(node) {
+    function isWhitespaceTextNode(node) {
         if (node.nodeType != Node.TEXT_NODE)
             return false;
         return Util.isWhitespaceString(node.nodeValue);
     }
 
-    Traversal.isNonWhitespaceTextNode = function(node) {
+    function isNonWhitespaceTextNode(node) {
         if (node.nodeType != Node.TEXT_NODE)
             return false;
         return !Util.isWhitespaceString(node.nodeValue);
     }
 
-    Traversal.printTree = function(node,indent,offset) {
+    function printTree(node,indent,offset) {
         if (indent == null)
             indent = "";
         if (offset == null)
@@ -167,9 +165,26 @@
             debug(indent+offset+Util.nodeString(node));
         var childOffset = 0;
         for (var child = node.firstChild; child != null; child = child.nextSibling) {
-            Traversal.printTree(child,indent+"    ",childOffset+" ");
+            printTree(child,indent+"    ",childOffset+" ");
             childOffset++;
         }
     }
 
-})(globalAPI);
+    exports.prevNode = prevNode;
+    exports.nextNodeAfter = nextNodeAfter;
+    exports.nextNode = nextNode;
+    exports.prevTextNode = prevTextNode;
+    exports.nextTextNode = nextTextNode;
+    exports.firstChildElement = firstChildElement;
+    exports.lastChildElement = lastChildElement;
+    exports.firstDescendant = firstDescendant;
+    exports.lastDescendant = lastDescendant;
+    exports.firstDescendantOfType = firstDescendantOfType;
+    exports.firstChildOfType = firstChildOfType;
+    exports.getNodeDepth = getNodeDepth;
+    exports.getNodeText = getNodeText;
+    exports.isWhitespaceTextNode = isWhitespaceTextNode;
+    exports.isNonWhitespaceTextNode = isNonWhitespaceTextNode;
+    exports.printTree = printTree;
+
+});

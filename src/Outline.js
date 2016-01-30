@@ -18,25 +18,23 @@
 // FIXME: The TOC/ItemList stuff won't work with Undo, because we're making DOM mutations in
 // response to other DOM mutations, so at undo time the changes will be made twice
 
-(function(api) {
+define("Outline",function(require,exports) {
 
-    var Outline = api.Outline; // export
-
-    var Clipboard = api.Clipboard; // import
-    var Collections = api.Collections; // import
-    var Cursor = api.Cursor; // import
-    var DOM = api.DOM; // import
-    var Editor = api.Editor; // import
-    var Hierarchy = api.Hierarchy; // import
-    var Position = api.Position; // import
-    var PostponedActions = api.PostponedActions; // import
-    var Range = api.Range; // import
-    var Selection = api.Selection; // import
-    var Styles = api.Styles; // import
-    var Traversal = api.Traversal; // import
-    var Types = api.Types; // import
-    var UndoManager = api.UndoManager; // import
-    var Util = api.Util; // import
+    var Clipboard = require("Clipboard");
+    var Collections = require("Collections");
+    var Cursor = require("Cursor");
+    var DOM = require("DOM");
+    var Editor = require("Editor");
+    var Hierarchy = require("Hierarchy");
+    var Position = require("Position");
+    var PostponedActions = require("PostponedActions");
+    var Range = require("Range");
+    var Selection = require("Selection");
+    var Styles = require("Styles");
+    var Traversal = require("Traversal");
+    var Types = require("Types");
+    var UndoManager = require("UndoManager");
+    var Util = require("Util");
 
     var itemsByNode = null;
     var refsById = null;
@@ -556,8 +554,6 @@
         }
     }
 
-    Outline.scheduleUpdateStructure = scheduleUpdateStructure;
-
     // private
     function updateStructure() {
         if (!outlineDirty)
@@ -768,7 +764,7 @@
         Editor.outlineUpdated();
     }
 
-    Outline.getOutline = function() {
+    function getOutline() {
         var structure = discoverStructure();
         var encSections = new Array();
         var encFigures = new Array();
@@ -870,7 +866,7 @@
         }
     }
 
-    Outline.plainText = function() {
+    function plainText() {
         var strings = new Array();
         var structure = discoverStructure();
 
@@ -922,7 +918,7 @@
     }
 
     // public
-    Outline.init = function() {
+    function init() {
         Selection.preserveWhileExecuting(function() {
 
             function isTableNode(node) {
@@ -953,7 +949,7 @@
     }
 
     // public (for the undo tests, when they report results)
-    Outline.removeListeners = function() {
+    function removeListeners() {
         document.removeEventListener("DOMNodeInserted",docNodeInserted);
         document.removeEventListener("DOMNodeRemoved",docNodeRemoved);
 
@@ -976,7 +972,7 @@
     }
 
     // public
-    Outline.moveSection = function(sectionId,parentId,nextId) {
+    function moveSection(sectionId,parentId,nextId) {
         UndoManager.newGroup("Move section");
         Selection.clear();
 
@@ -1025,7 +1021,7 @@
     }
 
     // public
-    Outline.deleteItem = function(itemId) {
+    function deleteItem(itemId) {
         UndoManager.newGroup("Delete outline item");
         var structure = discoverStructure();
         Selection.preserveWhileExecuting(function() {
@@ -1060,7 +1056,7 @@
     }
 
     // public
-    Outline.goToItem = function(itemId) {
+    function goToItem(itemId) {
         if (itemId == null) {
             window.scrollTo(0);
         }
@@ -1085,12 +1081,12 @@
     }
 
     // public
-    Outline.getItemElement = function(itemId) {
+    function getItemElement(itemId) {
         return document.getElementById(itemId);
     }
 
     // public
-    Outline.setNumbered = function(itemId,numbered) {
+    function setNumbered(itemId,numbered) {
         var node = document.getElementById(itemId);
         var item = itemsByNode.get(node);
 
@@ -1122,7 +1118,7 @@
     }
 
     // public
-    Outline.setTitle = function(itemId,title) {
+    function setTitle(itemId,title) {
         var node = document.getElementById(itemId);
         var item = itemsByNode.get(node);
         Selection.preserveWhileExecuting(function() {
@@ -1155,28 +1151,28 @@
     }
 
     // public
-    Outline.insertTableOfContents = function() {
+    function insertTableOfContents() {
         insertTOC(Types.Keys.SECTION_TOC);
     }
 
     // public
-    Outline.insertListOfFigures = function() {
+    function insertListOfFigures() {
         insertTOC(Types.Keys.FIGURE_TOC);
     }
 
     // public
-    Outline.insertListOfTables = function() {
+    function insertListOfTables() {
         insertTOC(Types.Keys.TABLE_TOC);
     }
 
     // public
-    Outline.setPrintMode = function(newPrintMode) {
+    function setPrintMode(newPrintMode) {
         printMode = newPrintMode;
         scheduleUpdateStructure();
     }
 
     // public
-    Outline.examinePrintLayout = function(pageHeight) {
+    function examinePrintLayout(pageHeight) {
         var result = new Object();
         var structure = discoverStructure();
         var pageNumbers = new Collections.NodeMap();
@@ -1256,7 +1252,7 @@
         }
     }
 
-    Outline.setReferenceTarget = function(node,itemId) {
+    function setReferenceTarget(node,itemId) {
         Selection.preserveWhileExecuting(function() {
             refRemoved(node);
             DOM.setAttribute(node,"href","#"+itemId);
@@ -1264,7 +1260,7 @@
         });
     }
 
-    Outline.detectSectionNumbering = function() {
+    function detectSectionNumbering() {
         var sectionNumbering = detectNumbering(sections);
         if (sectionNumbering)
             makeNumberingExplicit(sections);
@@ -1316,7 +1312,7 @@
 
     // Search through the document for any elements corresponding to built-in styles that are
     // normally latent (i.e. only included in the stylesheet if used)
-    Outline.findUsedStyles = function() {
+    function findUsedStyles() {
         var used = new Object();
         recurse(document.body);
         return used;
@@ -1355,4 +1351,24 @@
         }
     }
 
-})(globalAPI);
+    exports.scheduleUpdateStructure = scheduleUpdateStructure;
+    exports.getOutline = getOutline;
+    exports.plainText = plainText;
+    exports.init = init;
+    exports.removeListeners = removeListeners;
+    exports.moveSection = moveSection;
+    exports.deleteItem = deleteItem;
+    exports.goToItem = goToItem;
+    exports.getItemElement = getItemElement;
+    exports.setNumbered = setNumbered;
+    exports.setTitle = setTitle;
+    exports.insertTableOfContents = insertTableOfContents;
+    exports.insertListOfFigures = insertListOfFigures;
+    exports.insertListOfTables = insertListOfTables;
+    exports.setPrintMode = setPrintMode;
+    exports.examinePrintLayout = examinePrintLayout;
+    exports.setReferenceTarget = setReferenceTarget;
+    exports.detectSectionNumbering = detectSectionNumbering;
+    exports.findUsedStyles = findUsedStyles;
+
+});

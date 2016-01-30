@@ -15,19 +15,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("Scan",function(require,exports) {
 
-    var Scan = api.Scan; // export
-
-    var Cursor = api.Cursor; // import
-    var DOM = api.DOM; // import
-    var Formatting = api.Formatting; // import
-    var Paragraph = api.Paragraph; // import
-    var Position = api.Position; // import
-    var Range = api.Range; // import
-    var Selection = api.Selection; // import
-    var Text = api.Text; // import
-    var Types = api.Types; // import
+    var Cursor = require("Cursor");
+    var DOM = require("DOM");
+    var Formatting = require("Formatting");
+    var Paragraph = require("Paragraph");
+    var Position = require("Position");
+    var Range = require("Range");
+    var Selection = require("Selection");
+    var Text = require("Text");
+    var Types = require("Types");
 
     function Match(matchId,startPos,endPos) {
         this.matchId = matchId;
@@ -42,13 +40,13 @@
     var curPos = null;
     var curParagraph = null;
 
-    Scan.reset = function() {
+    function reset() {
         curPos = new Position.Position(document.body,0);
         curParagraph = null;
         clearMatches();
     }
 
-    Scan.next = function() {
+    function next() {
         if (curPos == null)
             return null;
         curPos = Text.toEndOfBoundary(curPos,"paragraph");
@@ -72,7 +70,7 @@
                  sectionId: sectionId };
     }
 
-    Scan.addMatch = function(start,end) {
+    function addMatch(start,end) {
         if (curParagraph == null)
             throw new Error("curParagraph is null");
         if ((start < 0) || (start > curParagraph.text.length))
@@ -100,7 +98,7 @@
         return matchId;
     }
 
-    Scan.showMatch = function(matchId) {
+    function showMatch(matchId) {
         var match = matchesById[matchId];
         if (match == null)
             throw new Error("Match "+matchId+" not found");
@@ -117,7 +115,7 @@
         }
     }
 
-    Scan.replaceMatch = function(matchId,replacement) {
+    function replaceMatch(matchId,replacement) {
         var match = matchesById[matchId];
         if (match == null)
             throw new Error("Match "+matchId+" not found");
@@ -145,12 +143,12 @@
             DOM.removeNodeButKeepChildren(match.spans[i]);
     }
 
-    Scan.removeMatch = function(matchId) {
+    function removeMatch(matchId) {
         removeSpansForMatch(matchesById[matchId]);
         delete matchesById[matchId];
     }
 
-    Scan.goToMatch = function(matchId) {
+    function goToMatch(matchId) {
         var match = matchesById[matchId];
         if (match == null)
             throw new Error("Match "+matchId+" not found");
@@ -172,4 +170,12 @@
         nextMatchId = 1;
     }
 
-})(globalAPI);
+    exports.reset = reset;
+    exports.next = next;
+    exports.addMatch = addMatch;
+    exports.showMatch = showMatch;
+    exports.replaceMatch = replaceMatch;
+    exports.removeMatch = removeMatch;
+    exports.goToMatch = goToMatch;
+
+});

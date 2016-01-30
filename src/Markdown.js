@@ -15,13 +15,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("Markdown",function(require,exports) {
 
-    var Markdown = api.Markdown; // export
-
-    var Traversal = api.Traversal; // import
-    var Types = api.Types; // import
-    var Util = api.Util; // import
+    var Traversal = require("Traversal");
+    var Types = require("Types");
+    var Util = require("Util");
 
     // private
     function blockToText(md,node,indent,nextIndent,listType,listNo) {
@@ -222,7 +220,7 @@
     }
 
     // public
-    Markdown.htmlToMarkdown = function(node) {
+    function htmlToMarkdown(node) {
         var md = new MarkdownBuilder();
         md.allText = new Array();
         md.preDepth = 0;
@@ -239,4 +237,6 @@
         }
     }
 
-})(globalAPI);
+    exports.htmlToMarkdown = htmlToMarkdown;
+
+});

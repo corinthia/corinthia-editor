@@ -15,14 +15,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("Equations",function(require,exports) {
 
-    var Equations = api.Equations; // export
+    var Clipboard = require("Clipboard");
+    var DOM = require("DOM");
 
-    var Clipboard = api.Clipboard; // import
-    var DOM = api.DOM; // import
-
-    Equations.insertEquation = function() {
+    function insertEquation() {
         var math = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","math");
         var mrow = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mrow");
         var msup = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","msup");
@@ -54,4 +52,6 @@
         Clipboard.pasteNodes([math]);
     }
 
-})(globalAPI);
+    exports.insertEquation = insertEquation;
+
+});

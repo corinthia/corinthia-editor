@@ -15,13 +15,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("tests.ScanTests",function(require,exports) {
 
-    var ScanTests = api.tests.ScanTests; // export
+    var Scan = require("Scan");
 
-    var Scan = api.Scan; // import
-
-    ScanTests.testNext = function() {
+    function testNext() {
         var result = new Array();
         Scan.reset();
         var index = 0;
@@ -38,4 +36,6 @@
         return result.join("\n");
     }
 
-})(globalAPI);
+    exports.testNext = testNext;
+
+});

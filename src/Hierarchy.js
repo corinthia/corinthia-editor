@@ -15,16 +15,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("Hierarchy",function(require,exports) {
 
-    var Hierarchy = api.Hierarchy; // export
-
-    var DOM = api.DOM; // import
-    var Formatting = api.Formatting; // import
-    var Position = api.Position; // import
-    var Traversal = api.Traversal; // import
-    var Types = api.Types; // import
-    var Util = api.Util; // import
+    var DOM = require("DOM");
+    var Formatting = require("Formatting");
+    var Position = require("Position");
+    var Traversal = require("Traversal");
+    var Types = require("Types");
+    var Util = require("Util");
 
     // private
     function wrapInlineChildren(first,last,ancestors) {
@@ -153,7 +151,7 @@
     // or container+ paragraph
     // or container+
     // public
-    Hierarchy.ensureValidHierarchy = function(node,recursive,allowDirectInline) {
+    function ensureValidHierarchy(node,recursive,allowDirectInline) {
         var count = 0;
         while ((node != null) && (node.parentNode != null) && (node != document.body)) {
             count++;
@@ -221,7 +219,7 @@
         }
     }
 
-    Hierarchy.ensureInlineNodesInParagraph = function(node,weak) {
+    function ensureInlineNodesInParagraph(node,weak) {
         var count = 0;
         while ((node != null) && (node.parentNode != null) && (node != document.body)) {
             count++;
@@ -231,7 +229,7 @@
                 Types.isContainerNode(node.parentNode) && (node.parentNode._type != HTML_LI) &&
                 (!weak || !Types.isTableCell(node.parentNode)) &&
                 !Traversal.isWhitespaceTextNode(node)) {
-                Hierarchy.wrapInlineNodesInParagraph(node);
+                wrapInlineNodesInParagraph(node);
                 return;
             }
             node = node.parentNode;
@@ -239,7 +237,7 @@
     }
 
     // public
-    Hierarchy.wrapInlineNodesInParagraph = function(node) {
+    function wrapInlineNodesInParagraph(node) {
         var start = node;
         var end = node;
 
@@ -251,7 +249,7 @@
         return DOM.wrapSiblings(start,end,"P");
     }
 
-    Hierarchy.avoidInlineChildren = function(parent) {
+    function avoidInlineChildren(parent) {
         var child = parent.firstChild;
 
         while (child != null) {
@@ -276,4 +274,9 @@
         }
     }
 
-})(globalAPI);
+    exports.ensureValidHierarchy = ensureValidHierarchy;
+    exports.ensureInlineNodesInParagraph = ensureInlineNodesInParagraph;
+    exports.wrapInlineNodesInParagraph = wrapInlineNodesInParagraph;
+    exports.avoidInlineChildren = avoidInlineChildren;
+
+});

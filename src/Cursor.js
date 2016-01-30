@@ -15,27 +15,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("Cursor",function(require,exports) {
 
-    var Cursor = api.Cursor; // export
-
-    var Clipboard = api.Clipboard; // import
-    var DOM = api.DOM; // import
-    var Formatting = api.Formatting; // import
-    var Hierarchy = api.Hierarchy; // import
-    var Outline = api.Outline; // import
-    var Position = api.Position; // import
-    var Range = api.Range; // import
-    var Selection = api.Selection; // import
-    var Styles = api.Styles; // import
-    var Traversal = api.Traversal; // import
-    var Types = api.Types; // import
-    var UndoManager = api.UndoManager; // import
-    var Util = api.Util; // import
+    var Clipboard = require("Clipboard");
+    var DOM = require("DOM");
+    var Formatting = require("Formatting");
+    var Hierarchy = require("Hierarchy");
+    var Outline = require("Outline");
+    var Position = require("Position");
+    var Range = require("Range");
+    var Selection = require("Selection");
+    var Styles = require("Styles");
+    var Traversal = require("Traversal");
+    var Types = require("Types");
+    var UndoManager = require("UndoManager");
+    var Util = require("Util");
 
     var cursorX = null;
 
-    Cursor.ensurePositionVisible = function(pos,center) {
+    function ensurePositionVisible(pos,center) {
         // If we can't find the cursor rect for some reason, just don't do anything.
         // This is better than using an incorrect position or throwing an exception.
         var rect = Position.displayRectAtPos(pos)
@@ -62,13 +60,13 @@
     }
 
     // public
-    Cursor.ensureCursorVisible = function(center) {
+    function ensureCursorVisible(center) {
         var selRange = Selection.get();
         if (selRange != null)
-            Cursor.ensurePositionVisible(selRange.end,center);
+            ensurePositionVisible(selRange.end,center);
     }
 
-    Cursor.scrollDocumentForY = function(y) {
+    function scrollDocumentForY(y) {
         var absY = window.scrollY + y;
         if (absY-44 < window.scrollY) {
             window.scrollTo(window.scrollX,absY-44);
@@ -82,11 +80,11 @@
     }
 
     // public
-    Cursor.positionCursor = function(x,y,wordBoundary) {
+    function positionCursor(x,y,wordBoundary) {
         if (UndoManager.groupType() != "Cursor movement")
             UndoManager.newGroup("Cursor movement");
 
-        y = Cursor.scrollDocumentForY(y);
+        y = scrollDocumentForY(y);
 
         var result = null;
         var position = Position.atPoint(x,y);
@@ -168,12 +166,12 @@
                 position = endOfWord;
         }
 
-        Cursor.set(position.node,position.offset);
+        set(position.node,position.offset);
         return result;
     }
 
     // public
-    Cursor.getCursorPosition = function() {
+    function getCursorPosition() {
         var selRange = Selection.get();
         if (selRange == null)
             return null;
@@ -191,49 +189,49 @@
     }
 
     // public
-    Cursor.moveLeft = function() {
+    function moveLeft() {
         var range = Selection.get();
         if (range == null)
             return;
 
         var pos = Position.prevMatch(range.start,Position.okForMovement);
         if (pos != null)
-            Cursor.set(pos.node,pos.offset);
-        Cursor.ensureCursorVisible();
+            set(pos.node,pos.offset);
+        ensureCursorVisible();
     }
 
     // public
-    Cursor.moveRight = function() {
+    function moveRight() {
         var range = Selection.get();
         if (range == null)
             return;
 
         var pos = Position.nextMatch(range.start,Position.okForMovement);
         if (pos != null)
-            Cursor.set(pos.node,pos.offset);
-        Cursor.ensureCursorVisible();
+            set(pos.node,pos.offset);
+        ensureCursorVisible();
     }
 
     // public
-    Cursor.moveToStartOfDocument = function() {
+    function moveToStartOfDocument() {
         var pos = new Position.Position(document.body,0);
         pos = Position.closestMatchBackwards(pos,Position.okForMovement);
-        Cursor.set(pos.node,pos.offset);
-        Cursor.ensureCursorVisible();
+        set(pos.node,pos.offset);
+        ensureCursorVisible();
     }
 
     // public
-    Cursor.moveToEndOfDocument = function() {
+    function moveToEndOfDocument() {
         var pos = new Position.Position(document.body,document.body.childNodes.length);
         pos = Position.closestMatchForwards(pos,Position.okForMovement);
-        Cursor.set(pos.node,pos.offset);
-        Cursor.ensureCursorVisible();
+        set(pos.node,pos.offset);
+        ensureCursorVisible();
     }
 
     // An empty paragraph does not get shown and cannot be edited. We can fix this by adding
     // a BR element as a child
     // public
-    Cursor.updateBRAtEndOfParagraph = function(node) {
+    function updateBRAtEndOfParagraph(node) {
         var paragraph = node;
         while ((paragraph != null) && !Types.isParagraphNode(paragraph))
             paragraph = paragraph.parentNode;
@@ -271,14 +269,14 @@
     }
 
     // public
-    Cursor.insertReference = function(itemId) {
+    function insertReference(itemId) {
         var a = DOM.createElement(document,"A");
         DOM.setAttribute(a,"href","#"+itemId);
         Clipboard.pasteNodes([a]);
     }
 
     // public
-    Cursor.insertLink = function(text,url) {
+    function insertLink(text,url) {
         var a = DOM.createElement(document,"A");
         DOM.setAttribute(a,"href",url);
         DOM.appendChild(a,DOM.createTextNode(document,text));
@@ -349,14 +347,14 @@
     }
 
     // public
-    Cursor.insertCharacter = function(str,allowInvalidPos,allowNoParagraph) {
+    function insertCharacter(str,allowInvalidPos,allowNoParagraph) {
         var firstInsertion = (UndoManager.groupType() != "Insert text");
 
         if (firstInsertion)
             UndoManager.newGroup("Insert text",checkNbsp);
 
         if (str == "-") {
-            var preceding = Cursor.getPrecedingWord();
+            var preceding = getPrecedingWord();
             if (preceding.match(/[0-9]\s*$/))
                 str = String.fromCharCode(0x2013); // en dash
             else if (preceding.match(/\s+$/))
@@ -411,7 +409,7 @@
             var prevChar = node.nodeValue.charAt(offset-1);
             if (Util.isWhitespaceString(prevChar) || (prevChar == nbsp)) {
                 Selection.update();
-                Cursor.ensureCursorVisible();
+                ensureCursorVisible();
                 return;
             }
         }
@@ -462,13 +460,13 @@
             Formatting.mergeWithNeighbours(pos.node,Formatting.MERGEABLE_INLINE);
         });
 
-        Cursor.set(pos.node,pos.offset);
+        set(pos.node,pos.offset);
         Range.trackWhileExecuting(Selection.get(),function() {
-            Cursor.updateBRAtEndOfParagraph(pos.node);
+            updateBRAtEndOfParagraph(pos.node);
         });
 
         Selection.update();
-        Cursor.ensureCursorVisible();
+        ensureCursorVisible();
     }
 
     function tryDeleteEmptyCaption(pos) {
@@ -480,7 +478,7 @@
         if (container == null)
             return false;
 
-        Cursor.set(container.parentNode,DOM.nodeOffset(container)+1);
+        set(container.parentNode,DOM.nodeOffset(container)+1);
         Selection.preserveWhileExecuting(function() {
             DOM.deleteNode(caption);
         });
@@ -494,7 +492,7 @@
             return false;
 
         var parent = note.parentNode;
-        Cursor.set(note.parentNode,DOM.nodeOffset(note)+1);
+        set(note.parentNode,DOM.nodeOffset(note)+1);
         Selection.preserveWhileExecuting(function() {
             DOM.deleteNode(note);
         });
@@ -503,7 +501,7 @@
     }
 
     // public
-    Cursor.deleteCharacter = function() {
+    function deleteCharacter() {
         if (UndoManager.groupType() != "Delete text")
             UndoManager.newGroup("Delete text",checkNbsp);
 
@@ -527,13 +525,13 @@
                     var p = DOM.createElement(document,"P");
                     DOM.insertBefore(prevNode.parentNode,p,prevNode);
                     DOM.deleteNode(prevNode);
-                    Cursor.updateBRAtEndOfParagraph(p);
-                    Cursor.set(p,0);
-                    Cursor.ensureCursorVisible();
+                    updateBRAtEndOfParagraph(p);
+                    set(p,0);
+                    ensureCursorVisible();
                     return;
                 }
                 if ((prevNode._type == HTML_A) || Types.isNoteNode(prevNode)) {
-                    Cursor.set(back.node,back.offset-1);
+                    set(back.node,back.offset-1);
                     Selection.preserveWhileExecuting(function() {
                         DOM.deleteNode(prevNode);
                     });
@@ -560,7 +558,7 @@
                 if ((startBlock != endBlock) &&
                     Types.isParagraphNode(startBlock) && !Util.nodeHasContent(startBlock)) {
                     DOM.deleteNode(startBlock);
-                    Cursor.set(selRange.end.node,selRange.end.offset)
+                    set(selRange.end.node,selRange.end.offset)
                 }
                 else {
                     var range = new Range.Range(prevPos.node,prevPos.offset,
@@ -574,7 +572,7 @@
         if (selRange != null)
             spaceToNbsp(selRange.end);
         Selection.update();
-        Cursor.ensureCursorVisible();
+        ensureCursorVisible();
 
         function firstBlockAncestor(node) {
             while (Types.isInlineNode(node))
@@ -584,7 +582,7 @@
     }
 
     // public
-    Cursor.enterPressed = function() {
+    function enterPressed() {
         UndoManager.newGroup("New paragraph");
 
         Selection.preferElementPositions();
@@ -615,7 +613,7 @@
                     (inFigCaption && (ancestor._type == HTML_FIGURE))) {
                     var p = DOM.createElement(document,"P");
                     DOM.insertBefore(ancestor.parentNode,p,ancestor.nextSibling);
-                    Cursor.updateBRAtEndOfParagraph(p);
+                    updateBRAtEndOfParagraph(p);
                     Selection.set(p,0,p,0);
                     return;
                 }
@@ -652,9 +650,9 @@
                 ((after != null) && Types.isSpecialBlockNode(after))) {
                 var p = DOM.createElement(document,"P");
                 DOM.insertBefore(check.node,p,check.node.childNodes[check.offset]);
-                Cursor.updateBRAtEndOfParagraph(p);
-                Cursor.set(p,0);
-                Cursor.ensureCursorVisible();
+                updateBRAtEndOfParagraph(p);
+                set(p,0);
+                ensureCursorVisible();
                 return;
             }
         }
@@ -673,8 +671,8 @@
             var li = DOM.createElement(document,"LI");
             DOM.insertBefore(detail.startParent,li,detail.startChild);
 
-            Cursor.set(li,0);
-            Cursor.ensureCursorVisible();
+            set(li,0);
+            ensureCursorVisible();
             return;
         }
         }
@@ -710,7 +708,7 @@
             }
         });
 
-        Cursor.set(pos.node,pos.offset);
+        set(pos.node,pos.offset);
         selRange = Selection.get();
 
         Range.trackWhileExecuting(selRange,function() {
@@ -727,7 +725,7 @@
                 var prev = ancestor.previousSibling;
                 if ((prev != null) && Types.isParagraphNode(prev) && !Util.nodeHasContent(prev)) {
                     DOM.deleteAllChildren(prev);
-                    Cursor.updateBRAtEndOfParagraph(prev);
+                    updateBRAtEndOfParagraph(prev);
                     break;
                 }
                 else if ((prev != null) && (prev._type == HTML_LI) && !Util.nodeHasContent(prev)) {
@@ -737,7 +735,7 @@
                         if (Traversal.isWhitespaceTextNode(child))
                             DOM.deleteNode(child);
                         else
-                            Cursor.updateBRAtEndOfParagraph(child);
+                            updateBRAtEndOfParagraph(child);
                     }
                     break;
                 }
@@ -768,7 +766,7 @@
                 }
 
                 if (Types.isParagraphNode(ancestor) && !Util.nodeHasContent(ancestor)) {
-                    Cursor.updateBRAtEndOfParagraph(prev);
+                    updateBRAtEndOfParagraph(prev);
                     break;
                 }
                 else if ((ancestor._type == HTML_LI) && !Util.nodeHasContent(ancestor)) {
@@ -777,13 +775,13 @@
                 }
             }
 
-            Cursor.updateBRAtEndOfParagraph(Range.singleNode(selRange));
+            updateBRAtEndOfParagraph(Range.singleNode(selRange));
         });
 
         Selection.set(selRange.start.node,selRange.start.offset,
                       selRange.end.node,selRange.end.offset);
         cursorX = null;
-        Cursor.ensureCursorVisible();
+        ensureCursorVisible();
 
         function getBlockToSplit(pos) {
             var blockToSplit = null;
@@ -821,7 +819,7 @@
         }
     }
 
-    Cursor.getPrecedingWord = function() {
+    function getPrecedingWord() {
         var selRange = Selection.get();
         if ((selRange == null) && !Range.isEmpty(selRange))
             return "";
@@ -834,7 +832,7 @@
         return node.nodeValue.substring(0,offset);
     }
 
-    Cursor.getAdjacentNodeWithType = function(type) {
+    function getAdjacentNodeWithType(type) {
         var selRange = Selection.get();
         var pos = Position.preferElementPosition(selRange.start);
         var node = pos.node;
@@ -863,8 +861,8 @@
         }
     }
 
-    Cursor.getLinkProperties = function() {
-        var a = Cursor.getAdjacentNodeWithType(HTML_A);
+    function getLinkProperties() {
+        var a = getAdjacentNodeWithType(HTML_A);
         if (a == null)
             return null;
 
@@ -872,8 +870,8 @@
                  text: Traversal.getNodeText(a) };
     }
 
-    Cursor.setLinkProperties = function(properties) {
-        var a = Cursor.getAdjacentNodeWithType(HTML_A);
+    function setLinkProperties(properties) {
+        var a = getAdjacentNodeWithType(HTML_A);
         if (a == null)
             return null;
 
@@ -884,8 +882,8 @@
         });
     }
 
-    Cursor.setReferenceTarget = function(itemId) {
-        var a = Cursor.getAdjacentNodeWithType(HTML_A);
+    function setReferenceTarget(itemId) {
+        var a = getAdjacentNodeWithType(HTML_A);
         if (a != null)
             Outline.setReferenceTarget(a,itemId);
     }
@@ -893,7 +891,7 @@
     // Deletes the current selection contents and ensures that the cursor is located directly
     // inside the nearest container element, i.e. not inside a paragraph or inline node. This
     // is intended for preventing things like inserting a table of contants inside a heading
-    Cursor.makeContainerInsertionPoint = function() {
+    function makeContainerInsertionPoint() {
         var selRange = Selection.get();
         if (selRange == null)
             return;
@@ -921,7 +919,7 @@
         var offset = DOM.nodeOffset(nextSibling,parent);
 
         if (Types.isContainerNode(parent)) {
-            Cursor.set(parent,offset);
+            set(parent,offset);
             return;
         }
 
@@ -939,11 +937,11 @@
             DOM.deleteNode(old);
         }
 
-        Cursor.set(parent,offset);
+        set(parent,offset);
         cursorX = null;
     }
 
-    Cursor.set = function(node,offset,keepCursorX) {
+    function set(node,offset,keepCursorX) {
         Selection.set(node,offset,node,offset);
         if (!keepCursorX)
             cursorX = null;
@@ -992,15 +990,40 @@
 
         DOM.insertBefore(pos.node,footnote,pos.node.childNodes[pos.offset]);
         Selection.set(footnote,0,footnote,footnote.childNodes.length);
-        Cursor.updateBRAtEndOfParagraph(footnote);
+        updateBRAtEndOfParagraph(footnote);
     }
 
-    Cursor.insertFootnote = function(content) {
+    function insertFootnote(content) {
         insertNote("footnote",content);
     }
 
-    Cursor.insertEndnote = function(content) {
+    function insertEndnote(content) {
         insertNote("endnote",content);
     }
 
-})(globalAPI);
+    exports.ensurePositionVisible = ensurePositionVisible;
+    exports.ensureCursorVisible = ensureCursorVisible;
+    exports.scrollDocumentForY = scrollDocumentForY;
+    exports.positionCursor = positionCursor;
+    exports.getCursorPosition = getCursorPosition;
+    exports.moveLeft = moveLeft;
+    exports.moveRight = moveRight;
+    exports.moveToStartOfDocument = moveToStartOfDocument;
+    exports.moveToEndOfDocument = moveToEndOfDocument;
+    exports.updateBRAtEndOfParagraph = updateBRAtEndOfParagraph;
+    exports.insertReference = insertReference;
+    exports.insertLink = insertLink;
+    exports.insertCharacter = insertCharacter;
+    exports.deleteCharacter = deleteCharacter;
+    exports.enterPressed = enterPressed;
+    exports.getPrecedingWord = getPrecedingWord;
+    exports.getAdjacentNodeWithType = getAdjacentNodeWithType;
+    exports.getLinkProperties = getLinkProperties;
+    exports.setLinkProperties = setLinkProperties;
+    exports.setReferenceTarget = setReferenceTarget;
+    exports.makeContainerInsertionPoint = makeContainerInsertionPoint;
+    exports.set = set;
+    exports.insertFootnote = insertFootnote;
+    exports.insertEndnote = insertEndnote;
+
+});

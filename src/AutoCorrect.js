@@ -15,21 +15,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("AutoCorrect",function(require,exports) {
 
-    var AutoCorrect = api.AutoCorrect; // export
-
-    var Collections = api.Collections; // import
-    var DOM = api.DOM; // import
-    var Editor = api.Editor; // import
-    var Formatting = api.Formatting; // import
-    var Position = api.Position; // import
-    var PostponedActions = api.PostponedActions; // import
-    var Range = api.Range; // import
-    var Selection = api.Selection; // import
-    var Traversal = api.Traversal; // import
-    var Types = api.Types; // import
-    var UndoManager = api.UndoManager; // import
+    var Collections = require("Collections");
+    var DOM = require("DOM");
+    var Editor = require("Editor");
+    var Formatting = require("Formatting");
+    var Position = require("Position");
+    var PostponedActions = require("PostponedActions");
+    var Range = require("Range");
+    var Selection = require("Selection");
+    var Traversal = require("Traversal");
+    var Types = require("Types");
+    var UndoManager = require("UndoManager");
 
     function removeCorrectionSpan(span) {
         if (span.parentNode == null)
@@ -72,7 +70,7 @@
 
         function recurse(node) {
             if (Types.isAutoCorrectNode(node))
-                AutoCorrect.addCorrection(node);
+                addCorrection(node);
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
         }
@@ -89,13 +87,13 @@
 
         function recurse(node) {
             if (Types.isAutoCorrectNode(node))
-                AutoCorrect.removeCorrection(node);
+                removeCorrection(node);
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
         }
     }
 
-    AutoCorrect.init = function() {
+    function init() {
         correctionsByNode = new Collections.NodeMap();
         correctionList = new Array();
         document.addEventListener("DOMNodeInserted",docNodeInserted);
@@ -103,12 +101,12 @@
     }
 
     // public (for the undo tests, when they report results)
-    AutoCorrect.removeListeners = function() {
+    function removeListeners() {
         document.removeEventListener("DOMNodeInserted",docNodeInserted);
         document.removeEventListener("DOMNodeRemoved",docNodeRemoved);
     }
 
-    AutoCorrect.addCorrection = function(span) {
+    function addCorrection(span) {
         var correction = new Correction(span);
         correctionsByNode.put(span,correction);
         correctionList.push(correction);
@@ -117,7 +115,7 @@
         span.addEventListener("DOMSubtreeModified",correction.modificationListener);
     }
 
-    AutoCorrect.removeCorrection = function(span) {
+    function removeCorrection(span) {
         var correction = correctionsByNode.get(span);
         if (correction == null)
             throw new Error("No autocorrect entry for "+JSON.stringify(Traversal.getNodeText(span)));
@@ -138,7 +136,7 @@
         correctionsByNode.remove(span);
     }
 
-    AutoCorrect.getCorrections = function() {
+    function getCorrections() {
         var result = new Array();
         for (var i = 0; i < correctionList.length; i++) {
             var correction = correctionList[i];
@@ -148,7 +146,7 @@
         return result;
     }
 
-    AutoCorrect.correctPrecedingWord = function(numChars,replacement,confirmed) {
+    function correctPrecedingWord(numChars,replacement,confirmed) {
         Selection.preserveWhileExecuting(function() {
             var selRange = Selection.get();
             if ((selRange == null) && !Range.isEmpty(selRange))
@@ -183,7 +181,7 @@
         });
     }
 
-    AutoCorrect.getCorrection = function() {
+    function getCorrection() {
         var correction = getCurrent();
         if (correction == null)
             return null;
@@ -192,7 +190,7 @@
                  replacement: Traversal.getNodeText(correction.span) };
     }
 
-    AutoCorrect.getCorrectionCoords = function() {
+    function getCorrectionCoords() {
         var correction = getCurrent();
         if (correction == null)
             return null;
@@ -231,7 +229,7 @@
         return null;
     }
 
-    AutoCorrect.acceptCorrection = function() {
+    function acceptCorrection() {
         UndoManager.newGroup("Accept");
         var correction = getCurrent();
         if (correction == null)
@@ -241,15 +239,15 @@
         UndoManager.newGroup();
     }
 
-    AutoCorrect.revertCorrection = function() {
+    function revertCorrection() {
         var correction = getCurrent();
         if (correction == null)
             return;
 
-        AutoCorrect.replaceCorrection(correction.span.getAttribute("original"));
+        replaceCorrection(correction.span.getAttribute("original"));
     }
 
-    AutoCorrect.replaceCorrection = function(replacement) {
+    function replaceCorrection(replacement) {
         UndoManager.newGroup("Replace");
         var correction = getCurrent();
         if (correction == null)
@@ -264,4 +262,16 @@
         UndoManager.newGroup();
     }
 
-})(globalAPI);
+    exports.init = init;
+    exports.removeListeners = removeListeners;
+    exports.addCorrection = addCorrection;
+    exports.removeCorrection = removeCorrection;
+    exports.getCorrections = getCorrections;
+    exports.correctPrecedingWord = correctPrecedingWord;
+    exports.getCorrection = getCorrection;
+    exports.getCorrectionCoords = getCorrectionCoords;
+    exports.acceptCorrection = acceptCorrection;
+    exports.revertCorrection = revertCorrection;
+    exports.replaceCorrection = replaceCorrection;
+
+});

@@ -15,16 +15,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("tests.TableTests",function(require,exports) {
 
-    var TableTests = api.tests.TableTests; // export
+    var DOM = require("DOM");
+    var PrettyPrinter = require("tests.PrettyPrinter");
+    var Selection = require("Selection");
+    var Tables = require("Tables");
+    var Traversal = require("Traversal");
 
-    var DOM = api.DOM; // import
-    var Selection = api.Selection; // import
-    var Tables = api.Tables; // import
-    var Traversal = api.Traversal; // import
-
-    TableTests.showSelectedTableRegion = function() {
+    function showSelectedTableRegion() {
         var region = Tables.regionFromRange(Selection.get());
         for (var row = region.top; row <= region.bottom; row++) {
             for (var col = region.left; col <= region.right; col++) {
@@ -34,11 +33,11 @@
         }
     }
 
-    TableTests.getSelectedTableRegion = function() {
+    function getSelectedTableRegion() {
         return Tables.regionFromRange(Selection.get());
     }
 
-    TableTests.showTableStructure = function() {
+    function showTableStructure() {
         var tableElement = document.getElementsByTagName("TABLE")[0];
         var table = Tables.analyseStructure(tableElement);
         var lines = new Array();
@@ -61,4 +60,8 @@
         return lines.join("\n");
     }
 
-})(globalAPI);
+    exports.showSelectedTableRegion = showSelectedTableRegion;
+    exports.getSelectedTableRegion = getSelectedTableRegion;
+    exports.showTableStructure = showTableStructure;
+
+});

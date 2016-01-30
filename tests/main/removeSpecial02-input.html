@@ -10,9 +10,9 @@ function performTest(api)
     api.Selection.selectAll();
     outputOptions.keepSelectionHighlights = true;
 
-    var before = PrettyPrinter.getHTML(document.documentElement,outputOptions);
+    var before = api.tests.PrettyPrinter.getHTML(document.documentElement,outputOptions);
     api.Main.removeSpecial(document.documentElement);
-    var after = PrettyPrinter.getHTML(document.documentElement,outputOptions);
+    var after = api.tests.PrettyPrinter.getHTML(document.documentElement,outputOptions);
     return "Before\n------\n\n"+before+"\nAfter\n-----\n\n"+after;
 }
 </script>

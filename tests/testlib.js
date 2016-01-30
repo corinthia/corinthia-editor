@@ -15,23 +15,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("tests.TestLib",function(require,exports) {
 
-    var TestLib = api.tests.TestLib; // export
+    var DOM = require("DOM");
+    var Formatting = require("Formatting");
+    var Outline = require("Outline");
+    var Position = require("Position");
+    var PostponedActions = require("PostponedActions");
+    var Range = require("Range");
+    var Selection = require("Selection");
+    var Styles = require("Styles");
+    var Traversal = require("Traversal");
+    var Types = require("Types");
+    var UndoManager = require("UndoManager");
 
-    var DOM = api.DOM; // import
-    var Formatting = api.Formatting; // import
-    var Outline = api.Outline; // import
-    var Position = api.Position; // import
-    var PostponedActions = api.PostponedActions; // import
-    var Range = api.Range; // import
-    var Selection = api.Selection; // import
-    var Styles = api.Styles; // import
-    var Traversal = api.Traversal; // import
-    var Types = api.Types; // import
-    var UndoManager = api.UndoManager; // import
-
-    TestLib.testHarnessSetup = function() {
+    function testHarnessSetup() {
         DOM.assignNodeIds(document);
 
         var start;
@@ -118,7 +116,7 @@
         }
     }
 
-    TestLib.insertAtPosition = function(position,node) {
+    function insertAtPosition(position,node) {
         if (position.node.nodeType == Node.ELEMENT_NODE) {
             if (position.offset == position.node.childNodes.length)
                 DOM.appendChild(position.node,node);
@@ -133,7 +131,7 @@
         }
     }
 
-    TestLib.insertTextAtPosition = function(position,str) {
+    function insertTextAtPosition(position,str) {
         if (position.node.nodeType == Node.ELEMENT_NODE) {
             var before = position.node.childNodes[position.offset-1];
             var after = position.node.childNodes[position.offset];
@@ -143,7 +141,7 @@
                 position = new Position.Position(before,before.nodeValue.length);
         }
         if (position.node.nodeType == Node.ELEMENT_NODE) {
-            TestLib.insertAtPosition(position,DOM.createTextNode(document,str));
+            insertAtPosition(position,DOM.createTextNode(document,str));
         }
         else if (position.node.nodeType == Node.TEXT_NODE) {
             position.node.nodeValue = position.node.nodeValue.slice(0,position.offset) + str +
@@ -151,25 +149,25 @@
         }
     }
 
-    TestLib.showRangeAsBrackets = function(range) {
+    function showRangeAsBrackets(range) {
         if (Range.isEmpty(range)) {
-            TestLib.insertTextAtPosition(range.end,"[]",true);
+            insertTextAtPosition(range.end,"[]",true);
         }
         else {
-            TestLib.insertTextAtPosition(range.end,"]",true);
-            TestLib.insertTextAtPosition(range.start,"[",true);
+            insertTextAtPosition(range.end,"]",true);
+            insertTextAtPosition(range.start,"[",true);
         }
     }
 
-    TestLib.showSelection = function() {
+    function showSelection() {
         var range = Selection.get();
         if (range != null) {
             Range.assertValid(range,"Selection");
-            TestLib.showRangeAsBrackets(range);
+            showRangeAsBrackets(range);
         }
     }
 
-    TestLib.removeIds = function() {
+    function removeIds() {
         recurse(document.body);
 
         function recurse(node) {
@@ -181,12 +179,12 @@
         }
     }
 
-    TestLib.selectNode = function(node) {
+    function selectNode(node) {
         var offset = DOM.nodeOffset(node);
         Selection.set(node.parentNode,offset,node.parentNode,offset+1);
     }
 
-    TestLib.removeWhitespaceAndCommentNodes = function(root) {
+    function removeWhitespaceAndCommentNodes(root) {
         Selection.preserveWhileExecuting(function() {
             recurse(root);
         });
@@ -205,10 +203,10 @@
         }
     }
 
-    // TestLib.selectionWrapElement() and TestLib.selectionUnwrapElement() used to be in formatting.js but have
+    // selectionWrapElement() and selectionUnwrapElement() used to be in formatting.js but have
     // now been made obselete by the addition of applyFormattingChanges(). However there are still
     // a few tests which use them.
-    TestLib.selectionWrapElement = function(elementName) {
+    function selectionWrapElement(elementName) {
         if (elementName == "B")
             Formatting.applyFormattingChanges(null,{"font-weight": "bold"});
         else if (elementName == "I")
@@ -217,7 +215,7 @@
             Formatting.applyFormattingChanges(null,{"text-decoration": "underline"});
     }
 
-    TestLib.selectionUnwrapElement = function(elementName) {
+    function selectionUnwrapElement(elementName) {
         if (elementName == "B")
             Formatting.applyFormattingChanges(null,{"font-weight": null});
         else if (elementName == "I")
@@ -226,7 +224,7 @@
             Formatting.applyFormattingChanges(null,{"text-decoration": null});
     }
 
-    TestLib.showEmptyTextNodes = function() {
+    function showEmptyTextNodes() {
         recurse(document);
 
         function recurse(node) {
@@ -237,7 +235,7 @@
         }
     }
 
-    TestLib.showClipboard = function(clipboard) {
+    function showClipboard(clipboard) {
         var html = clipboard["text/html"];
         var text = clipboard["text/plain"];
 
@@ -263,9 +261,9 @@
                text;
     }
 
-    TestLib.setNumbering = function(enabled) {
+    function setNumbering(enabled) {
         if (enabled)
-            TestLib.setupOutlineNumbering();
+            setupOutlineNumbering();
 
         recurse(document.body,enabled);
         PostponedActions.perform();
@@ -292,7 +290,7 @@
         }
     }
 
-    TestLib.readXML = function(filename) {
+    function readXML(filename) {
         var req = new XMLHttpRequest();
         req.open("GET",filename,false);
         req.send();
@@ -303,7 +301,7 @@
         return xml;
     }
 
-    TestLib.findTextMatchingRecursive = function(node,re) {
+    function findTextMatchingRecursive(node,re) {
         if (node.nodeType == Node.TEXT_NODE) {
             if (node.nodeValue.match(re))
                 return node;
@@ -312,7 +310,7 @@
         }
         else {
             for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                var result = TestLib.findTextMatchingRecursive(child,re);
+                var result = findTextMatchingRecursive(child,re);
                 if (result != null)
                     return result;
             }
@@ -320,7 +318,7 @@
         }
     }
 
-    TestLib.setupOutlineNumbering = function() {
+    function setupOutlineNumbering() {
         Styles.setCSSText("",{
             "h1": {
                 "counter-reset": "h2 h3 h4 h5 h6",
@@ -366,14 +364,14 @@
         });
     }
 
-    TestLib.prependTableOfContents = function() {
+    function prependTableOfContents() {
         var nav = DOM.createElement(document,"NAV");
         DOM.setAttribute(nav,"class","tableofcontents");
         DOM.insertBefore(document.body,nav,document.body.firstChild);
         PostponedActions.perform();
     }
 
-    TestLib.simplifyTOCs = function() {
+    function simplifyTOCs() {
         recurse(document.body);
 
         function recurse(node) {
@@ -408,7 +406,7 @@
         }
     }
 
-    TestLib.showNonEmptyTextNodes = function() {
+    function showNonEmptyTextNodes() {
         recurse(document.body);
 
         function recurse(node) {
@@ -423,4 +421,24 @@
         }
     }
 
-})(globalAPI);
+    exports.testHarnessSetup = testHarnessSetup;
+    exports.insertAtPosition = insertAtPosition;
+    exports.insertTextAtPosition = insertTextAtPosition;
+    exports.showRangeAsBrackets = showRangeAsBrackets;
+    exports.showSelection = showSelection;
+    exports.removeIds = removeIds;
+    exports.selectNode = selectNode;
+    exports.removeWhitespaceAndCommentNodes = removeWhitespaceAndCommentNodes;
+    exports.selectionWrapElement = selectionWrapElement;
+    exports.selectionUnwrapElement = selectionUnwrapElement;
+    exports.showEmptyTextNodes = showEmptyTextNodes;
+    exports.showClipboard = showClipboard;
+    exports.setNumbering = setNumbering;
+    exports.readXML = readXML;
+    exports.findTextMatchingRecursive = findTextMatchingRecursive;
+    exports.setupOutlineNumbering = setupOutlineNumbering;
+    exports.prependTableOfContents = prependTableOfContents;
+    exports.simplifyTOCs = simplifyTOCs;
+    exports.showNonEmptyTextNodes = showNonEmptyTextNodes;
+
+});

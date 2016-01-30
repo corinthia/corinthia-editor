@@ -17,11 +17,9 @@
 
 var debug;
 
-(function(api) {
+define("Editor",function(require,exports) {
 
-    var Editor = api.Editor; // export
-
-    var Util = api.Util; // import
+    var Util = require("Util");
 
     var backMessages = new Array();
 
@@ -30,62 +28,74 @@ var debug;
         return null;
     }
 
-    Editor.getBackMessages = function() {
+    function getBackMessages() {
         var result = JSON.stringify(backMessages);
         backMessages = new Array();
         return result;
     };
 
-    Editor.debug = function(str) {
+    debug = function(str) {
         addBackMessage("debug",str);
     };
 
-    Editor.error = function(error,type) {
+    function error(error,type) {
         if (type == null)
             type = "";
         addBackMessage("error",error.toString(),type);
     };
 
-    Editor.addOutlineItem = function(itemId,type,title) {
+    function addOutlineItem(itemId,type,title) {
         addBackMessage("addOutlineItem",itemId,type,title);
     };
 
-    Editor.updateOutlineItem = function(itemId,title) {
+    function updateOutlineItem(itemId,title) {
         addBackMessage("updateOutlineItem",itemId,title);
     };
 
-    Editor.removeOutlineItem = function(itemId) {
+    function removeOutlineItem(itemId) {
         addBackMessage("removeOutlineItem",itemId);
     };
 
-    Editor.outlineUpdated = function() {
+    function outlineUpdated() {
         addBackMessage("outlineUpdated");
     };
 
-    Editor.setCursor = function(x,y,width,height) {
+    function setCursor(x,y,width,height) {
         addBackMessage("setCursor",x,y,width,height);
     };
 
-    Editor.setSelectionHandles = function(x1,y1,height1,x2,y2,height2) {
+    function setSelectionHandles(x1,y1,height1,x2,y2,height2) {
         addBackMessage("setSelectionHandles",x1,y1,height1,x2,y2,height2);
     };
 
-    Editor.setTableSelection = function(x,y,width,height) {
+    function setTableSelection(x,y,width,height) {
         addBackMessage("setTableSelection",x,y,width,height);
     };
 
-    Editor.setSelectionBounds = function(left,top,right,bottom) {
+    function setSelectionBounds(left,top,right,bottom) {
         addBackMessage("setSelectionBounds",left,top,right,bottom);
     };
 
-    Editor.clearSelectionHandlesAndCursor = function() {
+    function clearSelectionHandlesAndCursor() {
         addBackMessage("clearSelectionHandlesAndCursor");
     };
 
-    Editor.updateAutoCorrect = function() {
+    function updateAutoCorrect() {
         addBackMessage("updateAutoCorrect");
     };
 
-    debug = Editor.debug;
+    exports.getBackMessages = getBackMessages;
+    exports.debug = debug;
+    exports.error = error;
+    exports.addOutlineItem = addOutlineItem;
+    exports.updateOutlineItem = updateOutlineItem;
+    exports.removeOutlineItem = removeOutlineItem;
+    exports.outlineUpdated = outlineUpdated;
+    exports.setCursor = setCursor;
+    exports.setSelectionHandles = setSelectionHandles;
+    exports.setTableSelection = setTableSelection;
+    exports.setSelectionBounds = setSelectionBounds;
+    exports.clearSelectionHandlesAndCursor = clearSelectionHandlesAndCursor;
+    exports.updateAutoCorrect = updateAutoCorrect;
 
-})(globalAPI);
+});

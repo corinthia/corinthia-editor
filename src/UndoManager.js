@@ -17,11 +17,9 @@
 
 // FIXME: place a limit on the number of undo steps recorded - say, 30-50?
 
-(function(api) {
+define("UndoManager",function(require,exports) {
 
-    var UndoManager = api.UndoManager; // export
-
-    var Util = api.Util; // import
+    var Util = require("Util");
 
     var UNDO_LIMIT = 50;
 
@@ -64,25 +62,25 @@
     var disabled = 0;
 
     // public
-    UndoManager.getLength = function() {
+    function getLength() {
         return undoStack.length + redoStack.length;
     }
 
     // public
-    UndoManager.getIndex = function() {
+    function getIndex() {
         return undoStack.length;
     }
 
     // public
-    UndoManager.setIndex = function(index) {
+    function setIndex(index) {
         while (undoStack.length > index)
-            UndoManager.undo();
+            undo();
         while (undoStack.length < index)
-            UndoManager.redo();
+            redo();
     }
 
     // public
-    UndoManager.print = function() {
+    function print() {
         debug("");
         debug("--------------------------------------------------------------------");
         debug("Undo stack:");
@@ -115,7 +113,7 @@
     }
 
     // public
-    UndoManager.undo = function() {
+    function undo() {
         closeCurrentGroup();
         if (undoStack.length > 0) {
             var group = undoStack.pop();
@@ -128,7 +126,7 @@
     }
 
     // public
-    UndoManager.redo = function() {
+    function redo() {
         closeCurrentGroup();
         if (redoStack.length > 0) {
             var group = redoStack.pop();
@@ -141,7 +139,7 @@
     }
 
     // public
-    UndoManager.addAction = function(fun) {
+    function addAction(fun) {
         if (disabled > 0)
             return;
 
@@ -155,7 +153,7 @@
 
         var stack = inUndo ? redoStack : undoStack;
         if (currentGroup == null)
-            UndoManager.newGroup(null);
+            newGroup(null);
 
         // Only add a group to the undo stack one it has at least one action, to avoid having
         // empty groups present.
@@ -169,7 +167,7 @@
     }
 
     // public
-    UndoManager.newGroup = function(type,onClose) {
+    function newGroup(type,onClose) {
         if (disabled > 0)
             return;
 
@@ -185,14 +183,14 @@
     }
 
     // public
-    UndoManager.groupType = function() {
+    function groupType() {
         if (undoStack.length > 0)
             return undoStack[undoStack.length-1].type;
         else
             return null;
     }
 
-    UndoManager.disableWhileExecuting = function(fun) {
+    function disableWhileExecuting(fun) {
         disabled++;
         try {
             return fun();
@@ -202,40 +200,56 @@
         }
     }
 
-    UndoManager.isActive = function() {
+    function isActive() {
         return (inUndo || inRedo);
     }
 
-    UndoManager.isDisabled = function() {
+    function isDisabled() {
         return (disabled > 0);
     }
 
-    UndoManager.clear = function() {
+    function clear() {
         undoStack.length = 0;
         redoStack.length = 0;
     }
 
     function saveProperty(obj,name) {
         if (obj.hasOwnProperty(name))
-            UndoManager.addAction(UndoManager.setProperty,obj,name,obj[name]);
+            addAction(setProperty,obj,name,obj[name]);
         else
-            UndoManager.addAction(UndoManager.deleteProperty,obj,name);
+            addAction(deleteProperty,obj,name);
     }
 
-    UndoManager.setProperty = function(obj,name,value) {
+    function setProperty(obj,name,value) {
         if (obj.hasOwnProperty(name) && (obj[name] == value))
             return; // no point in adding an undo action
         saveProperty(obj,name);
         obj[name] = value;
     }
 
-    UndoManager.deleteProperty = function(obj,name) {
+    function deleteProperty(obj,name) {
         if (!obj.hasOwnProperty(name))
             return; // no point in adding an undo action
         saveProperty(obj,name);
         delete obj[name];
     }
 
-})(globalAPI);
+    exports.getLength = getLength;
+    exports.getIndex = getIndex;
+    exports.setIndex = setIndex;
+    exports.print = print;
+    exports.undo = undo;
+    exports.redo = redo;
+    exports.addAction = addAction;
+    exports.newGroup = newGroup;
+    exports.groupType = groupType;
+    exports.disableWhileExecuting = disableWhileExecuting;
+    exports.isActive = isActive;
+    exports.isDisabled = isDisabled;
+    exports.clear = clear;
+    exports.setProperty = setProperty;
+    exports.deleteProperty = deleteProperty;
+
+});
 
 window.undoSupported = true;

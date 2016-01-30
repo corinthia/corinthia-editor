@@ -11,7 +11,7 @@ function performTest(api)
         api.tests.TestLib.setupOutlineNumbering();
     api.PostponedActions.perform();
     api.tests.TestLib.setNumbering(false);
-    return api.Outline.plainText()+PrettyPrinter.getHTML(document.documentElement);
+    return api.Outline.plainText()+api.tests.PrettyPrinter.getHTML(document.documentElement);
 }
 </script>
 </head>

@@ -15,33 +15,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("tests.InputTests",function(require,exports) {
 
-    var InputTests = api.tests.InputTests; // export
+    var Input = require("Input");
+    var Outline = require("Outline");
+    var Position = require("Position");
+    var PostponedActions = require("PostponedActions");
+    var Range = require("Range");
+    var Selection = require("Selection");
+    var TestLib = require("tests.TestLib");
+    var Traversal = require("Traversal");
 
-    var Input = api.Input; // import
-    var Outline = api.Outline; // import
-    var Position = api.Position; // import
-    var PostponedActions = api.PostponedActions; // import
-    var Range = api.Range; // import
-    var Selection = api.Selection; // import
-    var TestLib = api.tests.TestLib; // import
-    var Traversal = api.Traversal; // import
-
-    InputTests.getNodeArrayText = function(nodes) {
+    function getNodeArrayText(nodes) {
         var strings = new Array();
         for (var i = 0; i < nodes.length; i++)
             strings.push(Traversal.getNodeText(nodes[i]));
         return strings.join("");
     }
 
-    InputTests.textBetweenPositions = function(from,to) {
+    function textBetweenPositions(from,to) {
         var range = new Range.Range(from.node,from.offset,to.node,to.offset);
         var contents = Range.cloneContents(range);
-        return InputTests.getNodeArrayText(contents);
+        return getNodeArrayText(contents);
     }
 
-    InputTests.testMovement = function(direction,count) {
+    function testMovement(direction,count) {
         Outline.init();
         PostponedActions.perform();
         var posId = Input.addPosition(Selection.get().start);
@@ -51,7 +49,7 @@
         TestLib.showSelection();
     }
 
-    InputTests.testPositionFun = function(fun,granularity,direction) {
+    function testPositionFun(fun,granularity,direction) {
         var lines = new Array();
         var start = new Position.Position(document.body,0);
         var end = new Position.Position(document.body,document.body.childNodes.length);
@@ -62,8 +60,8 @@
         var pos = start;
         while (pos != null) {
 
-            var before = InputTests.textBetweenPositions(start,pos);
-            var after = InputTests.textBetweenPositions(pos,end);
+            var before = textBetweenPositions(start,pos);
+            var after = textBetweenPositions(pos,end);
             var total = before+"|"+after;
 
             var result = fun(pos,granularity,direction);
@@ -75,15 +73,15 @@
         return lines.join("");
     }
 
-    InputTests.testPositionWithin = function(granularity,direction) {
-        return InputTests.testPositionFun(Input.isPositionWithinTextUnitInDirection,granularity,direction);
+    function testPositionWithin(granularity,direction) {
+        return testPositionFun(Input.isPositionWithinTextUnitInDirection,granularity,direction);
     }
 
-    InputTests.testPositionAtBoundary = function(granularity,direction) {
-        return InputTests.testPositionFun(Input.isPositionAtBoundaryGranularityInDirection,granularity,direction);
+    function testPositionAtBoundary(granularity,direction) {
+        return testPositionFun(Input.isPositionAtBoundaryGranularityInDirection,granularity,direction);
     }
 
-    InputTests.testPositionToBoundary = function(granularity,direction) {
+    function testPositionToBoundary(granularity,direction) {
         var lines = new Array();
         var start = new Position.Position(document.body,0);
         var end = new Position.Position(document.body,document.body.childNodes.length);
@@ -94,15 +92,15 @@
         var pos = start;
         while (pos != null) {
 
-            var oldBefore = InputTests.textBetweenPositions(start,pos);
-            var oldAfter = InputTests.textBetweenPositions(pos,end);
+            var oldBefore = textBetweenPositions(start,pos);
+            var oldAfter = textBetweenPositions(pos,end);
             var oldTotal = oldBefore+"|"+oldAfter;
 
             var resultId = Input.positionFromPositionToBoundaryInDirection(pos,granularity,direction);
             var result = Input.getPosition(resultId);
 
-            var newBefore = InputTests.textBetweenPositions(start,result);
-            var newAfter = InputTests.textBetweenPositions(result,end);
+            var newBefore = textBetweenPositions(start,result);
+            var newAfter = textBetweenPositions(result,end);
             var newTotal = newBefore+"|"+newAfter;
 
             lines.push(JSON.stringify(oldTotal)+" -- "+JSON.stringify(newTotal)+"\n");
@@ -113,7 +111,7 @@
         return lines.join("");
     }
 
-    InputTests.testRangeEnclosing = function(granularity,direction) {
+    function testRangeEnclosing(granularity,direction) {
         var lines = new Array();
         var start = new Position.Position(document.body,0);
         var end = new Position.Position(document.body,document.body.childNodes.length);
@@ -124,8 +122,8 @@
         var pos = start;
         while (pos != null) {
 
-            var oldBefore = InputTests.textBetweenPositions(start,pos);
-            var oldAfter = InputTests.textBetweenPositions(pos,end);
+            var oldBefore = textBetweenPositions(start,pos);
+            var oldAfter = textBetweenPositions(pos,end);
             var oldTotal = oldBefore+"|"+oldAfter;
 
             var resultIds =
@@ -136,9 +134,9 @@
                 var rangeStart = Input.getPosition(startId);
                 var rangeEnd = Input.getPosition(endId);
 
-                var before = InputTests.textBetweenPositions(start,rangeStart);
-                var middle = InputTests.textBetweenPositions(rangeStart,rangeEnd);
-                var after = InputTests.textBetweenPositions(rangeEnd,end);
+                var before = textBetweenPositions(start,rangeStart);
+                var middle = textBetweenPositions(rangeStart,rangeEnd);
+                var after = textBetweenPositions(rangeEnd,end);
 
                 var newTotal = before+"["+middle+"]"+after;
 
@@ -154,4 +152,13 @@
         return lines.join("");
     }
 
-})(globalAPI);
+    exports.getNodeArrayText = getNodeArrayText;
+    exports.textBetweenPositions = textBetweenPositions;
+    exports.testMovement = testMovement;
+    exports.testPositionFun = testPositionFun;
+    exports.testPositionWithin = testPositionWithin;
+    exports.testPositionAtBoundary = testPositionAtBoundary;
+    exports.testPositionToBoundary = testPositionToBoundary;
+    exports.testRangeEnclosing = testRangeEnclosing;
+
+});

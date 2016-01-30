@@ -44,51 +44,39 @@ var XLINK_PREFIX = "xlink:";
 var WORD_NAMESPACE = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 var WORD_PREFIX = "w:";
 
-var globalAPI = {
-    AutoCorrect: {},
-    ChangeTracking: {},
-    Markdown: {},
-    Clipboard: {},
-    Collections: {},
-    Cursor: {},
-    DOM: {},
-    Editor: {},
-    Equations: {},
-    Figures: {},
-    Formatting: {},
-    Hierarchy: {},
-    Input: {},
-    Lists: {},
-    Main: {},
-    Metadata: {},
-    Outline: {},
-    Position: {},
-    PostponedActions: {},
-    Preview: {},
-    Range: {},
-    Scan: {},
-    Selection: {},
-    Styles: {},
-    Tables: {},
-    Text: {},
-    Paragraph: {},
-    Traversal: {},
-    Types: {},
-    UndoManager: {},
-    Util: {},
-    Viewport: {},
-    tests: {
-        AutoCorrectTests: {},
-        RangeTests: {},
-        FiguresTests: {},
-        InputTests: {},
-        OutlineTests: {},
-        ValidPositions: {},
-        ScanTests: {},
-        PositionTests: {},
-        TableTests: {},
-        TestLib: {},
-        TextTests: {},
-        UndoTests: {}
+var globalAPI = {};
+
+var define;
+
+(function() {
+
+    function getOrCreateModule(name) {
+        if (typeof(name) !== "string")
+            throw new Error("name is not a string: "+(typeof name));
+
+        var path = name.split(".");
+        // console.log("path = "+JSON.stringify(path));
+        var mod = globalAPI;
+        for (var i = 0; i < path.length; i++) {
+            if (mod[path[i]] === undefined)
+                mod[path[i]] = {};
+            mod = mod[path[i]];
+            // console.log("path[i] = "+path[i]);
+            // console.log("mod = ",mod);
+        }
+        return mod;
     }
-}
+
+    function require(name) {
+        return getOrCreateModule(name);
+    }
+
+    define = function(name,fn) {
+        if (!(fn instanceof Function))
+            throw new Error("fn is not a function: "+(typeof fn));
+
+        var mod = getOrCreateModule(name);
+        fn(require,mod,null);
+    }
+
+})();

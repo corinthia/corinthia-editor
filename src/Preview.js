@@ -15,15 +15,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("Preview",function(require,exports) {
 
-    var Preview = api.Preview; // export
-
-    var DOM = api.DOM; // import
-    var Figures = api.Figures; // import
-    var Selection = api.Selection; // import
-    var Tables = api.Tables; // import
-    var Types = api.Types; // import
+    var DOM = require("DOM");
+    var Figures = require("Figures");
+    var Selection = require("Selection");
+    var Tables = require("Tables");
+    var Types = require("Types");
 
     var previewText =
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec in diam \n"+
@@ -137,6 +135,6 @@
         }
     }
 
-    Preview.showForStyle = showForStyle;
+    exports.showForStyle = showForStyle;
 
-})(globalAPI);
+});

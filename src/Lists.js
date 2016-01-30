@@ -15,19 +15,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("Lists",function(require,exports) {
 
-    var Lists = api.Lists; // export
-
-    var Collections = api.Collections; // import
-    var Cursor = api.Cursor; // import
-    var DOM = api.DOM; // import
-    var Hierarchy = api.Hierarchy; // import
-    var Range = api.Range; // import
-    var Selection = api.Selection; // import
-    var Traversal = api.Traversal; // import
-    var Types = api.Types; // import
-    var Util = api.Util; // import
+    var Collections = require("Collections");
+    var Cursor = require("Cursor");
+    var DOM = require("DOM");
+    var Hierarchy = require("Hierarchy");
+    var Range = require("Range");
+    var Selection = require("Selection");
+    var Traversal = require("Traversal");
+    var Types = require("Types");
+    var Util = require("Util");
 
     // private
     function findLIElements(range) {
@@ -61,7 +59,7 @@
     }
 
     // public
-    Lists.increaseIndent = function() {
+    function increaseIndent() {
         Selection.preferElementPositions();
         Selection.preserveWhileExecuting(function() {
             var range = Selection.get();
@@ -159,7 +157,7 @@
     }
 
     // public
-    Lists.decreaseIndent = function() {
+    function decreaseIndent() {
         Selection.preferElementPositions();
         Selection.preserveWhileExecuting(function() {
             var range = Selection.get();
@@ -324,7 +322,7 @@
     }
 
     // public
-    Lists.clearList = function() {
+    function clearList() {
         Selection.preferElementPositions();
         Selection.preserveWhileExecuting(function() {
             var range = Selection.get();
@@ -533,13 +531,19 @@
     }
 
     // public
-    Lists.setUnorderedList = function() {
+    function setUnorderedList() {
         setList(HTML_UL);
     }
 
     // public
-    Lists.setOrderedList = function() {
+    function setOrderedList() {
         setList(HTML_OL);
     }
 
-})(globalAPI);
+    exports.increaseIndent = increaseIndent;
+    exports.decreaseIndent = decreaseIndent;
+    exports.clearList = clearList;
+    exports.setUnorderedList = setUnorderedList;
+    exports.setOrderedList = setOrderedList;
+
+});

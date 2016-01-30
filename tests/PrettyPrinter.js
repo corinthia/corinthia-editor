@@ -15,7 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("tests.PrettyPrinter",function(require,exports) {
 
     // Applicable options:
     // keepSelectionHighlights (boolean)
@@ -23,18 +23,23 @@
     // showNamespaceDetails (boolean)
     // separateLines (boolean)
 
+    var DOM = require("DOM");
+    var Formatting = require("Formatting");
+    var Types = require("Types");
+    var UndoManager = require("UndoManager");
+
     function getHTML(root,options) {
         var copy;
-        api.UndoManager.disableWhileExecuting(function() {
+        UndoManager.disableWhileExecuting(function() {
             if (options == null)
                 options = new Object();
-            copy = api.DOM.cloneNode(root,true);
+            copy = DOM.cloneNode(root,true);
             if (!options.keepSelectionHighlights)
                 removeSelectionSpans(copy);
             for (var body = copy.firstChild; body != null; body = body.nextSibling) {
                 if (body.nodeName == "BODY") {
-                    api.DOM.removeAttribute(body,"style");
-                    api.DOM.removeAttribute(body,"contentEditable");
+                    DOM.removeAttribute(body,"style");
+                    DOM.removeAttribute(body,"contentEditable");
                 }
             }
         });
@@ -50,15 +55,15 @@
 
         for (var i = 0; i < checkMerge.length; i++) {
             if (checkMerge[i].parentNode != null) { // if not already merged
-                api.Formatting.mergeWithNeighbours(checkMerge[i],{});
+                Formatting.mergeWithNeighbours(checkMerge[i],{});
             }
         }
 
         function recurse(node) {
-            if (api.Types.isSelectionHighlight(node)) {
+            if (Types.isSelectionHighlight(node)) {
                 checkMerge.push(node.firstChild);
                 checkMerge.push(node.lastChild);
-                api.DOM.removeNodeButKeepChildren(node);
+                DOM.removeNodeButKeepChildren(node);
             }
             else {
                 var next;
@@ -210,7 +215,6 @@
         }
     }
 
-    window.PrettyPrinter = new Object();
-    window.PrettyPrinter.getHTML = getHTML;
+    exports.getHTML = getHTML;
 
-})(globalAPI);
+});

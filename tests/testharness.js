@@ -102,7 +102,7 @@ function doPerformTest() {
     if (!w.outputOptions.keepSelectionHighlights)
         w.globalAPI.Selection.clearSelection();
     if (resultText == null)
-        resultText = w.PrettyPrinter.getHTML(testDocument.documentElement,w.outputOptions)
+        resultText = w.globalAPI.tests.PrettyPrinter.getHTML(testDocument.documentElement,w.outputOptions)
     var messages = JSON.parse(w.globalAPI.Editor.getBackMessages());
     for (var i = 0; i < messages.length; i++) {
         var message = messages[i];

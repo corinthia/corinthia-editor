@@ -15,36 +15,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("ChangeTracking",function(require,exports) {
 
-    var ChangeTracking = api.ChangeTracking; // export
-
-    var DOM = api.DOM; // import
-    var Position = api.Position; // import
-    var Range = api.Range; // import
-    var Selection = api.Selection; // import
-    var Traversal = api.Traversal; // import
+    var DOM = require("DOM");
+    var Position = require("Position");
+    var Range = require("Range");
+    var Selection = require("Selection");
+    var Traversal = require("Traversal");
 
     var showChangesEnabled = false;
     var trackChangesEnabled = false;
 
-    ChangeTracking.showChanges = function() {
+    function showChanges() {
         return showChangesEnabled;
     }
 
-    ChangeTracking.trackChanges = function() {
+    function trackChanges() {
         return trackChangesEnabled;
     }
 
-    ChangeTracking.setShowChanges = function(enabled) {
+    function setShowChanges(enabled) {
         showChangesEnabled = enabled;
     }
 
-    ChangeTracking.setTrackChanges = function(enabled) {
+    function setTrackChanges(enabled) {
         trackChangesEnabled = enabled;
     }
 
-    ChangeTracking.acceptSelectedChanges = function() {
+    function acceptSelectedChanges() {
         var selRange = Selection.get();
         if (selRange == null)
             return;
@@ -120,4 +118,10 @@
         }
     }
 
-})(globalAPI);
+    exports.showChanges = showChanges;
+    exports.trackChanges = trackChanges;
+    exports.setShowChanges = setShowChanges;
+    exports.setTrackChanges = setTrackChanges;
+    exports.acceptSelectedChanges = acceptSelectedChanges;
+
+});

@@ -5,7 +5,7 @@
 function performTest(api)
 {
     var clip = api.Clipboard.cut();
-    var html = PrettyPrinter.getHTML(document.documentElement);
+    var html = api.tests.PrettyPrinter.getHTML(document.documentElement);
     return html+"\n"+api.tests.TestLib.showClipboard(clip);
 }
 </script>

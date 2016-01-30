@@ -15,26 +15,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("Range",function(require,exports) {
 
-    var Range = api.Range; // export
+    var Collections = require("Collections");
+    var DOM = require("DOM");
+    var Formatting = require("Formatting");
+    var Hierarchy = require("Hierarchy");
+    var Main = require("Main");
+    var Position = require("Position");
+    var Traversal = require("Traversal");
+    var Types = require("Types");
+    var Util = require("Util");
 
-    var Collections = api.Collections; // import
-    var DOM = api.DOM; // import
-    var Formatting = api.Formatting; // import
-    var Hierarchy = api.Hierarchy; // import
-    var Main = api.Main; // import
-    var Position = api.Position; // import
-    var Traversal = api.Traversal; // import
-    var Types = api.Types; // import
-    var Util = api.Util; // import
-
-    Range.Range = function(startNode,startOffset,endNode,endOffset) {
+    function Range(startNode,startOffset,endNode,endOffset) {
         this.start = new Position.Position(startNode,startOffset);
         this.end = new Position.Position(endNode,endOffset);
     }
 
-    Range.assertValid = function(range,description) {
+    function assertValid(range,description) {
         if (description == null)
             description = "Range";
         if (range == null)
@@ -43,23 +41,23 @@
         Position.assertValid(range.end,description+" end");
     }
 
-    Range.isEmpty = function(range) {
+    function isEmpty(range) {
         return ((range.start.node == range.end.node) &&
                 (range.start.offset == range.end.offset));
     }
 
-    Range.Range.prototype.toString = function() {
+    Range.prototype.toString = function() {
         return this.start.toString() + " - " + this.end.toString();
     }
 
-    Range.trackWhileExecuting = function(range,fun) {
+    function trackWhileExecuting(range,fun) {
         if (range == null)
             return fun();
         else
             return Position.trackWhileExecuting([range.start,range.end],fun);
     }
 
-    Range.expand = function(range) {
+    function expand(range) {
         var doc = range.start.node.ownerDocument;
         while ((range.start.offset == 0) && (range.start.node != doc.body)) {
             var offset = DOM.nodeOffset(range.start.node);
@@ -75,13 +73,13 @@
         }
     }
 
-    Range.isForwards = function(range) {
+    function isForwards(range) {
         return (Position.compare(range.start,range.end) <= 0);
     }
 
-    Range.getAllNodes = function(range,atLeastOne) {
+    function getAllNodes(range,atLeastOne) {
         var result = new Array();
-        var outermost = Range.getOutermostNodes(range,atLeastOne);
+        var outermost = getOutermostNodes(range,atLeastOne);
         for (var i = 0; i < outermost.length; i++)
             addRecursive(outermost[i]);
         return result;
@@ -93,89 +91,89 @@
         }
     }
 
-    Range.singleNode = function(range) {
+    function singleNode(range) {
         return Position.closestActualNode(range.start,true);
     }
 
-    Range.ensureInlineNodesInParagraph = function(range) {
-        Range.trackWhileExecuting(range,function() {
-            var nodes = Range.getAllNodes(range,true);
+    function ensureInlineNodesInParagraph(range) {
+        trackWhileExecuting(range,function() {
+            var nodes = getAllNodes(range,true);
             for (var i = 0; i < nodes.length; i++)
                 Hierarchy.ensureInlineNodesInParagraph(nodes[i]);
         });
     }
 
-    Range.ensureValidHierarchy = function(range,allowDirectInline) {
-        Range.trackWhileExecuting(range,function() {
-            var nodes = Range.getAllNodes(range,true);
+    function ensureValidHierarchy(range,allowDirectInline) {
+        trackWhileExecuting(range,function() {
+            var nodes = getAllNodes(range,true);
             for (var i = nodes.length-1; i >= 0; i--)
                 Hierarchy.ensureValidHierarchy(nodes[i],true,allowDirectInline);
         });
     }
 
-    Range.forwards = function(range) {
-        if (Range.isForwards(range)) {
+    function forwards(range) {
+        if (isForwards(range)) {
             return range;
         }
         else {
-            var reverse = new Range.Range(range.end.node,range.end.offset,
+            var reverse = new Range(range.end.node,range.end.offset,
                                     range.start.node,range.start.offset);
-            if (!Range.isForwards(reverse))
+            if (!isForwards(reverse))
                 throw new Error("Both range "+range+" and its reverse are not forwards");
             return reverse;
         }
     }
 
-    Range.detail = function(range) {
-        if (!Range.isForwards(range)) {
-            var reverse = new Range.Range(range.end.node,range.end.offset,
+    function detail(range) {
+        if (!isForwards(range)) {
+            var reverse = new Range(range.end.node,range.end.offset,
                                     range.start.node,range.start.offset);
-            if (!Range.isForwards(reverse))
+            if (!isForwards(reverse))
                 throw new Error("Both range "+range+" and its reverse are not forwards");
-            return Range.detail(reverse);
+            return detail(reverse);
         }
 
-        var detail = new Object();
+        var result = new Object();
         var start = range.start;
         var end = range.end;
 
         // Start location
         if (start.node.nodeType == Node.ELEMENT_NODE) {
-            detail.startParent = start.node;
-            detail.startChild = start.node.childNodes[start.offset];
+            result.startParent = start.node;
+            result.startChild = start.node.childNodes[start.offset];
         }
         else {
-            detail.startParent = start.node.parentNode;
-            detail.startChild = start.node;
+            result.startParent = start.node.parentNode;
+            result.startChild = start.node;
         }
 
         // End location
         if (end.node.nodeType == Node.ELEMENT_NODE) {
-            detail.endParent = end.node;
-            detail.endChild = end.node.childNodes[end.offset];
+            result.endParent = end.node;
+            result.endChild = end.node.childNodes[end.offset];
         }
         else if (end.offset == 0) {
-            detail.endParent = end.node.parentNode;
-            detail.endChild = end.node;
+            result.endParent = end.node.parentNode;
+            result.endChild = end.node;
         }
         else {
-            detail.endParent = end.node.parentNode;
-            detail.endChild = end.node.nextSibling;
+            result.endParent = end.node.parentNode;
+            result.endChild = end.node.nextSibling;
         }
 
         // Common ancestor
-        var startP = detail.startParent;
-        var startC = detail.startChild;
+        var startP = result.startParent;
+        var startC = result.startChild;
         while (startP != null) {
-            var endP = detail.endParent;
-            var endC = detail.endChild
+            var endP = result.endParent;
+            var endC = result.endChild
             while (endP != null) {
                 if (startP == endP) {
-                    detail.commonAncestor = startP;
-                    detail.startAncestor = startC;
-                    detail.endAncestor = endC;
+                    result.commonAncestor = startP;
+                    result.startAncestor = startC;
+                    result.endAncestor = endC;
                     // Found it
-                    return detail;
+                    return result;
                 }
                 endC = endP;
                 endP = endP.parentNode;
@@ -186,7 +184,7 @@
         throw new Error("Start and end of range have no common ancestor");
     }
 
-    Range.getOutermostNodes = function(range,atLeastOne,info) {
+    function getOutermostNodes(range,atLeastOne,info) {
         var beforeNodes = new Array();
         var middleNodes = new Array();
         var afterNodes = new Array();
@@ -197,8 +195,8 @@
             info.end = afterNodes;
         }
 
-        if (Range.isEmpty(range))
-            return atLeastOne ? [Range.singleNode(range)] : [];
+        if (isEmpty(range))
+            return atLeastOne ? [singleNode(range)] : [];
 
         // Note: start and end are *points* - they are always *in between* nodes or characters, never
         // *at* a node or character.
@@ -209,16 +207,16 @@
         // the child nodes in a container - in which case the child is null. The parent, however, is
         // always non-null;
 
-        var detail = Range.detail(range);
-        if (detail.commonAncestor == null)
-            return atLeastOne ? [Range.singleNode(range)] : [];
-        var startParent = detail.startParent;
-        var startChild = detail.startChild;
-        var endParent = detail.endParent;
-        var endChild = detail.endChild;
-        var commonParent = detail.commonAncestor;
-        var startAncestor = detail.startAncestor;
-        var endAncestor = detail.endAncestor;
+        var det = detail(range);
+        if (det.commonAncestor == null)
+            return atLeastOne ? [singleNode(range)] : [];
+        var startParent = det.startParent;
+        var startChild = det.startChild;
+        var endParent = det.endParent;
+        var endChild = det.endChild;
+        var commonParent = det.commonAncestor;
+        var startAncestor = det.startAncestor;
+        var endAncestor = det.endAncestor;
 
         // Add start nodes
         var topParent = startParent;
@@ -272,7 +270,7 @@
         Array.prototype.push.apply(result,afterNodes);
 
         if (result.length == 0)
-            return atLeastOne ? [Range.singleNode(range)] : [];
+            return atLeastOne ? [singleNode(range)] : [];
         else
             return result;
 
@@ -298,8 +296,8 @@
         }
     }
 
-    Range.getClientRects = function(range) {
-        var nodes = Range.getOutermostNodes(range,true);
+    function getClientRects(range) {
+        var nodes = getOutermostNodes(range,true);
 
         // WebKit in iOS 5.0 and 5.1 has a bug where if the selection spans multiple paragraphs,
         // the complete rect for paragraphs other than the first is returned, instead of just the
@@ -341,11 +339,11 @@
         return result;
     }
 
-    Range.cloneContents = function(range) {
+    function cloneContents(range) {
         var nodeSet = new Collections.NodeSet();
         var ancestorSet = new Collections.NodeSet();
-        var detail = Range.detail(range);
-        var outermost = Range.getOutermostNodes(range);
+        var det = detail(range);
+        var outermost = getOutermostNodes(range);
 
         var haveContent = false;
         for (var i = 0; i < outermost.length; i++) {
@@ -359,9 +357,9 @@
         if (!haveContent)
             return new Array();
 
-        var clone = recurse(detail.commonAncestor);
+        var clone = recurse(det.commonAncestor);
 
-        var ancestor = detail.commonAncestor;
+        var ancestor = det.commonAncestor;
         while (Types.isInlineNode(ancestor)) {
             var ancestorClone = DOM.cloneNode(ancestor.parentNode,false);
             DOM.appendChild(ancestorClone,clone);
@@ -417,8 +415,8 @@
         }
     }
 
-    Range.hasContent = function(range) {
-        var outermost = Range.getOutermostNodes(range);
+    function hasContent(range) {
+        var outermost = getOutermostNodes(range);
         for (var i = 0; i < outermost.length; i++) {
             var node = outermost[i];
             if (node.nodeType == Node.TEXT_NODE) {
@@ -448,8 +446,8 @@
         return false;
     }
 
-    Range.getText = function(range) {
-        range = Range.forwards(range);
+    function getText(range) {
+        range = forwards(range);
 
         var start = range.start;
         var end = range.end;
@@ -532,4 +530,22 @@
         }
     }
 
-})(globalAPI);
+    exports.Range = Range;
+    exports.assertValid = assertValid;
+    exports.isEmpty = isEmpty;
+    exports.trackWhileExecuting = trackWhileExecuting;
+    exports.expand = expand;
+    exports.isForwards = isForwards;
+    exports.getAllNodes = getAllNodes;
+    exports.singleNode = singleNode;
+    exports.ensureInlineNodesInParagraph = ensureInlineNodesInParagraph;
+    exports.ensureValidHierarchy = ensureValidHierarchy;
+    exports.forwards = forwards;
+    exports.detail = detail;
+    exports.getOutermostNodes = getOutermostNodes;
+    exports.getClientRects = getClientRects;
+    exports.cloneContents = cloneContents;
+    exports.hasContent = hasContent;
+    exports.getText = getText;
+
+});

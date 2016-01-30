@@ -15,9 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
-
-    var Collections = api.Collections; // export
+define("Collections",function(require,exports) {
 
     function NodeSet() {
         this.members = new Object();
@@ -55,7 +53,7 @@
     }
 
     NodeSet.prototype.ancestor = function() {
-        var result = new Collections.NodeSet();
+        var result = new NodeSet();
         this.forEach(function (node) {
             for (var p = node.parentNode; p != null; p = p.parentNode)
                 result.add(p);
@@ -64,7 +62,7 @@
     }
 
     NodeSet.prototype.ancestorOrSelf = function() {
-        var result = new Collections.NodeSet();
+        var result = new NodeSet();
         this.forEach(function (node) {
             for (var p = node; p != null; p = p.parentNode)
                 result.add(p);
@@ -73,7 +71,7 @@
     }
 
     NodeSet.prototype.descendant = function() {
-        var result = new Collections.NodeSet();
+        var result = new NodeSet();
         this.forEach(function (node) {
             recurse(node);
         });
@@ -88,7 +86,7 @@
     }
 
     NodeSet.prototype.descendantOrSelf = function() {
-        var result = new Collections.NodeSet();
+        var result = new NodeSet();
         this.forEach(function (node) {
             recurse(node);
         });
@@ -102,20 +100,20 @@
     }
 
     NodeSet.prototype.union = function(other) {
-        var result = new Collections.NodeSet();
+        var result = new NodeSet();
         this.forEach(function (node) { result.add(node); });
         other.forEach(function (node) { result.add(node); });
         return result;
     }
 
     NodeSet.prototype.intersection = function(other) {
-        var result = new Collections.NodeSet();
+        var result = new NodeSet();
         this.forEach(function (node) { if (other.contains(node)) { result.add(node); } });
         return result;
     }
 
     NodeSet.fromArray = function(array) {
-        var set = new Collections.NodeSet();
+        var set = new NodeSet();
         array.forEach(function(node) { set.add(node); });
         return set;
     }
@@ -172,7 +170,7 @@
     }
 
     NodeMap.fromArray = function(array,fun) {
-        var map = new Collections.NodeMap();
+        var map = new NodeMap();
         if (fun != null)
             array.forEach(function(node) { map.put(node,fun(node)); });
         else
@@ -180,7 +178,7 @@
         return map;
     };
 
-    Collections.NodeSet = NodeSet;
-    Collections.NodeMap = NodeMap;
+    exports.NodeSet = NodeSet;
+    exports.NodeMap = NodeMap;
 
-})(globalAPI);
+});

@@ -15,16 +15,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("tests.ValidPositions",function(require,exports) {
 
-    var ValidPositions = api.tests.ValidPositions; // export
-
-    var DOM = api.DOM; // import
-    var Position = api.Position; // import
-    var Range = api.Range; // import
-    var Selection = api.Selection; // import
-    var Types = api.Types; // import
-    var Util = api.Util; // import
+    var DOM = require("DOM");
+    var Position = require("Position");
+    var Range = require("Range");
+    var Selection = require("Selection");
+    var Types = require("Types");
+    var Util = require("Util");
 
     function oldInsertCharacter(character) {
         var selectionRange = Selection.get();
@@ -53,7 +51,7 @@
         Selection.set(node,offset+1,node,offset+1);
     }
 
-    ValidPositions.showValidPositions = function() {
+    function showValidPositions() {
         var validPositions = new Array();
         var pos = new Position.Position(document.body,0);
         while (pos != null) {
@@ -139,9 +137,12 @@
         return text+"\n"+detail;
     }
 
-    ValidPositions.addEmptyTextNode = function(parent) {
+    function addEmptyTextNode(parent) {
         var text = DOM.createTextNode(document,"");
         DOM.appendChild(parent,text);
     }
 
-})(globalAPI);
+    exports.showValidPositions = showValidPositions;
+    exports.addEmptyTextNode = addEmptyTextNode;
+
+});

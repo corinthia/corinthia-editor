@@ -15,26 +15,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("Main",function(require,exports) {
 
-    var Main = api.Main; // export
-
-    var AutoCorrect = api.AutoCorrect; // import
-    var Cursor = api.Cursor; // import
-    var DOM = api.DOM; // import
-    var Editor = api.Editor; // import
-    var Outline = api.Outline; // import
-    var PostponedActions = api.PostponedActions; // import
-    var Range = api.Range; // import
-    var Selection = api.Selection; // import
-    var Styles = api.Styles; // import
-    var Types = api.Types; // import
-    var UndoManager = api.UndoManager; // import
-    var Util = api.Util; // import
-    var Viewport = api.Viewport; // import
+    var AutoCorrect = require("AutoCorrect");
+    var Cursor = require("Cursor");
+    var DOM = require("DOM");
+    var Editor = require("Editor");
+    var Outline = require("Outline");
+    var PostponedActions = require("PostponedActions");
+    var Range = require("Range");
+    var Selection = require("Selection");
+    var Styles = require("Styles");
+    var Types = require("Types");
+    var UndoManager = require("UndoManager");
+    var Util = require("Util");
+    var Viewport = require("Viewport");
 
     // public
-    Main.getLanguage = function() {
+    function getLanguage() {
         var lang = document.documentElement.getAttribute("lang");
         if (lang != null)
             lang = lang.replace(/-/g,"_");
@@ -42,7 +40,7 @@
     }
 
     // public
-    Main.setLanguage = function(lang) {
+    function setLanguage(lang) {
         if ((lang == null) || (lang == "")) {
             DOM.removeAttribute(document.documentElement,"lang");
         }
@@ -53,7 +51,7 @@
     }
 
     // public
-    Main.removeUnsupportedInput = function() {
+    function removeUnsupportedInput() {
         recurse(document.documentElement);
 
         function recurse(node) {
@@ -93,7 +91,7 @@
     }
 
     // public
-    Main.setGenerator = function(generator) {
+    function setGenerator(generator) {
         return UndoManager.disableWhileExecuting(function() {
             var head = DOM.documentHead(document);
             for (var child = head.firstChild; child != null; child = child.nextSibling) {
@@ -120,24 +118,24 @@
     }
 
     // public
-    Main.isEmptyDocument = function() {
+    function isEmptyDocument() {
         return !Util.nodeHasContent(document.body);
     }
 
     // public
-    Main.prepareForSave = function() {
+    function prepareForSave() {
         // Force any end-of-group actions to be performed
         UndoManager.newGroup();
         return true;
     }
 
     // public
-    Main.getHTML = function() {
+    function getHTML() {
         return document.documentElement.outerHTML;
     }
 
     // public
-    Main.getErrorReportingInfo = function() {
+    function getErrorReportingInfo() {
         if (document.documentElement == null)
             return "(document.documentElement is null)";
         try {
@@ -247,13 +245,13 @@
     }
 
     // public
-    Main.removeSpecial = function(node) {
+    function removeSpecial(node) {
         // We process the children first, so that if there are any nested removable elements (e.g.
         // a selection span inside of an autocorrect span), all levels of nesting are taken care of
         var next;
         for (var child = node.firstChild; child != null; child = next) {
             next = child.nextSibling;
-            Main.removeSpecial(child);
+            removeSpecial(child);
         }
 
         var cssClass = null;
@@ -296,7 +294,7 @@
     }
 
     // public
-    Main.execute = function(fun) {
+    function execute(fun) {
         try {
             var res = fun();
             PostponedActions.perform();
@@ -329,9 +327,9 @@
     }
 
     // public
-    Main.init = function(width,textScale,cssURL,clientRectsBug) {
+    function init(width,textScale,cssURL,clientRectsBug) {
         try {
-            Main.clientRectsBug = clientRectsBug;
+            exports.clientRectsBug = clientRectsBug;
             if (document.documentElement == null)
                 throw new Error("document.documentElement is null");
             if (document.body == null)
@@ -371,4 +369,16 @@
         }
     }
 
-})(globalAPI);
+    exports.getLanguage = getLanguage;
+    exports.setLanguage = setLanguage;
+    exports.removeUnsupportedInput = removeUnsupportedInput;
+    exports.setGenerator = setGenerator;
+    exports.isEmptyDocument = isEmptyDocument;
+    exports.prepareForSave = prepareForSave;
+    exports.getHTML = getHTML;
+    exports.getErrorReportingInfo = getErrorReportingInfo;
+    exports.removeSpecial = removeSpecial;
+    exports.execute = execute;
+    exports.init = init;
+
+});

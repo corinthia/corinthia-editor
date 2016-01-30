@@ -15,23 +15,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("Tables",function(require,exports) {
 
-    var Tables = api.Tables; // export
-
-    var Clipboard = api.Clipboard; // import
-    var Collections = api.Collections; // import
-    var Cursor = api.Cursor; // import
-    var DOM = api.DOM; // import
-    var Outline = api.Outline; // import
-    var Position = api.Position; // import
-    var PostponedActions = api.PostponedActions; // import
-    var Range = api.Range; // import
-    var Selection = api.Selection; // import
-    var Traversal = api.Traversal; // import
-    var Types = api.Types; // import
-    var UndoManager = api.UndoManager; // import
-    var Util = api.Util; // import
+    var Clipboard = require("Clipboard");
+    var Collections = require("Collections");
+    var Cursor = require("Cursor");
+    var DOM = require("DOM");
+    var Outline = require("Outline");
+    var Position = require("Position");
+    var PostponedActions = require("PostponedActions");
+    var Range = require("Range");
+    var Selection = require("Selection");
+    var Traversal = require("Traversal");
+    var Types = require("Types");
+    var UndoManager = require("UndoManager");
+    var Util = require("Util");
 
     function Cell(element,row,col) {
         this.element = element;
@@ -93,14 +91,14 @@
     }
 
     // public
-    Tables.Table_get = function(table,row,col) {
+    function Table_get(table,row,col) {
         if (table.cells[row] == null)
             return null;
         return table.cells[row][col];
     }
 
     // public
-    Tables.Table_set = function(table,row,col,cell) {
+    function Table_set(table,row,col,cell) {
         if (table.numRows < row+1)
             table.numRows = row+1;
         if (table.numCols < col+1)
@@ -111,12 +109,12 @@
     }
 
     // public
-    Tables.Table_setRegion = function(table,top,left,bottom,right,cell) {
+    function Table_setRegion(table,top,left,bottom,right,cell) {
         for (var row = top; row <= bottom; row++) {
             for (var col = left; col <= right; col++) {
-                var destCell = Tables.Table_get(table,row,col);
+                var destCell = Table_get(table,row,col);
                 DOM.deleteNode(destCell.element);
-                Tables.Table_set(table,row,col,cell);
+                Table_set(table,row,col,cell);
             }
         }
     }
@@ -126,7 +124,7 @@
         switch (node._type) {
         case HTML_TD:
         case HTML_TH: {
-            while (Tables.Table_get(table,table.row,table.col) != null)
+            while (Table_get(table,table.row,table.col) != null)
                 table.col++;
 
             var cell = new Cell(node,table.row,table.col);
@@ -134,7 +132,7 @@
 
             for (var r = 0; r < cell.rowspan; r++) {
                 for (var c = 0; c < cell.colspan; c++) {
-                    Tables.Table_set(table,table.row+r,table.col+c,cell);
+                    Table_set(table,table.row+r,table.col+c,cell);
                 }
             }
             table.col += cell.colspan;
@@ -154,7 +152,7 @@
     }
 
     // public
-    Tables.insertTable = function(rows,cols,width,numbered,caption,className) {
+    function insertTable(rows,cols,width,numbered,caption,className) {
         UndoManager.newGroup("Insert table");
 
         if (rows < 1)
@@ -243,7 +241,7 @@
     function populateNewRow(structure,newTR,newRow,oldRow) {
         var col = 0;
         while (col < structure.numCols) {
-            var existingCell = Tables.Table_get(structure,oldRow,col);
+            var existingCell = Table_get(structure,oldRow,col);
             if (((newRow > oldRow) && (newRow < existingCell.row + existingCell.rowspan)) ||
                 ((newRow < oldRow) && (newRow >= existingCell.row))) {
                 Cell_setRowspan(existingCell,existingCell.rowspan+1);
@@ -266,7 +264,7 @@
             (pos.offset < pos.node.childNodes.length) &&
             (pos.node.childNodes[pos.offset]._type == HTML_TABLE)) {
             var element = pos.node.childNodes[pos.offset];
-            var table = Tables.analyseStructure(element);
+            var table = analyseStructure(element);
             return table;
         }
         return null;
@@ -281,14 +279,14 @@
             (pos.offset > 0) &&
             (pos.node.childNodes[pos.offset-1]._type == HTML_TABLE)) {
             var element = pos.node.childNodes[pos.offset-1];
-            var table = Tables.analyseStructure(element);
+            var table = analyseStructure(element);
             return table;
         }
         return null;
     }
 
     function insertRowAbove(table,row) {
-        var cell = Tables.Table_get(table,row,0);
+        var cell = Table_get(table,row,0);
         var oldTR = cell.element.parentNode;
         var newTR = DOM.createElement(document,"TR");
         DOM.insertBefore(oldTR.parentNode,newTR,oldTR);
@@ -296,7 +294,7 @@
     }
 
     function insertRowBelow(table,row) {
-        var cell = Tables.Table_get(table,row,0);
+        var cell = Table_get(table,row,0);
         var oldTR = cell.element.parentNode;
         var newTR = DOM.createElement(document,"TR");
         DOM.insertBefore(oldTR.parentNode,newTR,oldTR.nextSibling);
@@ -320,11 +318,11 @@
     }
 
     // public
-    Tables.addAdjacentRow = function() {
+    function addAdjacentRow() {
         UndoManager.newGroup("Insert row below");
         Selection.preserveWhileExecuting(function() {
             var range = Selection.get();
-            var region = Tables.regionFromRange(range,true);
+            var region = regionFromRange(range,true);
             if (region != null)
                 insertRowBelow(region.structure,region.bottom);
             else
@@ -353,7 +351,7 @@
     }
 
     // private
-    function getColWidths(colElements,expectedCount) {
+    function getColWidthsFromElements(colElements,expectedCount) {
         // FIXME: also handle the case where the width has been set as a CSS property in the
         // style attribute. There's probably not much we can do if the width comes from a style
         // rule elsewhere in the document though.
@@ -384,7 +382,7 @@
 
     // private
     function fixColPercentages(structure,colElements) {
-        var colWidths = getColWidths(colElements,structure.numCols);
+        var colWidths = getColWidthsFromElements(colElements,structure.numCols);
 
         var percentages = colWidths.map(getPercentage);
         if (percentages.every(notNull)) {
@@ -464,7 +462,7 @@
     // private
     function addColumnCells(structure,oldIndex,right) {
         for (var row = 0; row < structure.numRows; row++) {
-            var cell = Tables.Table_get(structure,row,oldIndex);
+            var cell = Table_get(structure,row,oldIndex);
             var oldTD = cell.element;
             if (cell.row == row) {
 
@@ -507,11 +505,11 @@
     }
 
     // public
-    Tables.addAdjacentColumn = function() {
+    function addAdjacentColumn() {
         UndoManager.newGroup("Insert column at right");
         Selection.preserveWhileExecuting(function() {
             var range = Selection.get();
-            var region = Tables.regionFromRange(range,true);
+            var region = regionFromRange(range,true);
             if (region != null) {
                 addColElement(region.structure,region.right,region.right+1);
                 addColumnCells(region.structure,region.right,true);
@@ -525,7 +523,7 @@
 
     function columnHasContent(table,col) {
         for (var row = 0; row < table.numRows; row++) {
-            var cell = Tables.Table_get(table,row,col);
+            var cell = Table_get(table,row,col);
             if ((cell != null) && (cell.col == col) && Util.nodeHasContent(cell.element))
                 return true;
         }
@@ -534,7 +532,7 @@
 
     function rowHasContent(table,row) {
         for (var col = 0; col < table.numCols; col++) {
-            var cell = Tables.Table_get(table,row,col);
+            var cell = Table_get(table,row,col);
             if ((cell != null) && (cell.row == row) && Util.nodeHasContent(cell.element))
                 return true;
         }
@@ -547,8 +545,8 @@
         top = clampRow(table,top);
         bottom = clampRow(table,bottom);
 
-        var tlCell = Tables.Table_get(table,top,left);
-        var brCell = Tables.Table_get(table,bottom,right);
+        var tlCell = Table_get(table,top,left);
+        var brCell = Table_get(table,bottom,right);
         if ((tlCell != null) && (brCell != null)) {
             var tlPos = new Position.Position(tlCell.element,0);
             tlPos = Position.closestMatchForwards(tlPos,Position.okForMovement);
@@ -583,7 +581,7 @@
         if ((table != null) && (table.numRows >= 2)) {
             UndoManager.newGroup("Delete one row");
             var row = table.numRows-1;
-            Tables.deleteRegion(new TableRegion(table,row,row,0,table.numCols-1));
+            deleteRegion(new TableRegion(table,row,row,0,table.numCols-1));
             UndoManager.newGroup();
             return;
         }
@@ -591,15 +589,15 @@
         table = tableAtRightOfRange(range);
         if ((table != null) && (table.numRows >= 2)) {
             UndoManager.newGroup("Delete one row");
-            Tables.deleteRegion(new TableRegion(table,0,0,0,table.numCols-1));
+            deleteRegion(new TableRegion(table,0,0,0,table.numCols-1));
             UndoManager.newGroup();
             return;
         }
     }
 
-    Tables.removeAdjacentRow = function() {
+    function removeAdjacentRow() {
         var range = Selection.get();
-        var region = Tables.regionFromRange(range,true);
+        var region = regionFromRange(range,true);
 
         if (region == null) {
             removeRowAdjacentToRange(range);
@@ -620,14 +618,14 @@
         // Is there an empty row below the selection? If so, delete it
         if ((bottom+1 < table.numRows) && !rowHasContent(table,bottom+1)) {
             Selection.preserveWhileExecuting(function() {
-                Tables.deleteRegion(new TableRegion(table,bottom+1,bottom+1,0,table.numCols-1));
+                deleteRegion(new TableRegion(table,bottom+1,bottom+1,0,table.numCols-1));
             });
         }
 
         // Is there an empty row above the selection? If so, delete it
         else if ((top-1 >= 0) && !rowHasContent(table,top-1)) {
             Selection.preserveWhileExecuting(function() {
-                Tables.deleteRegion(new TableRegion(table,top-1,top-1,0,table.numCols-1));
+                deleteRegion(new TableRegion(table,top-1,top-1,0,table.numCols-1));
             });
         }
 
@@ -636,10 +634,10 @@
         // of the selection (which may be the only one)
         else {
             Selection.preserveWhileExecuting(function() {
-                Tables.deleteRegion(new TableRegion(table,bottom,bottom,0,table.numCols-1));
+                deleteRegion(new TableRegion(table,bottom,bottom,0,table.numCols-1));
             });
 
-            table = Tables.analyseStructure(table.element);
+            table = analyseStructure(table.element);
             var multiple = (top != bottom);
 
             if (multiple) {
@@ -647,7 +645,7 @@
             }
             else {
                 var newRow = clampRow(table,bottom);
-                var newCell = Tables.Table_get(table,newRow,left);
+                var newCell = Table_get(table,newRow,left);
                 if (newCell != null) {
                     var pos = new Position.Position(newCell.element,0);
                     pos = Position.closestMatchForwards(pos,Position.okForMovement);
@@ -666,7 +664,7 @@
         if ((table != null) && (table.numCols >= 2)) {
             UndoManager.newGroup("Delete one column");
             var col = table.numCols-1;
-            Tables.deleteRegion(new TableRegion(table,0,table.numRows-1,col,col));
+            deleteRegion(new TableRegion(table,0,table.numRows-1,col,col));
             UndoManager.newGroup();
             return;
         }
@@ -674,15 +672,15 @@
         table = tableAtRightOfRange(range);
         if ((table != null) && (table.numCols >= 2)) {
             UndoManager.newGroup("Delete one column");
-            Tables.deleteRegion(new TableRegion(table,0,table.numRows-1,0,0));
+            deleteRegion(new TableRegion(table,0,table.numRows-1,0,0));
             UndoManager.newGroup();
             return;
         }
     }
 
-    Tables.removeAdjacentColumn = function() {
+    function removeAdjacentColumn() {
         var range = Selection.get();
-        var region = Tables.regionFromRange(range,true);
+        var region = regionFromRange(range,true);
 
         if (region == null) {
             removeColumnAdjacentToRange(range);
@@ -703,14 +701,14 @@
         // Is there an empty column to the right of the selection? If so, delete it
         if ((right+1 < table.numCols) && !columnHasContent(table,right+1)) {
             Selection.preserveWhileExecuting(function() {
-                Tables.deleteRegion(new TableRegion(table,0,table.numRows-1,right+1,right+1));
+                deleteRegion(new TableRegion(table,0,table.numRows-1,right+1,right+1));
             });
         }
 
         // Is there an empty column to the left of the selection? If so, delete it
         else if ((left-1 >= 0) && !columnHasContent(table,left-1)) {
             Selection.preserveWhileExecuting(function() {
-                Tables.deleteRegion(new TableRegion(table,0,table.numRows-1,left-1,left-1));
+                deleteRegion(new TableRegion(table,0,table.numRows-1,left-1,left-1));
             });
         }
 
@@ -718,10 +716,10 @@
         // of the selection (which may be the only one)
         else {
             Selection.preserveWhileExecuting(function() {
-                Tables.deleteRegion(new TableRegion(table,0,table.numRows-1,right,right));
+                deleteRegion(new TableRegion(table,0,table.numRows-1,right,right));
             });
 
-            table = Tables.analyseStructure(table.element);
+            table = analyseStructure(table.element);
             var multiple = (left != right);
 
             if (multiple) {
@@ -729,7 +727,7 @@
             }
             else {
                 var newCol = clampCol(table,right);
-                var newCell = Tables.Table_get(table,top,newCol);
+                var newCell = Table_get(table,top,newCol);
                 if (newCell != null) {
                     var pos = new Position.Position(newCell.element,0);
                     pos = Position.closestMatchForwards(pos,Position.okForMovement);
@@ -771,7 +769,7 @@
         var nodesToDelete = new Collections.NodeSet();
         for (var row = 0; row < structure.numRows; row++) {
             for (var col = left; col <= right; col++) {
-                var cell = Tables.Table_get(structure,row,col);
+                var cell = Table_get(structure,row,col);
                 nodesToDelete.add(cell.element);
             }
         }
@@ -784,14 +782,14 @@
         var structure = region.structure;
         for (var row = region.top; row <= region.bottom; row++) {
             for (var col = region.left; col <= region.right; col++) {
-                var cell = Tables.Table_get(structure,row,col);
+                var cell = Table_get(structure,row,col);
                 DOM.deleteAllChildren(cell.element);
             }
         }
     }
 
     // public
-    Tables.deleteRegion = function(region) {
+    function deleteRegion(region) {
         var structure = region.structure;
 
         var coversEntireWidth = (region.left == 0) && (region.right == structure.numCols-1);
@@ -808,13 +806,13 @@
     }
 
     // public
-    Tables.clearCells = function() {
+    function clearCells() {
     }
 
     // public
-    Tables.mergeCells = function() {
+    function mergeCells() {
         Selection.preserveWhileExecuting(function() {
-            var region = Tables.regionFromRange(Selection.get());
+            var region = regionFromRange(Selection.get());
             if (region == null)
                 return;
 
@@ -825,7 +823,7 @@
 
             for (var row = region.top; row <= region.bottom; row++) {
                 for (var col = region.left; col <= region.right; col++) {
-                    var cell = Tables.Table_get(structure,row,col);
+                    var cell = Table_get(structure,row,col);
                     var cellFirstRow = cell.row;
                     var cellLastRow = cell.row + cell.rowspan - 1;
                     var cellFirstCol = cell.col;
@@ -840,11 +838,11 @@
                 }
             }
 
-            var mergedCell = Tables.Table_get(structure,region.top,region.left);
+            var mergedCell = Table_get(structure,region.top,region.left);
 
             for (var row = region.top; row <= region.bottom; row++) {
                 for (var col = region.left; col <= region.right; col++) {
-                    var cell = Tables.Table_get(structure,row,col);
+                    var cell = Table_get(structure,row,col);
                     // parentNode will be null if we've already done this cell
                     if ((cell != mergedCell) && (cell.element.parentNode != null)) {
                         while (cell.element.firstChild != null)
@@ -868,26 +866,26 @@
     }
 
     // public
-    Tables.splitSelection = function() {
+    function splitSelection() {
         Selection.preserveWhileExecuting(function() {
             var range = Selection.get();
             Range.trackWhileExecuting(range,function() {
-                var region = Tables.regionFromRange(range,true);
+                var region = regionFromRange(range,true);
                 if (region != null)
-                    Tables.TableRegion_splitCells(region);
+                    TableRegion_splitCells(region);
             });
         });
     }
 
     // public
-    Tables.TableRegion_splitCells = function(region) {
+    function TableRegion_splitCells(region) {
         var structure = region.structure;
         var trElements = new Array();
         getTRs(structure.element,trElements);
 
         for (var row = region.top; row <= region.bottom; row++) {
             for (var col = region.left; col <= region.right; col++) {
-                var cell = Tables.Table_get(structure,row,col);
+                var cell = Table_get(structure,row,col);
                 if ((cell.rowspan > 1) || (cell.colspan > 1)) {
 
                     var original = cell.element;
@@ -901,7 +899,7 @@
 
                             var nextCol = cell.right+1;
                             while (nextCol < structure.numCols) {
-                                var nextCell = Tables.Table_get(structure,r,nextCol);
+                                var nextCell = Table_get(structure,r,nextCol);
                                 if ((nextCell != null) && (nextCell.row == r)) {
                                     nextElement = nextCell.element;
                                     break;
@@ -910,7 +908,7 @@
                             }
 
                             DOM.insertBefore(trElements[r],newTD,nextElement);
-                            Tables.Table_set(structure,r,c,new Cell(newTD,r,c));
+                            Table_set(structure,r,c,new Cell(newTD,r,c));
                         }
                     }
                     DOM.removeAttribute(original,"rowspan");
@@ -921,14 +919,14 @@
     }
 
     // public
-    Tables.cloneRegion = function(region) {
+    function cloneRegion(region) {
         var cellNodesDone = new Collections.NodeSet();
         var table = DOM.shallowCopyElement(region.structure.element);
         for (var row = region.top; row <= region.bottom; row++) {
             var tr = DOM.createElement(document,"TR");
             DOM.appendChild(table,tr);
             for (var col = region.left; col <= region.right; col++) {
-                var cell = Tables.Table_get(region.structure,row,col);
+                var cell = Table_get(region.structure,row,col);
                 if (!cellNodesDone.contains(cell.element)) {
                     DOM.appendChild(tr,DOM.cloneNode(cell.element,true));
                     cellNodesDone.add(cell.element);
@@ -941,11 +939,11 @@
     // private
     function pasteCells(fromTableElement,toRegion) {
         // FIXME
-        var fromStructure = Tables.analyseStructure(fromTableElement);
+        var fromStructure = analyseStructure(fromTableElement);
     }
 
     // public
-    Tables.Table_fix = function(table) {
+    function Table_fix(table) {
         var changed = false;
 
         var tbody = null;
@@ -971,7 +969,7 @@
 
         for (var row = 0; row < table.numRows; row++) {
             for (var col = 0; col < table.numCols; col++) {
-                var cell = Tables.Table_get(table,row,col);
+                var cell = Table_get(table,row,col);
                 if (cell == null) {
                     var td = createEmptyTableCell("TD");
                     DOM.appendChild(trs[row],td);
@@ -987,13 +985,13 @@
     }
 
     // public
-    Tables.Table_fixColumnWidths = function(structure) {
+    function Table_fixColumnWidths(structure) {
         var colElements = getColElements(structure.element);
         if (colElements.length == 0)
             return;
         addMissingColElements(structure,colElements);
 
-        var widths = Tables.getColWidths(structure);
+        var widths = getColWidths(structure);
         fixWidths(widths,structure.numCols);
         colElements = getColElements(structure.element);
         for (var i = 0; i < widths.length; i++)
@@ -1001,19 +999,19 @@
     }
 
     // public
-    Tables.analyseStructure = function(element) {
+    function analyseStructure(element) {
         // FIXME: we should probably be preserving the selection here, since we are modifying
         // the DOM (though I think it's unlikely it would cause problems, becausing the fixup
         // logic only adds elements). However this method is called (indirectly) from within
         // Selection.update(), which causes unbounded recursion due to the subsequent Selecton_set()
         // that occurs.
         var initial = new Table(element);
-        var fixed = Tables.Table_fix(initial);
+        var fixed = Table_fix(initial);
         return fixed;
     }
 
     // public
-    Tables.findContainingCell = function(node) {
+    function findContainingCell(node) {
         for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {
             if (Types.isTableCell(ancestor))
                 return ancestor;
@@ -1022,7 +1020,7 @@
     }
 
     // public
-    Tables.findContainingTable = function(node) {
+    function findContainingTable(node) {
         for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {
             if (ancestor._type == HTML_TABLE)
                 return ancestor;
@@ -1043,7 +1041,7 @@
     }
 
     // public
-    Tables.regionFromRange = function(range,allowSameCell) {
+    function regionFromRange(range,allowSameCell) {
         var region = null;
 
         if (range == null)
@@ -1052,8 +1050,8 @@
         var start = Position.closestActualNode(range.start,true);
         var end = Position.closestActualNode(range.end,true);
 
-        var startTD = Tables.findContainingCell(start);
-        var endTD = Tables.findContainingCell(end);
+        var startTD = findContainingCell(start);
+        var endTD = findContainingCell(end);
 
         if (!Types.isTableCell(start) || !Types.isTableCell(end)) {
             if (!allowSameCell) {
@@ -1065,13 +1063,13 @@
         if ((startTD == null) || (endTD == null))
             return null;
 
-        var startTable = Tables.findContainingTable(startTD);
-        var endTable = Tables.findContainingTable(endTD);
+        var startTable = findContainingTable(startTD);
+        var endTable = findContainingTable(endTD);
 
         if (startTable != endTable)
             return null;
 
-        var structure = Tables.analyseStructure(startTable);
+        var structure = analyseStructure(startTable);
 
         var startInfo = structure.cellsByElement.get(startTD);
         var endInfo = structure.cellsByElement.get(endTD);
@@ -1104,12 +1102,12 @@
         do {
             boundariesOk = true;
             for (var row = region.top; row <= region.bottom; row++) {
-                var cell = Tables.Table_get(structure,row,region.left);
+                var cell = Table_get(structure,row,region.left);
                 if (region.left > cell.left) {
                     region.left = cell.left;
                     boundariesOk = false;
                 }
-                cell = Tables.Table_get(structure,row,region.right);
+                cell = Table_get(structure,row,region.right);
                 if (region.right < cell.right) {
                     region.right = cell.right;
                     boundariesOk = false;
@@ -1117,12 +1115,12 @@
             }
 
             for (var col = region.left; col <= region.right; col++) {
-                var cell = Tables.Table_get(structure,region.top,col);
+                var cell = Table_get(structure,region.top,col);
                 if (region.top > cell.top) {
                     region.top = cell.top;
                     boundariesOk = false;
                 }
-                cell = Tables.Table_get(structure,region.bottom,col);
+                cell = Table_get(structure,region.bottom,col);
                 if (region.bottom < cell.bottom) {
                     region.bottom = cell.bottom;
                     boundariesOk = false;
@@ -1131,21 +1129,21 @@
         } while (!boundariesOk);
     }
 
-    Tables.getSelectedTableId = function() {
+    function getSelectedTableId() {
         var element = Cursor.getAdjacentNodeWithType(HTML_TABLE);
         return element ? element.getAttribute("id") : null;
     }
 
-    Tables.getProperties = function(itemId) {
+    function getProperties(itemId) {
         var element = document.getElementById(itemId);
         if ((element == null) || (element._type != HTML_TABLE))
             return null;
-        var structure = Tables.analyseStructure(element);
+        var structure = analyseStructure(element);
         var width = element.style.width;
         return { width: width, rows: structure.numRows, cols: structure.numCols };
     }
 
-    Tables.setProperties = function(itemId,width) {
+    function setProperties(itemId,width) {
         var table = document.getElementById(itemId);
         if (table == null)
             return null;
@@ -1158,7 +1156,7 @@
     // their column widths specified, and in all cases as percentages. Any which do not
     // are considered invalid, and have any non-percentage values filled in based on the
     // average values of all valid percentage-based columns.
-    Tables.getColWidths = function(structure) {
+    function getColWidths(structure) {
         var colElements = getColElements(structure.element);
         var colWidths = new Array();
 
@@ -1223,12 +1221,12 @@
     }
 
     // public
-    Tables.setColWidths = function(itemId,widths) {
+    function setColWidths(itemId,widths) {
         var element = document.getElementById(itemId);
         if (element == null)
             return null;
 
-        var structure = Tables.analyseStructure(element);
+        var structure = analyseStructure(element);
 
         fixWidths(widths,structure.numCols);
 
@@ -1240,19 +1238,19 @@
     }
 
     // public
-    Tables.getGeometry = function(itemId) {
+    function getGeometry(itemId) {
         var element = document.getElementById(itemId);
         if ((element == null) || (element.parentNode == null))
             return null;
 
-        var structure = Tables.analyseStructure(element);
+        var structure = analyseStructure(element);
 
         var result = new Object();
 
         // Calculate the rect based on the cells, not the whole table element;
         // we want to ignore the caption
-        var topLeftCell = Tables.Table_get(structure,0,0);
-        var bottomRightCell = Tables.Table_get(structure,structure.numRows-1,structure.numCols-1);
+        var topLeftCell = Table_get(structure,0,0);
+        var bottomRightCell = Table_get(structure,structure.numRows-1,structure.numCols-1);
 
         if (topLeftCell == null)
             throw new Error("No top left cell");
@@ -1271,7 +1269,7 @@
         result.fullRect = Util.xywhAbsElementRect(element);
         result.parentRect = Util.xywhAbsElementRect(element.parentNode);
 
-        result.columnWidths = Tables.getColWidths(structure);
+        result.columnWidths = getColWidths(structure);
 
         var caption = Traversal.firstChildOfType(element,HTML_CAPTION);
         result.hasCaption = (caption != null);
@@ -1280,4 +1278,31 @@
 
     }
 
-})(globalAPI);
+    exports.Table_get = Table_get;
+    exports.Table_set = Table_set;
+    exports.Table_setRegion = Table_setRegion;
+    exports.insertTable = insertTable;
+    exports.addAdjacentRow = addAdjacentRow;
+    exports.addAdjacentColumn = addAdjacentColumn;
+    exports.removeAdjacentRow = removeAdjacentRow;
+    exports.removeAdjacentColumn = removeAdjacentColumn;
+    exports.deleteRegion = deleteRegion;
+    exports.clearCells = clearCells;
+    exports.mergeCells = mergeCells;
+    exports.splitSelection = splitSelection;
+    exports.TableRegion_splitCells = TableRegion_splitCells;
+    exports.cloneRegion = cloneRegion;
+    exports.Table_fix = Table_fix;
+    exports.Table_fixColumnWidths = Table_fixColumnWidths;
+    exports.analyseStructure = analyseStructure;
+    exports.findContainingCell = findContainingCell;
+    exports.findContainingTable = findContainingTable;
+    exports.regionFromRange = regionFromRange;
+    exports.getSelectedTableId = getSelectedTableId;
+    exports.getProperties = getProperties;
+    exports.setProperties = setProperties;
+    exports.getColWidths = getColWidths;
+    exports.setColWidths = setColWidths;
+    exports.getGeometry = getGeometry;
+
+});

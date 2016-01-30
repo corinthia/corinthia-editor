@@ -17,23 +17,21 @@
 
 // FIXME: cursor does not display correctly if it is after a space at the end of the line
 
-(function(api) {
+define("Selection",function(require,exports) {
 
-    var Selection = api.Selection; // export
-
-    var Collections = api.Collections; // import
-    var Cursor = api.Cursor; // import
-    var DOM = api.DOM; // import
-    var Editor = api.Editor; // import
-    var Formatting = api.Formatting; // import
-    var Input = api.Input; // import
-    var Position = api.Position; // import
-    var Range = api.Range; // import
-    var Tables = api.Tables; // import
-    var Traversal = api.Traversal; // import
-    var Types = api.Types; // import
-    var UndoManager = api.UndoManager; // import
-    var Util = api.Util; // import
+    var Collections = require("Collections");
+    var Cursor = require("Cursor");
+    var DOM = require("DOM");
+    var Editor = require("Editor");
+    var Formatting = require("Formatting");
+    var Input = require("Input");
+    var Position = require("Position");
+    var Range = require("Range");
+    var Tables = require("Tables");
+    var Traversal = require("Traversal");
+    var Types = require("Types");
+    var UndoManager = require("UndoManager");
+    var Util = require("Util");
 
     var HANDLE_NONE = 0;
     var HANDLE_START = 1;
@@ -47,11 +45,17 @@
     //                                                                                            //
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
+    var isMarked;
+    var get;
+    var setInternal;
+    var set;
+    var clear;
+
     (function() {
 
         var selection = new Object();
 
-        Selection.isMarked = function() {
+        isMarked = function() {
             if (selection.value == null)
                 return null;
             else
@@ -59,7 +63,7 @@
         }
 
         // public
-        Selection.get = function() {
+        get = function() {
             if (selection.value == null)
                 return null;
             else
@@ -68,7 +72,7 @@
         }
 
         // public
-        Selection.setInternal =
+        setInternal =
             function(newStartNode,newStartOffset,newEndNode,newEndOffset,isMarked) {
             var range = new Range.Range(newStartNode,newStartOffset,newEndNode,newEndOffset);
             if (!Range.isForwards(range))
@@ -83,19 +87,20 @@
                                       isMarked: isMarked });
         }
 
-        Selection.set = function(newStartNode,newStartOffset,newEndNode,newEndOffset,
+        set = function(newStartNode,newStartOffset,newEndNode,newEndOffset,
                                  keepActiveHandle,isMarked) {
-            Selection.setInternal(newStartNode,newStartOffset,newEndNode,newEndOffset,isMarked);
-            Selection.update();
+            setInternal(newStartNode,newStartOffset,newEndNode,newEndOffset,isMarked);
+            update();
             if (!keepActiveHandle)
                 activeHandle = HANDLE_NONE;
         }
 
         // public
-        Selection.clear = function() {
+        clear = function() {
             UndoManager.setProperty(selection,"value",null);
-            Selection.update();
+            update();
         }
+
     })();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -154,7 +159,7 @@
             setEditorHandles({ type: "table", x: x, y: y, width: width, height: height });
         });
 
-        Selection.setInternal(selRange.start.node,selRange.start.offset,
+        setInternal(selRange.start.node,selRange.start.offset,
                               selRange.end.node,selRange.end.offset);
 
         return true;
@@ -203,7 +208,7 @@
             Editor.setCursor(info.left,info.top,info.width,info.height);
         }
         else if (info.type == "selection") {
-            if (!Selection.isMarked()) {
+            if (!isMarked()) {
                 Editor.setSelectionHandles(info.x1,info.y1,
                                            info.height1,info.x2,info.y2,info.height2);
             }
@@ -442,9 +447,9 @@
         return false;
     }
 
-    Selection.update = function() {
-        var selRange = Selection.get();
-        var selMarked = Selection.isMarked();
+    function update() {
+        var selRange = get();
+        var selMarked = isMarked();
 
         Range.trackWhileExecuting(selRange,function() {
             // Remove table selection DIVs
@@ -471,10 +476,10 @@
                 });
             });
             // Selection may have changed as a result of removeSelectionHighlights()
-            Selection.setInternal(selRange.start.node,selRange.start.offset,
+            setInternal(selRange.start.node,selRange.start.offset,
                                   selRange.end.node,selRange.end.offset,
                                   selMarked);
-            selRange = Selection.get(); // since setInternal can theoretically change it
+            selRange = get(); // since setInternal can theoretically change it
 
             // If we can't find the cursor rect for some reason, just don't update the position.
             // This is better than using an incorrect position or throwing an exception.
@@ -539,7 +544,7 @@
             });
 
             // Selection may have changed as a result of create/removeSelectionHighlights()
-            Selection.setInternal(selRange.start.node,selRange.start.offset,
+            setInternal(selRange.start.node,selRange.start.offset,
                                   selRange.end.node,selRange.end.offset,
                                   selMarked);
 
@@ -585,13 +590,13 @@
     }
 
     // public
-    Selection.selectAll = function() {
-        Selection.set(document.body,0,document.body,document.body.childNodes.length);
+    function selectAll() {
+        set(document.body,0,document.body,document.body.childNodes.length);
     }
 
     // public
-    Selection.selectParagraph = function() {
-        var selRange = Selection.get();
+    function selectParagraph() {
+        var selRange = get();
         if (selRange == null)
             return;
         var startNode = Position.closestActualNode(selRange.start);
@@ -607,7 +612,7 @@
         startPos = Position.closestMatchForwards(startPos,Position.okForMovement);
         endPos = Position.closestMatchBackwards(endPos,Position.okForMovement);
 
-        Selection.set(startPos.node,startPos.offset,endPos.node,endPos.offset);
+        set(startPos.node,startPos.offset,endPos.node,endPos.offset);
     }
 
     // private
@@ -642,7 +647,7 @@
     var reWordStart = new RegExp("^[^"+wsPunctuation+"]+");
     var reWordEnd = new RegExp("[^"+wsPunctuation+"]+$");
 
-    Selection.posAtStartOfWord = function(pos) {
+    function posAtStartOfWord(pos) {
         var node = pos.node;
         var offset = pos.offset;
 
@@ -658,7 +663,7 @@
         return pos;
     }
 
-    Selection.posAtEndOfWord = function(pos) {
+    function posAtEndOfWord(pos) {
         var node = pos.node;
         var offset = pos.offset;
 
@@ -727,31 +732,31 @@
     }
 
     // public
-    Selection.selectWordAtCursor = function() {
-        var selRange = Selection.get();
+    function selectWordAtCursor() {
+        var selRange = get();
         if (selRange == null)
             return;
 
         var pos = Position.closestMatchBackwards(selRange.end,Position.okForMovement);
         var range = rangeOfWordAtPos(pos);
         if (range != null) {
-            Selection.set(range.start.node,range.start.offset,range.end.node,range.end.offset);
+            set(range.start.node,range.start.offset,range.end.node,range.end.offset);
         }
     }
 
     // public
-    Selection.dragSelectionBegin = function(x,y,selectWord) {
+    function dragSelectionBegin(x,y,selectWord) {
         var pos = Position.closestMatchForwards(Position.atPoint(x,y),Position.okForMovement);
 
         if (pos == null) {
-            Selection.clear();
+            clear();
             return "error";
         }
 
-        Selection.set(pos.node,pos.offset,pos.node,pos.offset);
+        set(pos.node,pos.offset,pos.node,pos.offset);
 
         if (selectWord)
-            Selection.selectWordAtCursor();
+            selectWordAtCursor();
 
         return "end";
     }
@@ -773,11 +778,11 @@
     }
 
     // public
-    Selection.dragSelectionUpdate = function(x,y,selectWord) {
+    function dragSelectionUpdate(x,y,selectWord) {
         y = Cursor.scrollDocumentForY(y);
 
         var pos = Position.closestMatchForwards(Position.atPoint(x,y),Position.okForMovement);
-        var selRange = Selection.get();
+        var selRange = get();
         if ((pos == null) || (selRange == null))
             return "none";
 
@@ -794,7 +799,7 @@
                 if (selectWord)
                     pos = toEndOfWord(pos);
             }
-            Selection.set(start.node,start.offset,pos.node,pos.offset);
+            set(start.node,start.offset,pos.node,pos.offset);
         }
         else {
             if (Position.compare(pos,end) > 0) {
@@ -806,14 +811,14 @@
                 if (selectWord)
                     pos = toStartOfWord(pos);
             }
-            Selection.set(pos.node,pos.offset,end.node,end.offset);
+            set(pos.node,pos.offset,end.node,end.offset);
         }
 
         return selectionHandleEnd ? "end" : "start";
     }
 
     function moveBoundary(command) {
-        var range = Selection.get();
+        var range = get();
         if (range == null)
             return;
 
@@ -830,7 +835,7 @@
         if ((range.start != null) && (range.end != null)) {
             var result;
             range = Range.forwards(range);
-            Selection.set(range.start.node,range.start.offset,range.end.node,range.end.offset);
+            set(range.start.node,range.start.offset,range.end.node,range.end.offset);
             if (range.end == pos)
                 return "end";
             else if (range.end == pos)
@@ -840,57 +845,57 @@
     }
 
     // public
-    Selection.moveStartLeft = function() {
+    function moveStartLeft() {
         return moveBoundary("start-left");
     }
 
     // public
-    Selection.moveStartRight = function() {
+    function moveStartRight() {
         return moveBoundary("start-right");
     }
 
     // public
-    Selection.moveEndLeft = function() {
+    function moveEndLeft() {
         return moveBoundary("end-left");
     }
 
     // public
-    Selection.moveEndRight = function() {
+    function moveEndRight() {
         return moveBoundary("end-right");
     }
 
     // public
-    Selection.setSelectionStartAtCoords = function(x,y) {
+    function setSelectionStartAtCoords(x,y) {
         var position = Position.closestMatchForwards(Position.atPoint(x,y),Position.okForMovement);
         if (position != null) {
             position = Position.closestMatchBackwards(position,Position.okForMovement);
-            var selRange = Selection.get();
+            var selRange = get();
             var newRange = new Range.Range(position.node,position.offset,
                                      selRange.end.node,selRange.end.offset);
             if (Range.isForwards(newRange)) {
-                Selection.set(newRange.start.node,newRange.start.offset,
+                set(newRange.start.node,newRange.start.offset,
                               newRange.end.node,newRange.end.offset);
             }
         }
     }
 
     // public
-    Selection.setSelectionEndAtCoords = function(x,y) {
+    function setSelectionEndAtCoords(x,y) {
         var position = Position.closestMatchForwards(Position.atPoint(x,y),Position.okForMovement);
         if (position != null) {
             position = Position.closestMatchBackwards(position,Position.okForMovement);
-            var selRange = Selection.get();
+            var selRange = get();
             var newRange = new Range.Range(selRange.start.node,selRange.start.offset,
                                      position.node,position.offset);
             if (Range.isForwards(newRange)) {
-                Selection.set(newRange.start.node,newRange.start.offset,
+                set(newRange.start.node,newRange.start.offset,
                               newRange.end.node,newRange.end.offset);
             }
         }
     }
 
     // public
-    Selection.setTableSelectionEdgeAtCoords = function(edge,x,y) {
+    function setTableSelectionEdgeAtCoords(edge,x,y) {
         if (tableSelection == null)
             return;
 
@@ -921,7 +926,7 @@
         var bottomRightNode = bottomRightCell.element.parentNode;
         var bottomRightOffset = DOM.nodeOffset(bottomRightCell.element)+1;
 
-        Selection.set(topLeftNode,topLeftOffset,bottomRightNode,bottomRightOffset);
+        set(topLeftNode,topLeftOffset,bottomRightNode,bottomRightOffset);
 
         // FIXME: this could possibly be optimised
         function findCellInTable(structure,x,y) {
@@ -941,8 +946,8 @@
     }
 
     // public
-    Selection.setEmptySelectionAt = function(node,offset) {
-        Selection.set(node,offset,node,offset);
+    function setEmptySelectionAt(node,offset) {
+        set(node,offset,node,offset);
     }
 
     // private
@@ -1071,7 +1076,7 @@
         return true;
     }
 
-    Selection.deleteRangeContents = function(range,keepEmpty) {
+    function deleteRangeContents(range,keepEmpty) {
         Range.trackWhileExecuting(range,function() {
             DOM.ignoreMutationsWhileExecuting(function() {
                 removeSelectionHighlights(getRangeData(range),true);
@@ -1084,14 +1089,14 @@
                 deleteTextSelection(range,keepEmpty);
         });
 
-        Selection.set(range.start.node,range.start.offset,range.start.node,range.start.offset);
+        set(range.start.node,range.start.offset,range.start.node,range.start.offset);
     }
 
-    Selection.deleteContents = function(keepEmpty) {
-        var range = Selection.get();
+    function deleteContents(keepEmpty) {
+        var range = get();
         if (range == null)
             return;
-        Selection.deleteRangeContents(range,keepEmpty);
+        deleteRangeContents(range,keepEmpty);
     }
 
     // private
@@ -1199,34 +1204,34 @@
     }
 
     // public
-    Selection.clearSelection = function() {
-        Selection.clear();
+    function clearSelection() {
+        clear();
     }
 
     // public
-    Selection.preserveWhileExecuting = function(fun) {
-        var range = Selection.get();
+    function preserveWhileExecuting(fun) {
+        var range = get();
 
         // Since the selection may have changed as a result of changes to the document, we
         // have to call clear() or set() so that undo history is saved
         if (range == null) {
             result = fun();
-            Selection.clear();
+            clear();
         }
         else {
             result = Range.trackWhileExecuting(range,fun);
-            Selection.set(range.start.node,range.start.offset,range.end.node,range.end.offset);
+            set(range.start.node,range.start.offset,range.end.node,range.end.offset);
         }
         return result;
     }
 
-    Selection.preferElementPositions = function() {
-        var range = Selection.get();
+    function preferElementPositions() {
+        var range = get();
         if (range == null)
             return;
         range.start = Position.preferElementPosition(range.start);
         range.end = Position.preferElementPosition(range.end);
-        Selection.set(range.start.node,range.start.offset,
+        set(range.start.node,range.start.offset,
                       range.end.node,range.end.offset);
     }
 
@@ -1287,13 +1292,13 @@
         }
     }
 
-    Selection.print = function() {
+    function print() {
         debug("");
         debug("");
         debug("");
         debug("================================================================================");
 
-        var sel = Selection.get();
+        var sel = get();
         if (sel == null) {
             debug("No selection");
             return;
@@ -1351,4 +1356,32 @@
         }
     }
 
-})(globalAPI);
+    exports.isMarked = isMarked;
+    exports.get = get;
+    exports.set = set;
+    exports.clear = clear;
+
+    exports.update = update;
+    exports.selectAll = selectAll;
+    exports.selectParagraph = selectParagraph;
+    exports.posAtStartOfWord = posAtStartOfWord;
+    exports.posAtEndOfWord = posAtEndOfWord;
+    exports.selectWordAtCursor = selectWordAtCursor;
+    exports.dragSelectionBegin = dragSelectionBegin;
+    exports.dragSelectionUpdate = dragSelectionUpdate;
+    exports.moveStartLeft = moveStartLeft;
+    exports.moveStartRight = moveStartRight;
+    exports.moveEndLeft = moveEndLeft;
+    exports.moveEndRight = moveEndRight;
+    exports.setSelectionStartAtCoords = setSelectionStartAtCoords;
+    exports.setSelectionEndAtCoords = setSelectionEndAtCoords;
+    exports.setTableSelectionEdgeAtCoords = setTableSelectionEdgeAtCoords;
+    exports.setEmptySelectionAt = setEmptySelectionAt;
+    exports.deleteRangeContents = deleteRangeContents;
+    exports.deleteContents = deleteContents;
+    exports.clearSelection = clearSelection;
+    exports.preserveWhileExecuting = preserveWhileExecuting;
+    exports.preferElementPositions = preferElementPositions;
+    exports.print = print;
+
+});

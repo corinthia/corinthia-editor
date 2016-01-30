@@ -15,25 +15,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("Clipboard",function(require,exports) {
 
-    var Clipboard = api.Clipboard; // export
-
-    var Cursor = api.Cursor; // import
-    var DOM = api.DOM; // import
-    var Formatting = api.Formatting; // import
-    var Main = api.Main; // import
-    var Markdown = api.Markdown; // import
-    var Position = api.Position; // import
-    var PostponedActions = api.PostponedActions; // import
-    var Range = api.Range; // import
-    var Selection = api.Selection; // import
-    var Styles = api.Styles; // import
-    var Tables = api.Tables; // import
-    var Traversal = api.Traversal; // import
-    var Types = api.Types; // import
-    var UndoManager = api.UndoManager; // import
-    var Util = api.Util; // import
+    var Cursor = require("Cursor");
+    var DOM = require("DOM");
+    var Formatting = require("Formatting");
+    var Main = require("Main");
+    var Markdown = require("Markdown");
+    var Position = require("Position");
+    var PostponedActions = require("PostponedActions");
+    var Range = require("Range");
+    var Selection = require("Selection");
+    var Styles = require("Styles");
+    var Tables = require("Tables");
+    var Traversal = require("Traversal");
+    var Types = require("Types");
+    var UndoManager = require("UndoManager");
+    var Util = require("Util");
 
     function expandRangeForCopy(range) {
         if (range == null)
@@ -88,7 +86,7 @@
             Main.removeSpecial(div);
 
             html = div.innerHTML;
-            text = Clipboard.htmlToText(div);
+            text = htmlToText(div);
         }
 
         return { "text/html": html,
@@ -96,12 +94,12 @@
     }
 
     // public (FIXME: temp: for testing)
-    Clipboard.htmlToText = function(node) {
+    function htmlToText(node) {
         return Markdown.htmlToMarkdown(node);
     }
 
     // public
-    Clipboard.cut = function() {
+    function cut() {
         UndoManager.newGroup("Cut");
         var content;
 
@@ -151,23 +149,23 @@
     }
 
     // public
-    Clipboard.copy = function() {
+    function copy() {
         var range = Selection.get();
         range = expandRangeForCopy(range);
         return copyRange(range);
     }
 
     // public
-    Clipboard.pasteText = function(text) {
+    function pasteText(text) {
         var converter = new Showdown.converter();
         var html = converter.makeHtml(text);
         UndoManager.newGroup("Paste");
-        Clipboard.pasteHTML(html);
+        pasteHTML(html);
         UndoManager.newGroup();
     }
 
     // public
-    Clipboard.pasteHTML = function(html) {
+    function pasteHTML(html) {
         if (html.match(/^\s*<thead/i))
             html = "<table>" + html + "</table>";
         else if (html.match(/^\s*<tbody/i))
@@ -197,7 +195,7 @@
         if ((region != null) && (nodes.length == 1) && (nodes[0]._type == HTML_TABLE))
             pasteTable(nodes[0],region);
         else
-            Clipboard.pasteNodes(nodes);
+            pasteNodes(nodes);
         UndoManager.newGroup();
     }
 
@@ -298,7 +296,7 @@
     }
 
     // public
-    Clipboard.pasteNodes = function(nodes) {
+    function pasteNodes(nodes) {
         if (nodes.length == 0)
             return;
 
@@ -522,4 +520,12 @@
         // FIXME
     }
 
-})(globalAPI);
+    exports.htmlToText = htmlToText;
+    exports.cut = cut;
+    exports.copy = copy;
+    exports.pasteText = pasteText;
+    exports.pasteHTML = pasteHTML;
+    exports.pasteNodes = pasteNodes;
+
+
+});

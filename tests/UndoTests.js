@@ -15,18 +15,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("tests.UndoTests",function(require,exports) {
 
-    var UndoTests = api.tests.UndoTests; // export
+    var AutoCorrect = require("AutoCorrect");
+    var DOM = require("DOM");
+    var Outline = require("Outline");
+    var PostponedActions = require("PostponedActions");
+    var PrettyPrinter = require("tests.PrettyPrinter");
+    var Selection = require("Selection");
+    var UndoManager = require("UndoManager");
 
-    var AutoCorrect = api.AutoCorrect; // import
-    var DOM = api.DOM; // import
-    var Outline = api.Outline; // import
-    var PostponedActions = api.PostponedActions; // import
-    var Selection = api.Selection; // import
-    var UndoManager = api.UndoManager; // import
-
-    UndoTests.testUndo = function(versions,node) {
+    function testUndo(versions,node) {
         var numSteps = UndoManager.getLength();
 
         var back1 = new Array();
@@ -89,7 +88,7 @@
         }
     }
 
-    UndoTests.placeCursorAfterElement = function(id) {
+    function placeCursorAfterElement(id) {
         UndoManager.disableWhileExecuting(function() {
             var element = document.getElementById(id);
             var node = element.parentNode;
@@ -98,4 +97,7 @@
         });
     }
 
-})(globalAPI);
+    exports.testUndo = testUndo;
+    exports.placeCursorAfterElement = placeCursorAfterElement;
+
+});

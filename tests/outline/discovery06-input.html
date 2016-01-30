@@ -12,7 +12,7 @@ function performTest(api)
     api.PostponedActions.perform();
     api.tests.TestLib.setNumbering(true);
     api.tests.TestLib.setNumbering(false);
-    return api.Outline.plainText()+PrettyPrinter.getHTML(document.documentElement);
+    return api.Outline.plainText()+api.tests.PrettyPrinter.getHTML(document.documentElement);
 }
 </script>
 </head>

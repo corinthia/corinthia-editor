@@ -18,17 +18,15 @@
 // FIXME: ensure updateFormatting() is called after any cursor/selection changes
 // FIXME: test capitalisation of on-screen keyboard at start of sentence
 
-(function(api) {
+define("Input",function(require,exports) {
 
-    var Input = api.Input; // export
-
-    var Cursor = api.Cursor; // import
-    var DOM = api.DOM; // import
-    var Paragraph = api.Paragraph; // import
-    var Position = api.Position; // import
-    var Range = api.Range; // import
-    var Selection = api.Selection; // import
-    var Text = api.Text; // import
+    var Cursor = require("Cursor");
+    var DOM = require("DOM");
+    var Paragraph = require("Paragraph");
+    var Position = require("Position");
+    var Range = require("Range");
+    var Selection = require("Selection");
+    var Text = require("Text");
 
     // function idebug(str) {
     //    debug(str);
@@ -55,8 +53,6 @@
         Position.track(pos);
         return pos.posId;
     }
-
-    Input.addPosition = addPosition;
 
     function getPosition(posId) {
         if (posId instanceof Position.Position) // for tests
@@ -93,11 +89,9 @@
         return positions[posId];
     }
 
-    Input.getPosition = getPosition;
-
     // void
-    Input.removePosition = function(posId) {
-        //idebug("Input.removePosition("+posId+")");
+    function removePosition(posId) {
+        //idebug("removePosition("+posId+")");
         var pos = positions[posId];
         if (pos == null) {
             throw new Error("no position for id "+posId);
@@ -107,7 +101,7 @@
     }
 
     // string
-    Input.textInRange = function(startId,startAdjust,endId,endAdjust) {
+    function textInRange(startId,startAdjust,endId,endAdjust) {
         var start = getPosition(startId);
         var end = getPosition(endId);
         start = positionRight(start,startAdjust);
@@ -117,14 +111,14 @@
 
         var range = new Range.Range(start.node,start.offset,end.node,end.offset);
         var result = Range.getText(range);
-        //idebug("Input.textInRange("+startId+","+startAdjust+","+endId+","+endAdjust+") = "+
+        //idebug("textInRange("+startId+","+startAdjust+","+endId+","+endAdjust+") = "+
         //       JSON.stringify(result));
         return result;
     }
 
     // void
-    Input.replaceRange = function(startId,endId,text) {
-        //idebug("Input.replaceRange("+startId+","+endId+","+JSON.stringify(text)+")");
+    function replaceRange(startId,endId,text) {
+        //idebug("replaceRange("+startId+","+endId+","+JSON.stringify(text)+")");
         var start = getPosition(startId);
         var end = getPosition(endId);
         if (start == null)
@@ -152,24 +146,24 @@
     }
 
     // { startId, endId }
-    Input.selectedTextRange = function() {
+    function selectedTextRange() {
         var range = Selection.get();
         if (range == null) {
-            //idebug("Input.selectedTextRange = null");
+            //idebug("selectedTextRange = null");
             return null;
         }
         else {
             var startId = addPosition(range.start);
             var endId = addPosition(range.end);
-            //idebug("Input.selectedTextRange = "+startId+", "+endId);
+            //idebug("selectedTextRange = "+startId+", "+endId);
             return { startId: startId,
                      endId: endId };
         }
     }
 
     // void
-    Input.setSelectedTextRange = function(startId,endId) {
-        //idebug("Input.setSelectedTextRange("+startId+","+endId+")");
+    function setSelectedTextRange(startId,endId) {
+        //idebug("setSelectedTextRange("+startId+","+endId+")");
         var start = getPosition(startId);
         var end = getPosition(endId);
 
@@ -193,13 +187,13 @@
     }
 
     // { startId, endId }
-    Input.markedTextRange = function() {
-        //idebug("Input.markedTextRange");
+    function markedTextRange() {
+        //idebug("markedTextRange");
         return null;
     }
 
     // void
-    Input.setMarkedText = function(text,startOffset,endOffset) {
+    function setMarkedText(text,startOffset,endOffset) {
         Selection.deleteContents(true);
         var oldSel = Selection.get();
         Range.trackWhileExecuting(oldSel,function() {
@@ -212,21 +206,21 @@
     }
 
     // void
-    Input.unmarkText = function() {
+    function unmarkText() {
         var range = Selection.get();
         Cursor.set(range.end.node,range.end.offset);
-        //idebug("Input.unmarkText");
+        //idebug("unmarkText");
     }
 
     // boolean
-    Input.forwardSelectionAffinity = function() {
-        //idebug("Input.forwardSelectionAffinity");
+    function forwardSelectionAffinity() {
+        //idebug("forwardSelectionAffinity");
         return forwardSelection;
     }
 
     // void
-    Input.setForwardSelectionAffinity = function(value) {
-        //idebug("Input.setForwardSelectionAffinity");
+    function setForwardSelectionAffinity(value) {
+        //idebug("setForwardSelectionAffinity");
         forwardSelection = value;
     }
 
@@ -271,16 +265,16 @@
     }
 
     // posId
-    Input.positionFromPositionOffset = function(posId,offset) {
+    function positionFromPositionOffset(posId,offset) {
         var pos = getPosition(posId);
         var res = addPosition(positionRight(pos,offset));
-        //idebug("Input.positionFromPositionOffset("+posId+","+offset+") = "+res);
+        //idebug("positionFromPositionOffset("+posId+","+offset+") = "+res);
         return res;
     }
 
     // posId
-    Input.positionFromPositionInDirectionOffset = function(posId,direction,offset) {
-        //idebug("Input.positionFromPositionInDirectionOffset("+posId+","+direction+","+offset+")");
+    function positionFromPositionInDirectionOffset(posId,direction,offset) {
+        //idebug("positionFromPositionInDirectionOffset("+posId+","+direction+","+offset+")");
         var pos = getPosition(posId);
         if (direction == "left")
             return addPosition(positionRight(pos,-offset));
@@ -295,8 +289,8 @@
     }
 
     // int
-    Input.comparePositionToPosition = function(posId1,posId2) {
-        //idebug("Input.comparePositionToPosition("+posId1+","+posId2+")");
+    function comparePositionToPosition(posId1,posId2) {
+        //idebug("comparePositionToPosition("+posId1+","+posId2+")");
         var pos1 = getPosition(posId1);
         var pos2 = getPosition(posId2);
         if (pos1 == null)
@@ -307,24 +301,24 @@
     }
 
     // int
-    Input.offsetFromPositionToPosition = function(fromId,toId) {
-        //idebug("Input.offsetFromPositionToPosition("+fromId+","+toId+")");
+    function offsetFromPositionToPosition(fromId,toId) {
+        //idebug("offsetFromPositionToPosition("+fromId+","+toId+")");
         throw new Error("offsetFromPositionToPosition: not implemented");
     }
 
-    Input.positionWithinRangeFarthestInDirection = function(startId,endId,direction) {
-        //idebug("Input.positionWithinRangeFarthestInDirection("+startId+","+endId+","+direction);
+    function positionWithinRangeFarthestInDirection(startId,endId,direction) {
+        //idebug("positionWithinRangeFarthestInDirection("+startId+","+endId+","+direction);
         throw new Error("positionWithinRangeFarthestInDirection: not implemented");
     }
 
     // { startId, endId }
-    Input.characterRangeByExtendingPositionInDirection = function(posId,direction) {
-        //idebug("Input.characterRangeByExtendingPositionInDirection("+posId+","+direction);
+    function characterRangeByExtendingPositionInDirection(posId,direction) {
+        //idebug("characterRangeByExtendingPositionInDirection("+posId+","+direction);
         throw new Error("characterRangeByExtendingPositionInDirection: not implemented");
     }
 
-    Input.firstRectForRange = function(startId,endId) {
-        //idebug("Input.firstRectForRange("+startId+","+endId+")");
+    function firstRectForRange(startId,endId) {
+        //idebug("firstRectForRange("+startId+","+endId+")");
         var start = getPosition(startId);
         var end = getPosition(endId);
         var range = new Range.Range(start.node,start.offset,end.node,end.offset);
@@ -336,8 +330,8 @@
                      width: rects[0].width, height: rects[0].height };
     }
 
-    Input.caretRectForPosition = function(posId) {
-        //idebug("Input.caretRectForPosition("+posId+")");
+    function caretRectForPosition(posId) {
+        //idebug("caretRectForPosition("+posId+")");
         var pos = getPosition(posId);
         var rect = Position.rectAtPos(pos);
         if (rect == null)
@@ -347,32 +341,32 @@
     }
 
     // posId
-    Input.closestPositionToPoint = function(x,y) {
-        //idebug("Input.closestPositionToPoint("+x+","+y+")");
+    function closestPositionToPoint(x,y) {
+        //idebug("closestPositionToPoint("+x+","+y+")");
         throw new Error("closestPositionToPoint: not implemented");
     }
 
     // posId
-    Input.closestPositionToPointWithinRange = function(x,y,startId,endId) {
-        //idebug("Input.closestPositionToPointWithinRange("+x+","+y+")");
+    function closestPositionToPointWithinRange(x,y,startId,endId) {
+        //idebug("closestPositionToPointWithinRange("+x+","+y+")");
         throw new Error("closestPositionToPointWithinRange: not implemented");
     }
 
     // { startId, endId }
-    Input.characterRangeAtPoint = function(x,y) {
-        //idebug("Input.characterRangeAtPoint("+x+","+y+")");
+    function characterRangeAtPoint(x,y) {
+        //idebug("characterRangeAtPoint("+x+","+y+")");
         throw new Error("characterRangeAtPoint: not implemented");
     }
 
     // posId
-    Input.positionWithinRangeAtCharacterOffset = function(startId,endId,offset) {
-        //idebug("Input.positionWithinRangeAtCharacterOffset("+startId+","+endId+","+offset+")");
+    function positionWithinRangeAtCharacterOffset(startId,endId,offset) {
+        //idebug("positionWithinRangeAtCharacterOffset("+startId+","+endId+","+offset+")");
         throw new Error("positionWithinRangeAtCharacterOffset: not implemented");
     }
 
     // int
-    Input.characterOffsetOfPositionWithinRange = function(posId,startId,endId) {
-        //idebug("Input.characterOffsetOfPositionWithinRange("+posId+","+startId+","+endId+")");
+    function characterOffsetOfPositionWithinRange(posId,startId,endId) {
+        //idebug("characterOffsetOfPositionWithinRange("+posId+","+startId+","+endId+")");
         throw new Error("characterOffsetOfPositionWithinRange: not implemented");
     }
 
@@ -391,7 +385,7 @@
                 (direction == "down"));
     }
 
-    Input.isAtWordBoundary = function(pos,direction) {
+    function isAtWordBoundary(pos,direction) {
         if (pos.node.nodeType != Node.TEXT_NODE)
             return false;
         var paragraph = Text.analyseParagraph(pos);
@@ -415,11 +409,11 @@
             return !beforeMatch;
     }
 
-    Input.isAtParagraphBoundary = function(pos,direction) {
+    function isAtParagraphBoundary(pos,direction) {
     }
 
-    Input.isPositionAtBoundaryGranularityInDirection = function(posId,granularity,direction) {
-        //idebug("Input.isPositionAtBoundaryGranularityInDirection("+
+    function isPositionAtBoundaryGranularityInDirection(posId,granularity,direction) {
+        //idebug("isPositionAtBoundaryGranularityInDirection("+
         //       posId+","+granularity+","+direction+")");
         var pos = getPosition(posId);
         if (pos == null)
@@ -433,7 +427,7 @@
             return true;
         }
         else if (granularity == "word") {
-            return Input.isAtWordBoundary(pos,direction);
+            return isAtWordBoundary(pos,direction);
         }
         else if ((granularity == "paragraph") || (granularity == "line")) {
             if (isForward(direction))
@@ -448,8 +442,8 @@
         throw new Error("unsupported granularity: "+granularity);
     }
 
-    Input.isPositionWithinTextUnitInDirection = function(posId,granularity,direction) {
-        //idebug("Input.isPositionWithinTextUnitInDirection("+
+    function isPositionWithinTextUnitInDirection(posId,granularity,direction) {
+        //idebug("isPositionWithinTextUnitInDirection("+
         //       posId+","+granularity+","+direction+")");
         var pos = getPosition(posId);
         if (pos == null)
@@ -502,7 +496,7 @@
         throw new Error("unsupported granularity: "+granularity);
     }
 
-    Input.toWordBoundary = function(pos,direction) {
+    function toWordBoundary(pos,direction) {
         pos = Text.closestPosInDirection(pos,direction);
         if (pos == null)
             return null;
@@ -548,7 +542,7 @@
         }
     }
 
-    Input.toParagraphBoundary = function(pos,direction) {
+    function toParagraphBoundary(pos,direction) {
         if (isForward(direction)) {
             var end = Text.toEndOfBoundary(pos,"paragraph");
             if (Position.equal(pos,end)) {
@@ -569,7 +563,7 @@
         }
     }
 
-    Input.toLineBoundary = function(pos,direction) {
+    function toLineBoundary(pos,direction) {
         if (isForward(direction)) {
             var end = Text.toEndOfBoundary(pos,"line");
             return end ? end : pos;
@@ -580,8 +574,8 @@
         }
     }
 
-    Input.positionFromPositionToBoundaryInDirection = function(posId,granularity,direction) {
-        //idebug("Input.positionFromPositionToBoundaryInDirection("+
+    function positionFromPositionToBoundaryInDirection(posId,granularity,direction) {
+        //idebug("positionFromPositionToBoundaryInDirection("+
         //       posId+","+granularity+","+direction+")");
         var pos = getPosition(posId);
         if (pos == null)
@@ -592,21 +586,21 @@
             granularity = "paragraph";
 
         if (granularity == "word")
-            return addPosition(Input.toWordBoundary(pos,direction));
+            return addPosition(toWordBoundary(pos,direction));
         else if (granularity == "paragraph")
-            return addPosition(Input.toParagraphBoundary(pos,direction));
+            return addPosition(toParagraphBoundary(pos,direction));
         else if (granularity == "line")
-            return addPosition(Input.toLineBoundary(pos,direction));
+            return addPosition(toLineBoundary(pos,direction));
         else if (granularity == "character")
-            return Input.positionFromPositionInDirectionOffset(posId,direction,1);
+            return positionFromPositionInDirectionOffset(posId,direction,1);
         else if (granularity == "document")
             return isForward(direction) ? BaseIdDocumentEnd : BaseIdDocumentStart;
         else
             throw new Error("unsupported granularity: "+granularity);
     }
 
-    Input.rangeEnclosingPositionWithGranularityInDirection = function(posId,granularity,direction) {
-        //idebug("Input.rangeEnclosingPositionWithGranularityInDirection("+
+    function rangeEnclosingPositionWithGranularityInDirection(posId,granularity,direction) {
+        //idebug("rangeEnclosingPositionWithGranularityInDirection("+
         //       posId+","+granularity+","+direction);
         var pos = getPosition(posId);
         if (pos == null)
@@ -679,4 +673,39 @@
         }
     }
 
-})(globalAPI);
+    exports.addPosition = addPosition;
+    exports.getPosition = getPosition;
+    exports.removePosition = removePosition;
+    exports.textInRange = textInRange;
+    exports.replaceRange = replaceRange;
+    exports.selectedTextRange = selectedTextRange;
+    exports.setSelectedTextRange = setSelectedTextRange;
+    exports.markedTextRange = markedTextRange;
+    exports.setMarkedText = setMarkedText;
+    exports.unmarkText = unmarkText;
+    exports.forwardSelectionAffinity = forwardSelectionAffinity;
+    exports.setForwardSelectionAffinity = setForwardSelectionAffinity;
+    exports.positionFromPositionOffset = positionFromPositionOffset;
+    exports.positionFromPositionInDirectionOffset = positionFromPositionInDirectionOffset;
+    exports.comparePositionToPosition = comparePositionToPosition;
+    exports.offsetFromPositionToPosition = offsetFromPositionToPosition;
+    exports.positionWithinRangeFarthestInDirection = positionWithinRangeFarthestInDirection;
+    exports.characterRangeByExtendingPositionInDirection = characterRangeByExtendingPositionInDirection;
+    exports.firstRectForRange = firstRectForRange;
+    exports.caretRectForPosition = caretRectForPosition;
+    exports.closestPositionToPoint = closestPositionToPoint;
+    exports.closestPositionToPointWithinRange = closestPositionToPointWithinRange;
+    exports.characterRangeAtPoint = characterRangeAtPoint;
+    exports.positionWithinRangeAtCharacterOffset = positionWithinRangeAtCharacterOffset;
+    exports.characterOffsetOfPositionWithinRange = characterOffsetOfPositionWithinRange;
+    exports.isAtWordBoundary = isAtWordBoundary;
+    exports.isAtParagraphBoundary = isAtParagraphBoundary;
+    exports.isPositionAtBoundaryGranularityInDirection = isPositionAtBoundaryGranularityInDirection;
+    exports.isPositionWithinTextUnitInDirection = isPositionWithinTextUnitInDirection;
+    exports.toWordBoundary = toWordBoundary;
+    exports.toParagraphBoundary = toParagraphBoundary;
+    exports.toLineBoundary = toLineBoundary;
+    exports.positionFromPositionToBoundaryInDirection = positionFromPositionToBoundaryInDirection;
+    exports.rangeEnclosingPositionWithGranularityInDirection = rangeEnclosingPositionWithGranularityInDirection;
+
+});

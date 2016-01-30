@@ -15,19 +15,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("tests.OutlineTests",function(require,exports) {
 
-    var OutlineTests = api.tests.OutlineTests; // export
+    var DOM = require("DOM");
+    var Formatting = require("Formatting");
+    var Outline = require("Outline");
+    var PostponedActions = require("PostponedActions");
+    var Selection = require("Selection");
+    var TestLib = require("tests.TestLib");
+    var Tables = require("Tables");
 
-    var DOM = api.DOM; // import
-    var Formatting = api.Formatting; // import
-    var Outline = api.Outline; // import
-    var PostponedActions = api.PostponedActions; // import
-    var Selection = api.Selection; // import
-    var TestLib = api.tests.TestLib; // import
-    var Tables = api.Tables; // import
-
-    OutlineTests.createTestSections = function(topChildren) {
+    function createTestSections(topChildren) {
         var index = 1;
 
         processChildren(1,topChildren);
@@ -68,13 +66,13 @@
         }
     }
 
-    OutlineTests.setupOutline = function(topChildren) {
+    function setupOutline(topChildren) {
         Outline.init();
         PostponedActions.perform();
-        OutlineTests.createTestSections(topChildren);
+        createTestSections(topChildren);
     }
 
-    OutlineTests.createTestFigures = function(count) {
+    function createTestFigures(count) {
         for (var i = 0; i < count; i++) {
             var figure = DOM.createElement(document,"FIGURE");
             var figcaption = DOM.createElement(document,"FIGCAPTION");
@@ -87,7 +85,7 @@
         }
     }
 
-    OutlineTests.createTestTables = function(count) {
+    function createTestTables(count) {
         for (var i = 0; i < count; i++) {
             var offset = document.body.childNodes.length;
             Selection.set(document.body,offset,document.body,offset);
@@ -109,9 +107,15 @@
         }
     }
 
-    OutlineTests.cleanupOutline = function() {
+    function cleanupOutline() {
         PostponedActions.perform();
         removeOutlineHTML(document.body);
     }
 
-})(globalAPI);
+    exports.createTestSections = createTestSections;
+    exports.setupOutline = setupOutline;
+    exports.createTestFigures = createTestFigures;
+    exports.createTestTables = createTestTables;
+    exports.cleanupOutline = cleanupOutline;
+
+});

@@ -15,15 +15,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-(function(api) {
+define("Paragraph",function(require,exports) {
 
-    var Paragraph = api.Paragraph; // export
+    var Position = require("Position");
+    var Range = require("Range");
+    var Types = require("Types");
 
-    var Position = api.Position; // import
-    var Range = api.Range; // import
-    var Types = api.Types; // import
-
-    Paragraph.runFromOffset = function(paragraph,offset,end) {
+    function runFromOffset(paragraph,offset,end) {
         if (paragraph.runs.length == 0)
             throw new Error("Paragraph has no runs");
         if (!end) {
@@ -50,7 +48,7 @@
         }
     }
 
-    Paragraph.runFromNode = function(paragraph,node) {
+    function runFromNode(paragraph,node) {
         for (var i = 0; i < paragraph.runs.length; i++) {
             if (paragraph.runs[i].node == node)
                 return paragraph.runs[i];
@@ -58,19 +56,19 @@
         throw new Error("Run for text node not found");
     }
 
-    Paragraph.positionAtOffset = function(paragraph,offset,end) {
-        var run = Paragraph.runFromOffset(paragraph,offset,end);
+    function positionAtOffset(paragraph,offset,end) {
+        var run = runFromOffset(paragraph,offset,end);
         if (run == null)
             throw new Error("Run at offset "+offset+" not found");
         return new Position.Position(run.node,offset-run.start);
     }
 
-    Paragraph.offsetAtPosition = function(paragraph,pos) {
-        var run = Paragraph.runFromNode(paragraph,pos.node);
+    function offsetAtPosition(paragraph,pos) {
+        var run = runFromNode(paragraph,pos.node);
         return run.start + pos.offset;
     }
 
-    Paragraph.getRunRects = function(paragraph) {
+    function getRunRects(paragraph) {
         var rects = new Array();
         for (var i = 0; i < paragraph.runs.length; i++) {
             var run = paragraph.runs[i];
@@ -81,8 +79,8 @@
         return rects;
     }
 
-    Paragraph.getRunOrFallbackRects = function(paragraph,pos) {
-        var rects = Paragraph.getRunRects(paragraph);
+    function getRunOrFallbackRects(paragraph,pos) {
+        var rects = getRunRects(paragraph);
         if ((rects.length == 0) && (paragraph.node.nodeType == Node.ELEMENT_NODE)) {
             if (Types.isBlockNode(paragraph.node) &&
                 (paragraph.startOffset == 0) &&
@@ -103,4 +101,11 @@
         return rects;
     }
 
-})(globalAPI);
+    exports.runFromOffset = runFromOffset;
+    exports.runFromNode = runFromNode;
+    exports.positionAtOffset = positionAtOffset;
+    exports.offsetAtPosition = offsetAtPosition;
+    exports.getRunRects = getRunRects;
+    exports.getRunOrFallbackRects = getRunOrFallbackRects;
+
+});
