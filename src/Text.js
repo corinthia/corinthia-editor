@@ -22,7 +22,6 @@
     var DOM = api.DOM; // import
     var Paragraph = api.Paragraph; // import
     var Position = api.Position; // import
-    var Range = api.Range; // import
     var Traversal = api.Traversal; // import
     var Types = api.Types; // import
     var Util = api.Util; // import
@@ -340,86 +339,6 @@
         else {
             return Text.closestPosBackwards(pos);
         }
-    }
-
-    Paragraph.runFromOffset = function(paragraph,offset,end) {
-        if (paragraph.runs.length == 0)
-            throw new Error("Paragraph has no runs");
-        if (!end) {
-
-            for (var i = 0; i < paragraph.runs.length; i++) {
-                var run = paragraph.runs[i];
-                if ((offset >= run.start) && (offset < run.end))
-                    return run;
-                if ((i == paragraph.runs.length-1) && (offset == run.end))
-                    return run;
-            }
-
-        }
-        else {
-
-            for (var i = 0; i < paragraph.runs.length; i++) {
-                var run = paragraph.runs[i];
-                if ((offset > run.start) && (offset <= run.end))
-                    return run;
-                if ((i == 0) && (offset == 0))
-                    return run;
-            }
-
-        }
-    }
-
-    Paragraph.runFromNode = function(paragraph,node) {
-        for (var i = 0; i < paragraph.runs.length; i++) {
-            if (paragraph.runs[i].node == node)
-                return paragraph.runs[i];
-        }
-        throw new Error("Run for text node not found");
-    }
-
-    Paragraph.positionAtOffset = function(paragraph,offset,end) {
-        var run = Paragraph.runFromOffset(paragraph,offset,end);
-        if (run == null)
-            throw new Error("Run at offset "+offset+" not found");
-        return new Position.Position(run.node,offset-run.start);
-    }
-
-    Paragraph.offsetAtPosition = function(paragraph,pos) {
-        var run = Paragraph.runFromNode(paragraph,pos.node);
-        return run.start + pos.offset;
-    }
-
-    Paragraph.getRunRects = function(paragraph) {
-        var rects = new Array();
-        for (var i = 0; i < paragraph.runs.length; i++) {
-            var run = paragraph.runs[i];
-            var runRange = new Range.Range(run.node,0,run.node,run.node.nodeValue.length);
-            var runRects = Range.getClientRects(runRange);
-            Array.prototype.push.apply(rects,runRects);
-        }
-        return rects;
-    }
-
-    Paragraph.getRunOrFallbackRects = function(paragraph,pos) {
-        var rects = Paragraph.getRunRects(paragraph);
-        if ((rects.length == 0) && (paragraph.node.nodeType == Node.ELEMENT_NODE)) {
-            if (Types.isBlockNode(paragraph.node) &&
-                (paragraph.startOffset == 0) &&
-                (paragraph.endOffset == paragraph.node.childNodes.length)) {
-                rects = [paragraph.node.getBoundingClientRect()];
-            }
-            else {
-                var beforeNode = paragraph.node.childNodes[paragraph.startOffset-1];
-                var afterNode = paragraph.node.childNodes[paragraph.endOffset];
-                if ((afterNode != null) && Types.isBlockNode(afterNode)) {
-                    rects = [afterNode.getBoundingClientRect()];
-                }
-                else if ((beforeNode != null) && Types.isBlockNode(beforeNode)) {
-                    rects = [beforeNode.getBoundingClientRect()];
-                }
-            }
-        }
-        return rects;
     }
 
     function toStartOfParagraph(pos) {
