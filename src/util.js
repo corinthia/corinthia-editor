@@ -271,7 +271,7 @@ define("Util",function(require,exports) {
             this.start();
 
         var now = new Date();
-        var interval = now - this.lastTime;
+        var interval = now.getTime() - this.lastTime.getTime();
         this.entries.push(new TimingEntry(name,interval));
         this.total += interval;
         this.lastTime = now;

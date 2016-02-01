@@ -202,7 +202,7 @@ function runAllTests() {
         while (statistics.firstChild != null)
             statistics.removeChild(statistics.firstChild);
         var now = new Date();
-        var elapsed = now - startTime;
+        var elapsed = now.getTime() - startTime.getTime();
         var str = "Passes: "+passes+", Failures: "+failures+
             ", Elapsed time "+(elapsed/1000)+" seconds";
         statistics.appendChild(document.createTextNode(str));
