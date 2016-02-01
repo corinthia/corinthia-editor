@@ -535,7 +535,6 @@ define("Formatting",function(require,exports) {
                 properties["font-style"] = "italic";
                 break;
             case ElementTypes.HTML_U: {
-                var components = [];
                 if (properties["text-decoration"] != null) {
                     var components = properties["text-decoration"].toLowerCase().split(/\s+/);
                     if (components.indexOf("underline") == -1)
@@ -1014,7 +1013,7 @@ define("Formatting",function(require,exports) {
 
     // private
     function containsOnlyWhitespace(ancestor) {
-        for (child = ancestor.firstChild; child != null; child = child.nextSibling) {
+        for (var child = ancestor.firstChild; child != null; child = child.nextSibling) {
             if (!Traversal.isWhitespaceTextNode(child))
                 return false;
         }
@@ -1126,7 +1125,7 @@ define("Formatting",function(require,exports) {
             }
 
             // Remove properties from paragraph nodes
-            paragraphs = removeProperties(paragraphs,paragraphProperties,{});
+            paragraphs = removeProperties(paragraphs,paragraphProperties);
 
             // Set properties on paragraph nodes
             var paragraphPropertiesToSet = new Object();
@@ -1149,6 +1148,7 @@ define("Formatting",function(require,exports) {
             mergeRange(range,MERGEABLE_INLINE);
 
             if (target != null) {
+                var next;
                 for (var p = target; p != null; p = next) {
                     next = p.parentNode;
                     mergeWithNeighbours(p,MERGEABLE_INLINE);

@@ -1146,7 +1146,7 @@ define("Outline",function(require,exports) {
 
     // private
     // FIXME: prevent a TOC from being inserted inside a heading, figure, or table
-    function insertTOC(key,initialText) {
+    function insertTOC(key) {
         var div = DOM.createElement(document,"NAV");
         DOM.setAttribute(div,"class",key);
         Cursor.makeContainerInsertionPoint();

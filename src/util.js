@@ -128,11 +128,11 @@ define("Util",function(require,exports) {
         }
     }
 
-    function isWhitespaceString(str) {
-        return (str.match(isWhitespaceString.regexp) != null);
-    }
+    var isWhitespaceStringRegexp = /^\s*$/;
 
-    isWhitespaceString.regexp = /^\s*$/;
+    function isWhitespaceString(str) {
+        return (str.match(isWhitespaceStringRegexp) != null);
+    }
 
     function normalizeWhitespace(str) {
         str = str.replace(/^\s+/,"");
@@ -213,7 +213,7 @@ define("Util",function(require,exports) {
                     continue;
                 }
 
-                destEnd = srcEnd - k;
+                var destEnd = srcEnd - k;
                 var srcStart = srcEnd;
                 var destStart = destEnd;
                 while ((srcEnd < src.length) && (destEnd < dest.length) &&
