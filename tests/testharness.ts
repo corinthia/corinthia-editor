@@ -21,6 +21,7 @@ var rightArea;
 var leftLoadedContinuation = null;
 var results = new Object();
 var allCode = null;
+var tests: any = null;
 
 function Result(actual,expected) {
     this.actual = actual;
@@ -90,7 +91,7 @@ function loadCode() {
 }
 
 function loadTestIndex() {
-    eval(readFile("index.js"));
+    tests = JSON.parse(readFile("index.json"));
 }
 
 function doPerformTest() {

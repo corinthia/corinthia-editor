@@ -61,7 +61,6 @@
         "src/viewport.ts",
         "tests/autoCorrectTests.ts",
         "tests/figuresTests.ts",
-        "tests/index.ts",
         "tests/inputTests.ts",
         "tests/outlineTests.ts",
         "tests/positionTests.ts",
