@@ -43,7 +43,7 @@ NodeSet.prototype.contains = function(node) {
 NodeSet.prototype.toArray = function() {
     var result = new Array();
     for (var id in this.members)
-        result.push(members[id]);
+        result.push(this.members[id]);
     return result;
 }
 
