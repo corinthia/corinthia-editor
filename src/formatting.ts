@@ -337,14 +337,14 @@ function moveFollowing(pos,parentCheckFn,force?) {
 
     if ((toMove.length > 0) || force) {
         if (justWhitespace && !force) {
-            for (var i = 0; i < toMove.length; i++)
+            for (let i = 0; i < toMove.length; i++)
                 DOM.insertBefore(node.parentNode,toMove[i],node.nextSibling);
         }
         else {
             var copy = DOM.shallowCopyElement(node);
             DOM.insertBefore(node.parentNode,copy,node.nextSibling);
 
-            for (var i = 0; i < toMove.length; i++)
+            for (let i = 0; i < toMove.length; i++)
                 DOM.insertBefore(copy,toMove[i],null);
             result = new Position.Position(copy,0);
         }
@@ -522,7 +522,7 @@ function getAllNodeProperties(node) {
         // canonicaliseSelector() in Styles.js always converts selectors to lowercase.
         if (node.hasAttribute("STYLE")) {
             var nodeProperties = getStyleProperties(node);
-            for (var name in nodeProperties)
+            for (let name in nodeProperties)
                 properties[name] = nodeProperties[name];
         }
 
@@ -576,7 +576,7 @@ function getAllNodeProperties(node) {
         }
         default:
             if (Types.PARAGRAPH_ELEMENTS[type]) {
-                var name = node.nodeName.toLowerCase();
+                let name = node.nodeName.toLowerCase();
                 var selector;
                 if (node.hasAttribute("class"))
                     selector = name + "." + node.getAttribute("class");

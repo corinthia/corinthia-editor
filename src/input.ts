@@ -533,11 +533,11 @@ function toWordBoundary(pos,direction) {
             return pos;
         }
         else if (beforeWord.length < remaining.length) {
-            var newOffset = offset - (remaining.length - beforeWord.length);
+            let newOffset = offset - (remaining.length - beforeWord.length);
             return Paragraph.positionAtOffset(paragraph,newOffset);
         }
         else {
-            var newOffset = offset - (remaining.length - beforeNonWord.length);
+            let newOffset = offset - (remaining.length - beforeNonWord.length);
             return Paragraph.positionAtOffset(paragraph,newOffset);
         }
     }

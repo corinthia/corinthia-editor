@@ -134,7 +134,6 @@ function checkInvalidHeadingNesting(node) {
         default:
             return true;
         }
-        break;
     default:
         return false;
     }
