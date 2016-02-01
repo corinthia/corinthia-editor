@@ -16,30 +16,30 @@
 // limitations under the License.
 
 define("tests.FiguresTests",function(require,exports) {
-    "use strict";
+"use strict";
 
-    var DOM = require("DOM");
-    var Figures = require("Figures");
-    var Selection = require("Selection");
+var DOM = require("DOM");
+var Figures = require("Figures");
+var Selection = require("Selection");
 
-    function figurePropertiesString(index) {
-        var figure = document.getElementsByTagName("FIGURE")[0];
-        var parent = figure.parentNode;
-        var offset = DOM.nodeOffset(figure);
-        Selection.set(parent,offset,parent,offset+1);
-        var properties = Figures.getProperties(Figures.getSelectedFigureId());
-        var strings = new Array();
-        var names = Object.getOwnPropertyNames(properties).sort();
-        for (var i = 0; i < names.length; i++) {
-            var name = names[i];
-            if (properties[name] == null)
-                strings.push(name+" = null");
-            else
-                strings.push(name+" = "+properties[name]);
-        }
-        return strings.join("\n");
+function figurePropertiesString(index) {
+    var figure = document.getElementsByTagName("FIGURE")[0];
+    var parent = figure.parentNode;
+    var offset = DOM.nodeOffset(figure);
+    Selection.set(parent,offset,parent,offset+1);
+    var properties = Figures.getProperties(Figures.getSelectedFigureId());
+    var strings = new Array();
+    var names = Object.getOwnPropertyNames(properties).sort();
+    for (var i = 0; i < names.length; i++) {
+        var name = names[i];
+        if (properties[name] == null)
+            strings.push(name+" = null");
+        else
+            strings.push(name+" = "+properties[name]);
     }
+    return strings.join("\n");
+}
 
-    exports.figurePropertiesString = figurePropertiesString;
+exports.figurePropertiesString = figurePropertiesString;
 
 });

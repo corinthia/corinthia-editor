@@ -16,53 +16,53 @@
 // limitations under the License.
 
 define("tests.TableTests",function(require,exports) {
-    "use strict";
+"use strict";
 
-    var DOM = require("DOM");
-    var PrettyPrinter = require("tests.PrettyPrinter");
-    var Selection = require("Selection");
-    var Tables = require("Tables");
-    var Traversal = require("Traversal");
+var DOM = require("DOM");
+var PrettyPrinter = require("tests.PrettyPrinter");
+var Selection = require("Selection");
+var Tables = require("Tables");
+var Traversal = require("Traversal");
 
-    function showSelectedTableRegion() {
-        var region = Tables.regionFromRange(Selection.get());
-        for (var row = region.top; row <= region.bottom; row++) {
-            for (var col = region.left; col <= region.right; col++) {
-                var cell = Tables.Table_get(region.structure,row,col);
-                DOM.setStyleProperties(cell.element,{"background-color": "silver"});
+function showSelectedTableRegion() {
+    var region = Tables.regionFromRange(Selection.get());
+    for (var row = region.top; row <= region.bottom; row++) {
+        for (var col = region.left; col <= region.right; col++) {
+            var cell = Tables.Table_get(region.structure,row,col);
+            DOM.setStyleProperties(cell.element,{"background-color": "silver"});
+        }
+    }
+}
+
+function getSelectedTableRegion() {
+    return Tables.regionFromRange(Selection.get());
+}
+
+function showTableStructure() {
+    var tableElement = document.getElementsByTagName("TABLE")[0];
+    var table = Tables.analyseStructure(tableElement);
+    var lines = new Array();
+    lines.push(PrettyPrinter.getHTML(document.documentElement));
+
+    for (var row = 0; row < table.numRows; row++) {
+        for (var col = 0; col < table.numCols; col++) {
+            var cell = Tables.Table_get(table,row,col);
+            if (cell == null) {
+                lines.push("Cell at ("+row+","+col+") = "+null);
+            }
+            else {
+                lines.push("Cell at ("+row+","+col+") = "+
+                           cell.rowspan+"x"+cell.colspan+" "+
+                           JSON.stringify(Traversal.getNodeText(cell.element)));
             }
         }
     }
 
-    function getSelectedTableRegion() {
-        return Tables.regionFromRange(Selection.get());
-    }
+    return lines.join("\n");
+}
 
-    function showTableStructure() {
-        var tableElement = document.getElementsByTagName("TABLE")[0];
-        var table = Tables.analyseStructure(tableElement);
-        var lines = new Array();
-        lines.push(PrettyPrinter.getHTML(document.documentElement));
-
-        for (var row = 0; row < table.numRows; row++) {
-            for (var col = 0; col < table.numCols; col++) {
-                var cell = Tables.Table_get(table,row,col);
-                if (cell == null) {
-                    lines.push("Cell at ("+row+","+col+") = "+null);
-                }
-                else {
-                    lines.push("Cell at ("+row+","+col+") = "+
-                               cell.rowspan+"x"+cell.colspan+" "+
-                               JSON.stringify(Traversal.getNodeText(cell.element)));
-                }
-            }
-        }
-
-        return lines.join("\n");
-    }
-
-    exports.showSelectedTableRegion = showSelectedTableRegion;
-    exports.getSelectedTableRegion = getSelectedTableRegion;
-    exports.showTableStructure = showTableStructure;
+exports.showSelectedTableRegion = showSelectedTableRegion;
+exports.getSelectedTableRegion = getSelectedTableRegion;
+exports.showTableStructure = showTableStructure;
 
 });

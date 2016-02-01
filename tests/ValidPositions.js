@@ -16,135 +16,135 @@
 // limitations under the License.
 
 define("tests.ValidPositions",function(require,exports) {
-    "use strict";
+"use strict";
 
-    var DOM = require("DOM");
-    var ElementTypes = require("ElementTypes");
-    var Position = require("Position");
-    var Range = require("Range");
-    var Selection = require("Selection");
-    var Types = require("Types");
-    var Util = require("Util");
+var DOM = require("DOM");
+var ElementTypes = require("ElementTypes");
+var Position = require("Position");
+var Range = require("Range");
+var Selection = require("Selection");
+var Types = require("Types");
+var Util = require("Util");
 
-    function oldInsertCharacter(character) {
-        var selectionRange = Selection.get();
-        if (selectionRange == null)
-            return;
+function oldInsertCharacter(character) {
+    var selectionRange = Selection.get();
+    if (selectionRange == null)
+        return;
 
-        if (!Range.isEmpty(selectionRange))
-            Selection.deleteContents();
-        var pos = selectionRange.start;
-        var node = pos.node;
-        var offset = pos.offset;
+    if (!Range.isEmpty(selectionRange))
+        Selection.deleteContents();
+    var pos = selectionRange.start;
+    var node = pos.node;
+    var offset = pos.offset;
 
-        if (node.nodeType == Node.ELEMENT_NODE) {
-            var prev = node.childNodes[offset-1];
-            var next = node.childNodes[offset];
-            var emptyTextNode = DOM.createTextNode(document,"");
-            if (offset >= node.childNodes.length)
-                DOM.appendChild(node,emptyTextNode);
+    if (node.nodeType == Node.ELEMENT_NODE) {
+        var prev = node.childNodes[offset-1];
+        var next = node.childNodes[offset];
+        var emptyTextNode = DOM.createTextNode(document,"");
+        if (offset >= node.childNodes.length)
+            DOM.appendChild(node,emptyTextNode);
+        else
+            DOM.insertBefore(node,emptyTextNode,node.childNodes[offset]);
+        node = emptyTextNode;
+        offset = 0;
+    }
+
+    DOM.insertCharacters(node,offset,character);
+    Selection.set(node,offset+1,node,offset+1);
+}
+
+function showValidPositions() {
+    var validPositions = new Array();
+    var pos = new Position.Position(document.body,0);
+    while (pos != null) {
+        if (Position.okForMovement(pos)) {
+//            Util.debug("Valid position: "+pos);
+            validPositions.push(pos);
+        }
+        pos = Position.next(pos);
+    }
+
+    Position.trackWhileExecuting(validPositions,function() {
+//        for (var i = 0; i < validPositions.length; i++) {
+        for (var i = validPositions.length-1; i >= 0; i--) {
+            var pos = validPositions[i];
+            Selection.setEmptySelectionAt(pos.node,pos.offset);
+            oldInsertCharacter('.');
+        }
+    });
+}
+
+function flattenTreeToString(node) {
+    var result = new Array();
+    recurse(node);
+    return result.join("").replace(/\n/g," ");
+
+    function recurse(node) {
+        switch (node._type) {
+        case ElementTypes.HTML_TEXT:
+            result.push(node.nodeValue);
+            break;
+        case ElementTypes.HTML_IMG:
+            result.push("I");
+            break;
+        default:
+            if (Types.isOpaqueNode(node)) {
+                result.push("O");
+            }
+            else if (node.nodeType == Node.ELEMENT_NODE) {
+                for (var child = node.firstChild; child != null; child = child.nextSibling) {
+                    recurse(child);
+                }
+            }
+            break;
+        }
+    }
+}
+
+function findCursorPositionErrors(text) {
+    var detail = "";
+    for (var i = 0; i < text.length; i++) {
+        var prevChar = (i > 0) ? text.charAt(i-1) : null;
+        var nextChar = (i < text.length-1) ? text.charAt(i+1) : null;
+        var curChar = text.charAt(i);
+
+        if (curChar == '.') {
+            if ((prevChar == '.') || (nextChar == '.')) {
+                // Two positions not separated by a space or character
+                detail += "^";
+            }
+            else if ((prevChar != null) && (nextChar != null) &&
+                     Util.isWhitespaceString(prevChar) && Util.isWhitespaceString(nextChar)) {
+                // A position between two spaces
+                detail += "^";
+            }
+            else {
+                // OK
+                detail += " ";
+            }
+        }
+        else if (!Util.isWhitespaceString(curChar)) {
+            if ((prevChar != '.') || (nextChar != '.'))
+                detail += "^";
             else
-                DOM.insertBefore(node,emptyTextNode,node.childNodes[offset]);
-            node = emptyTextNode;
-            offset = 0;
-        }
-
-        DOM.insertCharacters(node,offset,character);
-        Selection.set(node,offset+1,node,offset+1);
-    }
-
-    function showValidPositions() {
-        var validPositions = new Array();
-        var pos = new Position.Position(document.body,0);
-        while (pos != null) {
-            if (Position.okForMovement(pos)) {
-    //            Util.debug("Valid position: "+pos);
-                validPositions.push(pos);
-            }
-            pos = Position.next(pos);
-        }
-
-        Position.trackWhileExecuting(validPositions,function() {
-    //        for (var i = 0; i < validPositions.length; i++) {
-            for (var i = validPositions.length-1; i >= 0; i--) {
-                var pos = validPositions[i];
-                Selection.setEmptySelectionAt(pos.node,pos.offset);
-                oldInsertCharacter('.');
-            }
-        });
-    }
-
-    function flattenTreeToString(node) {
-        var result = new Array();
-        recurse(node);
-        return result.join("").replace(/\n/g," ");
-
-        function recurse(node) {
-            switch (node._type) {
-            case ElementTypes.HTML_TEXT:
-                result.push(node.nodeValue);
-                break;
-            case ElementTypes.HTML_IMG:
-                result.push("I");
-                break;
-            default:
-                if (Types.isOpaqueNode(node)) {
-                    result.push("O");
-                }
-                else if (node.nodeType == Node.ELEMENT_NODE) {
-                    for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                        recurse(child);
-                    }
-                }
-                break;
-            }
+                detail += " ";
         }
     }
+    return detail;
+}
 
-    function findCursorPositionErrors(text) {
-        var detail = "";
-        for (var i = 0; i < text.length; i++) {
-            var prevChar = (i > 0) ? text.charAt(i-1) : null;
-            var nextChar = (i < text.length-1) ? text.charAt(i+1) : null;
-            var curChar = text.charAt(i);
+function checkCursorPositions(node) {
+    var text = flattenTreeToString(document.body);
+    var detail = findCursorPositionErrors(text);
+    return text+"\n"+detail;
+}
 
-            if (curChar == '.') {
-                if ((prevChar == '.') || (nextChar == '.')) {
-                    // Two positions not separated by a space or character
-                    detail += "^";
-                }
-                else if ((prevChar != null) && (nextChar != null) &&
-                         Util.isWhitespaceString(prevChar) && Util.isWhitespaceString(nextChar)) {
-                    // A position between two spaces
-                    detail += "^";
-                }
-                else {
-                    // OK
-                    detail += " ";
-                }
-            }
-            else if (!Util.isWhitespaceString(curChar)) {
-                if ((prevChar != '.') || (nextChar != '.'))
-                    detail += "^";
-                else
-                    detail += " ";
-            }
-        }
-        return detail;
-    }
+function addEmptyTextNode(parent) {
+    var text = DOM.createTextNode(document,"");
+    DOM.appendChild(parent,text);
+}
 
-    function checkCursorPositions(node) {
-        var text = flattenTreeToString(document.body);
-        var detail = findCursorPositionErrors(text);
-        return text+"\n"+detail;
-    }
-
-    function addEmptyTextNode(parent) {
-        var text = DOM.createTextNode(document,"");
-        DOM.appendChild(parent,text);
-    }
-
-    exports.showValidPositions = showValidPositions;
-    exports.addEmptyTextNode = addEmptyTextNode;
+exports.showValidPositions = showValidPositions;
+exports.addEmptyTextNode = addEmptyTextNode;
 
 });

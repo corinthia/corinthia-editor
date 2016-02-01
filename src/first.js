@@ -50,33 +50,33 @@ var define;
 
 (function() {
 
-    function getOrCreateModule(name) {
-        if (typeof(name) !== "string")
-            throw new Error("name is not a string: "+(typeof name));
+function getOrCreateModule(name) {
+    if (typeof(name) !== "string")
+        throw new Error("name is not a string: "+(typeof name));
 
-        var path = name.split(".");
-        // console.log("path = "+JSON.stringify(path));
-        var mod = globalAPI;
-        for (var i = 0; i < path.length; i++) {
-            if (mod[path[i]] === undefined)
-                mod[path[i]] = {};
-            mod = mod[path[i]];
-            // console.log("path[i] = "+path[i]);
-            // console.log("mod = ",mod);
-        }
-        return mod;
+    var path = name.split(".");
+    // console.log("path = "+JSON.stringify(path));
+    var mod = globalAPI;
+    for (var i = 0; i < path.length; i++) {
+        if (mod[path[i]] === undefined)
+            mod[path[i]] = {};
+        mod = mod[path[i]];
+        // console.log("path[i] = "+path[i]);
+        // console.log("mod = ",mod);
     }
+    return mod;
+}
 
-    function require(name) {
-        return getOrCreateModule(name);
-    }
+function require(name) {
+    return getOrCreateModule(name);
+}
 
-    define = function(name,fn) {
-        if (!(fn instanceof Function))
-            throw new Error("fn is not a function: "+(typeof fn));
+define = function(name,fn) {
+    if (!(fn instanceof Function))
+        throw new Error("fn is not a function: "+(typeof fn));
 
-        var mod = getOrCreateModule(name);
-        fn(require,mod,null);
-    }
+    var mod = getOrCreateModule(name);
+    fn(require,mod,null);
+}
 
 })();

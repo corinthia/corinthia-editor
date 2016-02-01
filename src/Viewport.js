@@ -16,68 +16,68 @@
 // limitations under the License.
 
 define("Viewport",function(require,exports) {
-    "use strict";
+"use strict";
 
-    var Cursor = require("Cursor");
-    var DOM = require("DOM");
-    var ElementTypes = require("ElementTypes");
-    var Selection = require("Selection");
+var Cursor = require("Cursor");
+var DOM = require("DOM");
+var ElementTypes = require("ElementTypes");
+var Selection = require("Selection");
 
-    var viewportMetaElement = null;
+var viewportMetaElement = null;
 
-    // public
-    function init(width,textScale) {
-        var head = DOM.documentHead(document);
-        for (var child = head.firstChild; child != null; child = child.nextSibling) {
-            if ((child._type == ElementTypes.HTML_META) && (child.getAttribute("name") == "viewport")) {
-                viewportMetaElement = child;
-                break;
-            }
-        }
-
-        if (viewportMetaElement == null) {
-            viewportMetaElement = DOM.createElement(document,"META");
-            DOM.setAttribute(viewportMetaElement,"name","viewport");
-            DOM.appendChild(head,viewportMetaElement);
-        }
-
-        if (width != 0) {
-            // Only set the width and text scale if they are not already set, to avoid triggering
-            // an extra layout at load time
-            var contentValue = "width = "+width+", user-scalable = no";
-            if (viewportMetaElement.getAttribute("content") != contentValue)
-                DOM.setAttribute(viewportMetaElement,"content",contentValue);
-        }
-
-        if (textScale != 0) {
-            var pct = textScale+"%";
-            if (document.documentElement.style.getPropertyValue("-webkit-text-size-adjust") != pct)
-                DOM.setStyleProperties(document.documentElement,{"-webkit-text-size-adjust": pct});
+// public
+function init(width,textScale) {
+    var head = DOM.documentHead(document);
+    for (var child = head.firstChild; child != null; child = child.nextSibling) {
+        if ((child._type == ElementTypes.HTML_META) && (child.getAttribute("name") == "viewport")) {
+            viewportMetaElement = child;
+            break;
         }
     }
 
-    // public
-    function setViewportWidth(width) {
+    if (viewportMetaElement == null) {
+        viewportMetaElement = DOM.createElement(document,"META");
+        DOM.setAttribute(viewportMetaElement,"name","viewport");
+        DOM.appendChild(head,viewportMetaElement);
+    }
+
+    if (width != 0) {
+        // Only set the width and text scale if they are not already set, to avoid triggering
+        // an extra layout at load time
         var contentValue = "width = "+width+", user-scalable = no";
         if (viewportMetaElement.getAttribute("content") != contentValue)
             DOM.setAttribute(viewportMetaElement,"content",contentValue);
-
-        Selection.update();
-        Cursor.ensureCursorVisible();
     }
 
-    // public
-    function setTextScale(textScale) {
+    if (textScale != 0) {
         var pct = textScale+"%";
         if (document.documentElement.style.getPropertyValue("-webkit-text-size-adjust") != pct)
             DOM.setStyleProperties(document.documentElement,{"-webkit-text-size-adjust": pct});
-
-        Selection.update();
-        Cursor.ensureCursorVisible();
     }
+}
 
-    exports.init = init;
-    exports.setViewportWidth = setViewportWidth;
-    exports.setTextScale = setTextScale;
+// public
+function setViewportWidth(width) {
+    var contentValue = "width = "+width+", user-scalable = no";
+    if (viewportMetaElement.getAttribute("content") != contentValue)
+        DOM.setAttribute(viewportMetaElement,"content",contentValue);
+
+    Selection.update();
+    Cursor.ensureCursorVisible();
+}
+
+// public
+function setTextScale(textScale) {
+    var pct = textScale+"%";
+    if (document.documentElement.style.getPropertyValue("-webkit-text-size-adjust") != pct)
+        DOM.setStyleProperties(document.documentElement,{"-webkit-text-size-adjust": pct});
+
+    Selection.update();
+    Cursor.ensureCursorVisible();
+}
+
+exports.init = init;
+exports.setViewportWidth = setViewportWidth;
+exports.setTextScale = setTextScale;
 
 });

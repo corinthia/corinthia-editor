@@ -16,43 +16,43 @@
 // limitations under the License.
 
 define("tests.AutoCorrectTests",function(require,exports) {
-    "use strict";
+"use strict";
 
-    var AutoCorrect = require("AutoCorrect");
-    var PrettyPrinter = require("tests.PrettyPrinter");
+var AutoCorrect = require("AutoCorrect");
+var PrettyPrinter = require("tests.PrettyPrinter");
 
-    function findTextMatching(re) {
-        return recurse(document.body);
+function findTextMatching(re) {
+    return recurse(document.body);
 
-        function recurse(node) {
-            if (node.nodeType == Node.TEXT_NODE) {
-                if (node.nodeValue.match(re))
-                    return node;
-                else
-                    return null;
-            }
-            else {
-                for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                    var result = recurse(child);
-                    if (result != null)
-                        return result;
-                }
+    function recurse(node) {
+        if (node.nodeType == Node.TEXT_NODE) {
+            if (node.nodeValue.match(re))
+                return node;
+            else
                 return null;
+        }
+        else {
+            for (var child = node.firstChild; child != null; child = child.nextSibling) {
+                var result = recurse(child);
+                if (result != null)
+                    return result;
             }
+            return null;
         }
     }
+}
 
-    function showCorrections() {
-        var corrections = AutoCorrect.getCorrections();
-        var lines = new Array();
-        lines.push("Corrections:\n");
-        for (var i = 0; i < corrections.length; i++) {
-            lines.push("    "+corrections[i].original+" -> "+corrections[i].replacement+"\n");
-        }
-        return PrettyPrinter.getHTML(document.documentElement)+"\n"+lines.join("");
+function showCorrections() {
+    var corrections = AutoCorrect.getCorrections();
+    var lines = new Array();
+    lines.push("Corrections:\n");
+    for (var i = 0; i < corrections.length; i++) {
+        lines.push("    "+corrections[i].original+" -> "+corrections[i].replacement+"\n");
     }
+    return PrettyPrinter.getHTML(document.documentElement)+"\n"+lines.join("");
+}
 
-    exports.findTextMatching = findTextMatching;
-    exports.showCorrections = showCorrections;
+exports.findTextMatching = findTextMatching;
+exports.showCorrections = showCorrections;
 
 });

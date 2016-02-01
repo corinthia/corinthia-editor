@@ -16,16 +16,16 @@
 // limitations under the License.
 
 define("Metadata",function(require,exports) {
-    "use strict";
+"use strict";
 
-    function getMetadata() {
-        return {};
-    }
+function getMetadata() {
+    return {};
+}
 
-    function setMetadata(metadata) {
-    }
+function setMetadata(metadata) {
+}
 
-    exports.getMetadata = getMetadata;
-    exports.setMetadata = setMetadata;
+exports.getMetadata = getMetadata;
+exports.setMetadata = setMetadata;
 
 });

@@ -16,32 +16,32 @@
 // limitations under the License.
 
 define("tests.TextTests",function(require,exports) {
-    "use strict";
+"use strict";
 
-    var Selection = require("Selection");
-    var Text = require("Text");
+var Selection = require("Selection");
+var Text = require("Text");
 
-    function showRuns() {
-        var range = Selection.get();
-        var paragraph = Text.analyseParagraph(range.start);
-        var runs = paragraph.runs;
-        var lines = new Array();
-        for (var i = 0; i < runs.length; i++) {
+function showRuns() {
+    var range = Selection.get();
+    var paragraph = Text.analyseParagraph(range.start);
+    var runs = paragraph.runs;
+    var lines = new Array();
+    for (var i = 0; i < runs.length; i++) {
 
-            var elementNames = new Array();
-            for (var anc = runs[i].node.parentNode; anc != paragraph.node; anc = anc.parentNode) {
-                elementNames.push(anc.nodeName+" ");
-            }
-
-            lines.push("Run "+i+" ("+runs[i].start+"): "+
-                       elementNames.reverse().join("")+
-                       JSON.stringify(runs[i].node.nodeValue));
+        var elementNames = new Array();
+        for (var anc = runs[i].node.parentNode; anc != paragraph.node; anc = anc.parentNode) {
+            elementNames.push(anc.nodeName+" ");
         }
-        lines.push("");
-        lines.push("Text: "+JSON.stringify(paragraph.text));
-        return lines.join("\n");
-    }
 
-    exports.showRuns = showRuns;
+        lines.push("Run "+i+" ("+runs[i].start+"): "+
+                   elementNames.reverse().join("")+
+                   JSON.stringify(runs[i].node.nodeValue));
+    }
+    lines.push("");
+    lines.push("Text: "+JSON.stringify(paragraph.text));
+    return lines.join("\n");
+}
+
+exports.showRuns = showRuns;
 
 });

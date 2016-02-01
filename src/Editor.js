@@ -16,85 +16,85 @@
 // limitations under the License.
 
 define("Editor",function(require,exports) {
-    "use strict";
+"use strict";
 
-    var Util = require("Util");
+var Util = require("Util");
 
-    var backMessages = new Array();
+var backMessages = new Array();
 
-    function addBackMessage() {
-        backMessages.push(Util.arrayCopy(arguments));
-        return null;
-    }
+function addBackMessage() {
+    backMessages.push(Util.arrayCopy(arguments));
+    return null;
+}
 
-    function getBackMessages() {
-        var result = JSON.stringify(backMessages);
-        backMessages = new Array();
-        return result;
-    };
+function getBackMessages() {
+    var result = JSON.stringify(backMessages);
+    backMessages = new Array();
+    return result;
+};
 
-    function debug(str) {
-        addBackMessage("debug",str);
-    };
+function debug(str) {
+    addBackMessage("debug",str);
+};
 
-    function error(error,type) {
-        if (type == null)
-            type = "";
-        addBackMessage("error",error.toString(),type);
-    };
+function error(error,type) {
+    if (type == null)
+        type = "";
+    addBackMessage("error",error.toString(),type);
+};
 
-    function addOutlineItem(itemId,type,title) {
-        addBackMessage("addOutlineItem",itemId,type,title);
-    };
+function addOutlineItem(itemId,type,title) {
+    addBackMessage("addOutlineItem",itemId,type,title);
+};
 
-    function updateOutlineItem(itemId,title) {
-        addBackMessage("updateOutlineItem",itemId,title);
-    };
+function updateOutlineItem(itemId,title) {
+    addBackMessage("updateOutlineItem",itemId,title);
+};
 
-    function removeOutlineItem(itemId) {
-        addBackMessage("removeOutlineItem",itemId);
-    };
+function removeOutlineItem(itemId) {
+    addBackMessage("removeOutlineItem",itemId);
+};
 
-    function outlineUpdated() {
-        addBackMessage("outlineUpdated");
-    };
+function outlineUpdated() {
+    addBackMessage("outlineUpdated");
+};
 
-    function setCursor(x,y,width,height) {
-        addBackMessage("setCursor",x,y,width,height);
-    };
+function setCursor(x,y,width,height) {
+    addBackMessage("setCursor",x,y,width,height);
+};
 
-    function setSelectionHandles(x1,y1,height1,x2,y2,height2) {
-        addBackMessage("setSelectionHandles",x1,y1,height1,x2,y2,height2);
-    };
+function setSelectionHandles(x1,y1,height1,x2,y2,height2) {
+    addBackMessage("setSelectionHandles",x1,y1,height1,x2,y2,height2);
+};
 
-    function setTableSelection(x,y,width,height) {
-        addBackMessage("setTableSelection",x,y,width,height);
-    };
+function setTableSelection(x,y,width,height) {
+    addBackMessage("setTableSelection",x,y,width,height);
+};
 
-    function setSelectionBounds(left,top,right,bottom) {
-        addBackMessage("setSelectionBounds",left,top,right,bottom);
-    };
+function setSelectionBounds(left,top,right,bottom) {
+    addBackMessage("setSelectionBounds",left,top,right,bottom);
+};
 
-    function clearSelectionHandlesAndCursor() {
-        addBackMessage("clearSelectionHandlesAndCursor");
-    };
+function clearSelectionHandlesAndCursor() {
+    addBackMessage("clearSelectionHandlesAndCursor");
+};
 
-    function updateAutoCorrect() {
-        addBackMessage("updateAutoCorrect");
-    };
+function updateAutoCorrect() {
+    addBackMessage("updateAutoCorrect");
+};
 
-    exports.getBackMessages = getBackMessages;
-    exports.debug = debug;
-    exports.error = error;
-    exports.addOutlineItem = addOutlineItem;
-    exports.updateOutlineItem = updateOutlineItem;
-    exports.removeOutlineItem = removeOutlineItem;
-    exports.outlineUpdated = outlineUpdated;
-    exports.setCursor = setCursor;
-    exports.setSelectionHandles = setSelectionHandles;
-    exports.setTableSelection = setTableSelection;
-    exports.setSelectionBounds = setSelectionBounds;
-    exports.clearSelectionHandlesAndCursor = clearSelectionHandlesAndCursor;
-    exports.updateAutoCorrect = updateAutoCorrect;
+exports.getBackMessages = getBackMessages;
+exports.debug = debug;
+exports.error = error;
+exports.addOutlineItem = addOutlineItem;
+exports.updateOutlineItem = updateOutlineItem;
+exports.removeOutlineItem = removeOutlineItem;
+exports.outlineUpdated = outlineUpdated;
+exports.setCursor = setCursor;
+exports.setSelectionHandles = setSelectionHandles;
+exports.setTableSelection = setTableSelection;
+exports.setSelectionBounds = setSelectionBounds;
+exports.clearSelectionHandlesAndCursor = clearSelectionHandlesAndCursor;
+exports.updateAutoCorrect = updateAutoCorrect;
 
 });

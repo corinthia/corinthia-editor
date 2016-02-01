@@ -16,114 +16,114 @@
 // limitations under the License.
 
 define("ChangeTracking",function(require,exports) {
-    "use strict";
+"use strict";
 
-    var DOM = require("DOM");
-    var ElementTypes = require("ElementTypes");
-    var Position = require("Position");
-    var Range = require("Range");
-    var Selection = require("Selection");
-    var Traversal = require("Traversal");
+var DOM = require("DOM");
+var ElementTypes = require("ElementTypes");
+var Position = require("Position");
+var Range = require("Range");
+var Selection = require("Selection");
+var Traversal = require("Traversal");
 
-    var showChangesEnabled = false;
-    var trackChangesEnabled = false;
+var showChangesEnabled = false;
+var trackChangesEnabled = false;
 
-    function showChanges() {
-        return showChangesEnabled;
-    }
+function showChanges() {
+    return showChangesEnabled;
+}
 
-    function trackChanges() {
-        return trackChangesEnabled;
-    }
+function trackChanges() {
+    return trackChangesEnabled;
+}
 
-    function setShowChanges(enabled) {
-        showChangesEnabled = enabled;
-    }
+function setShowChanges(enabled) {
+    showChangesEnabled = enabled;
+}
 
-    function setTrackChanges(enabled) {
-        trackChangesEnabled = enabled;
-    }
+function setTrackChanges(enabled) {
+    trackChangesEnabled = enabled;
+}
 
-    function acceptSelectedChanges() {
-        var selRange = Selection.get();
-        if (selRange == null)
-            return;
+function acceptSelectedChanges() {
+    var selRange = Selection.get();
+    if (selRange == null)
+        return;
 
-        var outermost = Range.getOutermostNodes(selRange,true);
-        var checkEmpty = new Array();
+    var outermost = Range.getOutermostNodes(selRange,true);
+    var checkEmpty = new Array();
 
-        Selection.preserveWhileExecuting(function() {
-            for (var i = 0; i < outermost.length; i++) {
-                recurse(outermost[i]);
-
-                var next;
-                for (var ancestor = outermost[i].parentNode; ancestor != null; ancestor = next) {
-                    next = ancestor.parentNode;
-                    if (ancestor._type == ElementTypes.HTML_DEL) {
-                        checkEmpty.push(ancestor.parentNode);
-                        DOM.deleteNode(ancestor);
-                    }
-                    else if (ancestor._type == ElementTypes.HTML_INS)
-                        DOM.removeNodeButKeepChildren(ancestor);
-                }
-            }
-
-            for (var i = 0; i < checkEmpty.length; i++) {
-                var node = checkEmpty[i];
-                if (node == null)
-                    continue;
-                var empty = true;
-                for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                    if (!Traversal.isWhitespaceTextNode(child)) {
-                        empty = false;
-                        break;
-                    }
-                }
-                if (empty) {
-                    switch (node._type) {
-                    case ElementTypes.HTML_LI:
-                    case ElementTypes.HTML_UL:
-                    case ElementTypes.HTML_OL:
-                        checkEmpty.push(node.parentNode);
-                        DOM.deleteNode(node);
-                        break;
-                    }
-                }
-            }
-        });
-
-        var selRange = Selection.get();
-        if (selRange != null) {
-            var start = Position.closestMatchForwards(selRange.start,Position.okForInsertion);
-            var end = Position.closestMatchBackwards(selRange.end,Position.okForInsertion);
-            if (!Range.isForwards(new Range.Range(start.node,start.offset,end.node,end.offset)))
-                end = Position.closestMatchForwards(selRange.end,Position.okForInsertion);
-            Selection.set(start.node,start.offset,end.node,end.offset);
-        }
-
-        function recurse(node) {
-            if (node._type == ElementTypes.HTML_DEL) {
-                checkEmpty.push(node.parentNode);
-                DOM.deleteNode(node);
-                return;
-            }
+    Selection.preserveWhileExecuting(function() {
+        for (var i = 0; i < outermost.length; i++) {
+            recurse(outermost[i]);
 
             var next;
-            for (var child = node.firstChild; child != null; child = next) {
-                next = child.nextSibling;
-                recurse(child);
-            }
-
-            if (node._type == ElementTypes.HTML_INS) {
-                DOM.removeNodeButKeepChildren(node);
+            for (var ancestor = outermost[i].parentNode; ancestor != null; ancestor = next) {
+                next = ancestor.parentNode;
+                if (ancestor._type == ElementTypes.HTML_DEL) {
+                    checkEmpty.push(ancestor.parentNode);
+                    DOM.deleteNode(ancestor);
+                }
+                else if (ancestor._type == ElementTypes.HTML_INS)
+                    DOM.removeNodeButKeepChildren(ancestor);
             }
         }
+
+        for (var i = 0; i < checkEmpty.length; i++) {
+            var node = checkEmpty[i];
+            if (node == null)
+                continue;
+            var empty = true;
+            for (var child = node.firstChild; child != null; child = child.nextSibling) {
+                if (!Traversal.isWhitespaceTextNode(child)) {
+                    empty = false;
+                    break;
+                }
+            }
+            if (empty) {
+                switch (node._type) {
+                case ElementTypes.HTML_LI:
+                case ElementTypes.HTML_UL:
+                case ElementTypes.HTML_OL:
+                    checkEmpty.push(node.parentNode);
+                    DOM.deleteNode(node);
+                    break;
+                }
+            }
+        }
+    });
+
+    var selRange = Selection.get();
+    if (selRange != null) {
+        var start = Position.closestMatchForwards(selRange.start,Position.okForInsertion);
+        var end = Position.closestMatchBackwards(selRange.end,Position.okForInsertion);
+        if (!Range.isForwards(new Range.Range(start.node,start.offset,end.node,end.offset)))
+            end = Position.closestMatchForwards(selRange.end,Position.okForInsertion);
+        Selection.set(start.node,start.offset,end.node,end.offset);
     }
 
-    exports.showChanges = showChanges;
-    exports.trackChanges = trackChanges;
-    exports.setShowChanges = setShowChanges;
-    exports.setTrackChanges = setTrackChanges;
-    exports.acceptSelectedChanges = acceptSelectedChanges;
+    function recurse(node) {
+        if (node._type == ElementTypes.HTML_DEL) {
+            checkEmpty.push(node.parentNode);
+            DOM.deleteNode(node);
+            return;
+        }
+
+        var next;
+        for (var child = node.firstChild; child != null; child = next) {
+            next = child.nextSibling;
+            recurse(child);
+        }
+
+        if (node._type == ElementTypes.HTML_INS) {
+            DOM.removeNodeButKeepChildren(node);
+        }
+    }
+}
+
+exports.showChanges = showChanges;
+exports.trackChanges = trackChanges;
+exports.setShowChanges = setShowChanges;
+exports.setTrackChanges = setTrackChanges;
+exports.acceptSelectedChanges = acceptSelectedChanges;
 
 });

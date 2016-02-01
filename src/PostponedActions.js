@@ -16,40 +16,40 @@
 // limitations under the License.
 
 define("PostponedActions",function(require,exports) {
-    "use strict";
+"use strict";
 
-    var UndoManager = require("UndoManager");
+var UndoManager = require("UndoManager");
 
-    function PostponedAction(fun,undoDisabled) {
-        this.fun = fun;
-        this.undoDisabled = undoDisabled;
-    }
+function PostponedAction(fun,undoDisabled) {
+    this.fun = fun;
+    this.undoDisabled = undoDisabled;
+}
 
-    var actions = new Array();
+var actions = new Array();
 
-    function add(action) {
-        actions.push(new PostponedAction(action,UndoManager.isDisabled()));
-    }
+function add(action) {
+    actions.push(new PostponedAction(action,UndoManager.isDisabled()));
+}
 
-    function perform() {
-        var count = 0;
-        while (actions.length > 0) {
-            if (count >= 10)
-                throw new Error("Too many postponed actions");
-            var actionsToPerform = actions;
-            actions = new Array();
-            for (var i = 0; i < actionsToPerform.length; i++) {
-                var action = actionsToPerform[i];
-                if (action.undoDisabled)
-                    UndoManager.disableWhileExecuting(action.fun);
-                else
-                    action.fun();
-            }
-            count++;
+function perform() {
+    var count = 0;
+    while (actions.length > 0) {
+        if (count >= 10)
+            throw new Error("Too many postponed actions");
+        var actionsToPerform = actions;
+        actions = new Array();
+        for (var i = 0; i < actionsToPerform.length; i++) {
+            var action = actionsToPerform[i];
+            if (action.undoDisabled)
+                UndoManager.disableWhileExecuting(action.fun);
+            else
+                action.fun();
         }
+        count++;
     }
+}
 
-    exports.add = add;
-    exports.perform = perform;
+exports.add = add;
+exports.perform = perform;
 
 });

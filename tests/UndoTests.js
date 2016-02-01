@@ -16,89 +16,89 @@
 // limitations under the License.
 
 define("tests.UndoTests",function(require,exports) {
-    "use strict";
+"use strict";
 
-    var AutoCorrect = require("AutoCorrect");
-    var DOM = require("DOM");
-    var Outline = require("Outline");
-    var PostponedActions = require("PostponedActions");
-    var PrettyPrinter = require("tests.PrettyPrinter");
-    var Selection = require("Selection");
-    var UndoManager = require("UndoManager");
+var AutoCorrect = require("AutoCorrect");
+var DOM = require("DOM");
+var Outline = require("Outline");
+var PostponedActions = require("PostponedActions");
+var PrettyPrinter = require("tests.PrettyPrinter");
+var Selection = require("Selection");
+var UndoManager = require("UndoManager");
 
-    function testUndo(versions,node) {
-        var numSteps = UndoManager.getLength();
+function testUndo(versions,node) {
+    var numSteps = UndoManager.getLength();
 
-        var back1 = new Array();
-        var forwards2 = new Array();
-        var back2 = new Array();
+    var back1 = new Array();
+    var forwards2 = new Array();
+    var back2 = new Array();
 
-        var expected = new Array();
-        for (var i = 0; i < versions.length; i++)
-            expected.push(PrettyPrinter.getHTML(versions[i]));
+    var expected = new Array();
+    for (var i = 0; i < versions.length; i++)
+        expected.push(PrettyPrinter.getHTML(versions[i]));
 
-        for (var i = 0; i < numSteps; i++) {
-            UndoManager.undo();
-            PostponedActions.perform();
-            var version = versions.length-2-i;
-            if (PrettyPrinter.getHTML(node) == expected[version])
-                back1.push(DOM.createTextNode(document,"First undo to version "+version+": OK"));
-            else
-                back1.push(DOM.createTextNode(document,"First undo to version "+version+": INVALID"));
-        }
-
-        for (var i = 0; i < numSteps; i++) {
-            UndoManager.redo();
-            PostponedActions.perform();
-            var version = i+1;
-            if (PrettyPrinter.getHTML(node) == expected[version])
-                forwards2.push(DOM.createTextNode(document,"Redo to version "+version+": OK"));
-            else
-                forwards2.push(DOM.createTextNode(document,"Redo to version "+version+": INVALID"));
-        }
-
-        for (var i = 0; i < numSteps; i++) {
-            UndoManager.undo();
-            PostponedActions.perform();
-            var version = versions.length-2-i;
-            if (PrettyPrinter.getHTML(node) == expected[version])
-                back2.push(DOM.createTextNode(document,"Second undo to version "+version+": OK"));
-            else
-                back2.push(DOM.createTextNode(document,"Second undo to version "+version+": INVALID"));
-        }
-
-        var initialLength = versions.length;
-
-        Array.prototype.push.apply(versions,back1);
-        Array.prototype.push.apply(versions,forwards2);
-        Array.prototype.push.apply(versions,back2);
-
-        Outline.removeListeners(); // prevent it from adding number spans etc.
-        AutoCorrect.removeListeners();
-        DOM.deleteAllChildren(document.body);
-        for (var i = 0; i < versions.length; i++) {
-            if (i < initialLength) {
-                var str = "==================== Version "+i+" ====================";
-                DOM.appendChild(document.body,DOM.createTextNode(document,str));
-            }
-            else if (i == initialLength) {
-                var str = "===================================================";
-                DOM.appendChild(document.body,DOM.createTextNode(document,str));
-            }
-            DOM.appendChild(document.body,versions[i]);
-        }
+    for (var i = 0; i < numSteps; i++) {
+        UndoManager.undo();
+        PostponedActions.perform();
+        var version = versions.length-2-i;
+        if (PrettyPrinter.getHTML(node) == expected[version])
+            back1.push(DOM.createTextNode(document,"First undo to version "+version+": OK"));
+        else
+            back1.push(DOM.createTextNode(document,"First undo to version "+version+": INVALID"));
     }
 
-    function placeCursorAfterElement(id) {
-        UndoManager.disableWhileExecuting(function() {
-            var element = document.getElementById(id);
-            var node = element.parentNode;
-            var offset = DOM.nodeOffset(element)+1;
-            Selection.set(node,offset,node,offset);
-        });
+    for (var i = 0; i < numSteps; i++) {
+        UndoManager.redo();
+        PostponedActions.perform();
+        var version = i+1;
+        if (PrettyPrinter.getHTML(node) == expected[version])
+            forwards2.push(DOM.createTextNode(document,"Redo to version "+version+": OK"));
+        else
+            forwards2.push(DOM.createTextNode(document,"Redo to version "+version+": INVALID"));
     }
 
-    exports.testUndo = testUndo;
-    exports.placeCursorAfterElement = placeCursorAfterElement;
+    for (var i = 0; i < numSteps; i++) {
+        UndoManager.undo();
+        PostponedActions.perform();
+        var version = versions.length-2-i;
+        if (PrettyPrinter.getHTML(node) == expected[version])
+            back2.push(DOM.createTextNode(document,"Second undo to version "+version+": OK"));
+        else
+            back2.push(DOM.createTextNode(document,"Second undo to version "+version+": INVALID"));
+    }
+
+    var initialLength = versions.length;
+
+    Array.prototype.push.apply(versions,back1);
+    Array.prototype.push.apply(versions,forwards2);
+    Array.prototype.push.apply(versions,back2);
+
+    Outline.removeListeners(); // prevent it from adding number spans etc.
+    AutoCorrect.removeListeners();
+    DOM.deleteAllChildren(document.body);
+    for (var i = 0; i < versions.length; i++) {
+        if (i < initialLength) {
+            var str = "==================== Version "+i+" ====================";
+            DOM.appendChild(document.body,DOM.createTextNode(document,str));
+        }
+        else if (i == initialLength) {
+            var str = "===================================================";
+            DOM.appendChild(document.body,DOM.createTextNode(document,str));
+        }
+        DOM.appendChild(document.body,versions[i]);
+    }
+}
+
+function placeCursorAfterElement(id) {
+    UndoManager.disableWhileExecuting(function() {
+        var element = document.getElementById(id);
+        var node = element.parentNode;
+        var offset = DOM.nodeOffset(element)+1;
+        Selection.set(node,offset,node,offset);
+    });
+}
+
+exports.testUndo = testUndo;
+exports.placeCursorAfterElement = placeCursorAfterElement;
 
 });

@@ -16,27 +16,27 @@
 // limitations under the License.
 
 define("tests.ScanTests",function(require,exports) {
-    "use strict";
+"use strict";
 
-    var Scan = require("Scan");
+var Scan = require("Scan");
 
-    function testNext() {
-        var result = new Array();
-        Scan.reset();
-        var index = 0;
-        while (true) {
-            var paragraph = Scan.next();
-            if (paragraph == null)
-                break;
-            if (paragraph.sectionId != null)
-                result.push(index+" ("+paragraph.sectionId+"): "+JSON.stringify(paragraph.text));
-            else
-                result.push(index+": "+JSON.stringify(paragraph.text));
-            index++;
-        }
-        return result.join("\n");
+function testNext() {
+    var result = new Array();
+    Scan.reset();
+    var index = 0;
+    while (true) {
+        var paragraph = Scan.next();
+        if (paragraph == null)
+            break;
+        if (paragraph.sectionId != null)
+            result.push(index+" ("+paragraph.sectionId+"): "+JSON.stringify(paragraph.text));
+        else
+            result.push(index+": "+JSON.stringify(paragraph.text));
+        index++;
     }
+    return result.join("\n");
+}
 
-    exports.testNext = testNext;
+exports.testNext = testNext;
 
 });
