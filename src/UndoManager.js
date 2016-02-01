@@ -249,7 +249,6 @@ define("UndoManager",function(require,exports) {
     exports.clear = clear;
     exports.setProperty = setProperty;
     exports.deleteProperty = deleteProperty;
+    exports.undoSupported = true;
 
 });
-
-window.undoSupported = true;

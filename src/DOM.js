@@ -34,7 +34,7 @@ define("DOM",function(require,exports) {
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     function addUndoAction() {
-        if (window.undoSupported)
+        if (UndoManager.undoSupported)
             UndoManager.addAction.apply(null,Util.arrayCopy(arguments));
     }
 

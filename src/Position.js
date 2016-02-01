@@ -102,7 +102,7 @@ define("Position",function(require,exports) {
                     extra += "!";
             }
             var id = "";
-            if (window.debugIds)
+            if (Util.debugIds)
                 id = self.node._nodeId+":";
             result = id+JSON.stringify(self.node.nodeValue.slice(0,self.offset)+extra+"|"+
                                        self.node.nodeValue.slice(self.offset));

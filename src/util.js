@@ -67,7 +67,7 @@ define("Util",function(require,exports) {
         if (node == null)
             return "null";
         var id = "";
-        if (window.debugIds)
+        if (exports.debugIds)
             id = node._nodeId+":";
         if (node.nodeType == Node.TEXT_NODE) {
             return id+JSON.stringify(node.nodeValue);
@@ -369,5 +369,6 @@ define("Util",function(require,exports) {
     exports.fromTokenList = fromTokenList;
     exports.toTokenList = toTokenList;
     exports.xywhAbsElementRect = xywhAbsElementRect;
+    exports.debugIds = false;
 
 });
