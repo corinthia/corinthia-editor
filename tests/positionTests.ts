@@ -98,7 +98,7 @@ function positionTest(start1,end1,start2,end2) {
     var ps = document.getElementsByTagName("P");
 
     var p = ps[0];
-    var text = p.firstChild;
+    var text = <Text>p.firstChild;
 
     var testDescription = "From "+rangeString(text.nodeValue,start1,end1) + "\n" +
                           "To   "+rangeString(text.nodeValue,start2,end2) + "\n";

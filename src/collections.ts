@@ -113,7 +113,7 @@ NodeSet.prototype.intersection = function(other) {
     return result;
 }
 
-NodeSet.fromArray = function(array) {
+NodeSet.prototype.fromArray = function(array) {
     var set = new NodeSet();
     array.forEach(function(node) { set.add(node); });
     return set;
@@ -170,7 +170,7 @@ NodeMap.prototype.forEach = function(fun) {
     ids.forEach(function(id) { fun(map.keys[id],map.values[id]); });
 }
 
-NodeMap.fromArray = function(array,fun) {
+NodeMap.prototype.fromArray = function(array,fun) {
     var map = new NodeMap();
     if (fun != null)
         array.forEach(function(node) { map.put(node,fun(node)); });

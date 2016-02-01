@@ -29,6 +29,7 @@
         "src/clipboard.ts",
         "src/collections.ts",
         "src/cursor.ts",
+        "src/definitions.ts",
         "src/dom.ts",
         "src/editor.ts",
         "src/elementTypes.ts",

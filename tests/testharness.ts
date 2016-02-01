@@ -90,7 +90,7 @@ function loadCode() {
 }
 
 function loadTestIndex() {
-    window.eval(readFile("index.js"));
+    eval(readFile("index.js"));
 }
 
 function doPerformTest() {
