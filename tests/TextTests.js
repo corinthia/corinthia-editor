@@ -16,6 +16,7 @@
 // limitations under the License.
 
 define("tests.TextTests",function(require,exports) {
+    "use strict";
 
     var Selection = require("Selection");
     var Text = require("Text");

@@ -16,6 +16,7 @@
 // limitations under the License.
 
 define("tests.TableTests",function(require,exports) {
+    "use strict";
 
     var DOM = require("DOM");
     var PrettyPrinter = require("tests.PrettyPrinter");

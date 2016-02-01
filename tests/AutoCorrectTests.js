@@ -16,6 +16,7 @@
 // limitations under the License.
 
 define("tests.AutoCorrectTests",function(require,exports) {
+    "use strict";
 
     var AutoCorrect = require("AutoCorrect");
     var PrettyPrinter = require("tests.PrettyPrinter");

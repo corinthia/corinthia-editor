@@ -16,6 +16,7 @@
 // limitations under the License.
 
 define("tests.PrettyPrinter",function(require,exports) {
+    "use strict";
 
     // Applicable options:
     // keepSelectionHighlights (boolean)

@@ -16,6 +16,7 @@
 // limitations under the License.
 
 define("tests.PositionTests",function(require,exports) {
+    "use strict";
 
     var Paragraph = require("Paragraph");
     var Position = require("Position");

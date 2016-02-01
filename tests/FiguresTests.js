@@ -16,6 +16,7 @@
 // limitations under the License.
 
 define("tests.FiguresTests",function(require,exports) {
+    "use strict";
 
     var DOM = require("DOM");
     var Figures = require("Figures");

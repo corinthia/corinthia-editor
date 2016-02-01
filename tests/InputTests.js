@@ -16,6 +16,7 @@
 // limitations under the License.
 
 define("tests.InputTests",function(require,exports) {
+    "use strict";
 
     var Input = require("Input");
     var Outline = require("Outline");

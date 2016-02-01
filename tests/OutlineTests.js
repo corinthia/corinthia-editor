@@ -16,6 +16,7 @@
 // limitations under the License.
 
 define("tests.OutlineTests",function(require,exports) {
+    "use strict";
 
     var DOM = require("DOM");
     var Formatting = require("Formatting");

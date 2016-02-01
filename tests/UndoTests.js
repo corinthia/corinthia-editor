@@ -16,6 +16,7 @@
 // limitations under the License.
 
 define("tests.UndoTests",function(require,exports) {
+    "use strict";
 
     var AutoCorrect = require("AutoCorrect");
     var DOM = require("DOM");

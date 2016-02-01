@@ -16,6 +16,7 @@
 // limitations under the License.
 
 define("tests.ScanTests",function(require,exports) {
+    "use strict";
 
     var Scan = require("Scan");
 
