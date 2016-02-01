@@ -1043,7 +1043,7 @@ TableRegion.prototype.toString = function() {
 }
 
 // public
-function regionFromRange(range,allowSameCell) {
+function regionFromRange(range,allowSameCell?) {
     var region = null;
 
     if (range == null)

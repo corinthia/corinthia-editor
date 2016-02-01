@@ -186,7 +186,7 @@ function detail(range) {
     throw new Error("Start and end of range have no common ancestor");
 }
 
-function getOutermostNodes(range,atLeastOne,info) {
+function getOutermostNodes(range,atLeastOne?,info?) {
     var beforeNodes = new Array();
     var middleNodes = new Array();
     var afterNodes = new Array();

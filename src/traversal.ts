@@ -32,7 +32,7 @@ function prevNode(node) {
     }
 }
 
-function nextNodeAfter(node,entering,exiting) {
+function nextNodeAfter(node,entering?,exiting?) {
     while (node != null) {
         if (node.nextSibling != null) {
             if (exiting != null)
@@ -50,7 +50,7 @@ function nextNodeAfter(node,entering,exiting) {
     return node;
 }
 
-function nextNode(node,entering,exiting) {
+function nextNode(node,entering?,exiting?) {
     if (node.firstChild) {
         node = node.firstChild;
         if (entering != null)

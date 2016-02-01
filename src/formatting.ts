@@ -82,7 +82,7 @@ var CSS_PROPERTY_REPLACEMENTS = {
 };
 
 // private
-function getStyleProperties(element,dontReplace) {
+function getStyleProperties(element,dontReplace?) {
     var properties = new Object();
 
     for (var i = 0; i < element.style.length; i++) {
@@ -183,7 +183,7 @@ function isDiscardable(node) {
 }
 
 // public (for use by tests)
-function mergeWithNeighbours(node,whiteList,trim) {
+function mergeWithNeighbours(node,whiteList,trim?) {
     var parent = node.parentNode;
     if (parent == null)
         return;
@@ -236,7 +236,7 @@ function mergeRange(range,whiteList) {
 }
 
 // public (called from cursor.js)
-function splitTextBefore(pos,parentCheckFn,force) {
+function splitTextBefore(pos,parentCheckFn?,force?) {
     var node = pos.node;
     var offset = pos.offset;
     if (parentCheckFn == null)
@@ -258,7 +258,7 @@ function splitTextBefore(pos,parentCheckFn,force) {
 }
 
 // public
-function splitTextAfter(pos,parentCheckFn,force) {
+function splitTextAfter(pos,parentCheckFn?,force?) {
     var node = pos.node;
     var offset = pos.offset;
     if (parentCheckFn == null)
@@ -284,7 +284,7 @@ function splitTextAfter(pos,parentCheckFn,force) {
 // index of a child, we pass the child itself (or null if the offset is equal to
 // childNodes.length)
 // public
-function movePreceding(pos,parentCheckFn,force) {
+function movePreceding(pos,parentCheckFn,force?) {
     var node = pos.node;
     var offset = pos.offset;
     if (parentCheckFn(node) || (node == document.body))
@@ -320,7 +320,7 @@ function movePreceding(pos,parentCheckFn,force) {
 }
 
 // public
-function moveFollowing(pos,parentCheckFn,force) {
+function moveFollowing(pos,parentCheckFn,force?) {
     var node = pos.node;
     var offset = pos.offset;
     if (parentCheckFn(node) || (node == document.body))
@@ -846,7 +846,7 @@ function wrapInline(node,elementName) {
 }
 
 // private
-function applyInlineFormatting(target,inlineProperties,special,applyToWhitespace) {
+function applyInlineFormatting(target,inlineProperties,special,applyToWhitespace?) {
     if (!applyToWhitespace && Traversal.isWhitespaceTextNode(target))
         return;
 

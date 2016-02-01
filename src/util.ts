@@ -286,7 +286,7 @@ TimingInfo.prototype.print = function(title) {
 }
 
 function readFileApp(filename) {
-    var req = new XMLHttpRequest("file:///read/"+filename);
+    var req = new XMLHttpRequest();
     req.open("POST","/read/"+encodeURI(filename),false);
     req.send();
     if (req.status == 404)

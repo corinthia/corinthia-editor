@@ -62,7 +62,7 @@ function ensurePositionVisible(pos,center) {
 }
 
 // public
-function ensureCursorVisible(center) {
+function ensureCursorVisible(center?) {
     var selRange = Selection.get();
     if (selRange != null)
         ensurePositionVisible(selRange.end,center);
@@ -943,7 +943,7 @@ function makeContainerInsertionPoint() {
     cursorX = null;
 }
 
-function set(node,offset,keepCursorX) {
+function set(node,offset,keepCursorX?) {
     Selection.set(node,offset,node,offset);
     if (!keepCursorX)
         cursorX = null;

@@ -128,7 +128,7 @@ function shipOutParagraph(md) {
 }
 
 // private
-function beginParagraph(md,blankLines,indent,nextIndent,paraPrefix,paraSuffix) {
+function beginParagraph(md,blankLines?,indent?,nextIndent?,paraPrefix?,paraSuffix?) {
     if (blankLines == null)
         blankLines = 1;
     if (indent == null)

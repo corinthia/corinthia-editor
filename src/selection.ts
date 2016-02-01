@@ -410,7 +410,7 @@ function getRangeData(selRange) {
     return { range: selRange, nodeSet: nodeSet, nodes: nodes, outermost: outermost };
 }
 
-function removeSelectionHighlights(data,force) {
+function removeSelectionHighlights(data,force?) {
     var selectedSet = data.nodeSet;
 
     var remainingHighlights = new Array();

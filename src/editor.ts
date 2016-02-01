@@ -22,7 +22,7 @@ var Util = require("Util");
 
 var backMessages = new Array();
 
-function addBackMessage() {
+function addBackMessage(...args) {
     backMessages.push(Util.arrayCopy(arguments));
     return null;
 }

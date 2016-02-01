@@ -138,7 +138,7 @@ function redo() {
 }
 
 // public
-function addAction(fun) {
+function addAction(fun,...args) {
     if (disabled > 0)
         return;
 
@@ -166,7 +166,7 @@ function addAction(fun) {
 }
 
 // public
-function newGroup(type,onClose) {
+function newGroup(type,onClose?) {
     if (disabled > 0)
         return;
 

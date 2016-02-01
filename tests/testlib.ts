@@ -153,11 +153,11 @@ function insertTextAtPosition(position,str) {
 
 function showRangeAsBrackets(range) {
     if (Range.isEmpty(range)) {
-        insertTextAtPosition(range.end,"[]",true);
+        insertTextAtPosition(range.end,"[]");
     }
     else {
-        insertTextAtPosition(range.end,"]",true);
-        insertTextAtPosition(range.start,"[",true);
+        insertTextAtPosition(range.end,"]");
+        insertTextAtPosition(range.start,"[");
     }
 }
 

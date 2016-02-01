@@ -324,7 +324,7 @@ function OutlineItem(category,node) {
     }
 }
 
-function OutlineItem_getTitleNode(item,create) {
+function OutlineItem_getTitleNode(item,create?) {
     if (item.type == "section") {
         return item.node;
     }
@@ -736,7 +736,7 @@ function discoverStructure() {
     return structure;
 }
 
-function updateStructureReal(pageNumbers) {
+function updateStructureReal(pageNumbers?) {
     var structure = discoverStructure();
 
     for (var section = sections.list.first; section != null; section = section.next) {

@@ -34,7 +34,7 @@ var ignoreMutations = 0;
 //                                                                                            //
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-function addUndoAction() {
+function addUndoAction(...args) {
     if (UndoManager.undoSupported)
         UndoManager.addAction.apply(null,Util.arrayCopy(arguments));
 }
@@ -786,7 +786,7 @@ function ensureUniqueIds(root) {
 }
 
 // public
-function nodeOffset(node,parent) {
+function nodeOffset(node,parent?) {
     if ((node == null) && (parent != null))
         return maxChildOffset(parent);
     var offset = 0;

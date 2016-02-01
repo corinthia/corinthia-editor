@@ -258,7 +258,7 @@ function trackWhileExecuting(positions,fun) {
 }
 
 // public
-function closestActualNode(pos,preferElement) {
+function closestActualNode(pos,preferElement?) {
     var node = pos.node;
     var offset = pos.offset;
     if ((node.nodeType != Node.ELEMENT_NODE) || (node.firstChild == null))
