@@ -135,7 +135,7 @@ function detail(range) {
         return detail(reverse);
     }
 
-    var result = new Object();
+    var result: any = new Object();
     var start = range.start;
     var end = range.end;
 

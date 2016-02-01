@@ -116,7 +116,7 @@ function getGeometry(itemId) {
 
     var figcaption = Traversal.firstChildOfType(figure,ElementTypes.HTML_FIGCAPTION);
 
-    var result = new Object();
+    var result: any = new Object();
     result.contentRect = Util.xywhAbsElementRect(img);
     result.fullRect = Util.xywhAbsElementRect(figure);
     result.parentRect = Util.xywhAbsElementRect(figure.parentNode);

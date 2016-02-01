@@ -55,7 +55,7 @@ var clear;
 
 (function() {
 
-    var selection = new Object();
+    var selection: any = new Object();
 
     isMarked = function() {
         if (selection.value == null)
@@ -1198,7 +1198,7 @@ function prepareForMerge(detail) {
     }
 
     if ((detail.startAncestor.lastChild != null) && (detail.endAncestor.firstChild != null)) {
-        var childDetail = new Object();
+        var childDetail: any = new Object();
         childDetail.startAncestor = detail.startAncestor.lastChild;
         childDetail.endAncestor = detail.endAncestor.firstChild;
         prepareForMerge(childDetail);

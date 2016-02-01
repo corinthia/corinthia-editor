@@ -1247,7 +1247,7 @@ function getGeometry(itemId) {
 
     var structure = analyseStructure(element);
 
-    var result = new Object();
+    var result: any = new Object();
 
     // Calculate the rect based on the cells, not the whole table element;
     // we want to ignore the caption

@@ -1176,7 +1176,7 @@ function setPrintMode(newPrintMode) {
 
 // public
 function examinePrintLayout(pageHeight) {
-    var result = new Object();
+    var result: any = new Object();
     var structure = discoverStructure();
     var pageNumbers = new Collections.NodeMap();
 
