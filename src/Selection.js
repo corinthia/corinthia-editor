@@ -1294,14 +1294,14 @@ define("Selection",function(require,exports) {
     }
 
     function print() {
-        debug("");
-        debug("");
-        debug("");
-        debug("================================================================================");
+        Util.debug("");
+        Util.debug("");
+        Util.debug("");
+        Util.debug("================================================================================");
 
         var sel = get();
         if (sel == null) {
-            debug("No selection");
+            Util.debug("No selection");
             return;
         }
 
@@ -1310,9 +1310,9 @@ define("Selection",function(require,exports) {
         function printSelectionElement(node,indent) {
             var className = DOM.getAttribute(node,"class");
             if (className != null)
-                debug(indent+node.nodeName+" ("+className+")");
+                Util.debug(indent+node.nodeName+" ("+className+")");
             else
-                debug(indent+node.nodeName);
+                Util.debug(indent+node.nodeName);
 
             var child = node.firstChild;
             var offset = 0;
@@ -1321,11 +1321,11 @@ define("Selection",function(require,exports) {
                 var isStart = ((sel.start.node == node) && (sel.start.offset == offset));
                 var isEnd = ((sel.end.node == node) && (sel.end.offset == offset));
                 if (isStart && isEnd)
-                    debug(indent+"    []");
+                    Util.debug(indent+"    []");
                 else if (isStart)
-                    debug(indent+"    [");
+                    Util.debug(indent+"    [");
                 else if (isEnd)
-                    debug(indent+"    ]");
+                    Util.debug(indent+"    ]");
 
                 if (child == null)
                     break;
@@ -1353,7 +1353,7 @@ define("Selection",function(require,exports) {
                 value = beforeSelection + "[" + value.substring(sel.start.offset);
             }
 
-            debug(indent+JSON.stringify(value));
+            Util.debug(indent+JSON.stringify(value));
         }
     }
 

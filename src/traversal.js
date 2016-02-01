@@ -160,9 +160,9 @@ define("Traversal",function(require,exports) {
         if (offset == null)
             offset = "";
         if ((node.nodeType == Node.ELEMENT_NODE) && node.hasAttribute("class"))
-            debug(indent+offset+Util.nodeString(node)+"."+node.getAttribute("class"));
+            Util.debug(indent+offset+Util.nodeString(node)+"."+node.getAttribute("class"));
         else
-            debug(indent+offset+Util.nodeString(node));
+            Util.debug(indent+offset+Util.nodeString(node));
         var childOffset = 0;
         for (var child = node.firstChild; child != null; child = child.nextSibling) {
             printTree(child,indent+"    ",childOffset+" ");

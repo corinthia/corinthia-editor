@@ -1022,11 +1022,11 @@ define("Formatting",function(require,exports) {
 
     // public
     function applyFormattingChanges(style,properties) {
-        debug("JS: applyFormattingChanges: style = "+JSON.stringify(style));
+        Util.debug("JS: applyFormattingChanges: style = "+JSON.stringify(style));
         if (properties != null) {
             var names = Object.getOwnPropertyNames(properties).sort();
             for (var i = 0; i < names.length; i++) {
-                debug("    "+names[i]+" = "+properties[names[i]]);
+                Util.debug("    "+names[i]+" = "+properties[names[i]]);
             }
         }
         UndoManager.newGroup("Apply formatting changes");

@@ -81,29 +81,29 @@ define("UndoManager",function(require,exports) {
 
     // public
     function print() {
-        debug("");
-        debug("--------------------------------------------------------------------");
-        debug("Undo stack:");
+        Util.debug("");
+        Util.debug("--------------------------------------------------------------------");
+        Util.debug("Undo stack:");
         for (var groupIndex = 0; groupIndex < undoStack.length; groupIndex++) {
             var group = undoStack[groupIndex];
-            debug("    "+group.type);
+            Util.debug("    "+group.type);
             for (var actionIndex = 0; actionIndex < group.actions.length; actionIndex++) {
                 var action = group.actions[actionIndex];
-                debug("        "+action);
+                Util.debug("        "+action);
             }
         }
-        debug("Redo stack:");
+        Util.debug("Redo stack:");
         for (var groupIndex = 0; groupIndex < redoStack.length; groupIndex++) {
             var group = redoStack[groupIndex];
-            debug("    "+group.type);
+            Util.debug("    "+group.type);
             for (var actionIndex = 0; actionIndex < group.actions.length; actionIndex++) {
                 var action = group.actions[actionIndex];
-                debug("        "+action);
+                Util.debug("        "+action);
             }
         }
-        debug("Current group = "+currentGroup);
-        debug("--------------------------------------------------------------------");
-        debug("");
+        Util.debug("Current group = "+currentGroup);
+        Util.debug("--------------------------------------------------------------------");
+        Util.debug("");
     }
 
     function closeCurrentGroup() {

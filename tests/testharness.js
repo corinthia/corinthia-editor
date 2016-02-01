@@ -169,7 +169,7 @@ function leftLoaded() {
 
     var w = leftArea.contentWindow;
     w.eval(allCode);
-    w.debug = function(str) { console.log(str); };
+    w.globalAPI.Util.debug = function(str) { console.log(str); };
 
     w.globalAPI.tests.TestLib.testHarnessSetup();
     continuation();

@@ -27,9 +27,10 @@ define("Input",function(require,exports) {
     var Range = require("Range");
     var Selection = require("Selection");
     var Text = require("Text");
+    var Util = require("Util");
 
     // function idebug(str) {
-    //    debug(str);
+    //    Util.debug(str);
     // }
 
     var forwardSelection = true;

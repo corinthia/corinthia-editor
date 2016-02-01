@@ -15,8 +15,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var debug;
-
 define("Editor",function(require,exports) {
 
     var Util = require("Util");
@@ -34,7 +32,7 @@ define("Editor",function(require,exports) {
         return result;
     };
 
-    debug = function(str) {
+    function debug(str) {
         addBackMessage("debug",str);
     };
 

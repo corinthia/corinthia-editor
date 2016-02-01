@@ -18,8 +18,13 @@
 define("Util",function(require,exports) {
 
     var DOM = require("DOM");
+    var Editor = require("Editor");
     var ElementTypes = require("ElementTypes");
     var Types = require("Types");
+
+    function debug(str) {
+        Editor.debug(str);
+    }
 
     function arrayContains(array,value) {
         for (var i = 0; i < array.length; i++) {
@@ -343,6 +348,7 @@ define("Util",function(require,exports) {
                  height: rect.height };
     }
 
+    exports.debug = debug;
     exports.arrayContains = arrayContains;
     exports.arrayCopy = arrayCopy;
     exports.quoteString = quoteString;

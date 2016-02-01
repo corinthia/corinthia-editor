@@ -832,8 +832,8 @@ define("Tables",function(require,exports) {
 
                     if ((cellFirstRow < region.top) || (cellLastRow > region.bottom) ||
                         (cellFirstCol < region.left) || (cellLastCol > region.right)) {
-                        debug("Can't merge this table: cell at "+row+","+col+
-                              " goes outside bounds of selection");
+                        Util.debug("Can't merge this table: cell at "+row+","+col+
+                                   " goes outside bounds of selection");
                         return;
                     }
                 }

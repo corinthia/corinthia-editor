@@ -284,7 +284,7 @@ define("Clipboard",function(require,exports) {
             if (node._type == ElementTypes.HTML_P) {
                 var className = DOM.getAttribute(node,"class");
                 if ((className == null) || (className == "")) {
-                    debug("Setting paragraph class to "+paragraphClass);
+                    Util.debug("Setting paragraph class to "+paragraphClass);
                     DOM.setAttribute(node,"class",paragraphClass);
                 }
             }

@@ -37,7 +37,7 @@ function performTest(api)
         if (comparePositions(actual,expected))
             pass++;
         else {
-            debug("fail: "+actual+" and "+expected+" (index "+index+")");
+            api.Util.debug("fail: "+actual+" and "+expected+" (index "+index+")");
             fail++;
         }
     }

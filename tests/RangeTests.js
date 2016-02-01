@@ -22,6 +22,7 @@ define("tests.RangeTests",function(require,exports) {
     var Position = require("Position");
     var Range = require("Range");
     var Traversal = require("Traversal");
+    var Util = require("Util");
 
     function positionKey(pos) {
         return pos.node._nodeId+","+pos.offset;
@@ -112,7 +113,7 @@ define("tests.RangeTests",function(require,exports) {
     function isForwardsSimple(range) {
         var startIndex = getPositionIndex(range.start);
         var endIndex = getPositionIndex(range.end);
-    //    debug("startIndex = "+indices.startIndex+", endIndex = "+indices.endIndex);
+    //    Util.debug("startIndex = "+indices.startIndex+", endIndex = "+indices.endIndex);
         return (endIndex >= startIndex);
     }
 
@@ -123,7 +124,7 @@ define("tests.RangeTests",function(require,exports) {
             if (!Range.isForwards(reverse)) {
                 var startIndex = getPositionIndex(range.start);
                 var endIndex = getPositionIndex(range.end);
-                debug("startIndex = "+startIndex+", endIndex = "+endIndex);
+                Util.debug("startIndex = "+startIndex+", endIndex = "+endIndex);
                 throw new Error("Both range "+range+" and its reverse are not forwards");
             }
             return getOutermostNodesSimple(reverse);
