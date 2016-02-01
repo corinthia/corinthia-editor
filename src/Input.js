@@ -344,8 +344,7 @@ define("Input",function(require,exports) {
 
     // posId
     function closestPositionToPoint(x,y) {
-        //idebug("closestPositionToPoint("+x+","+y+")");
-        throw new Error("closestPositionToPoint: not implemented");
+        return addPosition(Position.atPoint(x,y));
     }
 
     // posId
