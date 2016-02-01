@@ -224,7 +224,7 @@ define("Selection",function(require,exports) {
             Editor.setTableSelection(info.x,info.y,info.width,info.height);
         }
         else {
-            throw new Error("setEditorHandles: unknown type "+type);
+            throw new Error("setEditorHandles: unknown type "+info.type);
         }
     }
 

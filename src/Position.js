@@ -747,7 +747,7 @@ define("Position",function(require,exports) {
         if (rects.length > 0)
             return rects[0];
         else
-            return nil;
+            return null;
     }
 
     function displayRectAtPos(pos) {

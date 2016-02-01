@@ -19,6 +19,7 @@ define("AutoCorrect",function(require,exports) {
     "use strict";
 
     var Collections = require("Collections");
+    var Cursor = require("Cursor");
     var DOM = require("DOM");
     var Editor = require("Editor");
     var Formatting = require("Formatting");

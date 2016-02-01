@@ -340,7 +340,7 @@ define("Main",function(require,exports) {
             timing.start();
             DOM.assignNodeIds(document);
             timing.addEntry("DOM.assignNodeIds");
-            Main.removeUnsupportedInput();
+            removeUnsupportedInput();
             timing.addEntry("Main.removeUnsupportedInput");
             addMetaCharset();
             timing.addEntry("addMetaCharset");
