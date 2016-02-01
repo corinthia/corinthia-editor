@@ -18,6 +18,7 @@
 define("tests.TestLib",function(require,exports) {
 
     var DOM = require("DOM");
+    var ElementTypes = require("ElementTypes");
     var Formatting = require("Formatting");
     var Outline = require("Outline");
     var Position = require("Position");
@@ -270,14 +271,14 @@ define("tests.TestLib",function(require,exports) {
 
         function recurse(node,enabled) {
             switch (node._type) {
-            case HTML_H1:
-            case HTML_H2:
-            case HTML_H3:
-            case HTML_H4:
-            case HTML_H5:
-            case HTML_H6:
-            case HTML_FIGURE:
-            case HTML_TABLE:
+            case ElementTypes.HTML_H1:
+            case ElementTypes.HTML_H2:
+            case ElementTypes.HTML_H3:
+            case ElementTypes.HTML_H4:
+            case ElementTypes.HTML_H5:
+            case ElementTypes.HTML_H6:
+            case ElementTypes.HTML_FIGURE:
+            case ElementTypes.HTML_TABLE:
                 if (!Types.isInTOC(node)) {
                     Outline.setNumbered(node.getAttribute("id"),enabled);
                     return;
@@ -375,7 +376,7 @@ define("tests.TestLib",function(require,exports) {
         recurse(document.body);
 
         function recurse(node) {
-            if ((node._type == HTML_NAV) &&
+            if ((node._type == ElementTypes.HTML_NAV) &&
                 ((DOM.getAttribute(node,"class") == "tableofcontents") ||
                  (DOM.getAttribute(node,"class") == "listoffigures") ||
                  (DOM.getAttribute(node,"class") == "listoftables"))) {

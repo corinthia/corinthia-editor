@@ -18,6 +18,7 @@
 define("Styles",function(require,exports) {
 
     var DOM = require("DOM");
+    var ElementTypes = require("ElementTypes");
     var Outline = require("Outline");
     var Types = require("Types");
     var UndoManager = require("UndoManager");
@@ -64,8 +65,8 @@ define("Styles",function(require,exports) {
         }
 
         if ((nextElementName == null) ||
-            (ElementTypes[nextElementName] == null) ||
-            (!Types.PARAGRAPH_ELEMENTS[ElementTypes[nextElementName]])) {
+            (ElementTypes.fromString[nextElementName] == null) ||
+            (!Types.PARAGRAPH_ELEMENTS[ElementTypes.fromString[nextElementName]])) {
             nextElementName = null;
             nextClassName = null;
         }
@@ -100,9 +101,9 @@ define("Styles",function(require,exports) {
         var head = DOM.documentHead(document);
         var cssText = "";
         for (var child = head.firstChild; child != null; child = child.nextSibling) {
-            if (child._type == HTML_STYLE) {
+            if (child._type == ElementTypes.HTML_STYLE) {
                 for (var t = child.firstChild; t != null; t = t.nextSibling) {
-                    if (t._type == HTML_TEXT)
+                    if (t._type == ElementTypes.HTML_TEXT)
                         cssText += t.nodeValue;
                 }
             }
@@ -116,7 +117,7 @@ define("Styles",function(require,exports) {
         var next;
         for (var child = head.firstChild; child != null; child = next) {
             next = child.nextSibling;
-            if (child._type == HTML_STYLE)
+            if (child._type == ElementTypes.HTML_STYLE)
                 DOM.deleteNode(child);
         }
         var style = DOM.createElement(document,"STYLE");
@@ -130,7 +131,7 @@ define("Styles",function(require,exports) {
     function addBuiltinStylesheet(cssURL) {
         var head = DOM.documentHead(document);
         for (var child = head.firstChild; child != null; child = child.nextSibling) {
-            if ((child._type == HTML_LINK) &&
+            if ((child._type == ElementTypes.HTML_LINK) &&
                 (child.getAttribute("rel") == "stylesheet") &&
                 (child.getAttribute("href") == cssURL)) {
                 // Link element was already added by HTMLInjectionProtocol

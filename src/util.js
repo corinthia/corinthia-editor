@@ -18,6 +18,7 @@
 define("Util",function(require,exports) {
 
     var DOM = require("DOM");
+    var ElementTypes = require("ElementTypes");
     var Types = require("Types");
 
     function arrayContains(array,value) {
@@ -104,10 +105,10 @@ define("Util",function(require,exports) {
 
     function nodeHasContent(node) {
         switch (node._type) {
-        case HTML_TEXT:
+        case ElementTypes.HTML_TEXT:
             return !isWhitespaceString(node.nodeValue);
-        case HTML_IMG:
-        case HTML_TABLE:
+        case ElementTypes.HTML_IMG:
+        case ElementTypes.HTML_TABLE:
             return true;
         default:
             if (Types.isOpaqueNode(node))

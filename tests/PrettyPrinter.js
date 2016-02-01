@@ -24,6 +24,7 @@ define("tests.PrettyPrinter",function(require,exports) {
     // separateLines (boolean)
 
     var DOM = require("DOM");
+    var ElementTypes = require("ElementTypes");
     var Formatting = require("Formatting");
     var Types = require("Types");
     var UndoManager = require("UndoManager");
@@ -159,19 +160,19 @@ define("tests.PrettyPrinter",function(require,exports) {
 
     function isContainer(node) {
         switch (node._type) {
-        case HTML_BODY:
-        case HTML_SECTION:
-        case HTML_FIGURE:
-        case HTML_TABLE:
-        case HTML_TBODY:
-        case HTML_THEAD:
-        case HTML_TFOOT:
-        case HTML_TR:
-        case HTML_DIV:
-        case HTML_UL:
-        case HTML_OL:
-        case HTML_NAV:
-        case HTML_COLGROUP:
+        case ElementTypes.HTML_BODY:
+        case ElementTypes.HTML_SECTION:
+        case ElementTypes.HTML_FIGURE:
+        case ElementTypes.HTML_TABLE:
+        case ElementTypes.HTML_TBODY:
+        case ElementTypes.HTML_THEAD:
+        case ElementTypes.HTML_TFOOT:
+        case ElementTypes.HTML_TR:
+        case ElementTypes.HTML_DIV:
+        case ElementTypes.HTML_UL:
+        case ElementTypes.HTML_OL:
+        case ElementTypes.HTML_NAV:
+        case ElementTypes.HTML_COLGROUP:
             return true;
         default:
             return false;
@@ -185,7 +186,7 @@ define("tests.PrettyPrinter",function(require,exports) {
                 output.push(indent + "<" + name + attributeString(options,node) + "/>\n");
             }
             else {
-                if (node._type == HTML_STYLE) {
+                if (node._type == ElementTypes.HTML_STYLE) {
                     output.push(indent + "<" + name + attributeString(options,node) + ">\n");
                     for (var child = node.firstChild; child != null; child = child.nextSibling)
                         prettyPrint(output,options,child,"");

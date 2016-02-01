@@ -18,75 +18,76 @@
 define("Types",function(require,exports) {
 
     var DOM = require("DOM");
+    var ElementTypes = require("ElementTypes");
     var Util = require("Util");
 
-    var CONTAINER_ELEMENTS = new Array(HTML_COUNT);
-    CONTAINER_ELEMENTS[HTML_DOCUMENT] = true;
-    CONTAINER_ELEMENTS[HTML_HTML] = true;
-    CONTAINER_ELEMENTS[HTML_BODY] = true;
-    CONTAINER_ELEMENTS[HTML_UL] = true;
-    CONTAINER_ELEMENTS[HTML_OL] = true,
-    CONTAINER_ELEMENTS[HTML_LI] = true;
-    CONTAINER_ELEMENTS[HTML_TABLE] = true;
-    CONTAINER_ELEMENTS[HTML_CAPTION] = true;
-    CONTAINER_ELEMENTS[HTML_THEAD] = true;
-    CONTAINER_ELEMENTS[HTML_TFOOT] = true;
-    CONTAINER_ELEMENTS[HTML_TBODY] = true;
-    CONTAINER_ELEMENTS[HTML_TR] = true;
-    CONTAINER_ELEMENTS[HTML_TH] = true;
-    CONTAINER_ELEMENTS[HTML_TD] = true;
-    CONTAINER_ELEMENTS[HTML_COL] = true;
-    CONTAINER_ELEMENTS[HTML_FIGURE] = true;
-    CONTAINER_ELEMENTS[HTML_FIGCAPTION] = true;
-    CONTAINER_ELEMENTS[HTML_NAV] = true;
+    var CONTAINER_ELEMENTS = new Array(ElementTypes.HTML_COUNT);
+    CONTAINER_ELEMENTS[ElementTypes.HTML_DOCUMENT] = true;
+    CONTAINER_ELEMENTS[ElementTypes.HTML_HTML] = true;
+    CONTAINER_ELEMENTS[ElementTypes.HTML_BODY] = true;
+    CONTAINER_ELEMENTS[ElementTypes.HTML_UL] = true;
+    CONTAINER_ELEMENTS[ElementTypes.HTML_OL] = true,
+    CONTAINER_ELEMENTS[ElementTypes.HTML_LI] = true;
+    CONTAINER_ELEMENTS[ElementTypes.HTML_TABLE] = true;
+    CONTAINER_ELEMENTS[ElementTypes.HTML_CAPTION] = true;
+    CONTAINER_ELEMENTS[ElementTypes.HTML_THEAD] = true;
+    CONTAINER_ELEMENTS[ElementTypes.HTML_TFOOT] = true;
+    CONTAINER_ELEMENTS[ElementTypes.HTML_TBODY] = true;
+    CONTAINER_ELEMENTS[ElementTypes.HTML_TR] = true;
+    CONTAINER_ELEMENTS[ElementTypes.HTML_TH] = true;
+    CONTAINER_ELEMENTS[ElementTypes.HTML_TD] = true;
+    CONTAINER_ELEMENTS[ElementTypes.HTML_COL] = true;
+    CONTAINER_ELEMENTS[ElementTypes.HTML_FIGURE] = true;
+    CONTAINER_ELEMENTS[ElementTypes.HTML_FIGCAPTION] = true;
+    CONTAINER_ELEMENTS[ElementTypes.HTML_NAV] = true;
 
-    var PARAGRAPH_ELEMENTS = new Array(HTML_COUNT);
-    PARAGRAPH_ELEMENTS[HTML_P] = true;
-    PARAGRAPH_ELEMENTS[HTML_H1] = true;
-    PARAGRAPH_ELEMENTS[HTML_H2] = true;
-    PARAGRAPH_ELEMENTS[HTML_H3] = true;
-    PARAGRAPH_ELEMENTS[HTML_H4] = true;
-    PARAGRAPH_ELEMENTS[HTML_H5] = true;
-    PARAGRAPH_ELEMENTS[HTML_H6] = true;
-    PARAGRAPH_ELEMENTS[HTML_DIV] = true;
-    PARAGRAPH_ELEMENTS[HTML_PRE] = true;
-    PARAGRAPH_ELEMENTS[HTML_BLOCKQUOTE] = true;
+    var PARAGRAPH_ELEMENTS = new Array(ElementTypes.HTML_COUNT);
+    PARAGRAPH_ELEMENTS[ElementTypes.HTML_P] = true;
+    PARAGRAPH_ELEMENTS[ElementTypes.HTML_H1] = true;
+    PARAGRAPH_ELEMENTS[ElementTypes.HTML_H2] = true;
+    PARAGRAPH_ELEMENTS[ElementTypes.HTML_H3] = true;
+    PARAGRAPH_ELEMENTS[ElementTypes.HTML_H4] = true;
+    PARAGRAPH_ELEMENTS[ElementTypes.HTML_H5] = true;
+    PARAGRAPH_ELEMENTS[ElementTypes.HTML_H6] = true;
+    PARAGRAPH_ELEMENTS[ElementTypes.HTML_DIV] = true;
+    PARAGRAPH_ELEMENTS[ElementTypes.HTML_PRE] = true;
+    PARAGRAPH_ELEMENTS[ElementTypes.HTML_BLOCKQUOTE] = true;
 
-    var BLOCK_ELEMENTS = new Array(HTML_COUNT);
-    for (var i = 0; i < HTML_COUNT; i++)
+    var BLOCK_ELEMENTS = new Array(ElementTypes.HTML_COUNT);
+    for (var i = 0; i < ElementTypes.HTML_COUNT; i++)
         BLOCK_ELEMENTS[i] = (CONTAINER_ELEMENTS[i] || PARAGRAPH_ELEMENTS[i]);
 
-    var INLINE_ELEMENTS = new Array(HTML_COUNT);
-    for (var i = 0; i < HTML_COUNT; i++)
+    var INLINE_ELEMENTS = new Array(ElementTypes.HTML_COUNT);
+    for (var i = 0; i < ElementTypes.HTML_COUNT; i++)
         INLINE_ELEMENTS[i] = !BLOCK_ELEMENTS[i];
 
-    var HEADING_ELEMENTS = new Array(HTML_COUNT);
-    HEADING_ELEMENTS[HTML_H1] = true;
-    HEADING_ELEMENTS[HTML_H2] = true;
-    HEADING_ELEMENTS[HTML_H3] = true;
-    HEADING_ELEMENTS[HTML_H4] = true;
-    HEADING_ELEMENTS[HTML_H5] = true;
-    HEADING_ELEMENTS[HTML_H6] = true;
+    var HEADING_ELEMENTS = new Array(ElementTypes.HTML_COUNT);
+    HEADING_ELEMENTS[ElementTypes.HTML_H1] = true;
+    HEADING_ELEMENTS[ElementTypes.HTML_H2] = true;
+    HEADING_ELEMENTS[ElementTypes.HTML_H3] = true;
+    HEADING_ELEMENTS[ElementTypes.HTML_H4] = true;
+    HEADING_ELEMENTS[ElementTypes.HTML_H5] = true;
+    HEADING_ELEMENTS[ElementTypes.HTML_H6] = true;
 
-    var CONTAINERS_ALLOWING_CHILDREN = new Array(HTML_COUNT);
-    CONTAINERS_ALLOWING_CHILDREN[HTML_BODY] = true;
-    CONTAINERS_ALLOWING_CHILDREN[HTML_LI] = true;
-    CONTAINERS_ALLOWING_CHILDREN[HTML_CAPTION] = true;
-    CONTAINERS_ALLOWING_CHILDREN[HTML_TH] = true;
-    CONTAINERS_ALLOWING_CHILDREN[HTML_TD] = true;
-    CONTAINERS_ALLOWING_CHILDREN[HTML_FIGURE] = true;
-    CONTAINERS_ALLOWING_CHILDREN[HTML_FIGCAPTION] = true;
-    CONTAINERS_ALLOWING_CHILDREN[HTML_NAV] = true;
+    var CONTAINERS_ALLOWING_CHILDREN = new Array(ElementTypes.HTML_COUNT);
+    CONTAINERS_ALLOWING_CHILDREN[ElementTypes.HTML_BODY] = true;
+    CONTAINERS_ALLOWING_CHILDREN[ElementTypes.HTML_LI] = true;
+    CONTAINERS_ALLOWING_CHILDREN[ElementTypes.HTML_CAPTION] = true;
+    CONTAINERS_ALLOWING_CHILDREN[ElementTypes.HTML_TH] = true;
+    CONTAINERS_ALLOWING_CHILDREN[ElementTypes.HTML_TD] = true;
+    CONTAINERS_ALLOWING_CHILDREN[ElementTypes.HTML_FIGURE] = true;
+    CONTAINERS_ALLOWING_CHILDREN[ElementTypes.HTML_FIGCAPTION] = true;
+    CONTAINERS_ALLOWING_CHILDREN[ElementTypes.HTML_NAV] = true;
 
-    var OUTLINE_TITLE_ELEMENTS = new Array(HTML_COUNT);
-    OUTLINE_TITLE_ELEMENTS[HTML_H1] = true;
-    OUTLINE_TITLE_ELEMENTS[HTML_H2] = true;
-    OUTLINE_TITLE_ELEMENTS[HTML_H3] = true;
-    OUTLINE_TITLE_ELEMENTS[HTML_H4] = true;
-    OUTLINE_TITLE_ELEMENTS[HTML_H5] = true;
-    OUTLINE_TITLE_ELEMENTS[HTML_H6] = true;
-    OUTLINE_TITLE_ELEMENTS[HTML_FIGCAPTION] = true;
-    OUTLINE_TITLE_ELEMENTS[HTML_CAPTION] = true;
+    var OUTLINE_TITLE_ELEMENTS = new Array(ElementTypes.HTML_COUNT);
+    OUTLINE_TITLE_ELEMENTS[ElementTypes.HTML_H1] = true;
+    OUTLINE_TITLE_ELEMENTS[ElementTypes.HTML_H2] = true;
+    OUTLINE_TITLE_ELEMENTS[ElementTypes.HTML_H3] = true;
+    OUTLINE_TITLE_ELEMENTS[ElementTypes.HTML_H4] = true;
+    OUTLINE_TITLE_ELEMENTS[ElementTypes.HTML_H5] = true;
+    OUTLINE_TITLE_ELEMENTS[ElementTypes.HTML_H6] = true;
+    OUTLINE_TITLE_ELEMENTS[ElementTypes.HTML_FIGCAPTION] = true;
+    OUTLINE_TITLE_ELEMENTS[ElementTypes.HTML_CAPTION] = true;
 
     var Keys = {
         HEADING_NUMBER: "uxwrite-heading-number",
@@ -149,13 +150,13 @@ define("Types",function(require,exports) {
 
     function isListNode(node) {
         var type = node._type;
-        return ((type == HTML_UL) || (type == HTML_OL));
+        return ((type == ElementTypes.HTML_UL) || (type == ElementTypes.HTML_OL));
     }
 
     function isTableCell(node) {
         switch (node._type) {
-        case HTML_TD:
-        case HTML_TH:
+        case ElementTypes.HTML_TD:
+        case ElementTypes.HTML_TH:
             return true;
         default:
             return false;
@@ -163,13 +164,13 @@ define("Types",function(require,exports) {
     }
 
     function isRefNode(node) {
-        return ((node._type == HTML_A) &&
+        return ((node._type == ElementTypes.HTML_A) &&
                 node.hasAttribute("href") &&
                 node.getAttribute("href").charAt(0) == "#");
     }
 
     function isNoteNode(node) {
-        if (node._type != HTML_SPAN)
+        if (node._type != ElementTypes.HTML_SPAN)
             return false;
         var className = DOM.getAttribute(node,"class");
         return ((className == "footnote") || (className == "endnote"));
@@ -184,7 +185,7 @@ define("Types",function(require,exports) {
             return isItemNumber(node.parentNode);
         }
         else if (node.nodeType == Node.ELEMENT_NODE) {
-            if ((node._type == HTML_SPAN) && node.hasAttribute("class")) {
+            if ((node._type == ElementTypes.HTML_SPAN) && node.hasAttribute("class")) {
                 return ITEM_NUMBER_CLASSES[node.getAttribute("class")];
             }
         }
@@ -196,14 +197,14 @@ define("Types",function(require,exports) {
             return false;
 
         switch (node._type) {
-        case HTML_TEXT:
-        case HTML_COMMENT:
+        case ElementTypes.HTML_TEXT:
+        case ElementTypes.HTML_COMMENT:
             return isOpaqueNode(node.parentNode);
-        case HTML_IMG:
+        case ElementTypes.HTML_IMG:
             return true;
-        case HTML_A:
+        case ElementTypes.HTML_A:
             return node.hasAttribute("href");
-        case HTML_DOCUMENT:
+        case ElementTypes.HTML_DOCUMENT:
             return false;
         default:
             if (node.hasAttribute("class") && OPAQUE_NODE_CLASSES[node.getAttribute("class")])
@@ -214,7 +215,7 @@ define("Types",function(require,exports) {
     }
 
     function isAutoCorrectNode(node) {
-        return ((node._type == HTML_SPAN) &&
+        return ((node._type == ElementTypes.HTML_SPAN) &&
                 (node.getAttribute("class") == Keys.AUTOCORRECT_CLASS));
     }
 
@@ -225,12 +226,12 @@ define("Types",function(require,exports) {
 
     function isSelectionSpan(node) {
         return ((node != null) &&
-                (node._type == HTML_SPAN) &&
+                (node._type == ElementTypes.HTML_SPAN) &&
                 (DOM.getAttribute(node,"class") == Keys.SELECTION_CLASS));
     };
 
     function isTOCNode(node) {
-        if (node._type == HTML_NAV) {
+        if (node._type == ElementTypes.HTML_NAV) {
             var cls = node.getAttribute("class");
             if ((cls == Keys.SECTION_TOC) ||
                 (cls == Keys.FIGURE_TOC) ||
@@ -250,10 +251,10 @@ define("Types",function(require,exports) {
 
     function isSpecialBlockNode(node) {
         switch (node._type) {
-        case HTML_TABLE:
-        case HTML_FIGURE:
+        case ElementTypes.HTML_TABLE:
+        case ElementTypes.HTML_FIGURE:
             return true;
-        case HTML_NAV:
+        case ElementTypes.HTML_NAV:
             return isTOCNode(node);
         default:
             return false;
@@ -261,7 +262,7 @@ define("Types",function(require,exports) {
     }
 
     function isAbstractSpan(node) {
-        return ((node._type == HTML_SPAN) && node.hasAttribute(Keys.ABSTRACT_ELEMENT));
+        return ((node._type == ElementTypes.HTML_SPAN) && node.hasAttribute(Keys.ABSTRACT_ELEMENT));
     }
 
     exports.PARAGRAPH_ELEMENTS = PARAGRAPH_ELEMENTS;

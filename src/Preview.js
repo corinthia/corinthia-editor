@@ -18,6 +18,7 @@
 define("Preview",function(require,exports) {
 
     var DOM = require("DOM");
+    var ElementTypes = require("ElementTypes");
     var Figures = require("Figures");
     var Selection = require("Selection");
     var Tables = require("Tables");
@@ -70,7 +71,7 @@ define("Preview",function(require,exports) {
         Selection.clear();
         DOM.deleteAllChildren(document.body);
 
-        if (Types.PARAGRAPH_ELEMENTS[ElementTypes[elementName]]) {
+        if (Types.PARAGRAPH_ELEMENTS[ElementTypes.fromString[elementName]]) {
             var paragraph1 = createParagraphElement(elementName,className);
             var paragraph2 = createParagraphElement(elementName,className);
             DOM.appendChild(paragraph1,title);

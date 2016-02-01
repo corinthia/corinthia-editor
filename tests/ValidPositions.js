@@ -18,6 +18,7 @@
 define("tests.ValidPositions",function(require,exports) {
 
     var DOM = require("DOM");
+    var ElementTypes = require("ElementTypes");
     var Position = require("Position");
     var Range = require("Range");
     var Selection = require("Selection");
@@ -79,10 +80,10 @@ define("tests.ValidPositions",function(require,exports) {
 
         function recurse(node) {
             switch (node._type) {
-            case HTML_TEXT:
+            case ElementTypes.HTML_TEXT:
                 result.push(node.nodeValue);
                 break;
-            case HTML_IMG:
+            case ElementTypes.HTML_IMG:
                 result.push("I");
                 break;
             default:

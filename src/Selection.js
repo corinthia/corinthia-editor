@@ -23,6 +23,7 @@ define("Selection",function(require,exports) {
     var Cursor = require("Cursor");
     var DOM = require("DOM");
     var Editor = require("Editor");
+    var ElementTypes = require("ElementTypes");
     var Formatting = require("Formatting");
     var Input = require("Input");
     var Position = require("Position");
@@ -994,8 +995,8 @@ define("Selection",function(require,exports) {
 
             if (removeWholeNode) {
                 switch (node._type) {
-                case HTML_TD:
-                case HTML_TH:
+                case ElementTypes.HTML_TD:
+                case ElementTypes.HTML_TH:
                     DOM.deleteAllChildren(node);
                     break;
                 default:
@@ -1017,7 +1018,7 @@ define("Selection",function(require,exports) {
             DOM.mergeWithNextSibling(detail.startAncestor,
                                           Formatting.MERGEABLE_BLOCK_AND_INLINE);
             if (Types.isParagraphNode(detail.startAncestor) &&
-                (detail.startAncestor._type != HTML_DIV))
+                (detail.startAncestor._type != ElementTypes.HTML_DIV))
                 removeParagraphDescendants(detail.startAncestor);
         }
 
@@ -1114,7 +1115,7 @@ define("Selection",function(require,exports) {
     function findFirstParagraph(node) {
         if (Types.isParagraphNode(node))
             return node;
-        if (node._type == HTML_LI) {
+        if (node._type == ElementTypes.HTML_LI) {
             var nonWhitespaceInline = false;
 
             for (var child = node.firstChild; child != null; child = child.nextSibling) {
@@ -1164,7 +1165,7 @@ define("Selection",function(require,exports) {
         }
         else if (Types.isParagraphNode(detail.startAncestor) &&
                  Types.isListNode(detail.endAncestor) &&
-                 (detail.endAncestor.firstChild._type == HTML_LI)) {
+                 (detail.endAncestor.firstChild._type == ElementTypes.HTML_LI)) {
             var list = detail.endAncestor;
             var li = detail.endAncestor.firstChild;
 
@@ -1181,7 +1182,7 @@ define("Selection",function(require,exports) {
         }
         else if (Types.isParagraphNode(detail.endAncestor) &&
                  Types.isListNode(detail.startAncestor) &&
-                 (detail.startAncestor.lastChild._type == HTML_LI)) {
+                 (detail.startAncestor.lastChild._type == ElementTypes.HTML_LI)) {
             var list = detail.startAncestor;
             var li = detail.startAncestor.lastChild;
             var p = detail.endAncestor;
@@ -1239,8 +1240,8 @@ define("Selection",function(require,exports) {
         var container = document.body;
         for (; node != topAncestor.parentNode; node = node.parentNode) {
             switch (node._type) {
-            case HTML_FIGURE:
-            case HTML_TABLE:
+            case ElementTypes.HTML_FIGURE:
+            case ElementTypes.HTML_TABLE:
                 container = node;
                 break;
             }

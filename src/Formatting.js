@@ -20,6 +20,7 @@ define("Formatting",function(require,exports) {
     var Collections = require("Collections");
     var Cursor = require("Cursor");
     var DOM = require("DOM");
+    var ElementTypes = require("ElementTypes");
     var Hierarchy = require("Hierarchy");
     var Position = require("Position");
     var Range = require("Range");
@@ -422,12 +423,12 @@ define("Formatting",function(require,exports) {
 
         for (var i = 0; i < leafNodes.length; i++) {
             var leaf = leafNodes[i];
-            if (leaf._type == HTML_LI) {
+            if (leaf._type == ElementTypes.HTML_LI) {
                 switch (leaf.parentNode._type) {
-                case HTML_UL:
+                case ElementTypes.HTML_UL:
                     commonProperties["-uxwrite-in-ul"] = "true";
                     break;
-                case HTML_OL:
+                case ElementTypes.HTML_OL:
                     commonProperties["-uxwrite-in-ol"] = "true";
                     break;
                 }
@@ -437,7 +438,7 @@ define("Formatting",function(require,exports) {
                      ancestor.parentNode != null;
                      ancestor = ancestor.parentNode) {
 
-                    if (ancestor.parentNode._type == HTML_LI) {
+                    if (ancestor.parentNode._type == ElementTypes.HTML_LI) {
                         var havePrev = false;
                         for (var c = ancestor.previousSibling; c != null; c = c.previousSibling) {
                             if (!Traversal.isWhitespaceTextNode(c)) {
@@ -448,10 +449,10 @@ define("Formatting",function(require,exports) {
                         if (!havePrev) {
                             var listNode = ancestor.parentNode.parentNode;
                             switch (listNode._type) {
-                            case HTML_UL:
+                            case ElementTypes.HTML_UL:
                                 commonProperties["-uxwrite-in-ul"] = "true";
                                 break;
-                            case HTML_OL:
+                            case ElementTypes.HTML_OL:
                                 commonProperties["-uxwrite-in-ol"] = "true";
                                 break;
                             }
@@ -526,13 +527,13 @@ define("Formatting",function(require,exports) {
 
             var type = node._type;
             switch (type) {
-            case HTML_B:
+            case ElementTypes.HTML_B:
                 properties["font-weight"] = "bold";
                 break;
-            case HTML_I:
+            case ElementTypes.HTML_I:
                 properties["font-style"] = "italic";
                 break;
-            case HTML_U: {
+            case ElementTypes.HTML_U: {
                 var components = [];
                 if (properties["text-decoration"] != null) {
                     var components = properties["text-decoration"].toLowerCase().split(/\s+/);
@@ -544,19 +545,19 @@ define("Formatting",function(require,exports) {
                 }
                 break;
             }
-//            case HTML_TT:
+//            case ElementTypes.HTML_TT:
 //                properties["-uxwrite-in-tt"] = "true";
 //                break;
-            case HTML_IMG:
+            case ElementTypes.HTML_IMG:
                 properties["-uxwrite-in-image"] = "true";
                 break;
-            case HTML_FIGURE:
+            case ElementTypes.HTML_FIGURE:
                 properties["-uxwrite-in-figure"] = "true";
                 break;
-            case HTML_TABLE:
+            case ElementTypes.HTML_TABLE:
                 properties["-uxwrite-in-table"] = "true";
                 break;
-            case HTML_A:
+            case ElementTypes.HTML_A:
                 if (node.hasAttribute("href")) {
                     var href = node.getAttribute("href");
                     if (href.charAt(0) == "#")
@@ -565,7 +566,7 @@ define("Formatting",function(require,exports) {
                         properties["-uxwrite-in-link"] = "true";
                 }
                 break;
-            case HTML_NAV: {
+            case ElementTypes.HTML_NAV: {
                 var className = DOM.getAttribute(node,"class");
                 if ((className == Types.Keys.SECTION_TOC) ||
                     (className == Types.Keys.FIGURE_TOC) ||
@@ -665,7 +666,7 @@ define("Formatting",function(require,exports) {
         var set = new Collections.NodeSet();
         for (var i = 0; i < nodes.length; i++) {
             for (var anc = nodes[i].parentNode; anc != null; anc = anc.parentNode) {
-                if (anc._type == HTML_LI)
+                if (anc._type == ElementTypes.HTML_LI)
                     putDirectInlineChildrenInParagraphs(anc);
             }
             recurse(nodes[i]);
@@ -686,7 +687,7 @@ define("Formatting",function(require,exports) {
         return modified;
 
         function recurse(node) {
-            if (node._type == HTML_LI)
+            if (node._type == ElementTypes.HTML_LI)
                 putDirectInlineChildrenInParagraphs(node);
             if (node.firstChild == null) {
                 // Leaf node
@@ -714,7 +715,7 @@ define("Formatting",function(require,exports) {
         var wasHeading = Types.isHeadingNode(paragraph);
         DOM.removeAttribute(paragraph,"class");
         if (selector == "") {
-            if (paragraph._type != HTML_P)
+            if (paragraph._type != ElementTypes.HTML_P)
                 paragraph = DOM.replaceElement(paragraph,"P");
         }
         else {
@@ -729,7 +730,7 @@ define("Formatting",function(require,exports) {
                 else
                     elementName = elementName.toUpperCase();
 
-                var elementType = ElementTypes[elementName];
+                var elementType = ElementTypes.fromString[elementName];
 
                 if (!Types.PARAGRAPH_ELEMENTS[elementType])
                     return; // better than throwing an exception
@@ -784,13 +785,13 @@ define("Formatting",function(require,exports) {
 
             var type = node._type;
             switch (type) {
-            case HTML_B:
+            case ElementTypes.HTML_B:
                 inlineProperties["font-weight"] = "bold";
                 break;
-            case HTML_I:
+            case ElementTypes.HTML_I:
                 inlineProperties["font-style"] = "italic";
                 break;
-            case HTML_U:
+            case ElementTypes.HTML_U:
                 if (inlineProperties["text-decoration"] != null)
                     inlineProperties["text-decoration"] += " underline";
                 else
@@ -820,9 +821,9 @@ define("Formatting",function(require,exports) {
                 DOM.removeAttribute(node,"style");
 
             switch (type) {
-            case HTML_B:
-            case HTML_I:
-            case HTML_U:
+            case ElementTypes.HTML_B:
+            case ElementTypes.HTML_I:
+            case ElementTypes.HTML_U:
                 DOM.removeNodeButKeepChildren(node);
                 break;
             }
@@ -858,9 +859,9 @@ define("Formatting",function(require,exports) {
 
         var isbiu = false;
         switch (target._type) {
-        case HTML_B:
-        case HTML_I:
-        case HTML_U:
+        case ElementTypes.HTML_B:
+        case ElementTypes.HTML_I:
+        case ElementTypes.HTML_U:
             isbiu = true;
             break;
         }
@@ -969,16 +970,16 @@ define("Formatting",function(require,exports) {
 
         var willRemove = false;
         switch (node._type) {
-        case HTML_B:
+        case ElementTypes.HTML_B:
             willRemove = (special.bold != null);
             break;
-        case HTML_I:
+        case ElementTypes.HTML_I:
             willRemove = (special.italic != null);
             break;
-        case HTML_U:
+        case ElementTypes.HTML_U:
             willRemove = (special.underline != null);
             break;
-        case HTML_SPAN:
+        case ElementTypes.HTML_SPAN:
             willRemove = (!node.hasAttribute("style") && !isSpecialSpan(node));
             break;
         }
@@ -998,7 +999,7 @@ define("Formatting",function(require,exports) {
     }
 
     function isSpecialSpan(span) {
-        if (span._type == HTML_SPAN) {
+        if (span._type == ElementTypes.HTML_SPAN) {
             if (span.hasAttribute(Types.Keys.ABSTRACT_ELEMENT))
                 return true;
             var className = DOM.getStringAttribute(span,"class");
@@ -1180,55 +1181,55 @@ define("Formatting",function(require,exports) {
         return applyInlineFormatting(node,properties,special,true);
     }
 
-    var MERGEABLE_INLINE = new Array(HTML_COUNT);
+    var MERGEABLE_INLINE = new Array(ElementTypes.HTML_COUNT);
 
-    MERGEABLE_INLINE[HTML_TEXT] = true;
+    MERGEABLE_INLINE[ElementTypes.HTML_TEXT] = true;
 
-    MERGEABLE_INLINE[HTML_SPAN] = true;
-    MERGEABLE_INLINE[HTML_A] = true;
-    MERGEABLE_INLINE[HTML_Q] = true;
+    MERGEABLE_INLINE[ElementTypes.HTML_SPAN] = true;
+    MERGEABLE_INLINE[ElementTypes.HTML_A] = true;
+    MERGEABLE_INLINE[ElementTypes.HTML_Q] = true;
 
     // HTML 4.01 Section 9.2.1: Phrase elements
-    MERGEABLE_INLINE[HTML_EM] = true;
-    MERGEABLE_INLINE[HTML_STRONG] = true;
-    MERGEABLE_INLINE[HTML_DFN] = true;
-    MERGEABLE_INLINE[HTML_CODE] = true;
-    MERGEABLE_INLINE[HTML_SAMP] = true;
-    MERGEABLE_INLINE[HTML_KBD] = true;
-    MERGEABLE_INLINE[HTML_VAR] = true;
-    MERGEABLE_INLINE[HTML_CITE] = true;
-    MERGEABLE_INLINE[HTML_ABBR] = true;
+    MERGEABLE_INLINE[ElementTypes.HTML_EM] = true;
+    MERGEABLE_INLINE[ElementTypes.HTML_STRONG] = true;
+    MERGEABLE_INLINE[ElementTypes.HTML_DFN] = true;
+    MERGEABLE_INLINE[ElementTypes.HTML_CODE] = true;
+    MERGEABLE_INLINE[ElementTypes.HTML_SAMP] = true;
+    MERGEABLE_INLINE[ElementTypes.HTML_KBD] = true;
+    MERGEABLE_INLINE[ElementTypes.HTML_VAR] = true;
+    MERGEABLE_INLINE[ElementTypes.HTML_CITE] = true;
+    MERGEABLE_INLINE[ElementTypes.HTML_ABBR] = true;
 
     // HTML 4.01 Section 9.2.3: Subscripts and superscripts
-    MERGEABLE_INLINE[HTML_SUB] = true;
-    MERGEABLE_INLINE[HTML_SUP] = true;
+    MERGEABLE_INLINE[ElementTypes.HTML_SUB] = true;
+    MERGEABLE_INLINE[ElementTypes.HTML_SUP] = true;
 
     // HTML 4.01 Section 15.2.1: Font style elements
-    MERGEABLE_INLINE[HTML_I] = true;
-    MERGEABLE_INLINE[HTML_B] = true;
-    MERGEABLE_INLINE[HTML_SMALL] = true;
-    MERGEABLE_INLINE[HTML_S] = true;
-    MERGEABLE_INLINE[HTML_U] = true;
+    MERGEABLE_INLINE[ElementTypes.HTML_I] = true;
+    MERGEABLE_INLINE[ElementTypes.HTML_B] = true;
+    MERGEABLE_INLINE[ElementTypes.HTML_SMALL] = true;
+    MERGEABLE_INLINE[ElementTypes.HTML_S] = true;
+    MERGEABLE_INLINE[ElementTypes.HTML_U] = true;
 
-    var MERGEABLE_BLOCK = new Array(HTML_COUNT);
+    var MERGEABLE_BLOCK = new Array(ElementTypes.HTML_COUNT);
 
-    MERGEABLE_BLOCK[HTML_P] = true;
-    MERGEABLE_BLOCK[HTML_H1] = true;
-    MERGEABLE_BLOCK[HTML_H2] = true;
-    MERGEABLE_BLOCK[HTML_H3] = true;
-    MERGEABLE_BLOCK[HTML_H4] = true;
-    MERGEABLE_BLOCK[HTML_H5] = true;
-    MERGEABLE_BLOCK[HTML_H6] = true;
-    MERGEABLE_BLOCK[HTML_DIV] = true;
-    MERGEABLE_BLOCK[HTML_PRE] = true;
-    MERGEABLE_BLOCK[HTML_BLOCKQUOTE] = true;
+    MERGEABLE_BLOCK[ElementTypes.HTML_P] = true;
+    MERGEABLE_BLOCK[ElementTypes.HTML_H1] = true;
+    MERGEABLE_BLOCK[ElementTypes.HTML_H2] = true;
+    MERGEABLE_BLOCK[ElementTypes.HTML_H3] = true;
+    MERGEABLE_BLOCK[ElementTypes.HTML_H4] = true;
+    MERGEABLE_BLOCK[ElementTypes.HTML_H5] = true;
+    MERGEABLE_BLOCK[ElementTypes.HTML_H6] = true;
+    MERGEABLE_BLOCK[ElementTypes.HTML_DIV] = true;
+    MERGEABLE_BLOCK[ElementTypes.HTML_PRE] = true;
+    MERGEABLE_BLOCK[ElementTypes.HTML_BLOCKQUOTE] = true;
 
-    MERGEABLE_BLOCK[HTML_UL] = true;
-    MERGEABLE_BLOCK[HTML_OL] = true;
-    MERGEABLE_BLOCK[HTML_LI] = true;
+    MERGEABLE_BLOCK[ElementTypes.HTML_UL] = true;
+    MERGEABLE_BLOCK[ElementTypes.HTML_OL] = true;
+    MERGEABLE_BLOCK[ElementTypes.HTML_LI] = true;
 
-    var MERGEABLE_BLOCK_AND_INLINE = new Array(HTML_COUNT);
-    for (var i = 0; i < HTML_COUNT; i++) {
+    var MERGEABLE_BLOCK_AND_INLINE = new Array(ElementTypes.HTML_COUNT);
+    for (var i = 0; i < ElementTypes.HTML_COUNT; i++) {
         if (MERGEABLE_INLINE[i] || MERGEABLE_BLOCK[i])
             MERGEABLE_BLOCK_AND_INLINE[i] = true;
         MERGEABLE_BLOCK_AND_INLINE["force"] = true;

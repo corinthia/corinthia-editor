@@ -17,6 +17,7 @@
 
 define("DOM",function(require,exports) {
 
+    var ElementTypes = require("ElementTypes");
     var Traversal = require("Traversal");
     var Types = require("Types");
     var UndoManager = require("UndoManager");
@@ -41,7 +42,7 @@ define("DOM",function(require,exports) {
         if (node._nodeId != null)
             throw new Error(node+" already has id");
         node._nodeId = nextNodeId++;
-        node._type = ElementTypes[node.nodeName];
+        node._type = ElementTypes.fromString[node.nodeName];
         return node;
     }
 
@@ -59,7 +60,7 @@ define("DOM",function(require,exports) {
 
         function recurse(node) {
             node._nodeId = nextNodeId++;
-            node._type = ElementTypes[node.nodeName];
+            node._type = ElementTypes.fromString[node.nodeName];
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
         }
@@ -732,7 +733,7 @@ define("DOM",function(require,exports) {
     function documentHead(document) {
         var html = document.documentElement;
         for (var child = html.firstChild; child != null; child = child.nextSibling) {
-            if (child._type == HTML_HEAD)
+            if (child._type == ElementTypes.HTML_HEAD)
                 return child;
         }
         throw new Error("Document contains no HEAD element");

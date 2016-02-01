@@ -18,6 +18,7 @@
 define("ChangeTracking",function(require,exports) {
 
     var DOM = require("DOM");
+    var ElementTypes = require("ElementTypes");
     var Position = require("Position");
     var Range = require("Range");
     var Selection = require("Selection");
@@ -57,11 +58,11 @@ define("ChangeTracking",function(require,exports) {
                 var next;
                 for (ancestor = outermost[i].parentNode; ancestor != null; ancestor = next) {
                     next = ancestor.parentNode;
-                    if (ancestor._type == HTML_DEL) {
+                    if (ancestor._type == ElementTypes.HTML_DEL) {
                         checkEmpty.push(ancestor.parentNode);
                         DOM.deleteNode(ancestor);
                     }
-                    else if (ancestor._type == HTML_INS)
+                    else if (ancestor._type == ElementTypes.HTML_INS)
                         DOM.removeNodeButKeepChildren(ancestor);
                 }
             }
@@ -79,9 +80,9 @@ define("ChangeTracking",function(require,exports) {
                 }
                 if (empty) {
                     switch (node._type) {
-                    case HTML_LI:
-                    case HTML_UL:
-                    case HTML_OL:
+                    case ElementTypes.HTML_LI:
+                    case ElementTypes.HTML_UL:
+                    case ElementTypes.HTML_OL:
                         checkEmpty.push(node.parentNode);
                         DOM.deleteNode(node);
                         break;
@@ -100,7 +101,7 @@ define("ChangeTracking",function(require,exports) {
         }
 
         function recurse(node) {
-            if (node._type == HTML_DEL) {
+            if (node._type == ElementTypes.HTML_DEL) {
                 checkEmpty.push(node.parentNode);
                 DOM.deleteNode(node);
                 return;
@@ -112,7 +113,7 @@ define("ChangeTracking",function(require,exports) {
                 recurse(child);
             }
 
-            if (node._type == HTML_INS) {
+            if (node._type == ElementTypes.HTML_INS) {
                 DOM.removeNodeButKeepChildren(node);
             }
         }

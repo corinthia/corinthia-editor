@@ -18,6 +18,7 @@
 define("Position",function(require,exports) {
 
     var DOM = require("DOM");
+    var ElementTypes = require("ElementTypes");
     var Range = require("Range");
     var Text = require("Text");
     var Traversal = require("Traversal");
@@ -122,36 +123,36 @@ define("Position",function(require,exports) {
         var next = node.childNodes[offset];
 
         // Moving left from the start of a caption - go to the end of the table
-        if ((node._type == HTML_CAPTION) && backwards && (prev == null))
+        if ((node._type == ElementTypes.HTML_CAPTION) && backwards && (prev == null))
             return new Position(node.parentNode,node.parentNode.childNodes.length);
 
         // Moving right from the end of a caption - go after the table
-        if ((node._type == HTML_CAPTION) && forwards && (next == null))
+        if ((node._type == ElementTypes.HTML_CAPTION) && forwards && (next == null))
             return new Position(node.parentNode.parentNode,DOM.nodeOffset(node.parentNode)+1);
 
         // Moving left from just after a table - go to the end of the caption (if there is one)
-        if ((prev != null) && (prev._type == HTML_TABLE) && backwards) {
+        if ((prev != null) && (prev._type == ElementTypes.HTML_TABLE) && backwards) {
             var firstChild = Traversal.firstChildElement(prev);
-            if ((firstChild._type == HTML_CAPTION))
+            if ((firstChild._type == ElementTypes.HTML_CAPTION))
                 return new Position(firstChild,firstChild.childNodes.length);
         }
 
         // Moving right from just before a table - bypass the the caption (if there is one)
-        if ((next != null) && (next._type == HTML_TABLE) && forwards) {
+        if ((next != null) && (next._type == ElementTypes.HTML_TABLE) && forwards) {
             var firstChild = Traversal.firstChildElement(next);
-            if (firstChild._type == HTML_CAPTION)
+            if (firstChild._type == ElementTypes.HTML_CAPTION)
                 return new Position(next,DOM.nodeOffset(firstChild)+1);
         }
 
         // Moving right from the end of a table - go to the start of the caption (if there is one)
-        if ((node._type == HTML_TABLE) && (next == null) && forwards) {
+        if ((node._type == ElementTypes.HTML_TABLE) && (next == null) && forwards) {
             var firstChild = Traversal.firstChildElement(node);
-            if (firstChild._type == HTML_CAPTION)
+            if (firstChild._type == ElementTypes.HTML_CAPTION)
                 return new Position(firstChild,0);
         }
 
         // Moving left just after a caption node - skip the caption
-        if ((prev != null) && (prev._type == HTML_CAPTION) && backwards)
+        if ((prev != null) && (prev._type == ElementTypes.HTML_CAPTION) && backwards)
             return new Position(node,offset-1);
 
         return null;
@@ -284,7 +285,7 @@ define("Position",function(require,exports) {
     }
 
     function nodeCausesLineBreak(node) {
-        return ((node._type == HTML_BR) || !Types.isInlineNode(node));
+        return ((node._type == ElementTypes.HTML_BR) || !Types.isInlineNode(node));
     }
 
     function spacesUntilNextContent(node) {
@@ -338,9 +339,9 @@ define("Position",function(require,exports) {
 
         for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {
             var ancestorType = node._type;
-            if (ancestorType == HTML_FIGCAPTION)
+            if (ancestorType == ElementTypes.HTML_FIGCAPTION)
                 break;
-            else if (ancestorType == HTML_FIGURE)
+            else if (ancestorType == ElementTypes.HTML_FIGURE)
                 return false;
         }
 
@@ -385,7 +386,7 @@ define("Position",function(require,exports) {
                     if ((node == firstNode) &&
                         (firstNode.previousSibling == null) && (lastNode.nextSibling == null))
                         return true;
-                    if ((node.nextSibling != null) && (node.nextSibling._type == HTML_BR))
+                    if ((node.nextSibling != null) && (node.nextSibling._type == ElementTypes.HTML_BR))
                         return true;
                     if ((node.firstChild == null) &&
                         (node.previousSibling == null) &&
@@ -395,7 +396,7 @@ define("Position",function(require,exports) {
                     if (insertion && (node.previousSibling != null) &&
                         Types.isInlineNode(node.previousSibling) &&
                         !Types.isOpaqueNode(node.previousSibling) &&
-                        (node.previousSibling._type != HTML_BR))
+                        (node.previousSibling._type != ElementTypes.HTML_BR))
                         return true;
                 }
                 return false;
@@ -408,7 +409,7 @@ define("Position",function(require,exports) {
             if (Util.isWhitespaceString(precedingText)) {
                 return (haveNextChar &&
                         ((node.previousSibling == null) ||
-                         (node.previousSibling._type == HTML_BR) ||
+                         (node.previousSibling._type == ElementTypes.HTML_BR) ||
                          Types.isNoteNode(node.previousSibling) ||
                          (Types.isParagraphNode(node.previousSibling)) ||
                          (Traversal.getNodeText(node.previousSibling).match(/\s$/)) ||
@@ -430,9 +431,9 @@ define("Position",function(require,exports) {
         else if (node.nodeType == Node.ELEMENT_NODE) {
             if (node.firstChild == null) {
                 switch (type) {
-                case HTML_LI:
-                case HTML_TH:
-                case HTML_TD:
+                case ElementTypes.HTML_LI:
+                case ElementTypes.HTML_TH:
+                case ElementTypes.HTML_TD:
                     return true;
                 default:
                     if (Types.PARAGRAPH_ELEMENTS[type])
@@ -458,7 +459,7 @@ define("Position",function(require,exports) {
 
             if ((prevNode == null) && (nextNode == null) &&
                 (Types.CONTAINERS_ALLOWING_CHILDREN[type] ||
-                (Types.isInlineNode(node) && !Types.isOpaqueNode(node) && (type != HTML_BR))))
+                (Types.isInlineNode(node) && !Types.isOpaqueNode(node) && (type != ElementTypes.HTML_BR))))
                 return true;
 
             if ((prevNode != null) && Types.isSpecialBlockNode(prevNode))
@@ -471,25 +472,25 @@ define("Position",function(require,exports) {
             if ((prevNode != null) && Types.isItemNumber(prevNode))
                 return ((nextNode == null) || Traversal.isWhitespaceTextNode(nextNode));
 
-            if ((nextNode != null) && (nextType == HTML_BR))
-                return ((prevType == 0) || (prevType != HTML_TEXT));
+            if ((nextNode != null) && (nextType == ElementTypes.HTML_BR))
+                return ((prevType == 0) || (prevType != ElementTypes.HTML_TEXT));
 
-            if ((prevNode != null) && (Types.isOpaqueNode(prevNode) || (prevType == HTML_TABLE))) {
+            if ((prevNode != null) && (Types.isOpaqueNode(prevNode) || (prevType == ElementTypes.HTML_TABLE))) {
 
                 switch (nextType) {
                 case 0:
-                case HTML_TEXT:
-                case HTML_TABLE:
+                case ElementTypes.HTML_TEXT:
+                case ElementTypes.HTML_TABLE:
                     return true;
                 default:
                     return Types.isOpaqueNode(nextNode);
                 }
             }
-            if ((nextNode != null) && (Types.isOpaqueNode(nextNode) || (nextType == HTML_TABLE))) {
+            if ((nextNode != null) && (Types.isOpaqueNode(nextNode) || (nextType == ElementTypes.HTML_TABLE))) {
                 switch (prevType) {
                 case 0:
-                case HTML_TEXT:
-                case HTML_TABLE:
+                case ElementTypes.HTML_TEXT:
+                case ElementTypes.HTML_TABLE:
                     return true;
                 default:
                     return Types.isOpaqueNode(prevNode);
@@ -666,7 +667,7 @@ define("Position",function(require,exports) {
     function captionAncestor(pos) {
         var node = closestActualNode(pos);
         for (; node != null; node = node.parentNode) {
-            if ((node._type == HTML_FIGCAPTION) || (node._type == HTML_CAPTION))
+            if ((node._type == ElementTypes.HTML_FIGCAPTION) || (node._type == ElementTypes.HTML_CAPTION))
                 return node;
         }
         return null;
@@ -675,7 +676,7 @@ define("Position",function(require,exports) {
     function figureOrTableAncestor(pos) {
         var node = closestActualNode(pos);
         for (; node != null; node = node.parentNode) {
-            if ((node._type == HTML_FIGURE) || (node._type == HTML_TABLE))
+            if ((node._type == ElementTypes.HTML_FIGURE) || (node._type == ElementTypes.HTML_TABLE))
                 return node;
         }
         return null;
@@ -1016,7 +1017,7 @@ define("Position",function(require,exports) {
     // This is used for nodes that can potentially be the right match for a hit test, but for
     // which caretRangeFromPoint() returns the wrong result
     function nodeMayContainPos(node) {
-        return ((node._type == HTML_IMG) || Types.isEmptyNoteNode(node));
+        return ((node._type == ElementTypes.HTML_IMG) || Types.isEmptyNoteNode(node));
     }
 
     function elementContainsPoint(element,x,y) {
@@ -1026,9 +1027,9 @@ define("Position",function(require,exports) {
     }
 
     function isEmptyParagraphNode(node) {
-        return ((node._type == HTML_P) &&
+        return ((node._type == ElementTypes.HTML_P) &&
                 (node.lastChild != null) &&
-                (node.lastChild._type == HTML_BR) &&
+                (node.lastChild._type == ElementTypes.HTML_BR) &&
                 !Util.nodeHasContent(node));
     }
 
@@ -1077,14 +1078,14 @@ define("Position",function(require,exports) {
     function adjustPositionForFigure(position) {
         if (position == null)
             return null;
-        if (position.node._type == HTML_FIGURE) {
+        if (position.node._type == ElementTypes.HTML_FIGURE) {
             var prev = position.node.childNodes[position.offset-1];
             var next = position.node.childNodes[position.offset];
-            if ((prev != null) && (prev._type == HTML_IMG)) {
+            if ((prev != null) && (prev._type == ElementTypes.HTML_IMG)) {
                 position = new Position(position.node.parentNode,
                                         DOM.nodeOffset(position.node)+1);
             }
-            else if ((next != null) && (next._type == HTML_IMG)) {
+            else if ((next != null) && (next._type == ElementTypes.HTML_IMG)) {
                 position = new Position(position.node.parentNode,
                                         DOM.nodeOffset(position.node));
             }

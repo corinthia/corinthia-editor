@@ -17,6 +17,7 @@
 
 define("Markdown",function(require,exports) {
 
+    var ElementTypes = require("ElementTypes");
     var Traversal = require("Traversal");
     var Types = require("Types");
     var Util = require("Util");
@@ -26,7 +27,7 @@ define("Markdown",function(require,exports) {
         var linesBetweenChildren = 1;
         var childIndent = indent;
         switch (node._type) {
-        case HTML_LI:
+        case ElementTypes.HTML_LI:
             if (listType == "OL") {
                 var listMarker;
                 if (listNo.value < 10)
@@ -42,41 +43,41 @@ define("Markdown",function(require,exports) {
             }
             listNo.value++;
             break;
-        case HTML_UL:
+        case ElementTypes.HTML_UL:
             listType = "UL";
             listNo = { value: 1 };
             beginParagraph(md,1,indent,nextIndent);
             linesBetweenChildren = 0;
             break;
-        case HTML_OL:
+        case ElementTypes.HTML_OL:
             listType = "OL";
             listNo = { value: 1 };
             beginParagraph(md,1,indent,nextIndent);
             linesBetweenChildren = 0;
             break;
-        case HTML_H1:
+        case ElementTypes.HTML_H1:
             beginParagraph(md,1,indent,nextIndent,"# "," #");
             break;
-        case HTML_H2:
+        case ElementTypes.HTML_H2:
             beginParagraph(md,1,indent,nextIndent,"## "," ##");
             break;
-        case HTML_H3:
+        case ElementTypes.HTML_H3:
             beginParagraph(md,1,indent,nextIndent,"### "," ###");
             break;
-        case HTML_H4:
+        case ElementTypes.HTML_H4:
             beginParagraph(md,1,indent,nextIndent,"#### "," ####");
             break;
-        case HTML_H5:
+        case ElementTypes.HTML_H5:
             beginParagraph(md,1,indent,nextIndent,"##### "," #####");
             break;
-        case HTML_H6:
+        case ElementTypes.HTML_H6:
             beginParagraph(md,1,indent,nextIndent,"###### "," ######");
             break;
-        case HTML_BLOCKQUOTE:
+        case ElementTypes.HTML_BLOCKQUOTE:
             beginParagraph(md,1,indent,nextIndent,"> ");
             nextIndent += "> ";
             break;
-        case HTML_PRE:
+        case ElementTypes.HTML_PRE:
             md.preDepth++;
             break;
         }
@@ -103,7 +104,7 @@ define("Markdown",function(require,exports) {
             }
         }
 
-        if (node._type == HTML_PRE)
+        if (node._type == ElementTypes.HTML_PRE)
             md.preDepth--;
     }
 
@@ -162,7 +163,7 @@ define("Markdown",function(require,exports) {
     // private
     function inlineToText(md,node) {
         switch (node._type) {
-        case HTML_TEXT: {
+        case ElementTypes.HTML_TEXT: {
             var text = node.nodeValue;
             if (md.preDepth == 0) {
                 text = text.replace(/\\/g,"\\\\");
@@ -173,19 +174,19 @@ define("Markdown",function(require,exports) {
             md.buildParagraph.push(text);
             break;
         }
-        case HTML_I:
-        case HTML_EM:
+        case ElementTypes.HTML_I:
+        case ElementTypes.HTML_EM:
             md.buildParagraph.push("*");
             processChildren();
             md.buildParagraph.push("*");
             break;
-        case HTML_B:
-        case HTML_STRONG:
+        case ElementTypes.HTML_B:
+        case ElementTypes.HTML_STRONG:
             md.buildParagraph.push("**");
             processChildren();
             md.buildParagraph.push("**");
             break;
-        case HTML_A:
+        case ElementTypes.HTML_A:
             if (node.hasAttribute("href")) {
                 md.buildParagraph.push("[");
                 processChildren();

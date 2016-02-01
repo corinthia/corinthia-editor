@@ -19,6 +19,7 @@ define("Clipboard",function(require,exports) {
 
     var Cursor = require("Cursor");
     var DOM = require("DOM");
+    var ElementTypes = require("ElementTypes");
     var Formatting = require("Formatting");
     var Main = require("Main");
     var Markdown = require("Markdown");
@@ -39,13 +40,13 @@ define("Clipboard",function(require,exports) {
 
         var startInLI = null;
         for (var node = range.start.node; node != null; node = node.parentNode) {
-            if (node._type == HTML_LI)
+            if (node._type == ElementTypes.HTML_LI)
                 startInLI = node;
         }
 
         var endInLI = null;
         for (var node = range.end.node; node != null; node = node.parentNode) {
-            if (node._type == HTML_LI)
+            if (node._type == ElementTypes.HTML_LI)
                 endInLI = node;
         }
 
@@ -116,15 +117,15 @@ define("Clipboard",function(require,exports) {
                 while (node != null) {
                     var parent = node.parentNode;
                     switch (node._type) {
-                    case HTML_LI:
+                    case ElementTypes.HTML_LI:
                         if (!Util.nodeHasContent(node))
                             DOM.deleteNode(node);
                         break;
-                    case HTML_UL:
-                    case HTML_OL: {
+                    case ElementTypes.HTML_UL:
+                    case ElementTypes.HTML_OL: {
                         var haveLI = false;
                         for (var c = node.firstChild; c != null; c = c.nextSibling) {
-                            if (c._type == HTML_LI) {
+                            if (c._type == ElementTypes.HTML_LI) {
                                 haveLI = true;
                                 break;
                             }
@@ -192,7 +193,7 @@ define("Clipboard",function(require,exports) {
 
         UndoManager.newGroup("Paste");
         var region = Tables.regionFromRange(Selection.get(),true);
-        if ((region != null) && (nodes.length == 1) && (nodes[0]._type == HTML_TABLE))
+        if ((region != null) && (nodes.length == 1) && (nodes[0]._type == ElementTypes.HTML_TABLE))
             pasteTable(nodes[0],region);
         else
             pasteNodes(nodes);
@@ -280,7 +281,7 @@ define("Clipboard",function(require,exports) {
 
     function fixParagraphStyles(node,paragraphClass) {
         if (Types.isParagraphNode(node)) {
-            if (node._type == HTML_P) {
+            if (node._type == ElementTypes.HTML_P) {
                 var className = DOM.getAttribute(node,"class");
                 if ((className == null) || (className == "")) {
                     debug("Setting paragraph class to "+paragraphClass);
@@ -312,12 +313,12 @@ define("Clipboard",function(require,exports) {
         var i = 0;
         while (i < nodes.length) {
             switch (nodes[i]._type) {
-            case HTML_HTML:
-            case HTML_BODY:
-            case HTML_META:
-            case HTML_TITLE:
-            case HTML_SCRIPT:
-            case HTML_STYLE:
+            case ElementTypes.HTML_HTML:
+            case ElementTypes.HTML_BODY:
+            case ElementTypes.HTML_META:
+            case ElementTypes.HTML_TITLE:
+            case ElementTypes.HTML_SCRIPT:
+            case ElementTypes.HTML_STYLE:
                 nodes.splice(i,1);
                 break;
             default:
@@ -329,7 +330,7 @@ define("Clipboard",function(require,exports) {
         for (var i = 0; i < nodes.length; i++)
             removeDuplicateIds(nodes[i],found);
 
-//        if ((nodes.length == 0) && (nodes[0]._type == HTML_TABLE)) {
+//        if ((nodes.length == 0) && (nodes[0]._type == ElementTypes.HTML_TABLE)) {
 //            // FIXME: this won't work; selectionRange is not defined
 //            var fromRegion = Tables.getTableRegionFromTable(nodes[0]);
 //            var toRegion = Tables.regionFromRange(selectionRange);
@@ -369,11 +370,11 @@ define("Clipboard",function(require,exports) {
         for (var temp = parent; temp != null; temp = temp.parentNode) {
             if (Types.isContainerNode(temp)) {
                 switch (temp._type) {
-                case HTML_LI:
+                case ElementTypes.HTML_LI:
                     inItem = temp;
                     break;
-                case HTML_UL:
-                case HTML_OL:
+                case ElementTypes.HTML_UL:
+                case ElementTypes.HTML_OL:
                     inList = temp;
                     break;
                 }
@@ -391,13 +392,13 @@ define("Clipboard",function(require,exports) {
                 var offset = DOM.nodeOffset(nextSibling,parent);
 
                 switch (child._type) {
-                case HTML_UL:
-                case HTML_OL:
+                case ElementTypes.HTML_UL:
+                case ElementTypes.HTML_OL:
                     Formatting.movePreceding(new Position.Position(parent,offset),
                                              function(x) { return (x == containerParent); });
                     insertChildrenBefore(inItem.parentNode,child,inItem,pastedNodes);
                     break;
-                case HTML_LI:
+                case ElementTypes.HTML_LI:
                     Formatting.movePreceding(new Position.Position(parent,offset),
                                              function(x) { return (x == containerParent); });
                     DOM.insertBefore(inItem.parentNode,child,inItem);
@@ -418,12 +419,12 @@ define("Clipboard",function(require,exports) {
                 var offset = DOM.nodeOffset(nextSibling,parent);
 
                 switch (child._type) {
-                case HTML_UL:
-                case HTML_OL:
+                case ElementTypes.HTML_UL:
+                case ElementTypes.HTML_OL:
                     insertChildrenBefore(parent,child,nextSibling,pastedNodes);
                     prevLI = null;
                     break;
-                case HTML_LI:
+                case ElementTypes.HTML_LI:
                     DOM.insertBefore(parent,child,nextSibling);
                     pastedNodes.push(child);
                     prevLI = null;
@@ -477,7 +478,7 @@ define("Clipboard",function(require,exports) {
             while (true) {
                 if (pos.node == document.body)
                     break;
-                if (Types.isContainerNode(pos.node) && (pos.node._type != HTML_LI))
+                if (Types.isContainerNode(pos.node) && (pos.node._type != ElementTypes.HTML_LI))
                     break;
                 if (!Util.nodeHasContent(pos.node)) {
                     var oldNode = pos.node;

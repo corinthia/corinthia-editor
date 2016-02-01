@@ -19,6 +19,7 @@ define("Cursor",function(require,exports) {
 
     var Clipboard = require("Clipboard");
     var DOM = require("DOM");
+    var ElementTypes = require("ElementTypes");
     var Formatting = require("Formatting");
     var Hierarchy = require("Hierarchy");
     var Outline = require("Outline");
@@ -94,7 +95,7 @@ define("Cursor",function(require,exports) {
         var node = Position.closestActualNode(position);
         for (; node != null; node = node.parentNode) {
             var type = node._type;
-            if ((type == HTML_A) &&
+            if ((type == ElementTypes.HTML_A) &&
                 (node.hasAttribute("href")) &&
                 (result == null)) {
 
@@ -119,9 +120,9 @@ define("Cursor",function(require,exports) {
                     }
                 }
             }
-            else if ((type == HTML_IMG) && (result == null)) {
+            else if ((type == ElementTypes.HTML_IMG) && (result == null)) {
                 for (var anc = node; anc != null; anc = anc.parentNode) {
-                    if (anc._type == HTML_FIGURE) {
+                    if (anc._type == ElementTypes.HTML_FIGURE) {
                         result = "infigure";
                         break;
                     }
@@ -245,7 +246,7 @@ define("Cursor",function(require,exports) {
                 while ((child != null) && Traversal.isWhitespaceTextNode(child))
                     child = child.previousSibling;
 
-                if ((child != null) && (child._type == HTML_BR))
+                if ((child != null) && (child._type == ElementTypes.HTML_BR))
                     br = child;
 
                 last = last.lastChild;
@@ -443,8 +444,8 @@ define("Cursor",function(require,exports) {
                 // must be done *after* inserting the text
         if (!allowNoParagraph) {
             switch (node.parentNode._type) {
-            case HTML_CAPTION:
-            case HTML_FIGCAPTION:
+            case ElementTypes.HTML_CAPTION:
+            case ElementTypes.HTML_FIGCAPTION:
                 // Do nothing
                 break;
             default:
@@ -530,7 +531,7 @@ define("Cursor",function(require,exports) {
                     ensureCursorVisible();
                     return;
                 }
-                if ((prevNode._type == HTML_A) || Types.isNoteNode(prevNode)) {
+                if ((prevNode._type == ElementTypes.HTML_A) || Types.isNoteNode(prevNode)) {
                     set(back.node,back.offset-1);
                     Selection.preserveWhileExecuting(function() {
                         DOM.deleteNode(prevNode);
@@ -601,16 +602,16 @@ define("Cursor",function(require,exports) {
         var closestNode = Position.closestActualNode(selRange.start);
         for (var ancestor = closestNode; ancestor != null; ancestor = ancestor.parentNode) {
             switch (ancestor._type) {
-            case HTML_CAPTION:
+            case ElementTypes.HTML_CAPTION:
                 inCaption = true;
                 break;
-            case HTML_FIGCAPTION:
+            case ElementTypes.HTML_FIGCAPTION:
                 inFigCaption = true;
                 break;
-            case HTML_TABLE:
-            case HTML_FIGURE:
-                if ((inCaption && (ancestor._type == HTML_TABLE)) ||
-                    (inFigCaption && (ancestor._type == HTML_FIGURE))) {
+            case ElementTypes.HTML_TABLE:
+            case ElementTypes.HTML_FIGURE:
+                if ((inCaption && (ancestor._type == ElementTypes.HTML_TABLE)) ||
+                    (inFigCaption && (ancestor._type == ElementTypes.HTML_FIGURE))) {
                     var p = DOM.createElement(document,"P");
                     DOM.insertBefore(ancestor.parentNode,p,ancestor.nextSibling);
                     updateBRAtEndOfParagraph(p);
@@ -666,8 +667,8 @@ define("Cursor",function(require,exports) {
 
         var detail = Range.detail(selRange);
         switch (detail.startParent._type) {
-        case HTML_OL:
-        case HTML_UL: {
+        case ElementTypes.HTML_OL:
+        case ElementTypes.HTML_UL: {
             var li = DOM.createElement(document,"LI");
             DOM.insertBefore(detail.startParent,li,detail.startChild);
 
@@ -686,7 +687,7 @@ define("Cursor",function(require,exports) {
 
             // If we're directly in a container node, add a paragraph, so we have something to
             // split.
-            if (Types.isContainerNode(pos.node) && (pos.node._type != HTML_LI)) {
+            if (Types.isContainerNode(pos.node) && (pos.node._type != ElementTypes.HTML_LI)) {
                 var p = DOM.createElement(document,"P");
                 DOM.insertBefore(pos.node,p,pos.node.childNodes[pos.offset]);
                 pos = new Position.Position(p,0);
@@ -728,7 +729,7 @@ define("Cursor",function(require,exports) {
                     updateBRAtEndOfParagraph(prev);
                     break;
                 }
-                else if ((prev != null) && (prev._type == HTML_LI) && !Util.nodeHasContent(prev)) {
+                else if ((prev != null) && (prev._type == ElementTypes.HTML_LI) && !Util.nodeHasContent(prev)) {
                     var next;
                     for (var child = prev.firstChild; child != null; child = next) {
                         next = child.nextSibling;
@@ -769,7 +770,7 @@ define("Cursor",function(require,exports) {
                     updateBRAtEndOfParagraph(prev);
                     break;
                 }
-                else if ((ancestor._type == HTML_LI) && !Util.nodeHasContent(ancestor)) {
+                else if ((ancestor._type == ElementTypes.HTML_LI) && !Util.nodeHasContent(ancestor)) {
                     DOM.deleteAllChildren(ancestor);
                     break;
                 }
@@ -786,7 +787,7 @@ define("Cursor",function(require,exports) {
         function getBlockToSplit(pos) {
             var blockToSplit = null;
             for (var n = pos.node; n != null; n = n.parentNode) {
-                if (n._type == HTML_LI) {
+                if (n._type == ElementTypes.HTML_LI) {
                     blockToSplit = n;
                     break;
                 }
@@ -862,7 +863,7 @@ define("Cursor",function(require,exports) {
     }
 
     function getLinkProperties() {
-        var a = getAdjacentNodeWithType(HTML_A);
+        var a = getAdjacentNodeWithType(ElementTypes.HTML_A);
         if (a == null)
             return null;
 
@@ -871,7 +872,7 @@ define("Cursor",function(require,exports) {
     }
 
     function setLinkProperties(properties) {
-        var a = getAdjacentNodeWithType(HTML_A);
+        var a = getAdjacentNodeWithType(ElementTypes.HTML_A);
         if (a == null)
             return null;
 
@@ -883,7 +884,7 @@ define("Cursor",function(require,exports) {
     }
 
     function setReferenceTarget(itemId) {
-        var a = getAdjacentNodeWithType(HTML_A);
+        var a = getAdjacentNodeWithType(ElementTypes.HTML_A);
         if (a != null)
             Outline.setReferenceTarget(a,itemId);
     }
@@ -978,7 +979,7 @@ define("Cursor",function(require,exports) {
         // is allowed to go inside the empty text node, and this doesn't show up in the correct
         // position on screen.
         var pos = range.start;
-        if ((pos.node._type == HTML_TEXT) &&
+        if ((pos.node._type == ElementTypes.HTML_TEXT) &&
             (pos.node.nodeValue.length == 0)) {
             var empty = pos.node;
             pos = new Position.Position(empty.parentNode,DOM.nodeOffset(empty));

@@ -18,6 +18,7 @@
 define("Hierarchy",function(require,exports) {
 
     var DOM = require("DOM");
+    var ElementTypes = require("ElementTypes");
     var Formatting = require("Formatting");
     var Position = require("Position");
     var Traversal = require("Traversal");
@@ -84,30 +85,30 @@ define("Hierarchy",function(require,exports) {
 
     function checkInvalidNesting(node) {
         var parent = node.parentNode;
-        if ((parent._type == HTML_DIV) &&
+        if ((parent._type == ElementTypes.HTML_DIV) &&
             (DOM.getAttribute(parent,"class") == Types.Keys.SELECTION_CLASS)) {
             parent = parent.parentNode;
         }
 
         var invalidNesting = !Types.isContainerNode(parent);
         switch (parent._type) {
-        case HTML_DIV:
+        case ElementTypes.HTML_DIV:
             if (Types.isParagraphNode(node) || Types.isListNode(node))
                 invalidNesting = false; // this case is ok
             break;
-        case HTML_CAPTION:
-        case HTML_FIGCAPTION:
-        case HTML_TABLE:
-        case HTML_FIGURE:
+        case ElementTypes.HTML_CAPTION:
+        case ElementTypes.HTML_FIGCAPTION:
+        case ElementTypes.HTML_TABLE:
+        case ElementTypes.HTML_FIGURE:
             switch (node._type) {
-            case HTML_FIGURE:
-            case HTML_TABLE:
-            case HTML_H1:
-            case HTML_H2:
-            case HTML_H3:
-            case HTML_H4:
-            case HTML_H5:
-            case HTML_H6:
+            case ElementTypes.HTML_FIGURE:
+            case ElementTypes.HTML_TABLE:
+            case ElementTypes.HTML_H1:
+            case ElementTypes.HTML_H2:
+            case ElementTypes.HTML_H3:
+            case ElementTypes.HTML_H4:
+            case ElementTypes.HTML_H5:
+            case ElementTypes.HTML_H6:
                 return true;
             }
             break;
@@ -118,16 +119,16 @@ define("Hierarchy",function(require,exports) {
 
     function checkInvalidHeadingNesting(node) {
         switch (node._type) {
-        case HTML_H1:
-        case HTML_H2:
-        case HTML_H3:
-        case HTML_H4:
-        case HTML_H5:
-        case HTML_H6:
+        case ElementTypes.HTML_H1:
+        case ElementTypes.HTML_H2:
+        case ElementTypes.HTML_H3:
+        case ElementTypes.HTML_H4:
+        case ElementTypes.HTML_H5:
+        case ElementTypes.HTML_H6:
             switch (node.parentNode._type) {
-            case HTML_BODY:
-            case HTML_NAV:
-            case HTML_DIV:
+            case ElementTypes.HTML_BODY:
+            case ElementTypes.HTML_NAV:
+            case ElementTypes.HTML_DIV:
                 return false;
             default:
                 return true;
@@ -183,7 +184,7 @@ define("Hierarchy",function(require,exports) {
                     while (!Types.isContainerNode(child.parentNode)) {
                         if (Types.isInlineNode(child.parentNode)) {
                             var keep = false;
-                            if (child.parentNode._type == HTML_SPAN) {
+                            if (child.parentNode._type == ElementTypes.HTML_SPAN) {
                                 for (var i = 0; i < child.attributes.length; i++) {
                                     var attr = child.attributes[i];
                                     if (attr.nodeName.toUpperCase() != "ID")
@@ -226,7 +227,7 @@ define("Hierarchy",function(require,exports) {
             if (count > 200)
                 throw new Error("too many iterations");
             if (Types.isInlineNode(node) &&
-                Types.isContainerNode(node.parentNode) && (node.parentNode._type != HTML_LI) &&
+                Types.isContainerNode(node.parentNode) && (node.parentNode._type != ElementTypes.HTML_LI) &&
                 (!weak || !Types.isTableCell(node.parentNode)) &&
                 !Traversal.isWhitespaceTextNode(node)) {
                 wrapInlineNodesInParagraph(node);

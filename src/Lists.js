@@ -20,6 +20,7 @@ define("Lists",function(require,exports) {
     var Collections = require("Collections");
     var Cursor = require("Cursor");
     var DOM = require("DOM");
+    var ElementTypes = require("ElementTypes");
     var Hierarchy = require("Hierarchy");
     var Range = require("Range");
     var Selection = require("Selection");
@@ -47,7 +48,7 @@ define("Lists",function(require,exports) {
             if (node == null)
                 return;
 
-            if (node._type == HTML_LI) {
+            if (node._type == ElementTypes.HTML_LI) {
                 if (!Util.arrayContains(array,node))
                     array.push(node);
                 return;
@@ -77,7 +78,7 @@ define("Lists",function(require,exports) {
             for (var i = 0; i < listItems.length; i++) {
                 var li = listItems[i];
                 var prevLi = li.previousSibling;
-                while ((prevLi != null) && (prevLi._type != HTML_LI))
+                while ((prevLi != null) && (prevLi._type != ElementTypes.HTML_LI))
                     prevLi = prevLi.previousSibling;
                 // We can only increase the indentation of the current list item C if there is
                 // another list item P immediately preceding C. In this case, C becomes a child of
@@ -117,7 +118,7 @@ define("Lists",function(require,exports) {
                         }
                         else {
                             // alert("Case 4: no prevList and no childList");
-                            if (li.parentNode._type == HTML_UL)
+                            if (li.parentNode._type == ElementTypes.HTML_UL)
                                 newList = DOM.createElement(document,"UL");
                             else
                                 newList = DOM.createElement(document,"OL");
@@ -135,8 +136,8 @@ define("Lists",function(require,exports) {
                 if (node == null)
                     return null;
                 switch (node._type) {
-                case HTML_UL:
-                case HTML_OL:
+                case ElementTypes.HTML_UL:
+                case ElementTypes.HTML_OL:
                     return node;
                 }
             }
@@ -148,8 +149,8 @@ define("Lists",function(require,exports) {
                 if (node == null)
                     return null;
                 switch (node._type) {
-                case HTML_UL:
-                case HTML_OL:
+                case ElementTypes.HTML_UL:
+                case ElementTypes.HTML_OL:
                     return node;
                 }
             }
@@ -208,7 +209,7 @@ define("Lists",function(require,exports) {
 
                 if (haveContentAfter(liNode)) {
                     var secondHalf;
-                    if (listNode._type == HTML_UL)
+                    if (listNode._type == ElementTypes.HTML_UL)
                         secondHalf = DOM.createElement(document,"UL");
                     else
                         secondHalf = DOM.createElement(document,"OL");
@@ -236,7 +237,7 @@ define("Lists",function(require,exports) {
 
         function findContainerChild(node) {
             while (node.parentNode != null) {
-                if (Types.isContainerNode(node.parentNode) && (node.parentNode._type != HTML_LI))
+                if (Types.isContainerNode(node.parentNode) && (node.parentNode._type != ElementTypes.HTML_LI))
                     return node;
                 node = node.parentNode;
             }
@@ -259,17 +260,17 @@ define("Lists",function(require,exports) {
         var nodes = new Array();
         var nodeSet = new Collections.NodeSet();
 
-        if (dca._type == HTML_LI)
+        if (dca._type == ElementTypes.HTML_LI)
             return [dca];
 
         // If, after moving up the tree until dca is a container node, a single node is selected,
         // check if it is wholly contained within a single list item. If so, select just that
         // list item.
-        var isStartLI = ((ds != null) && (ds._type == HTML_LI));
-        var isEndLI = ((de != null) && (de._type == HTML_LI));
+        var isStartLI = ((ds != null) && (ds._type == ElementTypes.HTML_LI));
+        var isEndLI = ((de != null) && (de._type == ElementTypes.HTML_LI));
         if (!isStartLI && !isEndLI) {
             for (var ancestor = dca; ancestor.parentNode != null; ancestor = ancestor.parentNode) {
-                if (ancestor.parentNode._type == HTML_LI) {
+                if (ancestor.parentNode._type == ElementTypes.HTML_LI) {
                     var firstElement = true;
 
                     for (var p = ancestor.previousSibling; p != null; p = p.previousSibling) {
@@ -289,15 +290,15 @@ define("Lists",function(require,exports) {
 
         for (var child = ds; child != end; child = child.nextSibling) {
             switch (child._type) {
-            case HTML_UL:
-            case HTML_OL:
+            case ElementTypes.HTML_UL:
+            case ElementTypes.HTML_OL:
                 for (var gc = child.firstChild; gc != null; gc = gc.nextSibling) {
                     if (!Traversal.isWhitespaceTextNode(gc))
                         addNode(gc);
                 }
                 break;
             default:
-                if ((child._type == HTML_DIV) &&
+                if ((child._type == ElementTypes.HTML_DIV) &&
                      child.getAttribute("class") == Types.Keys.SELECTION_HIGHLIGHT) {
                     // skip
                 }
@@ -334,7 +335,7 @@ define("Lists",function(require,exports) {
 
             for (var i = 0; i < nodes.length; i++) {
                 var node = nodes[i];
-                if (node._type == HTML_LI) {
+                if (node._type == ElementTypes.HTML_LI) {
                     var li = node;
                     var list = li.parentNode;
                     var insertionPoint = null;
@@ -431,12 +432,12 @@ define("Lists",function(require,exports) {
                 var oldList = null;
                 var listInsertionPoint;
 
-                if ((node._type == HTML_LI) && (node.parentNode._type == type)) {
+                if ((node._type == ElementTypes.HTML_LI) && (node.parentNode._type == type)) {
                     // Already in the correct type of list; don't need to do anything
                     continue;
                 }
 
-                if (node._type == HTML_LI) {
+                if (node._type == ElementTypes.HTML_LI) {
                     li = node;
                     var list = li.parentNode;
 
@@ -491,7 +492,7 @@ define("Lists",function(require,exports) {
                     itemInsertionPoint = list.firstChild;
                 }
                 else {
-                    if (type == HTML_UL)
+                    if (type == ElementTypes.HTML_UL)
                         list = DOM.createElement(document,"UL");
                     else
                         list = DOM.createElement(document,"OL");
@@ -532,12 +533,12 @@ define("Lists",function(require,exports) {
 
     // public
     function setUnorderedList() {
-        setList(HTML_UL);
+        setList(ElementTypes.HTML_UL);
     }
 
     // public
     function setOrderedList() {
-        setList(HTML_OL);
+        setList(ElementTypes.HTML_OL);
     }
 
     exports.increaseIndent = increaseIndent;

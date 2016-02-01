@@ -25,6 +25,7 @@ define("Outline",function(require,exports) {
     var Cursor = require("Cursor");
     var DOM = require("DOM");
     var Editor = require("Editor");
+    var ElementTypes = require("ElementTypes");
     var Hierarchy = require("Hierarchy");
     var Position = require("Position");
     var PostponedActions = require("PostponedActions");
@@ -327,7 +328,7 @@ define("Outline",function(require,exports) {
             return item.node;
         }
         else if (item.type == "figure") {
-            var titleNode = findChild(item.node,HTML_FIGCAPTION);
+            var titleNode = findChild(item.node,ElementTypes.HTML_FIGCAPTION);
             if ((titleNode == null) && create) {
                 titleNode = item.spareTitle;
                 DOM.appendChild(item.node,titleNode);
@@ -335,7 +336,7 @@ define("Outline",function(require,exports) {
             return titleNode;
         }
         else if (item.type == "table") {
-            var titleNode = findChild(item.node,HTML_CAPTION);
+            var titleNode = findChild(item.node,ElementTypes.HTML_CAPTION);
             if ((titleNode == null) && create) {
                 titleNode = item.spareTitle;
                 DOM.insertBefore(item.node,titleNode,item.node.firstChild);
@@ -427,7 +428,7 @@ define("Outline",function(require,exports) {
     // private
     function acceptNode(node) {
         for (var p = node; p != null; p = p.parentNode) {
-            if ((p._type == HTML_SPAN) && (p.getAttribute("class") == Types.Keys.HEADING_NUMBER))
+            if ((p._type == ElementTypes.HTML_SPAN) && (p.getAttribute("class") == Types.Keys.HEADING_NUMBER))
                 return false;
         }
         return true;
@@ -450,29 +451,29 @@ define("Outline",function(require,exports) {
 
         function recurse(node) {
             switch (node._type) {
-            case HTML_H1:
-            case HTML_H2:
-            case HTML_H3:
-            case HTML_H4:
-            case HTML_H5:
-            case HTML_H6: {
+            case ElementTypes.HTML_H1:
+            case ElementTypes.HTML_H2:
+            case ElementTypes.HTML_H3:
+            case ElementTypes.HTML_H4:
+            case ElementTypes.HTML_H5:
+            case ElementTypes.HTML_H6: {
                 if (!Types.isInTOC(node))
                     Category_add(sections,node);
                 break;
             }
-            case HTML_FIGURE:
+            case ElementTypes.HTML_FIGURE:
                 Category_add(figures,node);
                 break;
-            case HTML_TABLE:
+            case ElementTypes.HTML_TABLE:
                 Category_add(tables,node);
                 break;
-            case HTML_A: {
+            case ElementTypes.HTML_A: {
                 if (Types.isRefNode(node) && !Types.isInTOC(node)) {
                     refInserted(node);
                 }
                 break;
             }
-            case HTML_NAV: {
+            case ElementTypes.HTML_NAV: {
                 var cls = node.getAttribute("class");
                 if (cls == Types.Keys.SECTION_TOC)
                     Category_addTOC(sections,node);
@@ -509,26 +510,26 @@ define("Outline",function(require,exports) {
 
         function recurse(node) {
             switch (node._type) {
-            case HTML_H1:
-            case HTML_H2:
-            case HTML_H3:
-            case HTML_H4:
-            case HTML_H5:
-            case HTML_H6:
+            case ElementTypes.HTML_H1:
+            case ElementTypes.HTML_H2:
+            case ElementTypes.HTML_H3:
+            case ElementTypes.HTML_H4:
+            case ElementTypes.HTML_H5:
+            case ElementTypes.HTML_H6:
                 if (!Types.isInTOC(node))
                     Category_remove(sections,node);
                 break;
-            case HTML_FIGURE:
+            case ElementTypes.HTML_FIGURE:
                 Category_remove(figures,node);
                 break;
-            case HTML_TABLE:
+            case ElementTypes.HTML_TABLE:
                 Category_remove(tables,node);
                 break;
-            case HTML_A:
+            case ElementTypes.HTML_A:
                 if (Types.isRefNode(node) && !Types.isInTOC(node))
                     refRemoved(node);
                 break;
-            case HTML_NAV:
+            case ElementTypes.HTML_NAV:
                 var cls = node.getAttribute("class");
                 if (cls == Types.Keys.SECTION_TOC)
                     Category_removeTOC(sections,node);
@@ -573,22 +574,22 @@ define("Outline",function(require,exports) {
         this.parent = null;
 
         switch (node._type) {
-        case HTML_H1:
+        case ElementTypes.HTML_H1:
             this.level = 1;
             break;
-        case HTML_H2:
+        case ElementTypes.HTML_H2:
             this.level = 2;
             break;
-        case HTML_H3:
+        case ElementTypes.HTML_H3:
             this.level = 3;
             break;
-        case HTML_H4:
+        case ElementTypes.HTML_H4:
             this.level = 4;
             break;
-        case HTML_H5:
+        case ElementTypes.HTML_H5:
             this.level = 5;
             break;
-        case HTML_H6:
+        case ElementTypes.HTML_H6:
             this.level = 6;
             break;
         default:
@@ -922,11 +923,11 @@ define("Outline",function(require,exports) {
         Selection.preserveWhileExecuting(function() {
 
             function isTableNode(node) {
-                return (node._type == HTML_TABLE);
+                return (node._type == ElementTypes.HTML_TABLE);
             }
 
             function isFigureNode(node) {
-                return (node._type == HTML_FIGURE);
+                return (node._type == ElementTypes.HTML_FIGURE);
             }
 
             function isNonTOCHeadingNode(node) {
@@ -1319,7 +1320,7 @@ define("Outline",function(require,exports) {
 
         function recurse(node) {
             switch (node._type) {
-            case HTML_NAV: {
+            case ElementTypes.HTML_NAV: {
                 var className = DOM.getAttribute(node,"class");
                 if ((className == "tableofcontents") ||
                     (className == "listoffigures") ||
@@ -1328,14 +1329,14 @@ define("Outline",function(require,exports) {
                 }
                 break;
             }
-            case HTML_FIGCAPTION:
-            case HTML_CAPTION:
-            case HTML_H1:
-            case HTML_H2:
-            case HTML_H3:
-            case HTML_H4:
-            case HTML_H5:
-            case HTML_H6: {
+            case ElementTypes.HTML_FIGCAPTION:
+            case ElementTypes.HTML_CAPTION:
+            case ElementTypes.HTML_H1:
+            case ElementTypes.HTML_H2:
+            case ElementTypes.HTML_H3:
+            case ElementTypes.HTML_H4:
+            case ElementTypes.HTML_H5:
+            case ElementTypes.HTML_H6: {
                 var elementName = node.nodeName.toLowerCase();
                 var className = DOM.getAttribute(node,"class");
                 if ((className == null) || (className == ""))

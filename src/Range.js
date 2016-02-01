@@ -19,6 +19,7 @@ define("Range",function(require,exports) {
 
     var Collections = require("Collections");
     var DOM = require("DOM");
+    var ElementTypes = require("ElementTypes");
     var Formatting = require("Formatting");
     var Hierarchy = require("Hierarchy");
     var Main = require("Main");
@@ -369,8 +370,8 @@ define("Range",function(require,exports) {
 
         var childArray = new Array();
         switch (clone._type) {
-        case HTML_UL:
-        case HTML_OL:
+        case ElementTypes.HTML_UL:
+        case ElementTypes.HTML_OL:
             childArray.push(clone);
             break;
         default:

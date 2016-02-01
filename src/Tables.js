@@ -21,6 +21,7 @@ define("Tables",function(require,exports) {
     var Collections = require("Collections");
     var Cursor = require("Cursor");
     var DOM = require("DOM");
+    var ElementTypes = require("ElementTypes");
     var Outline = require("Outline");
     var Position = require("Position");
     var PostponedActions = require("PostponedActions");
@@ -122,8 +123,8 @@ define("Tables",function(require,exports) {
     function Table_processTable(table,node) {
         var type = node._type;
         switch (node._type) {
-        case HTML_TD:
-        case HTML_TH: {
+        case ElementTypes.HTML_TD:
+        case ElementTypes.HTML_TH: {
             while (Table_get(table,table.row,table.col) != null)
                 table.col++;
 
@@ -138,7 +139,7 @@ define("Tables",function(require,exports) {
             table.col += cell.colspan;
             break;
         }
-        case HTML_TR:
+        case ElementTypes.HTML_TR:
             for (var child = node.firstChild; child != null; child = child.nextSibling)
                 Table_processTable(table,child);
             table.row++;
@@ -262,7 +263,7 @@ define("Tables",function(require,exports) {
         var pos = Position.preferElementPosition(range.start);
         if ((pos.node.nodeType == Node.ELEMENT_NODE) &&
             (pos.offset < pos.node.childNodes.length) &&
-            (pos.node.childNodes[pos.offset]._type == HTML_TABLE)) {
+            (pos.node.childNodes[pos.offset]._type == ElementTypes.HTML_TABLE)) {
             var element = pos.node.childNodes[pos.offset];
             var table = analyseStructure(element);
             return table;
@@ -277,7 +278,7 @@ define("Tables",function(require,exports) {
         var pos = Position.preferElementPosition(range.start);
         if ((pos.node.nodeType == Node.ELEMENT_NODE) &&
             (pos.offset > 0) &&
-            (pos.node.childNodes[pos.offset-1]._type == HTML_TABLE)) {
+            (pos.node.childNodes[pos.offset-1]._type == ElementTypes.HTML_TABLE)) {
             var element = pos.node.childNodes[pos.offset-1];
             var table = analyseStructure(element);
             return table;
@@ -336,13 +337,13 @@ define("Tables",function(require,exports) {
         var cols = new Array();
         for (child = table.firstChild; child != null; child = child.nextSibling) {
             switch (child._type) {
-            case HTML_COLGROUP:
+            case ElementTypes.HTML_COLGROUP:
                 for (var gc = child.firstChild; gc != null; gc = gc.nextSibling) {
-                    if (gc._type == HTML_COL)
+                    if (gc._type == ElementTypes.HTML_COL)
                         cols.push(gc);
                 }
                 break;
-            case HTML_COL:
+            case ElementTypes.HTML_COL:
                 cols.push(child);
                 break;
             }
@@ -755,7 +756,7 @@ define("Tables",function(require,exports) {
 
     // private
     function getTRs(node,result) {
-        if (node._type == HTML_TR) {
+        if (node._type == ElementTypes.HTML_TR) {
             result.push(node);
         }
         else {
@@ -948,7 +949,7 @@ define("Tables",function(require,exports) {
 
         var tbody = null;
         for (var child = table.element.firstChild; child != null; child = child.nextSibling) {
-            if (child._type == HTML_TBODY)
+            if (child._type == ElementTypes.HTML_TBODY)
                 tbody = child;
         }
 
@@ -957,7 +958,7 @@ define("Tables",function(require,exports) {
 
         var trs = new Array();
         for (var child = tbody.firstChild; child != null; child = child.nextSibling) {
-            if (child._type == HTML_TR)
+            if (child._type == ElementTypes.HTML_TR)
                 trs.push(child);
         }
 
@@ -1022,7 +1023,7 @@ define("Tables",function(require,exports) {
     // public
     function findContainingTable(node) {
         for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {
-            if (ancestor._type == HTML_TABLE)
+            if (ancestor._type == ElementTypes.HTML_TABLE)
                 return ancestor;
         }
         return null;
@@ -1130,13 +1131,13 @@ define("Tables",function(require,exports) {
     }
 
     function getSelectedTableId() {
-        var element = Cursor.getAdjacentNodeWithType(HTML_TABLE);
+        var element = Cursor.getAdjacentNodeWithType(ElementTypes.HTML_TABLE);
         return element ? element.getAttribute("id") : null;
     }
 
     function getProperties(itemId) {
         var element = document.getElementById(itemId);
-        if ((element == null) || (element._type != HTML_TABLE))
+        if ((element == null) || (element._type != ElementTypes.HTML_TABLE))
             return null;
         var structure = analyseStructure(element);
         var width = element.style.width;
@@ -1271,7 +1272,7 @@ define("Tables",function(require,exports) {
 
         result.columnWidths = getColWidths(structure);
 
-        var caption = Traversal.firstChildOfType(element,HTML_CAPTION);
+        var caption = Traversal.firstChildOfType(element,ElementTypes.HTML_CAPTION);
         result.hasCaption = (caption != null);
 
         return result;

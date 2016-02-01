@@ -21,6 +21,7 @@ define("Main",function(require,exports) {
     var Cursor = require("Cursor");
     var DOM = require("DOM");
     var Editor = require("Editor");
+    var ElementTypes = require("ElementTypes");
     var Outline = require("Outline");
     var PostponedActions = require("PostponedActions");
     var Range = require("Range");
@@ -76,10 +77,10 @@ define("Main",function(require,exports) {
         var next;
         for (var child = head.firstChild; child != null; child = next) {
             next = child.nextSibling;
-            if ((child._type == HTML_META) && (child.hasAttribute("charset"))) {
+            if ((child._type == ElementTypes.HTML_META) && (child.hasAttribute("charset"))) {
                 DOM.deleteNode(child);
             }
-            else if ((child._type == HTML_META) && child.hasAttribute("http-equiv") &&
+            else if ((child._type == ElementTypes.HTML_META) && child.hasAttribute("http-equiv") &&
                      (child.getAttribute("http-equiv").toLowerCase() == "content-type")) {
                 DOM.deleteNode(child);
             }
@@ -95,7 +96,7 @@ define("Main",function(require,exports) {
         return UndoManager.disableWhileExecuting(function() {
             var head = DOM.documentHead(document);
             for (var child = head.firstChild; child != null; child = child.nextSibling) {
-                if ((child._type == HTML_META) &&
+                if ((child._type == ElementTypes.HTML_META) &&
                     child.hasAttribute("name") &&
                     (child.getAttribute("name").toLowerCase() == "generator")) {
                     var origGenerator = DOM.getAttribute(child,"content");
@@ -156,12 +157,12 @@ define("Main",function(require,exports) {
 
         function cleanse(node) {
             switch (node._type) {
-            case HTML_TEXT:
-            case HTML_COMMENT:
+            case ElementTypes.HTML_TEXT:
+            case ElementTypes.HTML_COMMENT:
                 DOM.setNodeValue(node,cleanseString(node.nodeValue));
                 break;
-            case HTML_STYLE:
-            case HTML_SCRIPT:
+            case ElementTypes.HTML_STYLE:
+            case ElementTypes.HTML_SCRIPT:
                 return;
             default:
                 if (node.nodeType == Node.ELEMENT_NODE) {
@@ -266,12 +267,12 @@ define("Main",function(require,exports) {
             (cssClass == Types.Keys.SELECTION_HIGHLIGHT)) {
             DOM.removeNodeButKeepChildren(node);
         }
-        else if ((node._type == HTML_META) &&
+        else if ((node._type == ElementTypes.HTML_META) &&
                  node.hasAttribute("name") &&
                  (node.getAttribute("name").toLowerCase() == "viewport")) {
             DOM.deleteNode(node);
         }
-        else if (node._type == HTML_LINK) {
+        else if (node._type == ElementTypes.HTML_LINK) {
             if ((node.getAttribute("rel") == "stylesheet") &&
                 (node.getAttribute("href") == Styles.getBuiltinCSSURL())) {
                 DOM.deleteNode(node);
@@ -314,7 +315,7 @@ define("Main",function(require,exports) {
         }
 
         for (var child = document.body.firstChild; child != null; child = child.nextSibling) {
-            if (child._type == HTML_P) {
+            if (child._type == ElementTypes.HTML_P) {
                 Cursor.updateBRAtEndOfParagraph(child);
                 return;
             }

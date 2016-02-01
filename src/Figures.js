@@ -20,6 +20,7 @@ define("Figures",function(require,exports) {
     var Clipboard = require("Clipboard");
     var Cursor = require("Cursor");
     var DOM = require("DOM");
+    var ElementTypes = require("ElementTypes");
     var Outline = require("Outline");
     var Position = require("Position");
     var PostponedActions = require("PostponedActions");
@@ -61,7 +62,7 @@ define("Figures",function(require,exports) {
     }
 
     function getSelectedFigureId() {
-        var element = Cursor.getAdjacentNodeWithType(HTML_FIGURE);
+        var element = Cursor.getAdjacentNodeWithType(ElementTypes.HTML_FIGURE);
         return element ? element.getAttribute("id") : null;
     }
 
@@ -73,7 +74,7 @@ define("Figures",function(require,exports) {
         var rect = figure.getBoundingClientRect();
         var result = { width: null, src: null };
 
-        var img = Traversal.firstDescendantOfType(figure,HTML_IMG);
+        var img = Traversal.firstDescendantOfType(figure,ElementTypes.HTML_IMG);
         if (img != null) {
             result.src = decodeURI(img.getAttribute("src"));
             result.width = img.style.width;
@@ -89,7 +90,7 @@ define("Figures",function(require,exports) {
         var figure = document.getElementById(itemId);
         if (figure == null)
             return null;
-        var img = Traversal.firstDescendantOfType(figure,HTML_IMG);
+        var img = Traversal.firstDescendantOfType(figure,ElementTypes.HTML_IMG);
         if (img != null) {
             if (src == null)
                 DOM.removeAttribute(img,"src");
@@ -108,11 +109,11 @@ define("Figures",function(require,exports) {
         var figure = document.getElementById(itemId);
         if ((figure == null) || (figure.parentNode == null))
             return null;
-        var img = Traversal.firstDescendantOfType(figure,HTML_IMG);
+        var img = Traversal.firstDescendantOfType(figure,ElementTypes.HTML_IMG);
         if (img == null)
             return null;
 
-        var figcaption = Traversal.firstChildOfType(figure,HTML_FIGCAPTION);
+        var figcaption = Traversal.firstChildOfType(figure,ElementTypes.HTML_FIGCAPTION);
 
         var result = new Object();
         result.contentRect = Util.xywhAbsElementRect(img);

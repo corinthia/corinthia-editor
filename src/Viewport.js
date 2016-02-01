@@ -19,6 +19,7 @@ define("Viewport",function(require,exports) {
 
     var Cursor = require("Cursor");
     var DOM = require("DOM");
+    var ElementTypes = require("ElementTypes");
     var Selection = require("Selection");
 
     var viewportMetaElement = null;
@@ -27,7 +28,7 @@ define("Viewport",function(require,exports) {
     function init(width,textScale) {
         var head = DOM.documentHead(document);
         for (var child = head.firstChild; child != null; child = child.nextSibling) {
-            if ((child._type == HTML_META) && (child.getAttribute("name") == "viewport")) {
+            if ((child._type == ElementTypes.HTML_META) && (child.getAttribute("name") == "viewport")) {
                 viewportMetaElement = child;
                 break;
             }
