@@ -16,6 +16,7 @@
 // limitations under the License.
 
 define("Main",function(require,exports) {
+    "use strict";
 
     var AutoCorrect = require("AutoCorrect");
     var Cursor = require("Cursor");

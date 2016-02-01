@@ -16,6 +16,7 @@
 // limitations under the License.
 
 define("Metadata",function(require,exports) {
+    "use strict";
 
     function getMetadata() {
         return {};

@@ -19,6 +19,7 @@
 // response to other DOM mutations, so at undo time the changes will be made twice
 
 define("Outline",function(require,exports) {
+    "use strict";
 
     var Clipboard = require("Clipboard");
     var Collections = require("Collections");
@@ -355,6 +356,7 @@ define("Outline",function(require,exports) {
 
     function OutlineItem_updateItemTitle(item) {
         var titleNode = OutlineItem_getTitleNode(item,false);
+        var newTitle;
         if (titleNode != null)
             newTitle = Util.normalizeWhitespace(Traversal.getNodeText(titleNode));
         else

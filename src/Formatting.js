@@ -16,6 +16,7 @@
 // limitations under the License.
 
 define("Formatting",function(require,exports) {
+    "use strict";
 
     var Collections = require("Collections");
     var Cursor = require("Cursor");

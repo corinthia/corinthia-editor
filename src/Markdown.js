@@ -16,6 +16,7 @@
 // limitations under the License.
 
 define("Markdown",function(require,exports) {
+    "use strict";
 
     var ElementTypes = require("ElementTypes");
     var Traversal = require("Traversal");

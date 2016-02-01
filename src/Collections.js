@@ -16,6 +16,7 @@
 // limitations under the License.
 
 define("Collections",function(require,exports) {
+    "use strict";
 
     function NodeSet() {
         this.members = new Object();

@@ -18,6 +18,7 @@
 // FIXME: cursor does not display correctly if it is after a space at the end of the line
 
 define("Selection",function(require,exports) {
+    "use strict";
 
     var Collections = require("Collections");
     var Cursor = require("Cursor");
@@ -114,8 +115,8 @@ define("Selection",function(require,exports) {
     var selectionHighlights = new Array();
     var tableSelection = null;
 
-    // private
-    updateTableSelection = function(selRange) {
+    // public (for tests)
+    function updateTableSelection(selRange) {
         tableSelection = Tables.regionFromRange(selRange);
         if (tableSelection == null)
             return false;
@@ -1212,6 +1213,7 @@ define("Selection",function(require,exports) {
     // public
     function preserveWhileExecuting(fun) {
         var range = get();
+        var result;
 
         // Since the selection may have changed as a result of changes to the document, we
         // have to call clear() or set() so that undo history is saved
@@ -1362,6 +1364,7 @@ define("Selection",function(require,exports) {
     exports.set = set;
     exports.clear = clear;
 
+    exports.updateTableSelection = updateTableSelection;
     exports.update = update;
     exports.selectAll = selectAll;
     exports.selectParagraph = selectParagraph;

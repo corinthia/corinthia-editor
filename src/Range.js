@@ -16,6 +16,7 @@
 // limitations under the License.
 
 define("Range",function(require,exports) {
+    "use strict";
 
     var Collections = require("Collections");
     var DOM = require("DOM");

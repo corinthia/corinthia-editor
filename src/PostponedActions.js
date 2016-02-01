@@ -16,6 +16,7 @@
 // limitations under the License.
 
 define("PostponedActions",function(require,exports) {
+    "use strict";
 
     var UndoManager = require("UndoManager");
 

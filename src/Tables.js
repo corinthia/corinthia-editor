@@ -16,6 +16,7 @@
 // limitations under the License.
 
 define("Tables",function(require,exports) {
+    "use strict";
 
     var Clipboard = require("Clipboard");
     var Collections = require("Collections");
@@ -335,7 +336,7 @@ define("Tables",function(require,exports) {
     // private
     function getColElements(table) {
         var cols = new Array();
-        for (child = table.firstChild; child != null; child = child.nextSibling) {
+        for (var child = table.firstChild; child != null; child = child.nextSibling) {
             switch (child._type) {
             case ElementTypes.HTML_COLGROUP:
                 for (var gc = child.firstChild; gc != null; gc = gc.nextSibling) {

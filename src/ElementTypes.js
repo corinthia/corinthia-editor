@@ -18,6 +18,7 @@
 // This file was automatically generated from elements.txt
 
 define("ElementTypes",function(require,exports) {
+    "use strict";
 
     exports.fromString = {
         "#DOCUMENT": 1,

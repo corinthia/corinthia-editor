@@ -16,6 +16,7 @@
 // limitations under the License.
 
 define("ChangeTracking",function(require,exports) {
+    "use strict";
 
     var DOM = require("DOM");
     var ElementTypes = require("ElementTypes");
@@ -56,7 +57,7 @@ define("ChangeTracking",function(require,exports) {
                 recurse(outermost[i]);
 
                 var next;
-                for (ancestor = outermost[i].parentNode; ancestor != null; ancestor = next) {
+                for (var ancestor = outermost[i].parentNode; ancestor != null; ancestor = next) {
                     next = ancestor.parentNode;
                     if (ancestor._type == ElementTypes.HTML_DEL) {
                         checkEmpty.push(ancestor.parentNode);

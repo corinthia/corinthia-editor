@@ -16,6 +16,7 @@
 // limitations under the License.
 
 define("Hierarchy",function(require,exports) {
+    "use strict";
 
     var DOM = require("DOM");
     var ElementTypes = require("ElementTypes");

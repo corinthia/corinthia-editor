@@ -16,6 +16,7 @@
 // limitations under the License.
 
 define("Figures",function(require,exports) {
+    "use strict";
 
     var Clipboard = require("Clipboard");
     var Cursor = require("Cursor");

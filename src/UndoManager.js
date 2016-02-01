@@ -15,9 +15,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// FIXME: place a limit on the number of undo steps recorded - say, 30-50?
-
 define("UndoManager",function(require,exports) {
+    "use strict";
 
     var Util = require("Util");
 

@@ -16,6 +16,7 @@
 // limitations under the License.
 
 define("Traversal",function(require,exports) {
+    "use strict";
 
     var Util = require("Util");
 

@@ -39,6 +39,7 @@ print($lic);
 print("// This file was automatically generated from $filename\n");
 print("\n");
 print("define(\"ElementTypes\",function(require,exports) {\n");
+print("    \"use strict\";\n");
 print("\n");
 print("    exports.fromString = {\n");
 $nextId = 1;

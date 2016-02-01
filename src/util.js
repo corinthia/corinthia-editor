@@ -16,6 +16,7 @@
 // limitations under the License.
 
 define("Util",function(require,exports) {
+    "use strict";
 
     var DOM = require("DOM");
     var Editor = require("Editor");

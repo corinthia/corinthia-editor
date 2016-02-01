@@ -16,6 +16,7 @@
 // limitations under the License.
 
 define("Editor",function(require,exports) {
+    "use strict";
 
     var Util = require("Util");
 

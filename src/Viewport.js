@@ -16,6 +16,7 @@
 // limitations under the License.
 
 define("Viewport",function(require,exports) {
+    "use strict";
 
     var Cursor = require("Cursor");
     var DOM = require("DOM");

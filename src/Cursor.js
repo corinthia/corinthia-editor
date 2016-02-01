@@ -16,6 +16,7 @@
 // limitations under the License.
 
 define("Cursor",function(require,exports) {
+    "use strict";
 
     var Clipboard = require("Clipboard");
     var DOM = require("DOM");

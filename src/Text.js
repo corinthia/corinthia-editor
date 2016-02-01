@@ -16,6 +16,7 @@
 // limitations under the License.
 
 define("Text",function(require,exports) {
+    "use strict";
 
     var DOM = require("DOM");
     var Paragraph = require("Paragraph");

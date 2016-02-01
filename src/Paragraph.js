@@ -16,6 +16,7 @@
 // limitations under the License.
 
 define("Paragraph",function(require,exports) {
+    "use strict";
 
     var Position = require("Position");
     var Range = require("Range");

@@ -19,6 +19,7 @@
 // FIXME: test capitalisation of on-screen keyboard at start of sentence
 
 define("Input",function(require,exports) {
+    "use strict";
 
     var Cursor = require("Cursor");
     var DOM = require("DOM");
