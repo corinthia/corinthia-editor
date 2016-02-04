@@ -15,13 +15,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("tests.AutoCorrectTests",function(require,exports) {
-"use strict";
+import AutoCorrect = require("../src/autoCorrect");
+import PrettyPrinter = require("./prettyPrinter");
 
-var AutoCorrect = require("AutoCorrect");
-var PrettyPrinter = require("tests.PrettyPrinter");
-
-function findTextMatching(re) {
+export function findTextMatching(re) {
     return recurse(document.body);
 
     function recurse(node) {
@@ -42,7 +39,7 @@ function findTextMatching(re) {
     }
 }
 
-function showCorrections() {
+export function showCorrections() {
     var corrections = AutoCorrect.getCorrections();
     var lines = new Array();
     lines.push("Corrections:\n");
@@ -51,8 +48,3 @@ function showCorrections() {
     }
     return PrettyPrinter.getHTML(document.documentElement)+"\n"+lines.join("");
 }
-
-exports.findTextMatching = findTextMatching;
-exports.showCorrections = showCorrections;
-
-});

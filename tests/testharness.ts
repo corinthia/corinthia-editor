@@ -37,58 +37,60 @@ function readFile(filename) {
 
 function loadCode() {
     // Sync with Editor.m
-    var javascriptFiles = ["../build/src/first.js", // must be first
-                           "../build/src/autoCorrect.js",
-                           "../build/src/changeTracking.js",
-                           "../build/src/clipboard.js",
-                           "../build/src/collections.js",
-                           "../build/src/cursor.js",
-                           "../build/src/definitions.js",
-                           "../build/src/dom.js",
-                           "../build/src/editor.js",
-                           "../build/src/elementTypes.js",
-                           "../build/src/equations.js",
-                           "../build/src/figures.js",
-                           "../build/src/formatting.js",
-                           "../build/src/hierarchy.js",
-                           "../build/src/input.js",
-                           "../build/src/lists.js",
-                           "../build/src/main.js",
-                           "../build/src/markdown.js",
-                           "../build/src/metadata.js",
-                           "../build/src/outline.js",
-                           "../build/src/paragraph.js",
-                           "../build/src/position.js",
-                           "../build/src/postponedActions.js",
-                           "../build/src/preview.js",
-                           "../build/src/range.js",
-                           "../build/src/scan.js",
-                           "../build/src/selection.js",
-                           "../build/src/styles.js",
-                           "../build/src/tables.js",
-                           "../build/src/text.js",
-                           "../build/src/traversal.js",
-                           "../build/src/types.js",
-                           "../build/src/undo.js",
-                           "../build/src/util.js",
-                           "../build/src/viewport.js",
-                           "../src/3rdparty/showdown/showdown.js",
-                           "../build/tests/autoCorrectTests.js",
-                           "../build/tests/figuresTests.js",
-                           "../build/tests/inputTests.js",
-                           "../build/tests/outlineTests.js",
-                           "../build/tests/positionTests.js",
-                           "../build/tests/prettyPrinter.js",
-                           "../build/tests/rangeTests.js",
-                           "../build/tests/scanTests.js",
-                           "../build/tests/tableTests.js",
-                           "../build/tests/testlib.js",
-                           "../build/tests/textTests.js",
-                           "../build/tests/undoTests.js",
-                           "../build/tests/validPositions.js"];
+    var modules = [
+        "src/autoCorrect",
+        "src/changeTracking",
+        "src/clipboard",
+        "src/collections",
+        "src/cursor",
+        "src/definitions",
+        "src/dom",
+        "src/editor",
+        "src/elementTypes",
+        "src/equations",
+        "src/figures",
+        "src/formatting",
+        "src/hierarchy",
+        "src/input",
+        "src/lists",
+        "src/main",
+        "src/markdown",
+        "src/metadata",
+        "src/outline",
+        "src/paragraph",
+        "src/position",
+        "src/postponedActions",
+        "src/preview",
+        "src/range",
+        "src/scan",
+        "src/selection",
+        "src/styles",
+        "src/tables",
+        "src/text",
+        "src/traversal",
+        "src/types",
+        "src/undo",
+        "src/util",
+        "src/viewport",
+        "tests/autoCorrectTests",
+        "tests/figuresTests",
+        "tests/inputTests",
+        "tests/outlineTests",
+        "tests/positionTests",
+        "tests/prettyPrinter",
+        "tests/rangeTests",
+        "tests/scanTests",
+        "tests/tableTests",
+        "tests/testlib",
+        "tests/textTests",
+        "tests/undoTests",
+        "tests/validPositions"
+    ];
     var allCodeArray = new Array();
-    for (var i = 0; i < javascriptFiles.length; i++)
-        allCodeArray.push(readJSCode(javascriptFiles[i]));
+    allCodeArray.push(readJSCode("../src/3rdparty/showdown/showdown.js"));
+    allCodeArray.push(readJSCode("../build/src/first.js"));
+    for (var i = 0; i < modules.length; i++)
+        allCodeArray.push(readModule("../build",modules[i]+".js"));
     allCode = allCodeArray.join("\n");
 }
 
@@ -162,6 +164,12 @@ function readJSCode(filename) {
     req.open("GET",filename,false);
     req.send();
     return req.responseText;
+}
+
+function readModule(baseDir,filename) {
+    var code = readJSCode(baseDir+"/"+filename);
+    code = "window._nextDefineFilename = "+JSON.stringify(filename)+";\n"+code;
+    return code;
 }
 
 function leftLoaded() {

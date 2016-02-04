@@ -15,12 +15,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("tests.ScanTests",function(require,exports) {
-"use strict";
+import Scan = require("../src/scan");
 
-var Scan = require("Scan");
-
-function testNext() {
+export function testNext() {
     var result = new Array();
     Scan.reset();
     var index = 0;
@@ -36,7 +33,3 @@ function testNext() {
     }
     return result.join("\n");
 }
-
-exports.testNext = testNext;
-
-});

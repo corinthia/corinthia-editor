@@ -15,16 +15,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("tests.TableTests",function(require,exports) {
-"use strict";
+import DOM = require("../src/dom");
+import PrettyPrinter = require("./prettyPrinter");
+import Selection = require("../src/selection");
+import Tables = require("../src/tables");
+import Traversal = require("../src/traversal");
 
-var DOM = require("DOM");
-var PrettyPrinter = require("tests.PrettyPrinter");
-var Selection = require("Selection");
-var Tables = require("Tables");
-var Traversal = require("Traversal");
-
-function showSelectedTableRegion() {
+export function showSelectedTableRegion() {
     var region = Tables.regionFromRange(Selection.get());
     for (var row = region.top; row <= region.bottom; row++) {
         for (var col = region.left; col <= region.right; col++) {
@@ -34,11 +31,11 @@ function showSelectedTableRegion() {
     }
 }
 
-function getSelectedTableRegion() {
+export function getSelectedTableRegion() {
     return Tables.regionFromRange(Selection.get());
 }
 
-function showTableStructure() {
+export function showTableStructure() {
     var tableElement = document.getElementsByTagName("TABLE")[0];
     var table = Tables.analyseStructure(tableElement);
     var lines = new Array();
@@ -60,9 +57,3 @@ function showTableStructure() {
 
     return lines.join("\n");
 }
-
-exports.showSelectedTableRegion = showSelectedTableRegion;
-exports.getSelectedTableRegion = getSelectedTableRegion;
-exports.showTableStructure = showTableStructure;
-
-});

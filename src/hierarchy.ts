@@ -15,16 +15,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("Hierarchy",function(require,exports) {
-"use strict";
-
-var DOM = require("DOM");
-var ElementTypes = require("ElementTypes");
-var Formatting = require("Formatting");
-var Position = require("Position");
-var Traversal = require("Traversal");
-var Types = require("Types");
-var Util = require("Util");
+import DOM = require("./dom");
+import ElementTypes = require("./elementTypes");
+import Formatting = require("./formatting");
+import Position = require("./position");
+import Traversal = require("./traversal");
+import Types = require("./types");
+import Util = require("./util");
 
 // private
 function wrapInlineChildren(first,last,ancestors) {
@@ -152,7 +149,7 @@ function nodeHasSignificantChildren(node) {
 // or container+ paragraph
 // or container+
 // public
-function ensureValidHierarchy(node,recursive,allowDirectInline) {
+export function ensureValidHierarchy(node) {
     var count = 0;
     while ((node != null) && (node.parentNode != null) && (node != document.body)) {
         count++;
@@ -220,7 +217,7 @@ function ensureValidHierarchy(node,recursive,allowDirectInline) {
     }
 }
 
-function ensureInlineNodesInParagraph(node,weak) {
+export function ensureInlineNodesInParagraph(node,weak?) {
     var count = 0;
     while ((node != null) && (node.parentNode != null) && (node != document.body)) {
         count++;
@@ -238,7 +235,7 @@ function ensureInlineNodesInParagraph(node,weak) {
 }
 
 // public
-function wrapInlineNodesInParagraph(node) {
+export function wrapInlineNodesInParagraph(node) {
     var start = node;
     var end = node;
 
@@ -250,7 +247,7 @@ function wrapInlineNodesInParagraph(node) {
     return DOM.wrapSiblings(start,end,"P");
 }
 
-function avoidInlineChildren(parent) {
+export function avoidInlineChildren(parent) {
     var child = parent.firstChild;
 
     while (child != null) {
@@ -274,10 +271,3 @@ function avoidInlineChildren(parent) {
         }
     }
 }
-
-exports.ensureValidHierarchy = ensureValidHierarchy;
-exports.ensureInlineNodesInParagraph = ensureInlineNodesInParagraph;
-exports.wrapInlineNodesInParagraph = wrapInlineNodesInParagraph;
-exports.avoidInlineChildren = avoidInlineChildren;
-
-});

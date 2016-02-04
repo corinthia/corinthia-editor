@@ -15,23 +15,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("Figures",function(require,exports) {
-"use strict";
-
-var Clipboard = require("Clipboard");
-var Cursor = require("Cursor");
-var DOM = require("DOM");
-var ElementTypes = require("ElementTypes");
-var Outline = require("Outline");
-var Position = require("Position");
-var PostponedActions = require("PostponedActions");
-var Selection = require("Selection");
-var Traversal = require("Traversal");
-var UndoManager = require("UndoManager");
-var Util = require("Util");
+import Clipboard = require("./clipboard");
+import Cursor = require("./cursor");
+import DOM = require("./dom");
+import ElementTypes = require("./elementTypes");
+import Outline = require("./outline");
+import Position = require("./position");
+import PostponedActions = require("./postponedActions");
+import Selection = require("./selection");
+import Traversal = require("./traversal");
+import UndoManager = require("./undo");
+import Util = require("./util");
 
 // public
-function insertFigure(filename,width,numbered,caption) {
+export function insertFigure(filename,width,numbered,caption) {
     UndoManager.newGroup("Insert figure");
 
     var figure = DOM.createElement(document,"FIGURE");
@@ -62,13 +59,13 @@ function insertFigure(filename,width,numbered,caption) {
     PostponedActions.add(UndoManager.newGroup);
 }
 
-function getSelectedFigureId() {
+export function getSelectedFigureId() {
     var element = Cursor.getAdjacentNodeWithType(ElementTypes.HTML_FIGURE);
     return element ? element.getAttribute("id") : null;
 }
 
 // public
-function getProperties(itemId) {
+export function getProperties(itemId) {
     var figure = document.getElementById(itemId);
     if (figure == null)
         return null;
@@ -87,7 +84,7 @@ function getProperties(itemId) {
 }
 
 // public
-function setProperties(itemId,width,src) {
+export function setProperties(itemId,width,src) {
     var figure = document.getElementById(itemId);
     if (figure == null)
         return null;
@@ -106,7 +103,7 @@ function setProperties(itemId,width,src) {
 }
 
 // public
-function getGeometry(itemId) {
+export function getGeometry(itemId) {
     var figure = document.getElementById(itemId);
     if ((figure == null) || (figure.parentNode == null))
         return null;
@@ -123,11 +120,3 @@ function getGeometry(itemId) {
     result.hasCaption = (figcaption != null);
     return result;
 }
-
-exports.insertFigure = insertFigure;
-exports.getSelectedFigureId = getSelectedFigureId;
-exports.getProperties = getProperties;
-exports.setProperties = setProperties;
-exports.getGeometry = getGeometry;
-
-});

@@ -15,17 +15,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("Metadata",function(require,exports) {
-"use strict";
-
-function getMetadata() {
+export function getMetadata() {
     return {};
 }
 
-function setMetadata(metadata) {
+export function setMetadata(metadata) {
 }
-
-exports.getMetadata = getMetadata;
-exports.setMetadata = setMetadata;
-
-});

@@ -18,25 +18,22 @@
 // FIXME: The TOC/ItemList stuff won't work with Undo, because we're making DOM mutations in
 // response to other DOM mutations, so at undo time the changes will be made twice
 
-define("Outline",function(require,exports) {
-"use strict";
-
-var Clipboard = require("Clipboard");
-var Collections = require("Collections");
-var Cursor = require("Cursor");
-var DOM = require("DOM");
-var Editor = require("Editor");
-var ElementTypes = require("ElementTypes");
-var Hierarchy = require("Hierarchy");
-var Position = require("Position");
-var PostponedActions = require("PostponedActions");
-var Range = require("Range");
-var Selection = require("Selection");
-var Styles = require("Styles");
-var Traversal = require("Traversal");
-var Types = require("Types");
-var UndoManager = require("UndoManager");
-var Util = require("Util");
+import Clipboard = require("./clipboard");
+import Collections = require("./collections");
+import Cursor = require("./cursor");
+import DOM = require("./dom");
+import Editor = require("./editor");
+import ElementTypes = require("./elementTypes");
+import Hierarchy = require("./hierarchy");
+import Position = require("./position");
+import PostponedActions = require("./postponedActions");
+import Range = require("./range");
+import Selection = require("./selection");
+import Styles = require("./styles");
+import Traversal = require("./traversal");
+import Types = require("./types");
+import UndoManager = require("./undo");
+import Util = require("./util");
 
 var itemsByNode = null;
 var refsById = null;
@@ -548,7 +545,7 @@ function docNodeRemoved(event) {
 }
 
 // private
-function scheduleUpdateStructure() {
+export function scheduleUpdateStructure() {
     if (UndoManager.isActive())
         return;
     if (!outlineDirty) {
@@ -767,7 +764,7 @@ function updateStructureReal(pageNumbers?) {
     Editor.outlineUpdated();
 }
 
-function getOutline() {
+export function getOutline() {
     var structure = discoverStructure();
     var encSections = new Array();
     var encFigures = new Array();
@@ -869,7 +866,7 @@ function updateRefsForItem(item) {
     }
 }
 
-function plainText() {
+export function plainText() {
     var strings = new Array();
     var structure = discoverStructure();
 
@@ -921,7 +918,7 @@ function plainText() {
 }
 
 // public
-function init() {
+export function init() {
     Selection.preserveWhileExecuting(function() {
 
         function isTableNode(node) {
@@ -952,7 +949,7 @@ function init() {
 }
 
 // public (for the undo tests, when they report results)
-function removeListeners() {
+export function removeListeners() {
     document.removeEventListener("DOMNodeInserted",docNodeInserted);
     document.removeEventListener("DOMNodeRemoved",docNodeRemoved);
 
@@ -975,7 +972,7 @@ function getShadowNodes(structure,shadow,result) {
 }
 
 // public
-function moveSection(sectionId,parentId,nextId) {
+export function moveSection(sectionId,parentId,nextId) {
     UndoManager.newGroup("Move section");
     Selection.clear();
 
@@ -1015,7 +1012,7 @@ function moveSection(sectionId,parentId,nextId) {
             DOM.insertBefore(next.item.node.parentNode,sectionNodes[i],next.item.node);
     }
 
-    var pos = new Position.Position(node,0,node,0);
+    var pos = new Position.Position(node,0);
     pos = Position.closestMatchForwards(pos,Position.okForInsertion);
     Selection.set(pos.node,pos.offset,pos.node,pos.offset);
 
@@ -1024,7 +1021,7 @@ function moveSection(sectionId,parentId,nextId) {
 }
 
 // public
-function deleteItem(itemId) {
+export function deleteItem(itemId) {
     UndoManager.newGroup("Delete outline item");
     var structure = discoverStructure();
     Selection.preserveWhileExecuting(function() {
@@ -1059,7 +1056,7 @@ function deleteItem(itemId) {
 }
 
 // public
-function goToItem(itemId) {
+export function goToItem(itemId) {
     if (itemId == null) {
         window.scrollTo(0);
     }
@@ -1084,12 +1081,12 @@ function goToItem(itemId) {
 }
 
 // public
-function getItemElement(itemId) {
+export function getItemElement(itemId) {
     return document.getElementById(itemId);
 }
 
 // public
-function setNumbered(itemId,numbered) {
+export function setNumbered(itemId,numbered) {
     var node = document.getElementById(itemId);
     var item = itemsByNode.get(node);
 
@@ -1121,7 +1118,7 @@ function setNumbered(itemId,numbered) {
 }
 
 // public
-function setTitle(itemId,title) {
+export function setTitle(itemId,title) {
     var node = document.getElementById(itemId);
     var item = itemsByNode.get(node);
     Selection.preserveWhileExecuting(function() {
@@ -1154,28 +1151,28 @@ function insertTOC(key) {
 }
 
 // public
-function insertTableOfContents() {
+export function insertTableOfContents() {
     insertTOC(Types.Keys.SECTION_TOC);
 }
 
 // public
-function insertListOfFigures() {
+export function insertListOfFigures() {
     insertTOC(Types.Keys.FIGURE_TOC);
 }
 
 // public
-function insertListOfTables() {
+export function insertListOfTables() {
     insertTOC(Types.Keys.TABLE_TOC);
 }
 
 // public
-function setPrintMode(newPrintMode) {
+export function setPrintMode(newPrintMode) {
     printMode = newPrintMode;
     scheduleUpdateStructure();
 }
 
 // public
-function examinePrintLayout(pageHeight) {
+export function examinePrintLayout(pageHeight) {
     var result: any = new Object();
     var structure = discoverStructure();
     var pageNumbers = new Collections.NodeMap();
@@ -1255,7 +1252,7 @@ function examinePrintLayout(pageHeight) {
     }
 }
 
-function setReferenceTarget(node,itemId) {
+export function setReferenceTarget(node,itemId) {
     Selection.preserveWhileExecuting(function() {
         refRemoved(node);
         DOM.setAttribute(node,"href","#"+itemId);
@@ -1263,7 +1260,7 @@ function setReferenceTarget(node,itemId) {
     });
 }
 
-function detectSectionNumbering() {
+export function detectSectionNumbering() {
     var sectionNumbering = detectNumbering(sections);
     if (sectionNumbering)
         makeNumberingExplicit(sections);
@@ -1315,7 +1312,7 @@ function makeNumberingExplicit(category) {
 
 // Search through the document for any elements corresponding to built-in styles that are
 // normally latent (i.e. only included in the stylesheet if used)
-function findUsedStyles() {
+export function findUsedStyles() {
     var used = new Object();
     recurse(document.body);
     return used;
@@ -1353,25 +1350,3 @@ function findUsedStyles() {
             recurse(child);
     }
 }
-
-exports.scheduleUpdateStructure = scheduleUpdateStructure;
-exports.getOutline = getOutline;
-exports.plainText = plainText;
-exports.init = init;
-exports.removeListeners = removeListeners;
-exports.moveSection = moveSection;
-exports.deleteItem = deleteItem;
-exports.goToItem = goToItem;
-exports.getItemElement = getItemElement;
-exports.setNumbered = setNumbered;
-exports.setTitle = setTitle;
-exports.insertTableOfContents = insertTableOfContents;
-exports.insertListOfFigures = insertListOfFigures;
-exports.insertListOfTables = insertListOfTables;
-exports.setPrintMode = setPrintMode;
-exports.examinePrintLayout = examinePrintLayout;
-exports.setReferenceTarget = setReferenceTarget;
-exports.detectSectionNumbering = detectSectionNumbering;
-exports.findUsedStyles = findUsedStyles;
-
-});

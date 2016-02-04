@@ -15,13 +15,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("tests.TextTests",function(require,exports) {
-"use strict";
+import Selection = require("../src/selection");
+import Text = require("../src/text");
 
-var Selection = require("Selection");
-var Text = require("Text");
-
-function showRuns() {
+export function showRuns() {
     var range = Selection.get();
     var paragraph = Text.analyseParagraph(range.start);
     var runs = paragraph.runs;
@@ -41,7 +38,3 @@ function showRuns() {
     lines.push("Text: "+JSON.stringify(paragraph.text));
     return lines.join("\n");
 }
-
-exports.showRuns = showRuns;
-
-});

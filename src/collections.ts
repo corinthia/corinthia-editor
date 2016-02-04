@@ -15,10 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("Collections",function(require,exports) {
-"use strict";
-
-function NodeSet() {
+export function NodeSet() {
     this.members = new Object();
 }
 
@@ -120,7 +117,7 @@ NodeSet.prototype.fromArray = function(array) {
 }
 
 
-function NodeMap() {
+export function NodeMap() {
     this.keys = new Object();
     this.values = new Object();
 }
@@ -178,8 +175,3 @@ NodeMap.prototype.fromArray = function(array,fun) {
         array.forEach(function(node) { map.put(node,null); });
     return map;
 };
-
-exports.NodeSet = NodeSet;
-exports.NodeMap = NodeMap;
-
-});

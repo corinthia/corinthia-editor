@@ -15,19 +15,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("Position",function(require,exports) {
-"use strict";
-
-var DOM = require("DOM");
-var ElementTypes = require("ElementTypes");
-var Range = require("Range");
-var Text = require("Text");
-var Traversal = require("Traversal");
-var Types = require("Types");
-var Util = require("Util");
+import DOM = require("./dom");
+import ElementTypes = require("./elementTypes");
+import Range = require("./range");
+import Text = require("./text");
+import Traversal = require("./traversal");
+import Types = require("./types");
+import Util = require("./util");
 
 // public
-function Position(node,offset) {
+export function Position(node,offset) {
     if (node == document.documentElement)
         throw new Error("node is root element");
     Object.defineProperty(this,"self",{value: {}});
@@ -160,7 +157,7 @@ function positionSpecial(pos,forwards,backwards) {
 }
 
 // public
-function assertValid(pos,description) {
+export function assertValid(pos,description?) {
     if (description == null)
         description = "Position";
 
@@ -184,7 +181,7 @@ function assertValid(pos,description) {
 }
 
 // public
-function prev(pos) {
+export function prev(pos) {
     if (pos.node.nodeType == Node.ELEMENT_NODE) {
         var r = positionSpecial(pos,false,true);
         if (r != null)
@@ -216,7 +213,7 @@ function prev(pos) {
 }
 
 // public
-function next(pos) {
+export function next(pos) {
     if (pos.node.nodeType == Node.ELEMENT_NODE) {
         var r = positionSpecial(pos,true,false);
         if (r != null)
@@ -245,7 +242,7 @@ function next(pos) {
 }
 
 // public
-function trackWhileExecuting(positions,fun) {
+export function trackWhileExecuting(positions,fun) {
     for (var i = 0; i < positions.length; i++)
         startTracking(positions[i].self);
     try {
@@ -258,7 +255,7 @@ function trackWhileExecuting(positions,fun) {
 }
 
 // public
-function closestActualNode(pos,preferElement?) {
+export function closestActualNode(pos,preferElement?) {
     var node = pos.node;
     var offset = pos.offset;
     if ((node.nodeType != Node.ELEMENT_NODE) || (node.firstChild == null))
@@ -281,7 +278,7 @@ function closestActualNode(pos,preferElement?) {
 }
 
 // public
-function okForInsertion(pos) {
+export function okForInsertion(pos) {
     return okForMovement(pos,true);
 }
 
@@ -330,7 +327,7 @@ function spacesUntilNextContent(node) {
 }
 
 // public
-function okForMovement(pos,insertion) {
+export function okForMovement(pos,insertion?) {
     var node = pos.node;
     var offset = pos.offset;
     var type = node._type;
@@ -502,14 +499,14 @@ function okForMovement(pos,insertion) {
     return false;
 }
 
-function prevMatch(pos,fun) {
+export function prevMatch(pos,fun) {
     do {
         pos = prev(pos);
     } while ((pos != null) && !fun(pos));
     return pos;
 }
 
-function nextMatch(pos,fun) {
+export function nextMatch(pos,fun) {
     do {
         pos = next(pos);
     } while ((pos != null) && !fun(pos));
@@ -548,7 +545,7 @@ function findEquivalentValidPosition(pos,fun) {
 }
 
 // public
-function closestMatchForwards(pos,fun) {
+export function closestMatchForwards(pos,fun) {
     if (pos == null)
         return null;
 
@@ -570,7 +567,7 @@ function closestMatchForwards(pos,fun) {
 }
 
 // public
-function closestMatchBackwards(pos,fun) {
+export function closestMatchBackwards(pos,fun) {
     if (pos == null)
         return null;
 
@@ -591,15 +588,15 @@ function closestMatchBackwards(pos,fun) {
     return new Position(document.body,0);
 }
 
-function track(pos) {
+export function track(pos) {
     startTracking(pos.self);
 }
 
-function untrack(pos) {
+export function untrack(pos) {
     stopTracking(pos.self);
 }
 
-function rectAtPos(pos) {
+export function rectAtPos(pos) {
     if (pos == null)
         return null;
     var range = new Range.Range(pos.node,pos.offset,pos.node,pos.offset);
@@ -656,7 +653,7 @@ function zeroWidthMidRect(rect) {
              height: rect.height };
 }
 
-function noteAncestor(pos) {
+export function noteAncestor(pos) {
     var node = closestActualNode(pos);
     for (; node != null; node = node.parentNode) {
         if (Types.isNoteNode(node))
@@ -665,7 +662,7 @@ function noteAncestor(pos) {
     return null;
 }
 
-function captionAncestor(pos) {
+export function captionAncestor(pos) {
     var node = closestActualNode(pos);
     for (; node != null; node = node.parentNode) {
         if ((node._type == ElementTypes.HTML_FIGCAPTION) || (node._type == ElementTypes.HTML_CAPTION))
@@ -674,7 +671,7 @@ function captionAncestor(pos) {
     return null;
 }
 
-function figureOrTableAncestor(pos) {
+export function figureOrTableAncestor(pos) {
     var node = closestActualNode(pos);
     for (; node != null; node = node.parentNode) {
         if ((node._type == ElementTypes.HTML_FIGURE) || (node._type == ElementTypes.HTML_TABLE))
@@ -750,7 +747,7 @@ function tempSpaceRect(parentNode,nextSibling) {
         return null;
 }
 
-function displayRectAtPos(pos) {
+export function displayRectAtPos(pos) {
     rect = exactRectAtPos(pos);
     if (rect != null)
         return rect;
@@ -816,7 +813,7 @@ function displayRectAtPos(pos) {
     }
 }
 
-function equal(a,b) {
+export function equal(a,b) {
     if ((a == null) && (b == null))
         return true;
     if ((a != null) && (b != null) &&
@@ -825,7 +822,7 @@ function equal(a,b) {
     return false;
 }
 
-function preferTextPosition(pos) {
+export function preferTextPosition(pos) {
     var node = pos.node;
     var offset = pos.offset;
     if (node.nodeType == Node.ELEMENT_NODE) {
@@ -839,7 +836,7 @@ function preferTextPosition(pos) {
     return pos;
 }
 
-function preferElementPosition(pos) {
+export function preferElementPosition(pos) {
     if (pos.node.nodeType == Node.TEXT_NODE) {
         if (pos.node.parentNode == null)
             throw new Error("Position "+pos+" has no parent node");
@@ -851,7 +848,7 @@ function preferElementPosition(pos) {
     return pos;
 }
 
-function compare(first,second) {
+export function compare(first,second) {
     if ((first.node == second.node) && (first.offset == second.offset))
         return 0;
 
@@ -952,7 +949,7 @@ function posOutsideSelection(pos) {
         return pos;
 }
 
-function atPoint(x,y) {
+export function atPoint(x,y) {
     // In general, we can use document.caretRangeFromPoint(x,y) to determine the location of the
     // cursor based on screen coordinates. However, this doesn't work if the screen coordinates
     // are outside the bounding box of the document's body. So when this is true, we find either
@@ -1093,30 +1090,3 @@ function adjustPositionForFigure(position) {
     }
     return position;
 }
-
-exports.Position = Position;
-exports.assertValid = assertValid;
-exports.prev = prev;
-exports.next = next;
-exports.trackWhileExecuting = trackWhileExecuting;
-exports.closestActualNode = closestActualNode;
-exports.okForInsertion = okForInsertion;
-exports.okForMovement = okForMovement;
-exports.prevMatch = prevMatch;
-exports.nextMatch = nextMatch;
-exports.closestMatchForwards = closestMatchForwards;
-exports.closestMatchBackwards = closestMatchBackwards;
-exports.track = track;
-exports.untrack = untrack;
-exports.rectAtPos = rectAtPos;
-exports.noteAncestor = noteAncestor;
-exports.captionAncestor = captionAncestor;
-exports.figureOrTableAncestor = figureOrTableAncestor;
-exports.displayRectAtPos = displayRectAtPos;
-exports.equal = equal;
-exports.preferTextPosition = preferTextPosition;
-exports.preferElementPosition = preferElementPosition;
-exports.compare = compare;
-exports.atPoint = atPoint;
-
-});

@@ -15,26 +15,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("Main",function(require,exports) {
-"use strict";
-
-var AutoCorrect = require("AutoCorrect");
-var Cursor = require("Cursor");
-var DOM = require("DOM");
-var Editor = require("Editor");
-var ElementTypes = require("ElementTypes");
-var Outline = require("Outline");
-var PostponedActions = require("PostponedActions");
-var Range = require("Range");
-var Selection = require("Selection");
-var Styles = require("Styles");
-var Types = require("Types");
-var UndoManager = require("UndoManager");
-var Util = require("Util");
-var Viewport = require("Viewport");
+import AutoCorrect = require("./autoCorrect");
+import Cursor = require("./cursor");
+import DOM = require("./dom");
+import Editor = require("./editor");
+import ElementTypes = require("./elementTypes");
+import Outline = require("./outline");
+import PostponedActions = require("./postponedActions");
+import Range = require("./range");
+import Selection = require("./selection");
+import Styles = require("./styles");
+import Types = require("./types");
+import UndoManager = require("./undo");
+import Util = require("./util");
+import Viewport = require("./viewport");
 
 // public
-function getLanguage() {
+export function getLanguage() {
     var lang = document.documentElement.getAttribute("lang");
     if (lang != null)
         lang = lang.replace(/-/g,"_");
@@ -42,7 +39,7 @@ function getLanguage() {
 }
 
 // public
-function setLanguage(lang) {
+export function setLanguage(lang) {
     if ((lang == null) || (lang == "")) {
         DOM.removeAttribute(document.documentElement,"lang");
     }
@@ -53,7 +50,7 @@ function setLanguage(lang) {
 }
 
 // public
-function removeUnsupportedInput() {
+export function removeUnsupportedInput() {
     recurse(document.documentElement);
 
     function recurse(node) {
@@ -93,7 +90,7 @@ function addMetaCharset() {
 }
 
 // public
-function setGenerator(generator) {
+export function setGenerator(generator) {
     return UndoManager.disableWhileExecuting(function() {
         var head = DOM.documentHead(document);
         for (var child = head.firstChild; child != null; child = child.nextSibling) {
@@ -120,24 +117,24 @@ function setGenerator(generator) {
 }
 
 // public
-function isEmptyDocument() {
+export function isEmptyDocument() {
     return !Util.nodeHasContent(document.body);
 }
 
 // public
-function prepareForSave() {
+export function prepareForSave() {
     // Force any end-of-group actions to be performed
     UndoManager.newGroup();
     return true;
 }
 
 // public
-function getHTML() {
+export function getHTML() {
     return document.documentElement.outerHTML;
 }
 
 // public
-function getErrorReportingInfo() {
+export function getErrorReportingInfo() {
     if (document.documentElement == null)
         return "(document.documentElement is null)";
     try {
@@ -247,7 +244,7 @@ function getErrorReportingInfo() {
 }
 
 // public
-function removeSpecial(node) {
+export function removeSpecial(node) {
     // We process the children first, so that if there are any nested removable elements (e.g.
     // a selection span inside of an autocorrect span), all levels of nesting are taken care of
     var next;
@@ -296,7 +293,7 @@ function simplifyStackString(e) {
 }
 
 // public
-function execute(fun) {
+export function execute(fun) {
     try {
         var res = fun();
         PostponedActions.perform();
@@ -328,10 +325,12 @@ function fixEmptyBody() {
     DOM.appendChild(document.body,p);
 }
 
+export var clientRectsBug = false;
+
 // public
-function init(width,textScale,cssURL,clientRectsBug) {
+export function init(width,textScale,cssURL,clientRectsBug1) {
     try {
-        exports.clientRectsBug = clientRectsBug;
+        clientRectsBug = clientRectsBug1;
         if (document.documentElement == null)
             throw new Error("document.documentElement is null");
         if (document.body == null)
@@ -370,17 +369,3 @@ function init(width,textScale,cssURL,clientRectsBug) {
         return e.toString();
     }
 }
-
-exports.getLanguage = getLanguage;
-exports.setLanguage = setLanguage;
-exports.removeUnsupportedInput = removeUnsupportedInput;
-exports.setGenerator = setGenerator;
-exports.isEmptyDocument = isEmptyDocument;
-exports.prepareForSave = prepareForSave;
-exports.getHTML = getHTML;
-exports.getErrorReportingInfo = getErrorReportingInfo;
-exports.removeSpecial = removeSpecial;
-exports.execute = execute;
-exports.init = init;
-
-});

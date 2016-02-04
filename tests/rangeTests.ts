@@ -15,21 +15,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("tests.RangeTests",function(require,exports) {
-"use strict";
-
-var Collections = require("Collections");
-var DOM = require("DOM");
-var Position = require("Position");
-var Range = require("Range");
-var Traversal = require("Traversal");
-var Util = require("Util");
+import Collections = require("../src/collections");
+import DOM = require("../src/dom");
+import Position = require("../src/position");
+import Range = require("../src/range");
+import Traversal = require("../src/traversal");
+import Util = require("../src/util");
 
 function positionKey(pos) {
     return pos.node._nodeId+","+pos.offset;
 }
 
-function removeWhitespaceTextNodes(parent) {
+export function removeWhitespaceTextNodes(parent) {
     var next;
     for (var child = parent.firstChild; child != null; child = next) {
         next = child.nextSibling;
@@ -40,17 +37,20 @@ function removeWhitespaceTextNodes(parent) {
     }
 }
 
-function setup(root) {
-    exports.allPositions = getAllPositions(root);
+export var allPositions = null;
+export var allPositionsIndexMap = null;
 
-    exports.allPositionsIndexMap = new Object();
-    for (var i = 0; i < exports.allPositions.length; i++) {
-        var pos = exports.allPositions[i];
-        exports.allPositionsIndexMap[positionKey(pos)] = i;
+export function setup(root) {
+    allPositions = getAllPositions(root);
+
+    allPositionsIndexMap = new Object();
+    for (var i = 0; i < allPositions.length; i++) {
+        var pos = allPositions[i];
+        allPositionsIndexMap[positionKey(pos)] = i;
     }
 }
 
-function comparePositionsBeforeAndAfter(fun) {
+export function comparePositionsBeforeAndAfter(fun) {
     var messages = new Array();
     var positions = getAllPositions(document.body);
     var positionStrings = new Array();
@@ -76,7 +76,7 @@ function comparePositionsBeforeAndAfter(fun) {
     return messages.join("\n");
 }
 
-function getAllPositions(root) {
+export function getAllPositions(root) {
     var includeEmptyElements = true;
 
     var positions = new Array();
@@ -104,21 +104,21 @@ function getAllPositions(root) {
     }
 }
 
-function getPositionIndex(pos) {
-    var result = exports.allPositionsIndexMap[pos.node._nodeId+","+pos.offset];
+export function getPositionIndex(pos) {
+    var result = allPositionsIndexMap[pos.node._nodeId+","+pos.offset];
     if (result == null)
         throw new Error(pos+": no index for position");
     return result;
 }
 
-function isForwardsSimple(range) {
+export function isForwardsSimple(range) {
     var startIndex = getPositionIndex(range.start);
     var endIndex = getPositionIndex(range.end);
 //    Util.debug("startIndex = "+indices.startIndex+", endIndex = "+indices.endIndex);
     return (endIndex >= startIndex);
 }
 
-function getOutermostNodesSimple(range) {
+export function getOutermostNodesSimple(range) {
     if (!isForwardsSimple(range)) {
         var reverse = new Range.Range(range.end.node,range.end.offset,
                                 range.start.node,range.start.offset);
@@ -139,7 +139,7 @@ function getOutermostNodesSimple(range) {
     var allSet = new Collections.NodeSet();
 
     for (var i = startIndex; i <= endIndex; i++) {
-        var pos = exports.allPositions[i];
+        var pos = allPositions[i];
 
         if ((pos.node.nodeType == Node.TEXT_NODE) && (i < endIndex)) {
             allArray.push(pos.node);
@@ -177,13 +177,3 @@ function getOutermostNodesSimple(range) {
         return false;
     }
 }
-
-exports.removeWhitespaceTextNodes = removeWhitespaceTextNodes;
-exports.setup = setup;
-exports.comparePositionsBeforeAndAfter = comparePositionsBeforeAndAfter;
-exports.getAllPositions = getAllPositions;
-exports.getPositionIndex = getPositionIndex;
-exports.isForwardsSimple = isForwardsSimple;
-exports.getOutermostNodesSimple = getOutermostNodesSimple;
-
-});

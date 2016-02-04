@@ -15,18 +15,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("tests.OutlineTests",function(require,exports) {
-"use strict";
+import DOM = require("../src/dom");
+import Formatting = require("../src/formatting");
+import Outline = require("../src/outline");
+import PostponedActions = require("../src/postponedActions");
+import Selection = require("../src/selection");
+import TestLib = require("./testlib");
+import Tables = require("../src/tables");
 
-var DOM = require("DOM");
-var Formatting = require("Formatting");
-var Outline = require("Outline");
-var PostponedActions = require("PostponedActions");
-var Selection = require("Selection");
-var TestLib = require("tests.TestLib");
-var Tables = require("Tables");
-
-function createTestSections(topChildren) {
+export function createTestSections(topChildren) {
     var index = 1;
 
     processChildren(1,topChildren);
@@ -67,13 +64,13 @@ function createTestSections(topChildren) {
     }
 }
 
-function setupOutline(topChildren) {
+export function setupOutline(topChildren) {
     Outline.init();
     PostponedActions.perform();
     createTestSections(topChildren);
 }
 
-function createTestFigures(count) {
+export function createTestFigures(count) {
     for (var i = 0; i < count; i++) {
         var figure = DOM.createElement(document,"FIGURE");
         var figcaption = DOM.createElement(document,"FIGCAPTION");
@@ -86,7 +83,7 @@ function createTestFigures(count) {
     }
 }
 
-function createTestTables(count) {
+export function createTestTables(count) {
     for (var i = 0; i < count; i++) {
         var offset = document.body.childNodes.length;
         Selection.set(document.body,offset,document.body,offset);
@@ -108,15 +105,7 @@ function removeOutlineHTML(node) {
     }
 }
 
-function cleanupOutline() {
+export function cleanupOutline() {
     PostponedActions.perform();
     removeOutlineHTML(document.body);
 }
-
-exports.createTestSections = createTestSections;
-exports.setupOutline = setupOutline;
-exports.createTestFigures = createTestFigures;
-exports.createTestTables = createTestTables;
-exports.cleanupOutline = cleanupOutline;
-
-});

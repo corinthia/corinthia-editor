@@ -15,26 +15,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("Range",function(require,exports) {
-"use strict";
+import Collections = require("./collections");
+import DOM = require("./dom");
+import ElementTypes = require("./elementTypes");
+import Formatting = require("./formatting");
+import Hierarchy = require("./hierarchy");
+import Main = require("./main");
+import Position = require("./position");
+import Traversal = require("./traversal");
+import Types = require("./types");
+import Util = require("./util");
 
-var Collections = require("Collections");
-var DOM = require("DOM");
-var ElementTypes = require("ElementTypes");
-var Formatting = require("Formatting");
-var Hierarchy = require("Hierarchy");
-var Main = require("Main");
-var Position = require("Position");
-var Traversal = require("Traversal");
-var Types = require("Types");
-var Util = require("Util");
-
-function Range(startNode,startOffset,endNode,endOffset) {
+export function Range(startNode,startOffset,endNode,endOffset) {
     this.start = new Position.Position(startNode,startOffset);
     this.end = new Position.Position(endNode,endOffset);
 }
 
-function assertValid(range,description) {
+export function assertValid(range,description) {
     if (description == null)
         description = "Range";
     if (range == null)
@@ -43,7 +40,7 @@ function assertValid(range,description) {
     Position.assertValid(range.end,description+" end");
 }
 
-function isEmpty(range) {
+export function isEmpty(range) {
     return ((range.start.node == range.end.node) &&
             (range.start.offset == range.end.offset));
 }
@@ -52,14 +49,14 @@ Range.prototype.toString = function() {
     return this.start.toString() + " - " + this.end.toString();
 }
 
-function trackWhileExecuting(range,fun) {
+export function trackWhileExecuting(range,fun) {
     if (range == null)
         return fun();
     else
         return Position.trackWhileExecuting([range.start,range.end],fun);
 }
 
-function expand(range) {
+export function expand(range) {
     var doc = range.start.node.ownerDocument;
     while ((range.start.offset == 0) && (range.start.node != doc.body)) {
         var offset = DOM.nodeOffset(range.start.node);
@@ -75,11 +72,11 @@ function expand(range) {
     }
 }
 
-function isForwards(range) {
+export function isForwards(range) {
     return (Position.compare(range.start,range.end) <= 0);
 }
 
-function getAllNodes(range,atLeastOne) {
+export function getAllNodes(range,atLeastOne?) {
     var result = new Array();
     var outermost = getOutermostNodes(range,atLeastOne);
     for (var i = 0; i < outermost.length; i++)
@@ -93,11 +90,11 @@ function getAllNodes(range,atLeastOne) {
     }
 }
 
-function singleNode(range) {
+export function singleNode(range) {
     return Position.closestActualNode(range.start,true);
 }
 
-function ensureInlineNodesInParagraph(range) {
+export function ensureInlineNodesInParagraph(range) {
     trackWhileExecuting(range,function() {
         var nodes = getAllNodes(range,true);
         for (var i = 0; i < nodes.length; i++)
@@ -105,15 +102,15 @@ function ensureInlineNodesInParagraph(range) {
     });
 }
 
-function ensureValidHierarchy(range,allowDirectInline) {
+export function ensureValidHierarchy(range,allowDirectInline?) {
     trackWhileExecuting(range,function() {
         var nodes = getAllNodes(range,true);
         for (var i = nodes.length-1; i >= 0; i--)
-            Hierarchy.ensureValidHierarchy(nodes[i],true,allowDirectInline);
+            Hierarchy.ensureValidHierarchy(nodes[i]);
     });
 }
 
-function forwards(range) {
+export function forwards(range) {
     if (isForwards(range)) {
         return range;
     }
@@ -126,7 +123,7 @@ function forwards(range) {
     }
 }
 
-function detail(range) {
+export function detail(range) {
     if (!isForwards(range)) {
         var reverse = new Range(range.end.node,range.end.offset,
                                 range.start.node,range.start.offset);
@@ -186,7 +183,7 @@ function detail(range) {
     throw new Error("Start and end of range have no common ancestor");
 }
 
-function getOutermostNodes(range,atLeastOne?,info?) {
+export function getOutermostNodes(range,atLeastOne?,info?) {
     var beforeNodes = new Array();
     var middleNodes = new Array();
     var afterNodes = new Array();
@@ -298,7 +295,7 @@ function getOutermostNodes(range,atLeastOne?,info?) {
     }
 }
 
-function getClientRects(range) {
+export function getClientRects(range) {
     var nodes = getOutermostNodes(range,true);
 
     // WebKit in iOS 5.0 and 5.1 has a bug where if the selection spans multiple paragraphs,
@@ -341,7 +338,7 @@ function getClientRects(range) {
     return result;
 }
 
-function cloneContents(range) {
+export function cloneContents(range) {
     var nodeSet = new Collections.NodeSet();
     var ancestorSet = new Collections.NodeSet();
     var det = detail(range);
@@ -417,7 +414,7 @@ function cloneContents(range) {
     }
 }
 
-function hasContent(range) {
+export function hasContent(range) {
     var outermost = getOutermostNodes(range);
     for (var i = 0; i < outermost.length; i++) {
         var node = outermost[i];
@@ -448,7 +445,7 @@ function hasContent(range) {
     return false;
 }
 
-function getText(range) {
+export function getText(range) {
     range = forwards(range);
 
     var start = range.start;
@@ -531,23 +528,3 @@ function getText(range) {
             significantParagraph = false;
     }
 }
-
-exports.Range = Range;
-exports.assertValid = assertValid;
-exports.isEmpty = isEmpty;
-exports.trackWhileExecuting = trackWhileExecuting;
-exports.expand = expand;
-exports.isForwards = isForwards;
-exports.getAllNodes = getAllNodes;
-exports.singleNode = singleNode;
-exports.ensureInlineNodesInParagraph = ensureInlineNodesInParagraph;
-exports.ensureValidHierarchy = ensureValidHierarchy;
-exports.forwards = forwards;
-exports.detail = detail;
-exports.getOutermostNodes = getOutermostNodes;
-exports.getClientRects = getClientRects;
-exports.cloneContents = cloneContents;
-exports.hasContent = hasContent;
-exports.getText = getText;
-
-});

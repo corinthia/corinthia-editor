@@ -15,14 +15,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("tests.PositionTests",function(require,exports) {
-"use strict";
-
-var Paragraph = require("Paragraph");
-var Position = require("Position");
-var Selection = require("Selection");
-var Text = require("Text");
-var UndoManager = require("UndoManager");
+import Paragraph = require("../src/paragraph");
+import Position = require("../src/position");
+import Selection = require("../src/selection");
+import Text = require("../src/text");
+import UndoManager = require("../src/undo");
 
 function pad(str,length) {
     str = ""+str;
@@ -94,7 +91,7 @@ function getPositionList() {
     return positionList;
 }
 
-function positionTest(start1,end1,start2,end2) {
+export function positionTest(start1,end1,start2,end2) {
     var ps = document.getElementsByTagName("P");
 
     var p = ps[0];
@@ -146,7 +143,3 @@ function positionTest(start1,end1,start2,end2) {
 
     return testDescription + "\n" + createTable([origStrings,strings1,strings2,checks]);
 }
-
-exports.positionTest = positionTest;
-
-});

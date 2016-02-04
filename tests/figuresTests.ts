@@ -15,14 +15,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("tests.FiguresTests",function(require,exports) {
-"use strict";
+import DOM = require("../src/dom");
+import Figures = require("../src/figures");
+import Selection = require("../src/selection");
 
-var DOM = require("DOM");
-var Figures = require("Figures");
-var Selection = require("Selection");
-
-function figurePropertiesString(index) {
+export function figurePropertiesString(index) {
     var figure = document.getElementsByTagName("FIGURE")[0];
     var parent = figure.parentNode;
     var offset = DOM.nodeOffset(figure);
@@ -39,7 +36,3 @@ function figurePropertiesString(index) {
     }
     return strings.join("\n");
 }
-
-exports.figurePropertiesString = figurePropertiesString;
-
-});

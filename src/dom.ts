@@ -15,14 +15,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("DOM",function(require,exports) {
-"use strict";
-
-var ElementTypes = require("ElementTypes");
-var Traversal = require("Traversal");
-var Types = require("Types");
-var UndoManager = require("UndoManager");
-var Util = require("Util");
+import ElementTypes = require("./elementTypes");
+import Traversal = require("./traversal");
+import Types = require("./types");
+import UndoManager = require("./undo");
+import Util = require("./util");
 
 var nextNodeId = 0;
 var nodeData = new Object();
@@ -53,7 +50,7 @@ function checkNodeId(node) {
 }
 
 // public
-function assignNodeIds(root) {
+export function assignNodeIds(root) {
     if (root._nodeId != null)
         throw new Error(root+" already has id");
     recurse(root);
@@ -131,27 +128,27 @@ function assignNodeIds(root) {
   */
 
 // public
-function createElement(document,elementName) {
+export function createElement(document,elementName) {
     return assignNodeId(document.createElement(elementName)); // check-ok
 }
 
 // public
-function createElementNS(document,namespaceURI,qualifiedName) {
+export function createElementNS(document,namespaceURI,qualifiedName) {
     return assignNodeId(document.createElementNS(namespaceURI,qualifiedName)); // check-ok
 }
 
 // public
-function createTextNode(document,data) {
+export function createTextNode(document,data) {
     return assignNodeId(document.createTextNode(data)); // check-ok
 }
 
 // public
-function createComment(document,data) {
+export function createComment(document,data) {
     return assignNodeId(document.createComment(data)); // check-ok
 }
 
 // public
-function cloneNode(original,deep,noIdAttr) {
+export function cloneNode(original,deep,noIdAttr?) {
     var clone = original.cloneNode(deep); // check-ok
     assignNodeIds(clone);
     if (noIdAttr)
@@ -204,7 +201,7 @@ function deleteNodeInternal(node,deleteDescendantData) {
 }
 
 // public
-function setAttribute(element,name,value) {
+export function setAttribute(element,name,value) {
     if (element.hasAttribute(name))
         addUndoAction(setAttribute,element,name,element.getAttribute(name));
     else
@@ -217,7 +214,7 @@ function setAttribute(element,name,value) {
 }
 
 // public
-function setAttributeNS(element,namespaceURI,qualifiedName,value) {
+export function setAttributeNS(element,namespaceURI,qualifiedName,value) {
     var localName = qualifiedName.replace(/^.*:/,"");
     if (element.hasAttributeNS(namespaceURI,localName)) {
         var oldValue = element.getAttributeNS(namespaceURI,localName);
@@ -235,7 +232,7 @@ function setAttributeNS(element,namespaceURI,qualifiedName,value) {
 }
 
 // public
-function setStyleProperties(element,properties) {
+export function setStyleProperties(element,properties) {
     if (Object.getOwnPropertyNames(properties).length == 0)
         return;
 
@@ -252,7 +249,7 @@ function setStyleProperties(element,properties) {
 }
 
 // public
-function insertCharacters(textNode,offset,characters) {
+export function insertCharacters(textNode,offset,characters) {
     if (textNode.nodeType != Node.TEXT_NODE)
         throw new Error("insertCharacters called on non-text node");
     if ((offset < 0) || (offset > textNode.nodeValue.length))
@@ -270,7 +267,7 @@ function insertCharacters(textNode,offset,characters) {
 }
 
 // public
-function deleteCharacters(textNode,startOffset,endOffset) {
+export function deleteCharacters(textNode,startOffset,endOffset?) {
     if (textNode.nodeType != Node.TEXT_NODE)
         throw new Error("deleteCharacters called on non-text node "+Util.nodeString(textNode));
     if (endOffset == null)
@@ -293,8 +290,8 @@ function deleteCharacters(textNode,startOffset,endOffset) {
 }
 
 // public
-function moveCharacters(srcTextNode,srcStartOffset,srcEndOffset,destTextNode,destOffset,
-                        excludeStartPos,excludeEndPos) {
+export function moveCharacters(srcTextNode,srcStartOffset,srcEndOffset,destTextNode,destOffset,
+                               excludeStartPos?,excludeEndPos?) {
     if (srcTextNode == destTextNode)
         throw new Error("src and dest text nodes cannot be the same");
     if (srcStartOffset > srcEndOffset)
@@ -343,7 +340,7 @@ function moveCharacters(srcTextNode,srcStartOffset,srcEndOffset,destTextNode,des
 }
 
 // public
-function setNodeValue(textNode,value) {
+export function setNodeValue(textNode,value) {
     if (textNode.nodeType != Node.TEXT_NODE)
         throw new Error("setNodeValue called on non-text node");
     trackedPositionsForNode(textNode).forEach(function (position) {
@@ -365,12 +362,12 @@ function appendChildInternal(parent,newChild) {
 }
 
 // public
-function appendChild(node,child) {
+export function appendChild(node,child) {
     return insertBefore(node,child,null);
 }
 
 // public
-function insertBefore(parent,child,nextSibling) {
+export function insertBefore(parent,child,nextSibling) {
     var newOffset;
     if (nextSibling != null)
         newOffset = nodeOffset(nextSibling);
@@ -404,7 +401,7 @@ function insertBefore(parent,child,nextSibling) {
 }
 
 // public
-function deleteNode(node) {
+export function deleteNode(node) {
     if (node.parentNode == null) // already deleted
         return;
     adjustPositionsRecursive(node);
@@ -429,17 +426,17 @@ function deleteNode(node) {
 }
 
 // public
-function removeAttribute(element,name,value) {
+export function removeAttribute(element,name) {
     setAttribute(element,name,null);
 }
 
 // public
-function removeAttributeNS(element,namespaceURI,localName) {
+export function removeAttributeNS(element,namespaceURI,localName) {
     setAttributeNS(element,namespaceURI,localName,null)
 }
 
 // public
-function getAttribute(element,name) {
+export function getAttribute(element,name) {
     if (element.hasAttribute(name))
         return element.getAttribute(name);
     else
@@ -447,7 +444,7 @@ function getAttribute(element,name) {
 }
 
 // public
-function getAttributeNS(element,namespaceURI,localName) {
+export function getAttributeNS(element,namespaceURI,localName) {
     if (element.hasAttributeNS(namespaceURI,localName))
         return element.getAttributeNS(namespaceURI,localName);
     else
@@ -455,19 +452,19 @@ function getAttributeNS(element,namespaceURI,localName) {
 }
 
 // public
-function getStringAttribute(element,name) {
+export function getStringAttribute(element,name) {
     var value = element.getAttribute(name);
     return (value == null) ? "" : value;
 }
 
 // public
-function getStringAttributeNS(element,namespaceURI,localName) {
+export function getStringAttributeNS(element,namespaceURI,localName) {
     var value = element.getAttributeNS(namespaceURI,localName);
     return (value == null) ? "" : value;
 }
 
 // public
-function getStyleProperties(node) {
+export function getStyleProperties(node) {
     var properties = new Object();
     if (node.nodeType == Node.ELEMENT_NODE) {
         for (var i = 0; i < node.style.length; i++) {
@@ -480,18 +477,18 @@ function getStyleProperties(node) {
 }
 
 // public
-function deleteAllChildren(parent) {
+export function deleteAllChildren(parent) {
     while (parent.firstChild != null)
         deleteNode(parent.firstChild);
 }
 
 // public
-function shallowCopyElement(element) {
+export function shallowCopyElement(element) {
     return cloneNode(element,false,true);
 }
 
 // public
-function removeNodeButKeepChildren(node) {
+export function removeNodeButKeepChildren(node) {
     if (node.parentNode == null)
         throw new Error("Node "+Util.nodeString(node)+" has no parent");
     var offset = nodeOffset(node);
@@ -518,7 +515,7 @@ function removeNodeButKeepChildren(node) {
 }
 
 // public
-function replaceElement(oldElement,newName) {
+export function replaceElement(oldElement,newName) {
     var listeners = listenersForNode(oldElement);
     var newElement = createElement(document,newName);
     for (var i = 0; i < oldElement.attributes.length; i++) {
@@ -553,11 +550,11 @@ function replaceElement(oldElement,newName) {
 }
 
 // public
-function wrapNode(node,elementName) {
+export function wrapNode(node,elementName) {
     return wrapSiblings(node,node,elementName);
 }
 
-function wrapSiblings(first,last,elementName) {
+export function wrapSiblings(first,last,elementName) {
     var parent = first.parentNode;
     var wrapper = createElement(document,elementName);
 
@@ -592,7 +589,7 @@ function wrapSiblings(first,last,elementName) {
 }
 
 // public
-function mergeWithNextSibling(current,whiteList) {
+export function mergeWithNextSibling(current,whiteList) {
     var parent = current.parentNode;
     var next = current.nextSibling;
 
@@ -632,7 +629,7 @@ function mergeWithNextSibling(current,whiteList) {
 }
 
 // public
-function nodesMergeable(a,b,whiteList) {
+export function nodesMergeable(a,b,whiteList) {
     if ((a.nodeType == Node.TEXT_NODE) && (b.nodeType == Node.TEXT_NODE))
         return true;
     else if ((a.nodeType == Node.ELEMENT_NODE) && (b.nodeType == Node.ELEMENT_NODE))
@@ -690,7 +687,7 @@ function listenersForNode(node) {
 }
 
 // public
-function replaceCharacters(textNode,startOffset,endOffset,replacement) {
+export function replaceCharacters(textNode,startOffset,endOffset,replacement) {
     // Note that we do the insertion *before* the deletion so that the position is properly
     // maintained, and ends up at the end of the replacement (unless it was previously at
     // startOffset, in which case it will stay the same)
@@ -699,7 +696,7 @@ function replaceCharacters(textNode,startOffset,endOffset,replacement) {
 }
 
 // public
-function addTrackedPosition(position) {
+export function addTrackedPosition(position) {
     var data = getDataForNode(position.node,true);
     if (data.trackedPositions == null)
         data.trackedPositions = new Array();
@@ -707,7 +704,7 @@ function addTrackedPosition(position) {
 }
 
 // public
-function removeTrackedPosition(position) {
+export function removeTrackedPosition(position) {
     var data = getDataForNode(position.node,false);
     if ((data == null) || (data.trackedPositions == null))
         throw new Error("removeTrackedPosition: no registered positions for this node "+
@@ -723,7 +720,7 @@ function removeTrackedPosition(position) {
 }
 
 // public
-function removeAdjacentWhitespace(node) {
+export function removeAdjacentWhitespace(node) {
     while ((node.previousSibling != null) && (Traversal.isWhitespaceTextNode(node.previousSibling)))
         deleteNode(node.previousSibling);
     while ((node.nextSibling != null) && (Traversal.isWhitespaceTextNode(node.nextSibling)))
@@ -731,7 +728,7 @@ function removeAdjacentWhitespace(node) {
 }
 
 // public
-function documentHead(document) {
+export function documentHead(document) {
     var html = document.documentElement;
     for (var child = html.firstChild; child != null; child = child.nextSibling) {
         if (child._type == ElementTypes.HTML_HEAD)
@@ -741,7 +738,7 @@ function documentHead(document) {
 }
 
 // public
-function ensureUniqueIds(root) {
+export function ensureUniqueIds(root) {
     var ids = new Object();
     var duplicates = new Array();
 
@@ -786,7 +783,7 @@ function ensureUniqueIds(root) {
 }
 
 // public
-function nodeOffset(node,parent?) {
+export function nodeOffset(node,parent?) {
     if ((node == null) && (parent != null))
         return maxChildOffset(parent);
     var offset = 0;
@@ -796,7 +793,7 @@ function nodeOffset(node,parent?) {
 }
 
 // public
-function maxChildOffset(node) {
+export function maxChildOffset(node) {
     if (node.nodeType == Node.TEXT_NODE)
         return node.nodeValue.length;
     else if (node.nodeType == Node.ELEMENT_NODE)
@@ -818,7 +815,7 @@ function decIgnoreMutations() {
 }
 
 // public
-function ignoreMutationsWhileExecuting(fun) {
+export function ignoreMutationsWhileExecuting(fun) {
     incIgnoreMutations();
     try {
         return fun();
@@ -829,12 +826,12 @@ function ignoreMutationsWhileExecuting(fun) {
 }
 
 // public
-function getIgnoreMutations() {
+export function getIgnoreMutations() {
     return ignoreMutations;
 }
 
 // public
-function addListener(node,listener) {
+export function addListener(node,listener) {
     var data = getDataForNode(node,true);
     if (data.listeners == null)
         data.listeners = [listener];
@@ -843,7 +840,7 @@ function addListener(node,listener) {
 }
 
 // public
-function removeListener(node,listener) {
+export function removeListener(node,listener) {
     var list = listenersForNode(node);
     var index = list.indexOf(listener);
     if (index >= 0)
@@ -851,54 +848,7 @@ function removeListener(node,listener) {
 }
 
 // public
-function Listener() {
+export function Listener() {
 }
 
 Listener.prototype.afterReplaceElement = function(oldElement,newElement) {}
-
-exports.assignNodeIds = assignNodeIds;
-exports.createElement = createElement;
-exports.createElementNS = createElementNS;
-exports.createTextNode = createTextNode;
-exports.createComment = createComment;
-exports.cloneNode = cloneNode;
-exports.setAttribute = setAttribute;
-exports.setAttributeNS = setAttributeNS;
-exports.setStyleProperties = setStyleProperties;
-exports.insertCharacters = insertCharacters;
-exports.deleteCharacters = deleteCharacters;
-exports.moveCharacters = moveCharacters;
-exports.setNodeValue = setNodeValue;
-exports.appendChild = appendChild;
-exports.insertBefore = insertBefore;
-exports.deleteNode = deleteNode;
-exports.removeAttribute = removeAttribute;
-exports.removeAttributeNS = removeAttributeNS;
-exports.getAttribute = getAttribute;
-exports.getAttributeNS = getAttributeNS;
-exports.getStringAttribute = getStringAttribute;
-exports.getStringAttributeNS = getStringAttributeNS;
-exports.getStyleProperties = getStyleProperties;
-exports.deleteAllChildren = deleteAllChildren;
-exports.shallowCopyElement = shallowCopyElement;
-exports.removeNodeButKeepChildren = removeNodeButKeepChildren;
-exports.replaceElement = replaceElement;
-exports.wrapNode = wrapNode;
-exports.wrapSiblings = wrapSiblings;
-exports.mergeWithNextSibling = mergeWithNextSibling;
-exports.nodesMergeable = nodesMergeable;
-exports.replaceCharacters = replaceCharacters;
-exports.addTrackedPosition = addTrackedPosition;
-exports.removeTrackedPosition = removeTrackedPosition;
-exports.removeAdjacentWhitespace = removeAdjacentWhitespace;
-exports.documentHead = documentHead;
-exports.ensureUniqueIds = ensureUniqueIds;
-exports.nodeOffset = nodeOffset;
-exports.maxChildOffset = maxChildOffset;
-exports.ignoreMutationsWhileExecuting = ignoreMutationsWhileExecuting;
-exports.getIgnoreMutations = getIgnoreMutations;
-exports.addListener = addListener;
-exports.removeListener = removeListener;
-exports.Listener = Listener;
-
-});

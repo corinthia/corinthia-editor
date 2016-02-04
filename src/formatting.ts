@@ -15,21 +15,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("Formatting",function(require,exports) {
-"use strict";
-
-var Collections = require("Collections");
-var Cursor = require("Cursor");
-var DOM = require("DOM");
-var ElementTypes = require("ElementTypes");
-var Hierarchy = require("Hierarchy");
-var Position = require("Position");
-var Range = require("Range");
-var Selection = require("Selection");
-var Traversal = require("Traversal");
-var Types = require("Types");
-var UndoManager = require("UndoManager");
-var Util = require("Util");
+import Collections = require("./collections");
+import Cursor = require("./cursor");
+import DOM = require("./dom");
+import ElementTypes = require("./elementTypes");
+import Hierarchy = require("./hierarchy");
+import Position = require("./position");
+import Range = require("./range");
+import Selection = require("./selection");
+import Traversal = require("./traversal");
+import Types = require("./types");
+import UndoManager = require("./undo");
+import Util = require("./util");
 
 // Some properties in CSS, such as 'margin', 'border', and 'padding', are shorthands which
 // set multiple, more fine-grained properties. The CSS spec outlines what these are - e.g.
@@ -106,7 +103,7 @@ function getStyleProperties(element,dontReplace?) {
 }
 
 // public (for testing purposes only)
-function splitAroundSelection(range,allowDirectInline) {
+export function splitAroundSelection(range,allowDirectInline) {
     Range.trackWhileExecuting(range,function() {
         if (!allowDirectInline)
             Range.ensureInlineNodesInParagraph(range);
@@ -156,7 +153,7 @@ function splitAroundSelection(range,allowDirectInline) {
 }
 
 // public
-function mergeUpwards(node,whiteList) {
+export function mergeUpwards(node,whiteList) {
     while ((node != null) && whiteList[node._type]) {
         var parent = node.parentNode;
         mergeWithNeighbours(node,whiteList,true);
@@ -183,7 +180,7 @@ function isDiscardable(node) {
 }
 
 // public (for use by tests)
-function mergeWithNeighbours(node,whiteList,trim?) {
+export function mergeWithNeighbours(node,whiteList,trim?) {
     var parent = node.parentNode;
     if (parent == null)
         return;
@@ -236,7 +233,7 @@ function mergeRange(range,whiteList) {
 }
 
 // public (called from cursor.js)
-function splitTextBefore(pos,parentCheckFn?,force?) {
+export function splitTextBefore(pos,parentCheckFn?,force?) {
     var node = pos.node;
     var offset = pos.offset;
     if (parentCheckFn == null)
@@ -258,7 +255,7 @@ function splitTextBefore(pos,parentCheckFn?,force?) {
 }
 
 // public
-function splitTextAfter(pos,parentCheckFn?,force?) {
+export function splitTextAfter(pos,parentCheckFn?,force?) {
     var node = pos.node;
     var offset = pos.offset;
     if (parentCheckFn == null)
@@ -284,7 +281,7 @@ function splitTextAfter(pos,parentCheckFn?,force?) {
 // index of a child, we pass the child itself (or null if the offset is equal to
 // childNodes.length)
 // public
-function movePreceding(pos,parentCheckFn,force?) {
+export function movePreceding(pos,parentCheckFn,force?) {
     var node = pos.node;
     var offset = pos.offset;
     if (parentCheckFn(node) || (node == document.body))
@@ -320,7 +317,7 @@ function movePreceding(pos,parentCheckFn,force?) {
 }
 
 // public
-function moveFollowing(pos,parentCheckFn,force?) {
+export function moveFollowing(pos,parentCheckFn,force?) {
     var node = pos.node;
     var offset = pos.offset;
     if (parentCheckFn(node) || (node == document.body))
@@ -356,7 +353,7 @@ function moveFollowing(pos,parentCheckFn,force?) {
 }
 
 // public
-function paragraphTextUpToPosition(pos) {
+export function paragraphTextUpToPosition(pos) {
     if (pos.node.nodeType == Node.TEXT_NODE) {
         return stringToStartOfParagraph(pos.node,pos.offset);
     }
@@ -389,7 +386,7 @@ function paragraphTextUpToPosition(pos) {
 }
 
 // public
-function getFormatting() {
+export function getFormatting() {
     // FIXME: implement a more efficient version of this algorithm which avoids duplicate checks
 
     var range = Selection.get();
@@ -508,7 +505,7 @@ function getFormatting() {
 }
 
 // public
-function getAllNodeProperties(node) {
+export function getAllNodeProperties(node) {
     if (node == null)
         throw new Error("Node is not in tree");
 
@@ -753,7 +750,7 @@ function setParagraphStyle(paragraph,selector) {
 }
 
 // public
-function pushDownInlineProperties(outermost) {
+export function pushDownInlineProperties(outermost) {
     for (var i = 0; i < outermost.length; i++)
         outermost[i] = pushDownInlinePropertiesSingle(outermost[i]);
 }
@@ -1021,7 +1018,7 @@ function containsOnlyWhitespace(ancestor) {
 }
 
 // public
-function applyFormattingChanges(style,properties) {
+export function applyFormattingChanges(style,properties) {
     Util.debug("JS: applyFormattingChanges: style = "+JSON.stringify(style));
     if (properties != null) {
         var names = Object.getOwnPropertyNames(properties).sort();
@@ -1176,13 +1173,13 @@ function applyFormattingChanges(style,properties) {
     }
 }
 
-function formatInlineNode(node,properties) {
+export function formatInlineNode(node,properties) {
     properties = Util.clone(properties);
     var special = extractSpecial(properties);
     return applyInlineFormatting(node,properties,special,true);
 }
 
-var MERGEABLE_INLINE = new Array(ElementTypes.HTML_COUNT);
+export var MERGEABLE_INLINE = new Array(ElementTypes.HTML_COUNT);
 
 MERGEABLE_INLINE[ElementTypes.HTML_TEXT] = true;
 
@@ -1212,7 +1209,7 @@ MERGEABLE_INLINE[ElementTypes.HTML_SMALL] = true;
 MERGEABLE_INLINE[ElementTypes.HTML_S] = true;
 MERGEABLE_INLINE[ElementTypes.HTML_U] = true;
 
-var MERGEABLE_BLOCK = new Array(ElementTypes.HTML_COUNT);
+export var MERGEABLE_BLOCK = new Array(ElementTypes.HTML_COUNT);
 
 MERGEABLE_BLOCK[ElementTypes.HTML_P] = true;
 MERGEABLE_BLOCK[ElementTypes.HTML_H1] = true;
@@ -1229,28 +1226,9 @@ MERGEABLE_BLOCK[ElementTypes.HTML_UL] = true;
 MERGEABLE_BLOCK[ElementTypes.HTML_OL] = true;
 MERGEABLE_BLOCK[ElementTypes.HTML_LI] = true;
 
-var MERGEABLE_BLOCK_AND_INLINE = new Array(ElementTypes.HTML_COUNT);
+export var MERGEABLE_BLOCK_AND_INLINE = new Array(ElementTypes.HTML_COUNT);
 for (var i = 0; i < ElementTypes.HTML_COUNT; i++) {
     if (MERGEABLE_INLINE[i] || MERGEABLE_BLOCK[i])
         MERGEABLE_BLOCK_AND_INLINE[i] = true;
     MERGEABLE_BLOCK_AND_INLINE["force"] = true;
 }
-
-exports.splitAroundSelection = splitAroundSelection;
-exports.mergeUpwards = mergeUpwards;
-exports.mergeWithNeighbours = mergeWithNeighbours;
-exports.splitTextBefore = splitTextBefore;
-exports.splitTextAfter = splitTextAfter;
-exports.movePreceding = movePreceding;
-exports.moveFollowing = moveFollowing;
-exports.paragraphTextUpToPosition = paragraphTextUpToPosition;
-exports.getFormatting = getFormatting;
-exports.getAllNodeProperties = getAllNodeProperties;
-exports.pushDownInlineProperties = pushDownInlineProperties;
-exports.applyFormattingChanges = applyFormattingChanges;
-exports.formatInlineNode = formatInlineNode;
-exports.MERGEABLE_INLINE = MERGEABLE_INLINE;
-exports.MERGEABLE_BLOCK = MERGEABLE_BLOCK;
-exports.MERGEABLE_BLOCK_AND_INLINE = MERGEABLE_BLOCK_AND_INLINE;
-
-});

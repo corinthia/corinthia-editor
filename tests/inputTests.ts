@@ -15,32 +15,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("tests.InputTests",function(require,exports) {
-"use strict";
+import Input = require("../src/input");
+import Outline = require("../src/outline");
+import Position = require("../src/position");
+import PostponedActions = require("../src/postponedActions");
+import Range = require("../src/range");
+import Selection = require("../src/selection");
+import TestLib = require("./testlib");
+import Traversal = require("../src/traversal");
 
-var Input = require("Input");
-var Outline = require("Outline");
-var Position = require("Position");
-var PostponedActions = require("PostponedActions");
-var Range = require("Range");
-var Selection = require("Selection");
-var TestLib = require("tests.TestLib");
-var Traversal = require("Traversal");
-
-function getNodeArrayText(nodes) {
+export function getNodeArrayText(nodes) {
     var strings = new Array();
     for (var i = 0; i < nodes.length; i++)
         strings.push(Traversal.getNodeText(nodes[i]));
     return strings.join("");
 }
 
-function textBetweenPositions(from,to) {
+export function textBetweenPositions(from,to) {
     var range = new Range.Range(from.node,from.offset,to.node,to.offset);
     var contents = Range.cloneContents(range);
     return getNodeArrayText(contents);
 }
 
-function testMovement(direction,count) {
+export function testMovement(direction,count) {
     Outline.init();
     PostponedActions.perform();
     var posId = Input.addPosition(Selection.get().start);
@@ -50,7 +47,7 @@ function testMovement(direction,count) {
     TestLib.showSelection();
 }
 
-function testPositionFun(fun,granularity,direction) {
+export function testPositionFun(fun,granularity,direction) {
     var lines = new Array();
     var start = new Position.Position(document.body,0);
     var end = new Position.Position(document.body,document.body.childNodes.length);
@@ -74,15 +71,15 @@ function testPositionFun(fun,granularity,direction) {
     return lines.join("");
 }
 
-function testPositionWithin(granularity,direction) {
+export function testPositionWithin(granularity,direction) {
     return testPositionFun(Input.isPositionWithinTextUnitInDirection,granularity,direction);
 }
 
-function testPositionAtBoundary(granularity,direction) {
+export function testPositionAtBoundary(granularity,direction) {
     return testPositionFun(Input.isPositionAtBoundaryGranularityInDirection,granularity,direction);
 }
 
-function testPositionToBoundary(granularity,direction) {
+export function testPositionToBoundary(granularity,direction) {
     var lines = new Array();
     var start = new Position.Position(document.body,0);
     var end = new Position.Position(document.body,document.body.childNodes.length);
@@ -112,7 +109,7 @@ function testPositionToBoundary(granularity,direction) {
     return lines.join("");
 }
 
-function testRangeEnclosing(granularity,direction) {
+export function testRangeEnclosing(granularity,direction) {
     var lines = new Array();
     var start = new Position.Position(document.body,0);
     var end = new Position.Position(document.body,document.body.childNodes.length);
@@ -152,14 +149,3 @@ function testRangeEnclosing(granularity,direction) {
 
     return lines.join("");
 }
-
-exports.getNodeArrayText = getNodeArrayText;
-exports.textBetweenPositions = textBetweenPositions;
-exports.testMovement = testMovement;
-exports.testPositionFun = testPositionFun;
-exports.testPositionWithin = testPositionWithin;
-exports.testPositionAtBoundary = testPositionAtBoundary;
-exports.testPositionToBoundary = testPositionToBoundary;
-exports.testRangeEnclosing = testRangeEnclosing;
-
-});

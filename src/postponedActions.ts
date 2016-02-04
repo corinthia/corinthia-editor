@@ -15,10 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("PostponedActions",function(require,exports) {
-"use strict";
-
-var UndoManager = require("UndoManager");
+import UndoManager = require("./undo");
 
 function PostponedAction(fun,undoDisabled) {
     this.fun = fun;
@@ -27,11 +24,11 @@ function PostponedAction(fun,undoDisabled) {
 
 var actions = new Array();
 
-function add(action) {
+export function add(action) {
     actions.push(new PostponedAction(action,UndoManager.isDisabled()));
 }
 
-function perform() {
+export function perform() {
     var count = 0;
     while (actions.length > 0) {
         if (count >= 10)
@@ -48,8 +45,3 @@ function perform() {
         count++;
     }
 }
-
-exports.add = add;
-exports.perform = perform;
-
-});

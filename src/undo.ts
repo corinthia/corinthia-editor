@@ -15,10 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("UndoManager",function(require,exports) {
-"use strict";
-
-var Util = require("Util");
+import Util = require("./util");
 
 var UNDO_LIMIT = 50;
 
@@ -61,17 +58,17 @@ var currentGroup = null;
 var disabled = 0;
 
 // public
-function getLength() {
+export function getLength() {
     return undoStack.length + redoStack.length;
 }
 
 // public
-function getIndex() {
+export function getIndex() {
     return undoStack.length;
 }
 
 // public
-function setIndex(index) {
+export function setIndex(index) {
     while (undoStack.length > index)
         undo();
     while (undoStack.length < index)
@@ -79,7 +76,7 @@ function setIndex(index) {
 }
 
 // public
-function print() {
+export function print() {
     Util.debug("");
     Util.debug("--------------------------------------------------------------------");
     Util.debug("Undo stack:");
@@ -112,7 +109,7 @@ function closeCurrentGroup() {
 }
 
 // public
-function undo() {
+export function undo() {
     closeCurrentGroup();
     if (undoStack.length > 0) {
         var group = undoStack.pop();
@@ -125,7 +122,7 @@ function undo() {
 }
 
 // public
-function redo() {
+export function redo() {
     closeCurrentGroup();
     if (redoStack.length > 0) {
         var group = redoStack.pop();
@@ -138,7 +135,7 @@ function redo() {
 }
 
 // public
-function addAction(fun,...args) {
+export function addAction(fun,...args) {
     if (disabled > 0)
         return;
 
@@ -166,7 +163,7 @@ function addAction(fun,...args) {
 }
 
 // public
-function newGroup(type,onClose?) {
+export function newGroup(type?,onClose?) {
     if (disabled > 0)
         return;
 
@@ -182,14 +179,14 @@ function newGroup(type,onClose?) {
 }
 
 // public
-function groupType() {
+export function groupType() {
     if (undoStack.length > 0)
         return undoStack[undoStack.length-1].type;
     else
         return null;
 }
 
-function disableWhileExecuting(fun) {
+export function disableWhileExecuting(fun) {
     disabled++;
     try {
         return fun();
@@ -199,15 +196,15 @@ function disableWhileExecuting(fun) {
     }
 }
 
-function isActive() {
+export function isActive() {
     return (inUndo || inRedo);
 }
 
-function isDisabled() {
+export function isDisabled() {
     return (disabled > 0);
 }
 
-function clear() {
+export function clear() {
     undoStack.length = 0;
     redoStack.length = 0;
 }
@@ -219,35 +216,18 @@ function saveProperty(obj,name) {
         addAction(deleteProperty,obj,name);
 }
 
-function setProperty(obj,name,value) {
+export function setProperty(obj,name,value) {
     if (obj.hasOwnProperty(name) && (obj[name] == value))
         return; // no point in adding an undo action
     saveProperty(obj,name);
     obj[name] = value;
 }
 
-function deleteProperty(obj,name) {
+export function deleteProperty(obj,name) {
     if (!obj.hasOwnProperty(name))
         return; // no point in adding an undo action
     saveProperty(obj,name);
     delete obj[name];
 }
 
-exports.getLength = getLength;
-exports.getIndex = getIndex;
-exports.setIndex = setIndex;
-exports.print = print;
-exports.undo = undo;
-exports.redo = redo;
-exports.addAction = addAction;
-exports.newGroup = newGroup;
-exports.groupType = groupType;
-exports.disableWhileExecuting = disableWhileExecuting;
-exports.isActive = isActive;
-exports.isDisabled = isDisabled;
-exports.clear = clear;
-exports.setProperty = setProperty;
-exports.deleteProperty = deleteProperty;
-exports.undoSupported = true;
-
-});
+export var undoSupported = true;

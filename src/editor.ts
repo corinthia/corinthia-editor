@@ -15,10 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("Editor",function(require,exports) {
-"use strict";
-
-var Util = require("Util");
+import Util = require("./util");
 
 var backMessages = new Array();
 
@@ -27,74 +24,58 @@ function addBackMessage(...args) {
     return null;
 }
 
-function getBackMessages() {
+export function getBackMessages() {
     var result = JSON.stringify(backMessages);
     backMessages = new Array();
     return result;
 };
 
-function debug(str) {
+export function debug(str) {
     addBackMessage("debug",str);
 };
 
-function error(error,type) {
+export function error(error,type?) {
     if (type == null)
         type = "";
     addBackMessage("error",error.toString(),type);
 };
 
-function addOutlineItem(itemId,type,title) {
+export function addOutlineItem(itemId,type,title) {
     addBackMessage("addOutlineItem",itemId,type,title);
 };
 
-function updateOutlineItem(itemId,title) {
+export function updateOutlineItem(itemId,title) {
     addBackMessage("updateOutlineItem",itemId,title);
 };
 
-function removeOutlineItem(itemId) {
+export function removeOutlineItem(itemId) {
     addBackMessage("removeOutlineItem",itemId);
 };
 
-function outlineUpdated() {
+export function outlineUpdated() {
     addBackMessage("outlineUpdated");
 };
 
-function setCursor(x,y,width,height) {
+export function setCursor(x,y,width,height) {
     addBackMessage("setCursor",x,y,width,height);
 };
 
-function setSelectionHandles(x1,y1,height1,x2,y2,height2) {
+export function setSelectionHandles(x1,y1,height1,x2,y2,height2) {
     addBackMessage("setSelectionHandles",x1,y1,height1,x2,y2,height2);
 };
 
-function setTableSelection(x,y,width,height) {
+export function setTableSelection(x,y,width,height) {
     addBackMessage("setTableSelection",x,y,width,height);
 };
 
-function setSelectionBounds(left,top,right,bottom) {
+export function setSelectionBounds(left,top,right,bottom) {
     addBackMessage("setSelectionBounds",left,top,right,bottom);
 };
 
-function clearSelectionHandlesAndCursor() {
+export function clearSelectionHandlesAndCursor() {
     addBackMessage("clearSelectionHandlesAndCursor");
 };
 
-function updateAutoCorrect() {
+export function updateAutoCorrect() {
     addBackMessage("updateAutoCorrect");
 };
-
-exports.getBackMessages = getBackMessages;
-exports.debug = debug;
-exports.error = error;
-exports.addOutlineItem = addOutlineItem;
-exports.updateOutlineItem = updateOutlineItem;
-exports.removeOutlineItem = removeOutlineItem;
-exports.outlineUpdated = outlineUpdated;
-exports.setCursor = setCursor;
-exports.setSelectionHandles = setSelectionHandles;
-exports.setTableSelection = setTableSelection;
-exports.setSelectionBounds = setSelectionBounds;
-exports.clearSelectionHandlesAndCursor = clearSelectionHandlesAndCursor;
-exports.updateAutoCorrect = updateAutoCorrect;
-
-});

@@ -15,27 +15,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("Cursor",function(require,exports) {
-"use strict";
-
-var Clipboard = require("Clipboard");
-var DOM = require("DOM");
-var ElementTypes = require("ElementTypes");
-var Formatting = require("Formatting");
-var Hierarchy = require("Hierarchy");
-var Outline = require("Outline");
-var Position = require("Position");
-var Range = require("Range");
-var Selection = require("Selection");
-var Styles = require("Styles");
-var Traversal = require("Traversal");
-var Types = require("Types");
-var UndoManager = require("UndoManager");
-var Util = require("Util");
+import Clipboard = require("./clipboard");
+import DOM = require("./dom");
+import ElementTypes = require("./elementTypes");
+import Formatting = require("./formatting");
+import Hierarchy = require("./hierarchy");
+import Outline = require("./outline");
+import Position = require("./position");
+import Range = require("./range");
+import Selection = require("./selection");
+import Styles = require("./styles");
+import Traversal = require("./traversal");
+import Types = require("./types");
+import UndoManager = require("./undo");
+import Util = require("./util");
 
 var cursorX = null;
 
-function ensurePositionVisible(pos,center) {
+export function ensurePositionVisible(pos,center?) {
     // If we can't find the cursor rect for some reason, just don't do anything.
     // This is better than using an incorrect position or throwing an exception.
     var rect = Position.displayRectAtPos(pos)
@@ -62,13 +59,13 @@ function ensurePositionVisible(pos,center) {
 }
 
 // public
-function ensureCursorVisible(center?) {
+export function ensureCursorVisible(center?) {
     var selRange = Selection.get();
     if (selRange != null)
         ensurePositionVisible(selRange.end,center);
 }
 
-function scrollDocumentForY(y) {
+export function scrollDocumentForY(y) {
     var absY = window.scrollY + y;
     if (absY-44 < window.scrollY) {
         window.scrollTo(window.scrollX,absY-44);
@@ -82,7 +79,7 @@ function scrollDocumentForY(y) {
 }
 
 // public
-function positionCursor(x,y,wordBoundary) {
+export function positionCursor(x,y,wordBoundary) {
     if (UndoManager.groupType() != "Cursor movement")
         UndoManager.newGroup("Cursor movement");
 
@@ -173,7 +170,7 @@ function positionCursor(x,y,wordBoundary) {
 }
 
 // public
-function getCursorPosition() {
+export function getCursorPosition() {
     var selRange = Selection.get();
     if (selRange == null)
         return null;
@@ -191,7 +188,7 @@ function getCursorPosition() {
 }
 
 // public
-function moveLeft() {
+export function moveLeft() {
     var range = Selection.get();
     if (range == null)
         return;
@@ -203,7 +200,7 @@ function moveLeft() {
 }
 
 // public
-function moveRight() {
+export function moveRight() {
     var range = Selection.get();
     if (range == null)
         return;
@@ -215,7 +212,7 @@ function moveRight() {
 }
 
 // public
-function moveToStartOfDocument() {
+export function moveToStartOfDocument() {
     var pos = new Position.Position(document.body,0);
     pos = Position.closestMatchBackwards(pos,Position.okForMovement);
     set(pos.node,pos.offset);
@@ -223,7 +220,7 @@ function moveToStartOfDocument() {
 }
 
 // public
-function moveToEndOfDocument() {
+export function moveToEndOfDocument() {
     var pos = new Position.Position(document.body,document.body.childNodes.length);
     pos = Position.closestMatchForwards(pos,Position.okForMovement);
     set(pos.node,pos.offset);
@@ -233,7 +230,7 @@ function moveToEndOfDocument() {
 // An empty paragraph does not get shown and cannot be edited. We can fix this by adding
 // a BR element as a child
 // public
-function updateBRAtEndOfParagraph(node) {
+export function updateBRAtEndOfParagraph(node) {
     var paragraph = node;
     while ((paragraph != null) && !Types.isParagraphNode(paragraph))
         paragraph = paragraph.parentNode;
@@ -271,14 +268,14 @@ function updateBRAtEndOfParagraph(node) {
 }
 
 // public
-function insertReference(itemId) {
+export function insertReference(itemId) {
     var a = DOM.createElement(document,"A");
     DOM.setAttribute(a,"href","#"+itemId);
     Clipboard.pasteNodes([a]);
 }
 
 // public
-function insertLink(text,url) {
+export function insertLink(text,url) {
     var a = DOM.createElement(document,"A");
     DOM.setAttribute(a,"href",url);
     DOM.appendChild(a,DOM.createTextNode(document,text));
@@ -349,7 +346,7 @@ function isPosAtStartOfParagraph(pos) {
 }
 
 // public
-function insertCharacter(str,allowInvalidPos,allowNoParagraph) {
+export function insertCharacter(str,allowInvalidPos,allowNoParagraph) {
     var firstInsertion = (UndoManager.groupType() != "Insert text");
 
     if (firstInsertion)
@@ -503,7 +500,7 @@ function tryDeleteEmptyNote(pos) {
 }
 
 // public
-function deleteCharacter() {
+export function deleteCharacter() {
     if (UndoManager.groupType() != "Delete text")
         UndoManager.newGroup("Delete text",checkNbsp);
 
@@ -584,7 +581,7 @@ function deleteCharacter() {
 }
 
 // public
-function enterPressed() {
+export function enterPressed() {
     UndoManager.newGroup("New paragraph");
 
     Selection.preferElementPositions();
@@ -821,7 +818,7 @@ function enterPressed() {
     }
 }
 
-function getPrecedingWord() {
+export function getPrecedingWord() {
     var selRange = Selection.get();
     if ((selRange == null) && !Range.isEmpty(selRange))
         return "";
@@ -834,7 +831,7 @@ function getPrecedingWord() {
     return node.nodeValue.substring(0,offset);
 }
 
-function getAdjacentNodeWithType(type) {
+export function getAdjacentNodeWithType(type) {
     var selRange = Selection.get();
     var pos = Position.preferElementPosition(selRange.start);
     var node = pos.node;
@@ -863,7 +860,7 @@ function getAdjacentNodeWithType(type) {
     }
 }
 
-function getLinkProperties() {
+export function getLinkProperties() {
     var a = getAdjacentNodeWithType(ElementTypes.HTML_A);
     if (a == null)
         return null;
@@ -872,7 +869,7 @@ function getLinkProperties() {
              text: Traversal.getNodeText(a) };
 }
 
-function setLinkProperties(properties) {
+export function setLinkProperties(properties) {
     var a = getAdjacentNodeWithType(ElementTypes.HTML_A);
     if (a == null)
         return null;
@@ -884,7 +881,7 @@ function setLinkProperties(properties) {
     });
 }
 
-function setReferenceTarget(itemId) {
+export function setReferenceTarget(itemId) {
     var a = getAdjacentNodeWithType(ElementTypes.HTML_A);
     if (a != null)
         Outline.setReferenceTarget(a,itemId);
@@ -893,7 +890,7 @@ function setReferenceTarget(itemId) {
 // Deletes the current selection contents and ensures that the cursor is located directly
 // inside the nearest container element, i.e. not inside a paragraph or inline node. This
 // is intended for preventing things like inserting a table of contants inside a heading
-function makeContainerInsertionPoint() {
+export function makeContainerInsertionPoint() {
     var selRange = Selection.get();
     if (selRange == null)
         return;
@@ -943,7 +940,7 @@ function makeContainerInsertionPoint() {
     cursorX = null;
 }
 
-function set(node,offset,keepCursorX?) {
+export function set(node,offset,keepCursorX?) {
     Selection.set(node,offset,node,offset);
     if (!keepCursorX)
         cursorX = null;
@@ -995,37 +992,10 @@ function insertNote(className,content) {
     updateBRAtEndOfParagraph(footnote);
 }
 
-function insertFootnote(content) {
+export function insertFootnote(content) {
     insertNote("footnote",content);
 }
 
-function insertEndnote(content) {
+export function insertEndnote(content) {
     insertNote("endnote",content);
 }
-
-exports.ensurePositionVisible = ensurePositionVisible;
-exports.ensureCursorVisible = ensureCursorVisible;
-exports.scrollDocumentForY = scrollDocumentForY;
-exports.positionCursor = positionCursor;
-exports.getCursorPosition = getCursorPosition;
-exports.moveLeft = moveLeft;
-exports.moveRight = moveRight;
-exports.moveToStartOfDocument = moveToStartOfDocument;
-exports.moveToEndOfDocument = moveToEndOfDocument;
-exports.updateBRAtEndOfParagraph = updateBRAtEndOfParagraph;
-exports.insertReference = insertReference;
-exports.insertLink = insertLink;
-exports.insertCharacter = insertCharacter;
-exports.deleteCharacter = deleteCharacter;
-exports.enterPressed = enterPressed;
-exports.getPrecedingWord = getPrecedingWord;
-exports.getAdjacentNodeWithType = getAdjacentNodeWithType;
-exports.getLinkProperties = getLinkProperties;
-exports.setLinkProperties = setLinkProperties;
-exports.setReferenceTarget = setReferenceTarget;
-exports.makeContainerInsertionPoint = makeContainerInsertionPoint;
-exports.set = set;
-exports.insertFootnote = insertFootnote;
-exports.insertEndnote = insertEndnote;
-
-});

@@ -31,3 +31,7 @@ interface Node {
     _id?: number;
     _type?: number;
 }
+
+interface Window {
+    _nextDefineFilename?: string;
+}

@@ -15,23 +15,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("tests.TestLib",function(require,exports) {
-"use strict";
+import DOM = require("../src/dom");
+import ElementTypes = require("../src/elementTypes");
+import Formatting = require("../src/formatting");
+import Outline = require("../src/outline");
+import Position = require("../src/position");
+import PostponedActions = require("../src/postponedActions");
+import Range = require("../src/range");
+import Selection = require("../src/selection");
+import Styles = require("../src/styles");
+import Traversal = require("../src/traversal");
+import Types = require("../src/types");
+import UndoManager = require("../src/undo");
 
-var DOM = require("DOM");
-var ElementTypes = require("ElementTypes");
-var Formatting = require("Formatting");
-var Outline = require("Outline");
-var Position = require("Position");
-var PostponedActions = require("PostponedActions");
-var Range = require("Range");
-var Selection = require("Selection");
-var Styles = require("Styles");
-var Traversal = require("Traversal");
-var Types = require("Types");
-var UndoManager = require("UndoManager");
-
-function testHarnessSetup() {
+export function testHarnessSetup() {
     DOM.assignNodeIds(document);
 
     var start;
@@ -118,7 +115,7 @@ function testHarnessSetup() {
     }
 }
 
-function insertAtPosition(position,node) {
+export function insertAtPosition(position,node) {
     if (position.node.nodeType == Node.ELEMENT_NODE) {
         if (position.offset == position.node.childNodes.length)
             DOM.appendChild(position.node,node);
@@ -133,7 +130,7 @@ function insertAtPosition(position,node) {
     }
 }
 
-function insertTextAtPosition(position,str) {
+export function insertTextAtPosition(position,str) {
     if (position.node.nodeType == Node.ELEMENT_NODE) {
         var before = position.node.childNodes[position.offset-1];
         var after = position.node.childNodes[position.offset];
@@ -151,7 +148,7 @@ function insertTextAtPosition(position,str) {
     }
 }
 
-function showRangeAsBrackets(range) {
+export function showRangeAsBrackets(range) {
     if (Range.isEmpty(range)) {
         insertTextAtPosition(range.end,"[]");
     }
@@ -161,7 +158,7 @@ function showRangeAsBrackets(range) {
     }
 }
 
-function showSelection() {
+export function showSelection() {
     var range = Selection.get();
     if (range != null) {
         Range.assertValid(range,"Selection");
@@ -169,7 +166,7 @@ function showSelection() {
     }
 }
 
-function removeIds() {
+export function removeIds() {
     recurse(document.body);
 
     function recurse(node) {
@@ -181,12 +178,12 @@ function removeIds() {
     }
 }
 
-function selectNode(node) {
+export function selectNode(node) {
     var offset = DOM.nodeOffset(node);
     Selection.set(node.parentNode,offset,node.parentNode,offset+1);
 }
 
-function removeWhitespaceAndCommentNodes(root) {
+export function removeWhitespaceAndCommentNodes(root) {
     Selection.preserveWhileExecuting(function() {
         recurse(root);
     });
@@ -208,7 +205,7 @@ function removeWhitespaceAndCommentNodes(root) {
 // selectionWrapElement() and selectionUnwrapElement() used to be in formatting.js but have
 // now been made obselete by the addition of applyFormattingChanges(). However there are still
 // a few tests which use them.
-function selectionWrapElement(elementName) {
+export function selectionWrapElement(elementName) {
     if (elementName == "B")
         Formatting.applyFormattingChanges(null,{"font-weight": "bold"});
     else if (elementName == "I")
@@ -217,7 +214,7 @@ function selectionWrapElement(elementName) {
         Formatting.applyFormattingChanges(null,{"text-decoration": "underline"});
 }
 
-function selectionUnwrapElement(elementName) {
+export function selectionUnwrapElement(elementName) {
     if (elementName == "B")
         Formatting.applyFormattingChanges(null,{"font-weight": null});
     else if (elementName == "I")
@@ -226,7 +223,7 @@ function selectionUnwrapElement(elementName) {
         Formatting.applyFormattingChanges(null,{"text-decoration": null});
 }
 
-function showEmptyTextNodes() {
+export function showEmptyTextNodes() {
     recurse(document);
 
     function recurse(node) {
@@ -237,7 +234,7 @@ function showEmptyTextNodes() {
     }
 }
 
-function showClipboard(clipboard) {
+export function showClipboard(clipboard) {
     var html = clipboard["text/html"];
     var text = clipboard["text/plain"];
 
@@ -263,7 +260,7 @@ function showClipboard(clipboard) {
            text;
 }
 
-function setNumbering(enabled) {
+export function setNumbering(enabled) {
     if (enabled)
         setupOutlineNumbering();
 
@@ -292,7 +289,7 @@ function setNumbering(enabled) {
     }
 }
 
-function readXML(filename) {
+export function readXML(filename) {
     var req = new XMLHttpRequest();
     req.open("GET",filename,false);
     req.send();
@@ -303,7 +300,7 @@ function readXML(filename) {
     return xml;
 }
 
-function findTextMatchingRecursive(node,re) {
+export function findTextMatchingRecursive(node,re) {
     if (node.nodeType == Node.TEXT_NODE) {
         if (node.nodeValue.match(re))
             return node;
@@ -320,7 +317,7 @@ function findTextMatchingRecursive(node,re) {
     }
 }
 
-function setupOutlineNumbering() {
+export function setupOutlineNumbering() {
     Styles.setCSSText("",{
         "h1": {
             "counter-reset": "h2 h3 h4 h5 h6",
@@ -366,14 +363,14 @@ function setupOutlineNumbering() {
     });
 }
 
-function prependTableOfContents() {
+export function prependTableOfContents() {
     var nav = DOM.createElement(document,"NAV");
     DOM.setAttribute(nav,"class","tableofcontents");
     DOM.insertBefore(document.body,nav,document.body.firstChild);
     PostponedActions.perform();
 }
 
-function simplifyTOCs() {
+export function simplifyTOCs() {
     recurse(document.body);
 
     function recurse(node) {
@@ -408,7 +405,7 @@ function simplifyTOCs() {
     }
 }
 
-function showNonEmptyTextNodes() {
+export function showNonEmptyTextNodes() {
     recurse(document.body);
 
     function recurse(node) {
@@ -422,25 +419,3 @@ function showNonEmptyTextNodes() {
         }
     }
 }
-
-exports.testHarnessSetup = testHarnessSetup;
-exports.insertAtPosition = insertAtPosition;
-exports.insertTextAtPosition = insertTextAtPosition;
-exports.showRangeAsBrackets = showRangeAsBrackets;
-exports.showSelection = showSelection;
-exports.removeIds = removeIds;
-exports.selectNode = selectNode;
-exports.removeWhitespaceAndCommentNodes = removeWhitespaceAndCommentNodes;
-exports.selectionWrapElement = selectionWrapElement;
-exports.selectionUnwrapElement = selectionUnwrapElement;
-exports.showEmptyTextNodes = showEmptyTextNodes;
-exports.showClipboard = showClipboard;
-exports.setNumbering = setNumbering;
-exports.readXML = readXML;
-exports.findTextMatchingRecursive = findTextMatchingRecursive;
-exports.setupOutlineNumbering = setupOutlineNumbering;
-exports.prependTableOfContents = prependTableOfContents;
-exports.simplifyTOCs = simplifyTOCs;
-exports.showNonEmptyTextNodes = showNonEmptyTextNodes;
-
-});

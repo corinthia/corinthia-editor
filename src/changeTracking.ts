@@ -15,36 +15,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("ChangeTracking",function(require,exports) {
-"use strict";
-
-var DOM = require("DOM");
-var ElementTypes = require("ElementTypes");
-var Position = require("Position");
-var Range = require("Range");
-var Selection = require("Selection");
-var Traversal = require("Traversal");
+import DOM = require("./dom");
+import ElementTypes = require("./elementTypes");
+import Position = require("./position");
+import Range = require("./range");
+import Selection = require("./selection");
+import Traversal = require("./traversal");
 
 var showChangesEnabled = false;
 var trackChangesEnabled = false;
 
-function showChanges() {
+export function showChanges() {
     return showChangesEnabled;
 }
 
-function trackChanges() {
+export function trackChanges() {
     return trackChangesEnabled;
 }
 
-function setShowChanges(enabled) {
+export function setShowChanges(enabled) {
     showChangesEnabled = enabled;
 }
 
-function setTrackChanges(enabled) {
+export function setTrackChanges(enabled) {
     trackChangesEnabled = enabled;
 }
 
-function acceptSelectedChanges() {
+export function acceptSelectedChanges() {
     var selRange = Selection.get();
     if (selRange == null)
         return;
@@ -119,11 +116,3 @@ function acceptSelectedChanges() {
         }
     }
 }
-
-exports.showChanges = showChanges;
-exports.trackChanges = trackChanges;
-exports.setShowChanges = setShowChanges;
-exports.setTrackChanges = setTrackChanges;
-exports.acceptSelectedChanges = acceptSelectedChanges;
-
-});

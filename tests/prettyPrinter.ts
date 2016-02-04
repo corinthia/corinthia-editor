@@ -15,8 +15,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("tests.PrettyPrinter",function(require,exports) {
-"use strict";
+import DOM = require("../src/dom");
+import ElementTypes = require("../src/elementTypes");
+import Formatting = require("../src/formatting");
+import Types = require("../src/types");
+import UndoManager = require("../src/undo");
 
 // Applicable options:
 // keepSelectionHighlights (boolean)
@@ -24,13 +27,7 @@ define("tests.PrettyPrinter",function(require,exports) {
 // showNamespaceDetails (boolean)
 // separateLines (boolean)
 
-var DOM = require("DOM");
-var ElementTypes = require("ElementTypes");
-var Formatting = require("Formatting");
-var Types = require("Types");
-var UndoManager = require("UndoManager");
-
-function getHTML(root,options) {
+export function getHTML(root,options?) {
     var copy;
     UndoManager.disableWhileExecuting(function() {
         if (options == null)
@@ -216,7 +213,3 @@ function prettyPrint(output,options,node,indent) {
         output.push(indent + "<!--" + entityFix(node.nodeValue) + "-->\n");
     }
 }
-
-exports.getHTML = getHTML;
-
-});

@@ -15,18 +15,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("Viewport",function(require,exports) {
-"use strict";
-
-var Cursor = require("Cursor");
-var DOM = require("DOM");
-var ElementTypes = require("ElementTypes");
-var Selection = require("Selection");
+import Cursor = require("./cursor");
+import DOM = require("./dom");
+import ElementTypes = require("./elementTypes");
+import Selection = require("./selection");
 
 var viewportMetaElement = null;
 
 // public
-function init(width,textScale) {
+export function init(width,textScale) {
     var head = DOM.documentHead(document);
     for (var child = head.firstChild; child != null; child = child.nextSibling) {
         if ((child._type == ElementTypes.HTML_META) && (child.getAttribute("name") == "viewport")) {
@@ -57,7 +54,7 @@ function init(width,textScale) {
 }
 
 // public
-function setViewportWidth(width) {
+export function setViewportWidth(width) {
     var contentValue = "width = "+width+", user-scalable = no";
     if (viewportMetaElement.getAttribute("content") != contentValue)
         DOM.setAttribute(viewportMetaElement,"content",contentValue);
@@ -67,7 +64,7 @@ function setViewportWidth(width) {
 }
 
 // public
-function setTextScale(textScale) {
+export function setTextScale(textScale) {
     var pct = textScale+"%";
     if (document.documentElement.style.getPropertyValue("-webkit-text-size-adjust") != pct)
         DOM.setStyleProperties(document.documentElement,{"-webkit-text-size-adjust": pct});
@@ -75,9 +72,3 @@ function setTextScale(textScale) {
     Selection.update();
     Cursor.ensureCursorVisible();
 }
-
-exports.init = init;
-exports.setViewportWidth = setViewportWidth;
-exports.setTextScale = setTextScale;
-
-});

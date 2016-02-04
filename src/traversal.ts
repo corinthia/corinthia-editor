@@ -15,12 +15,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("Traversal",function(require,exports) {
-"use strict";
+import Util = require("./util");
 
-var Util = require("Util");
-
-function prevNode(node) {
+export function prevNode(node) {
     if (node.previousSibling != null) {
         node = node.previousSibling;
         while (node.lastChild != null)
@@ -32,7 +29,7 @@ function prevNode(node) {
     }
 }
 
-function nextNodeAfter(node,entering?,exiting?) {
+export function nextNodeAfter(node,entering?,exiting?) {
     while (node != null) {
         if (node.nextSibling != null) {
             if (exiting != null)
@@ -50,7 +47,7 @@ function nextNodeAfter(node,entering?,exiting?) {
     return node;
 }
 
-function nextNode(node,entering?,exiting?) {
+export function nextNode(node,entering?,exiting?) {
     if (node.firstChild) {
         node = node.firstChild;
         if (entering != null)
@@ -62,47 +59,47 @@ function nextNode(node,entering?,exiting?) {
     }
 }
 
-function prevTextNode(node) {
+export function prevTextNode(node) {
     do {
         node = prevNode(node);
     } while ((node != null) && (node.nodeType != Node.TEXT_NODE));
     return node;
 }
 
-function nextTextNode(node) {
+export function nextTextNode(node) {
     do {
         node = nextNode(node);
     } while ((node != null) && (node.nodeType != Node.TEXT_NODE));
     return node;
 }
 
-function firstChildElement(node) {
+export function firstChildElement(node) {
     var first = node.firstChild;
     while ((first != null) && (first.nodeType != Node.ELEMENT_NODE))
         first = first.nextSibling;
     return first;
 }
 
-function lastChildElement(node) {
+export function lastChildElement(node) {
     var last = node.lastChild;
     while ((last != null) && (last.nodeType != Node.ELEMENT_NODE))
         last = last.previousSibling;
     return last;
 }
 
-function firstDescendant(node) {
+export function firstDescendant(node) {
     while (node.firstChild != null)
         node = node.firstChild;
     return node;
 }
 
-function lastDescendant(node) {
+export function lastDescendant(node) {
     while (node.lastChild != null)
         node = node.lastChild;
     return node;
 }
 
-function firstDescendantOfType(node,type) {
+export function firstDescendantOfType(node,type) {
     if (node._type == type)
         return node;
 
@@ -114,7 +111,7 @@ function firstDescendantOfType(node,type) {
     return null;
 }
 
-function firstChildOfType(node,type) {
+export function firstChildOfType(node,type) {
     for (var child = node.firstChild; child != null; child = child.nextSibling) {
         if (child._type == type)
             return child;
@@ -122,14 +119,14 @@ function firstChildOfType(node,type) {
     return null;
 }
 
-function getNodeDepth(node) {
+export function getNodeDepth(node) {
     var depth = 0;
     for (; node != null; node = node.parentNode)
         depth++;
     return depth;
 }
 
-function getNodeText(node) {
+export function getNodeText(node) {
     var strings = new Array();
     recurse(node);
     return strings.join("").replace(/\s+/g," ");
@@ -143,19 +140,19 @@ function getNodeText(node) {
     }
 }
 
-function isWhitespaceTextNode(node) {
+export function isWhitespaceTextNode(node) {
     if (node.nodeType != Node.TEXT_NODE)
         return false;
     return Util.isWhitespaceString(node.nodeValue);
 }
 
-function isNonWhitespaceTextNode(node) {
+export function isNonWhitespaceTextNode(node) {
     if (node.nodeType != Node.TEXT_NODE)
         return false;
     return !Util.isWhitespaceString(node.nodeValue);
 }
 
-function printTree(node,indent,offset) {
+export function printTree(node,indent,offset) {
     if (indent == null)
         indent = "";
     if (offset == null)
@@ -170,22 +167,3 @@ function printTree(node,indent,offset) {
         childOffset++;
     }
 }
-
-exports.prevNode = prevNode;
-exports.nextNodeAfter = nextNodeAfter;
-exports.nextNode = nextNode;
-exports.prevTextNode = prevTextNode;
-exports.nextTextNode = nextTextNode;
-exports.firstChildElement = firstChildElement;
-exports.lastChildElement = lastChildElement;
-exports.firstDescendant = firstDescendant;
-exports.lastDescendant = lastDescendant;
-exports.firstDescendantOfType = firstDescendantOfType;
-exports.firstChildOfType = firstChildOfType;
-exports.getNodeDepth = getNodeDepth;
-exports.getNodeText = getNodeText;
-exports.isWhitespaceTextNode = isWhitespaceTextNode;
-exports.isNonWhitespaceTextNode = isNonWhitespaceTextNode;
-exports.printTree = printTree;
-
-});

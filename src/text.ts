@@ -15,15 +15,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("Text",function(require,exports) {
-"use strict";
-
-var DOM = require("DOM");
-var Paragraph = require("Paragraph");
-var Position = require("Position");
-var Traversal = require("Traversal");
-var Types = require("Types");
-var Util = require("Util");
+import DOM = require("./dom");
+import Paragraph = require("./paragraph");
+import Position = require("./position");
+import Traversal = require("./traversal");
+import Types = require("./types");
+import Util = require("./util");
 
 function ParagraphInfo(node,startOffset,endOffset,runs,text) {
     this.node = node;
@@ -54,7 +51,7 @@ function Run(node,start,end) {
 //
 // <p>...</p> Some <i>inline</i> nodes <p>...</p>
 
-function findParagraphBoundaries(pos) {
+export function findParagraphBoundaries(pos) {
     Position.assertValid(pos);
     var startOffset = pos.offset;
     var endOffset = pos.offset;
@@ -77,7 +74,7 @@ function findParagraphBoundaries(pos) {
     return { node: node, startOffset: startOffset, endOffset: endOffset };
 }
 
-function analyseParagraph(pos) {
+export function analyseParagraph(pos) {
     var initial = pos.node;
     var strings = new Array();
     var runs = new Array();
@@ -107,7 +104,7 @@ function analyseParagraph(pos) {
     }
 }
 
-function posAbove(pos,cursorRect,cursorX) {
+export function posAbove(pos,cursorRect?,cursorX?) {
     if (cursorX == null)
         cursorX = pos.targetX;
     pos = Position.closestMatchBackwards(pos,Position.okForMovement);
@@ -217,7 +214,7 @@ var offsetRects = function(rects,offsetX,offsetY) {
     return result;
 }
 
-function posBelow(pos,cursorRect,cursorX) {
+export function posBelow(pos,cursorRect?,cursorX?) {
     if (cursorX == null)
         cursorX = pos.targetX;
     pos = Position.closestMatchForwards(pos,Position.okForMovement);
@@ -285,7 +282,7 @@ function posBelow(pos,cursorRect,cursorX) {
     }
 }
 
-function closestPosBackwards(pos) {
+export function closestPosBackwards(pos) {
     if (Traversal.isNonWhitespaceTextNode(pos.node))
         return pos;
     var node;
@@ -306,7 +303,7 @@ function closestPosBackwards(pos) {
         return new Position.Position(node,node.nodeValue.length);
 }
 
-function closestPosForwards(pos) {
+export function closestPosForwards(pos) {
     if (Traversal.isNonWhitespaceTextNode(pos.node))
         return pos;
     var node;
@@ -329,7 +326,7 @@ function closestPosForwards(pos) {
         return new Position.Position(node,0);
 }
 
-function closestPosInDirection(pos,direction) {
+export function closestPosInDirection(pos,direction) {
     if ((direction == "forward") ||
         (direction == "right") ||
         (direction == "down")) {
@@ -406,7 +403,7 @@ function toEndOfLine(pos) {
     }
 }
 
-function toStartOfBoundary(pos,boundary) {
+export function toStartOfBoundary(pos,boundary) {
     if (boundary == "paragraph")
         return toStartOfParagraph(pos);
     else if (boundary == "line")
@@ -415,7 +412,7 @@ function toStartOfBoundary(pos,boundary) {
         throw new Error("Unsupported boundary: "+boundary);
 }
 
-function toEndOfBoundary(pos,boundary) {
+export function toEndOfBoundary(pos,boundary) {
     if (boundary == "paragraph")
         return toEndOfParagraph(pos);
     else if (boundary == "line")
@@ -423,15 +420,3 @@ function toEndOfBoundary(pos,boundary) {
     else
         throw new Error("Unsupported boundary: "+boundary);
 }
-
-exports.findParagraphBoundaries = findParagraphBoundaries;
-exports.analyseParagraph = analyseParagraph;
-exports.posAbove = posAbove;
-exports.posBelow = posBelow;
-exports.closestPosBackwards = closestPosBackwards;
-exports.closestPosForwards = closestPosForwards;
-exports.closestPosInDirection = closestPosInDirection;
-exports.toStartOfBoundary = toStartOfBoundary;
-exports.toEndOfBoundary = toEndOfBoundary;
-
-});

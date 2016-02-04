@@ -15,15 +15,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("Preview",function(require,exports) {
-"use strict";
-
-var DOM = require("DOM");
-var ElementTypes = require("ElementTypes");
-var Figures = require("Figures");
-var Selection = require("Selection");
-var Tables = require("Tables");
-var Types = require("Types");
+import DOM = require("./dom");
+import ElementTypes = require("./elementTypes");
+import Figures = require("./figures");
+import Selection = require("./selection");
+import Tables = require("./tables");
+import Types = require("./types");
 
 var previewText =
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec in diam \n"+
@@ -52,7 +49,7 @@ function setTableCellContents(node) {
     }
 }
 
-function showForStyle(styleId,uiName,titleText) {
+export function showForStyle(styleId,uiName,titleText) {
     var elementName = null;
     var className = null;
 
@@ -136,7 +133,3 @@ function showForStyle(styleId,uiName,titleText) {
         return element;
     }
 }
-
-exports.showForStyle = showForStyle;
-
-});

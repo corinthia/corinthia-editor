@@ -15,18 +15,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("Scan",function(require,exports) {
-"use strict";
-
-var Cursor = require("Cursor");
-var DOM = require("DOM");
-var Formatting = require("Formatting");
-var Paragraph = require("Paragraph");
-var Position = require("Position");
-var Range = require("Range");
-var Selection = require("Selection");
-var Text = require("Text");
-var Types = require("Types");
+import Cursor = require("./cursor");
+import DOM = require("./dom");
+import Formatting = require("./formatting");
+import Paragraph = require("./paragraph");
+import Position = require("./position");
+import Range = require("./range");
+import Selection = require("./selection");
+import Text = require("./text");
+import Types = require("./types");
 
 function Match(matchId,startPos,endPos) {
     this.matchId = matchId;
@@ -41,13 +38,13 @@ var nextMatchId = 1;
 var curPos = null;
 var curParagraph = null;
 
-function reset() {
+export function reset() {
     curPos = new Position.Position(document.body,0);
     curParagraph = null;
     clearMatches();
 }
 
-function next() {
+export function next() {
     if (curPos == null)
         return null;
     curPos = Text.toEndOfBoundary(curPos,"paragraph");
@@ -71,7 +68,7 @@ function next() {
              sectionId: sectionId };
 }
 
-function addMatch(start,end) {
+export function addMatch(start,end) {
     if (curParagraph == null)
         throw new Error("curParagraph is null");
     if ((start < 0) || (start > curParagraph.text.length))
@@ -99,7 +96,7 @@ function addMatch(start,end) {
     return matchId;
 }
 
-function showMatch(matchId) {
+export function showMatch(matchId) {
     var match = matchesById[matchId];
     if (match == null)
         throw new Error("Match "+matchId+" not found");
@@ -116,7 +113,7 @@ function showMatch(matchId) {
     }
 }
 
-function replaceMatch(matchId,replacement) {
+export function replaceMatch(matchId,replacement) {
     var match = matchesById[matchId];
     if (match == null)
         throw new Error("Match "+matchId+" not found");
@@ -144,12 +141,12 @@ function removeSpansForMatch(match) {
         DOM.removeNodeButKeepChildren(match.spans[i]);
 }
 
-function removeMatch(matchId) {
+export function removeMatch(matchId) {
     removeSpansForMatch(matchesById[matchId]);
     delete matchesById[matchId];
 }
 
-function goToMatch(matchId) {
+export function goToMatch(matchId) {
     var match = matchesById[matchId];
     if (match == null)
         throw new Error("Match "+matchId+" not found");
@@ -170,13 +167,3 @@ function clearMatches() {
     matchesById = new Object();
     nextMatchId = 1;
 }
-
-exports.reset = reset;
-exports.next = next;
-exports.addMatch = addMatch;
-exports.showMatch = showMatch;
-exports.replaceMatch = replaceMatch;
-exports.removeMatch = removeMatch;
-exports.goToMatch = goToMatch;
-
-});

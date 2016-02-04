@@ -15,21 +15,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("AutoCorrect",function(require,exports) {
-"use strict";
-
-var Collections = require("Collections");
-var Cursor = require("Cursor");
-var DOM = require("DOM");
-var Editor = require("Editor");
-var Formatting = require("Formatting");
-var Position = require("Position");
-var PostponedActions = require("PostponedActions");
-var Range = require("Range");
-var Selection = require("Selection");
-var Traversal = require("Traversal");
-var Types = require("Types");
-var UndoManager = require("UndoManager");
+import Collections = require("./collections");
+import Cursor = require("./cursor");
+import DOM = require("./dom");
+import Editor = require("./editor");
+import Formatting = require("./formatting");
+import Position = require("./position");
+import PostponedActions = require("./postponedActions");
+import Range = require("./range");
+import Selection = require("./selection");
+import Traversal = require("./traversal");
+import Types = require("./types");
+import UndoManager = require("./undo");
 
 function removeCorrectionSpan(span) {
     if (span.parentNode == null)
@@ -95,7 +92,7 @@ function docNodeRemoved(event) {
     }
 }
 
-function init() {
+export function init() {
     correctionsByNode = new Collections.NodeMap();
     correctionList = new Array();
     document.addEventListener("DOMNodeInserted",docNodeInserted);
@@ -103,12 +100,12 @@ function init() {
 }
 
 // public (for the undo tests, when they report results)
-function removeListeners() {
+export function removeListeners() {
     document.removeEventListener("DOMNodeInserted",docNodeInserted);
     document.removeEventListener("DOMNodeRemoved",docNodeRemoved);
 }
 
-function addCorrection(span) {
+export function addCorrection(span) {
     var correction = new Correction(span);
     correctionsByNode.put(span,correction);
     correctionList.push(correction);
@@ -117,7 +114,7 @@ function addCorrection(span) {
     span.addEventListener("DOMSubtreeModified",correction.modificationListener);
 }
 
-function removeCorrection(span) {
+export function removeCorrection(span) {
     var correction = correctionsByNode.get(span);
     if (correction == null)
         throw new Error("No autocorrect entry for "+JSON.stringify(Traversal.getNodeText(span)));
@@ -138,7 +135,7 @@ function removeCorrection(span) {
     correctionsByNode.remove(span);
 }
 
-function getCorrections() {
+export function getCorrections() {
     var result = new Array();
     for (var i = 0; i < correctionList.length; i++) {
         var correction = correctionList[i];
@@ -148,7 +145,7 @@ function getCorrections() {
     return result;
 }
 
-function correctPrecedingWord(numChars,replacement,confirmed) {
+export function correctPrecedingWord(numChars,replacement,confirmed) {
     Selection.preserveWhileExecuting(function() {
         var selRange = Selection.get();
         if ((selRange == null) && !Range.isEmpty(selRange))
@@ -183,7 +180,7 @@ function correctPrecedingWord(numChars,replacement,confirmed) {
     });
 }
 
-function getCorrection() {
+export function getCorrection() {
     var correction = getCurrent();
     if (correction == null)
         return null;
@@ -192,7 +189,7 @@ function getCorrection() {
              replacement: Traversal.getNodeText(correction.span) };
 }
 
-function getCorrectionCoords() {
+export function getCorrectionCoords() {
     var correction = getCurrent();
     if (correction == null)
         return null;
@@ -231,7 +228,7 @@ function getCurrent() {
     return null;
 }
 
-function acceptCorrection() {
+export function acceptCorrection() {
     UndoManager.newGroup("Accept");
     var correction = getCurrent();
     if (correction == null)
@@ -241,7 +238,7 @@ function acceptCorrection() {
     UndoManager.newGroup();
 }
 
-function revertCorrection() {
+export function revertCorrection() {
     var correction = getCurrent();
     if (correction == null)
         return;
@@ -249,7 +246,7 @@ function revertCorrection() {
     replaceCorrection(correction.span.getAttribute("original"));
 }
 
-function replaceCorrection(replacement) {
+export function replaceCorrection(replacement) {
     UndoManager.newGroup("Replace");
     var correction = getCurrent();
     if (correction == null)
@@ -263,17 +260,3 @@ function replaceCorrection(replacement) {
     });
     UndoManager.newGroup();
 }
-
-exports.init = init;
-exports.removeListeners = removeListeners;
-exports.addCorrection = addCorrection;
-exports.removeCorrection = removeCorrection;
-exports.getCorrections = getCorrections;
-exports.correctPrecedingWord = correctPrecedingWord;
-exports.getCorrection = getCorrection;
-exports.getCorrectionCoords = getCorrectionCoords;
-exports.acceptCorrection = acceptCorrection;
-exports.revertCorrection = revertCorrection;
-exports.replaceCorrection = replaceCorrection;
-
-});

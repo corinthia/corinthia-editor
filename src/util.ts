@@ -15,19 +15,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("Util",function(require,exports) {
-"use strict";
+import DOM = require("./dom");
+import Editor = require("./editor");
+import ElementTypes = require("./elementTypes");
+import Types = require("./types");
 
-var DOM = require("DOM");
-var Editor = require("Editor");
-var ElementTypes = require("ElementTypes");
-var Types = require("Types");
-
-function debug(str) {
+export function debug(str) {
     Editor.debug(str);
 }
 
-function arrayContains(array,value) {
+export function arrayContains(array,value) {
     for (var i = 0; i < array.length; i++) {
         if (array[i] == value)
             return true;
@@ -38,7 +35,7 @@ function arrayContains(array,value) {
 // Note: you can use slice() to copy a real javascript array, but this function can be used to copy
 // DOM NodeLists (e.g. as returned by document.getElementsByTagName) as well, since they don't
 // support the slice method
-function arrayCopy(array) {
+export function arrayCopy(array) {
     if (array == null)
         return null;
     var copy = new Array();
@@ -47,7 +44,7 @@ function arrayCopy(array) {
     return copy;
 }
 
-function quoteString(str) {
+export function quoteString(str) {
     if (str == null)
         return null;
 
@@ -64,11 +61,11 @@ function quoteString(str) {
     return quoted;
 }
 
-function nodeString(node) {
+export function nodeString(node) {
     if (node == null)
         return "null";
     var id = "";
-    if (exports.debugIds)
+    if (debugIds)
         id = node._nodeId+":";
     if (node.nodeType == Node.TEXT_NODE) {
         return id+JSON.stringify(node.nodeValue);
@@ -85,31 +82,31 @@ function nodeString(node) {
     }
 }
 
-function rectString(rect) {
+export function rectString(rect) {
     if (rect == null)
         return null;
     else
         return "("+rect.left+","+rect.top+") - ("+rect.right+","+rect.bottom+")";
 }
 
-function rectIsEmpty(rect) {
+export function rectIsEmpty(rect) {
     return ((rect == null) ||
             ((rect.width == 0) && (rect.height == 0)));
 }
 
-function rectContainsPoint(rect,x,y) {
+export function rectContainsPoint(rect,x,y) {
     return ((x >= rect.left) && (x < rect.right) &&
             (y >= rect.top) && (y < rect.bottom));
 }
 
-function clone(object) {
+export function clone(object) {
     var result = new Object();
     for (var name in object)
         result[name] = object[name];
     return result;
 }
 
-function nodeHasContent(node) {
+export function nodeHasContent(node) {
     switch (node._type) {
     case ElementTypes.HTML_TEXT:
         return !isWhitespaceString(node.nodeValue);
@@ -130,18 +127,18 @@ function nodeHasContent(node) {
 
 var isWhitespaceStringRegexp = /^\s*$/;
 
-function isWhitespaceString(str) {
+export function isWhitespaceString(str) {
     return (str.match(isWhitespaceStringRegexp) != null);
 }
 
-function normalizeWhitespace(str) {
+export function normalizeWhitespace(str) {
     str = str.replace(/^\s+/,"");
     str = str.replace(/\s+$/,"");
     str = str.replace(/\s+/g," ");
     return str;
 }
 
-function DoublyLinkedList() {
+export function DoublyLinkedList() {
     this.first = null;
     this.last = null;
 }
@@ -184,7 +181,7 @@ DoublyLinkedList.prototype.remove = function(item) {
     item.next = null;
 };
 
-function diff(src,dest) {
+export function diff(src,dest) {
     var traces = new Array();
 
     traces[1] = new DiffEntry(0,0,0,0,null);
@@ -250,12 +247,12 @@ function diff(src,dest) {
     }
 }
 
-function TimingEntry(name,time) {
+export function TimingEntry(name,time) {
     this.name = name;
     this.time = time;
 }
 
-function TimingInfo() {
+export function TimingInfo() {
     this.entries = new Array();
     this.total = 0;
     this.lastTime = null;
@@ -285,7 +282,7 @@ TimingInfo.prototype.print = function(title) {
     }
 }
 
-function readFileApp(filename) {
+export function readFileApp(filename) {
     var req = new XMLHttpRequest();
     req.open("POST","/read/"+encodeURI(filename),false);
     req.send();
@@ -299,7 +296,7 @@ function readFileApp(filename) {
     return doc;
 }
 
-function readFileTest(filename) {
+export function readFileTest(filename) {
     var req = new XMLHttpRequest();
     req.open("GET",filename,false);
     req.send();
@@ -310,7 +307,7 @@ function readFileTest(filename) {
     return xml;
 }
 
-function fromTokenList(value) {
+export function fromTokenList(value) {
     var result = new Object();
     if (value != null) {
         var components = value.toLowerCase().split(/\s+/);
@@ -322,7 +319,7 @@ function fromTokenList(value) {
     return result;
 }
 
-function toTokenList(properties) {
+export function toTokenList(properties) {
     var tokens = new Array();
 
     if (properties != null) {
@@ -341,7 +338,7 @@ function toTokenList(properties) {
         return tokens.join(" ");
 }
 
-function xywhAbsElementRect(element) {
+export function xywhAbsElementRect(element) {
     var rect = element.getBoundingClientRect();
     return { x: rect.left + window.scrollX,
              y: rect.top + window.scrollY,
@@ -349,27 +346,4 @@ function xywhAbsElementRect(element) {
              height: rect.height };
 }
 
-exports.debug = debug;
-exports.arrayContains = arrayContains;
-exports.arrayCopy = arrayCopy;
-exports.quoteString = quoteString;
-exports.nodeString = nodeString;
-exports.rectString = rectString;
-exports.rectIsEmpty = rectIsEmpty;
-exports.rectContainsPoint = rectContainsPoint;
-exports.clone = clone;
-exports.nodeHasContent = nodeHasContent;
-exports.isWhitespaceString = isWhitespaceString;
-exports.normalizeWhitespace = normalizeWhitespace;
-exports.DoublyLinkedList = DoublyLinkedList;
-exports.diff = diff;
-exports.TimingEntry = TimingEntry;
-exports.TimingInfo = TimingInfo;
-exports.readFileApp = readFileApp;
-exports.readFileTest = readFileTest;
-exports.fromTokenList = fromTokenList;
-exports.toTokenList = toTokenList;
-exports.xywhAbsElementRect = xywhAbsElementRect;
-exports.debugIds = false;
-
-});
+export var debugIds = false;

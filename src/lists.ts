@@ -15,19 +15,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("Lists",function(require,exports) {
-"use strict";
-
-var Collections = require("Collections");
-var Cursor = require("Cursor");
-var DOM = require("DOM");
-var ElementTypes = require("ElementTypes");
-var Hierarchy = require("Hierarchy");
-var Range = require("Range");
-var Selection = require("Selection");
-var Traversal = require("Traversal");
-var Types = require("Types");
-var Util = require("Util");
+import Collections = require("./collections");
+import Cursor = require("./cursor");
+import DOM = require("./dom");
+import ElementTypes = require("./elementTypes");
+import Hierarchy = require("./hierarchy");
+import Range = require("./range");
+import Selection = require("./selection");
+import Traversal = require("./traversal");
+import Types = require("./types");
+import Util = require("./util");
 
 // private
 function findLIElements(range) {
@@ -61,7 +58,7 @@ function findLIElements(range) {
 }
 
 // public
-function increaseIndent() {
+export function increaseIndent() {
     Selection.preferElementPositions();
     Selection.preserveWhileExecuting(function() {
         var range = Selection.get();
@@ -159,7 +156,7 @@ function increaseIndent() {
 }
 
 // public
-function decreaseIndent() {
+export function decreaseIndent() {
     Selection.preferElementPositions();
     Selection.preserveWhileExecuting(function() {
         var range = Selection.get();
@@ -324,7 +321,7 @@ function getListOperationNodes(range) {
 }
 
 // public
-function clearList() {
+export function clearList() {
     Selection.preferElementPositions();
     Selection.preserveWhileExecuting(function() {
         var range = Selection.get();
@@ -533,19 +530,11 @@ function setList(type) {
 }
 
 // public
-function setUnorderedList() {
+export function setUnorderedList() {
     setList(ElementTypes.HTML_UL);
 }
 
 // public
-function setOrderedList() {
+export function setOrderedList() {
     setList(ElementTypes.HTML_OL);
 }
-
-exports.increaseIndent = increaseIndent;
-exports.decreaseIndent = decreaseIndent;
-exports.clearList = clearList;
-exports.setUnorderedList = setUnorderedList;
-exports.setOrderedList = setOrderedList;
-
-});

@@ -15,25 +15,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("Clipboard",function(require,exports) {
-"use strict";
-
-var Cursor = require("Cursor");
-var DOM = require("DOM");
-var ElementTypes = require("ElementTypes");
-var Formatting = require("Formatting");
-var Main = require("Main");
-var Markdown = require("Markdown");
-var Position = require("Position");
-var PostponedActions = require("PostponedActions");
-var Range = require("Range");
-var Selection = require("Selection");
-var Styles = require("Styles");
-var Tables = require("Tables");
-var Traversal = require("Traversal");
-var Types = require("Types");
-var UndoManager = require("UndoManager");
-var Util = require("Util");
+import Cursor = require("./cursor");
+import DOM = require("./dom");
+import ElementTypes = require("./elementTypes");
+import Formatting = require("./formatting");
+import Main = require("./main");
+import Markdown = require("./markdown");
+import Position = require("./position");
+import PostponedActions = require("./postponedActions");
+import Range = require("./range");
+import Selection = require("./selection");
+import Styles = require("./styles");
+import Tables = require("./tables");
+import Traversal = require("./traversal");
+import Types = require("./types");
+import UndoManager = require("./undo");
+import Util = require("./util");
 
 function expandRangeForCopy(range) {
     if (range == null)
@@ -96,12 +93,12 @@ function copyRange(range) {
 }
 
 // public (FIXME: temp: for testing)
-function htmlToText(node) {
+export function htmlToText(node) {
     return Markdown.htmlToMarkdown(node);
 }
 
 // public
-function cut() {
+export function cut() {
     UndoManager.newGroup("Cut");
     var content;
 
@@ -146,19 +143,19 @@ function cut() {
 
     Cursor.ensureCursorVisible();
 
-    PostponedActions.perform(UndoManager.newGroup);
+    PostponedActions.add(UndoManager.newGroup);
     return content;
 }
 
 // public
-function copy() {
+export function copy() {
     var range = Selection.get();
     range = expandRangeForCopy(range);
     return copyRange(range);
 }
 
 // public
-function pasteText(text) {
+export function pasteText(text) {
     var converter = new Showdown.converter();
     var html = converter.makeHtml(text);
     UndoManager.newGroup("Paste");
@@ -167,7 +164,7 @@ function pasteText(text) {
 }
 
 // public
-function pasteHTML(html) {
+export function pasteHTML(html) {
     if (html.match(/^\s*<thead/i))
         html = "<table>" + html + "</table>";
     else if (html.match(/^\s*<tbody/i))
@@ -298,7 +295,7 @@ function fixParagraphStyles(node,paragraphClass) {
 }
 
 // public
-function pasteNodes(nodes) {
+export function pasteNodes(nodes) {
     if (nodes.length == 0)
         return;
 
@@ -521,13 +518,3 @@ function removeDuplicateIds(node,found) {
 function pasteImage(href) {
     // FIXME
 }
-
-exports.htmlToText = htmlToText;
-exports.cut = cut;
-exports.copy = copy;
-exports.pasteText = pasteText;
-exports.pasteHTML = pasteHTML;
-exports.pasteNodes = pasteNodes;
-
-
-});

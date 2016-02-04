@@ -15,23 +15,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("Tables",function(require,exports) {
-"use strict";
-
-var Clipboard = require("Clipboard");
-var Collections = require("Collections");
-var Cursor = require("Cursor");
-var DOM = require("DOM");
-var ElementTypes = require("ElementTypes");
-var Outline = require("Outline");
-var Position = require("Position");
-var PostponedActions = require("PostponedActions");
-var Range = require("Range");
-var Selection = require("Selection");
-var Traversal = require("Traversal");
-var Types = require("Types");
-var UndoManager = require("UndoManager");
-var Util = require("Util");
+import Clipboard = require("./clipboard");
+import Collections = require("./collections");
+import Cursor = require("./cursor");
+import DOM = require("./dom");
+import ElementTypes = require("./elementTypes");
+import Outline = require("./outline");
+import Position = require("./position");
+import PostponedActions = require("./postponedActions");
+import Range = require("./range");
+import Selection = require("./selection");
+import Traversal = require("./traversal");
+import Types = require("./types");
+import UndoManager = require("./undo");
+import Util = require("./util");
 
 function Cell(element,row,col) {
     this.element = element;
@@ -93,14 +90,14 @@ function Table(element) {
 }
 
 // public
-function Table_get(table,row,col) {
+export function Table_get(table,row,col) {
     if (table.cells[row] == null)
         return null;
     return table.cells[row][col];
 }
 
 // public
-function Table_set(table,row,col,cell) {
+export function Table_set(table,row,col,cell) {
     if (table.numRows < row+1)
         table.numRows = row+1;
     if (table.numCols < col+1)
@@ -111,7 +108,7 @@ function Table_set(table,row,col,cell) {
 }
 
 // public
-function Table_setRegion(table,top,left,bottom,right,cell) {
+export function Table_setRegion(table,top,left,bottom,right,cell) {
     for (var row = top; row <= bottom; row++) {
         for (var col = left; col <= right; col++) {
             var destCell = Table_get(table,row,col);
@@ -154,7 +151,7 @@ function Table_processTable(table,node) {
 }
 
 // public
-function insertTable(rows,cols,width,numbered,caption,className) {
+export function insertTable(rows,cols,width,numbered,caption,className?) {
     UndoManager.newGroup("Insert table");
 
     if (rows < 1)
@@ -320,7 +317,7 @@ function insertRowAdjacentToRange(range) {
 }
 
 // public
-function addAdjacentRow() {
+export function addAdjacentRow() {
     UndoManager.newGroup("Insert row below");
     Selection.preserveWhileExecuting(function() {
         var range = Selection.get();
@@ -507,7 +504,7 @@ function insertColumnAdjacentToRange(range) {
 }
 
 // public
-function addAdjacentColumn() {
+export function addAdjacentColumn() {
     UndoManager.newGroup("Insert column at right");
     Selection.preserveWhileExecuting(function() {
         var range = Selection.get();
@@ -597,7 +594,7 @@ function removeRowAdjacentToRange(range) {
     }
 }
 
-function removeAdjacentRow() {
+export function removeAdjacentRow() {
     var range = Selection.get();
     var region = regionFromRange(range,true);
 
@@ -680,7 +677,7 @@ function removeColumnAdjacentToRange(range) {
     }
 }
 
-function removeAdjacentColumn() {
+export function removeAdjacentColumn() {
     var range = Selection.get();
     var region = regionFromRange(range,true);
 
@@ -791,7 +788,7 @@ function deleteCellContents(region) {
 }
 
 // public
-function deleteRegion(region) {
+export function deleteRegion(region) {
     var structure = region.structure;
 
     var coversEntireWidth = (region.left == 0) && (region.right == structure.numCols-1);
@@ -808,11 +805,11 @@ function deleteRegion(region) {
 }
 
 // public
-function clearCells() {
+export function clearCells() {
 }
 
 // public
-function mergeCells() {
+export function mergeCells() {
     Selection.preserveWhileExecuting(function() {
         var region = regionFromRange(Selection.get());
         if (region == null)
@@ -868,7 +865,7 @@ function mergeCells() {
 }
 
 // public
-function splitSelection() {
+export function splitSelection() {
     Selection.preserveWhileExecuting(function() {
         var range = Selection.get();
         Range.trackWhileExecuting(range,function() {
@@ -880,7 +877,7 @@ function splitSelection() {
 }
 
 // public
-function TableRegion_splitCells(region) {
+export function TableRegion_splitCells(region) {
     var structure = region.structure;
     var trElements = new Array();
     getTRs(structure.element,trElements);
@@ -921,7 +918,7 @@ function TableRegion_splitCells(region) {
 }
 
 // public
-function cloneRegion(region) {
+export function cloneRegion(region) {
     var cellNodesDone = new Collections.NodeSet();
     var table = DOM.shallowCopyElement(region.structure.element);
     for (var row = region.top; row <= region.bottom; row++) {
@@ -945,7 +942,7 @@ function pasteCells(fromTableElement,toRegion) {
 }
 
 // public
-function Table_fix(table) {
+export function Table_fix(table) {
     var changed = false;
 
     var tbody = null;
@@ -987,7 +984,7 @@ function Table_fix(table) {
 }
 
 // public
-function Table_fixColumnWidths(structure) {
+export function Table_fixColumnWidths(structure) {
     var colElements = getColElements(structure.element);
     if (colElements.length == 0)
         return;
@@ -1001,7 +998,7 @@ function Table_fixColumnWidths(structure) {
 }
 
 // public
-function analyseStructure(element) {
+export function analyseStructure(element) {
     // FIXME: we should probably be preserving the selection here, since we are modifying
     // the DOM (though I think it's unlikely it would cause problems, becausing the fixup
     // logic only adds elements). However this method is called (indirectly) from within
@@ -1013,7 +1010,7 @@ function analyseStructure(element) {
 }
 
 // public
-function findContainingCell(node) {
+export function findContainingCell(node) {
     for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {
         if (Types.isTableCell(ancestor))
             return ancestor;
@@ -1022,7 +1019,7 @@ function findContainingCell(node) {
 }
 
 // public
-function findContainingTable(node) {
+export function findContainingTable(node) {
     for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {
         if (ancestor._type == ElementTypes.HTML_TABLE)
             return ancestor;
@@ -1043,7 +1040,7 @@ TableRegion.prototype.toString = function() {
 }
 
 // public
-function regionFromRange(range,allowSameCell?) {
+export function regionFromRange(range,allowSameCell?) {
     var region = null;
 
     if (range == null)
@@ -1131,12 +1128,12 @@ function adjustRegionForSpannedCells(region) {
     } while (!boundariesOk);
 }
 
-function getSelectedTableId() {
+export function getSelectedTableId() {
     var element = Cursor.getAdjacentNodeWithType(ElementTypes.HTML_TABLE);
     return element ? element.getAttribute("id") : null;
 }
 
-function getProperties(itemId) {
+export function getProperties(itemId) {
     var element = document.getElementById(itemId);
     if ((element == null) || (element._type != ElementTypes.HTML_TABLE))
         return null;
@@ -1145,7 +1142,7 @@ function getProperties(itemId) {
     return { width: width, rows: structure.numRows, cols: structure.numCols };
 }
 
-function setProperties(itemId,width) {
+export function setProperties(itemId,width) {
     var table = document.getElementById(itemId);
     if (table == null)
         return null;
@@ -1158,7 +1155,7 @@ function setProperties(itemId,width) {
 // their column widths specified, and in all cases as percentages. Any which do not
 // are considered invalid, and have any non-percentage values filled in based on the
 // average values of all valid percentage-based columns.
-function getColWidths(structure) {
+export function getColWidths(structure) {
     var colElements = getColElements(structure.element);
     var colWidths = new Array();
 
@@ -1223,7 +1220,7 @@ function fixWidths(colWidths,numCols) {
 }
 
 // public
-function setColWidths(itemId,widths) {
+export function setColWidths(itemId,widths) {
     var element = document.getElementById(itemId);
     if (element == null)
         return null;
@@ -1240,7 +1237,7 @@ function setColWidths(itemId,widths) {
 }
 
 // public
-function getGeometry(itemId) {
+export function getGeometry(itemId) {
     var element = document.getElementById(itemId);
     if ((element == null) || (element.parentNode == null))
         return null;
@@ -1279,32 +1276,3 @@ function getGeometry(itemId) {
     return result;
 
 }
-
-exports.Table_get = Table_get;
-exports.Table_set = Table_set;
-exports.Table_setRegion = Table_setRegion;
-exports.insertTable = insertTable;
-exports.addAdjacentRow = addAdjacentRow;
-exports.addAdjacentColumn = addAdjacentColumn;
-exports.removeAdjacentRow = removeAdjacentRow;
-exports.removeAdjacentColumn = removeAdjacentColumn;
-exports.deleteRegion = deleteRegion;
-exports.clearCells = clearCells;
-exports.mergeCells = mergeCells;
-exports.splitSelection = splitSelection;
-exports.TableRegion_splitCells = TableRegion_splitCells;
-exports.cloneRegion = cloneRegion;
-exports.Table_fix = Table_fix;
-exports.Table_fixColumnWidths = Table_fixColumnWidths;
-exports.analyseStructure = analyseStructure;
-exports.findContainingCell = findContainingCell;
-exports.findContainingTable = findContainingTable;
-exports.regionFromRange = regionFromRange;
-exports.getSelectedTableId = getSelectedTableId;
-exports.getProperties = getProperties;
-exports.setProperties = setProperties;
-exports.getColWidths = getColWidths;
-exports.setColWidths = setColWidths;
-exports.getGeometry = getGeometry;
-
-});

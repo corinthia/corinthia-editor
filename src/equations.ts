@@ -15,13 +15,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("Equations",function(require,exports) {
-"use strict";
+import Clipboard = require("./clipboard");
+import DOM = require("./dom");
 
-var Clipboard = require("Clipboard");
-var DOM = require("DOM");
-
-function insertEquation() {
+export function insertEquation() {
     var math = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","math");
     var mrow = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mrow");
     var msup = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","msup");
@@ -52,7 +49,3 @@ function insertEquation() {
 
     Clipboard.pasteNodes([math]);
 }
-
-exports.insertEquation = insertEquation;
-
-});

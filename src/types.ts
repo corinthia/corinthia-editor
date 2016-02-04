@@ -15,12 +15,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("Types",function(require,exports) {
-"use strict";
-
-var DOM = require("DOM");
-var ElementTypes = require("ElementTypes");
-var Util = require("Util");
+import DOM = require("./dom");
+import ElementTypes = require("./elementTypes");
+import Util = require("./util");
 
 var CONTAINER_ELEMENTS = new Array(ElementTypes.HTML_COUNT);
 CONTAINER_ELEMENTS[ElementTypes.HTML_DOCUMENT] = true;
@@ -42,7 +39,7 @@ CONTAINER_ELEMENTS[ElementTypes.HTML_FIGURE] = true;
 CONTAINER_ELEMENTS[ElementTypes.HTML_FIGCAPTION] = true;
 CONTAINER_ELEMENTS[ElementTypes.HTML_NAV] = true;
 
-var PARAGRAPH_ELEMENTS = new Array(ElementTypes.HTML_COUNT);
+export var PARAGRAPH_ELEMENTS = new Array(ElementTypes.HTML_COUNT);
 PARAGRAPH_ELEMENTS[ElementTypes.HTML_P] = true;
 PARAGRAPH_ELEMENTS[ElementTypes.HTML_H1] = true;
 PARAGRAPH_ELEMENTS[ElementTypes.HTML_H2] = true;
@@ -62,7 +59,7 @@ var INLINE_ELEMENTS = new Array(ElementTypes.HTML_COUNT);
 for (var i = 0; i < ElementTypes.HTML_COUNT; i++)
     INLINE_ELEMENTS[i] = !BLOCK_ELEMENTS[i];
 
-var HEADING_ELEMENTS = new Array(ElementTypes.HTML_COUNT);
+export var HEADING_ELEMENTS = new Array(ElementTypes.HTML_COUNT);
 HEADING_ELEMENTS[ElementTypes.HTML_H1] = true;
 HEADING_ELEMENTS[ElementTypes.HTML_H2] = true;
 HEADING_ELEMENTS[ElementTypes.HTML_H3] = true;
@@ -70,7 +67,7 @@ HEADING_ELEMENTS[ElementTypes.HTML_H4] = true;
 HEADING_ELEMENTS[ElementTypes.HTML_H5] = true;
 HEADING_ELEMENTS[ElementTypes.HTML_H6] = true;
 
-var CONTAINERS_ALLOWING_CHILDREN = new Array(ElementTypes.HTML_COUNT);
+export var CONTAINERS_ALLOWING_CHILDREN = new Array(ElementTypes.HTML_COUNT);
 CONTAINERS_ALLOWING_CHILDREN[ElementTypes.HTML_BODY] = true;
 CONTAINERS_ALLOWING_CHILDREN[ElementTypes.HTML_LI] = true;
 CONTAINERS_ALLOWING_CHILDREN[ElementTypes.HTML_CAPTION] = true;
@@ -80,7 +77,7 @@ CONTAINERS_ALLOWING_CHILDREN[ElementTypes.HTML_FIGURE] = true;
 CONTAINERS_ALLOWING_CHILDREN[ElementTypes.HTML_FIGCAPTION] = true;
 CONTAINERS_ALLOWING_CHILDREN[ElementTypes.HTML_NAV] = true;
 
-var OUTLINE_TITLE_ELEMENTS = new Array(ElementTypes.HTML_COUNT);
+export var OUTLINE_TITLE_ELEMENTS = new Array(ElementTypes.HTML_COUNT);
 OUTLINE_TITLE_ELEMENTS[ElementTypes.HTML_H1] = true;
 OUTLINE_TITLE_ELEMENTS[ElementTypes.HTML_H2] = true;
 OUTLINE_TITLE_ELEMENTS[ElementTypes.HTML_H3] = true;
@@ -90,7 +87,7 @@ OUTLINE_TITLE_ELEMENTS[ElementTypes.HTML_H6] = true;
 OUTLINE_TITLE_ELEMENTS[ElementTypes.HTML_FIGCAPTION] = true;
 OUTLINE_TITLE_ELEMENTS[ElementTypes.HTML_CAPTION] = true;
 
-var Keys = {
+export const Keys = {
     HEADING_NUMBER: "uxwrite-heading-number",
     FIGURE_NUMBER: "uxwrite-figure-number",
     TABLE_NUMBER: "uxwrite-table-number",
@@ -125,36 +122,36 @@ var OPAQUE_NODE_CLASSES = {
     "uxwrite-field": true,
 };
 
-function isContainerNode(node) {
+export function isContainerNode(node) {
     return CONTAINER_ELEMENTS[node._type];
 }
 
-function isParagraphNode(node) {
+export function isParagraphNode(node) {
     return PARAGRAPH_ELEMENTS[node._type];
 }
 
-function isHeadingNode(node) {
+export function isHeadingNode(node) {
     return HEADING_ELEMENTS[node._type];
 }
 
-function isBlockNode(node) {
+export function isBlockNode(node) {
     return BLOCK_ELEMENTS[node._type];
 }
 
-function isBlockOrNoteNode(node) {
+export function isBlockOrNoteNode(node) {
     return BLOCK_ELEMENTS[node._type] || isNoteNode(node);
 }
 
-function isInlineNode(node) {
+export function isInlineNode(node) {
     return INLINE_ELEMENTS[node._type];
 }
 
-function isListNode(node) {
+export function isListNode(node) {
     var type = node._type;
     return ((type == ElementTypes.HTML_UL) || (type == ElementTypes.HTML_OL));
 }
 
-function isTableCell(node) {
+export function isTableCell(node) {
     switch (node._type) {
     case ElementTypes.HTML_TD:
     case ElementTypes.HTML_TH:
@@ -164,24 +161,24 @@ function isTableCell(node) {
     }
 }
 
-function isRefNode(node) {
+export function isRefNode(node) {
     return ((node._type == ElementTypes.HTML_A) &&
             node.hasAttribute("href") &&
             node.getAttribute("href").charAt(0) == "#");
 }
 
-function isNoteNode(node) {
+export function isNoteNode(node) {
     if (node._type != ElementTypes.HTML_SPAN)
         return false;
     var className = DOM.getAttribute(node,"class");
     return ((className == "footnote") || (className == "endnote"));
 }
 
-function isEmptyNoteNode(node) {
+export function isEmptyNoteNode(node) {
     return isNoteNode(node) && !Util.nodeHasContent(node);
 }
 
-function isItemNumber(node) {
+export function isItemNumber(node) {
     if (node.nodeType == Node.TEXT_NODE) {
         return isItemNumber(node.parentNode);
     }
@@ -193,7 +190,7 @@ function isItemNumber(node) {
     return false;
 }
 
-function isOpaqueNode(node) {
+export function isOpaqueNode(node) {
     if (node == null)
         return false;
 
@@ -215,23 +212,23 @@ function isOpaqueNode(node) {
     }
 }
 
-function isAutoCorrectNode(node) {
+export function isAutoCorrectNode(node) {
     return ((node._type == ElementTypes.HTML_SPAN) &&
             (node.getAttribute("class") == Keys.AUTOCORRECT_CLASS));
 }
 
-function isSelectionHighlight(node) {
+export function isSelectionHighlight(node) {
     return ((node.nodeType == Node.ELEMENT_NODE) &&
             node.getAttribute("class") == Keys.SELECTION_CLASS);
 }
 
-function isSelectionSpan(node) {
+export function isSelectionSpan(node) {
     return ((node != null) &&
             (node._type == ElementTypes.HTML_SPAN) &&
             (DOM.getAttribute(node,"class") == Keys.SELECTION_CLASS));
 };
 
-function isTOCNode(node) {
+export function isTOCNode(node) {
     if (node._type == ElementTypes.HTML_NAV) {
         var cls = node.getAttribute("class");
         if ((cls == Keys.SECTION_TOC) ||
@@ -242,7 +239,7 @@ function isTOCNode(node) {
     return false;
 }
 
-function isInTOC(node) {
+export function isInTOC(node) {
     if (isTOCNode(node))
         return true;
     if (node.parentNode != null)
@@ -250,7 +247,7 @@ function isInTOC(node) {
     return false;
 }
 
-function isSpecialBlockNode(node) {
+export function isSpecialBlockNode(node) {
     switch (node._type) {
     case ElementTypes.HTML_TABLE:
     case ElementTypes.HTML_FIGURE:
@@ -262,34 +259,6 @@ function isSpecialBlockNode(node) {
     }
 }
 
-function isAbstractSpan(node) {
+export function isAbstractSpan(node) {
     return ((node._type == ElementTypes.HTML_SPAN) && node.hasAttribute(Keys.ABSTRACT_ELEMENT));
 }
-
-exports.PARAGRAPH_ELEMENTS = PARAGRAPH_ELEMENTS;
-exports.HEADING_ELEMENTS = HEADING_ELEMENTS;
-exports.CONTAINERS_ALLOWING_CHILDREN = CONTAINERS_ALLOWING_CHILDREN;
-exports.OUTLINE_TITLE_ELEMENTS = OUTLINE_TITLE_ELEMENTS;
-exports.Keys = Keys;
-exports.isContainerNode = isContainerNode;
-exports.isParagraphNode = isParagraphNode;
-exports.isHeadingNode = isHeadingNode;
-exports.isBlockNode = isBlockNode;
-exports.isBlockOrNoteNode = isBlockOrNoteNode;
-exports.isInlineNode = isInlineNode;
-exports.isListNode = isListNode;
-exports.isTableCell = isTableCell;
-exports.isRefNode = isRefNode;
-exports.isNoteNode = isNoteNode;
-exports.isEmptyNoteNode = isEmptyNoteNode;
-exports.isItemNumber = isItemNumber;
-exports.isOpaqueNode = isOpaqueNode;
-exports.isAutoCorrectNode = isAutoCorrectNode;
-exports.isSelectionHighlight = isSelectionHighlight;
-exports.isSelectionSpan = isSelectionSpan;
-exports.isTOCNode = isTOCNode;
-exports.isInTOC = isInTOC;
-exports.isSpecialBlockNode = isSpecialBlockNode;
-exports.isAbstractSpan = isAbstractSpan;
-
-});

@@ -15,18 +15,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("tests.UndoTests",function(require,exports) {
-"use strict";
+import AutoCorrect = require("../src/autoCorrect");
+import DOM = require("../src/dom");
+import Outline = require("../src/outline");
+import PostponedActions = require("../src/postponedActions");
+import PrettyPrinter = require("./prettyPrinter");
+import Selection = require("../src/selection");
+import UndoManager = require("../src/undo");
 
-var AutoCorrect = require("AutoCorrect");
-var DOM = require("DOM");
-var Outline = require("Outline");
-var PostponedActions = require("PostponedActions");
-var PrettyPrinter = require("tests.PrettyPrinter");
-var Selection = require("Selection");
-var UndoManager = require("UndoManager");
-
-function testUndo(versions,node) {
+export function testUndo(versions,node) {
     var numSteps = UndoManager.getLength();
 
     var back1 = new Array();
@@ -89,7 +86,7 @@ function testUndo(versions,node) {
     }
 }
 
-function placeCursorAfterElement(id) {
+export function placeCursorAfterElement(id) {
     UndoManager.disableWhileExecuting(function() {
         var element = document.getElementById(id);
         var node = element.parentNode;
@@ -97,8 +94,3 @@ function placeCursorAfterElement(id) {
         Selection.set(node,offset,node,offset);
     });
 }
-
-exports.testUndo = testUndo;
-exports.placeCursorAfterElement = placeCursorAfterElement;
-
-});

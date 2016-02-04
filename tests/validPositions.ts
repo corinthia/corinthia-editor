@@ -15,16 +15,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("tests.ValidPositions",function(require,exports) {
-"use strict";
-
-var DOM = require("DOM");
-var ElementTypes = require("ElementTypes");
-var Position = require("Position");
-var Range = require("Range");
-var Selection = require("Selection");
-var Types = require("Types");
-var Util = require("Util");
+import DOM = require("../src/dom");
+import ElementTypes = require("../src/elementTypes");
+import Position = require("../src/position");
+import Range = require("../src/range");
+import Selection = require("../src/selection");
+import Types = require("../src/types");
+import Util = require("../src/util");
 
 function oldInsertCharacter(character) {
     var selectionRange = Selection.get();
@@ -53,7 +50,7 @@ function oldInsertCharacter(character) {
     Selection.set(node,offset+1,node,offset+1);
 }
 
-function showValidPositions() {
+export function showValidPositions() {
     var validPositions = new Array();
     var pos = new Position.Position(document.body,0);
     while (pos != null) {
@@ -139,12 +136,7 @@ function checkCursorPositions(node) {
     return text+"\n"+detail;
 }
 
-function addEmptyTextNode(parent) {
+export function addEmptyTextNode(parent) {
     var text = DOM.createTextNode(document,"");
     DOM.appendChild(parent,text);
 }
-
-exports.showValidPositions = showValidPositions;
-exports.addEmptyTextNode = addEmptyTextNode;
-
-});

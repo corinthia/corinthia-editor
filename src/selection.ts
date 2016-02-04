@@ -17,23 +17,20 @@
 
 // FIXME: cursor does not display correctly if it is after a space at the end of the line
 
-define("Selection",function(require,exports) {
-"use strict";
-
-var Collections = require("Collections");
-var Cursor = require("Cursor");
-var DOM = require("DOM");
-var Editor = require("Editor");
-var ElementTypes = require("ElementTypes");
-var Formatting = require("Formatting");
-var Input = require("Input");
-var Position = require("Position");
-var Range = require("Range");
-var Tables = require("Tables");
-var Traversal = require("Traversal");
-var Types = require("Types");
-var UndoManager = require("UndoManager");
-var Util = require("Util");
+import Collections = require("./collections");
+import Cursor = require("./cursor");
+import DOM = require("./dom");
+import Editor = require("./editor");
+import ElementTypes = require("./elementTypes");
+import Formatting = require("./formatting");
+import Input = require("./input");
+import Position = require("./position");
+import Range = require("./range");
+import Tables = require("./tables");
+import Traversal = require("./traversal");
+import Types = require("./types");
+import UndoManager = require("./undo");
+import Util = require("./util");
 
 var HANDLE_NONE = 0;
 var HANDLE_START = 1;
@@ -47,63 +44,52 @@ var activeHandle = HANDLE_NONE;
 //                                                                                            //
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-var isMarked;
-var get;
-var setInternal;
-var set;
-var clear;
+var internalSelection: any = new Object();
 
-(function() {
+export function isMarked() {
+    if (internalSelection.value == null)
+        return null;
+    else
+        return internalSelection.value.isMarked;
+}
 
-    var selection: any = new Object();
+// public
+export function get() {
+    if (internalSelection.value == null)
+        return null;
+    else
+        return new Range.Range(internalSelection.value.startNode,internalSelection.value.startOffset,
+                               internalSelection.value.endNode,internalSelection.value.endOffset);
+}
 
-    isMarked = function() {
-        if (selection.value == null)
-            return null;
-        else
-            return selection.value.isMarked;
-    }
+// public
+export function setInternal(newStartNode,newStartOffset,newEndNode,newEndOffset,isMarked?) {
+    var range = new Range.Range(newStartNode,newStartOffset,newEndNode,newEndOffset);
+    if (!Range.isForwards(range))
+        range = new Range.Range(newEndNode,newEndOffset,newStartNode,newStartOffset);
+    range = boundaryCompliantRange(range);
 
-    // public
-    get = function() {
-        if (selection.value == null)
-            return null;
-        else
-            return new Range.Range(selection.value.startNode,selection.value.startOffset,
-                             selection.value.endNode,selection.value.endOffset);
-    }
+    UndoManager.setProperty(internalSelection,"value",
+                            { startNode: range.start.node,
+                              startOffset: range.start.offset,
+                              endNode: range.end.node,
+                              endOffset: range.end.offset,
+                              isMarked: isMarked });
+}
 
-    // public
-    setInternal =
-        function(newStartNode,newStartOffset,newEndNode,newEndOffset,isMarked) {
-        var range = new Range.Range(newStartNode,newStartOffset,newEndNode,newEndOffset);
-        if (!Range.isForwards(range))
-            range = new Range.Range(newEndNode,newEndOffset,newStartNode,newStartOffset);
-        range = boundaryCompliantRange(range);
+export function set(newStartNode,newStartOffset,newEndNode,newEndOffset,
+                    keepActiveHandle?,isMarked?) {
+    setInternal(newStartNode,newStartOffset,newEndNode,newEndOffset,isMarked);
+    update();
+    if (!keepActiveHandle)
+        activeHandle = HANDLE_NONE;
+}
 
-        UndoManager.setProperty(selection,"value",
-                                { startNode: range.start.node,
-                                  startOffset: range.start.offset,
-                                  endNode: range.end.node,
-                                  endOffset: range.end.offset,
-                                  isMarked: isMarked });
-    }
-
-    set = function(newStartNode,newStartOffset,newEndNode,newEndOffset,
-                             keepActiveHandle,isMarked) {
-        setInternal(newStartNode,newStartOffset,newEndNode,newEndOffset,isMarked);
-        update();
-        if (!keepActiveHandle)
-            activeHandle = HANDLE_NONE;
-    }
-
-    // public
-    clear = function() {
-        UndoManager.setProperty(selection,"value",null);
-        update();
-    }
-
-})();
+// public
+export function clear() {
+    UndoManager.setProperty(internalSelection,"value",null);
+    update();
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                            //
@@ -116,7 +102,7 @@ var selectionHighlights = new Array();
 var tableSelection = null;
 
 // public (for tests)
-function updateTableSelection(selRange) {
+export function updateTableSelection(selRange) {
     tableSelection = Tables.regionFromRange(selRange);
     if (tableSelection == null)
         return false;
@@ -162,7 +148,7 @@ function updateTableSelection(selRange) {
     });
 
     setInternal(selRange.start.node,selRange.start.offset,
-                          selRange.end.node,selRange.end.offset);
+                selRange.end.node,selRange.end.offset);
 
     return true;
 }
@@ -449,7 +435,7 @@ function containsSelection(selectedSet,node) {
     return false;
 }
 
-function update() {
+export function update() {
     var selRange = get();
     var selMarked = isMarked();
 
@@ -592,12 +578,12 @@ function update() {
 }
 
 // public
-function selectAll() {
+export function selectAll() {
     set(document.body,0,document.body,document.body.childNodes.length);
 }
 
 // public
-function selectParagraph() {
+export function selectParagraph() {
     var selRange = get();
     if (selRange == null)
         return;
@@ -649,7 +635,7 @@ var reWordOtherStart = new RegExp("^["+wsPunctuation+"]*[^"+wsPunctuation+"]*");
 var reWordStart = new RegExp("^[^"+wsPunctuation+"]+");
 var reWordEnd = new RegExp("[^"+wsPunctuation+"]+$");
 
-function posAtStartOfWord(pos) {
+export function posAtStartOfWord(pos) {
     var node = pos.node;
     var offset = pos.offset;
 
@@ -665,7 +651,7 @@ function posAtStartOfWord(pos) {
     return pos;
 }
 
-function posAtEndOfWord(pos) {
+export function posAtEndOfWord(pos) {
     var node = pos.node;
     var offset = pos.offset;
 
@@ -734,7 +720,7 @@ function rangeOfWordAtPos(pos) {
 }
 
 // public
-function selectWordAtCursor() {
+export function selectWordAtCursor() {
     var selRange = get();
     if (selRange == null)
         return;
@@ -747,7 +733,7 @@ function selectWordAtCursor() {
 }
 
 // public
-function dragSelectionBegin(x,y,selectWord) {
+export function dragSelectionBegin(x,y,selectWord) {
     var pos = Position.closestMatchForwards(Position.atPoint(x,y),Position.okForMovement);
 
     if (pos == null) {
@@ -780,7 +766,7 @@ function toEndOfWord(pos) {
 }
 
 // public
-function dragSelectionUpdate(x,y,selectWord) {
+export function dragSelectionUpdate(x,y,selectWord) {
     y = Cursor.scrollDocumentForY(y);
 
     var pos = Position.closestMatchForwards(Position.atPoint(x,y),Position.okForMovement);
@@ -847,27 +833,27 @@ function moveBoundary(command) {
 }
 
 // public
-function moveStartLeft() {
+export function moveStartLeft() {
     return moveBoundary("start-left");
 }
 
 // public
-function moveStartRight() {
+export function moveStartRight() {
     return moveBoundary("start-right");
 }
 
 // public
-function moveEndLeft() {
+export function moveEndLeft() {
     return moveBoundary("end-left");
 }
 
 // public
-function moveEndRight() {
+export function moveEndRight() {
     return moveBoundary("end-right");
 }
 
 // public
-function setSelectionStartAtCoords(x,y) {
+export function setSelectionStartAtCoords(x,y) {
     var position = Position.closestMatchForwards(Position.atPoint(x,y),Position.okForMovement);
     if (position != null) {
         position = Position.closestMatchBackwards(position,Position.okForMovement);
@@ -882,7 +868,7 @@ function setSelectionStartAtCoords(x,y) {
 }
 
 // public
-function setSelectionEndAtCoords(x,y) {
+export function setSelectionEndAtCoords(x,y) {
     var position = Position.closestMatchForwards(Position.atPoint(x,y),Position.okForMovement);
     if (position != null) {
         position = Position.closestMatchBackwards(position,Position.okForMovement);
@@ -897,7 +883,7 @@ function setSelectionEndAtCoords(x,y) {
 }
 
 // public
-function setTableSelectionEdgeAtCoords(edge,x,y) {
+export function setTableSelectionEdgeAtCoords(edge,x,y) {
     if (tableSelection == null)
         return;
 
@@ -948,7 +934,7 @@ function setTableSelectionEdgeAtCoords(edge,x,y) {
 }
 
 // public
-function setEmptySelectionAt(node,offset) {
+export function setEmptySelectionAt(node,offset) {
     set(node,offset,node,offset);
 }
 
@@ -1078,7 +1064,7 @@ function fixPositionOutside(pos,node) {
     return true;
 }
 
-function deleteRangeContents(range,keepEmpty) {
+export function deleteRangeContents(range,keepEmpty) {
     Range.trackWhileExecuting(range,function() {
         DOM.ignoreMutationsWhileExecuting(function() {
             removeSelectionHighlights(getRangeData(range),true);
@@ -1094,7 +1080,7 @@ function deleteRangeContents(range,keepEmpty) {
     set(range.start.node,range.start.offset,range.start.node,range.start.offset);
 }
 
-function deleteContents(keepEmpty) {
+export function deleteContents(keepEmpty?) {
     var range = get();
     if (range == null)
         return;
@@ -1206,12 +1192,12 @@ function prepareForMerge(detail) {
 }
 
 // public
-function clearSelection() {
+export function clearSelection() {
     clear();
 }
 
 // public
-function preserveWhileExecuting(fun) {
+export function preserveWhileExecuting(fun) {
     var range = get();
     var result;
 
@@ -1228,7 +1214,7 @@ function preserveWhileExecuting(fun) {
     return result;
 }
 
-function preferElementPositions() {
+export function preferElementPositions() {
     var range = get();
     if (range == null)
         return;
@@ -1295,7 +1281,7 @@ function boundaryCompliantRange(range) {
     }
 }
 
-function print() {
+export function print() {
     Util.debug("");
     Util.debug("");
     Util.debug("");
@@ -1358,34 +1344,3 @@ function print() {
         Util.debug(indent+JSON.stringify(value));
     }
 }
-
-exports.isMarked = isMarked;
-exports.get = get;
-exports.set = set;
-exports.clear = clear;
-
-exports.updateTableSelection = updateTableSelection;
-exports.update = update;
-exports.selectAll = selectAll;
-exports.selectParagraph = selectParagraph;
-exports.posAtStartOfWord = posAtStartOfWord;
-exports.posAtEndOfWord = posAtEndOfWord;
-exports.selectWordAtCursor = selectWordAtCursor;
-exports.dragSelectionBegin = dragSelectionBegin;
-exports.dragSelectionUpdate = dragSelectionUpdate;
-exports.moveStartLeft = moveStartLeft;
-exports.moveStartRight = moveStartRight;
-exports.moveEndLeft = moveEndLeft;
-exports.moveEndRight = moveEndRight;
-exports.setSelectionStartAtCoords = setSelectionStartAtCoords;
-exports.setSelectionEndAtCoords = setSelectionEndAtCoords;
-exports.setTableSelectionEdgeAtCoords = setTableSelectionEdgeAtCoords;
-exports.setEmptySelectionAt = setEmptySelectionAt;
-exports.deleteRangeContents = deleteRangeContents;
-exports.deleteContents = deleteContents;
-exports.clearSelection = clearSelection;
-exports.preserveWhileExecuting = preserveWhileExecuting;
-exports.preferElementPositions = preferElementPositions;
-exports.print = print;
-
-});

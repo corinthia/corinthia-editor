@@ -15,13 +15,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-define("Markdown",function(require,exports) {
-"use strict";
-
-var ElementTypes = require("ElementTypes");
-var Traversal = require("Traversal");
-var Types = require("Types");
-var Util = require("Util");
+import ElementTypes = require("./elementTypes");
+import Traversal = require("./traversal");
+import Types = require("./types");
+import Util = require("./util");
 
 // private
 function blockToText(md,node,indent,nextIndent,listType,listNo) {
@@ -222,7 +219,7 @@ function MarkdownBuilder() {
 }
 
 // public
-function htmlToMarkdown(node) {
+export function htmlToMarkdown(node) {
     var md = new MarkdownBuilder();
     md.allText = new Array();
     md.preDepth = 0;
@@ -238,7 +235,3 @@ function htmlToMarkdown(node) {
         return Util.normalizeWhitespace(md.buildParagraph.join(""));
     }
 }
-
-exports.htmlToMarkdown = htmlToMarkdown;
-
-});
