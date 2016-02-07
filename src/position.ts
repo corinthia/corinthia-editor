@@ -18,7 +18,7 @@
 import DOM = require("./dom");
 import ElementTypes = require("./elementTypes");
 import Range = require("./range");
-import Text = require("./text");
+import Txt = require("./text");
 import Traversal = require("./traversal");
 import Types = require("./types");
 import Util = require("./util");
@@ -782,7 +782,7 @@ export function displayRectAtPos(pos) {
             return zeroWidthRightRect(rect);
     }
 
-    let paragraph = Text.findParagraphBoundaries(pos);
+    let paragraph = Txt.findParagraphBoundaries(pos);
 
     let backRect = null;
     for (let backPos = pos; backPos != null; backPos = prev(backPos)) {

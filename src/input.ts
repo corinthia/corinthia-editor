@@ -24,7 +24,7 @@ import Paragraph = require("./paragraph");
 import Position = require("./position");
 import Range = require("./range");
 import Selection = require("./selection");
-import Text = require("./text");
+import Txt = require("./text");
 import Util = require("./util");
 
 // function idebug(str) {
@@ -246,7 +246,7 @@ function positionRight(pos,offset) {
 function positionDown(pos,offset) {
     if (offset > 0) {
         for (; offset > 0; offset--) {
-            let below = Text.posBelow(pos);
+            let below = Txt.posBelow(pos);
             if (below == null)
                 return pos;
             pos = below;
@@ -254,7 +254,7 @@ function positionDown(pos,offset) {
     }
     else {
         for (; offset < 0; offset++) {
-            let above = Text.posAbove(pos);
+            let above = Txt.posAbove(pos);
             if (above == null)
                 return pos;
             pos = above;
@@ -386,7 +386,7 @@ function isForward(direction) {
 export function isAtWordBoundary(pos,direction) {
     if (pos.node.nodeType != Node.TEXT_NODE)
         return false;
-    let paragraph = Text.analyseParagraph(pos);
+    let paragraph = Txt.analyseParagraph(pos);
     if (paragraph == null)
         return false;
     let offset = Paragraph.offsetAtPosition(paragraph,pos);
@@ -429,9 +429,9 @@ export function isPositionAtBoundaryGranularityInDirection(posId,granularity,dir
     }
     else if ((granularity == "paragraph") || (granularity == "line")) {
         if (isForward(direction))
-            return Position.equal(pos,Text.toEndOfBoundary(pos,granularity));
+            return Position.equal(pos,Txt.toEndOfBoundary(pos,granularity));
         else
-            return Position.equal(pos,Text.toStartOfBoundary(pos,granularity));
+            return Position.equal(pos,Txt.toStartOfBoundary(pos,granularity));
     }
     else if (granularity == "sentence") {
     }
@@ -455,10 +455,10 @@ export function isPositionWithinTextUnitInDirection(posId,granularity,direction)
         return true;
     }
     else if (granularity == "word") {
-        pos = Text.closestPosInDirection(pos,direction);
+        pos = Txt.closestPosInDirection(pos,direction);
         if (pos == null)
             return false;
-        let paragraph = Text.analyseParagraph(pos);
+        let paragraph = Txt.analyseParagraph(pos);
         if (paragraph == null)
             return false;
         if ((pos != null) && (pos.node.nodeType == Node.TEXT_NODE)) {
@@ -476,8 +476,8 @@ export function isPositionWithinTextUnitInDirection(posId,granularity,direction)
     else if (granularity == "sentence") {
     }
     else if ((granularity == "paragraph") || (granularity == "line")) {
-        let start = Text.toStartOfBoundary(pos,granularity);
-        let end = Text.toEndOfBoundary(pos,granularity);
+        let start = Txt.toStartOfBoundary(pos,granularity);
+        let end = Txt.toEndOfBoundary(pos,granularity);
         start = start ? start : pos;
         end = end ? end : pos;
         if (isForward(direction)) {
@@ -495,10 +495,10 @@ export function isPositionWithinTextUnitInDirection(posId,granularity,direction)
 }
 
 export function toWordBoundary(pos,direction) {
-    pos = Text.closestPosInDirection(pos,direction);
+    pos = Txt.closestPosInDirection(pos,direction);
     if (pos == null)
         return null;
-    let paragraph = Text.analyseParagraph(pos);
+    let paragraph = Txt.analyseParagraph(pos);
     if (paragraph == null)
         return null;
     let run = Paragraph.runFromNode(paragraph,pos.node);
@@ -542,20 +542,20 @@ export function toWordBoundary(pos,direction) {
 
 export function toParagraphBoundary(pos,direction) {
     if (isForward(direction)) {
-        let end = Text.toEndOfBoundary(pos,"paragraph");
+        let end = Txt.toEndOfBoundary(pos,"paragraph");
         if (Position.equal(pos,end)) {
             end = Position.nextMatch(end,Position.okForMovement);
-            end = Text.toEndOfBoundary(end,"paragraph");
-            end = Text.toStartOfBoundary(end,"paragraph");
+            end = Txt.toEndOfBoundary(end,"paragraph");
+            end = Txt.toStartOfBoundary(end,"paragraph");
         }
         return end ? end : pos;
     }
     else {
-        let start = Text.toStartOfBoundary(pos,"paragraph");
+        let start = Txt.toStartOfBoundary(pos,"paragraph");
         if (Position.equal(pos,start)) {
             start = Position.prevMatch(start,Position.okForMovement);
-            start = Text.toStartOfBoundary(start,"paragraph");
-            start = Text.toEndOfBoundary(start,"paragraph");
+            start = Txt.toStartOfBoundary(start,"paragraph");
+            start = Txt.toEndOfBoundary(start,"paragraph");
         }
         return start ? start : pos;
     }
@@ -563,11 +563,11 @@ export function toParagraphBoundary(pos,direction) {
 
 export function toLineBoundary(pos,direction) {
     if (isForward(direction)) {
-        let end = Text.toEndOfBoundary(pos,"line");
+        let end = Txt.toEndOfBoundary(pos,"line");
         return end ? end : pos;
     }
     else {
-        let start = Text.toStartOfBoundary(pos,"line");
+        let start = Txt.toStartOfBoundary(pos,"line");
         return start ? start : pos;
     }
 }
@@ -609,10 +609,10 @@ export function rangeEnclosingPositionWithGranularityInDirection(posId,granulari
         granularity = "paragraph";
 
     if (granularity == "word") {
-        pos = Text.closestPosInDirection(pos,direction);
+        pos = Txt.closestPosInDirection(pos,direction);
         if (pos == null)
             return null;
-        let paragraph = Text.analyseParagraph(pos);
+        let paragraph = Txt.analyseParagraph(pos);
         if (pos == null)
             return addPosition(null);
         if (paragraph == null)
@@ -648,18 +648,18 @@ export function rangeEnclosingPositionWithGranularityInDirection(posId,granulari
         }
     }
     else if ((granularity == "paragraph") || (granularity == "line")) {
-        let start = Text.toStartOfBoundary(pos,granularity);
-        let end = Text.toEndOfBoundary(pos,granularity);
+        let start = Txt.toStartOfBoundary(pos,granularity);
+        let end = Txt.toEndOfBoundary(pos,granularity);
         start = start ? start : pos;
         end = end ? end : pos;
 
         if ((granularity == "paragraph") || !isForward(direction)) {
             if (isForward(direction)) {
-                if (Position.equal(pos,Text.toEndOfBoundary(pos,granularity)))
+                if (Position.equal(pos,Txt.toEndOfBoundary(pos,granularity)))
                     return null;
             }
             else {
-                if (Position.equal(pos,Text.toStartOfBoundary(pos,granularity)))
+                if (Position.equal(pos,Txt.toStartOfBoundary(pos,granularity)))
                     return null;
             }
         }

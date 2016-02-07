@@ -16,11 +16,11 @@
 // limitations under the License.
 
 import Selection = require("../src/selection");
-import Text = require("../src/text");
+import Txt = require("../src/text");
 
 export function showRuns() {
     let range = Selection.get();
-    let paragraph = Text.analyseParagraph(range.start);
+    let paragraph = Txt.analyseParagraph(range.start);
     let runs = paragraph.runs;
     let lines = new Array();
     for (let i = 0; i < runs.length; i++) {

@@ -22,7 +22,7 @@ import Paragraph = require("./paragraph");
 import Position = require("./position");
 import Range = require("./range");
 import Selection = require("./selection");
-import Text = require("./text");
+import Txt = require("./text");
 import Types = require("./types");
 
 function Match(matchId,startPos,endPos) {
@@ -47,11 +47,11 @@ export function reset() {
 export function next() {
     if (curPos == null)
         return null;
-    curPos = Text.toEndOfBoundary(curPos,"paragraph");
+    curPos = Txt.toEndOfBoundary(curPos,"paragraph");
     if (curPos == null)
         return null;
 
-    curParagraph = Text.analyseParagraph(curPos);
+    curParagraph = Txt.analyseParagraph(curPos);
     if (curParagraph == null)
         return null;
 

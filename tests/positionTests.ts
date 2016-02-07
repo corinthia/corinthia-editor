@@ -18,7 +18,7 @@
 import Paragraph = require("../src/paragraph");
 import Position = require("../src/position");
 import Selection = require("../src/selection");
-import Text = require("../src/text");
+import Txt = require("../src/text");
 import UndoManager = require("../src/undo");
 
 function pad(str,length) {
@@ -29,7 +29,7 @@ function pad(str,length) {
 }
 
 function selectRange(p,start,end) {
-    let paragraph = Text.analyseParagraph(new Position.Position(p,0));
+    let paragraph = Txt.analyseParagraph(new Position.Position(p,0));
     let startPos = Paragraph.positionAtOffset(paragraph,start);
     let endPos = Paragraph.positionAtOffset(paragraph,end);
     Selection.set(startPos.node,startPos.offset,endPos.node,endPos.offset);
