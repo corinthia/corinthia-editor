@@ -23,94 +23,87 @@ import Traversal = require("./traversal");
 import Types = require("./types");
 import Util = require("./util");
 
-// public
-export function Position(node,offset) {
-    if (node == document.documentElement)
-        throw new Error("node is root element");
-    Object.defineProperty(this,"self",{value: {}});
-    let self = this.self;
-    self.this = this;
-    self.node = node;
-    self.offset = offset;
-    self.origOffset = offset;
-    self.tracking = 0;
-    this.posId = null;
-    this.targetX = null;
+export class Position {
 
-    Object.defineProperty(this,"node",{
-        get: function() { return this.self.node },
-        set: setNode,
-        enumerable: true });
-    Object.defineProperty(this,"offset",{
-        get: function() { return this.self.offset },
-        set: function(value) { this.self.offset = value },
-        enumerable: true});
-    Object.defineProperty(this,"origOffset",{
-        get: function() { return this.self.origOffset },
-        set: function(value) { this.self.origOffset = value },
-        enumerable: true});
+    private _node: Node;
+    public offset: number;
+    public origOffset: number;
+    public posId: number;
+    public tracking: number;
+    public targetX: any;
 
-    Object.preventExtensions(this);
-}
+    constructor(node: Node, offset: number) {
+        if (node == document.documentElement)
+            throw new Error("node is root element");
+        this.node = node;
+        this.offset = offset;
+        this.origOffset = offset;
+        this.tracking = 0;
+        this.posId = null;
+        this.targetX = null;
+    }
 
-function actuallyStartTracking(self) {
-    DOM.addTrackedPosition(self.this);
-}
+    get node(): Node {
+        return this._node;
+    }
 
-function actuallyStopTracking(self) {
-    DOM.removeTrackedPosition(self.this);
-}
+    set node(newNode: Node) {
+        if (this.tracking > 0)
+            this.actuallyStopTracking();
 
-function startTracking(self) {
-    if (self.tracking == 0)
-        actuallyStartTracking(self);
-    self.tracking++;
-}
+        this._node = newNode;
 
-function stopTracking(self) {
-    self.tracking--;
-    if (self.tracking == 0)
-        actuallyStopTracking(self);
-}
+        if (this.tracking > 0)
+            this.actuallyStartTracking();
+    }
 
-function setNode(node) {
-    let self = this.self;
-    if (self.tracking > 0)
-        actuallyStopTracking(self);
+    private actuallyStartTracking() {
+        DOM.addTrackedPosition(this);
+    }
 
-    self.node = node;
+    private actuallyStopTracking() {
+        DOM.removeTrackedPosition(this);
+    }
 
-    if (self.tracking > 0)
-        actuallyStartTracking(self);
-}
+    public startTracking() {
+        if (this.tracking == 0)
+            this.actuallyStartTracking();
+        this.tracking++;
+    }
 
-function setNodeAndOffset(self,node,offset) {
-    self.this.node = node;
-    self.this.offset = offset;
-}
+    public stopTracking() {
+        this.tracking--;
+        if (this.tracking == 0)
+            this.actuallyStopTracking();
+    }
 
-// public
-Position.prototype.toString = function() {
-    let self = this.self;
-    let result;
-    if (self.node instanceof Text) {
-        let extra = "";
-        if (self.offset > self.node.nodeValue.length) {
-            for (let i = self.node.nodeValue.length; i < self.offset; i++)
-                extra += "!";
+    public toString(): string {
+        let result;
+        if (this.node instanceof Text) {
+            let extra = "";
+            if (this.offset > this.node.nodeValue.length) {
+                for (let i = this.node.nodeValue.length; i < this.offset; i++)
+                    extra += "!";
+            }
+            let id = "";
+            if (Util.debugIds)
+                id = this.node._nodeId+":";
+            result = id+JSON.stringify(this.node.nodeValue.slice(0,this.offset)+extra+"|"+
+                                       this.node.nodeValue.slice(this.offset));
         }
-        let id = "";
-        if (Util.debugIds)
-            id = self.node._nodeId+":";
-        result = id+JSON.stringify(self.node.nodeValue.slice(0,self.offset)+extra+"|"+
-                                   self.node.nodeValue.slice(self.offset));
+        else {
+            result = "("+Util.nodeString(this.node)+","+this.offset+")";
+        }
+        if (this.posId != null)
+            result = "["+this.posId+"]"+result;
+        return result;
     }
-    else {
-        result = "("+Util.nodeString(self.node)+","+self.offset+")";
-    }
-    if (this.posId != null)
-        result = "["+this.posId+"]"+result;
-    return result;
+
+}
+
+function setNodeAndOffset(pos,node,offset) {
+    pos.node = node;
+    pos.offset = offset;
 }
 
 function positionSpecial(pos,forwards,backwards) {
@@ -244,13 +237,13 @@ export function next(pos) {
 // public
 export function trackWhileExecuting(positions,fun) {
     for (let i = 0; i < positions.length; i++)
-        startTracking(positions[i].self);
+        positions[i].startTracking();
     try {
         return fun();
     }
     finally {
         for (let i = 0; i < positions.length; i++)
-            stopTracking(positions[i].self);
+            positions[i].stopTracking();
     }
 }
 
@@ -589,11 +582,11 @@ export function closestMatchBackwards(pos,fun) {
 }
 
 export function track(pos) {
-    startTracking(pos.self);
+    pos.startTracking();
 }
 
 export function untrack(pos) {
-    stopTracking(pos.self);
+    pos.stopTracking();
 }
 
 export function rectAtPos(pos) {

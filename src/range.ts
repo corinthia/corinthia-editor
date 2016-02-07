@@ -26,9 +26,20 @@ import Traversal = require("./traversal");
 import Types = require("./types");
 import Util = require("./util");
 
-export function Range(startNode,startOffset,endNode,endOffset) {
-    this.start = new Position.Position(startNode,startOffset);
-    this.end = new Position.Position(endNode,endOffset);
+export class Range {
+
+    public start: Position.Position;
+    public end: Position.Position;
+
+    constructor(startNode: Node, startOffset: number, endNode: Node, endOffset: number) {
+        this.start = new Position.Position(startNode,startOffset);
+        this.end = new Position.Position(endNode,endOffset);
+    }
+
+    public toString(): string {
+        return this.start.toString() + " - " + this.end.toString();
+    }
+
 }
 
 export function assertValid(range,description) {
@@ -43,10 +54,6 @@ export function assertValid(range,description) {
 export function isEmpty(range) {
     return ((range.start.node == range.end.node) &&
             (range.start.offset == range.end.offset));
-}
-
-Range.prototype.toString = function() {
-    return this.start.toString() + " - " + this.end.toString();
 }
 
 export function trackWhileExecuting(range,fun) {

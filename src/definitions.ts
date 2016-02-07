@@ -28,7 +28,7 @@ interface Document {
 }
 
 interface Node {
-    _id?: number;
+    _nodeId?: number;
     _type?: number;
 }
 
