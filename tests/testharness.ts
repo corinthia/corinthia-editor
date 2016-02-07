@@ -15,13 +15,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var topArea;
-var leftArea;
-var rightArea;
-var leftLoadedContinuation = null;
-var results = new Object();
-var allCode = null;
-var tests: any = null;
+let topArea;
+let leftArea;
+let rightArea;
+let leftLoadedContinuation = null;
+let results = new Object();
+let allCode = null;
+let tests: any = null;
 
 function Result(actual,expected) {
     this.actual = actual;
@@ -29,7 +29,7 @@ function Result(actual,expected) {
 }
 
 function readFile(filename) {
-    var req = new XMLHttpRequest();
+    let req = new XMLHttpRequest();
     req.open("GET",filename,false);
     req.send();
     return req.responseText;
@@ -37,7 +37,7 @@ function readFile(filename) {
 
 function loadCode() {
     // Sync with Editor.m
-    var modules = [
+    let modules = [
         "src/autoCorrect",
         "src/changeTracking",
         "src/clipboard",
@@ -86,10 +86,10 @@ function loadCode() {
         "tests/undoTests",
         "tests/validPositions"
     ];
-    var allCodeArray = new Array();
+    let allCodeArray = new Array();
     allCodeArray.push(readJSCode("../src/3rdparty/showdown/showdown.js"));
     allCodeArray.push(readJSCode("../build/src/first.js"));
-    for (var i = 0; i < modules.length; i++)
+    for (let i = 0; i < modules.length; i++)
         allCodeArray.push(readModule("../build",modules[i]+".js"));
     allCode = allCodeArray.join("\n");
 }
@@ -99,18 +99,18 @@ function loadTestIndex() {
 }
 
 function doPerformTest() {
-    var testDocument = leftArea.contentDocument;
-    var w = leftArea.contentWindow;
+    let testDocument = leftArea.contentDocument;
+    let w = leftArea.contentWindow;
     w.outputOptions = new Object();
     w.disableOutlineRedoHack = true;
-    var resultText = w.performTest(w.globalAPI);
+    let resultText = w.performTest(w.globalAPI);
     if (!w.outputOptions.keepSelectionHighlights)
         w.globalAPI.Selection.clearSelection();
     if (resultText == null)
         resultText = w.globalAPI.tests.PrettyPrinter.getHTML(testDocument.documentElement,w.outputOptions)
-    var messages = JSON.parse(w.globalAPI.Editor.getBackMessages());
-    for (var i = 0; i < messages.length; i++) {
-        var message = messages[i];
+    let messages = JSON.parse(w.globalAPI.Editor.getBackMessages());
+    for (let i = 0; i < messages.length; i++) {
+        let message = messages[i];
         if (message[0] == "error")
             throw new Error(message[1]);
     }
@@ -122,14 +122,14 @@ function showTest(dir,name) {
     leftLoadedContinuation = function() {
         setLeftTitle("Working area");
         setRightTitle("Result");
-        var resultText = doPerformTest();
+        let resultText = doPerformTest();
         setPanelText(rightArea,resultText);
     }
     leftArea.src = dir+"/"+name+"-input.html";
 }
 
 function showResult(dirname,filename) {
-    var fullname = dirname+"-"+filename;
+    let fullname = dirname+"-"+filename;
     setLeftTitle("Actual result for "+dirname+"/"+filename);
     setRightTitle("Expected result for "+dirname+"/"+filename);
     leftLoadedContinuation = null;
@@ -152,7 +152,7 @@ function clearPanel(panel) {
 
 function setPanelText(panel,text) {
     clearPanel(panel);
-    var pre = panel.contentDocument.createElement("PRE");
+    let pre = panel.contentDocument.createElement("PRE");
     panel.contentDocument.body.appendChild(pre);
     pre.appendChild(panel.contentDocument.createTextNode(text));
 }
@@ -160,14 +160,14 @@ function setPanelText(panel,text) {
 
 
 function readJSCode(filename) {
-    var req = new XMLHttpRequest();
+    let req = new XMLHttpRequest();
     req.open("GET",filename,false);
     req.send();
     return req.responseText;
 }
 
 function readModule(baseDir,filename) {
-    var code = readJSCode(baseDir+"/"+filename);
+    let code = readJSCode(baseDir+"/"+filename);
     code = "window._nextDefineFilename = "+JSON.stringify(filename)+";\n"+code;
     return code;
 }
@@ -175,10 +175,10 @@ function readModule(baseDir,filename) {
 function leftLoaded() {
     if (leftLoadedContinuation == null)
         return;
-    var continuation = leftLoadedContinuation;
+    let continuation = leftLoadedContinuation;
     leftLoadedContinuation = null;
 
-    var w = leftArea.contentWindow;
+    let w = leftArea.contentWindow;
     w.eval(allCode);
     w.globalAPI.Util.debug = function(str) { console.log(str); };
 
@@ -189,15 +189,15 @@ function leftLoaded() {
 }
 
 function runAllTests() {
-    var dirno = 0;
-    var fileno = 0;
-    var haveTest = false;
-    var dirname;
-    var filename;
+    let dirno = 0;
+    let fileno = 0;
+    let haveTest = false;
+    let dirname;
+    let filename;
 
-    var passes = 0;
-    var failures = 0;
-    var startTime = new Date();
+    let passes = 0;
+    let failures = 0;
+    let startTime = new Date();
 
     setLeftTitle("Working area");
     setRightTitle("");
@@ -209,21 +209,21 @@ function runAllTests() {
     return;
 
     function updateStatistics() {
-        var statistics = document.getElementById("statistics");
+        let statistics = document.getElementById("statistics");
         while (statistics.firstChild != null)
             statistics.removeChild(statistics.firstChild);
-        var now = new Date();
-        var elapsed = now.getTime() - startTime.getTime();
-        var str = "Passes: "+passes+", Failures: "+failures+
+        let now = new Date();
+        let elapsed = now.getTime() - startTime.getTime();
+        let str = "Passes: "+passes+", Failures: "+failures+
             ", Elapsed time "+(elapsed/1000)+" seconds";
         statistics.appendChild(document.createTextNode(str));
     }
 
     function runNextTest() {
         if (haveTest) {
-            var expected = readFile(dirname+"/"+filename+"-expected.html");
+            let expected = readFile(dirname+"/"+filename+"-expected.html");
 
-            var actual;
+            let actual;
             try {
                 actual = doPerformTest();
             }
@@ -234,11 +234,11 @@ function runAllTests() {
             actual = actual.trim();
             expected = expected.trim();
 
-            var fullname = dirname+"-"+filename;
-            var resultElement = document.getElementById("result-"+fullname);
+            let fullname = dirname+"-"+filename;
+            let resultElement = document.getElementById("result-"+fullname);
             while (resultElement.firstChild != null)
                 resultElement.removeChild(resultElement);
-            var a = document.createElement("a");
+            let a = document.createElement("a");
             a.href = "javascript:showResult('"+dirname+"','"+filename+"')";
             resultElement.appendChild(a);
             results[fullname] = new Result(actual,expected);
@@ -255,7 +255,7 @@ function runAllTests() {
             updateStatistics();
         }
         if (dirno < tests.length) {
-            var dir = tests[dirno];
+            let dir = tests[dirno];
             dirname = dir.dir;
             filename = dir.files[fileno];
             incrementPosition();
@@ -281,24 +281,24 @@ function loaded() {
     loadCode();
     loadTestIndex();
 
-    var table = document.createElement("table");
+    let table = document.createElement("table");
     topArea.appendChild(table);
 
-    for (var dirno = 0; dirno < tests.length; dirno++) {
-        var dir = tests[dirno];
+    for (let dirno = 0; dirno < tests.length; dirno++) {
+        let dir = tests[dirno];
 
-        var tr = document.createElement("tr");
+        let tr = document.createElement("tr");
         table.appendChild(tr);
         tr.setAttribute("class","dirrow");
         table.setAttribute("width","100%");
 
-        var td = document.createElement("td");
+        let td = document.createElement("td");
         tr.appendChild(td);
         td.setAttribute("colspan","2");
         td.appendChild(document.createTextNode(dir.dir));
 
-        for (var fileno = 0; fileno < dir.files.length; fileno++) {
-            var filename = dir.files[fileno];
+        for (let fileno = 0; fileno < dir.files.length; fileno++) {
+            let filename = dir.files[fileno];
 
             tr = document.createElement("tr");
             table.appendChild(tr);
@@ -308,7 +308,7 @@ function loaded() {
             tr.appendChild(td);
             td.setAttribute("width","50%");
 
-            var a = document.createElement("a");
+            let a = document.createElement("a");
             td.appendChild(a);
             a.href = "javascript:showTest('"+dir.dir+"','"+filename+"')";
             a.appendChild(document.createTextNode(filename));

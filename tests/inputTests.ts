@@ -25,44 +25,44 @@ import TestLib = require("./testlib");
 import Traversal = require("../src/traversal");
 
 export function getNodeArrayText(nodes) {
-    var strings = new Array();
-    for (var i = 0; i < nodes.length; i++)
+    let strings = new Array();
+    for (let i = 0; i < nodes.length; i++)
         strings.push(Traversal.getNodeText(nodes[i]));
     return strings.join("");
 }
 
 export function textBetweenPositions(from,to) {
-    var range = new Range.Range(from.node,from.offset,to.node,to.offset);
-    var contents = Range.cloneContents(range);
+    let range = new Range.Range(from.node,from.offset,to.node,to.offset);
+    let contents = Range.cloneContents(range);
     return getNodeArrayText(contents);
 }
 
 export function testMovement(direction,count) {
     Outline.init();
     PostponedActions.perform();
-    var posId = Input.addPosition(Selection.get().start);
-    for (var i = 0; i < count; i++)
+    let posId = Input.addPosition(Selection.get().start);
+    for (let i = 0; i < count; i++)
         posId = Input.positionFromPositionInDirectionOffset(posId,direction,1);
     Input.setSelectedTextRange(posId,posId);
     TestLib.showSelection();
 }
 
 export function testPositionFun(fun,granularity,direction) {
-    var lines = new Array();
-    var start = new Position.Position(document.body,0);
-    var end = new Position.Position(document.body,document.body.childNodes.length);
+    let lines = new Array();
+    let start = new Position.Position(document.body,0);
+    let end = new Position.Position(document.body,document.body.childNodes.length);
 
     start = Position.closestMatchForwards(start,Position.okForMovement);
     end = Position.closestMatchBackwards(end,Position.okForMovement);
 
-    var pos = start;
+    let pos = start;
     while (pos != null) {
 
-        var before = textBetweenPositions(start,pos);
-        var after = textBetweenPositions(pos,end);
-        var total = before+"|"+after;
+        let before = textBetweenPositions(start,pos);
+        let after = textBetweenPositions(pos,end);
+        let total = before+"|"+after;
 
-        var result = fun(pos,granularity,direction);
+        let result = fun(pos,granularity,direction);
         lines.push(JSON.stringify(total)+" -- "+result+"\n");
 
         pos = Position.nextMatch(pos,Position.okForMovement);
@@ -80,26 +80,26 @@ export function testPositionAtBoundary(granularity,direction) {
 }
 
 export function testPositionToBoundary(granularity,direction) {
-    var lines = new Array();
-    var start = new Position.Position(document.body,0);
-    var end = new Position.Position(document.body,document.body.childNodes.length);
+    let lines = new Array();
+    let start = new Position.Position(document.body,0);
+    let end = new Position.Position(document.body,document.body.childNodes.length);
 
     start = Position.closestMatchForwards(start,Position.okForMovement);
     end = Position.closestMatchBackwards(end,Position.okForMovement);
 
-    var pos = start;
+    let pos = start;
     while (pos != null) {
 
-        var oldBefore = textBetweenPositions(start,pos);
-        var oldAfter = textBetweenPositions(pos,end);
-        var oldTotal = oldBefore+"|"+oldAfter;
+        let oldBefore = textBetweenPositions(start,pos);
+        let oldAfter = textBetweenPositions(pos,end);
+        let oldTotal = oldBefore+"|"+oldAfter;
 
-        var resultId = Input.positionFromPositionToBoundaryInDirection(pos,granularity,direction);
-        var result = Input.getPosition(resultId);
+        let resultId = Input.positionFromPositionToBoundaryInDirection(pos,granularity,direction);
+        let result = Input.getPosition(resultId);
 
-        var newBefore = textBetweenPositions(start,result);
-        var newAfter = textBetweenPositions(result,end);
-        var newTotal = newBefore+"|"+newAfter;
+        let newBefore = textBetweenPositions(start,result);
+        let newAfter = textBetweenPositions(result,end);
+        let newTotal = newBefore+"|"+newAfter;
 
         lines.push(JSON.stringify(oldTotal)+" -- "+JSON.stringify(newTotal)+"\n");
 
@@ -110,33 +110,33 @@ export function testPositionToBoundary(granularity,direction) {
 }
 
 export function testRangeEnclosing(granularity,direction) {
-    var lines = new Array();
-    var start = new Position.Position(document.body,0);
-    var end = new Position.Position(document.body,document.body.childNodes.length);
+    let lines = new Array();
+    let start = new Position.Position(document.body,0);
+    let end = new Position.Position(document.body,document.body.childNodes.length);
 
     start = Position.closestMatchForwards(start,Position.okForMovement);
     end = Position.closestMatchBackwards(end,Position.okForMovement);
 
-    var pos = start;
+    let pos = start;
     while (pos != null) {
 
-        var oldBefore = textBetweenPositions(start,pos);
-        var oldAfter = textBetweenPositions(pos,end);
-        var oldTotal = oldBefore+"|"+oldAfter;
+        let oldBefore = textBetweenPositions(start,pos);
+        let oldAfter = textBetweenPositions(pos,end);
+        let oldTotal = oldBefore+"|"+oldAfter;
 
-        var resultIds =
+        let resultIds =
             Input.rangeEnclosingPositionWithGranularityInDirection(pos,granularity,direction);
         if (resultIds != null) {
-            var startId = resultIds.startId;
-            var endId = resultIds.endId;
-            var rangeStart = Input.getPosition(startId);
-            var rangeEnd = Input.getPosition(endId);
+            let startId = resultIds.startId;
+            let endId = resultIds.endId;
+            let rangeStart = Input.getPosition(startId);
+            let rangeEnd = Input.getPosition(endId);
 
-            var before = textBetweenPositions(start,rangeStart);
-            var middle = textBetweenPositions(rangeStart,rangeEnd);
-            var after = textBetweenPositions(rangeEnd,end);
+            let before = textBetweenPositions(start,rangeStart);
+            let middle = textBetweenPositions(rangeStart,rangeEnd);
+            let after = textBetweenPositions(rangeEnd,end);
 
-            var newTotal = before+"["+middle+"]"+after;
+            let newTotal = before+"["+middle+"]"+after;
 
             lines.push(JSON.stringify(oldTotal)+" -- "+JSON.stringify(newTotal)+"\n");
         }

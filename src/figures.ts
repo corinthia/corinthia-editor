@@ -31,14 +31,14 @@ import Util = require("./util");
 export function insertFigure(filename,width,numbered,caption) {
     UndoManager.newGroup("Insert figure");
 
-    var figure = DOM.createElement(document,"FIGURE");
-    var img = DOM.createElement(document,"IMG");
+    let figure = DOM.createElement(document,"FIGURE");
+    let img = DOM.createElement(document,"IMG");
     DOM.setAttribute(img,"src",encodeURI(filename));
     DOM.setStyleProperties(img,{"width": width});
     DOM.appendChild(figure,img);
 
     if ((caption != null) && (caption != "")) {
-        var figcaption = DOM.createElement(document,"FIGCAPTION");
+        let figcaption = DOM.createElement(document,"FIGCAPTION");
         DOM.appendChild(figcaption,DOM.createTextNode(document,caption));
         DOM.appendChild(figure,figcaption);
     }
@@ -51,8 +51,8 @@ export function insertFigure(filename,width,numbered,caption) {
     Outline.setNumbered(figure.getAttribute("id"),numbered);
 
     // Place the cursor directly after the figure
-    var offset = DOM.nodeOffset(figure);
-    var pos = new Position.Position(figure.parentNode,offset);
+    let offset = DOM.nodeOffset(figure);
+    let pos = new Position.Position(figure.parentNode,offset);
     pos = Position.closestMatchForwards(pos,Position.okForMovement);
     Selection.set(pos.node,pos.offset,pos.node,pos.offset);
 
@@ -60,19 +60,19 @@ export function insertFigure(filename,width,numbered,caption) {
 }
 
 export function getSelectedFigureId() {
-    var element = Cursor.getAdjacentNodeWithType(ElementTypes.HTML_FIGURE);
+    let element = Cursor.getAdjacentNodeWithType(ElementTypes.HTML_FIGURE);
     return element ? element.getAttribute("id") : null;
 }
 
 // public
 export function getProperties(itemId) {
-    var figure = document.getElementById(itemId);
+    let figure = document.getElementById(itemId);
     if (figure == null)
         return null;
-    var rect = figure.getBoundingClientRect();
-    var result = { width: null, src: null };
+    let rect = figure.getBoundingClientRect();
+    let result = { width: null, src: null };
 
-    var img = Traversal.firstDescendantOfType(figure,ElementTypes.HTML_IMG);
+    let img = Traversal.firstDescendantOfType(figure,ElementTypes.HTML_IMG);
     if (img != null) {
         result.src = decodeURI(img.getAttribute("src"));
         result.width = img.style.width;
@@ -85,10 +85,10 @@ export function getProperties(itemId) {
 
 // public
 export function setProperties(itemId,width,src) {
-    var figure = document.getElementById(itemId);
+    let figure = document.getElementById(itemId);
     if (figure == null)
         return null;
-    var img = Traversal.firstDescendantOfType(figure,ElementTypes.HTML_IMG);
+    let img = Traversal.firstDescendantOfType(figure,ElementTypes.HTML_IMG);
     if (img != null) {
         if (src == null)
             DOM.removeAttribute(img,"src");
@@ -104,16 +104,16 @@ export function setProperties(itemId,width,src) {
 
 // public
 export function getGeometry(itemId) {
-    var figure = document.getElementById(itemId);
+    let figure = document.getElementById(itemId);
     if ((figure == null) || (figure.parentNode == null))
         return null;
-    var img = Traversal.firstDescendantOfType(figure,ElementTypes.HTML_IMG);
+    let img = Traversal.firstDescendantOfType(figure,ElementTypes.HTML_IMG);
     if (img == null)
         return null;
 
-    var figcaption = Traversal.firstChildOfType(figure,ElementTypes.HTML_FIGCAPTION);
+    let figcaption = Traversal.firstChildOfType(figure,ElementTypes.HTML_FIGCAPTION);
 
-    var result: any = new Object();
+    let result: any = new Object();
     result.contentRect = Util.xywhAbsElementRect(img);
     result.fullRect = Util.xywhAbsElementRect(figure);
     result.parentRect = Util.xywhAbsElementRect(figure.parentNode);

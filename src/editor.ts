@@ -17,7 +17,7 @@
 
 import Util = require("./util");
 
-var backMessages = new Array();
+let backMessages = new Array();
 
 function addBackMessage(...args) {
     backMessages.push(Util.arrayCopy(arguments));
@@ -25,7 +25,7 @@ function addBackMessage(...args) {
 }
 
 export function getBackMessages() {
-    var result = JSON.stringify(backMessages);
+    let result = JSON.stringify(backMessages);
     backMessages = new Array();
     return result;
 };

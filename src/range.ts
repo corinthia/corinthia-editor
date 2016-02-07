@@ -57,16 +57,16 @@ export function trackWhileExecuting(range,fun) {
 }
 
 export function expand(range) {
-    var doc = range.start.node.ownerDocument;
+    let doc = range.start.node.ownerDocument;
     while ((range.start.offset == 0) && (range.start.node != doc.body)) {
-        var offset = DOM.nodeOffset(range.start.node);
+        let offset = DOM.nodeOffset(range.start.node);
         range.start.node = range.start.node.parentNode;
         range.start.offset = offset;
     }
 
     while ((range.end.offset == DOM.maxChildOffset(range.end.node)) &&
            (range.end.node != doc.body)) {
-        var offset = DOM.nodeOffset(range.end.node);
+        let offset = DOM.nodeOffset(range.end.node);
         range.end.node = range.end.node.parentNode;
         range.end.offset = offset+1;
     }
@@ -77,15 +77,15 @@ export function isForwards(range) {
 }
 
 export function getAllNodes(range,atLeastOne?) {
-    var result = new Array();
-    var outermost = getOutermostNodes(range,atLeastOne);
-    for (var i = 0; i < outermost.length; i++)
+    let result = new Array();
+    let outermost = getOutermostNodes(range,atLeastOne);
+    for (let i = 0; i < outermost.length; i++)
         addRecursive(outermost[i]);
     return result;
 
     function addRecursive(node) {
         result.push(node);
-        for (var child = node.firstChild; child != null; child = child.nextSibling)
+        for (let child = node.firstChild; child != null; child = child.nextSibling)
             addRecursive(child);
     }
 }
@@ -96,16 +96,16 @@ export function singleNode(range) {
 
 export function ensureInlineNodesInParagraph(range) {
     trackWhileExecuting(range,function() {
-        var nodes = getAllNodes(range,true);
-        for (var i = 0; i < nodes.length; i++)
+        let nodes = getAllNodes(range,true);
+        for (let i = 0; i < nodes.length; i++)
             Hierarchy.ensureInlineNodesInParagraph(nodes[i]);
     });
 }
 
 export function ensureValidHierarchy(range,allowDirectInline?) {
     trackWhileExecuting(range,function() {
-        var nodes = getAllNodes(range,true);
-        for (var i = nodes.length-1; i >= 0; i--)
+        let nodes = getAllNodes(range,true);
+        for (let i = nodes.length-1; i >= 0; i--)
             Hierarchy.ensureValidHierarchy(nodes[i]);
     });
 }
@@ -115,7 +115,7 @@ export function forwards(range) {
         return range;
     }
     else {
-        var reverse = new Range(range.end.node,range.end.offset,
+        let reverse = new Range(range.end.node,range.end.offset,
                                 range.start.node,range.start.offset);
         if (!isForwards(reverse))
             throw new Error("Both range "+range+" and its reverse are not forwards");
@@ -125,16 +125,16 @@ export function forwards(range) {
 
 export function detail(range) {
     if (!isForwards(range)) {
-        var reverse = new Range(range.end.node,range.end.offset,
+        let reverse = new Range(range.end.node,range.end.offset,
                                 range.start.node,range.start.offset);
         if (!isForwards(reverse))
             throw new Error("Both range "+range+" and its reverse are not forwards");
         return detail(reverse);
     }
 
-    var result: any = new Object();
-    var start = range.start;
-    var end = range.end;
+    let result: any = new Object();
+    let start = range.start;
+    let end = range.end;
 
     // Start location
     if (start.node.nodeType == Node.ELEMENT_NODE) {
@@ -161,11 +161,11 @@ export function detail(range) {
     }
 
     // Common ancestor
-    var startP = result.startParent;
-    var startC = result.startChild;
+    let startP = result.startParent;
+    let startC = result.startChild;
     while (startP != null) {
-        var endP = result.endParent;
-        var endC = result.endChild
+        let endP = result.endParent;
+        let endC = result.endChild
         while (endP != null) {
             if (startP == endP) {
                 result.commonAncestor = startP;
@@ -184,9 +184,9 @@ export function detail(range) {
 }
 
 export function getOutermostNodes(range,atLeastOne?,info?) {
-    var beforeNodes = new Array();
-    var middleNodes = new Array();
-    var afterNodes = new Array();
+    let beforeNodes = new Array();
+    let middleNodes = new Array();
+    let afterNodes = new Array();
 
     if (info != null) {
         info.beginning = beforeNodes;
@@ -206,20 +206,20 @@ export function getOutermostNodes(range,atLeastOne?,info?) {
     // the child nodes in a container - in which case the child is null. The parent, however, is
     // always non-null;
 
-    var det = detail(range);
+    let det = detail(range);
     if (det.commonAncestor == null)
         return atLeastOne ? [singleNode(range)] : [];
-    var startParent = det.startParent;
-    var startChild = det.startChild;
-    var endParent = det.endParent;
-    var endChild = det.endChild;
-    var commonParent = det.commonAncestor;
-    var startAncestor = det.startAncestor;
-    var endAncestor = det.endAncestor;
+    let startParent = det.startParent;
+    let startChild = det.startChild;
+    let endParent = det.endParent;
+    let endChild = det.endChild;
+    let commonParent = det.commonAncestor;
+    let startAncestor = det.startAncestor;
+    let endAncestor = det.endAncestor;
 
     // Add start nodes
-    var topParent = startParent;
-    var topChild = startChild;
+    let topParent = startParent;
+    let topChild = startChild;
     while (topParent != commonParent) {
         if (topChild != null)
             beforeNodes.push(topChild);
@@ -235,7 +235,7 @@ export function getOutermostNodes(range,atLeastOne?,info?) {
 
     // Add middle nodes
     if (startAncestor != endAncestor) {
-        var c = startAncestor;
+        let c = startAncestor;
         if ((c != null) && (c != startChild))
             c = c.nextSibling;
         for (; c != endAncestor; c = c.nextSibling)
@@ -243,8 +243,8 @@ export function getOutermostNodes(range,atLeastOne?,info?) {
     }
 
     // Add end nodes
-    var bottomParent = endParent;
-    var bottomChild = endChild;
+    let bottomParent = endParent;
+    let bottomChild = endChild;
     while (true) {
 
         while ((getPreviousSibling(bottomParent,bottomChild) == null) &&
@@ -262,7 +262,7 @@ export function getOutermostNodes(range,atLeastOne?,info?) {
     }
     afterNodes = afterNodes.reverse();
 
-    var result = new Array();
+    let result = new Array();
 
     Array.prototype.push.apply(result,beforeNodes);
     Array.prototype.push.apply(result,middleNodes);
@@ -296,25 +296,25 @@ export function getOutermostNodes(range,atLeastOne?,info?) {
 }
 
 export function getClientRects(range) {
-    var nodes = getOutermostNodes(range,true);
+    let nodes = getOutermostNodes(range,true);
 
     // WebKit in iOS 5.0 and 5.1 has a bug where if the selection spans multiple paragraphs,
     // the complete rect for paragraphs other than the first is returned, instead of just the
     // portions of it that are actually in the range. To get around this problem, we go through
     // each text node individually and collect all the rects.
-    var result = new Array();
-    var doc = range.start.node.ownerDocument;
-    var domRange = doc.createRange();
-    for (var nodeIndex = 0; nodeIndex < nodes.length; nodeIndex++) {
-        var node = nodes[nodeIndex];
+    let result = new Array();
+    let doc = range.start.node.ownerDocument;
+    let domRange = doc.createRange();
+    for (let nodeIndex = 0; nodeIndex < nodes.length; nodeIndex++) {
+        let node = nodes[nodeIndex];
         if (node.nodeType == Node.TEXT_NODE) {
-            var startOffset = (node == range.start.node) ? range.start.offset : 0;
-            var endOffset = (node == range.end.node) ? range.end.offset : node.nodeValue.length;
+            let startOffset = (node == range.start.node) ? range.start.offset : 0;
+            let endOffset = (node == range.end.node) ? range.end.offset : node.nodeValue.length;
             domRange.setStart(node,startOffset);
             domRange.setEnd(node,endOffset);
-            var rects = domRange.getClientRects();
-            for (var rectIndex = 0; rectIndex < rects.length; rectIndex++) {
-                var rect = rects[rectIndex];
+            let rects = domRange.getClientRects();
+            for (let rectIndex = 0; rectIndex < rects.length; rectIndex++) {
+                let rect = rects[rectIndex];
                 if (Main.clientRectsBug) {
                     // Apple Bug ID 14682166 - getClientRects() returns coordinates relative
                     // to top of document, when it should instead return coordinates relative
@@ -339,41 +339,41 @@ export function getClientRects(range) {
 }
 
 export function cloneContents(range) {
-    var nodeSet = new Collections.NodeSet();
-    var ancestorSet = new Collections.NodeSet();
-    var det = detail(range);
-    var outermost = getOutermostNodes(range);
+    let nodeSet = new Collections.NodeSet();
+    let ancestorSet = new Collections.NodeSet();
+    let det = detail(range);
+    let outermost = getOutermostNodes(range);
 
-    var haveContent = false;
-    for (var i = 0; i < outermost.length; i++) {
+    let haveContent = false;
+    for (let i = 0; i < outermost.length; i++) {
         if (!Traversal.isWhitespaceTextNode(outermost[i]))
             haveContent = true;
         nodeSet.add(outermost[i]);
-        for (var node = outermost[i]; node != null; node = node.parentNode)
+        for (let node = outermost[i]; node != null; node = node.parentNode)
             ancestorSet.add(node);
     }
 
     if (!haveContent)
         return new Array();
 
-    var clone = recurse(det.commonAncestor);
+    let clone = recurse(det.commonAncestor);
 
-    var ancestor = det.commonAncestor;
+    let ancestor = det.commonAncestor;
     while (Types.isInlineNode(ancestor)) {
-        var ancestorClone = DOM.cloneNode(ancestor.parentNode,false);
+        let ancestorClone = DOM.cloneNode(ancestor.parentNode,false);
         DOM.appendChild(ancestorClone,clone);
         ancestor = ancestor.parentNode;
         clone = ancestorClone;
     }
 
-    var childArray = new Array();
+    let childArray = new Array();
     switch (clone._type) {
     case ElementTypes.HTML_UL:
     case ElementTypes.HTML_OL:
         childArray.push(clone);
         break;
     default:
-        for (var child = clone.firstChild; child != null; child = child.nextSibling)
+        for (let child = clone.firstChild; child != null; child = child.nextSibling)
             childArray.push(child);
         Formatting.pushDownInlineProperties(childArray);
         break;
@@ -382,24 +382,24 @@ export function cloneContents(range) {
     return childArray;
 
     function recurse(parent) {
-        var clone = DOM.cloneNode(parent,false);
-        for (var child = parent.firstChild; child != null; child = child.nextSibling) {
+        let clone = DOM.cloneNode(parent,false);
+        for (let child = parent.firstChild; child != null; child = child.nextSibling) {
             if (nodeSet.contains(child)) {
                 if ((child.nodeType == Node.TEXT_NODE) &&
                     (child == range.start.node) &&
                     (child == range.end.node)) {
-                    var substring = child.nodeValue.substring(range.start.offset,
+                    let substring = child.nodeValue.substring(range.start.offset,
                                                               range.end.offset);
                     DOM.appendChild(clone,DOM.createTextNode(document,substring));
                 }
                 else if ((child.nodeType == Node.TEXT_NODE) &&
                          (child == range.start.node)) {
-                    var substring = child.nodeValue.substring(range.start.offset);
+                    let substring = child.nodeValue.substring(range.start.offset);
                     DOM.appendChild(clone,DOM.createTextNode(document,substring));
                 }
                 else if ((child.nodeType == Node.TEXT_NODE) &&
                          (child == range.end.node)) {
-                    var substring = child.nodeValue.substring(0,range.end.offset);
+                    let substring = child.nodeValue.substring(0,range.end.offset);
                     DOM.appendChild(clone,DOM.createTextNode(document,substring));
                 }
                 else {
@@ -415,11 +415,11 @@ export function cloneContents(range) {
 }
 
 export function hasContent(range) {
-    var outermost = getOutermostNodes(range);
-    for (var i = 0; i < outermost.length; i++) {
-        var node = outermost[i];
+    let outermost = getOutermostNodes(range);
+    for (let i = 0; i < outermost.length; i++) {
+        let node = outermost[i];
         if (node.nodeType == Node.TEXT_NODE) {
-            var value = node.nodeValue;
+            let value = node.nodeValue;
             if ((node == range.start.node) && (node == range.end.node)) {
                 if (!Util.isWhitespaceString(value.substring(range.start.offset,range.end.offset)))
                     return true;
@@ -448,11 +448,11 @@ export function hasContent(range) {
 export function getText(range) {
     range = forwards(range);
 
-    var start = range.start;
-    var end = range.end;
+    let start = range.start;
+    let end = range.end;
 
-    var startNode = start.node;
-    var startOffset = start.offset;
+    let startNode = start.node;
+    let startOffset = start.offset;
 
     if (start.node.nodeType == Node.ELEMENT_NODE) {
         if ((start.node.offset == start.node.childNodes.length) &&
@@ -463,8 +463,8 @@ export function getText(range) {
         startOffset = 0;
     }
 
-    var endNode = end.node;
-    var endOffset = end.offset;
+    let endNode = end.node;
+    let endOffset = end.offset;
 
     if (end.node.nodeType == Node.ELEMENT_NODE) {
         if ((end.node.offset == end.node.childNodes.length) &&
@@ -478,9 +478,9 @@ export function getText(range) {
     if ((startNode == null) || (endNode == null))
         return "";
 
-    var components = new Array();
-    var node = startNode;
-    var significantParagraph = true;
+    let components = new Array();
+    let node = startNode;
+    let significantParagraph = true;
     while (true) {
         if (node == null)
             throw new Error("Cannot find end node");
@@ -493,7 +493,7 @@ export function getText(range) {
             }
 
             if (significantParagraph) {
-                var str;
+                let str;
                 if ((node == startNode) && (node == endNode))
                     str = node.nodeValue.substring(startOffset,endOffset);
                 else if (node == startNode)
@@ -511,7 +511,7 @@ export function getText(range) {
             break;
 
 
-        var next = Traversal.nextNode(node,entering,exiting);
+        let next = Traversal.nextNode(node,entering,exiting);
         node = next;
     }
     return components.join("");

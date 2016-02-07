@@ -28,14 +28,14 @@ import UndoManager = require("../src/undo");
 // separateLines (boolean)
 
 export function getHTML(root,options?) {
-    var copy;
+    let copy;
     UndoManager.disableWhileExecuting(function() {
         if (options == null)
             options = new Object();
         copy = DOM.cloneNode(root,true);
         if (!options.keepSelectionHighlights)
             removeSelectionSpans(copy);
-        for (var body = copy.firstChild; body != null; body = body.nextSibling) {
+        for (let body = copy.firstChild; body != null; body = body.nextSibling) {
             if (body.nodeName == "BODY") {
                 DOM.removeAttribute(body,"style");
                 DOM.removeAttribute(body,"contentEditable");
@@ -43,16 +43,16 @@ export function getHTML(root,options?) {
         }
     });
 
-    var output = new Array();
+    let output = new Array();
     prettyPrint(output,options,copy,"");
     return output.join("");
 }
 
 function removeSelectionSpans(root) {
-    var checkMerge = new Array();
+    let checkMerge = new Array();
     recurse(root);
 
-    for (var i = 0; i < checkMerge.length; i++) {
+    for (let i = 0; i < checkMerge.length; i++) {
         if (checkMerge[i].parentNode != null) { // if not already merged
             Formatting.mergeWithNeighbours(checkMerge[i],{});
         }
@@ -65,8 +65,8 @@ function removeSelectionSpans(root) {
             DOM.removeNodeButKeepChildren(node);
         }
         else {
-            var next;
-            for (var child = node.firstChild; child != null; child = next) {
+            let next;
+            for (let child = node.firstChild; child != null; child = next) {
                 next = child.nextSibling;
                 recurse(child);
             }
@@ -79,8 +79,8 @@ function entityFix(str) {
 }
 
 function singleDescendents(node) {
-    var count = 0;
-    for (var child = node.firstChild; child != null; child = child.nextSibling) {
+    let count = 0;
+    for (let child = node.firstChild; child != null; child = child.nextSibling) {
         if ((child.nodeType == Node.TEXT_NODE) && (textNodeDisplayValue(child).length == 0))
             continue;
         count++;
@@ -94,7 +94,7 @@ function singleDescendents(node) {
 
 function sortCSSProperties(value) {
     // Make sure the CSS properties on the "style" attribute appear in a consistent order
-    var items = value.trim().split(/\s*;\s*/);
+    let items = value.trim().split(/\s*;\s*/);
     if ((items.length > 0) && (items[items.length-1] == ""))
         items.length--;
     items.sort();
@@ -103,19 +103,19 @@ function sortCSSProperties(value) {
 
 function attributeString(options,node) {
     // Make sure the attributes appear in a consistent order
-    var names = new Array();
-    for (var i = 0; i < node.attributes.length; i++) {
+    let names = new Array();
+    for (let i = 0; i < node.attributes.length; i++) {
         names.push(node.attributes[i].nodeName);
     }
     names.sort();
-    var str = "";
-    for (var i = 0; i < names.length; i++) {
-        var name = names[i];
+    let str = "";
+    for (let i = 0; i < names.length; i++) {
+        let name = names[i];
 
-        var value = node.getAttribute(name);
+        let value = node.getAttribute(name);
         if (name == "style")
             value = sortCSSProperties(value);
-        var attr = node.getAttributeNode(name);
+        let attr = node.getAttributeNode(name);
         if (options.showNamespaceDetails) {
             if ((attr.namespaceURI != null) || (attr.prefix != null))
                 name = "{"+attr.namespaceURI+","+attr.prefix+","+attr.localName+"}"+name;
@@ -126,7 +126,7 @@ function attributeString(options,node) {
 }
 
 function textNodeDisplayValue(node) {
-    var value = entityFix(node.nodeValue);
+    let value = entityFix(node.nodeValue);
     if ((node.parentNode != null) &&
         (node.parentNode.getAttribute("xml:space") != "preserve"))
         value = value.trim();
@@ -135,19 +135,19 @@ function textNodeDisplayValue(node) {
 
 function prettyPrintOneLine(output,options,node) {
     if ((node.nodeType == Node.ELEMENT_NODE) && (node.nodeName != "SCRIPT")) {
-        var name = options.preserveCase ? node.nodeName : node.nodeName.toLowerCase();
+        let name = options.preserveCase ? node.nodeName : node.nodeName.toLowerCase();
         if (node.firstChild == null) {
             output.push("<" + name + attributeString(options,node) + "/>");
         }
         else {
             output.push("<" + name + attributeString(options,node) + ">");
-            for (var child = node.firstChild; child != null; child = child.nextSibling)
+            for (let child = node.firstChild; child != null; child = child.nextSibling)
                 prettyPrintOneLine(output,options,child);
             output.push("</" + name + ">");
         }
     }
     else if (node.nodeType == Node.TEXT_NODE) {
-        var value = textNodeDisplayValue(node);
+        let value = textNodeDisplayValue(node);
         if (value.length > 0)
             output.push(value);
     }
@@ -179,14 +179,14 @@ function isContainer(node) {
 
 function prettyPrint(output,options,node,indent) {
     if ((node.nodeType == Node.ELEMENT_NODE) && (node.nodeName != "SCRIPT")) {
-        var name = options.preserveCase ? node.nodeName : node.nodeName.toLowerCase();
+        let name = options.preserveCase ? node.nodeName : node.nodeName.toLowerCase();
         if (node.firstChild == null) {
             output.push(indent + "<" + name + attributeString(options,node) + "/>\n");
         }
         else {
             if (node._type == ElementTypes.HTML_STYLE) {
                 output.push(indent + "<" + name + attributeString(options,node) + ">\n");
-                for (var child = node.firstChild; child != null; child = child.nextSibling)
+                for (let child = node.firstChild; child != null; child = child.nextSibling)
                     prettyPrint(output,options,child,"");
                 output.push(indent + "</" + name + ">\n");
             }
@@ -197,15 +197,15 @@ function prettyPrint(output,options,node,indent) {
             }
             else {
                 output.push(indent + "<" + name + attributeString(options,node) + ">\n");
-                for (var child = node.firstChild; child != null; child = child.nextSibling)
+                for (let child = node.firstChild; child != null; child = child.nextSibling)
                     prettyPrint(output,options,child,indent+"  ");
                 output.push(indent + "</" + name + ">\n");
             }
         }
     }
     else if (node.nodeType == Node.TEXT_NODE) {
-        var value = textNodeDisplayValue(node);
-//            var value = JSON.stringify(node.nodeValue);
+        let value = textNodeDisplayValue(node);
+//            let value = JSON.stringify(node.nodeValue);
         if (value.length > 0)
             output.push(indent + value + "\n");
     }

@@ -24,8 +24,8 @@ export function runFromOffset(paragraph,offset,end?) {
         throw new Error("Paragraph has no runs");
     if (!end) {
 
-        for (var i = 0; i < paragraph.runs.length; i++) {
-            var run = paragraph.runs[i];
+        for (let i = 0; i < paragraph.runs.length; i++) {
+            let run = paragraph.runs[i];
             if ((offset >= run.start) && (offset < run.end))
                 return run;
             if ((i == paragraph.runs.length-1) && (offset == run.end))
@@ -35,8 +35,8 @@ export function runFromOffset(paragraph,offset,end?) {
     }
     else {
 
-        for (var i = 0; i < paragraph.runs.length; i++) {
-            var run = paragraph.runs[i];
+        for (let i = 0; i < paragraph.runs.length; i++) {
+            let run = paragraph.runs[i];
             if ((offset > run.start) && (offset <= run.end))
                 return run;
             if ((i == 0) && (offset == 0))
@@ -47,7 +47,7 @@ export function runFromOffset(paragraph,offset,end?) {
 }
 
 export function runFromNode(paragraph,node) {
-    for (var i = 0; i < paragraph.runs.length; i++) {
+    for (let i = 0; i < paragraph.runs.length; i++) {
         if (paragraph.runs[i].node == node)
             return paragraph.runs[i];
     }
@@ -55,30 +55,30 @@ export function runFromNode(paragraph,node) {
 }
 
 export function positionAtOffset(paragraph,offset,end?) {
-    var run = runFromOffset(paragraph,offset,end);
+    let run = runFromOffset(paragraph,offset,end);
     if (run == null)
         throw new Error("Run at offset "+offset+" not found");
     return new Position.Position(run.node,offset-run.start);
 }
 
 export function offsetAtPosition(paragraph,pos) {
-    var run = runFromNode(paragraph,pos.node);
+    let run = runFromNode(paragraph,pos.node);
     return run.start + pos.offset;
 }
 
 export function getRunRects(paragraph) {
-    var rects = new Array();
-    for (var i = 0; i < paragraph.runs.length; i++) {
-        var run = paragraph.runs[i];
-        var runRange = new Range.Range(run.node,0,run.node,run.node.nodeValue.length);
-        var runRects = Range.getClientRects(runRange);
+    let rects = new Array();
+    for (let i = 0; i < paragraph.runs.length; i++) {
+        let run = paragraph.runs[i];
+        let runRange = new Range.Range(run.node,0,run.node,run.node.nodeValue.length);
+        let runRects = Range.getClientRects(runRange);
         Array.prototype.push.apply(rects,runRects);
     }
     return rects;
 }
 
 export function getRunOrFallbackRects(paragraph,pos) {
-    var rects = getRunRects(paragraph);
+    let rects = getRunRects(paragraph);
     if ((rects.length == 0) && (paragraph.node.nodeType == Node.ELEMENT_NODE)) {
         if (Types.isBlockNode(paragraph.node) &&
             (paragraph.startOffset == 0) &&
@@ -86,8 +86,8 @@ export function getRunOrFallbackRects(paragraph,pos) {
             rects = [paragraph.node.getBoundingClientRect()];
         }
         else {
-            var beforeNode = paragraph.node.childNodes[paragraph.startOffset-1];
-            var afterNode = paragraph.node.childNodes[paragraph.endOffset];
+            let beforeNode = paragraph.node.childNodes[paragraph.startOffset-1];
+            let afterNode = paragraph.node.childNodes[paragraph.endOffset];
             if ((afterNode != null) && Types.isBlockNode(afterNode)) {
                 rects = [afterNode.getBoundingClientRect()];
             }

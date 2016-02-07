@@ -24,7 +24,7 @@ import TestLib = require("./testlib");
 import Tables = require("../src/tables");
 
 export function createTestSections(topChildren) {
-    var index = 1;
+    let index = 1;
 
     processChildren(1,topChildren);
 
@@ -34,22 +34,22 @@ export function createTestSections(topChildren) {
 
     function processChildren(level,children) {
         if (typeof children == "number") {
-            for (var i = 0; i < children; i++)
+            for (let i = 0; i < children; i++)
                 recurse(level,null);
         }
         else if (children instanceof Array) {
-            for (var i = 0; i < children.length; i++)
+            for (let i = 0; i < children.length; i++)
                 recurse(level,children[i]);
         }
     }
 
     function recurse(level,children) {
-        var heading = DOM.createElement(document,"H"+level);
+        let heading = DOM.createElement(document,"H"+level);
 
         DOM.appendChild(heading,DOM.createTextNode(document,"Section "+index));
 
-        var p1 = DOM.createElement(document,"P");
-        var p2 = DOM.createElement(document,"P");
+        let p1 = DOM.createElement(document,"P");
+        let p2 = DOM.createElement(document,"P");
 
         DOM.appendChild(p1,DOM.createTextNode(document,"Content "+index+" A"));
         DOM.appendChild(p2,DOM.createTextNode(document,"Content "+index+" B"));
@@ -71,11 +71,11 @@ export function setupOutline(topChildren) {
 }
 
 export function createTestFigures(count) {
-    for (var i = 0; i < count; i++) {
-        var figure = DOM.createElement(document,"FIGURE");
-        var figcaption = DOM.createElement(document,"FIGCAPTION");
-        var content = DOM.createTextNode(document,"(figure content)");
-        var text = DOM.createTextNode(document,"Test figure "+String.fromCharCode(65+i));
+    for (let i = 0; i < count; i++) {
+        let figure = DOM.createElement(document,"FIGURE");
+        let figcaption = DOM.createElement(document,"FIGCAPTION");
+        let content = DOM.createTextNode(document,"(figure content)");
+        let text = DOM.createTextNode(document,"Test figure "+String.fromCharCode(65+i));
         DOM.appendChild(figcaption,text);
         DOM.appendChild(figure,content);
         DOM.appendChild(figure,figcaption);
@@ -84,8 +84,8 @@ export function createTestFigures(count) {
 }
 
 export function createTestTables(count) {
-    for (var i = 0; i < count; i++) {
-        var offset = document.body.childNodes.length;
+    for (let i = 0; i < count; i++) {
+        let offset = document.body.childNodes.length;
         Selection.set(document.body,offset,document.body,offset);
         Tables.insertTable(1,1,"100%",true,"Test table "+String.fromCharCode(65+i));
     }
@@ -98,9 +98,9 @@ function removeOutlineHTML(node) {
         DOM.removeNodeButKeepChildren(node);
     }
     else {
-        for (var child = node.firstChild; child != null; child = child.nextSibling)
+        for (let child = node.firstChild; child != null; child = child.nextSibling)
             removeOutlineHTML(child);
-        for (var child = node.firstChild; child != null; child = child.nextSibling)
+        for (let child = node.firstChild; child != null; child = child.nextSibling)
             Formatting.mergeWithNeighbours(child,Formatting.MERGEABLE_INLINE);
     }
 }

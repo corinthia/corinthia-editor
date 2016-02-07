@@ -19,7 +19,7 @@ import DOM = require("./dom");
 import ElementTypes = require("./elementTypes");
 import Util = require("./util");
 
-var CONTAINER_ELEMENTS = new Array(ElementTypes.HTML_COUNT);
+let CONTAINER_ELEMENTS = new Array(ElementTypes.HTML_COUNT);
 CONTAINER_ELEMENTS[ElementTypes.HTML_DOCUMENT] = true;
 CONTAINER_ELEMENTS[ElementTypes.HTML_HTML] = true;
 CONTAINER_ELEMENTS[ElementTypes.HTML_BODY] = true;
@@ -39,7 +39,7 @@ CONTAINER_ELEMENTS[ElementTypes.HTML_FIGURE] = true;
 CONTAINER_ELEMENTS[ElementTypes.HTML_FIGCAPTION] = true;
 CONTAINER_ELEMENTS[ElementTypes.HTML_NAV] = true;
 
-export var PARAGRAPH_ELEMENTS = new Array(ElementTypes.HTML_COUNT);
+export let PARAGRAPH_ELEMENTS = new Array(ElementTypes.HTML_COUNT);
 PARAGRAPH_ELEMENTS[ElementTypes.HTML_P] = true;
 PARAGRAPH_ELEMENTS[ElementTypes.HTML_H1] = true;
 PARAGRAPH_ELEMENTS[ElementTypes.HTML_H2] = true;
@@ -51,15 +51,15 @@ PARAGRAPH_ELEMENTS[ElementTypes.HTML_DIV] = true;
 PARAGRAPH_ELEMENTS[ElementTypes.HTML_PRE] = true;
 PARAGRAPH_ELEMENTS[ElementTypes.HTML_BLOCKQUOTE] = true;
 
-var BLOCK_ELEMENTS = new Array(ElementTypes.HTML_COUNT);
-for (var i = 0; i < ElementTypes.HTML_COUNT; i++)
+let BLOCK_ELEMENTS = new Array(ElementTypes.HTML_COUNT);
+for (let i = 0; i < ElementTypes.HTML_COUNT; i++)
     BLOCK_ELEMENTS[i] = (CONTAINER_ELEMENTS[i] || PARAGRAPH_ELEMENTS[i]);
 
-var INLINE_ELEMENTS = new Array(ElementTypes.HTML_COUNT);
-for (var i = 0; i < ElementTypes.HTML_COUNT; i++)
+let INLINE_ELEMENTS = new Array(ElementTypes.HTML_COUNT);
+for (let i = 0; i < ElementTypes.HTML_COUNT; i++)
     INLINE_ELEMENTS[i] = !BLOCK_ELEMENTS[i];
 
-export var HEADING_ELEMENTS = new Array(ElementTypes.HTML_COUNT);
+export let HEADING_ELEMENTS = new Array(ElementTypes.HTML_COUNT);
 HEADING_ELEMENTS[ElementTypes.HTML_H1] = true;
 HEADING_ELEMENTS[ElementTypes.HTML_H2] = true;
 HEADING_ELEMENTS[ElementTypes.HTML_H3] = true;
@@ -67,7 +67,7 @@ HEADING_ELEMENTS[ElementTypes.HTML_H4] = true;
 HEADING_ELEMENTS[ElementTypes.HTML_H5] = true;
 HEADING_ELEMENTS[ElementTypes.HTML_H6] = true;
 
-export var CONTAINERS_ALLOWING_CHILDREN = new Array(ElementTypes.HTML_COUNT);
+export let CONTAINERS_ALLOWING_CHILDREN = new Array(ElementTypes.HTML_COUNT);
 CONTAINERS_ALLOWING_CHILDREN[ElementTypes.HTML_BODY] = true;
 CONTAINERS_ALLOWING_CHILDREN[ElementTypes.HTML_LI] = true;
 CONTAINERS_ALLOWING_CHILDREN[ElementTypes.HTML_CAPTION] = true;
@@ -77,7 +77,7 @@ CONTAINERS_ALLOWING_CHILDREN[ElementTypes.HTML_FIGURE] = true;
 CONTAINERS_ALLOWING_CHILDREN[ElementTypes.HTML_FIGCAPTION] = true;
 CONTAINERS_ALLOWING_CHILDREN[ElementTypes.HTML_NAV] = true;
 
-export var OUTLINE_TITLE_ELEMENTS = new Array(ElementTypes.HTML_COUNT);
+export let OUTLINE_TITLE_ELEMENTS = new Array(ElementTypes.HTML_COUNT);
 OUTLINE_TITLE_ELEMENTS[ElementTypes.HTML_H1] = true;
 OUTLINE_TITLE_ELEMENTS[ElementTypes.HTML_H2] = true;
 OUTLINE_TITLE_ELEMENTS[ElementTypes.HTML_H3] = true;
@@ -105,13 +105,13 @@ export const Keys = {
     MATCH_CLASS: "uxwrite-match",
 };
 
-var ITEM_NUMBER_CLASSES = {
+let ITEM_NUMBER_CLASSES = {
     "uxwrite-heading-number": true,
     "uxwrite-figure-number": true,
     "uxwrite-table-number": true,
 };
 
-var OPAQUE_NODE_CLASSES = {
+let OPAQUE_NODE_CLASSES = {
     "uxwrite-heading-number": true,
     "uxwrite-figure-number": true,
     "uxwrite-table-number": true,
@@ -147,7 +147,7 @@ export function isInlineNode(node) {
 }
 
 export function isListNode(node) {
-    var type = node._type;
+    let type = node._type;
     return ((type == ElementTypes.HTML_UL) || (type == ElementTypes.HTML_OL));
 }
 
@@ -170,7 +170,7 @@ export function isRefNode(node) {
 export function isNoteNode(node) {
     if (node._type != ElementTypes.HTML_SPAN)
         return false;
-    var className = DOM.getAttribute(node,"class");
+    let className = DOM.getAttribute(node,"class");
     return ((className == "footnote") || (className == "endnote"));
 }
 
@@ -230,7 +230,7 @@ export function isSelectionSpan(node) {
 
 export function isTOCNode(node) {
     if (node._type == ElementTypes.HTML_NAV) {
-        var cls = node.getAttribute("class");
+        let cls = node.getAttribute("class");
         if ((cls == Keys.SECTION_TOC) ||
             (cls == Keys.FIGURE_TOC) ||
             (cls == Keys.TABLE_TOC))

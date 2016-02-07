@@ -20,15 +20,15 @@ import Figures = require("../src/figures");
 import Selection = require("../src/selection");
 
 export function figurePropertiesString(index) {
-    var figure = document.getElementsByTagName("FIGURE")[0];
-    var parent = figure.parentNode;
-    var offset = DOM.nodeOffset(figure);
+    let figure = document.getElementsByTagName("FIGURE")[0];
+    let parent = figure.parentNode;
+    let offset = DOM.nodeOffset(figure);
     Selection.set(parent,offset,parent,offset+1);
-    var properties = Figures.getProperties(Figures.getSelectedFigureId());
-    var strings = new Array();
-    var names = Object.getOwnPropertyNames(properties).sort();
-    for (var i = 0; i < names.length; i++) {
-        var name = names[i];
+    let properties = Figures.getProperties(Figures.getSelectedFigureId());
+    let strings = new Array();
+    let names = Object.getOwnPropertyNames(properties).sort();
+    for (let i = 0; i < names.length; i++) {
+        let name = names[i];
         if (properties[name] == null)
             strings.push(name+" = null");
         else

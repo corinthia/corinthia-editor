@@ -32,7 +32,7 @@ import Viewport = require("./viewport");
 
 // public
 export function getLanguage() {
-    var lang = document.documentElement.getAttribute("lang");
+    let lang = document.documentElement.getAttribute("lang");
     if (lang != null)
         lang = lang.replace(/-/g,"_");
     return lang;
@@ -60,8 +60,8 @@ export function removeUnsupportedInput() {
             DOM.deleteNode(node);
         }
         else {
-            var next;
-            for (var child = node.firstChild; child != null; child = next) {
+            let next;
+            for (let child = node.firstChild; child != null; child = next) {
                 next = child.nextSibling;
                 recurse(child);
             }
@@ -71,9 +71,9 @@ export function removeUnsupportedInput() {
 
 // private
 function addMetaCharset() {
-    var head = DOM.documentHead(document);
-    var next;
-    for (var child = head.firstChild; child != null; child = next) {
+    let head = DOM.documentHead(document);
+    let next;
+    for (let child = head.firstChild; child != null; child = next) {
         next = child.nextSibling;
         if ((child._type == ElementTypes.HTML_META) && (child.hasAttribute("charset"))) {
             DOM.deleteNode(child);
@@ -84,7 +84,7 @@ function addMetaCharset() {
         }
     }
 
-    var meta = DOM.createElement(document,"META");
+    let meta = DOM.createElement(document,"META");
     DOM.setAttribute(meta,"charset","utf-8");
     DOM.insertBefore(head,meta,head.firstChild);
 }
@@ -92,12 +92,12 @@ function addMetaCharset() {
 // public
 export function setGenerator(generator) {
     return UndoManager.disableWhileExecuting(function() {
-        var head = DOM.documentHead(document);
-        for (var child = head.firstChild; child != null; child = child.nextSibling) {
+        let head = DOM.documentHead(document);
+        for (let child = head.firstChild; child != null; child = child.nextSibling) {
             if ((child._type == ElementTypes.HTML_META) &&
                 child.hasAttribute("name") &&
                 (child.getAttribute("name").toLowerCase() == "generator")) {
-                var origGenerator = DOM.getAttribute(child,"content");
+                let origGenerator = DOM.getAttribute(child,"content");
                 DOM.setAttribute(child,"content",generator);
 
                 if (origGenerator == null)
@@ -107,7 +107,7 @@ export function setGenerator(generator) {
             }
         }
 
-        var meta = DOM.createElement(document,"META");
+        let meta = DOM.createElement(document,"META");
         DOM.setAttribute(meta,"name","generator");
         DOM.setAttribute(meta,"content",generator);
         DOM.insertBefore(head,meta,head.firstChild);
@@ -138,13 +138,13 @@ export function getErrorReportingInfo() {
     if (document.documentElement == null)
         return "(document.documentElement is null)";
     try {
-        var html = htmlWithSelection();
+        let html = htmlWithSelection();
         cleanse(html);
         return html.outerHTML;
     }
     catch (e) {
         try {
-            var html = DOM.cloneNode(document.documentElement,true);
+            let html = DOM.cloneNode(document.documentElement,true);
             cleanse(html);
             return html.outerHTML+"\n[Error getting selection: "+e+"]";
         }
@@ -167,7 +167,7 @@ export function getErrorReportingInfo() {
                 cleanseAttribute(node,"original");
                 if (node.hasAttribute("href") && !node.getAttribute("href").match(/^#/))
                     cleanseAttribute(node,"href");
-                for (var child = node.firstChild; child != null; child = child.nextSibling)
+                for (let child = node.firstChild; child != null; child = child.nextSibling)
                     cleanse(child);
             }
             break;
@@ -176,7 +176,7 @@ export function getErrorReportingInfo() {
 
     function cleanseAttribute(node,name) {
         if (node.hasAttribute(name)) {
-            var value = node.getAttribute(name);
+            let value = node.getAttribute(name);
             value = cleanseString(value);
             DOM.setAttribute(node,name,value);
         }
@@ -187,13 +187,13 @@ export function getErrorReportingInfo() {
     }
 
     function htmlWithSelection() {
-        var selectionRange = Selection.get();
+        let selectionRange = Selection.get();
         if (selectionRange != null) {
             selectionRange = Range.forwards(selectionRange);
-            var startSave = new Object();
-            var endSave = new Object();
+            let startSave = new Object();
+            let endSave = new Object();
 
-            var html = null;
+            let html = null;
 
             Range.trackWhileExecuting(selectionRange,function() {
                 // We use the strings @@^^ and ^^@@ to represent the selection
@@ -219,8 +219,8 @@ export function getErrorReportingInfo() {
     }
 
     function addPositionMarker(pos,name,save) {
-        var node = pos.node;
-        var offset = pos.offset;
+        let node = pos.node;
+        let offset = pos.offset;
         if (node.nodeType == Node.ELEMENT_NODE) {
             save.tempNode = DOM.createTextNode(document,name);
             DOM.insertBefore(node,save.tempNode,node.childNodes[offset]);
@@ -232,8 +232,8 @@ export function getErrorReportingInfo() {
     }
 
     function removePositionMarker(pos,save) {
-        var node = pos.node;
-        var offset = pos.offset;
+        let node = pos.node;
+        let offset = pos.offset;
         if (pos.node.nodeType == Node.ELEMENT_NODE) {
             DOM.deleteNode(save.tempNode);
         }
@@ -247,13 +247,13 @@ export function getErrorReportingInfo() {
 export function removeSpecial(node) {
     // We process the children first, so that if there are any nested removable elements (e.g.
     // a selection span inside of an autocorrect span), all levels of nesting are taken care of
-    var next;
-    for (var child = node.firstChild; child != null; child = next) {
+    let next;
+    for (let child = node.firstChild; child != null; child = next) {
         next = child.nextSibling;
         removeSpecial(child);
     }
 
-    var cssClass = null;
+    let cssClass = null;
     if ((node.nodeType == Node.ELEMENT_NODE) && node.hasAttribute("class"))
         cssClass = node.getAttribute("class");
 
@@ -281,12 +281,12 @@ export function removeSpecial(node) {
 function simplifyStackString(e) {
     if (e.stack == null)
         return "";
-    var lines = e.stack.toString().split(/\n/);
-    for (var i = 0; i < lines.length; i++) {
-        var nameMatch = lines[i].match(/^(.*)@/);
-        var name = (nameMatch != null) ? nameMatch[1] : "(anonymous function)";
-        var locMatch = lines[i].match(/:([0-9]+:[0-9]+)$/);
-        var loc = (locMatch != null) ? locMatch[1] : "?";
+    let lines = e.stack.toString().split(/\n/);
+    for (let i = 0; i < lines.length; i++) {
+        let nameMatch = lines[i].match(/^(.*)@/);
+        let name = (nameMatch != null) ? nameMatch[1] : "(anonymous function)";
+        let locMatch = lines[i].match(/:([0-9]+:[0-9]+)$/);
+        let loc = (locMatch != null) ? locMatch[1] : "?";
         lines[i] = "stack["+(lines.length-i-1)+"] = "+name+"@"+loc;
     }
     return lines.join("\n");
@@ -295,37 +295,37 @@ function simplifyStackString(e) {
 // public
 export function execute(fun) {
     try {
-        var res = fun();
+        let res = fun();
         PostponedActions.perform();
         return res;
     }
     catch (e) {
-        var message = (e.message != null) ? e.message : e.toString();
-        var stack = simplifyStackString(e);
+        let message = (e.message != null) ? e.message : e.toString();
+        let stack = simplifyStackString(e);
         Editor.error(message+"\n"+stack);
     }
 }
 
 function fixEmptyBody() {
-    for (var child = document.body.firstChild; child != null; child = child.nextSibling) {
+    for (let child = document.body.firstChild; child != null; child = child.nextSibling) {
         if (Util.nodeHasContent(child))
             return;
     }
 
-    for (var child = document.body.firstChild; child != null; child = child.nextSibling) {
+    for (let child = document.body.firstChild; child != null; child = child.nextSibling) {
         if (child._type == ElementTypes.HTML_P) {
             Cursor.updateBRAtEndOfParagraph(child);
             return;
         }
     }
 
-    var p = DOM.createElement(document,"P");
-    var br = DOM.createElement(document,"BR");
+    let p = DOM.createElement(document,"P");
+    let br = DOM.createElement(document,"BR");
     DOM.appendChild(p,br);
     DOM.appendChild(document.body,p);
 }
 
-export var clientRectsBug = false;
+export let clientRectsBug = false;
 
 // public
 export function init(width,textScale,cssURL,clientRectsBug1) {
@@ -335,7 +335,7 @@ export function init(width,textScale,cssURL,clientRectsBug1) {
             throw new Error("document.documentElement is null");
         if (document.body == null)
             throw new Error("document.body is null");
-        var timing = new Util.TimingInfo();
+        let timing = new Util.TimingInfo();
         timing.start();
         DOM.assignNodeIds(document);
         timing.addEntry("DOM.assignNodeIds");

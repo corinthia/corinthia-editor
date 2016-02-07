@@ -28,7 +28,7 @@ export function Position(node,offset) {
     if (node == document.documentElement)
         throw new Error("node is root element");
     Object.defineProperty(this,"self",{value: {}});
-    var self = this.self;
+    let self = this.self;
     self.this = this;
     self.node = node;
     self.offset = offset;
@@ -74,7 +74,7 @@ function stopTracking(self) {
 }
 
 function setNode(node) {
-    var self = this.self;
+    let self = this.self;
     if (self.tracking > 0)
         actuallyStopTracking(self);
 
@@ -91,15 +91,15 @@ function setNodeAndOffset(self,node,offset) {
 
 // public
 Position.prototype.toString = function() {
-    var self = this.self;
-    var result;
+    let self = this.self;
+    let result;
     if (self.node.nodeType == Node.TEXT_NODE) {
-        var extra = "";
+        let extra = "";
         if (self.offset > self.node.nodeValue.length) {
-            for (var i = self.node.nodeValue.length; i < self.offset; i++)
+            for (let i = self.node.nodeValue.length; i < self.offset; i++)
                 extra += "!";
         }
-        var id = "";
+        let id = "";
         if (Util.debugIds)
             id = self.node._nodeId+":";
         result = id+JSON.stringify(self.node.nodeValue.slice(0,self.offset)+extra+"|"+
@@ -114,11 +114,11 @@ Position.prototype.toString = function() {
 }
 
 function positionSpecial(pos,forwards,backwards) {
-    var node = pos.node;
-    var offset = pos.offset;
+    let node = pos.node;
+    let offset = pos.offset;
 
-    var prev = node.childNodes[offset-1];
-    var next = node.childNodes[offset];
+    let prev = node.childNodes[offset-1];
+    let next = node.childNodes[offset];
 
     // Moving left from the start of a caption - go to the end of the table
     if ((node._type == ElementTypes.HTML_CAPTION) && backwards && (prev == null))
@@ -130,21 +130,21 @@ function positionSpecial(pos,forwards,backwards) {
 
     // Moving left from just after a table - go to the end of the caption (if there is one)
     if ((prev != null) && (prev._type == ElementTypes.HTML_TABLE) && backwards) {
-        var firstChild = Traversal.firstChildElement(prev);
+        let firstChild = Traversal.firstChildElement(prev);
         if ((firstChild._type == ElementTypes.HTML_CAPTION))
             return new Position(firstChild,firstChild.childNodes.length);
     }
 
     // Moving right from just before a table - bypass the the caption (if there is one)
     if ((next != null) && (next._type == ElementTypes.HTML_TABLE) && forwards) {
-        var firstChild = Traversal.firstChildElement(next);
+        let firstChild = Traversal.firstChildElement(next);
         if (firstChild._type == ElementTypes.HTML_CAPTION)
             return new Position(next,DOM.nodeOffset(firstChild)+1);
     }
 
     // Moving right from the end of a table - go to the start of the caption (if there is one)
     if ((node._type == ElementTypes.HTML_TABLE) && (next == null) && forwards) {
-        var firstChild = Traversal.firstChildElement(node);
+        let firstChild = Traversal.firstChildElement(node);
         if (firstChild._type == ElementTypes.HTML_CAPTION)
             return new Position(firstChild,0);
     }
@@ -161,12 +161,12 @@ export function assertValid(pos,description?) {
     if (description == null)
         description = "Position";
 
-    for (var ancestor = pos.node; ancestor != document.body; ancestor = ancestor.parentNode) {
+    for (let ancestor = pos.node; ancestor != document.body; ancestor = ancestor.parentNode) {
         if (ancestor == null)
             throw new Error(description+" node "+pos.node.nodeName+" is not in tree");
     }
 
-    var max;
+    let max;
     if (pos.node.nodeType == Node.ELEMENT_NODE)
         max = pos.node.childNodes.length;
     else if (pos.node.nodeType == Node.TEXT_NODE)
@@ -183,14 +183,14 @@ export function assertValid(pos,description?) {
 // public
 export function prev(pos) {
     if (pos.node.nodeType == Node.ELEMENT_NODE) {
-        var r = positionSpecial(pos,false,true);
+        let r = positionSpecial(pos,false,true);
         if (r != null)
             return r;
         if (pos.offset == 0) {
             return upAndBack(pos);
         }
         else {
-            var child = pos.node.childNodes[pos.offset-1];
+            let child = pos.node.childNodes[pos.offset-1];
             return new Position(child,DOM.maxChildOffset(child));
         }
     }
@@ -215,7 +215,7 @@ export function prev(pos) {
 // public
 export function next(pos) {
     if (pos.node.nodeType == Node.ELEMENT_NODE) {
-        var r = positionSpecial(pos,true,false);
+        let r = positionSpecial(pos,true,false);
         if (r != null)
             return r;
         if (pos.offset == pos.node.childNodes.length)
@@ -243,21 +243,21 @@ export function next(pos) {
 
 // public
 export function trackWhileExecuting(positions,fun) {
-    for (var i = 0; i < positions.length; i++)
+    for (let i = 0; i < positions.length; i++)
         startTracking(positions[i].self);
     try {
         return fun();
     }
     finally {
-        for (var i = 0; i < positions.length; i++)
+        for (let i = 0; i < positions.length; i++)
             stopTracking(positions[i].self);
     }
 }
 
 // public
 export function closestActualNode(pos,preferElement?) {
-    var node = pos.node;
-    var offset = pos.offset;
+    let node = pos.node;
+    let offset = pos.offset;
     if ((node.nodeType != Node.ELEMENT_NODE) || (node.firstChild == null))
         return node;
     else if (offset == 0)
@@ -265,8 +265,8 @@ export function closestActualNode(pos,preferElement?) {
     else if (offset >= node.childNodes.length)
         return node.lastChild;
 
-    var prev = node.childNodes[offset-1];
-    var next = node.childNodes[offset];
+    let prev = node.childNodes[offset-1];
+    let next = node.childNodes[offset];
     if (preferElement &&
         (next.nodeType != Node.ELEMENT_NODE) &&
         (prev.nodeType == Node.ELEMENT_NODE)) {
@@ -287,7 +287,7 @@ function nodeCausesLineBreak(node) {
 }
 
 function spacesUntilNextContent(node) {
-    var spaces = 0;
+    let spaces = 0;
     while (true) {
         if (node.firstChild) {
             node = node.firstChild;
@@ -316,7 +316,7 @@ function spacesUntilNextContent(node) {
                 spaces += node.nodeValue.length;
             }
             else {
-                var matches = node.nodeValue.match(/^\s+/);
+                let matches = node.nodeValue.match(/^\s+/);
                 if (matches == null)
                     return spaces;
                 spaces += matches[0].length;
@@ -328,15 +328,15 @@ function spacesUntilNextContent(node) {
 
 // public
 export function okForMovement(pos,insertion?) {
-    var node = pos.node;
-    var offset = pos.offset;
-    var type = node._type;
+    let node = pos.node;
+    let offset = pos.offset;
+    let type = node._type;
 
     if (Types.isOpaqueNode(node))
         return false;
 
-    for (var ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {
-        var ancestorType = node._type;
+    for (let ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {
+        let ancestorType = node._type;
         if (ancestorType == ElementTypes.HTML_FIGCAPTION)
             break;
         else if (ancestorType == ElementTypes.HTML_FIGURE)
@@ -344,13 +344,13 @@ export function okForMovement(pos,insertion?) {
     }
 
     if (node.nodeType == Node.TEXT_NODE) {
-        var value = node.nodeValue;
+        let value = node.nodeValue;
 
         // If there are multiple adjacent text nodes, consider them as one (adjusting the
         // offset appropriately)
 
-        var firstNode = node;
-        var lastNode = node;
+        let firstNode = node;
+        let lastNode = node;
 
         while ((firstNode.previousSibling != null) &&
                (firstNode.previousSibling.nodeType == Node.TEXT_NODE)) {
@@ -365,13 +365,13 @@ export function okForMovement(pos,insertion?) {
             value += lastNode.nodeValue;
         }
 
-        var prevChar = value.charAt(offset-1);
-        var nextChar = value.charAt(offset);
-        var havePrevChar = ((prevChar != null) && !Util.isWhitespaceString(prevChar));
-        var haveNextChar = ((nextChar != null) && !Util.isWhitespaceString(nextChar));
+        let prevChar = value.charAt(offset-1);
+        let nextChar = value.charAt(offset);
+        let havePrevChar = ((prevChar != null) && !Util.isWhitespaceString(prevChar));
+        let haveNextChar = ((nextChar != null) && !Util.isWhitespaceString(nextChar));
         if (havePrevChar && haveNextChar) {
-            var prevCode = value.charCodeAt(offset-1);
-            var nextCode = value.charCodeAt(offset);
+            let prevCode = value.charCodeAt(offset-1);
+            let nextCode = value.charCodeAt(offset);
             if ((prevCode >= 0xD800) && (prevCode <= 0xDBFF) &&
                 (nextCode >= 0xDC00) && (nextCode <= 0xDFFF)) {
                 return false; // In middle of surrogate pair
@@ -403,7 +403,7 @@ export function okForMovement(pos,insertion?) {
         if (insertion)
             return true;
 
-        var precedingText = value.substring(0,offset);
+        let precedingText = value.substring(0,offset);
         if (Util.isWhitespaceString(precedingText)) {
             return (haveNextChar &&
                     ((node.previousSibling == null) ||
@@ -415,7 +415,7 @@ export function okForMovement(pos,insertion?) {
                      ((precedingText.length > 0))));
         }
 
-        var followingText = value.substring(offset);
+        let followingText = value.substring(offset);
         if (Util.isWhitespaceString(followingText)) {
             return (havePrevChar &&
                     ((node.nextSibling == null) ||
@@ -441,13 +441,13 @@ export function okForMovement(pos,insertion?) {
             }
         }
 
-        var prevNode = node.childNodes[offset-1];
-        var nextNode = node.childNodes[offset];
-        var prevType = (prevNode != null) ? prevNode._type : 0;
-        var nextType = (nextNode != null) ? nextNode._type : 0;
+        let prevNode = node.childNodes[offset-1];
+        let nextNode = node.childNodes[offset];
+        let prevType = (prevNode != null) ? prevNode._type : 0;
+        let nextType = (nextNode != null) ? nextNode._type : 0;
 
-        var prevIsNote = (prevNode != null) && Types.isNoteNode(prevNode);
-        var nextIsNote = (nextNode != null) && Types.isNoteNode(nextNode);
+        let prevIsNote = (prevNode != null) && Types.isNoteNode(prevNode);
+        let nextIsNote = (nextNode != null) && Types.isNoteNode(nextNode);
         if (((nextNode == null) || !Util.nodeHasContent(nextNode)) && prevIsNote)
             return true;
         if (((prevNode == null) || !Util.nodeHasContent(prevNode)) && nextIsNote)
@@ -514,18 +514,18 @@ export function nextMatch(pos,fun) {
 }
 
 function findEquivalentValidPosition(pos,fun) {
-    var node = pos.node;
-    var offset = pos.offset;
+    let node = pos.node;
+    let offset = pos.offset;
     if (node.nodeType == Node.ELEMENT_NODE) {
-        var before = node.childNodes[offset-1];
-        var after = node.childNodes[offset];
+        let before = node.childNodes[offset-1];
+        let after = node.childNodes[offset];
         if ((before != null) && (before.nodeType == Node.TEXT_NODE)) {
-            var candidate = new Position(before,before.nodeValue.length);
+            let candidate = new Position(before,before.nodeValue.length);
             if (fun(candidate))
                 return candidate;
         }
         if ((after != null) && (after.nodeType == Node.TEXT_NODE)) {
-            var candidate = new Position(after,0);
+            let candidate = new Position(after,0);
             if (fun(candidate))
                 return candidate;
         }
@@ -533,10 +533,10 @@ function findEquivalentValidPosition(pos,fun) {
 
     if ((pos.node.nodeType == Node.TEXT_NODE) &&
         Util.isWhitespaceString(pos.node.nodeValue.slice(pos.offset))) {
-        var str = pos.node.nodeValue;
-        var whitespace = str.match(/\s+$/);
+        let str = pos.node.nodeValue;
+        let whitespace = str.match(/\s+$/);
         if (whitespace) {
-            var adjusted = new Position(pos.node,
+            let adjusted = new Position(pos.node,
                                         str.length - whitespace[0].length + 1);
             return adjusted;
         }
@@ -555,11 +555,11 @@ export function closestMatchForwards(pos,fun) {
     if (fun(pos))
         return pos;
 
-    var next = nextMatch(pos,fun);
+    let next = nextMatch(pos,fun);
     if (next != null)
         return next;
 
-    var prev = prevMatch(pos,fun);
+    let prev = prevMatch(pos,fun);
     if (prev != null)
         return prev;
 
@@ -577,11 +577,11 @@ export function closestMatchBackwards(pos,fun) {
     if (fun(pos))
         return pos;
 
-    var prev = prevMatch(pos,fun);
+    let prev = prevMatch(pos,fun);
     if (prev != null)
         return prev;
 
-    var next = nextMatch(pos,fun);
+    let next = nextMatch(pos,fun);
     if (next != null)
         return next;
 
@@ -599,15 +599,15 @@ export function untrack(pos) {
 export function rectAtPos(pos) {
     if (pos == null)
         return null;
-    var range = new Range.Range(pos.node,pos.offset,pos.node,pos.offset);
-    var rects = Range.getClientRects(range);
+    let range = new Range.Range(pos.node,pos.offset,pos.node,pos.offset);
+    let rects = Range.getClientRects(range);
 
     if ((rects.length > 0) && !Util.rectIsEmpty(rects[0])) {
         return rects[0];
     }
 
     if (Types.isParagraphNode(pos.node) && (pos.offset == 0)) {
-        var rect = pos.node.getBoundingClientRect();
+        let rect = pos.node.getBoundingClientRect();
         if (!Util.rectIsEmpty(rect))
             return rect;
     }
@@ -644,7 +644,7 @@ function zeroWidthLeftRect(rect) {
 }
 
 function zeroWidthMidRect(rect) {
-    var mid = rect.left + rect.width/2;
+    let mid = rect.left + rect.width/2;
     return { left: mid,
              right: mid, // 0 width
              top: rect.top,
@@ -654,7 +654,7 @@ function zeroWidthMidRect(rect) {
 }
 
 export function noteAncestor(pos) {
-    var node = closestActualNode(pos);
+    let node = closestActualNode(pos);
     for (; node != null; node = node.parentNode) {
         if (Types.isNoteNode(node))
             return node;
@@ -663,7 +663,7 @@ export function noteAncestor(pos) {
 }
 
 export function captionAncestor(pos) {
-    var node = closestActualNode(pos);
+    let node = closestActualNode(pos);
     for (; node != null; node = node.parentNode) {
         if ((node._type == ElementTypes.HTML_FIGCAPTION) || (node._type == ElementTypes.HTML_CAPTION))
             return node;
@@ -672,7 +672,7 @@ export function captionAncestor(pos) {
 }
 
 export function figureOrTableAncestor(pos) {
-    var node = closestActualNode(pos);
+    let node = closestActualNode(pos);
     for (; node != null; node = node.parentNode) {
         if ((node._type == ElementTypes.HTML_FIGURE) || (node._type == ElementTypes.HTML_TABLE))
             return node;
@@ -681,15 +681,15 @@ export function figureOrTableAncestor(pos) {
 }
 
 function exactRectAtPos(pos) {
-    var node = pos.node;
-    var offset = pos.offset;
+    let node = pos.node;
+    let offset = pos.offset;
 
     if (node.nodeType == Node.ELEMENT_NODE) {
         if (offset > node.childNodes.length)
             throw new Error("Invalid offset: "+offset+" of "+node.childNodes.length);
 
-        var before = node.childNodes[offset-1];
-        var after = node.childNodes[offset];
+        let before = node.childNodes[offset-1];
+        let after = node.childNodes[offset];
 
         // Cursor is immediately before table -> return table rect
         if ((before != null) && Types.isSpecialBlockNode(before))
@@ -710,13 +710,13 @@ function exactRectAtPos(pos) {
     else if (node.nodeType == Node.TEXT_NODE) {
         // First see if the client rects returned by the range gives us a valid value. This
         // won't be the case if the cursor is surrounded by both sides on whitespace.
-        var result = rectAtRightOfRange(new Range.Range(node,offset,node,offset));
+        let result = rectAtRightOfRange(new Range.Range(node,offset,node,offset));
         if (result != null)
             return result;
 
         if (offset > 0) {
             // Try and get the rect of the previous character; the cursor goes after that
-            var result = rectAtRightOfRange(new Range.Range(node,offset-1,node,offset));
+            let result = rectAtRightOfRange(new Range.Range(node,offset-1,node,offset));
             if (result != null)
                 return result;
         }
@@ -728,7 +728,7 @@ function exactRectAtPos(pos) {
     }
 
     function rectAtRightOfRange(range) {
-        var rects = Range.getClientRects(range);
+        let rects = Range.getClientRects(range);
         if ((rects == null) || (rects.length == 0) || (rects[rects.length-1].height == 0))
             return null;
         return zeroWidthRightRect(rects[rects.length-1]);
@@ -736,10 +736,10 @@ function exactRectAtPos(pos) {
 }
 
 function tempSpaceRect(parentNode,nextSibling) {
-    var space = DOM.createTextNode(document,String.fromCharCode(160));
+    let space = DOM.createTextNode(document,String.fromCharCode(160));
     DOM.insertBefore(parentNode,space,nextSibling);
-    var range = new Range.Range(space,0,space,1);
-    var rects = Range.getClientRects(range);
+    let range = new Range.Range(space,0,space,1);
+    let rects = Range.getClientRects(range);
     DOM.deleteNode(space);
     if (rects.length > 0)
         return rects[0];
@@ -748,11 +748,11 @@ function tempSpaceRect(parentNode,nextSibling) {
 }
 
 export function displayRectAtPos(pos) {
-    rect = exactRectAtPos(pos);
+    let rect = exactRectAtPos(pos);
     if (rect != null)
         return rect;
 
-    var noteNode = noteAncestor(pos);
+    let noteNode = noteAncestor(pos);
     if ((noteNode != null) && !Util.nodeHasContent(noteNode)) // In empty footnote or endnote
         return zeroWidthMidRect(noteNode.getBoundingClientRect());
 
@@ -761,38 +761,38 @@ export function displayRectAtPos(pos) {
     // This avoids us instead getting a rect inside the note, which is what would otherwise
     // happen if there was no adjacent text node outside the note.
     if ((pos.node.nodeType == Node.ELEMENT_NODE)) {
-        var before = pos.node.childNodes[pos.offset-1];
-        var after = pos.node.childNodes[pos.offset];
+        let before = pos.node.childNodes[pos.offset-1];
+        let after = pos.node.childNodes[pos.offset];
         if (((before != null) && Types.isNoteNode(before)) ||
             ((after != null) && Types.isNoteNode(after))) {
-            var rect = tempSpaceRect(pos.node,pos.node.childNodes[pos.offset]);
+            let rect = tempSpaceRect(pos.node,pos.node.childNodes[pos.offset]);
             if (rect != null)
                 return zeroWidthLeftRect(rect);
         }
     }
 
-    var captionNode = captionAncestor(pos);
+    let captionNode = captionAncestor(pos);
     if ((captionNode != null) && !Util.nodeHasContent(captionNode)) {
         // Even if an empty caption has generated content (e.g. "Figure X: ") preceding it,
         // we can't directly get the rect of that generated content. So we temporarily insert
         // a text node containing a single space character, get the position to the right of
         // that character, and then remove the text node.
-        var rect = tempSpaceRect(captionNode,null);
+        let rect = tempSpaceRect(captionNode,null);
         if (rect != null)
             return zeroWidthRightRect(rect);
     }
 
-    var paragraph = Text.findParagraphBoundaries(pos);
+    let paragraph = Text.findParagraphBoundaries(pos);
 
-    var backRect = null;
-    for (var backPos = pos; backPos != null; backPos = prev(backPos)) {
+    let backRect = null;
+    for (let backPos = pos; backPos != null; backPos = prev(backPos)) {
         backRect = exactRectAtPos(backPos);
         if ((backRect != null) || posAtStartOfParagraph(backPos,paragraph))
             break;
     }
 
-    var forwardRect = null;
-    for (var forwardPos = pos; forwardPos != null; forwardPos = next(forwardPos)) {
+    let forwardRect = null;
+    for (let forwardPos = pos; forwardPos != null; forwardPos = next(forwardPos)) {
         forwardRect = exactRectAtPos(forwardPos);
         if ((forwardRect != null) || posAtEndOfParagraph(forwardPos,paragraph))
             break;
@@ -806,7 +806,7 @@ export function displayRectAtPos(pos) {
     }
     else {
         // Fallback, e.g. for empty LI elements
-        var node = pos.node;
+        let node = pos.node;
         if (node.nodeType == Node.TEXT_NODE)
             node = node.parentNode;
         return zeroWidthLeftRect(node.getBoundingClientRect());
@@ -823,11 +823,11 @@ export function equal(a,b) {
 }
 
 export function preferTextPosition(pos) {
-    var node = pos.node;
-    var offset = pos.offset;
+    let node = pos.node;
+    let offset = pos.offset;
     if (node.nodeType == Node.ELEMENT_NODE) {
-        var before = node.childNodes[offset-1];
-        var after = node.childNodes[offset];
+        let before = node.childNodes[offset-1];
+        let after = node.childNodes[offset];
         if ((before != null) && (before.nodeType == Node.TEXT_NODE))
             return new Position(before,before.nodeValue.length);
         if ((after != null) && (after.nodeType == Node.TEXT_NODE))
@@ -852,7 +852,7 @@ export function compare(first,second) {
     if ((first.node == second.node) && (first.offset == second.offset))
         return 0;
 
-    var doc = first.node.ownerDocument;
+    let doc = first.node.ownerDocument;
     if ((first.node.parentNode == null) && (first.node != doc.documentElement))
         throw new Error("First node has been removed from document");
     if ((second.node.parentNode == null) && (second.node != doc.documentElement))
@@ -861,10 +861,10 @@ export function compare(first,second) {
     if (first.node == second.node)
         return first.offset - second.offset;
 
-    var firstParent = null;
-    var firstChild = null;
-    var secondParent = null;
-    var secondChild = null;
+    let firstParent = null;
+    let firstChild = null;
+    let secondParent = null;
+    let secondChild = null;
 
     if (second.node.nodeType == Node.ELEMENT_NODE) {
         secondParent = second.node;
@@ -886,12 +886,12 @@ export function compare(first,second) {
             return 1;
     }
 
-    var firstC = firstChild;
-    var firstP = firstParent;
+    let firstC = firstChild;
+    let firstP = firstParent;
     while (firstP != null) {
 
-        var secondC = secondChild;
-        var secondP = secondParent;
+        let secondC = secondChild;
+        let secondP = secondParent;
         while (secondP != null) {
 
             if (firstP == secondC)
@@ -901,7 +901,7 @@ export function compare(first,second) {
                 // if secondC is last child, firstC must be secondC or come before it
                 if (secondC == null)
                     return -1;
-                for (var n = firstC; n != null; n = n.nextSibling) {
+                for (let n = firstC; n != null; n = n.nextSibling) {
                     if (n == secondC)
                         return -1;
                 }
@@ -958,8 +958,8 @@ export function atPoint(x,y) {
     // results in the cursor being placed on the first or last line when the user taps outside
     // the document bounds.
 
-    var bodyRect = document.body.getBoundingClientRect();
-    var boundaryRect = null;
+    let bodyRect = document.body.getBoundingClientRect();
+    let boundaryRect = null;
     if (y <= bodyRect.top)
         boundaryRect = findFirstTextRect();
     else if (y >= bodyRect.bottom)
@@ -971,17 +971,17 @@ export function atPoint(x,y) {
     // We get here if the coordinates are inside the document's bounding rect, or if getting the
     // position from the first or last rect failed for some reason.
 
-    var range = document.caretRangeFromPoint(x,y);
+    let range = document.caretRangeFromPoint(x,y);
     if (range == null)
         return null;
 
-    var pos = new Position(range.startContainer,range.startOffset);
+    let pos = new Position(range.startContainer,range.startOffset);
     pos = preferElementPosition(pos);
 
     if (pos.node.nodeType == Node.ELEMENT_NODE) {
-        var outside = posOutsideSelection(pos);
-        var prev = outside.node.childNodes[outside.offset-1];
-        var next = outside.node.childNodes[outside.offset];
+        let outside = posOutsideSelection(pos);
+        let prev = outside.node.childNodes[outside.offset-1];
+        let next = outside.node.childNodes[outside.offset];
 
         if ((prev != null) && nodeMayContainPos(prev) && elementContainsPoint(prev,x,y))
             return new Position(prev,0);
@@ -990,8 +990,8 @@ export function atPoint(x,y) {
             return new Position(next,0);
 
         if (next != null) {
-            var nextNode = outside.node;
-            var nextOffset = outside.offset+1;
+            let nextNode = outside.node;
+            let nextOffset = outside.offset+1;
 
             if (Types.isSelectionSpan(next) && (next.firstChild != null)) {
                 nextNode = next;
@@ -1000,7 +1000,7 @@ export function atPoint(x,y) {
             }
 
             if ((next != null) && Types.isEmptyNoteNode(next)) {
-                var rect = next.getBoundingClientRect();
+                let rect = next.getBoundingClientRect();
                 if (x > rect.right)
                     return new Position(nextNode,nextOffset);
             }
@@ -1019,7 +1019,7 @@ function nodeMayContainPos(node) {
 }
 
 function elementContainsPoint(element,x,y) {
-    var rect = element.getBoundingClientRect();
+    let rect = element.getBoundingClientRect();
     return ((x >= rect.left) && (x <= rect.right) &&
             (y >= rect.top) && (y <= rect.bottom));
 }
@@ -1032,7 +1032,7 @@ function isEmptyParagraphNode(node) {
 }
 
 function findLastTextRect() {
-    var node = Traversal.lastDescendant(document.body);
+    let node = Traversal.lastDescendant(document.body);
 
     while ((node != null) &&
            ((node.nodeType != Node.TEXT_NODE) || Traversal.isWhitespaceTextNode(node))) {
@@ -1042,10 +1042,10 @@ function findLastTextRect() {
     }
 
     if (node != null) {
-        var domRange = document.createRange();
+        let domRange = document.createRange();
         domRange.setStart(node,0);
         domRange.setEnd(node,node.nodeValue.length);
-        var rects = domRange.getClientRects();
+        let rects = domRange.getClientRects();
         if ((rects != null) && (rects.length > 0))
             return rects[rects.length-1];
     }
@@ -1053,7 +1053,7 @@ function findLastTextRect() {
 }
 
 function findFirstTextRect() {
-    var node = Traversal.firstDescendant(document.body);
+    let node = Traversal.firstDescendant(document.body);
 
     while ((node != null) &&
            ((node.nodeType != Node.TEXT_NODE) || Traversal.isWhitespaceTextNode(node))) {
@@ -1063,10 +1063,10 @@ function findFirstTextRect() {
     }
 
     if (node != null) {
-        var domRange = document.createRange();
+        let domRange = document.createRange();
         domRange.setStart(node,0);
         domRange.setEnd(node,node.nodeValue.length);
-        var rects = domRange.getClientRects();
+        let rects = domRange.getClientRects();
         if ((rects != null) && (rects.length > 0))
             return rects[0];
     }
@@ -1077,8 +1077,8 @@ function adjustPositionForFigure(position) {
     if (position == null)
         return null;
     if (position.node._type == ElementTypes.HTML_FIGURE) {
-        var prev = position.node.childNodes[position.offset-1];
-        var next = position.node.childNodes[position.offset];
+        let prev = position.node.childNodes[position.offset-1];
+        let next = position.node.childNodes[position.offset];
         if ((prev != null) && (prev._type == ElementTypes.HTML_IMG)) {
             position = new Position(position.node.parentNode,
                                     DOM.nodeOffset(position.node)+1);

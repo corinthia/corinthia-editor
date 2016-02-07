@@ -22,21 +22,21 @@ function PostponedAction(fun,undoDisabled) {
     this.undoDisabled = undoDisabled;
 }
 
-var actions = new Array();
+let actions = new Array();
 
 export function add(action) {
     actions.push(new PostponedAction(action,UndoManager.isDisabled()));
 }
 
 export function perform() {
-    var count = 0;
+    let count = 0;
     while (actions.length > 0) {
         if (count >= 10)
             throw new Error("Too many postponed actions");
-        var actionsToPerform = actions;
+        let actionsToPerform = actions;
         actions = new Array();
-        for (var i = 0; i < actionsToPerform.length; i++) {
-            var action = actionsToPerform[i];
+        for (let i = 0; i < actionsToPerform.length; i++) {
+            let action = actionsToPerform[i];
             if (action.undoDisabled)
                 UndoManager.disableWhileExecuting(action.fun);
             else

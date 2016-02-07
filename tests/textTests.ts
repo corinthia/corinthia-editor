@@ -19,14 +19,14 @@ import Selection = require("../src/selection");
 import Text = require("../src/text");
 
 export function showRuns() {
-    var range = Selection.get();
-    var paragraph = Text.analyseParagraph(range.start);
-    var runs = paragraph.runs;
-    var lines = new Array();
-    for (var i = 0; i < runs.length; i++) {
+    let range = Selection.get();
+    let paragraph = Text.analyseParagraph(range.start);
+    let runs = paragraph.runs;
+    let lines = new Array();
+    for (let i = 0; i < runs.length; i++) {
 
-        var elementNames = new Array();
-        for (var anc = runs[i].node.parentNode; anc != paragraph.node; anc = anc.parentNode) {
+        let elementNames = new Array();
+        for (let anc = runs[i].node.parentNode; anc != paragraph.node; anc = anc.parentNode) {
             elementNames.push(anc.nodeName+" ");
         }
 

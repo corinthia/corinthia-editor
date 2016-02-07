@@ -25,7 +25,7 @@ export function debug(str) {
 }
 
 export function arrayContains(array,value) {
-    for (var i = 0; i < array.length; i++) {
+    for (let i = 0; i < array.length; i++) {
         if (array[i] == value)
             return true;
     }
@@ -38,8 +38,8 @@ export function arrayContains(array,value) {
 export function arrayCopy(array) {
     if (array == null)
         return null;
-    var copy = new Array();
-    for (var i = 0; i < array.length; i++)
+    let copy = new Array();
+    for (let i = 0; i < array.length; i++)
         copy.push(array[i]);
     return copy;
 }
@@ -51,8 +51,8 @@ export function quoteString(str) {
     if (str.indexOf('"') < 0)
         return str;
 
-    var quoted = "";
-    for (var i = 0; i < str.length; i++) {
+    let quoted = "";
+    for (let i = 0; i < str.length; i++) {
         if (str.charAt(i) == '"')
             quoted += "\\\"";
         else
@@ -64,14 +64,14 @@ export function quoteString(str) {
 export function nodeString(node) {
     if (node == null)
         return "null";
-    var id = "";
+    let id = "";
     if (debugIds)
         id = node._nodeId+":";
     if (node.nodeType == Node.TEXT_NODE) {
         return id+JSON.stringify(node.nodeValue);
     }
     else if (node.nodeType == Node.ELEMENT_NODE) {
-        var name = (node.namespaceURI == null) ? node.nodeName.toUpperCase() : node.nodeName;
+        let name = (node.namespaceURI == null) ? node.nodeName.toUpperCase() : node.nodeName;
         if (node.hasAttribute("id"))
             return id+name+"#"+node.getAttribute("id");
         else
@@ -100,8 +100,8 @@ export function rectContainsPoint(rect,x,y) {
 }
 
 export function clone(object) {
-    var result = new Object();
-    for (var name in object)
+    let result = new Object();
+    for (let name in object)
         result[name] = object[name];
     return result;
 }
@@ -117,7 +117,7 @@ export function nodeHasContent(node) {
         if (Types.isOpaqueNode(node))
             return true;
 
-        for (var child = node.firstChild; child != null; child = child.nextSibling) {
+        for (let child = node.firstChild; child != null; child = child.nextSibling) {
             if (nodeHasContent(child))
                 return true;
         }
@@ -125,7 +125,7 @@ export function nodeHasContent(node) {
     }
 }
 
-var isWhitespaceStringRegexp = /^\s*$/;
+let isWhitespaceStringRegexp = /^\s*$/;
 
 export function isWhitespaceString(str) {
     return (str.match(isWhitespaceStringRegexp) != null);
@@ -182,17 +182,17 @@ DoublyLinkedList.prototype.remove = function(item) {
 };
 
 export function diff(src,dest) {
-    var traces = new Array();
+    let traces = new Array();
 
     traces[1] = new DiffEntry(0,0,0,0,null);
 
-    for (var distance = 0; true; distance++) {
-        for (var k = -distance; k <= distance; k += 2) {
-            var srcEnd;
-            var prev;
+    for (let distance = 0; true; distance++) {
+        for (let k = -distance; k <= distance; k += 2) {
+            let srcEnd;
+            let prev;
 
-            var del = traces[k-1];
-            var ins = traces[k+1];
+            let del = traces[k-1];
+            let ins = traces[k+1];
 
             if (((k == -distance) && ins) ||
                 ((k != distance) && ins && del && (del.srcEnd < ins.srcEnd))) {
@@ -210,9 +210,9 @@ export function diff(src,dest) {
                 continue;
             }
 
-            var destEnd = srcEnd - k;
-            var srcStart = srcEnd;
-            var destStart = destEnd;
+            let destEnd = srcEnd - k;
+            let srcStart = srcEnd;
+            let destStart = destEnd;
             while ((srcEnd < src.length) && (destEnd < dest.length) &&
                    (src[srcEnd] == dest[destEnd])) {
                 srcEnd++;
@@ -237,7 +237,7 @@ export function diff(src,dest) {
     }
 
     function entryToArray(src,dest,entry) {
-        var results = new Array();
+        let results = new Array();
         results.push(entry);
         for (entry = entry.prev; entry != null; entry = entry.prev) {
             if ((entry.srcStart != entry.srcEnd) || (entry.destStart != entry.destEnd))
@@ -267,8 +267,8 @@ TimingInfo.prototype.addEntry = function(name) {
     if (this.lastTime == null)
         this.start();
 
-    var now = new Date();
-    var interval = now.getTime() - this.lastTime.getTime();
+    let now = new Date();
+    let interval = now.getTime() - this.lastTime.getTime();
     this.entries.push(new TimingEntry(name,interval));
     this.total += interval;
     this.lastTime = now;
@@ -276,31 +276,31 @@ TimingInfo.prototype.addEntry = function(name) {
 
 TimingInfo.prototype.print = function(title) {
     debug(title);
-    for (var i = 0; i < this.entries.length; i++) {
-        var entry = this.entries[i];
+    for (let i = 0; i < this.entries.length; i++) {
+        let entry = this.entries[i];
         debug("    "+entry.name+": "+entry.time+"ms");
     }
 }
 
 export function readFileApp(filename) {
-    var req = new XMLHttpRequest();
+    let req = new XMLHttpRequest();
     req.open("POST","/read/"+encodeURI(filename),false);
     req.send();
     if (req.status == 404)
         return null; // file not found
     else if ((req.status != 200) && (req.status != 0))
         throw new Error(req.status+": "+req.responseText);
-    var doc = req.responseXML;
+    let doc = req.responseXML;
     if (doc != null)
         DOM.assignNodeIds(doc);
     return doc;
 }
 
 export function readFileTest(filename) {
-    var req = new XMLHttpRequest();
+    let req = new XMLHttpRequest();
     req.open("GET",filename,false);
     req.send();
-    var xml = req.responseXML;
+    let xml = req.responseXML;
     if (xml == null)
         return null;
     DOM.assignNodeIds(xml.documentElement);
@@ -308,10 +308,10 @@ export function readFileTest(filename) {
 }
 
 export function fromTokenList(value) {
-    var result = new Object();
+    let result = new Object();
     if (value != null) {
-        var components = value.toLowerCase().split(/\s+/);
-        for (var i = 0; i < components.length; i++) {
+        let components = value.toLowerCase().split(/\s+/);
+        for (let i = 0; i < components.length; i++) {
             if (components[i].length > 0)
                 result[components[i]] = true;
         }
@@ -320,13 +320,13 @@ export function fromTokenList(value) {
 }
 
 export function toTokenList(properties) {
-    var tokens = new Array();
+    let tokens = new Array();
 
     if (properties != null) {
         // Sort the names to ensure deterministic results in test cases
-        var names = Object.getOwnPropertyNames(properties).sort();
-        for (var i = 0; i < names.length; i++) {
-            var name = names[i];
+        let names = Object.getOwnPropertyNames(properties).sort();
+        for (let i = 0; i < names.length; i++) {
+            let name = names[i];
             if (properties[name])
                 tokens.push(name);
         }
@@ -339,11 +339,11 @@ export function toTokenList(properties) {
 }
 
 export function xywhAbsElementRect(element) {
-    var rect = element.getBoundingClientRect();
+    let rect = element.getBoundingClientRect();
     return { x: rect.left + window.scrollX,
              y: rect.top + window.scrollY,
              width: rect.width,
              height: rect.height };
 }
 
-export var debugIds = false;
+export let debugIds = false;

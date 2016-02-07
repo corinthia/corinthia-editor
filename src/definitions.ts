@@ -19,7 +19,7 @@ interface ShowdownConverter {
     new (): any;
 }
 
-declare var Showdown: {
+declare let Showdown: {
     converter: ShowdownConverter;
 }
 

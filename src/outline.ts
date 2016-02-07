@@ -35,19 +35,19 @@ import Types = require("./types");
 import UndoManager = require("./undo");
 import Util = require("./util");
 
-var itemsByNode = null;
-var refsById = null;
-var nextItemId = 1;
-var outlineDirty = false;
-var ignoreModifications = 0;
-var sectionNumberRegex = /^\s*(Chapter\s+)?\d+(\.\d+)*\.?\s+/i;
-var figureNumberRegex = /^\s*Figure\s+\d+(\.\d+)*:?\s*/i;
-var tableNumberRegex = /^\s*Table\s+\d+(\.\d+)*:?\s*/i;
-var sections = null;
-var figures = null;
-var tables = null;
-var doneInit = false;
-var printMode = false;
+let itemsByNode = null;
+let refsById = null;
+let nextItemId = 1;
+let outlineDirty = false;
+let ignoreModifications = 0;
+let sectionNumberRegex = /^\s*(Chapter\s+)?\d+(\.\d+)*\.?\s+/i;
+let figureNumberRegex = /^\s*Figure\s+\d+(\.\d+)*:?\s*/i;
+let tableNumberRegex = /^\s*Table\s+\d+(\.\d+)*:?\s*/i;
+let sections = null;
+let figures = null;
+let tables = null;
+let doneInit = false;
+let printMode = false;
 
 function Category(type,nodeFilter,numberRegex) {
     this.type = type;
@@ -74,11 +74,11 @@ function removeItemInternal(category,item) {
 }
 
 function Category_add(category,node) {
-    var item = itemsByNode.get(node);
+    let item = itemsByNode.get(node);
     if (item == null)
         item = new OutlineItem(category,node);
 
-    var prevItem = findPrevItemOfType(node,category.nodeFilter);
+    let prevItem = findPrevItemOfType(node,category.nodeFilter);
     addItemInternal(category,item,prevItem,null);
 
     // Register for notifications to changes to this item's node content. We may need to
@@ -101,8 +101,8 @@ function findFirstTextDescendant(node) {
         return;
     if (node.nodeType == Node.TEXT_NODE)
         return node;
-    for (var child = node.firstChild; child != null; child = child.nextSibling) {
-        var result = findFirstTextDescendant(child);
+    for (let child = node.firstChild; child != null; child = child.nextSibling) {
+        let result = findFirstTextDescendant(child);
         if (result != null)
             return result;
     }
@@ -110,14 +110,14 @@ function findFirstTextDescendant(node) {
 }
 
 function Category_remove(category,node) {
-    var item = itemsByNode.get(node);
+    let item = itemsByNode.get(node);
     if (item == null) {
         throw new Error("Attempt to remove non-existant "+node.nodeName+
                         " item "+node.getAttribute("id"));
     }
     removeItemInternal(category,item);
     item.node.removeEventListener("DOMSubtreeModified",item.modificationListener);
-    var titleNode = OutlineItem_getTitleNode(item,false);
+    let titleNode = OutlineItem_getTitleNode(item,false);
     if ((titleNode != null) &&
         ((item.type == "figure") || (item.type == "table")) &&
         (titleNode.firstChild == null) &&
@@ -133,7 +133,7 @@ function addTOCInternal(category,node,toc) {
 }
 
 function removeTOCInternal(category,node) {
-    var toc = category.tocs.get(node);
+    let toc = category.tocs.get(node);
     if (toc == null)
         throw new Error("Attempt to remove ItemList that doesn't exist");
 
@@ -143,10 +143,10 @@ function removeTOCInternal(category,node) {
 }
 
 function Category_addTOC(category,node) {
-    var toc = new TOC(node);
+    let toc = new TOC(node);
     addTOCInternal(category,node,toc);
 
-    for (var item = category.list.first; item != null; item = item.next) {
+    for (let item = category.list.first; item != null; item = item.next) {
         TOC_addOutlineItem(toc,item.id);
         TOC_updateOutlineItem(toc,item.id,item.title);
     }
@@ -179,7 +179,7 @@ function TOC_updateStructure(toc,structure,toplevelShadows,pageNumbers) {
     Hierarchy.ensureValidHierarchy(toc.node);
     DOM.deleteAllChildren(toc.node);
 
-    var cls = toc.node.getAttribute("class");
+    let cls = toc.node.getAttribute("class");
 
     if (toplevelShadows.length == 0) {
         createEmptyTOC(toc.node);
@@ -189,14 +189,14 @@ function TOC_updateStructure(toc,structure,toplevelShadows,pageNumbers) {
     }
 
     if (printMode) {
-        var brk = DOM.createElement(document,"DIV");
+        let brk = DOM.createElement(document,"DIV");
         DOM.setStyleProperties(brk,{ "clear": "both" });
         DOM.appendChild(toc.node,brk);
     }
 
     function createEmptyTOC(parent) {
         if (!printMode) {
-            var str = "";
+            let str = "";
 
             if (cls == Types.Keys.SECTION_TOC)
                 str = "[No sections defined]";
@@ -205,9 +205,9 @@ function TOC_updateStructure(toc,structure,toplevelShadows,pageNumbers) {
             else if (cls == Types.Keys.TABLE_TOC)
                 str = "[No tables defined]";
 
-            var text = DOM.createTextNode(document,str);
+            let text = DOM.createTextNode(document,str);
 
-            var div = DOM.createElement(document,"P");
+            let div = DOM.createElement(document,"P");
             DOM.setAttribute(div,"class","toc1");
             DOM.appendChild(div,text);
             DOM.appendChild(parent,div);
@@ -218,42 +218,42 @@ function TOC_updateStructure(toc,structure,toplevelShadows,pageNumbers) {
         if (level > 3)
             return;
 
-        for (var i = 0; i < shadows.length; i++) {
-            var shadow = shadows[i];
-            var item = shadow.item;
+        for (let i = 0; i < shadows.length; i++) {
+            let shadow = shadows[i];
+            let item = shadow.item;
 
             if (printMode) {
-                var div = DOM.createElement(document,"P");
+                let div = DOM.createElement(document,"P");
                 DOM.setAttribute(div,"class","toc"+level+"-print");
                 DOM.appendChild(parent,div);
 
-                var leftSpan = DOM.createElement(document,"SPAN");
+                let leftSpan = DOM.createElement(document,"SPAN");
                 DOM.setAttribute(leftSpan,"class","toctitle");
 
-                var rightSpan = DOM.createElement(document,"SPAN");
+                let rightSpan = DOM.createElement(document,"SPAN");
                 DOM.setAttribute(rightSpan,"class","tocpageno");
 
                 DOM.appendChild(div,leftSpan);
                 DOM.appendChild(div,rightSpan);
 
                 if (item.computedNumber != null) {
-                    var text = DOM.createTextNode(document,item.computedNumber+" ");
+                    let text = DOM.createTextNode(document,item.computedNumber+" ");
                     DOM.appendChild(leftSpan,text);
                 }
 
                 DOM.appendChild(leftSpan,toc.textNodes[item.id]);
-                var pageNo = pageNumbers ? pageNumbers.get(item.node) : null;
+                let pageNo = pageNumbers ? pageNumbers.get(item.node) : null;
                 if (pageNo == null)
                     DOM.appendChild(rightSpan,DOM.createTextNode(document,"XXXX"));
                 else
                     DOM.appendChild(rightSpan,DOM.createTextNode(document,pageNo));
             }
             else {
-                var div = DOM.createElement(document,"P");
+                let div = DOM.createElement(document,"P");
                 DOM.setAttribute(div,"class","toc"+level);
                 DOM.appendChild(parent,div);
 
-                var a = DOM.createElement(document,"A");
+                let a = DOM.createElement(document,"A");
                 DOM.setAttribute(a,"href","#"+item.id);
                 DOM.appendChild(div,a);
 
@@ -268,8 +268,8 @@ function TOC_updateStructure(toc,structure,toplevelShadows,pageNumbers) {
 }
 
 function OutlineItem(category,node) {
-    var type = category.type;
-    var item = this;
+    let type = category.type;
+    let item = this;
     if ((node != null) && (node.hasAttribute("id"))) {
         this.id = node.getAttribute("id");
     }
@@ -286,7 +286,7 @@ function OutlineItem(category,node) {
 
     this.spareSpan = DOM.createElement(document,"SPAN");
     DOM.appendChild(this.spareSpan,DOM.createTextNode(document,""));
-    var spanClass = null;
+    let spanClass = null;
     if (this.type == "section")
         spanClass = Types.Keys.HEADING_NUMBER;
     else if (this.type == "figure")
@@ -313,7 +313,7 @@ function OutlineItem(category,node) {
     return;
 
     function generateItemId() {
-        var id;
+        let id;
         do {
             id = "item"+(nextItemId++);
         } while (document.getElementById(id) != null);
@@ -326,7 +326,7 @@ function OutlineItem_getTitleNode(item,create?) {
         return item.node;
     }
     else if (item.type == "figure") {
-        var titleNode = findChild(item.node,ElementTypes.HTML_FIGCAPTION);
+        let titleNode = findChild(item.node,ElementTypes.HTML_FIGCAPTION);
         if ((titleNode == null) && create) {
             titleNode = item.spareTitle;
             DOM.appendChild(item.node,titleNode);
@@ -334,7 +334,7 @@ function OutlineItem_getTitleNode(item,create?) {
         return titleNode;
     }
     else if (item.type == "table") {
-        var titleNode = findChild(item.node,ElementTypes.HTML_CAPTION);
+        let titleNode = findChild(item.node,ElementTypes.HTML_CAPTION);
         if ((titleNode == null) && create) {
             titleNode = item.spareTitle;
             DOM.insertBefore(item.node,titleNode,item.node.firstChild);
@@ -343,7 +343,7 @@ function OutlineItem_getTitleNode(item,create?) {
     }
 
     function findChild(node,type) {
-        for (var child = node.firstChild; child != null; child = child.nextSibling) {
+        for (let child = node.firstChild; child != null; child = child.nextSibling) {
             if (child._type == type)
                 return child;
         }
@@ -352,8 +352,8 @@ function OutlineItem_getTitleNode(item,create?) {
 }
 
 function OutlineItem_updateItemTitle(item) {
-    var titleNode = OutlineItem_getTitleNode(item,false);
-    var newTitle;
+    let titleNode = OutlineItem_getTitleNode(item,false);
+    let newTitle;
     if (titleNode != null)
         newTitle = Util.normalizeWhitespace(Traversal.getNodeText(titleNode));
     else
@@ -370,8 +370,8 @@ function OutlineItem_updateItemTitle(item) {
 }
 
 function getNodeTextAfter(node) {
-    var text = "";
-    for (var child = node.nextSibling; child != null; child = child.nextSibling)
+    let text = "";
+    for (let child = node.nextSibling; child != null; child = child.nextSibling)
         text += Traversal.getNodeText(child);
     return text;
 }
@@ -397,7 +397,7 @@ function removeRefForId(id,node) {
     UndoManager.addAction(addRefForId,id,node);
     if (refsById[id] == null)
         throw new Error("refRemoved: refsById["+id+"] is null");
-    var index = refsById[id].indexOf(node);
+    let index = refsById[id].indexOf(node);
     if (index < 0)
         throw new Error("refRemoved: refsById["+id+"] does not contain node");
     refsById[id].splice(index,1);
@@ -407,26 +407,26 @@ function removeRefForId(id,node) {
 
 // private
 function refInserted(node) {
-    var href = node.getAttribute("href");
+    let href = node.getAttribute("href");
     if (href.charAt(0) != "#")
         throw new Error("refInserted: not a # reference");
-    var id = href.substring(1);
+    let id = href.substring(1);
     addRefForId(id,node);
     scheduleUpdateStructure();
 }
 
 // private
 function refRemoved(node) {
-    var href = node.getAttribute("href");
+    let href = node.getAttribute("href");
     if (href.charAt(0) != "#")
         throw new Error("refInserted: not a # reference");
-    var id = href.substring(1);
+    let id = href.substring(1);
     removeRefForId(id,node);
 }
 
 // private
 function acceptNode(node) {
-    for (var p = node; p != null; p = p.parentNode) {
+    for (let p = node; p != null; p = p.parentNode) {
         if ((p._type == ElementTypes.HTML_SPAN) && (p.getAttribute("class") == Types.Keys.HEADING_NUMBER))
             return false;
     }
@@ -473,7 +473,7 @@ function docNodeInserted(event) {
             break;
         }
         case ElementTypes.HTML_NAV: {
-            var cls = node.getAttribute("class");
+            let cls = node.getAttribute("class");
             if (cls == Types.Keys.SECTION_TOC)
                 Category_addTOC(sections,node);
             else if (cls == Types.Keys.FIGURE_TOC)
@@ -484,8 +484,8 @@ function docNodeInserted(event) {
         }
         }
 
-        var next;
-        for (var child = node.firstChild; child != null; child = next) {
+        let next;
+        for (let child = node.firstChild; child != null; child = next) {
             next = child.nextSibling;
             recurse(child);
         }
@@ -529,7 +529,7 @@ function docNodeRemoved(event) {
                 refRemoved(node);
             break;
         case ElementTypes.HTML_NAV:
-            var cls = node.getAttribute("class");
+            let cls = node.getAttribute("class");
             if (cls == Types.Keys.SECTION_TOC)
                 Category_removeTOC(sections,node);
             else if (cls == Types.Keys.FIGURE_TOC)
@@ -539,7 +539,7 @@ function docNodeRemoved(event) {
             break;
         }
 
-        for (var child = node.firstChild; child != null; child = child.nextSibling)
+        for (let child = node.firstChild; child != null; child = child.nextSibling)
             recurse(child);
     }
 }
@@ -605,7 +605,7 @@ function Shadow_last(shadow) {
 }
 
 function Shadow_outerNext(shadow,structure) {
-    var last = Shadow_last(shadow);
+    let last = Shadow_last(shadow);
     if (last == null)
         return null;
     else if (last.item.next == null)
@@ -617,8 +617,8 @@ function Shadow_outerNext(shadow,structure) {
 function firstTextDescendant(node) {
     if (node.nodeType == Node.TEXT_NODE)
         return node;
-    for (var child = node.firstChild; child != null; child = child.nextSibling) {
-        var result = firstTextDescendant(child);
+    for (let child = node.firstChild; child != null; child = child.nextSibling) {
+        let result = firstTextDescendant(child);
         if (result != null)
             return result;
     }
@@ -633,28 +633,28 @@ function Structure() {
 }
 
 function discoverStructure() {
-    var structure = new Structure();
-    var nextToplevelSectionNumber = 1;
-    var nextFigureNumber = 1;
-    var nextTableNumber = 1;
-    var headingNumbering = Styles.headingNumbering();
+    let structure = new Structure();
+    let nextToplevelSectionNumber = 1;
+    let nextFigureNumber = 1;
+    let nextTableNumber = 1;
+    let headingNumbering = Styles.headingNumbering();
 
-    var counters = { h1: 0, h2: 0, h3: 0, h4: 0, h5: 0, h6: 0, table: 0, figure: 0 };
+    let counters = { h1: 0, h2: 0, h3: 0, h4: 0, h5: 0, h6: 0, table: 0, figure: 0 };
 
-    var current = null;
+    let current = null;
 
-    for (var section = sections.list.first; section != null; section = section.next) {
+    for (let section = sections.list.first; section != null; section = section.next) {
         structure.shadowsByNode.put(section.node,new Shadow(section.node));
     }
-    for (var figure = figures.list.first; figure != null; figure = figure.next) {
+    for (let figure = figures.list.first; figure != null; figure = figure.next) {
         structure.shadowsByNode.put(figure.node,new Shadow(figure.node));
     }
-    for (var table = tables.list.first; table != null; table = table.next) {
+    for (let table = tables.list.first; table != null; table = table.next) {
         structure.shadowsByNode.put(table.node,new Shadow(table.node));
     }
 
-    for (var section = sections.list.first; section != null; section = section.next) {
-        var shadow = structure.shadowsByNode.get(section.node);
+    for (let section = sections.list.first; section != null; section = section.next) {
+        let shadow = structure.shadowsByNode.get(section.node);
         shadow.parent = null;
         shadow.children = [];
         shadow.nextChildSectionNumber = 1;
@@ -662,21 +662,21 @@ function discoverStructure() {
 
     ignoreModifications++;
 
-    for (var section = sections.list.first; section != null; section = section.next) {
-        var shadow = structure.shadowsByNode.get(section.node);
-        var node = section.node;
-        var item = shadow.item;
+    for (let section = sections.list.first; section != null; section = section.next) {
+        let shadow = structure.shadowsByNode.get(section.node);
+        let node = section.node;
+        let item = shadow.item;
 
         if (!headingNumbering || (DOM.getAttribute(item.node,"class") == "Unnumbered")) {
             item.computedNumber = null;
         }
         else {
-            var level = parseInt(node.nodeName.charAt(1));
+            let level = parseInt(node.nodeName.charAt(1));
             counters[node.nodeName.toLowerCase()]++;
-            for (var inner = level+1; inner <= 6; inner++)
+            for (let inner = level+1; inner <= 6; inner++)
                 counters["h"+inner] = 0;
             item.computedNumber = "";
-            for (var i = 1; i <= level; i++) {
+            for (let i = 1; i <= level; i++) {
                 if (i == 1)
                     item.computedNumber += counters["h"+i];
                 else
@@ -696,11 +696,11 @@ function discoverStructure() {
         current = shadow;
     }
 
-    for (var figure = figures.list.first; figure != null; figure = figure.next) {
-        var shadow = structure.shadowsByNode.get(figure.node);
-        var item = shadow.item;
+    for (let figure = figures.list.first; figure != null; figure = figure.next) {
+        let shadow = structure.shadowsByNode.get(figure.node);
+        let item = shadow.item;
 
-        var titleNode = OutlineItem_getTitleNode(item,false);
+        let titleNode = OutlineItem_getTitleNode(item,false);
         if ((titleNode == null) || DOM.getAttribute(titleNode,"class") == "Unnumbered") {
             item.computedNumber = null;
         }
@@ -712,11 +712,11 @@ function discoverStructure() {
         structure.toplevelFigures.push(shadow);
     }
 
-    for (var table = tables.list.first; table != null; table = table.next) {
-        var shadow = structure.shadowsByNode.get(table.node);
-        var item = shadow.item;
+    for (let table = tables.list.first; table != null; table = table.next) {
+        let shadow = structure.shadowsByNode.get(table.node);
+        let item = shadow.item;
 
-        var titleNode = OutlineItem_getTitleNode(item,false);
+        let titleNode = OutlineItem_getTitleNode(item,false);
         if ((titleNode == null) || DOM.getAttribute(titleNode,"class") == "Unnumbered") {
             item.computedNumber = null;
         }
@@ -734,20 +734,20 @@ function discoverStructure() {
 }
 
 function updateStructureReal(pageNumbers?) {
-    var structure = discoverStructure();
+    let structure = discoverStructure();
 
-    for (var section = sections.list.first; section != null; section = section.next) {
-        var shadow = structure.shadowsByNode.get(section.node);
+    for (let section = sections.list.first; section != null; section = section.next) {
+        let shadow = structure.shadowsByNode.get(section.node);
         updateRefsForItem(shadow.item);
     }
 
-    for (var figure = figures.list.first; figure != null; figure = figure.next) {
-        var shadow = structure.shadowsByNode.get(figure.node);
+    for (let figure = figures.list.first; figure != null; figure = figure.next) {
+        let shadow = structure.shadowsByNode.get(figure.node);
         updateRefsForItem(shadow.item);
     }
 
-    for (var table = tables.list.first; table != null; table = table.next) {
-        var shadow = structure.shadowsByNode.get(table.node);
+    for (let table = tables.list.first; table != null; table = table.next) {
+        let shadow = structure.shadowsByNode.get(table.node);
         updateRefsForItem(shadow.item);
     }
 
@@ -765,16 +765,16 @@ function updateStructureReal(pageNumbers?) {
 }
 
 export function getOutline() {
-    var structure = discoverStructure();
-    var encSections = new Array();
-    var encFigures = new Array();
-    var encTables = new Array();
+    let structure = discoverStructure();
+    let encSections = new Array();
+    let encFigures = new Array();
+    let encTables = new Array();
 
-    for (var i = 0; i < structure.toplevelSections.length; i++)
+    for (let i = 0; i < structure.toplevelSections.length; i++)
         encodeShadow(structure.toplevelSections[i],encSections);
-    for (var i = 0; i < structure.toplevelFigures.length; i++)
+    for (let i = 0; i < structure.toplevelFigures.length; i++)
         encodeShadow(structure.toplevelFigures[i],encFigures);
-    for (var i = 0; i < structure.toplevelTables.length; i++)
+    for (let i = 0; i < structure.toplevelTables.length; i++)
         encodeShadow(structure.toplevelTables[i],encTables);
 
     return { sections: encSections,
@@ -782,11 +782,11 @@ export function getOutline() {
              tables: encTables };
 
     function encodeShadow(shadow,result) {
-        var encChildren = new Array();
-        for (var i = 0; i < shadow.children.length; i++)
+        let encChildren = new Array();
+        for (let i = 0; i < shadow.children.length; i++)
             encodeShadow(shadow.children[i],encChildren);
 
-        var obj = { id: shadow.item.id,
+        let obj = { id: shadow.item.id,
                     number: shadow.item.computedNumber ? shadow.item.computedNumber : "",
                     children: encChildren };
         result.push(obj);
@@ -794,15 +794,15 @@ export function getOutline() {
 }
 
 function updateRefsForItem(item) {
-    var id = item.node.getAttribute("id");
-    var refs = refsById[id];
+    let id = item.node.getAttribute("id");
+    let refs = refsById[id];
     if (refs == null)
         return;
-    for (var i = 0; i < refs.length; i++) {
+    for (let i = 0; i < refs.length; i++) {
         DOM.deleteAllChildren(refs[i]);
-        var text = null;
+        let text = null;
 
-        var className = DOM.getAttribute(refs[i],"class");
+        let className = DOM.getAttribute(refs[i],"class");
         if (className == "uxwrite-ref-num") {
             text = item.computedNumber;
         }
@@ -814,7 +814,7 @@ function updateRefsForItem(item) {
                     text = Util.normalizeWhitespace(Traversal.getNodeText(item.node));
             }
             else if ((item.type == "figure") || (item.type == "table")) {
-                var titleNode = OutlineItem_getTitleNode(item,false);
+                let titleNode = OutlineItem_getTitleNode(item,false);
                 if (titleNode != null) {
                     text = Traversal.getNodeText(titleNode);
 
@@ -833,7 +833,7 @@ function updateRefsForItem(item) {
                     text = Util.normalizeWhitespace(Traversal.getNodeText(item.node));
             }
             else if ((item.type == "figure") || (item.type == "table")) {
-                var titleNode = OutlineItem_getTitleNode(item,false);
+                let titleNode = OutlineItem_getTitleNode(item,false);
                 if (titleNode != null) {
                     if (item.numberSpan != null)
                         text = getNodeTextAfter(item.numberSpan);
@@ -867,20 +867,20 @@ function updateRefsForItem(item) {
 }
 
 export function plainText() {
-    var strings = new Array();
-    var structure = discoverStructure();
+    let strings = new Array();
+    let structure = discoverStructure();
 
     strings.push("Sections:\n");
-    for (var section = sections.list.first; section != null; section = section.next) {
-        var shadow = structure.shadowsByNode.get(section.node);
+    for (let section = sections.list.first; section != null; section = section.next) {
+        let shadow = structure.shadowsByNode.get(section.node);
         if (shadow.level == 1)
             printSectionRecursive(shadow,"    ");
     }
     strings.push("Figures:\n");
-    for (var figure = figures.list.first; figure != null; figure = figure.next) {
-        var shadow = structure.shadowsByNode.get(figure.node);
-        var titleNode = OutlineItem_getTitleNode(figure,false);
-        var title = titleNode ? Traversal.getNodeText(titleNode) : "[no caption]";
+    for (let figure = figures.list.first; figure != null; figure = figure.next) {
+        let shadow = structure.shadowsByNode.get(figure.node);
+        let titleNode = OutlineItem_getTitleNode(figure,false);
+        let title = titleNode ? Traversal.getNodeText(titleNode) : "[no caption]";
         if (shadow.item.computedNumber != null) {
             if (title.length > 0)
                 title = shadow.item.computedNumber+" "+title;
@@ -890,10 +890,10 @@ export function plainText() {
         strings.push("    "+title+" ("+figure.id+")\n");
     }
     strings.push("Tables:\n");
-    for (var table = tables.list.first; table != null; table = table.next) {
-        var shadow = structure.shadowsByNode.get(table.node);
-        var titleNode = OutlineItem_getTitleNode(table,false);
-        var title = titleNode ? Traversal.getNodeText(titleNode) : "[no caption]";
+    for (let table = tables.list.first; table != null; table = table.next) {
+        let shadow = structure.shadowsByNode.get(table.node);
+        let titleNode = OutlineItem_getTitleNode(table,false);
+        let title = titleNode ? Traversal.getNodeText(titleNode) : "[no caption]";
         if (shadow.item.computedNumber != null) {
             if (title.length > 0)
                 title = shadow.item.computedNumber+" "+title;
@@ -905,14 +905,14 @@ export function plainText() {
     return strings.join("");
 
     function printSectionRecursive(shadow,indent) {
-        var titleNode = OutlineItem_getTitleNode(shadow.item,false);
-        var content = Traversal.getNodeText(titleNode);
+        let titleNode = OutlineItem_getTitleNode(shadow.item,false);
+        let content = Traversal.getNodeText(titleNode);
         if (shadow.item.computedNumber != null)
             content = shadow.item.computedNumber+" "+content;
         if (Util.isWhitespaceString(content))
             content = "[empty]";
         strings.push(indent+content+" ("+shadow.item.id+")\n");
-        for (var i = 0; i < shadow.children.length; i++)
+        for (let i = 0; i < shadow.children.length; i++)
             printSectionRecursive(shadow.children[i],indent+"    ");
     }
 }
@@ -958,16 +958,16 @@ export function removeListeners() {
     removeCategoryListeners(tables);
 
     function removeCategoryListeners(category) {
-        for (var item = category.list.first; item != null; item = item.next)
+        for (let item = category.list.first; item != null; item = item.next)
             item.node.removeEventListener("DOMSubtreeModified",item.modificationListener);
     }
 }
 
 // private
 function getShadowNodes(structure,shadow,result) {
-    var endShadow = Shadow_outerNext(shadow,structure);
-    var endNode = endShadow ? endShadow.item.node : null;
-    for (var n = shadow.item.node; (n != null) && (n != endNode); n = n.nextSibling)
+    let endShadow = Shadow_outerNext(shadow,structure);
+    let endNode = endShadow ? endShadow.item.node : null;
+    for (let n = shadow.item.node; (n != null) && (n != endNode); n = n.nextSibling)
         result.push(n);
 }
 
@@ -983,36 +983,36 @@ export function moveSection(sectionId,parentId,nextId) {
     // pointer validity was a problem.
 
 
-    var structure = discoverStructure();
+    let structure = discoverStructure();
 
-    var node = document.getElementById(sectionId);
-    var section = itemsByNode.get(node);
-    var shadow = structure.shadowsByNode.get(node);
+    let node = document.getElementById(sectionId);
+    let section = itemsByNode.get(node);
+    let shadow = structure.shadowsByNode.get(node);
 
     // FIXME: We should throw an exception if a parentId or nextId which does not exist
     // in the document is specified. However there are currently some tests (like
     // moveSection-nested*) which rely us interpreting such parameters as null.
-    var parentNode = parentId ? document.getElementById(parentId) : null;
-    var nextNode = nextId ? document.getElementById(nextId) : null;
-    var parent = parentNode ? structure.shadowsByNode.get(parentNode) : null;
-    var next = nextNode ? structure.shadowsByNode.get(nextNode) : null;
+    let parentNode = parentId ? document.getElementById(parentId) : null;
+    let nextNode = nextId ? document.getElementById(nextId) : null;
+    let parent = parentNode ? structure.shadowsByNode.get(parentNode) : null;
+    let next = nextNode ? structure.shadowsByNode.get(nextNode) : null;
 
-    var sectionNodes = new Array();
+    let sectionNodes = new Array();
     getShadowNodes(structure,shadow,sectionNodes);
 
     if ((next == null) && (parent != null))
         next = Shadow_outerNext(parent,structure);
 
     if (next == null) {
-        for (var i = 0; i < sectionNodes.length; i++)
+        for (let i = 0; i < sectionNodes.length; i++)
             DOM.appendChild(document.body,sectionNodes[i]);
     }
     else {
-        for (var i = 0; i < sectionNodes.length; i++)
+        for (let i = 0; i < sectionNodes.length; i++)
             DOM.insertBefore(next.item.node.parentNode,sectionNodes[i],next.item.node);
     }
 
-    var pos = new Position.Position(node,0);
+    let pos = new Position.Position(node,0);
     pos = Position.closestMatchForwards(pos,Position.okForInsertion);
     Selection.set(pos.node,pos.offset,pos.node,pos.offset);
 
@@ -1023,15 +1023,15 @@ export function moveSection(sectionId,parentId,nextId) {
 // public
 export function deleteItem(itemId) {
     UndoManager.newGroup("Delete outline item");
-    var structure = discoverStructure();
+    let structure = discoverStructure();
     Selection.preserveWhileExecuting(function() {
-        var node = document.getElementById(itemId);
-        var item = itemsByNode.get(node);
-        var shadow = structure.shadowsByNode.get(item.node);
+        let node = document.getElementById(itemId);
+        let item = itemsByNode.get(node);
+        let shadow = structure.shadowsByNode.get(item.node);
         if (item.type == "section") {
-            var sectionNodes = new Array();
+            let sectionNodes = new Array();
             getShadowNodes(structure,shadow,sectionNodes);
-            for (var i = 0; i < sectionNodes.length; i++)
+            for (let i = 0; i < sectionNodes.length; i++)
                 DOM.deleteNode(sectionNodes[i]);
         }
         else {
@@ -1043,10 +1043,10 @@ export function deleteItem(itemId) {
     // user is allowed to move to. This ensures we get an accurate rect for each position,
     // avoiding an ugly effect where the cursor occupies the entire height of the document
     // and is displayed on the far-left edge of the editing area.
-    var selRange = Selection.get();
+    let selRange = Selection.get();
     if (selRange != null) {
-        var start = Position.closestMatchForwards(selRange.start,Position.okForMovement);
-        var end = Position.closestMatchForwards(selRange.end,Position.okForMovement);
+        let start = Position.closestMatchForwards(selRange.start,Position.okForMovement);
+        let end = Position.closestMatchForwards(selRange.end,Position.okForMovement);
         Selection.set(start.node,start.offset,end.node,end.offset);
     }
 
@@ -1061,7 +1061,7 @@ export function goToItem(itemId) {
         window.scrollTo(0);
     }
     else {
-        var node = document.getElementById(itemId);
+        let node = document.getElementById(itemId);
         if (node == null) {
             // FIXME: this can happen if the user added some headings, pressed undo one or
             // more times (in which case the editor's view of the outline structure fails to
@@ -1070,12 +1070,12 @@ export function goToItem(itemId) {
             // be thrown.
             return;
         }
-        var position = new Position.Position(node,0);
+        let position = new Position.Position(node,0);
         position = Position.closestMatchForwards(position,Position.okForMovement);
         Selection.set(position.node,position.offset,position.node,position.offset);
 
-        var section = document.getElementById(itemId);
-        var location = webkitConvertPointFromNodeToPage(section,new WebKitPoint(0,0));
+        let section = document.getElementById(itemId);
+        let location = webkitConvertPointFromNodeToPage(section,new WebKitPoint(0,0));
         window.scrollTo(0,location.y);
     }
 }
@@ -1087,8 +1087,8 @@ export function getItemElement(itemId) {
 
 // public
 export function setNumbered(itemId,numbered) {
-    var node = document.getElementById(itemId);
-    var item = itemsByNode.get(node);
+    let node = document.getElementById(itemId);
+    let item = itemsByNode.get(node);
 
     Selection.preserveWhileExecuting(function() {
         if (item.type == "section") {
@@ -1099,11 +1099,11 @@ export function setNumbered(itemId,numbered) {
         }
         else if ((item.type == "figure") || (item.type == "table")) {
             if (numbered) {
-                var caption = OutlineItem_getTitleNode(item,true);
+                let caption = OutlineItem_getTitleNode(item,true);
                 DOM.removeAttribute(caption,"class");
             }
             else {
-                var caption = OutlineItem_getTitleNode(item,false);
+                let caption = OutlineItem_getTitleNode(item,false);
                 if (caption != null) {
                     if (Util.nodeHasContent(caption))
                         DOM.setAttribute(caption,"class","Unnumbered");
@@ -1119,12 +1119,12 @@ export function setNumbered(itemId,numbered) {
 
 // public
 export function setTitle(itemId,title) {
-    var node = document.getElementById(itemId);
-    var item = itemsByNode.get(node);
+    let node = document.getElementById(itemId);
+    let item = itemsByNode.get(node);
     Selection.preserveWhileExecuting(function() {
-        var titleNode = OutlineItem_getTitleNode(item,true);
-        var oldEmpty = (item.title == "");
-        var newEmpty = (title == "");
+        let titleNode = OutlineItem_getTitleNode(item,true);
+        let oldEmpty = (item.title == "");
+        let newEmpty = (title == "");
         if (oldEmpty != newEmpty) {
             // Add or remove the : at the end of table and figure numbers
             scheduleUpdateStructure();
@@ -1144,7 +1144,7 @@ export function setTitle(itemId,title) {
 // private
 // FIXME: prevent a TOC from being inserted inside a heading, figure, or table
 function insertTOC(key) {
-    var div = DOM.createElement(document,"NAV");
+    let div = DOM.createElement(document,"NAV");
     DOM.setAttribute(div,"class",key);
     Cursor.makeContainerInsertionPoint();
     Clipboard.pasteNodes([div]);
@@ -1173,19 +1173,19 @@ export function setPrintMode(newPrintMode) {
 
 // public
 export function examinePrintLayout(pageHeight) {
-    var result: any = new Object();
-    var structure = discoverStructure();
-    var pageNumbers = new Collections.NodeMap();
+    let result: any = new Object();
+    let structure = discoverStructure();
+    let pageNumbers = new Collections.NodeMap();
 
     result.destsByPage = new Object();
     result.linksByPage = new Object();
     result.leafRectsByPage = new Object();
 
     itemsByNode.forEach(function(node,item) {
-        var rect = node.getBoundingClientRect();
-        var pageNo = 1+Math.floor(rect.top/pageHeight);
-        var pageTop = (pageNo-1)*pageHeight;
-        var id = node.getAttribute("id");
+        let rect = node.getBoundingClientRect();
+        let pageNo = 1+Math.floor(rect.top/pageHeight);
+        let pageTop = (pageNo-1)*pageHeight;
+        let id = node.getAttribute("id");
         pageNumbers.put(node,pageNo);
 
         if (result.destsByPage[pageNo] == null)
@@ -1195,20 +1195,20 @@ export function examinePrintLayout(pageHeight) {
                                           y: rect.top - pageTop});
     });
 
-    var links = document.getElementsByTagName("A");
-    for (var i = 0; i < links.length; i++) {
-        var a = links[i];
+    let links = document.getElementsByTagName("A");
+    for (let i = 0; i < links.length; i++) {
+        let a = links[i];
 
         if (!a.hasAttribute("href"))
             continue;
 
-        var offset = DOM.nodeOffset(a);
-        var range = new Range.Range(a.parentNode,offset,a.parentNode,offset+1);
-        var rects = Range.getClientRects(range);
-        for (var rectIndex = 0; rectIndex < rects.length; rectIndex++) {
-            var rect = rects[rectIndex];
-            var pageNo = 1+Math.floor(rect.top/pageHeight);
-            var pageTop = (pageNo-1)*pageHeight;
+        let offset = DOM.nodeOffset(a);
+        let range = new Range.Range(a.parentNode,offset,a.parentNode,offset+1);
+        let rects = Range.getClientRects(range);
+        for (let rectIndex = 0; rectIndex < rects.length; rectIndex++) {
+            let rect = rects[rectIndex];
+            let pageNo = 1+Math.floor(rect.top/pageHeight);
+            let pageTop = (pageNo-1)*pageHeight;
 
             if (result.linksByPage[pageNo] == null)
                 result.linksByPage[pageNo] = new Array();
@@ -1229,14 +1229,14 @@ export function examinePrintLayout(pageHeight) {
 
     function recurse(node) {
         if (node.firstChild == null) {
-            var offset = DOM.nodeOffset(node);
-            var range = new Range.Range(node.parentNode,offset,node.parentNode,offset+1);
-            var rects = Range.getClientRects(range);
-            for (var i = 0; i < rects.length; i++) {
-                var rect = rects[i];
+            let offset = DOM.nodeOffset(node);
+            let range = new Range.Range(node.parentNode,offset,node.parentNode,offset+1);
+            let rects = Range.getClientRects(range);
+            for (let i = 0; i < rects.length; i++) {
+                let rect = rects[i];
 
-                var pageNo = 1+Math.floor(rect.top/pageHeight);
-                var pageTop = (pageNo-1)*pageHeight;
+                let pageNo = 1+Math.floor(rect.top/pageHeight);
+                let pageTop = (pageNo-1)*pageHeight;
 
                 if (result.leafRectsByPage[pageNo] == null)
                     result.leafRectsByPage[pageNo] = new Array();
@@ -1247,7 +1247,7 @@ export function examinePrintLayout(pageHeight) {
             }
         }
 
-        for (var child = node.firstChild; child != null; child = child.nextSibling)
+        for (let child = node.firstChild; child != null; child = child.nextSibling)
             recurse(child);
     }
 }
@@ -1261,7 +1261,7 @@ export function setReferenceTarget(node,itemId) {
 }
 
 export function detectSectionNumbering() {
-    var sectionNumbering = detectNumbering(sections);
+    let sectionNumbering = detectNumbering(sections);
     if (sectionNumbering)
         makeNumberingExplicit(sections);
     makeNumberingExplicit(figures);
@@ -1270,16 +1270,16 @@ export function detectSectionNumbering() {
 }
 
 function detectNumbering(category) {
-    for (var item = category.list.first; item != null; item = item.next) {
+    for (let item = category.list.first; item != null; item = item.next) {
 
-        var firstText = null;
-        var titleNode = OutlineItem_getTitleNode(item);
+        let firstText = null;
+        let titleNode = OutlineItem_getTitleNode(item);
 
         if (titleNode != null)
             firstText = findFirstTextDescendant(titleNode);
         if (firstText != null) {
-            var regex = category.numberRegex;
-            var str = firstText.nodeValue;
+            let regex = category.numberRegex;
+            let str = firstText.nodeValue;
             if (str.match(category.numberRegex))
                 return true;
         }
@@ -1287,22 +1287,22 @@ function detectNumbering(category) {
 }
 
 function makeNumberingExplicit(category) {
-    for (var item = category.list.first; item != null; item = item.next) {
-        var firstText = null;
-        var titleNode = OutlineItem_getTitleNode(item);
+    for (let item = category.list.first; item != null; item = item.next) {
+        let firstText = null;
+        let titleNode = OutlineItem_getTitleNode(item);
 
         if (titleNode != null)
             firstText = findFirstTextDescendant(titleNode);
         if (firstText != null) {
-            var regex = category.numberRegex;
-            var str = firstText.nodeValue;
+            let regex = category.numberRegex;
+            let str = firstText.nodeValue;
             if (str.match(category.numberRegex)) {
-                var oldValue = str;
-                var newValue = str.replace(category.numberRegex,"");
+                let oldValue = str;
+                let newValue = str.replace(category.numberRegex,"");
                 DOM.setNodeValue(firstText,newValue);
             }
             else {
-                var titleNode = OutlineItem_getTitleNode(item,true);
+                let titleNode = OutlineItem_getTitleNode(item,true);
                 if (titleNode != null)
                     DOM.setAttribute(titleNode,"class","Unnumbered");
             }
@@ -1313,14 +1313,14 @@ function makeNumberingExplicit(category) {
 // Search through the document for any elements corresponding to built-in styles that are
 // normally latent (i.e. only included in the stylesheet if used)
 export function findUsedStyles() {
-    var used = new Object();
+    let used = new Object();
     recurse(document.body);
     return used;
 
     function recurse(node) {
         switch (node._type) {
         case ElementTypes.HTML_NAV: {
-            var className = DOM.getAttribute(node,"class");
+            let className = DOM.getAttribute(node,"class");
             if ((className == "tableofcontents") ||
                 (className == "listoffigures") ||
                 (className == "listoftables")) {
@@ -1336,8 +1336,8 @@ export function findUsedStyles() {
         case ElementTypes.HTML_H4:
         case ElementTypes.HTML_H5:
         case ElementTypes.HTML_H6: {
-            var elementName = node.nodeName.toLowerCase();
-            var className = DOM.getAttribute(node,"class");
+            let elementName = node.nodeName.toLowerCase();
+            let className = DOM.getAttribute(node,"class");
             if ((className == null) || (className == ""))
                 used[elementName] = true;
             else if (className == "Unnumbered")
@@ -1346,7 +1346,7 @@ export function findUsedStyles() {
         }
         }
 
-        for (var child = node.firstChild; child != null; child = child.nextSibling)
+        for (let child = node.firstChild; child != null; child = child.nextSibling)
             recurse(child);
     }
 }

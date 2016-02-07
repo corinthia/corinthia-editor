@@ -53,9 +53,9 @@ function Run(node,start,end) {
 
 export function findParagraphBoundaries(pos) {
     Position.assertValid(pos);
-    var startOffset = pos.offset;
-    var endOffset = pos.offset;
-    var node = pos.node;
+    let startOffset = pos.offset;
+    let endOffset = pos.offset;
+    let node = pos.node;
 
     while (Types.isInlineNode(node)) {
         startOffset = DOM.nodeOffset(node);
@@ -75,31 +75,31 @@ export function findParagraphBoundaries(pos) {
 }
 
 export function analyseParagraph(pos) {
-    var initial = pos.node;
-    var strings = new Array();
-    var runs = new Array();
-    var offset = 0;
+    let initial = pos.node;
+    let strings = new Array();
+    let runs = new Array();
+    let offset = 0;
 
-    var boundaries = findParagraphBoundaries(pos);
+    let boundaries = findParagraphBoundaries(pos);
     if (boundaries == null)
         return null;
 
-    for (var off = boundaries.startOffset; off < boundaries.endOffset; off++)
+    for (let off = boundaries.startOffset; off < boundaries.endOffset; off++)
         recurse(boundaries.node.childNodes[off]);
 
-    var text = strings.join("");
+    let text = strings.join("");
 
     return new ParagraphInfo(boundaries.node,boundaries.startOffset,boundaries.endOffset,runs,text);
 
     function recurse(node) {
         if (node.nodeType == Node.TEXT_NODE) {
             strings.push(node.nodeValue);
-            var start = offset;
-            var end = offset + node.nodeValue.length;
+            let start = offset;
+            let end = offset + node.nodeValue.length;
             runs.push(new Run(node,start,end));
             offset += node.nodeValue.length;
         }
-        for (var child = node.firstChild; child != null; child = child.nextSibling)
+        for (let child = node.firstChild; child != null; child = child.nextSibling)
             recurse(child);
     }
 }
@@ -123,11 +123,11 @@ export function posAbove(pos,cursorRect?,cursorX?) {
         if (pos == null)
             return null;
 
-        var paragraph = analyseParagraph(pos);
+        let paragraph = analyseParagraph(pos);
         if (paragraph == null)
             return null;
 
-        var rects = Paragraph.getRunOrFallbackRects(paragraph,pos);
+        let rects = Paragraph.getRunOrFallbackRects(paragraph,pos);
 
         rects = rects.filter(function (rect) {
             return (rect.bottom <= cursorRect.top);
@@ -135,21 +135,21 @@ export function posAbove(pos,cursorRect?,cursorX?) {
 
 
 
-        var bottom = findLowestBottom(rects);
+        var bottom = findLowestBottom(rects); // use var here due to reference from function below
 
         rects = rects.filter(function (rect) { return (rect.bottom == bottom); });
 
         // Scroll previous line into view, if necessary
-        var top = findHighestTop(rects);
+        let top = findHighestTop(rects);
         if (top < 0) {
-            var offset = -top;
+            let offset = -top;
             window.scrollBy(0,-offset);
             rects = offsetRects(rects,0,offset);
         }
 
-        for (var i = 0; i < rects.length; i++) {
+        for (let i = 0; i < rects.length; i++) {
             if ((cursorX >= rects[i].left) && (cursorX <= rects[i].right)) {
-                var newPos = Position.atPoint(cursorX,rects[i].top + rects[i].height/2);
+                let newPos = Position.atPoint(cursorX,rects[i].top + rects[i].height/2);
                 if (newPos != null) {
                     newPos = Position.closestMatchBackwards(newPos,Position.okForInsertion);
                     newPos.targetX = cursorX;
@@ -158,9 +158,9 @@ export function posAbove(pos,cursorRect?,cursorX?) {
             }
         }
 
-        var rightMost = findRightMostRect(rects);
+        let rightMost = findRightMostRect(rects);
         if (rightMost != null) {
-            var newPos = Position.atPoint(rightMost.right,rightMost.top + rightMost.height/2);
+            let newPos = Position.atPoint(rightMost.right,rightMost.top + rightMost.height/2);
             if (newPos != null) {
                 newPos = Position.closestMatchBackwards(newPos,Position.okForInsertion);
                 newPos.targetX = cursorX;
@@ -174,36 +174,36 @@ export function posAbove(pos,cursorRect?,cursorX?) {
     }
 }
 
-var findHighestTop = function(rects) {
-    var top = null;
-    for (var i = 0; i < rects.length; i++) {
+function findHighestTop(rects) {
+    let top = null;
+    for (let i = 0; i < rects.length; i++) {
         if ((top == null) || (top > rects[i].top))
             top = rects[i].top;
     }
     return top;
 }
 
-var findLowestBottom = function(rects) {
-    var bottom = null;
-    for (var i = 0; i < rects.length; i++) {
+function findLowestBottom(rects) {
+    let bottom = null;
+    for (let i = 0; i < rects.length; i++) {
         if ((bottom == null) || (bottom < rects[i].bottom))
             bottom = rects[i].bottom;
     }
     return bottom;
 }
 
-var findRightMostRect = function(rects) {
-    var rightMost = null;
-    for (var i = 0; i < rects.length; i++) {
+function findRightMostRect(rects) {
+    let rightMost = null;
+    for (let i = 0; i < rects.length; i++) {
         if ((rightMost == null) || (rightMost.right < rects[i].right))
             rightMost = rects[i];
     }
     return rightMost;
 }
 
-var offsetRects = function(rects,offsetX,offsetY) {
-    var result = new Array();
-    for (var i = 0; i < rects.length; i++) {
+function offsetRects(rects,offsetX,offsetY) {
+    let result = new Array();
+    for (let i = 0; i < rects.length; i++) {
         result.push({ top: rects[i].top + offsetY,
                       bottom: rects[i].bottom + offsetY,
                       left: rects[i].left + offsetX,
@@ -234,31 +234,31 @@ export function posBelow(pos,cursorRect?,cursorX?) {
         if (pos == null)
             return null;
 
-        var paragraph = analyseParagraph(pos);
+        let paragraph = analyseParagraph(pos);
         if (paragraph == null)
             return null;
 
-        var rects = Paragraph.getRunOrFallbackRects(paragraph,pos);
+        let rects = Paragraph.getRunOrFallbackRects(paragraph,pos);
 
         rects = rects.filter(function (rect) {
             return (rect.top >= cursorRect.bottom);
         });
 
-        var top = findHighestTop(rects);
+        var top = findHighestTop(rects); // use var here due to reference from function below
 
         rects = rects.filter(function (rect) { return (rect.top == top); });
 
         // Scroll next line into view, if necessary
-        var bottom = findLowestBottom(rects);
+        let bottom = findLowestBottom(rects);
         if (bottom > window.innerHeight) {
-            var offset = window.innerHeight - bottom;
+            let offset = window.innerHeight - bottom;
             window.scrollBy(0,-offset);
             rects = offsetRects(rects,0,offset);
         }
 
-        for (var i = 0; i < rects.length; i++) {
+        for (let i = 0; i < rects.length; i++) {
             if ((cursorX >= rects[i].left) && (cursorX <= rects[i].right)) {
-                var newPos = Position.atPoint(cursorX,rects[i].top + rects[i].height/2);
+                let newPos = Position.atPoint(cursorX,rects[i].top + rects[i].height/2);
                 if (newPos != null) {
                     newPos = Position.closestMatchForwards(newPos,Position.okForInsertion);
                     newPos.targetX = cursorX;
@@ -267,9 +267,9 @@ export function posBelow(pos,cursorRect?,cursorX?) {
             }
         }
 
-        var rightMost = findRightMostRect(rects);
+        let rightMost = findRightMostRect(rects);
         if (rightMost != null) {
-            var newPos = Position.atPoint(rightMost.right,rightMost.top + rightMost.height/2);
+            let newPos = Position.atPoint(rightMost.right,rightMost.top + rightMost.height/2);
             if (newPos != null) {
                 newPos = Position.closestMatchForwards(newPos,Position.okForInsertion);
                 newPos.targetX = cursorX;
@@ -285,7 +285,7 @@ export function posBelow(pos,cursorRect?,cursorX?) {
 export function closestPosBackwards(pos) {
     if (Traversal.isNonWhitespaceTextNode(pos.node))
         return pos;
-    var node;
+    let node;
     if ((pos.node.nodeType == Node.ELEMENT_NODE) && (pos.offset > 0)) {
         node = pos.node.childNodes[pos.offset-1];
         while (node.lastChild != null)
@@ -306,7 +306,7 @@ export function closestPosBackwards(pos) {
 export function closestPosForwards(pos) {
     if (Traversal.isNonWhitespaceTextNode(pos.node))
         return pos;
-    var node;
+    let node;
     if ((pos.node.nodeType == Node.ELEMENT_NODE) && (pos.offset < pos.node.childNodes.length)) {
         node = pos.node.childNodes[pos.offset];
         while (node.firstChild != null)
@@ -316,7 +316,7 @@ export function closestPosForwards(pos) {
         node = Traversal.nextNodeAfter(pos.node);
     }
     while ((node != null) && !Traversal.isNonWhitespaceTextNode(node)) {
-        var old = Util.nodeString(node);
+        let old = Util.nodeString(node);
         node = Traversal.nextNode(node);
     }
 
@@ -341,11 +341,11 @@ function toStartOfParagraph(pos) {
     pos = Position.closestMatchBackwards(pos,Position.okForMovement);
     if (pos == null)
         return null;
-    var paragraph = analyseParagraph(pos);
+    let paragraph = analyseParagraph(pos);
     if (paragraph == null)
         return null;
 
-    var newPos = new Position.Position(paragraph.node,paragraph.startOffset);
+    let newPos = new Position.Position(paragraph.node,paragraph.startOffset);
     return Position.closestMatchForwards(newPos,Position.okForMovement);
 }
 
@@ -353,16 +353,16 @@ function toEndOfParagraph(pos) {
     pos = Position.closestMatchForwards(pos,Position.okForMovement);
     if (pos == null)
         return null;
-    var paragraph = analyseParagraph(pos);
+    let paragraph = analyseParagraph(pos);
     if (paragraph == null)
         return null;
 
-    var newPos = new Position.Position(paragraph.node,paragraph.endOffset);
+    let newPos = new Position.Position(paragraph.node,paragraph.endOffset);
     return Position.closestMatchBackwards(newPos,Position.okForMovement);
 }
 
 function toStartOfLine(pos) {
-    var posRect = Position.rectAtPos(pos);
+    let posRect = Position.rectAtPos(pos);
     if (posRect == null) {
         pos = closestPosBackwards(pos);
         posRect = Position.rectAtPos(pos);
@@ -372,8 +372,8 @@ function toStartOfLine(pos) {
     }
 
     while (true) {
-        var check = Position.prevMatch(pos,Position.okForMovement);
-        var checkRect = Position.rectAtPos(check); // handles check == null case
+        let check = Position.prevMatch(pos,Position.okForMovement);
+        let checkRect = Position.rectAtPos(check); // handles check == null case
         if (checkRect == null)
             return pos;
         if ((checkRect.bottom <= posRect.top) || (checkRect.top >= posRect.bottom))
@@ -383,7 +383,7 @@ function toStartOfLine(pos) {
 }
 
 function toEndOfLine(pos) {
-    var posRect = Position.rectAtPos(pos);
+    let posRect = Position.rectAtPos(pos);
     if (posRect == null) {
         pos = closestPosForwards(pos);
         posRect = Position.rectAtPos(pos);
@@ -393,8 +393,8 @@ function toEndOfLine(pos) {
     }
 
     while (true) {
-        var check = Position.nextMatch(pos,Position.okForMovement);
-        var checkRect = Position.rectAtPos(check); // handles check == null case
+        let check = Position.nextMatch(pos,Position.okForMovement);
+        let checkRect = Position.rectAtPos(check); // handles check == null case
         if (checkRect == null)
             return pos;
         if ((checkRect.bottom <= posRect.top) || (checkRect.top >= posRect.bottom))

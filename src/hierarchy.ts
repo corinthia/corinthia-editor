@@ -25,25 +25,25 @@ import Util = require("./util");
 
 // private
 function wrapInlineChildren(first,last,ancestors) {
-    var haveNonWhitespace = false;
-    for (var node = first; node != last.nextSibling; node = node.nextSibling) {
+    let haveNonWhitespace = false;
+    for (let node = first; node != last.nextSibling; node = node.nextSibling) {
         if (!Traversal.isWhitespaceTextNode(node))
             haveNonWhitespace = true;
     }
     if (!haveNonWhitespace)
         return false;
 
-    var parentNode = first.parentNode;
-    var nextSibling = first;
-    for (var i = ancestors.length-1; i >= 0; i--) {
-        var ancestorCopy = DOM.shallowCopyElement(ancestors[i]);
+    let parentNode = first.parentNode;
+    let nextSibling = first;
+    for (let i = ancestors.length-1; i >= 0; i--) {
+        let ancestorCopy = DOM.shallowCopyElement(ancestors[i]);
         DOM.insertBefore(parentNode,ancestorCopy,nextSibling);
         parentNode = ancestorCopy;
         nextSibling = null;
 
-        var node = first;
+        let node = first;
         while (true) {
-            var next = node.nextSibling;
+            let next = node.nextSibling;
             DOM.insertBefore(parentNode,node,null);
             if (node == last)
                 break;
@@ -54,12 +54,12 @@ function wrapInlineChildren(first,last,ancestors) {
 
 // private
 function wrapInlineChildrenInAncestors(node,ancestors) {
-    var firstInline = null;
-    var lastInline = null;
+    let firstInline = null;
+    let lastInline = null;
 
-    var child = node.firstChild;
+    let child = node.firstChild;
     while (true) {
-        var next = (child != null) ? child.nextSibling : null;
+        let next = (child != null) ? child.nextSibling : null;
         if ((child == null) || !Types.isInlineNode(child)) {
 
             if ((firstInline != null) && (lastInline != null)) {
@@ -82,13 +82,13 @@ function wrapInlineChildrenInAncestors(node,ancestors) {
 }
 
 function checkInvalidNesting(node) {
-    var parent = node.parentNode;
+    let parent = node.parentNode;
     if ((parent._type == ElementTypes.HTML_DIV) &&
         (DOM.getAttribute(parent,"class") == Types.Keys.SELECTION_CLASS)) {
         parent = parent.parentNode;
     }
 
-    var invalidNesting = !Types.isContainerNode(parent);
+    let invalidNesting = !Types.isContainerNode(parent);
     switch (parent._type) {
     case ElementTypes.HTML_DIV:
         if (Types.isParagraphNode(node) || Types.isListNode(node))
@@ -137,7 +137,7 @@ function checkInvalidHeadingNesting(node) {
 }
 
 function nodeHasSignificantChildren(node) {
-    for (var child = node.firstChild; child != null; child = child.nextSibling) {
+    for (let child = node.firstChild; child != null; child = child.nextSibling) {
         if (!Traversal.isWhitespaceTextNode(child))
             return true;
     }
@@ -150,15 +150,15 @@ function nodeHasSignificantChildren(node) {
 // or container+
 // public
 export function ensureValidHierarchy(node) {
-    var count = 0;
+    let count = 0;
     while ((node != null) && (node.parentNode != null) && (node != document.body)) {
         count++;
         if (count > 200)
             throw new Error("too many iterations");
 
         if (checkInvalidHeadingNesting(node)) {
-            var offset = DOM.nodeOffset(node);
-            var parent = node.parentNode;
+            let offset = DOM.nodeOffset(node);
+            let parent = node.parentNode;
             Formatting.moveFollowing(new Position.Position(node.parentNode,offset+1),
                                      function() { return false; });
             DOM.insertBefore(node.parentNode.parentNode,
@@ -166,7 +166,7 @@ export function ensureValidHierarchy(node) {
                              node.parentNode.nextSibling);
 
             while ((parent != document.body) && !nodeHasSignificantChildren(parent)) {
-                var grandParent = parent.parentNode;
+                let grandParent = parent.parentNode;
                 DOM.deleteNode(parent);
                 parent = grandParent;
             }
@@ -174,16 +174,16 @@ export function ensureValidHierarchy(node) {
             continue;
         }
         else if (Types.isContainerNode(node) || Types.isParagraphNode(node)) {
-            var invalidNesting = checkInvalidNesting(node);
+            let invalidNesting = checkInvalidNesting(node);
             if (invalidNesting) {
-                var ancestors = new Array();
-                var child = node;
+                let ancestors = new Array();
+                let child = node;
                 while (!Types.isContainerNode(child.parentNode)) {
                     if (Types.isInlineNode(child.parentNode)) {
-                        var keep = false;
+                        let keep = false;
                         if (child.parentNode._type == ElementTypes.HTML_SPAN) {
-                            for (var i = 0; i < child.attributes.length; i++) {
-                                var attr = child.attributes[i];
+                            for (let i = 0; i < child.attributes.length; i++) {
+                                let attr = child.attributes[i];
                                 if (attr.nodeName.toUpperCase() != "ID")
                                     keep = true;
                             }
@@ -198,8 +198,8 @@ export function ensureValidHierarchy(node) {
                 }
 
                 while (checkInvalidNesting(node)) {
-                    var offset = DOM.nodeOffset(node);
-                    var parent = node.parentNode;
+                    let offset = DOM.nodeOffset(node);
+                    let parent = node.parentNode;
                     Formatting.moveFollowing(new Position.Position(node.parentNode,offset+1),
                                              Types.isContainerNode);
                     DOM.insertBefore(node.parentNode.parentNode,
@@ -218,7 +218,7 @@ export function ensureValidHierarchy(node) {
 }
 
 export function ensureInlineNodesInParagraph(node,weak?) {
-    var count = 0;
+    let count = 0;
     while ((node != null) && (node.parentNode != null) && (node != document.body)) {
         count++;
         if (count > 200)
@@ -236,8 +236,8 @@ export function ensureInlineNodesInParagraph(node,weak?) {
 
 // public
 export function wrapInlineNodesInParagraph(node) {
-    var start = node;
-    var end = node;
+    let start = node;
+    let end = node;
 
     while ((start.previousSibling != null) && Types.isInlineNode(start.previousSibling))
         start = start.previousSibling;
@@ -248,20 +248,20 @@ export function wrapInlineNodesInParagraph(node) {
 }
 
 export function avoidInlineChildren(parent) {
-    var child = parent.firstChild;
+    let child = parent.firstChild;
 
     while (child != null) {
         if (Types.isInlineNode(child)) {
-            var start = child;
-            var end = child;
-            var haveContent = Util.nodeHasContent(end);
+            let start = child;
+            let end = child;
+            let haveContent = Util.nodeHasContent(end);
             while ((end.nextSibling != null) && Types.isInlineNode(end.nextSibling)) {
                 end = end.nextSibling;
                 if (Util.nodeHasContent(end))
                     haveContent = true;
             }
             child = DOM.wrapSiblings(start,end,"P");
-            var next = child.nextSibling;
+            let next = child.nextSibling;
             if (!Util.nodeHasContent(child))
                 DOM.deleteNode(child);
             child = next;

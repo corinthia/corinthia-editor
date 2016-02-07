@@ -29,39 +29,39 @@ function pad(str,length) {
 }
 
 function selectRange(p,start,end) {
-    var paragraph = Text.analyseParagraph(new Position.Position(p,0));
-    var startPos = Paragraph.positionAtOffset(paragraph,start);
-    var endPos = Paragraph.positionAtOffset(paragraph,end);
+    let paragraph = Text.analyseParagraph(new Position.Position(p,0));
+    let startPos = Paragraph.positionAtOffset(paragraph,start);
+    let endPos = Paragraph.positionAtOffset(paragraph,end);
     Selection.set(startPos.node,startPos.offset,endPos.node,endPos.offset);
 }
 
 function makeStringArray(input) {
-    var result = new Array();
-    for (var i = 0; i < input.length; i++)
+    let result = new Array();
+    for (let i = 0; i < input.length; i++)
         result.push(input[i].toString());
     return result;
 }
 
 function createTable(arrays) {
-    var maxLength = 0;
-    for (var col = 0; col < arrays.length; col++) {
+    let maxLength = 0;
+    for (let col = 0; col < arrays.length; col++) {
         if (maxLength < arrays[col].length)
             maxLength = arrays[col].length;
     }
-    var colWidths = new Array();
-    for (var col = 0; col < arrays.length; col++) {
-        var width = 0;
-        for (var row = 0; row < arrays[col].length; row++) {
+    let colWidths = new Array();
+    for (let col = 0; col < arrays.length; col++) {
+        let width = 0;
+        for (let row = 0; row < arrays[col].length; row++) {
             if (width < arrays[col][row].length)
                 width = arrays[col][row].length;
         }
         colWidths.push(width);
     }
 
-    var output = new Array();
-    var spacer = "   ->   ";
-    for (var row = 0; row < maxLength; row++) {
-        for (var col = 0; col < arrays.length; col++) {
+    let output = new Array();
+    let spacer = "   ->   ";
+    for (let row = 0; row < maxLength; row++) {
+        for (let col = 0; col < arrays.length; col++) {
             if (col > 0)
                 output.push(spacer);
             output.push(pad(arrays[col][row],colWidths[col]));
@@ -77,7 +77,7 @@ function rangeString(text,start,end) {
                           text.substring(end));
 }
 
-var positionList = null
+let positionList = null
 
 function setPositionList(newList) {
     UndoManager.addAction(setPositionList,positionList);
@@ -92,43 +92,43 @@ function getPositionList() {
 }
 
 export function positionTest(start1,end1,start2,end2) {
-    var ps = document.getElementsByTagName("P");
+    let ps = document.getElementsByTagName("P");
 
-    var p = ps[0];
-    var text = <Text>p.firstChild;
+    let p = ps[0];
+    let text = <Text>p.firstChild;
 
-    var testDescription = "From "+rangeString(text.nodeValue,start1,end1) + "\n" +
+    let testDescription = "From "+rangeString(text.nodeValue,start1,end1) + "\n" +
                           "To   "+rangeString(text.nodeValue,start2,end2) + "\n";
 
-    var positions = new Array();
-    for (var i = 0; i <= text.length; i++)
+    let positions = new Array();
+    for (let i = 0; i <= text.length; i++)
         positions.push(new Position.Position(text,i));
     setPositionList(positions);
 
-    var origStrings = makeStringArray(positions);
+    let origStrings = makeStringArray(positions);
     UndoManager.newGroup();
 
     Position.trackWhileExecuting(positions,function() { selectRange(p,start1,end1); });
     setPositionList(positions);
-    var strings1 = makeStringArray(positions);
+    let strings1 = makeStringArray(positions);
 
     UndoManager.newGroup();
 
     Position.trackWhileExecuting(positions,function() { selectRange(p,start2,end2); });
     setPositionList(positions);
-    var strings2 = makeStringArray(positions);
+    let strings2 = makeStringArray(positions);
 
     UndoManager.undo();
     positions = getPositionList();
-    var undo1 = makeStringArray(positions);
+    let undo1 = makeStringArray(positions);
 
     UndoManager.undo();
     positions = getPositionList();
-    var undo2 = makeStringArray(positions);
+    let undo2 = makeStringArray(positions);
 
-    var checks = new Array();
-    for (var i = 0; i < positions.length; i++) {
-        var str = "";
+    let checks = new Array();
+    for (let i = 0; i < positions.length; i++) {
+        let str = "";
         if (undo1[i] == strings1[i])
             str += "YES";
         else

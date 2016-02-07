@@ -18,11 +18,11 @@
 import Scan = require("../src/scan");
 
 export function testNext() {
-    var result = new Array();
+    let result = new Array();
     Scan.reset();
-    var index = 0;
+    let index = 0;
     while (true) {
-        var paragraph = Scan.next();
+        let paragraph = Scan.next();
         if (paragraph == null)
             break;
         if (paragraph.sectionId != null)

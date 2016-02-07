@@ -28,9 +28,9 @@ import Util = require("./util");
 
 // private
 function findLIElements(range) {
-    var listItems = new Array();
+    let listItems = new Array();
 
-    var node = range.start.node;
+    let node = range.start.node;
     while (node != null) {
 
         addListItems(listItems,node);
@@ -61,21 +61,21 @@ function findLIElements(range) {
 export function increaseIndent() {
     Selection.preferElementPositions();
     Selection.preserveWhileExecuting(function() {
-        var range = Selection.get();
+        let range = Selection.get();
         if (range == null)
             return null;
 
         // Determine the set of LI nodes that are part of the selection
         // Note that these could be spread out all over the place, e.g. in different lists,
         // some in table cells etc
-        var listItems = findLIElements(range);
+        let listItems = findLIElements(range);
 
         // For each LI node that is not the first in the list, move it to the child list of
         // its previous sibling (creating the child list if necessary)
 
-        for (var i = 0; i < listItems.length; i++) {
-            var li = listItems[i];
-            var prevLi = li.previousSibling;
+        for (let i = 0; i < listItems.length; i++) {
+            let li = listItems[i];
+            let prevLi = li.previousSibling;
             while ((prevLi != null) && (prevLi._type != ElementTypes.HTML_LI))
                 prevLi = prevLi.previousSibling;
             // We can only increase the indentation of the current list item C if there is
@@ -83,9 +83,9 @@ export function increaseIndent() {
             // another list L, where L is inside P. L may already exist, or we may need to
             // create it.
             if (prevLi != null) {
-                var prevList = lastDescendentList(prevLi);
-                var childList = firstDescendentList(li);
-                var childListContainer = null;
+                let prevList = lastDescendentList(prevLi);
+                let childList = firstDescendentList(li);
+                let childListContainer = null;
                 if (childList != null) {
                     // childList may be contained inside one or more wrapper elements, in which
                     // case we set childListContainer to point to the wrapper element that is a
@@ -108,7 +108,7 @@ export function increaseIndent() {
                     }
                 }
                 else {
-                    var newList;
+                    let newList;
                     if (childList != null) {
                         // alert("Case 3: no prevList but childList");
                         newList = childList;
@@ -130,7 +130,7 @@ export function increaseIndent() {
 
     function firstDescendentList(node) {
         while (true) {
-            var node = Traversal.firstChildElement(node);
+            node = Traversal.firstChildElement(node);
             if (node == null)
                 return null;
             switch (node._type) {
@@ -143,7 +143,7 @@ export function increaseIndent() {
 
     function lastDescendentList(node) {
         while (true) {
-            var node = Traversal.lastChildElement(node);
+            node = Traversal.lastChildElement(node);
             if (node == null)
                 return null;
             switch (node._type) {
@@ -159,24 +159,24 @@ export function increaseIndent() {
 export function decreaseIndent() {
     Selection.preferElementPositions();
     Selection.preserveWhileExecuting(function() {
-        var range = Selection.get();
+        let range = Selection.get();
         if (range == null)
             return null;
 
         // Determine the set of LI nodes that are part of the selection
         // Note that these could be spread out all over the place, e.g. in different lists,
         // some in table cells etc
-        var listItems = findLIElements(range);
+        let listItems = findLIElements(range);
 
         // Remove from consideration any list items that have an ancestor that is going to
         // be moved
-        var i = 0;
-        var changed;
+        let i = 0;
+        let changed;
         while (i < listItems.length) {
-            var node = listItems[i];
+            let node = listItems[i];
 
-            var ancestorToBeRemoved = false;
-            for (var ancestor = node.parentNode;
+            let ancestorToBeRemoved = false;
+            for (let ancestor = node.parentNode;
                  ancestor != null;
                  ancestor = ancestor.parentNode) {
                 if (Util.arrayContains(listItems,ancestor))
@@ -200,13 +200,13 @@ export function decreaseIndent() {
         // For LI nodes that are in a top-level list, change them to regular paragraphs
         // For LI nodes that are part of a nested list, move them to the parent (this requires
         // splitting the child list in two)
-        for (var i = 0; i < listItems.length; i++) {
-            var liNode = listItems[i];
-            var listNode = liNode.parentNode;
-            var containerChild = findContainerChild(listNode);
+        for (let i = 0; i < listItems.length; i++) {
+            let liNode = listItems[i];
+            let listNode = liNode.parentNode;
+            let containerChild = findContainerChild(listNode);
 
             if (haveContentAfter(liNode)) {
-                var secondHalf;
+                let secondHalf;
                 if (listNode._type == ElementTypes.HTML_UL)
                     secondHalf = DOM.createElement(document,"UL");
                 else
@@ -214,9 +214,9 @@ export function decreaseIndent() {
 
                 DOM.appendChild(liNode,secondHalf);
 
-                var following = liNode.nextSibling;
+                let following = liNode.nextSibling;
                 while (following != null) {
-                    var next = following.nextSibling;
+                    let next = following.nextSibling;
                     DOM.appendChild(secondHalf,following);
                     following = next;
                 }
@@ -244,10 +244,10 @@ export function decreaseIndent() {
 
 // private
 function getListOperationNodes(range) {
-    var detail = Range.detail(range);
-    var dca = detail.commonAncestor;
-    var ds = detail.startAncestor;
-    var de = detail.endAncestor;
+    let detail = Range.detail(range);
+    let dca = detail.commonAncestor;
+    let ds = detail.startAncestor;
+    let de = detail.endAncestor;
 
     while (Types.isInlineNode(dca)) {
         ds = dca;
@@ -255,8 +255,8 @@ function getListOperationNodes(range) {
         dca = dca.parentNode;
     }
 
-    var nodes = new Array();
-    var nodeSet = new Collections.NodeSet();
+    let nodes = new Array();
+    let nodeSet = new Collections.NodeSet();
 
     if (dca._type == ElementTypes.HTML_LI)
         return [dca];
@@ -264,14 +264,14 @@ function getListOperationNodes(range) {
     // If, after moving up the tree until dca is a container node, a single node is selected,
     // check if it is wholly contained within a single list item. If so, select just that
     // list item.
-    var isStartLI = ((ds != null) && (ds._type == ElementTypes.HTML_LI));
-    var isEndLI = ((de != null) && (de._type == ElementTypes.HTML_LI));
+    let isStartLI = ((ds != null) && (ds._type == ElementTypes.HTML_LI));
+    let isEndLI = ((de != null) && (de._type == ElementTypes.HTML_LI));
     if (!isStartLI && !isEndLI) {
-        for (var ancestor = dca; ancestor.parentNode != null; ancestor = ancestor.parentNode) {
+        for (let ancestor = dca; ancestor.parentNode != null; ancestor = ancestor.parentNode) {
             if (ancestor.parentNode._type == ElementTypes.HTML_LI) {
-                var firstElement = true;
+                let firstElement = true;
 
-                for (var p = ancestor.previousSibling; p != null; p = p.previousSibling) {
+                for (let p = ancestor.previousSibling; p != null; p = p.previousSibling) {
                     if (p.nodeType == Node.ELEMENT_NODE) {
                         firstElement = false;
                         break;
@@ -284,13 +284,13 @@ function getListOperationNodes(range) {
         }
     }
 
-    var end = (de == null) ? null : de.nextSibling;
+    let end = (de == null) ? null : de.nextSibling;
 
-    for (var child = ds; child != end; child = child.nextSibling) {
+    for (let child = ds; child != end; child = child.nextSibling) {
         switch (child._type) {
         case ElementTypes.HTML_UL:
         case ElementTypes.HTML_OL:
-            for (var gc = child.firstChild; gc != null; gc = gc.nextSibling) {
+            for (let gc = child.firstChild; gc != null; gc = gc.nextSibling) {
                 if (!Traversal.isWhitespaceTextNode(gc))
                     addNode(gc);
             }
@@ -324,19 +324,19 @@ function getListOperationNodes(range) {
 export function clearList() {
     Selection.preferElementPositions();
     Selection.preserveWhileExecuting(function() {
-        var range = Selection.get();
+        let range = Selection.get();
         if (range == null)
             return;
         Range.ensureInlineNodesInParagraph(range);
 
-        var nodes = getListOperationNodes(range);
+        let nodes = getListOperationNodes(range);
 
-        for (var i = 0; i < nodes.length; i++) {
-            var node = nodes[i];
+        for (let i = 0; i < nodes.length; i++) {
+            let node = nodes[i];
             if (node._type == ElementTypes.HTML_LI) {
-                var li = node;
-                var list = li.parentNode;
-                var insertionPoint = null;
+                let li = node;
+                let list = li.parentNode;
+                let insertionPoint = null;
 
                 DOM.removeAdjacentWhitespace(li);
 
@@ -347,7 +347,7 @@ export function clearList() {
                     insertionPoint = list.nextSibling;
                 }
                 else {
-                    var secondList = DOM.shallowCopyElement(list);
+                    let secondList = DOM.shallowCopyElement(list);
                     DOM.insertBefore(list.parentNode,secondList,list.nextSibling);
                     while (li.nextSibling != null) {
                         DOM.appendChild(secondList,li.nextSibling);
@@ -357,10 +357,10 @@ export function clearList() {
                     insertionPoint = secondList;
                 }
 
-                var parent = null;
-                var child = li.firstChild;
+                let parent = null;
+                let child = li.firstChild;
                 while (child != null) {
-                    var next = child.nextSibling;
+                    let next = child.nextSibling;
                     if (Types.isInlineNode(child) && !Traversal.isWhitespaceTextNode(child)) {
                         child = Hierarchy.wrapInlineNodesInParagraph(child);
                         next = child.nextSibling;
@@ -376,16 +376,16 @@ export function clearList() {
         }
     });
 
-    var range = Selection.get();
+    let range = Selection.get();
     if (range == null)
         return;
     if (Range.isEmpty(range) &&
         (range.start.node.nodeType == Node.ELEMENT_NODE) &&
         (Types.isContainerNode(range.start.node))) {
 
-        var p = DOM.createElement(document,"P");
+        let p = DOM.createElement(document,"P");
 
-        var next = range.start.node.childNodes[range.start.offset+1];
+        let next = range.start.node.childNodes[range.start.offset+1];
         DOM.insertBefore(range.start.node,p,next);
 
         Cursor.updateBRAtEndOfParagraph(p);
@@ -395,14 +395,14 @@ export function clearList() {
 
 // private
 function setList(type) {
-    var range = Selection.get();
+    let range = Selection.get();
     if (range == null)
         return;
 
-    var nodes = getListOperationNodes(range);
+    let nodes = getListOperationNodes(range);
 
     if (nodes.length == 0) {
-        var text;
+        let text;
         if (range.start.node.nodeType == Node.TEXT_NODE) {
             text = range.start.node;
         }
@@ -414,7 +414,7 @@ function setList(type) {
         }
         nodes = [text];
 
-        var offset = DOM.nodeOffset(text);
+        let offset = DOM.nodeOffset(text);
         Selection.set(text,0,text,0);
         range = Selection.get();
     }
@@ -422,13 +422,13 @@ function setList(type) {
     Range.trackWhileExecuting(range,function () {
         // Set list to UL or OL
 
-        for (var i = 0; i < nodes.length; i++) {
-            var node = nodes[i];
-            var next;
-            var prev;
-            var li = null;
-            var oldList = null;
-            var listInsertionPoint;
+        for (let i = 0; i < nodes.length; i++) {
+            let node = nodes[i];
+            let next;
+            let prev;
+            let li = null;
+            let oldList = null;
+            let listInsertionPoint;
 
             if ((node._type == ElementTypes.HTML_LI) && (node.parentNode._type == type)) {
                 // Already in the correct type of list; don't need to do anything
@@ -437,7 +437,7 @@ function setList(type) {
 
             if (node._type == ElementTypes.HTML_LI) {
                 li = node;
-                var list = li.parentNode;
+                let list = li.parentNode;
 
                 DOM.removeAdjacentWhitespace(list);
                 prev = list.previousSibling;
@@ -455,7 +455,7 @@ function setList(type) {
                     prev = null;
                 }
                 else {
-                    var secondList = DOM.shallowCopyElement(list);
+                    let secondList = DOM.shallowCopyElement(list);
                     DOM.insertBefore(list.parentNode,secondList,list.nextSibling);
                     while (li.nextSibling != null) {
                         DOM.insertBefore(secondList,li.nextSibling,null);
@@ -478,8 +478,8 @@ function setList(type) {
                 listInsertionPoint = node;
             }
 
-            var list;
-            var itemInsertionPoint;
+            let list;
+            let itemInsertionPoint;
 
             if ((prev != null) && (prev._type == type)) {
                 list = prev;
@@ -502,7 +502,7 @@ function setList(type) {
                 DOM.insertBefore(list,li,itemInsertionPoint);
             }
             else {
-                var li = DOM.createElement(document,"LI");
+                let li = DOM.createElement(document,"LI");
                 DOM.insertBefore(list,li,itemInsertionPoint);
                 DOM.insertBefore(li,node,null);
             }
@@ -514,7 +514,7 @@ function setList(type) {
             // Merge with adjacent list
             DOM.removeAdjacentWhitespace(list);
             if ((list.nextSibling != null) && (list.nextSibling._type == type)) {
-                var followingList = list.nextSibling;
+                let followingList = list.nextSibling;
                 while (followingList.firstChild != null) {
                     if (Traversal.isWhitespaceTextNode(followingList.firstChild))
                         DOM.deleteNode(followingList.firstChild);

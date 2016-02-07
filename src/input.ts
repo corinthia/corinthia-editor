@@ -31,20 +31,20 @@ import Util = require("./util");
 //    Util.debug(str);
 // }
 
-var forwardSelection = true;
-var positions = new Object();
-var BaseIdNull = 0;
-var BaseIdDocumentStart = 1;
-var BaseIdDocumentEnd = 2;
-var BaseIdSelectionStart = 3;
-var BaseIdSelectionEnd = 4;
-var firstDynamicPosId = 5;
-var nextPosId = firstDynamicPosId;
+let forwardSelection = true;
+let positions = new Object();
+let BaseIdNull = 0;
+let BaseIdDocumentStart = 1;
+let BaseIdDocumentEnd = 2;
+let BaseIdSelectionStart = 3;
+let BaseIdSelectionEnd = 4;
+let firstDynamicPosId = 5;
+let nextPosId = firstDynamicPosId;
 
 export function addPosition(pos) {
     if (pos == null)
         return 0;
-    var copy = new Position.Position(pos.node,pos.offset);
+    let copy = new Position.Position(pos.node,pos.offset);
     copy.targetX = pos.targetX;
     pos = copy;
     pos.posId = nextPosId++;
@@ -62,21 +62,21 @@ export function getPosition(posId) {
             return null;
         }
         case BaseIdDocumentStart: {
-            var pos = new Position.Position(document.body,0);
+            let pos = new Position.Position(document.body,0);
             pos = Position.closestMatchForwards(pos,Position.okForMovement);
             return pos;
         }
         case BaseIdDocumentEnd: {
-            var pos = new Position.Position(document.body,document.body.childNodes.length);
+            let pos = new Position.Position(document.body,document.body.childNodes.length);
             pos = Position.closestMatchBackwards(pos,Position.okForMovement);
             return pos;
         }
         case BaseIdSelectionStart: {
-            var range = Selection.get();
+            let range = Selection.get();
             return (range != null) ? range.start : null;
         }
         case BaseIdSelectionEnd: {
-            var range = Selection.get();
+            let range = Selection.get();
             return (range != null) ? range.end : null;
         }
         default:
@@ -91,7 +91,7 @@ export function getPosition(posId) {
 // void
 export function removePosition(posId) {
     //idebug("removePosition("+posId+")");
-    var pos = positions[posId];
+    let pos = positions[posId];
     if (pos == null) {
         throw new Error("no position for id "+posId);
     }
@@ -101,15 +101,15 @@ export function removePosition(posId) {
 
 // string
 export function textInRange(startId,startAdjust,endId,endAdjust) {
-    var start = getPosition(startId);
-    var end = getPosition(endId);
+    let start = getPosition(startId);
+    let end = getPosition(endId);
     start = positionRight(start,startAdjust);
     end = positionRight(end,endAdjust);
     if ((start == null) || (end == null))
         return "";
 
-    var range = new Range.Range(start.node,start.offset,end.node,end.offset);
-    var result = Range.getText(range);
+    let range = new Range.Range(start.node,start.offset,end.node,end.offset);
+    let result = Range.getText(range);
     //idebug("textInRange("+startId+","+startAdjust+","+endId+","+endAdjust+") = "+
     //       JSON.stringify(result));
     return result;
@@ -118,27 +118,27 @@ export function textInRange(startId,startAdjust,endId,endAdjust) {
 // void
 export function replaceRange(startId,endId,text) {
     //idebug("replaceRange("+startId+","+endId+","+JSON.stringify(text)+")");
-    var start = getPosition(startId);
-    var end = getPosition(endId);
+    let start = getPosition(startId);
+    let end = getPosition(endId);
     if (start == null)
         throw new Error("start is null");
     if (end == null)
         throw new Error("end is null");
 
-    var range = new Range.Range(start.node,start.offset,end.node,end.offset);
+    let range = new Range.Range(start.node,start.offset,end.node,end.offset);
     Range.trackWhileExecuting(range,function() {
         Selection.deleteRangeContents(range,true);
     });
     range.start = Position.preferTextPosition(range.start);
-    var node = range.start.node;
-    var offset = range.start.offset;
+    let node = range.start.node;
+    let offset = range.start.offset;
 
     if (node.nodeType == Node.TEXT_NODE) {
         DOM.insertCharacters(node,offset,text);
         Cursor.set(node,offset+text.length);
     }
     else if (node.nodeType == Node.ELEMENT_NODE) {
-        var textNode = DOM.createTextNode(document,text);
+        let textNode = DOM.createTextNode(document,text);
         DOM.insertBefore(node,textNode,node.childNodes[offset]);
         Cursor.set(node,offset+1);
     }
@@ -146,14 +146,14 @@ export function replaceRange(startId,endId,text) {
 
 // { startId, endId }
 export function selectedTextRange() {
-    var range = Selection.get();
+    let range = Selection.get();
     if (range == null) {
         //idebug("selectedTextRange = null");
         return null;
     }
     else {
-        var startId = addPosition(range.start);
-        var endId = addPosition(range.end);
+        let startId = addPosition(range.start);
+        let endId = addPosition(range.end);
         //idebug("selectedTextRange = "+startId+", "+endId);
         return { startId: startId,
                  endId: endId };
@@ -163,17 +163,17 @@ export function selectedTextRange() {
 // void
 export function setSelectedTextRange(startId,endId) {
     //idebug("setSelectedTextRange("+startId+","+endId+")");
-    var start = getPosition(startId);
-    var end = getPosition(endId);
+    let start = getPosition(startId);
+    let end = getPosition(endId);
 
-    var oldSelection = Selection.get();
-    var oldStart = (oldSelection != null) ? oldSelection.start : null;
-    var oldEnd = (oldSelection != null) ? oldSelection.end : null;
+    let oldSelection = Selection.get();
+    let oldStart = (oldSelection != null) ? oldSelection.start : null;
+    let oldEnd = (oldSelection != null) ? oldSelection.end : null;
 
     Selection.set(start.node,start.offset,end.node,end.offset);
 
     // The positions may have changed as a result of spans being added/removed
-    var newRange = Selection.get();
+    let newRange = Selection.get();
     start = newRange.start;
     end = newRange.end;
 
@@ -194,11 +194,11 @@ export function markedTextRange() {
 // void
 export function setMarkedText(text,startOffset,endOffset) {
     Selection.deleteContents(true);
-    var oldSel = Selection.get();
+    let oldSel = Selection.get();
     Range.trackWhileExecuting(oldSel,function() {
         Cursor.insertCharacter(text,false,false);
     });
-    var newSel = Selection.get();
+    let newSel = Selection.get();
 
     Selection.set(oldSel.start.node,oldSel.start.offset,
                   newSel.end.node,newSel.end.offset,false,true);
@@ -206,7 +206,7 @@ export function setMarkedText(text,startOffset,endOffset) {
 
 // void
 export function unmarkText() {
-    var range = Selection.get();
+    let range = Selection.get();
     Cursor.set(range.end.node,range.end.offset);
     //idebug("unmarkText");
 }
@@ -226,7 +226,7 @@ export function setForwardSelectionAffinity(value) {
 function positionRight(pos,offset) {
     if (offset > 0) {
         for (; offset > 0; offset--) {
-            var next = Position.nextMatch(pos,Position.okForMovement);
+            let next = Position.nextMatch(pos,Position.okForMovement);
             if (next == null)
                 return pos;
             pos = next;
@@ -234,7 +234,7 @@ function positionRight(pos,offset) {
     }
     else {
         for (; offset < 0; offset++) {
-            var prev = Position.prevMatch(pos,Position.okForMovement);
+            let prev = Position.prevMatch(pos,Position.okForMovement);
             if (prev == null)
                 return pos;
             pos = prev;
@@ -246,7 +246,7 @@ function positionRight(pos,offset) {
 function positionDown(pos,offset) {
     if (offset > 0) {
         for (; offset > 0; offset--) {
-            var below = Text.posBelow(pos);
+            let below = Text.posBelow(pos);
             if (below == null)
                 return pos;
             pos = below;
@@ -254,7 +254,7 @@ function positionDown(pos,offset) {
     }
     else {
         for (; offset < 0; offset++) {
-            var above = Text.posAbove(pos);
+            let above = Text.posAbove(pos);
             if (above == null)
                 return pos;
             pos = above;
@@ -265,8 +265,8 @@ function positionDown(pos,offset) {
 
 // posId
 export function positionFromPositionOffset(posId,offset) {
-    var pos = getPosition(posId);
-    var res = addPosition(positionRight(pos,offset));
+    let pos = getPosition(posId);
+    let res = addPosition(positionRight(pos,offset));
     //idebug("positionFromPositionOffset("+posId+","+offset+") = "+res);
     return res;
 }
@@ -274,7 +274,7 @@ export function positionFromPositionOffset(posId,offset) {
 // posId
 export function positionFromPositionInDirectionOffset(posId,direction,offset) {
     //idebug("positionFromPositionInDirectionOffset("+posId+","+direction+","+offset+")");
-    var pos = getPosition(posId);
+    let pos = getPosition(posId);
     if (direction == "left")
         return addPosition(positionRight(pos,-offset));
     else if (direction == "right")
@@ -290,8 +290,8 @@ export function positionFromPositionInDirectionOffset(posId,direction,offset) {
 // int
 export function comparePositionToPosition(posId1,posId2) {
     //idebug("comparePositionToPosition("+posId1+","+posId2+")");
-    var pos1 = getPosition(posId1);
-    var pos2 = getPosition(posId2);
+    let pos1 = getPosition(posId1);
+    let pos2 = getPosition(posId2);
     if (pos1 == null)
         throw new Error("pos1 is null");
     if (pos2 == null)
@@ -318,10 +318,10 @@ export function characterRangeByExtendingPositionInDirection(posId,direction) {
 
 export function firstRectForRange(startId,endId) {
     //idebug("firstRectForRange("+startId+","+endId+")");
-    var start = getPosition(startId);
-    var end = getPosition(endId);
-    var range = new Range.Range(start.node,start.offset,end.node,end.offset);
-    var rects = Range.getClientRects(range);
+    let start = getPosition(startId);
+    let end = getPosition(endId);
+    let range = new Range.Range(start.node,start.offset,end.node,end.offset);
+    let rects = Range.getClientRects(range);
     if (rects.length == 0)
         return { x: 0, y: 0, width: 0, height: 0 };
     else
@@ -331,8 +331,8 @@ export function firstRectForRange(startId,endId) {
 
 export function caretRectForPosition(posId) {
     //idebug("caretRectForPosition("+posId+")");
-    var pos = getPosition(posId);
-    var rect = Position.rectAtPos(pos);
+    let pos = getPosition(posId);
+    let rect = Position.rectAtPos(pos);
     if (rect == null)
         return { x: 0, y: 0, width: 0, height: 0 };
     else
@@ -370,12 +370,12 @@ export function characterOffsetOfPositionWithinRange(posId,startId,endId) {
 
 // UITextInputTokenizer methods
 
-var punctuation = "!\"#%&',-/:;<=>@`~\\^\\$\\\\\\.\\*\\+\\?\\(\\)\\[\\]\\{\\}\\|";
-var letterRE = new RegExp("[^\\s"+punctuation+"]");
-var wordAtStartRE = new RegExp("^[^\\s"+punctuation+"]+");
-var nonWordAtStartRE = new RegExp("^[\\s"+punctuation+"]+");
-var wordAtEndRE = new RegExp("[^\\s"+punctuation+"]+$");
-var nonWordAtEndRE = new RegExp("[\\s"+punctuation+"]+$");
+let punctuation = "!\"#%&',-/:;<=>@`~\\^\\$\\\\\\.\\*\\+\\?\\(\\)\\[\\]\\{\\}\\|";
+let letterRE = new RegExp("[^\\s"+punctuation+"]");
+let wordAtStartRE = new RegExp("^[^\\s"+punctuation+"]+");
+let nonWordAtStartRE = new RegExp("^[\\s"+punctuation+"]+");
+let wordAtEndRE = new RegExp("[^\\s"+punctuation+"]+$");
+let nonWordAtEndRE = new RegExp("[\\s"+punctuation+"]+$");
 
 function isForward(direction) {
     return ((direction == "forward") ||
@@ -386,16 +386,16 @@ function isForward(direction) {
 export function isAtWordBoundary(pos,direction) {
     if (pos.node.nodeType != Node.TEXT_NODE)
         return false;
-    var paragraph = Text.analyseParagraph(pos);
+    let paragraph = Text.analyseParagraph(pos);
     if (paragraph == null)
         return false;
-    var offset = Paragraph.offsetAtPosition(paragraph,pos);
-    var before = paragraph.text.substring(0,offset);
-    var after = paragraph.text.substring(offset);
-    var text = paragraph.text;
+    let offset = Paragraph.offsetAtPosition(paragraph,pos);
+    let before = paragraph.text.substring(0,offset);
+    let after = paragraph.text.substring(offset);
+    let text = paragraph.text;
 
-    var afterMatch = (offset < text.length) && (text.charAt(offset).match(letterRE));
-    var beforeMatch = (offset > 0) && (text.charAt(offset-1).match(letterRE));
+    let afterMatch = (offset < text.length) && (text.charAt(offset).match(letterRE));
+    let beforeMatch = (offset > 0) && (text.charAt(offset-1).match(letterRE));
 
     // coerce to boolean
     afterMatch = !!afterMatch;
@@ -413,7 +413,7 @@ export function isAtParagraphBoundary(pos,direction) {
 export function isPositionAtBoundaryGranularityInDirection(posId,granularity,direction) {
     //idebug("isPositionAtBoundaryGranularityInDirection("+
     //       posId+","+granularity+","+direction+")");
-    var pos = getPosition(posId);
+    let pos = getPosition(posId);
     if (pos == null)
         return false;
 
@@ -443,7 +443,7 @@ export function isPositionAtBoundaryGranularityInDirection(posId,granularity,dir
 export function isPositionWithinTextUnitInDirection(posId,granularity,direction) {
     //idebug("isPositionWithinTextUnitInDirection("+
     //       posId+","+granularity+","+direction+")");
-    var pos = getPosition(posId);
+    let pos = getPosition(posId);
     if (pos == null)
         return false;
 
@@ -458,12 +458,12 @@ export function isPositionWithinTextUnitInDirection(posId,granularity,direction)
         pos = Text.closestPosInDirection(pos,direction);
         if (pos == null)
             return false;
-        var paragraph = Text.analyseParagraph(pos);
+        let paragraph = Text.analyseParagraph(pos);
         if (paragraph == null)
             return false;
         if ((pos != null) && (pos.node.nodeType == Node.TEXT_NODE)) {
-            var offset = Paragraph.offsetAtPosition(paragraph,pos);
-            var text = paragraph.text;
+            let offset = Paragraph.offsetAtPosition(paragraph,pos);
+            let text = paragraph.text;
             if (isForward(direction))
                 return !!((offset < text.length) && (text.charAt(offset).match(letterRE)));
             else
@@ -476,8 +476,8 @@ export function isPositionWithinTextUnitInDirection(posId,granularity,direction)
     else if (granularity == "sentence") {
     }
     else if ((granularity == "paragraph") || (granularity == "line")) {
-        var start = Text.toStartOfBoundary(pos,granularity);
-        var end = Text.toEndOfBoundary(pos,granularity);
+        let start = Text.toStartOfBoundary(pos,granularity);
+        let end = Text.toEndOfBoundary(pos,granularity);
         start = start ? start : pos;
         end = end ? end : pos;
         if (isForward(direction)) {
@@ -498,33 +498,33 @@ export function toWordBoundary(pos,direction) {
     pos = Text.closestPosInDirection(pos,direction);
     if (pos == null)
         return null;
-    var paragraph = Text.analyseParagraph(pos);
+    let paragraph = Text.analyseParagraph(pos);
     if (paragraph == null)
         return null;
-    var run = Paragraph.runFromNode(paragraph,pos.node);
-    var offset = pos.offset + run.start;
+    let run = Paragraph.runFromNode(paragraph,pos.node);
+    let offset = pos.offset + run.start;
 
     if (isForward(direction)) {
-        var remaining = paragraph.text.substring(offset);
-        var afterWord = remaining.replace(wordAtStartRE,"");
-        var afterNonWord = remaining.replace(nonWordAtStartRE,"");
+        let remaining = paragraph.text.substring(offset);
+        let afterWord = remaining.replace(wordAtStartRE,"");
+        let afterNonWord = remaining.replace(nonWordAtStartRE,"");
 
         if (remaining.length == 0) {
             return pos;
         }
         else if (afterWord.length < remaining.length) {
-            var newOffset = offset + (remaining.length - afterWord.length);
+            let newOffset = offset + (remaining.length - afterWord.length);
             return Paragraph.positionAtOffset(paragraph,newOffset);
         }
         else {
-            var newOffset = offset + (remaining.length - afterNonWord.length);
+            let newOffset = offset + (remaining.length - afterNonWord.length);
             return Paragraph.positionAtOffset(paragraph,newOffset);
         }
     }
     else {
-        var remaining = paragraph.text.substring(0,offset);
-        var beforeWord = remaining.replace(wordAtEndRE,"");
-        var beforeNonWord = remaining.replace(nonWordAtEndRE,"");
+        let remaining = paragraph.text.substring(0,offset);
+        let beforeWord = remaining.replace(wordAtEndRE,"");
+        let beforeNonWord = remaining.replace(nonWordAtEndRE,"");
 
         if (remaining.length == 0) {
             return pos;
@@ -542,7 +542,7 @@ export function toWordBoundary(pos,direction) {
 
 export function toParagraphBoundary(pos,direction) {
     if (isForward(direction)) {
-        var end = Text.toEndOfBoundary(pos,"paragraph");
+        let end = Text.toEndOfBoundary(pos,"paragraph");
         if (Position.equal(pos,end)) {
             end = Position.nextMatch(end,Position.okForMovement);
             end = Text.toEndOfBoundary(end,"paragraph");
@@ -551,7 +551,7 @@ export function toParagraphBoundary(pos,direction) {
         return end ? end : pos;
     }
     else {
-        var start = Text.toStartOfBoundary(pos,"paragraph");
+        let start = Text.toStartOfBoundary(pos,"paragraph");
         if (Position.equal(pos,start)) {
             start = Position.prevMatch(start,Position.okForMovement);
             start = Text.toStartOfBoundary(start,"paragraph");
@@ -563,11 +563,11 @@ export function toParagraphBoundary(pos,direction) {
 
 export function toLineBoundary(pos,direction) {
     if (isForward(direction)) {
-        var end = Text.toEndOfBoundary(pos,"line");
+        let end = Text.toEndOfBoundary(pos,"line");
         return end ? end : pos;
     }
     else {
-        var start = Text.toStartOfBoundary(pos,"line");
+        let start = Text.toStartOfBoundary(pos,"line");
         return start ? start : pos;
     }
 }
@@ -575,7 +575,7 @@ export function toLineBoundary(pos,direction) {
 export function positionFromPositionToBoundaryInDirection(posId,granularity,direction) {
     //idebug("positionFromPositionToBoundaryInDirection("+
     //       posId+","+granularity+","+direction+")");
-    var pos = getPosition(posId);
+    let pos = getPosition(posId);
     if (pos == null)
         return null;
 
@@ -600,7 +600,7 @@ export function positionFromPositionToBoundaryInDirection(posId,granularity,dire
 export function rangeEnclosingPositionWithGranularityInDirection(posId,granularity,direction) {
     //idebug("rangeEnclosingPositionWithGranularityInDirection("+
     //       posId+","+granularity+","+direction);
-    var pos = getPosition(posId);
+    let pos = getPosition(posId);
     if (pos == null)
         return null;
 
@@ -612,20 +612,20 @@ export function rangeEnclosingPositionWithGranularityInDirection(posId,granulari
         pos = Text.closestPosInDirection(pos,direction);
         if (pos == null)
             return null;
-        var paragraph = Text.analyseParagraph(pos);
+        let paragraph = Text.analyseParagraph(pos);
         if (pos == null)
             return addPosition(null);
         if (paragraph == null)
             return addPosition(null);
-        var run = Paragraph.runFromNode(paragraph,pos.node);
-        var offset = pos.offset + run.start;
+        let run = Paragraph.runFromNode(paragraph,pos.node);
+        let offset = pos.offset + run.start;
 
-        var before = paragraph.text.substring(0,offset);
-        var after = paragraph.text.substring(offset);
-        var beforeWord = before.replace(wordAtEndRE,"");
-        var afterWord = after.replace(wordAtStartRE,"");
+        let before = paragraph.text.substring(0,offset);
+        let after = paragraph.text.substring(offset);
+        let beforeWord = before.replace(wordAtEndRE,"");
+        let afterWord = after.replace(wordAtStartRE,"");
 
-        var ok;
+        let ok;
 
         if (isForward(direction))
             ok = (afterWord.length < after.length);
@@ -633,13 +633,13 @@ export function rangeEnclosingPositionWithGranularityInDirection(posId,granulari
             ok = (beforeWord.length < before.length);
 
         if (ok) {
-            var charsBefore = (before.length - beforeWord.length);
-            var charsAfter = (after.length - afterWord.length);
-            var startOffset = offset - charsBefore;
-            var endOffset = offset + charsAfter;
+            let charsBefore = (before.length - beforeWord.length);
+            let charsAfter = (after.length - afterWord.length);
+            let startOffset = offset - charsBefore;
+            let endOffset = offset + charsAfter;
 
-            var startPos = Paragraph.positionAtOffset(paragraph,startOffset);
-            var endPos = Paragraph.positionAtOffset(paragraph,endOffset);
+            let startPos = Paragraph.positionAtOffset(paragraph,startOffset);
+            let endPos = Paragraph.positionAtOffset(paragraph,endOffset);
             return { startId: addPosition(startPos),
                      endId: addPosition(endPos) };
         }
@@ -648,8 +648,8 @@ export function rangeEnclosingPositionWithGranularityInDirection(posId,granulari
         }
     }
     else if ((granularity == "paragraph") || (granularity == "line")) {
-        var start = Text.toStartOfBoundary(pos,granularity);
-        var end = Text.toEndOfBoundary(pos,granularity);
+        let start = Text.toStartOfBoundary(pos,granularity);
+        let end = Text.toEndOfBoundary(pos,granularity);
         start = start ? start : pos;
         end = end ? end : pos;
 

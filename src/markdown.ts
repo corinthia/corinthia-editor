@@ -22,12 +22,12 @@ import Util = require("./util");
 
 // private
 function blockToText(md,node,indent,nextIndent,listType,listNo) {
-    var linesBetweenChildren = 1;
-    var childIndent = indent;
+    let linesBetweenChildren = 1;
+    let childIndent = indent;
     switch (node._type) {
     case ElementTypes.HTML_LI:
         if (listType == "OL") {
-            var listMarker;
+            let listMarker;
             if (listNo.value < 10)
                 listMarker = listNo.value+".  ";
             else
@@ -80,8 +80,8 @@ function blockToText(md,node,indent,nextIndent,listType,listNo) {
         break;
     }
 
-    var foundNonWhitespaceChild = false;
-    for (var child = node.firstChild; child != null; child = child.nextSibling) {
+    let foundNonWhitespaceChild = false;
+    for (let child = node.firstChild; child != null; child = child.nextSibling) {
         if (Types.isContainerNode(child) || Types.isParagraphNode(child)) {
             beginParagraph(md,linesBetweenChildren,indent,nextIndent);
             blockToText(md,child,indent,nextIndent,listType,listNo);
@@ -108,7 +108,7 @@ function blockToText(md,node,indent,nextIndent,listType,listNo) {
 
 // private
 function shipOutParagraph(md) {
-    var text = md.buildParagraph.join("");
+    let text = md.buildParagraph.join("");
     if (md.buildPre) {
         text = text.replace(/\n$/,"");
         text = "    "+text.replace(/\n/g,"\n"+md.nextIndent+"    ");
@@ -117,7 +117,7 @@ function shipOutParagraph(md) {
         text = Util.normalizeWhitespace(text);
     }
     if (md.allText.length > 0) {
-        for (var i = 0; i < md.buildLines; i++)
+        for (let i = 0; i < md.buildLines; i++)
             md.allText.push("\n");
     }
     md.allText.push(md.indent+md.buildPrefix+text+md.buildSuffix+"\n");
@@ -162,7 +162,7 @@ function beginParagraph(md,blankLines?,indent?,nextIndent?,paraPrefix?,paraSuffi
 function inlineToText(md,node) {
     switch (node._type) {
     case ElementTypes.HTML_TEXT: {
-        var text = node.nodeValue;
+        let text = node.nodeValue;
         if (md.preDepth == 0) {
             text = text.replace(/\\/g,"\\\\");
             text = text.replace(/\*/g,"\\*");
@@ -197,7 +197,7 @@ function inlineToText(md,node) {
     }
 
     function processChildren() {
-        for (var child = node.firstChild; child != null; child = child.nextSibling) {
+        for (let child = node.firstChild; child != null; child = child.nextSibling) {
             inlineToText(md,child);
         }
     }
@@ -220,7 +220,7 @@ function MarkdownBuilder() {
 
 // public
 export function htmlToMarkdown(node) {
-    var md = new MarkdownBuilder();
+    let md = new MarkdownBuilder();
     md.allText = new Array();
     md.preDepth = 0;
     resetBuild(md);

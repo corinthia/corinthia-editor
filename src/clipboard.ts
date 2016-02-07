@@ -36,29 +36,29 @@ function expandRangeForCopy(range) {
     if (range == null)
         return range;
 
-    var startInLI = null;
-    for (var node = range.start.node; node != null; node = node.parentNode) {
+    let startInLI = null;
+    for (let node = range.start.node; node != null; node = node.parentNode) {
         if (node._type == ElementTypes.HTML_LI)
             startInLI = node;
     }
 
-    var endInLI = null;
-    for (var node = range.end.node; node != null; node = node.parentNode) {
+    let endInLI = null;
+    for (let node = range.end.node; node != null; node = node.parentNode) {
         if (node._type == ElementTypes.HTML_LI)
             endInLI = node;
     }
 
     if ((startInLI != null) && (startInLI == endInLI)) {
-        var beforeRange = new Range.Range(startInLI,0,
+        let beforeRange = new Range.Range(startInLI,0,
                                     range.start.node,range.start.offset);
-        var afterRange = new Range.Range(range.end.node,range.end.offset,
+        let afterRange = new Range.Range(range.end.node,range.end.offset,
                                    endInLI,DOM.maxChildOffset(endInLI));
-        var contentBefore = Range.hasContent(beforeRange);
-        var contentAfter = Range.hasContent(afterRange);
+        let contentBefore = Range.hasContent(beforeRange);
+        let contentAfter = Range.hasContent(afterRange);
 
         if (!contentBefore && !contentAfter) {
-            var li = startInLI;
-            var offset = DOM.nodeOffset(li);
+            let li = startInLI;
+            let offset = DOM.nodeOffset(li);
             range = new Range.Range(li.parentNode,offset,li.parentNode,offset+1);
         }
     }
@@ -66,12 +66,12 @@ function expandRangeForCopy(range) {
 }
 
 function copyRange(range) {
-    var html = "";
-    var text = "";
+    let html = "";
+    let text = "";
 
     if (range != null) {
-        var nodes;
-        var region = Tables.regionFromRange(range);
+        let nodes;
+        let region = Tables.regionFromRange(range);
         if (region != null) {
             nodes = [Tables.cloneRegion(region)];
         }
@@ -79,8 +79,8 @@ function copyRange(range) {
             nodes = Range.cloneContents(range);
         };
 
-        var div = DOM.createElement(document,"DIV");
-        for (var i = 0; i < nodes.length; i++)
+        let div = DOM.createElement(document,"DIV");
+        for (let i = 0; i < nodes.length; i++)
             DOM.appendChild(div,nodes[i]);
         Main.removeSpecial(div);
 
@@ -100,20 +100,20 @@ export function htmlToText(node) {
 // public
 export function cut() {
     UndoManager.newGroup("Cut");
-    var content;
+    let content;
 
-    var range = Selection.get();
+    let range = Selection.get();
     range = expandRangeForCopy(range);
     content = copyRange(range);
 
     Selection.set(range.start.node,range.start.offset,range.end.node,range.end.offset);
     Selection.deleteContents(false);
-    var selRange = Selection.get();
+    let selRange = Selection.get();
     if (selRange != null) {
         Range.trackWhileExecuting(selRange,function() {
-            var node = Position.closestActualNode(selRange.start);
+            let node = Position.closestActualNode(selRange.start);
             while (node != null) {
-                var parent = node.parentNode;
+                let parent = node.parentNode;
                 switch (node._type) {
                 case ElementTypes.HTML_LI:
                     if (!Util.nodeHasContent(node))
@@ -121,8 +121,8 @@ export function cut() {
                     break;
                 case ElementTypes.HTML_UL:
                 case ElementTypes.HTML_OL: {
-                    var haveLI = false;
-                    for (var c = node.firstChild; c != null; c = c.nextSibling) {
+                    let haveLI = false;
+                    for (let c = node.firstChild; c != null; c = c.nextSibling) {
                         if (c._type == ElementTypes.HTML_LI) {
                             haveLI = true;
                             break;
@@ -137,7 +137,7 @@ export function cut() {
             }
         });
 
-        var pos = Position.closestMatchForwards(selRange.start,Position.okForMovement);
+        let pos = Position.closestMatchForwards(selRange.start,Position.okForMovement);
         Selection.set(pos.node,pos.offset,pos.node,pos.offset);
     }
 
@@ -149,15 +149,15 @@ export function cut() {
 
 // public
 export function copy() {
-    var range = Selection.get();
+    let range = Selection.get();
     range = expandRangeForCopy(range);
     return copyRange(range);
 }
 
 // public
 export function pasteText(text) {
-    var converter = new Showdown.converter();
-    var html = converter.makeHtml(text);
+    let converter = new Showdown.converter();
+    let html = converter.makeHtml(text);
     UndoManager.newGroup("Paste");
     pasteHTML(html);
     UndoManager.newGroup();
@@ -180,17 +180,17 @@ export function pasteHTML(html) {
     else if (html.match(/^\s*<li/i))
         html = "<ul>" + html + "</ul>";
 
-    var div = DOM.createElement(document,"DIV");
+    let div = DOM.createElement(document,"DIV");
     div.innerHTML = html;
-    for (var child = div.firstChild; child != null; child = child.nextSibling)
+    for (let child = div.firstChild; child != null; child = child.nextSibling)
         DOM.assignNodeIds(child);
 
-    var nodes = new Array();
-    for (var child = div.firstChild; child != null; child = child.nextSibling)
+    let nodes = new Array();
+    for (let child = div.firstChild; child != null; child = child.nextSibling)
         nodes.push(child);
 
     UndoManager.newGroup("Paste");
-    var region = Tables.regionFromRange(Selection.get(),true);
+    let region = Tables.regionFromRange(Selection.get(),true);
     if ((region != null) && (nodes.length == 1) && (nodes[0]._type == ElementTypes.HTML_TABLE))
         pasteTable(nodes[0],region);
     else
@@ -199,7 +199,7 @@ export function pasteHTML(html) {
 }
 
 function pasteTable(srcTable,dest) {
-    var src = Tables.analyseStructure(srcTable);
+    let src = Tables.analyseStructure(srcTable);
 
     // In the destination table, the region into which we will paste the cells will the
     // the same size as that of the source table, regardless of how many rows and columns
@@ -232,22 +232,22 @@ function pasteTable(srcTable,dest) {
     Tables.Table_fixColumnWidths(dest.structure);
 
     // Remove duplicate ids
-    var found = new Object();
+    let found = new Object();
     removeDuplicateIds(dest.structure.element,found);
 
     // Place the cursor in the bottom-right cell that was pasted
-    var bottomRightCell = Tables.Table_get(dest.structure,dest.bottom,dest.right);
-    var node = bottomRightCell.element;
+    let bottomRightCell = Tables.Table_get(dest.structure,dest.bottom,dest.right);
+    let node = bottomRightCell.element;
     Selection.set(node,node.childNodes.length,node,node.childNodes.length);
 }
 
 function replaceCells(src,dest,destRow,destCol) {
     // By this point, all of the cells have been split. So it is guaranteed that every cell
     // in dest will have rowspan = 1 and colspan = 1.
-    for (var srcRow = 0; srcRow < src.numRows; srcRow++) {
-        for (var srcCol = 0; srcCol < src.numCols; srcCol++) {
-            var srcCell = Tables.Table_get(src,srcRow,srcCol);
-            var destCell = Tables.Table_get(dest,srcRow+destRow,srcCol+destCol);
+    for (let srcRow = 0; srcRow < src.numRows; srcRow++) {
+        for (let srcCol = 0; srcCol < src.numCols; srcCol++) {
+            let srcCell = Tables.Table_get(src,srcRow,srcCol);
+            let destCell = Tables.Table_get(dest,srcRow+destRow,srcCol+destCol);
 
             if ((srcRow != srcCell.row) || (srcCol != srcCell.col))
                 continue;
@@ -259,18 +259,18 @@ function replaceCells(src,dest,destRow,destCol) {
 
             DOM.insertBefore(destCell.element.parentNode,srcCell.element,destCell.element);
 
-            var destTop = destRow + srcRow;
-            var destLeft = destCol + srcCol;
-            var destBottom = destTop + srcCell.rowspan - 1;
-            var destRight = destLeft + srcCell.colspan - 1;
+            let destTop = destRow + srcRow;
+            let destLeft = destCol + srcCol;
+            let destBottom = destTop + srcCell.rowspan - 1;
+            let destRight = destLeft + srcCell.colspan - 1;
             Tables.Table_setRegion(dest,destTop,destLeft,destBottom,destRight,srcCell);
         }
     }
 }
 
 function insertChildrenBefore(parent,child,nextSibling,pastedNodes) {
-    var next;
-    for (var grandChild = child.firstChild; grandChild != null; grandChild = next) {
+    let next;
+    for (let grandChild = child.firstChild; grandChild != null; grandChild = next) {
         next = grandChild.nextSibling;
         pastedNodes.push(grandChild);
         DOM.insertBefore(parent,grandChild,nextSibling);
@@ -280,7 +280,7 @@ function insertChildrenBefore(parent,child,nextSibling,pastedNodes) {
 function fixParagraphStyles(node,paragraphClass) {
     if (Types.isParagraphNode(node)) {
         if (node._type == ElementTypes.HTML_P) {
-            var className = DOM.getAttribute(node,"class");
+            let className = DOM.getAttribute(node,"class");
             if ((className == null) || (className == "")) {
                 Util.debug("Setting paragraph class to "+paragraphClass);
                 DOM.setAttribute(node,"class",paragraphClass);
@@ -288,7 +288,7 @@ function fixParagraphStyles(node,paragraphClass) {
         }
     }
     else {
-        for (var child = node.firstChild; child != null; child = child.nextSibling) {
+        for (let child = node.firstChild; child != null; child = child.nextSibling) {
             fixParagraphStyles(child,paragraphClass);
         }
     }
@@ -299,16 +299,16 @@ export function pasteNodes(nodes) {
     if (nodes.length == 0)
         return;
 
-    var paragraphClass = Styles.getParagraphClass();
+    let paragraphClass = Styles.getParagraphClass();
     if (paragraphClass != null) {
-        for (var i = 0; i < nodes.length; i++) {
+        for (let i = 0; i < nodes.length; i++) {
             fixParagraphStyles(nodes[i],paragraphClass);
         }
     }
 
     // Remove any elements which don't belong in the document body (in case an entire
     // HTML document is being pasted in)
-    var i = 0;
+    let i = 0;
     while (i < nodes.length) {
         switch (nodes[i]._type) {
         case ElementTypes.HTML_HTML:
@@ -324,29 +324,29 @@ export function pasteNodes(nodes) {
         }
     }
 
-    var found = new Object();
-    for (var i = 0; i < nodes.length; i++)
+    let found = new Object();
+    for (let i = 0; i < nodes.length; i++)
         removeDuplicateIds(nodes[i],found);
 
 //        if ((nodes.length == 0) && (nodes[0]._type == ElementTypes.HTML_TABLE)) {
 //            // FIXME: this won't work; selectionRange is not defined
-//            var fromRegion = Tables.getTableRegionFromTable(nodes[0]);
-//            var toRegion = Tables.regionFromRange(selectionRange);
+//            let fromRegion = Tables.getTableRegionFromTable(nodes[0]);
+//            let toRegion = Tables.regionFromRange(selectionRange);
 //            if (toRegion != null) {
 //                return;
 //            }
 //        }
 
     Selection.deleteContents(true);
-    var range = Selection.get();
+    let range = Selection.get();
     if (range == null)
         throw new Error("No current selection");
 
-    var parent;
-    var previousSibling;
-    var nextSibling;
+    let parent;
+    let previousSibling;
+    let nextSibling;
 
-    var start = range.start;
+    let start = range.start;
     start = Position.preferElementPosition(start);
     if (start.node.nodeType == Node.ELEMENT_NODE) {
         parent = start.node;
@@ -360,12 +360,12 @@ export function pasteNodes(nodes) {
         previousSibling = start.node;
     }
 
-    var prevLI = null;
-    var inItem = null;
-    var inList = null;
-    var containerParent = null;
+    let prevLI = null;
+    let inItem = null;
+    let inList = null;
+    let containerParent = null;
 
-    for (var temp = parent; temp != null; temp = temp.parentNode) {
+    for (let temp = parent; temp != null; temp = temp.parentNode) {
         if (Types.isContainerNode(temp)) {
             switch (temp._type) {
             case ElementTypes.HTML_LI:
@@ -381,13 +381,13 @@ export function pasteNodes(nodes) {
         }
     }
 
-    var pastedNodes;
+    let pastedNodes;
     if (inItem) {
         pastedNodes = new Array();
-        for (var i = 0; i < nodes.length; i++) {
-            var child = nodes[i];
+        for (let i = 0; i < nodes.length; i++) {
+            let child = nodes[i];
 
-            var offset = DOM.nodeOffset(nextSibling,parent);
+            let offset = DOM.nodeOffset(nextSibling,parent);
 
             switch (child._type) {
             case ElementTypes.HTML_UL:
@@ -411,10 +411,10 @@ export function pasteNodes(nodes) {
     }
     else if (inList) {
         pastedNodes = new Array();
-        for (var i = 0; i < nodes.length; i++) {
-            var child = nodes[i];
+        for (let i = 0; i < nodes.length; i++) {
+            let child = nodes[i];
 
-            var offset = DOM.nodeOffset(nextSibling,parent);
+            let offset = DOM.nodeOffset(nextSibling,parent);
 
             switch (child._type) {
             case ElementTypes.HTML_UL:
@@ -440,24 +440,24 @@ export function pasteNodes(nodes) {
     }
     else {
         pastedNodes = nodes;
-        for (var i = 0; i < nodes.length; i++) {
-            var child = nodes[i];
+        for (let i = 0; i < nodes.length; i++) {
+            let child = nodes[i];
             DOM.insertBefore(parent,child,nextSibling);
         }
     }
 
-    var prevOffset;
+    let prevOffset;
     if (previousSibling == null)
         prevOffset = 0;
     else
         prevOffset = DOM.nodeOffset(previousSibling);
-    var nextOffset = DOM.nodeOffset(nextSibling,parent);
+    let nextOffset = DOM.nodeOffset(nextSibling,parent);
 
-    var origRange = new Range.Range(parent,prevOffset,parent,nextOffset);
+    let origRange = new Range.Range(parent,prevOffset,parent,nextOffset);
 
-    var firstPasted = pastedNodes[0];
-    var lastPasted = pastedNodes[pastedNodes.length-1];
-    var pastedRange = new Range.Range(firstPasted,0,lastPasted,DOM.maxChildOffset(lastPasted));
+    let firstPasted = pastedNodes[0];
+    let lastPasted = pastedNodes[pastedNodes.length-1];
+    let pastedRange = new Range.Range(firstPasted,0,lastPasted,DOM.maxChildOffset(lastPasted));
     Range.trackWhileExecuting(origRange,function() {
     Range.trackWhileExecuting(pastedRange,function() {
         if (previousSibling != null)
@@ -470,7 +470,7 @@ export function pasteNodes(nodes) {
         Range.ensureValidHierarchy(pastedRange,true);
     })});
 
-    var pos = new Position.Position(origRange.end.node,origRange.end.offset);
+    let pos = new Position.Position(origRange.end.node,origRange.end.offset);
     Range.trackWhileExecuting(pastedRange,function() {
     Position.trackWhileExecuting(pos,function() {
         while (true) {
@@ -479,7 +479,7 @@ export function pasteNodes(nodes) {
             if (Types.isContainerNode(pos.node) && (pos.node._type != ElementTypes.HTML_LI))
                 break;
             if (!Util.nodeHasContent(pos.node)) {
-                var oldNode = pos.node;
+                let oldNode = pos.node;
                 pos = new Position.Position(pos.node.parentNode,DOM.nodeOffset(pos.node));
                 DOM.deleteNode(oldNode);
             }
@@ -500,9 +500,9 @@ export function pasteNodes(nodes) {
 
 function removeDuplicateIds(node,found) {
     if ((node.nodeType == Node.ELEMENT_NODE) && node.hasAttribute("id")) {
-        var id = node.getAttribute("id");
+        let id = node.getAttribute("id");
 
-        var existing = document.getElementById(id);
+        let existing = document.getElementById(id);
         if (existing == null)
             existing = found[id];
 
@@ -511,7 +511,7 @@ function removeDuplicateIds(node,found) {
         else
             found[id] = node;
     }
-    for (var child = node.firstChild; child != null; child = child.nextSibling)
+    for (let child = node.firstChild; child != null; child = child.nextSibling)
         removeDuplicateIds(child,found);
 }
 

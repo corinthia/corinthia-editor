@@ -31,9 +31,9 @@ import UndoManager = require("../src/undo");
 export function testHarnessSetup() {
     DOM.assignNodeIds(document);
 
-    var start;
-    var track;
-    var end;
+    let start;
+    let track;
+    let end;
 
 
     UndoManager.disableWhileExecuting(function() {
@@ -50,7 +50,7 @@ export function testHarnessSetup() {
         throw new Error("End of selection specified, but not start");
 
     if ((start != null) && (end != null)) {
-        var range = new Range.Range(start.node,start.offset,end.node,end.offset);
+        let range = new Range.Range(start.node,start.offset,end.node,end.offset);
 
         UndoManager.disableWhileExecuting(function() {
             Range.trackWhileExecuting(range,function() {
@@ -68,8 +68,8 @@ export function testHarnessSetup() {
     return;
 
     function positionMergeWithNeighbours(pos) {
-        var node = pos.node;
-        var offset = pos.offset;
+        let node = pos.node;
+        let offset = pos.offset;
         if ((node.nodeType == Node.ELEMENT_NODE) && (offset < node.childNodes.length))
             Formatting.mergeWithNeighbours(node.childNodes[offset],Formatting.MERGEABLE_INLINE);
         else if ((node.nodeType == Node.ELEMENT_NODE) && (node.lastChild != null))
@@ -83,9 +83,9 @@ export function testHarnessSetup() {
 
         function recurse(node) {
             if (node.nodeType == Node.TEXT_NODE) {
-                var index = node.nodeValue.indexOf(c);
+                let index = node.nodeValue.indexOf(c);
                 if (index >= 0) {
-                    var offsetInParent = DOM.nodeOffset(node);
+                    let offsetInParent = DOM.nodeOffset(node);
                     if (index == 0) {
                         node.nodeValue = node.nodeValue.substring(1);
                         return new Position.Position(node.parentNode,offsetInParent);
@@ -95,17 +95,17 @@ export function testHarnessSetup() {
                         return new Position.Position(node.parentNode,offsetInParent+1);
                     }
                     else {
-                        var rest = node.nodeValue.substring(index+1);
+                        let rest = node.nodeValue.substring(index+1);
                         node.nodeValue = node.nodeValue.substring(0,index);
-                        var restNode = DOM.createTextNode(document,rest);
+                        let restNode = DOM.createTextNode(document,rest);
                         DOM.insertBefore(node.parentNode,restNode,node.nextSibling);
                         return new Position.Position(node.parentNode,offsetInParent+1);
                     }
                 }
             }
             else {
-                for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                    var result = recurse(child);
+                for (let child = node.firstChild; child != null; child = child.nextSibling) {
+                    let result = recurse(child);
                     if (result != null)
                         return result;
                 }
@@ -123,7 +123,7 @@ export function insertAtPosition(position,node) {
             DOM.insertBefore(position.node,node,position.node.childNodes[position.offset]);
     }
     else if (position.node.nodeType == Node.TEXT_NODE) {
-        var newText = DOM.createTextNode(document,position.node.nodeValue.slice(position.offset));
+        let newText = DOM.createTextNode(document,position.node.nodeValue.slice(position.offset));
         position.node.nodeValue = position.node.nodeValue.slice(0,position.offset);
         DOM.insertBefore(position.node.parentNode,newText,position.node.nextSibling);
         DOM.insertBefore(position.node.parentNode,node,position.node.nextSibling);
@@ -132,8 +132,8 @@ export function insertAtPosition(position,node) {
 
 export function insertTextAtPosition(position,str) {
     if (position.node.nodeType == Node.ELEMENT_NODE) {
-        var before = position.node.childNodes[position.offset-1];
-        var after = position.node.childNodes[position.offset];
+        let before = position.node.childNodes[position.offset-1];
+        let after = position.node.childNodes[position.offset];
         if ((after != null) && (after.nodeType == Node.TEXT_NODE))
             position = new Position.Position(after,0);
         else if ((before != null) && (before.nodeType == Node.TEXT_NODE))
@@ -159,7 +159,7 @@ export function showRangeAsBrackets(range) {
 }
 
 export function showSelection() {
-    var range = Selection.get();
+    let range = Selection.get();
     if (range != null) {
         Range.assertValid(range,"Selection");
         showRangeAsBrackets(range);
@@ -172,14 +172,14 @@ export function removeIds() {
     function recurse(node) {
         if (node.nodeType == Node.ELEMENT_NODE) {
             DOM.removeAttribute(node,"id");
-            for (var child = node.firstChild; child != null; child = child.nextSibling)
+            for (let child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
         }
     }
 }
 
 export function selectNode(node) {
-    var offset = DOM.nodeOffset(node);
+    let offset = DOM.nodeOffset(node);
     Selection.set(node.parentNode,offset,node.parentNode,offset+1);
 }
 
@@ -193,8 +193,8 @@ export function removeWhitespaceAndCommentNodes(root) {
             DOM.deleteNode(node);
         }
         else {
-            var next;
-            for (var child = node.firstChild; child != null; child = next) {
+            let next;
+            for (let child = node.firstChild; child != null; child = next) {
                 next = child.nextSibling;
                 recurse(child);
             }
@@ -229,14 +229,14 @@ export function showEmptyTextNodes() {
     function recurse(node) {
         if ((node.nodeType == Node.TEXT_NODE) && (node.nodeValue.length == 0))
             node.nodeValue = "*";
-        for (var child = node.firstChild; child != null; child = child.nextSibling)
+        for (let child = node.firstChild; child != null; child = child.nextSibling)
             recurse(child);
     }
 }
 
 export function showClipboard(clipboard) {
-    var html = clipboard["text/html"];
-    var text = clipboard["text/plain"];
+    let html = clipboard["text/html"];
+    let text = clipboard["text/plain"];
 
     if ((html.length == 0) || (html.charAt(html.length-1) != "\n"))
         html += "\n";
@@ -284,16 +284,16 @@ export function setNumbering(enabled) {
             break;
         }
 
-        for (var child = node.firstChild; child != null; child = child.nextSibling)
+        for (let child = node.firstChild; child != null; child = child.nextSibling)
             recurse(child,enabled);
     }
 }
 
 export function readXML(filename) {
-    var req = new XMLHttpRequest();
+    let req = new XMLHttpRequest();
     req.open("GET",filename,false);
     req.send();
-    var xml = req.responseXML;
+    let xml = req.responseXML;
     if (xml == null)
         return null;
     DOM.assignNodeIds(xml.documentElement);
@@ -308,8 +308,8 @@ export function findTextMatchingRecursive(node,re) {
             return null;
     }
     else {
-        for (var child = node.firstChild; child != null; child = child.nextSibling) {
-            var result = findTextMatchingRecursive(child,re);
+        for (let child = node.firstChild; child != null; child = child.nextSibling) {
+            let result = findTextMatchingRecursive(child,re);
             if (result != null)
                 return result;
         }
@@ -364,7 +364,7 @@ export function setupOutlineNumbering() {
 }
 
 export function prependTableOfContents() {
-    var nav = DOM.createElement(document,"NAV");
+    let nav = DOM.createElement(document,"NAV");
     DOM.setAttribute(nav,"class","tableofcontents");
     DOM.insertBefore(document.body,nav,document.body.firstChild);
     PostponedActions.perform();
@@ -381,13 +381,13 @@ export function simplifyTOCs() {
             mergeAdjacentTextNodes(node);
         }
         else {
-            for (var child = node.firstChild; child != null; child = child.nextSibling)
+            for (let child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
         }
     }
 
     function mergeAdjacentTextNodes(node) {
-        var child = node.firstChild;
+        let child = node.firstChild;
         while (child != null) {
             if ((child.nodeType == Node.TEXT_NODE) &&
                 (child.nextSibling != null) &&
@@ -400,7 +400,7 @@ export function simplifyTOCs() {
             }
         }
 
-        for (var child = node.firstChild; child != null; child = child.nextSibling)
+        for (let child = node.firstChild; child != null; child = child.nextSibling)
             mergeAdjacentTextNodes(child);
     }
 }
@@ -414,7 +414,7 @@ export function showNonEmptyTextNodes() {
                 node.nodeValue = "{" + node.nodeValue + "}";
         }
         else {
-            for (var child = node.firstChild; child != null; child = child.nextSibling)
+            for (let child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
         }
     }

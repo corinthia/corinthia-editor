@@ -17,7 +17,7 @@
 
 import Util = require("./util");
 
-var UNDO_LIMIT = 50;
+let UNDO_LIMIT = 50;
 
 function UndoGroup(type,onClose) {
     this.type = type;
@@ -31,14 +31,14 @@ function UndoAction(fun,args) {
 }
 
 UndoAction.prototype.toString = function() {
-    var name;
+    let name;
     if (this.fun.wrappedName != null)
         name = this.fun.wrappedName;
     else
         name = this.fun.name;
 
-    var argStrings = new Array();
-    for (var i = 0; i < this.args.length; i++) {
+    let argStrings = new Array();
+    for (let i = 0; i < this.args.length; i++) {
         if (this.args[i] instanceof Node)
             argStrings.push(Util.nodeString(this.args[i]));
         else if (this.args[i] == null)
@@ -50,12 +50,12 @@ UndoAction.prototype.toString = function() {
     return name + "(" + argStrings.join(",") + ")";
 }
 
-var undoStack = new Array();
-var redoStack = new Array();
-var inUndo = false;
-var inRedo = false;
-var currentGroup = null;
-var disabled = 0;
+let undoStack = new Array();
+let redoStack = new Array();
+let inUndo = false;
+let inRedo = false;
+let currentGroup = null;
+let disabled = 0;
 
 // public
 export function getLength() {
@@ -80,20 +80,20 @@ export function print() {
     Util.debug("");
     Util.debug("--------------------------------------------------------------------");
     Util.debug("Undo stack:");
-    for (var groupIndex = 0; groupIndex < undoStack.length; groupIndex++) {
-        var group = undoStack[groupIndex];
+    for (let groupIndex = 0; groupIndex < undoStack.length; groupIndex++) {
+        let group = undoStack[groupIndex];
         Util.debug("    "+group.type);
-        for (var actionIndex = 0; actionIndex < group.actions.length; actionIndex++) {
-            var action = group.actions[actionIndex];
+        for (let actionIndex = 0; actionIndex < group.actions.length; actionIndex++) {
+            let action = group.actions[actionIndex];
             Util.debug("        "+action);
         }
     }
     Util.debug("Redo stack:");
-    for (var groupIndex = 0; groupIndex < redoStack.length; groupIndex++) {
-        var group = redoStack[groupIndex];
+    for (let groupIndex = 0; groupIndex < redoStack.length; groupIndex++) {
+        let group = redoStack[groupIndex];
         Util.debug("    "+group.type);
-        for (var actionIndex = 0; actionIndex < group.actions.length; actionIndex++) {
-            var action = group.actions[actionIndex];
+        for (let actionIndex = 0; actionIndex < group.actions.length; actionIndex++) {
+            let action = group.actions[actionIndex];
             Util.debug("        "+action);
         }
     }
@@ -112,9 +112,9 @@ function closeCurrentGroup() {
 export function undo() {
     closeCurrentGroup();
     if (undoStack.length > 0) {
-        var group = undoStack.pop();
+        let group = undoStack.pop();
         inUndo = true;
-        for (var i = group.actions.length-1; i >= 0; i--)
+        for (let i = group.actions.length-1; i >= 0; i--)
             group.actions[i].fun.apply(null,group.actions[i].args);
         inUndo = false;
     }
@@ -125,9 +125,9 @@ export function undo() {
 export function redo() {
     closeCurrentGroup();
     if (redoStack.length > 0) {
-        var group = redoStack.pop();
+        let group = redoStack.pop();
         inRedo = true;
-        for (var i = group.actions.length-1; i >= 0; i--)
+        for (let i = group.actions.length-1; i >= 0; i--)
             group.actions[i].fun.apply(null,group.actions[i].args);
         inRedo = false;
     }
@@ -135,19 +135,19 @@ export function redo() {
 }
 
 // public
-export function addAction(fun,...args) {
+export function addAction(fun,...rest) {
     if (disabled > 0)
         return;
 
     // remaining parameters after fun are arguments to be supplied to fun
-    var args = new Array();
-    for (var i = 1; i < arguments.length; i++)
+    let args = new Array();
+    for (let i = 1; i < arguments.length; i++)
         args.push(arguments[i]);
 
     if (!inUndo && !inRedo && (redoStack.length > 0))
         redoStack.length = 0;
 
-    var stack = inUndo ? redoStack : undoStack;
+    let stack = inUndo ? redoStack : undoStack;
     if (currentGroup == null)
         newGroup(null);
 
@@ -230,4 +230,4 @@ export function deleteProperty(obj,name) {
     delete obj[name];
 }
 
-export var undoSupported = true;
+export let undoSupported = true;

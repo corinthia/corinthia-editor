@@ -29,8 +29,8 @@ export function findTextMatching(re) {
                 return null;
         }
         else {
-            for (var child = node.firstChild; child != null; child = child.nextSibling) {
-                var result = recurse(child);
+            for (let child = node.firstChild; child != null; child = child.nextSibling) {
+                let result = recurse(child);
                 if (result != null)
                     return result;
             }
@@ -40,10 +40,10 @@ export function findTextMatching(re) {
 }
 
 export function showCorrections() {
-    var corrections = AutoCorrect.getCorrections();
-    var lines = new Array();
+    let corrections = AutoCorrect.getCorrections();
+    let lines = new Array();
     lines.push("Corrections:\n");
-    for (var i = 0; i < corrections.length; i++) {
+    for (let i = 0; i < corrections.length; i++) {
         lines.push("    "+corrections[i].original+" -> "+corrections[i].replacement+"\n");
     }
     return PrettyPrinter.getHTML(document.documentElement)+"\n"+lines.join("");

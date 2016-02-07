@@ -22,7 +22,7 @@ import Selection = require("./selection");
 import Tables = require("./tables");
 import Types = require("./types");
 
-var previewText =
+let previewText =
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec in diam \n"+
     "mauris. Integer in lorem sit amet dolor lacinia aliquet. Cras vehicula odio \n"+
     "non enim euismod nec congue lorem varius. Sed eu libero arcu, eget tempus \n"+
@@ -44,16 +44,16 @@ function setTableCellContents(node) {
         DOM.appendChild(node,DOM.createTextNode(document,"Cell contents"));
     }
     else {
-        for (var child = node.firstChild; child != null; child = child.nextSibling)
+        for (let child = node.firstChild; child != null; child = child.nextSibling)
             setTableCellContents(child);
     }
 }
 
 export function showForStyle(styleId,uiName,titleText) {
-    var elementName = null;
-    var className = null;
+    let elementName = null;
+    let className = null;
 
-    var dotPos = styleId.indexOf(".");
+    let dotPos = styleId.indexOf(".");
     if (dotPos >= 0) {
         elementName = styleId.substring(0,dotPos);
         className = styleId.substring(dotPos+1);
@@ -63,15 +63,15 @@ export function showForStyle(styleId,uiName,titleText) {
         className = null;
     }
 
-    var title = DOM.createTextNode(document,titleText);
-    var text = DOM.createTextNode(document,previewText);
+    let title = DOM.createTextNode(document,titleText);
+    let text = DOM.createTextNode(document,previewText);
 
     Selection.clear();
     DOM.deleteAllChildren(document.body);
 
     if (Types.PARAGRAPH_ELEMENTS[ElementTypes.fromString[elementName]]) {
-        var paragraph1 = createParagraphElement(elementName,className);
-        var paragraph2 = createParagraphElement(elementName,className);
+        let paragraph1 = createParagraphElement(elementName,className);
+        let paragraph2 = createParagraphElement(elementName,className);
         DOM.appendChild(paragraph1,title);
         DOM.appendChild(paragraph2,text);
         DOM.appendChild(document.body,paragraph1);
@@ -83,10 +83,10 @@ export function showForStyle(styleId,uiName,titleText) {
         }
     }
     else if (elementName == "span") {
-        var p1 = DOM.createElement(document,"P");
-        var p2 = DOM.createElement(document,"P");
-        var span1 = DOM.createElement(document,"SPAN");
-        var span2 = DOM.createElement(document,"SPAN");
+        let p1 = DOM.createElement(document,"P");
+        let p2 = DOM.createElement(document,"P");
+        let span1 = DOM.createElement(document,"SPAN");
+        let span2 = DOM.createElement(document,"SPAN");
 
         if (className != null) {
             DOM.setAttribute(span1,"class",className);
@@ -107,7 +107,7 @@ export function showForStyle(styleId,uiName,titleText) {
         Selection.selectAll();
         Tables.insertTable(3,3,"66%",true,"Table caption");
         Selection.clear();
-        var table = document.getElementsByTagName("TABLE")[0];
+        let table = document.getElementsByTagName("TABLE")[0];
         setTableCellContents(table);
         if ((elementName == "table") && (className != null))
             DOM.setAttribute(table,"class",className);
@@ -127,7 +127,7 @@ export function showForStyle(styleId,uiName,titleText) {
     }
 
     function createParagraphElement(elementName,className) {
-        var element = DOM.createElement(document,elementName);
+        let element = DOM.createElement(document,elementName);
         if (className != null)
             DOM.setAttribute(element,"class",className);
         return element;

@@ -38,45 +38,45 @@ NodeSet.prototype.contains = function(node) {
 }
 
 NodeSet.prototype.toArray = function() {
-    var result = new Array();
-    for (var id in this.members)
+    let result = new Array();
+    for (let id in this.members)
         result.push(this.members[id]);
     return result;
 }
 
 NodeSet.prototype.forEach = function(fun) {
-    var ids = Object.getOwnPropertyNames(this.members);
-    var set = this;
+    let ids = Object.getOwnPropertyNames(this.members);
+    let set = this;
     ids.forEach(function(id) { fun(set.members[id]); });
 }
 
 NodeSet.prototype.ancestor = function() {
-    var result = new NodeSet();
+    let result = new NodeSet();
     this.forEach(function (node) {
-        for (var p = node.parentNode; p != null; p = p.parentNode)
+        for (let p = node.parentNode; p != null; p = p.parentNode)
             result.add(p);
     });
     return result;
 }
 
 NodeSet.prototype.ancestorOrSelf = function() {
-    var result = new NodeSet();
+    let result = new NodeSet();
     this.forEach(function (node) {
-        for (var p = node; p != null; p = p.parentNode)
+        for (let p = node; p != null; p = p.parentNode)
             result.add(p);
     });
     return result;
 }
 
 NodeSet.prototype.descendant = function() {
-    var result = new NodeSet();
+    let result = new NodeSet();
     this.forEach(function (node) {
         recurse(node);
     });
     return result;
 
     function recurse(node) {
-        for (var child = node.firstChild; child != null; child = child.nextSibling) {
+        for (let child = node.firstChild; child != null; child = child.nextSibling) {
             result.add(child);
             recurse(child);
         }
@@ -84,7 +84,7 @@ NodeSet.prototype.descendant = function() {
 }
 
 NodeSet.prototype.descendantOrSelf = function() {
-    var result = new NodeSet();
+    let result = new NodeSet();
     this.forEach(function (node) {
         recurse(node);
     });
@@ -92,26 +92,26 @@ NodeSet.prototype.descendantOrSelf = function() {
 
     function recurse(node) {
         result.add(node);
-        for (var child = node.firstChild; child != null; child = child.nextSibling)
+        for (let child = node.firstChild; child != null; child = child.nextSibling)
             recurse(child);
     }
 }
 
 NodeSet.prototype.union = function(other) {
-    var result = new NodeSet();
+    let result = new NodeSet();
     this.forEach(function (node) { result.add(node); });
     other.forEach(function (node) { result.add(node); });
     return result;
 }
 
 NodeSet.prototype.intersection = function(other) {
-    var result = new NodeSet();
+    let result = new NodeSet();
     this.forEach(function (node) { if (other.contains(node)) { result.add(node); } });
     return result;
 }
 
 NodeSet.prototype.fromArray = function(array) {
-    var set = new NodeSet();
+    let set = new NodeSet();
     array.forEach(function(node) { set.add(node); });
     return set;
 }
@@ -154,21 +154,21 @@ NodeMap.prototype.containsKey = function(key) {
 }
 
 NodeMap.prototype.getKeys = function() {
-    var ids = Object.getOwnPropertyNames(this.values);
-    var result = new Array(ids.length);
-    for (var i = 0; i < ids.length; i++)
+    let ids = Object.getOwnPropertyNames(this.values);
+    let result = new Array(ids.length);
+    for (let i = 0; i < ids.length; i++)
         result[i] = this.keys[ids[i]];
     return result;
 }
 
 NodeMap.prototype.forEach = function(fun) {
-    var ids = Object.getOwnPropertyNames(this.values);
-    var map = this;
+    let ids = Object.getOwnPropertyNames(this.values);
+    let map = this;
     ids.forEach(function(id) { fun(map.keys[id],map.values[id]); });
 }
 
 NodeMap.prototype.fromArray = function(array,fun) {
-    var map = new NodeMap();
+    let map = new NodeMap();
     if (fun != null)
         array.forEach(function(node) { map.put(node,fun(node)); });
     else

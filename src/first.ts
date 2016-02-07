@@ -19,34 +19,34 @@
 // appropriate namespace prefix for the document in question (since we can't rely on the
 // values that LibreOffice/MS Word happen to use by default)
 
-var XML_NAMESPACE = "http://www.w3.org/XML/1998/namespace";
+let XML_NAMESPACE = "http://www.w3.org/XML/1998/namespace";
 
 // ODF
 
-var OFFICE_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:office:1.0";
-var STYLE_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:style:1.0";
-var TEXT_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:text:1.0";
-var TABLE_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:table:1.0";
-var FO_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0";
-var SVG_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0";
-var XLINK_NAMESPACE = "http://www.w3.org/1999/xlink";
+let OFFICE_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:office:1.0";
+let STYLE_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:style:1.0";
+let TEXT_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:text:1.0";
+let TABLE_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:table:1.0";
+let FO_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0";
+let SVG_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0";
+let XLINK_NAMESPACE = "http://www.w3.org/1999/xlink";
 
-var OFFICE_PREFIX = "office:";
-var STYLE_PREFIX = "style:";
-var TEXT_PREFIX = "text:";
-var TABLE_PREFIX = "table:";
-var FO_PREFIX = "fo:";
-var SVG_PREFIX = "svg:";
-var XLINK_PREFIX = "xlink:";
+let OFFICE_PREFIX = "office:";
+let STYLE_PREFIX = "style:";
+let TEXT_PREFIX = "text:";
+let TABLE_PREFIX = "table:";
+let FO_PREFIX = "fo:";
+let SVG_PREFIX = "svg:";
+let XLINK_PREFIX = "xlink:";
 
 // OOXML
 
-var WORD_NAMESPACE = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
-var WORD_PREFIX = "w:";
+let WORD_NAMESPACE = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
+let WORD_PREFIX = "w:";
 
-var globalAPI = {};
+let globalAPI = {};
 
-var define;
+let define;
 
 (function() {
 
@@ -56,14 +56,14 @@ function resolvePath(base,path) {
     base = base.replace(/\/+/g,"/");
     path = path.replace(/\/+/g,"/");
 
-    var baseParts = base.split("/");
-    var pathParts = path.split("/");
+    let baseParts = base.split("/");
+    let pathParts = path.split("/");
 
     if (baseParts.length == 0)
         throw new Error("Base filename has no parts");
     baseParts.pop();
 
-    for (var i = 0; i < pathParts.length; i++) {
+    for (let i = 0; i < pathParts.length; i++) {
         if (pathParts[i] == ".") {
             // do nothing
         }
@@ -108,9 +108,9 @@ function getOrCreateModule(name) {
 
     name = mapToLegacyModuleName(name);
 
-    var path = name.split(".");
-    var mod = globalAPI;
-    for (var i = 0; i < path.length; i++) {
+    let path = name.split(".");
+    let mod = globalAPI;
+    for (let i = 0; i < path.length; i++) {
         if (mod[path[i]] === undefined)
             mod[path[i]] = {};
         mod = mod[path[i]];
@@ -123,10 +123,10 @@ function reqmodule(name) {
 }
 
 define = function(...args) {
-    var index = 0;
-    var id = null;
-    var dependencies = null;
-    var factory = null;
+    let index = 0;
+    let id = null;
+    let dependencies = null;
+    let factory = null;
     if ((index < args.length) && (args[index] != null) && (typeof(args[index]) == "string"))
         id = args[index++];
     if ((index < args.length) && (args[index] != null) && (args[index] instanceof Array))
@@ -134,8 +134,8 @@ define = function(...args) {
     if ((index < args.length) && (args[index] != null) && (args[index] instanceof Function))
         factory = args[index++];
 
-    var moduleFilename = "";
-    var filePrefix = "";
+    let moduleFilename = "";
+    let filePrefix = "";
     if (id == null) {
         if (window._nextDefineFilename == null)
             throw new Error("_nextDefineFilename is not set");
@@ -153,9 +153,9 @@ define = function(...args) {
     if (dependencies == null)
         dependencies = ["require","exports","module"];
 
-    var mod = getOrCreateModule(id);
+    let mod = getOrCreateModule(id);
 
-    var factoryArgs = [];
+    let factoryArgs = [];
     dependencies.forEach(function(dep) {
         if (dep == "require")
             factoryArgs.push(reqmodule);
@@ -164,8 +164,8 @@ define = function(...args) {
         else if (dep == "module")
             factoryArgs.push(null);
         else {
-            var resolved = resolvePath(moduleFilename,dep);
-            var resolved2 = resolved.replace(/\//g,".");
+            let resolved = resolvePath(moduleFilename,dep);
+            let resolved2 = resolved.replace(/\//g,".");
             factoryArgs.push(getOrCreateModule(resolved2));
         }
     });

@@ -32,11 +32,11 @@ import Types = require("./types");
 import UndoManager = require("./undo");
 import Util = require("./util");
 
-var HANDLE_NONE = 0;
-var HANDLE_START = 1;
-var HANDLE_END = 2;
+let HANDLE_NONE = 0;
+let HANDLE_START = 1;
+let HANDLE_END = 2;
 
-var activeHandle = HANDLE_NONE;
+let activeHandle = HANDLE_NONE;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                            //
@@ -44,7 +44,7 @@ var activeHandle = HANDLE_NONE;
 //                                                                                            //
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-var internalSelection: any = new Object();
+let internalSelection: any = new Object();
 
 export function isMarked() {
     if (internalSelection.value == null)
@@ -64,7 +64,7 @@ export function get() {
 
 // public
 export function setInternal(newStartNode,newStartOffset,newEndNode,newEndOffset,isMarked?) {
-    var range = new Range.Range(newStartNode,newStartOffset,newEndNode,newEndOffset);
+    let range = new Range.Range(newStartNode,newStartOffset,newEndNode,newEndOffset);
     if (!Range.isForwards(range))
         range = new Range.Range(newEndNode,newEndOffset,newStartNode,newStartOffset);
     range = boundaryCompliantRange(range);
@@ -97,9 +97,9 @@ export function clear() {
 //                                                                                            //
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-var selectionDivs = new Array();
-var selectionHighlights = new Array();
-var tableSelection = null;
+let selectionDivs = new Array();
+let selectionHighlights = new Array();
+let tableSelection = null;
 
 // public (for tests)
 export function updateTableSelection(selRange) {
@@ -111,29 +111,29 @@ export function updateTableSelection(selRange) {
 
         removeSelectionHighlights(getRangeData(null));
 
-        var sel = tableSelection;
+        let sel = tableSelection;
 
-        var topLeftTD = Tables.Table_get(sel.structure,sel.top,sel.left);
-        var bottomRightTD = Tables.Table_get(sel.structure,sel.bottom,sel.right);
+        let topLeftTD = Tables.Table_get(sel.structure,sel.top,sel.left);
+        let bottomRightTD = Tables.Table_get(sel.structure,sel.bottom,sel.right);
 
-        var topLeftRect = topLeftTD.element.getBoundingClientRect();
-        var bottomRightRect = bottomRightTD.element.getBoundingClientRect();
+        let topLeftRect = topLeftTD.element.getBoundingClientRect();
+        let bottomRightRect = bottomRightTD.element.getBoundingClientRect();
 
-        var left = topLeftRect.left;
-        var top = topLeftRect.top;
+        let left = topLeftRect.left;
+        let top = topLeftRect.top;
 
-        var bottom = bottomRightRect.bottom;
-        var right = bottomRightRect.right;
+        let bottom = bottomRightRect.bottom;
+        let right = bottomRightRect.right;
 
-        var x = left;
-        var y = top;
-        var width = right - left;
-        var height = bottom - top;
+        let x = left;
+        let y = top;
+        let width = right - left;
+        let height = bottom - top;
 
         x += window.scrollX;
         y += window.scrollY;
 
-        var div = makeSelectionDiv();
+        let div = makeSelectionDiv();
         DOM.setAttribute(div,"class",Types.Keys.SELECTION_HIGHLIGHT);
         DOM.setStyleProperties(div,{ "position": "absolute",
                                      "left": x+"px",
@@ -154,19 +154,19 @@ export function updateTableSelection(selRange) {
 }
 
 function makeSelectionDiv() {
-    var div = DOM.createElement(document,"DIV");
+    let div = DOM.createElement(document,"DIV");
     DOM.appendChild(document.body,div);
     selectionDivs.push(div);
     return div;
 }
 
 function setTableEdges(x,y,width,height) {
-    var left = makeSelectionDiv();
-    var right = makeSelectionDiv();
-    var top = makeSelectionDiv();
-    var bottom = makeSelectionDiv();
+    let left = makeSelectionDiv();
+    let right = makeSelectionDiv();
+    let top = makeSelectionDiv();
+    let bottom = makeSelectionDiv();
 
-    var thick = 2;
+    let thick = 2;
     width++;
     height++;
     setBoxCoords(left,x-thick,y-thick,thick,height+2*thick);
@@ -185,9 +185,9 @@ function setTableEdges(x,y,width,height) {
     }
 }
 
-var editorHandles = { type: "none" };
+let editorHandles = { type: "none" };
 function setEditorHandles(info) {
-    var oldEditorHandles = editorHandles;
+    let oldEditorHandles = editorHandles;
     editorHandles = info;
     UndoManager.addAction(function() {
         setEditorHandles(oldEditorHandles);
@@ -235,24 +235,24 @@ function getNextHighlightText(node) {
 }
 
 function getTextNodeBefore(node) {
-    var prev = node.previousSibling;
+    let prev = node.previousSibling;
     if ((prev != null) && (prev.nodeType == Node.TEXT_NODE)) {
         return prev;
     }
     else {
-        var text = DOM.createTextNode(document,"");
+        let text = DOM.createTextNode(document,"");
         DOM.insertBefore(node.parentNode,text,node);
         return text;
     }
 }
 
 function getTextNodeAfter(node) {
-    var next = node.nextSibling;
+    let next = node.nextSibling;
     if ((next != null) && (next.nodeType == Node.TEXT_NODE)) {
         return next;
     }
     else {
-        var text = DOM.createTextNode(document,"");
+        let text = DOM.createTextNode(document,"");
         DOM.insertBefore(node.parentNode,text,node.nextSibling);
         return text;
     }
@@ -264,10 +264,10 @@ function setSelectionHighlights(highlights) {
 }
 
 function createSelectionHighlights(data) {
-    var newHighlights = Util.arrayCopy(selectionHighlights);
+    let newHighlights = Util.arrayCopy(selectionHighlights);
 
-    var outermost = data.outermost;
-    for (var i = 0; i < outermost.length; i++) {
+    let outermost = data.outermost;
+    for (let i = 0; i < outermost.length; i++) {
         recurse(outermost[i]);
     }
 
@@ -276,14 +276,14 @@ function createSelectionHighlights(data) {
     function recurse(node) {
         if (Types.isSpecialBlockNode(node)) {
             if (!Types.isSelectionHighlight(node.parentNode)) {
-                var wrapped = DOM.wrapNode(node,"DIV");
+                let wrapped = DOM.wrapNode(node,"DIV");
                 DOM.setAttribute(wrapped,"class",Types.Keys.SELECTION_CLASS);
                 newHighlights.push(wrapped);
             }
         }
         else if (Types.isNoteNode(node)) {
             if (!Types.isSelectionHighlight(node.parentNode)) {
-                var wrapped = DOM.wrapNode(node,"SPAN");
+                let wrapped = DOM.wrapNode(node,"SPAN");
                 DOM.setAttribute(wrapped,"class",Types.Keys.SELECTION_CLASS);
                 newHighlights.push(wrapped);
             }
@@ -292,8 +292,8 @@ function createSelectionHighlights(data) {
             createTextHighlight(node,data,newHighlights);
         }
         else {
-            var next;
-            for (var child = node.firstChild; child != null; child = next) {
+            let next;
+            for (let child = node.firstChild; child != null; child = next) {
                 next = child.nextSibling;
                 recurse(child);
             }
@@ -302,11 +302,11 @@ function createSelectionHighlights(data) {
 }
 
 function createTextHighlight(node,data,newHighlights) {
-    var selRange = data.range;
+    let selRange = data.range;
     if (Types.isSelectionHighlight(node.parentNode)) {
 
         if ((node == selRange.end.node) && (node.nodeValue.length > selRange.end.offset)) {
-            var destTextNode = getTextNodeAfter(node.parentNode);
+            let destTextNode = getTextNodeAfter(node.parentNode);
             DOM.moveCharacters(node,
                                selRange.end.offset,
                                node.nodeValue.length,
@@ -314,7 +314,7 @@ function createTextHighlight(node,data,newHighlights) {
                                true,false);
         }
         if ((node == selRange.start.node) && (selRange.start.offset > 0)) {
-            var destTextNode = getTextNodeBefore(node.parentNode);
+            let destTextNode = getTextNodeBefore(node.parentNode);
             DOM.moveCharacters(node,
                                0,
                                selRange.start.offset,
@@ -325,8 +325,8 @@ function createTextHighlight(node,data,newHighlights) {
         return;
     }
 
-    var anext;
-    for (var a = node; a != null; a = anext) {
+    let anext;
+    for (let a = node; a != null; a = anext) {
         anext = a.parentNode;
         if (Types.isSelectionHighlight(a))
             DOM.removeNodeButKeepChildren(a);
@@ -347,8 +347,8 @@ function createTextHighlight(node,data,newHighlights) {
                                    function() { return true; });
     }
 
-    var prevText = getPrevHighlightText(node);
-    var nextText = getNextHighlightText(node);
+    let prevText = getPrevHighlightText(node);
+    let nextText = getNextHighlightText(node);
 
     if ((prevText != null) && containsSelection(data.nodeSet,prevText)) {
         DOM.moveCharacters(node,0,node.nodeValue.length,
@@ -373,20 +373,20 @@ function createTextHighlight(node,data,newHighlights) {
             DOM.moveCharacters(nextText,0,0,node,node.nodeValue.length);
         }
 
-        var wrapped = DOM.wrapNode(node,"SPAN");
+        let wrapped = DOM.wrapNode(node,"SPAN");
         DOM.setAttribute(wrapped,"class",Types.Keys.SELECTION_CLASS);
         newHighlights.push(wrapped);
     }
 }
 
 function getRangeData(selRange) {
-    var nodeSet = new Collections.NodeSet();
-    var nodes;
-    var outermost;
+    let nodeSet = new Collections.NodeSet();
+    let nodes;
+    let outermost;
     if (selRange != null) {
         outermost = Range.getOutermostNodes(selRange);
         nodes = Range.getAllNodes(selRange);
-        for (var i = 0; i < nodes.length; i++)
+        for (let i = 0; i < nodes.length; i++)
             nodeSet.add(nodes[i]);
     }
     else {
@@ -397,12 +397,12 @@ function getRangeData(selRange) {
 }
 
 function removeSelectionHighlights(data,force?) {
-    var selectedSet = data.nodeSet;
+    let selectedSet = data.nodeSet;
 
-    var remainingHighlights = new Array();
-    var checkMerge = new Array();
-    for (var i = 0; i < selectionHighlights.length; i++) {
-        var span = selectionHighlights[i];
+    let remainingHighlights = new Array();
+    let checkMerge = new Array();
+    for (let i = 0; i < selectionHighlights.length; i++) {
+        let span = selectionHighlights[i];
         if ((span.parentNode != null) && (force || !containsSelection(selectedSet,span))) {
             if (span.firstChild != null)
                 checkMerge.push(span.firstChild);
@@ -417,7 +417,7 @@ function removeSelectionHighlights(data,force?) {
     }
     setSelectionHighlights(remainingHighlights);
 
-    for (var i = 0; i < checkMerge.length; i++) {
+    for (let i = 0; i < checkMerge.length; i++) {
         // if not already merged
         if ((checkMerge[i] != null) && (checkMerge[i].parentNode != null)) {
             Formatting.mergeWithNeighbours(checkMerge[i],{});
@@ -428,7 +428,7 @@ function removeSelectionHighlights(data,force?) {
 function containsSelection(selectedSet,node) {
     if (selectedSet.contains(node))
         return true;
-    for (var child = node.firstChild; child != null; child = child.nextSibling) {
+    for (let child = node.firstChild; child != null; child = child.nextSibling) {
         if (containsSelection(selectedSet,child))
             return true;
     }
@@ -436,12 +436,12 @@ function containsSelection(selectedSet,node) {
 }
 
 export function update() {
-    var selRange = get();
-    var selMarked = isMarked();
+    let selRange = get();
+    let selMarked = isMarked();
 
     Range.trackWhileExecuting(selRange,function() {
         // Remove table selection DIVs
-        for (var i = 0; i < selectionDivs.length; i++)
+        for (let i = 0; i < selectionDivs.length; i++)
             DOM.deleteNode(selectionDivs[i]);
         selectionDivs = new Array();
     });
@@ -471,12 +471,12 @@ export function update() {
 
         // If we can't find the cursor rect for some reason, just don't update the position.
         // This is better than using an incorrect position or throwing an exception.
-        var rect = Position.displayRectAtPos(selRange.end);
+        let rect = Position.displayRectAtPos(selRange.end);
         if (rect != null) {
-            var left = rect.left + window.scrollX;
-            var top = rect.top + window.scrollY;
-            var height = rect.height;
-            var width = rect.width ? rect.width : 2;
+            let left = rect.left + window.scrollX;
+            let top = rect.top + window.scrollY;
+            let height = rect.height;
+            let width = rect.width ? rect.width : 2;
             setEditorHandles({ type: "cursor",
                                left: left,
                                top: top,
@@ -489,21 +489,21 @@ export function update() {
     if (updateTableSelection(selRange))
         return;
 
-    var rects = Range.getClientRects(selRange);
+    let rects = Range.getClientRects(selRange);
 
     if ((rects != null) && (rects.length > 0)) {
-        var boundsLeft = null;
-        var boundsRight = null;
-        var boundsTop = null;
-        var boundsBottom = null
+        let boundsLeft = null;
+        let boundsRight = null;
+        let boundsTop = null;
+        let boundsBottom = null
 
-        for (var i = 0; i < rects.length; i++) {
-            var left = rects[i].left + window.scrollX;
-            var top = rects[i].top + window.scrollY;
-            var width = rects[i].width;
-            var height = rects[i].height;
-            var right = left + width;
-            var bottom = top + height;
+        for (let i = 0; i < rects.length; i++) {
+            let left = rects[i].left + window.scrollX;
+            let top = rects[i].top + window.scrollY;
+            let width = rects[i].width;
+            let height = rects[i].height;
+            let right = left + width;
+            let bottom = top + height;
 
             if (boundsLeft == null) {
                 boundsLeft = left;
@@ -525,7 +525,7 @@ export function update() {
 
         Range.trackWhileExecuting(selRange,function() {
             DOM.ignoreMutationsWhileExecuting(function() {
-                var data = getRangeData(selRange);
+                let data = getRangeData(selRange);
                 createSelectionHighlights(data);
                 removeSelectionHighlights(data);
             });
@@ -536,15 +536,15 @@ export function update() {
                               selRange.end.node,selRange.end.offset,
                               selMarked);
 
-        var firstRect = rects[0];
-        var lastRect = rects[rects.length-1];
+        let firstRect = rects[0];
+        let lastRect = rects[rects.length-1];
 
-        var x1 = firstRect.left + window.scrollX;
-        var y1 = firstRect.top + window.scrollY;
-        var height1 = firstRect.height;
-        var x2 = lastRect.right + window.scrollX;
-        var y2 = lastRect.top + window.scrollY;
-        var height2 = lastRect.height;
+        let x1 = firstRect.left + window.scrollX;
+        let y1 = firstRect.top + window.scrollY;
+        let height1 = firstRect.height;
+        let x2 = lastRect.right + window.scrollX;
+        let y2 = lastRect.top + window.scrollY;
+        let height2 = lastRect.height;
 
         setEditorHandles({ type: "selection",
                            x1: x1,
@@ -565,8 +565,8 @@ export function update() {
     return;
 
     function getAbsoluteOffset(node) {
-        var offsetLeft = 0;
-        var offsetTop = 0;
+        let offsetLeft = 0;
+        let offsetTop = 0;
         for (; node != null; node = node.parentNode) {
             if (node.offsetLeft != null)
                 offsetLeft += node.offsetLeft;
@@ -584,19 +584,19 @@ export function selectAll() {
 
 // public
 export function selectParagraph() {
-    var selRange = get();
+    let selRange = get();
     if (selRange == null)
         return;
-    var startNode = Position.closestActualNode(selRange.start);
+    let startNode = Position.closestActualNode(selRange.start);
     while (!Types.isParagraphNode(startNode) && !Types.isContainerNode(startNode))
         startNode = startNode.parentNode;
 
-    var endNode = Position.closestActualNode(selRange.end);
+    let endNode = Position.closestActualNode(selRange.end);
     while (!Types.isParagraphNode(endNode) && !Types.isContainerNode(endNode))
         endNode = endNode.parentNode;
 
-    var startPos = new Position.Position(startNode,0);
-    var endPos = new Position.Position(endNode,DOM.maxChildOffset(endNode));
+    let startPos = new Position.Position(startNode,0);
+    let endPos = new Position.Position(endNode,DOM.maxChildOffset(endNode));
     startPos = Position.closestMatchForwards(startPos,Position.okForMovement);
     endPos = Position.closestMatchBackwards(endPos,Position.okForMovement);
 
@@ -605,10 +605,10 @@ export function selectParagraph() {
 
 // private
 function getPunctuationCharsForRegex() {
-    var escaped = "^$\\.*+?()[]{}|"; // From ECMAScript regexp spec (PatternCharacter)
-    var unescaped = "";
-    for (var i = 32; i <= 127; i++) {
-        var c = String.fromCharCode(i);
+    let escaped = "^$\\.*+?()[]{}|"; // From ECMAScript regexp spec (PatternCharacter)
+    let unescaped = "";
+    for (let i = 32; i <= 127; i++) {
+        let c = String.fromCharCode(i);
         if ((escaped.indexOf(c) < 0) && !c.match(/[\w\d]/))
             unescaped += c;
     }
@@ -617,8 +617,8 @@ function getPunctuationCharsForRegex() {
 
 // The following regular expressions are used by selectWordAtCursor(). We initialise them at
 // startup to avoid repeatedly initialising them.
-var punctuation = getPunctuationCharsForRegex();
-var wsPunctuation = "\\s"+punctuation;
+let punctuation = getPunctuationCharsForRegex();
+let wsPunctuation = "\\s"+punctuation;
 
 // Note: We use a blacklist of punctuation characters here instead of a whitelist of "word"
 // characters, as the \w character class in javascript regular expressions only matches
@@ -627,23 +627,23 @@ var wsPunctuation = "\\s"+punctuation;
 // solution, because there are many unicode characters that represent punctuation as well, but
 // at least we handle the common ones here.
 
-var reOtherEnd = new RegExp("["+wsPunctuation+"]*$");
-var reOtherStart = new RegExp("^["+wsPunctuation+"]*");
-var reWordOtherEnd = new RegExp("[^"+wsPunctuation+"]*["+wsPunctuation+"]*$");
-var reWordOtherStart = new RegExp("^["+wsPunctuation+"]*[^"+wsPunctuation+"]*");
+let reOtherEnd = new RegExp("["+wsPunctuation+"]*$");
+let reOtherStart = new RegExp("^["+wsPunctuation+"]*");
+let reWordOtherEnd = new RegExp("[^"+wsPunctuation+"]*["+wsPunctuation+"]*$");
+let reWordOtherStart = new RegExp("^["+wsPunctuation+"]*[^"+wsPunctuation+"]*");
 
-var reWordStart = new RegExp("^[^"+wsPunctuation+"]+");
-var reWordEnd = new RegExp("[^"+wsPunctuation+"]+$");
+let reWordStart = new RegExp("^[^"+wsPunctuation+"]+");
+let reWordEnd = new RegExp("[^"+wsPunctuation+"]+$");
 
 export function posAtStartOfWord(pos) {
-    var node = pos.node;
-    var offset = pos.offset;
+    let node = pos.node;
+    let offset = pos.offset;
 
     if (node.nodeType == Node.TEXT_NODE) {
-        var before = node.nodeValue.substring(0,offset);
-        var matches = before.match(reWordEnd);
+        let before = node.nodeValue.substring(0,offset);
+        let matches = before.match(reWordEnd);
         if (matches) {
-            var wordStart = offset - matches[0].length;
+            let wordStart = offset - matches[0].length;
             return new Position.Position(node,wordStart);
         }
     }
@@ -652,14 +652,14 @@ export function posAtStartOfWord(pos) {
 }
 
 export function posAtEndOfWord(pos) {
-    var node = pos.node;
-    var offset = pos.offset;
+    let node = pos.node;
+    let offset = pos.offset;
 
     if (node.nodeType == Node.TEXT_NODE) {
-        var after = node.nodeValue.substring(offset);
-        var matches = after.match(reWordStart);
+        let after = node.nodeValue.substring(offset);
+        let matches = after.match(reWordStart);
         if (matches) {
-            var wordEnd = offset + matches[0].length;
+            let wordEnd = offset + matches[0].length;
             return new Position.Position(node,wordEnd);
         }
     }
@@ -668,24 +668,24 @@ export function posAtEndOfWord(pos) {
 }
 
 function rangeOfWordAtPos(pos) {
-    var node = pos.node;
-    var offset = pos.offset;
+    let node = pos.node;
+    let offset = pos.offset;
 
     if (node.nodeType == Node.TEXT_NODE) {
-        var before = node.nodeValue.substring(0,offset);
-        var after = node.nodeValue.substring(offset);
+        let before = node.nodeValue.substring(0,offset);
+        let after = node.nodeValue.substring(offset);
 
-        var otherBefore = before.match(reOtherEnd)[0];
-        var otherAfter = after.match(reOtherStart)[0];
+        let otherBefore = before.match(reOtherEnd)[0];
+        let otherAfter = after.match(reOtherStart)[0];
 
-        var wordOtherBefore = before.match(reWordOtherEnd)[0];
-        var wordOtherAfter = after.match(reWordOtherStart)[0];
+        let wordOtherBefore = before.match(reWordOtherEnd)[0];
+        let wordOtherAfter = after.match(reWordOtherStart)[0];
 
-        var startOffset = offset;
-        var endOffset = offset;
+        let startOffset = offset;
+        let endOffset = offset;
 
-        var haveWordBefore = (wordOtherBefore.length != otherBefore.length);
-        var haveWordAfter = (wordOtherAfter.length != otherAfter.length);
+        let haveWordBefore = (wordOtherBefore.length != otherBefore.length);
+        let haveWordAfter = (wordOtherAfter.length != otherAfter.length);
 
         if ((otherBefore.length == 0) && (otherAfter.length == 0)) {
             startOffset = offset - wordOtherBefore.length;
@@ -707,8 +707,8 @@ function rangeOfWordAtPos(pos) {
         return new Range.Range(node,startOffset,node,endOffset);
     }
     else if (node.nodeType == Node.ELEMENT_NODE) {
-        var nodeBefore = node.childNodes[offset-1];
-        var nodeAfter = node.childNodes[offset];
+        let nodeBefore = node.childNodes[offset-1];
+        let nodeAfter = node.childNodes[offset];
 
         if ((nodeBefore != null) && !Traversal.isWhitespaceTextNode(nodeBefore))
             return new Range.Range(node,offset-1,node,offset);
@@ -721,12 +721,12 @@ function rangeOfWordAtPos(pos) {
 
 // public
 export function selectWordAtCursor() {
-    var selRange = get();
+    let selRange = get();
     if (selRange == null)
         return;
 
-    var pos = Position.closestMatchBackwards(selRange.end,Position.okForMovement);
-    var range = rangeOfWordAtPos(pos);
+    let pos = Position.closestMatchBackwards(selRange.end,Position.okForMovement);
+    let range = rangeOfWordAtPos(pos);
     if (range != null) {
         set(range.start.node,range.start.offset,range.end.node,range.end.offset);
     }
@@ -734,7 +734,7 @@ export function selectWordAtCursor() {
 
 // public
 export function dragSelectionBegin(x,y,selectWord) {
-    var pos = Position.closestMatchForwards(Position.atPoint(x,y),Position.okForMovement);
+    let pos = Position.closestMatchForwards(Position.atPoint(x,y),Position.okForMovement);
 
     if (pos == null) {
         clear();
@@ -749,19 +749,19 @@ export function dragSelectionBegin(x,y,selectWord) {
     return "end";
 }
 
-var selectionHandleEnd = true;
+let selectionHandleEnd = true;
 
 function toStartOfWord(pos) {
     if (Input.isAtWordBoundary(pos,"backward"))
         return pos;
-    var boundary = Input.toWordBoundary(pos,"backward");
+    let boundary = Input.toWordBoundary(pos,"backward");
     return (boundary != null) ? boundary : pos;
 }
 
 function toEndOfWord(pos) {
     if (Input.isAtWordBoundary(pos,"forward"))
         return pos;
-    var boundary = Input.toWordBoundary(pos,"forward");
+    let boundary = Input.toWordBoundary(pos,"forward");
     return (boundary != null) ? boundary : pos;
 }
 
@@ -769,13 +769,13 @@ function toEndOfWord(pos) {
 export function dragSelectionUpdate(x,y,selectWord) {
     y = Cursor.scrollDocumentForY(y);
 
-    var pos = Position.closestMatchForwards(Position.atPoint(x,y),Position.okForMovement);
-    var selRange = get();
+    let pos = Position.closestMatchForwards(Position.atPoint(x,y),Position.okForMovement);
+    let selRange = get();
     if ((pos == null) || (selRange == null))
         return "none";
 
-    var start = selRange.start;
-    var end = selRange.end;
+    let start = selRange.start;
+    let end = selRange.end;
 
     if (selectionHandleEnd) {
         if (Position.compare(pos,start) < 0) {
@@ -806,11 +806,11 @@ export function dragSelectionUpdate(x,y,selectWord) {
 }
 
 function moveBoundary(command) {
-    var range = get();
+    let range = get();
     if (range == null)
         return;
 
-    var pos = null;
+    let pos = null;
     if (command == "start-left")
         range.start = pos = Position.prevMatch(range.start,Position.okForMovement);
     else if (command == "start-right")
@@ -821,7 +821,7 @@ function moveBoundary(command) {
         range.end = pos = Position.nextMatch(range.end,Position.okForMovement);
 
     if ((range.start != null) && (range.end != null)) {
-        var result;
+        let result;
         range = Range.forwards(range);
         set(range.start.node,range.start.offset,range.end.node,range.end.offset);
         if (range.end == pos)
@@ -854,11 +854,11 @@ export function moveEndRight() {
 
 // public
 export function setSelectionStartAtCoords(x,y) {
-    var position = Position.closestMatchForwards(Position.atPoint(x,y),Position.okForMovement);
+    let position = Position.closestMatchForwards(Position.atPoint(x,y),Position.okForMovement);
     if (position != null) {
         position = Position.closestMatchBackwards(position,Position.okForMovement);
-        var selRange = get();
-        var newRange = new Range.Range(position.node,position.offset,
+        let selRange = get();
+        let newRange = new Range.Range(position.node,position.offset,
                                  selRange.end.node,selRange.end.offset);
         if (Range.isForwards(newRange)) {
             set(newRange.start.node,newRange.start.offset,
@@ -869,11 +869,11 @@ export function setSelectionStartAtCoords(x,y) {
 
 // public
 export function setSelectionEndAtCoords(x,y) {
-    var position = Position.closestMatchForwards(Position.atPoint(x,y),Position.okForMovement);
+    let position = Position.closestMatchForwards(Position.atPoint(x,y),Position.okForMovement);
     if (position != null) {
         position = Position.closestMatchBackwards(position,Position.okForMovement);
-        var selRange = get();
-        var newRange = new Range.Range(selRange.start.node,selRange.start.offset,
+        let selRange = get();
+        let newRange = new Range.Range(selRange.start.node,selRange.start.offset,
                                  position.node,position.offset);
         if (Range.isForwards(newRange)) {
             set(newRange.start.node,newRange.start.offset,
@@ -887,8 +887,8 @@ export function setTableSelectionEdgeAtCoords(edge,x,y) {
     if (tableSelection == null)
         return;
 
-    var structure = tableSelection.structure;
-    var pointInfo = findCellInTable(structure,x,y);
+    let structure = tableSelection.structure;
+    let pointInfo = findCellInTable(structure,x,y);
     if (pointInfo == null)
         return;
 
@@ -906,23 +906,23 @@ export function setTableSelectionEdgeAtCoords(edge,x,y) {
     }
 
     // FIXME: handle the case where there is no cell at the specified row and column
-    var topLeftCell = Tables.Table_get(structure,tableSelection.top,tableSelection.left);
-    var bottomRightCell = Tables.Table_get(structure,tableSelection.bottom,tableSelection.right);
+    let topLeftCell = Tables.Table_get(structure,tableSelection.top,tableSelection.left);
+    let bottomRightCell = Tables.Table_get(structure,tableSelection.bottom,tableSelection.right);
 
-    var topLeftNode = topLeftCell.element.parentNode;
-    var topLeftOffset = DOM.nodeOffset(topLeftCell.element);
-    var bottomRightNode = bottomRightCell.element.parentNode;
-    var bottomRightOffset = DOM.nodeOffset(bottomRightCell.element)+1;
+    let topLeftNode = topLeftCell.element.parentNode;
+    let topLeftOffset = DOM.nodeOffset(topLeftCell.element);
+    let bottomRightNode = bottomRightCell.element.parentNode;
+    let bottomRightOffset = DOM.nodeOffset(bottomRightCell.element)+1;
 
     set(topLeftNode,topLeftOffset,bottomRightNode,bottomRightOffset);
 
     // FIXME: this could possibly be optimised
     function findCellInTable(structure,x,y) {
-        for (var r = 0; r < structure.numRows; r++) {
-            for (var c = 0; c < structure.numCols; c++) {
-                var cell = Tables.Table_get(structure,r,c);
+        for (let r = 0; r < structure.numRows; r++) {
+            for (let c = 0; c < structure.numCols; c++) {
+                let cell = Tables.Table_get(structure,r,c);
                 if (cell != null) {
-                    var rect = cell.element.getBoundingClientRect();
+                    let rect = cell.element.getBoundingClientRect();
                     if ((x >= rect.left) && (x <= rect.right) &&
                         (y >= rect.top) && (y <= rect.bottom))
                         return cell;
@@ -940,16 +940,16 @@ export function setEmptySelectionAt(node,offset) {
 
 // private
 function deleteTextSelection(selRange,keepEmpty) {
-    var nodes = Range.getOutermostNodes(selRange);
-    for (var i = 0; i < nodes.length; i++) {
-        var node = nodes[i];
+    let nodes = Range.getOutermostNodes(selRange);
+    for (let i = 0; i < nodes.length; i++) {
+        let node = nodes[i];
 
-        var removeWholeNode = false;
+        let removeWholeNode = false;
 
         if ((node == selRange.start.node) &&
             (node == selRange.end.node)) {
-            var startOffset = selRange.start.offset;
-            var endOffset = selRange.end.offset;
+            let startOffset = selRange.start.offset;
+            let endOffset = selRange.end.offset;
             if ((node.nodeType == Node.TEXT_NODE) &&
                 ((startOffset > 0) || (endOffset < node.nodeValue.length))) {
                 DOM.deleteCharacters(node,startOffset,endOffset);
@@ -959,7 +959,7 @@ function deleteTextSelection(selRange,keepEmpty) {
             }
         }
         else if (node == selRange.start.node) {
-            var offset = selRange.start.offset;
+            let offset = selRange.start.offset;
             if ((node.nodeType == Node.TEXT_NODE) && (offset > 0)) {
                 DOM.deleteCharacters(node,offset);
             }
@@ -968,7 +968,7 @@ function deleteTextSelection(selRange,keepEmpty) {
             }
         }
         else if (node == selRange.end.node) {
-            var offset = selRange.end.offset;
+            let offset = selRange.end.offset;
             if ((node.nodeType == Node.TEXT_NODE) && (offset < node.nodeValue.length)) {
                 DOM.deleteCharacters(node,0,offset);
             }
@@ -993,9 +993,9 @@ function deleteTextSelection(selRange,keepEmpty) {
         }
     }
 
-    var detail = Range.detail(selRange);
+    let detail = Range.detail(selRange);
 
-    var sameTextNode = (selRange.start.node == selRange.end.node) &&
+    let sameTextNode = (selRange.start.node == selRange.end.node) &&
                        (selRange.start.node.nodeType == Node.TEXT_NODE);
 
     if ((detail.startAncestor != null) && (detail.endAncestor != null) &&
@@ -1010,8 +1010,8 @@ function deleteTextSelection(selRange,keepEmpty) {
     }
 
     if (!keepEmpty) {
-        var startNode = selRange.start.node;
-        var endNode = selRange.end.node;
+        let startNode = selRange.start.node;
+        let endNode = selRange.end.node;
         if (startNode.parentNode != null)
             delEmpty(selRange,startNode);
         if (endNode.parentNode != null)
@@ -1034,7 +1034,7 @@ function delEmpty(selRange,node) {
         if (!fixPositionOutside(selRange.end,node))
             break;
 
-        var parent = node.parentNode;
+        let parent = node.parentNode;
         Range.trackWhileExecuting(selRange,function() {
             DOM.deleteNode(node);
         });
@@ -1044,8 +1044,8 @@ function delEmpty(selRange,node) {
 
 function fixPositionOutside(pos,node) {
     if (pos.node == node) {
-        var before = new Position.Position(node.parentNode,DOM.nodeOffset(node));
-        var after = new Position.Position(node.parentNode,DOM.nodeOffset(node)+1);
+        let before = new Position.Position(node.parentNode,DOM.nodeOffset(node));
+        let after = new Position.Position(node.parentNode,DOM.nodeOffset(node)+1);
         before = Position.prevMatch(before,Position.okForMovement);
         after = Position.nextMatch(after,Position.okForMovement);
 
@@ -1070,7 +1070,7 @@ export function deleteRangeContents(range,keepEmpty) {
             removeSelectionHighlights(getRangeData(range),true);
         });
 
-        var region = Tables.regionFromRange(range);
+        let region = Tables.regionFromRange(range);
         if (region != null)
             Tables.deleteRegion(region);
         else
@@ -1081,7 +1081,7 @@ export function deleteRangeContents(range,keepEmpty) {
 }
 
 export function deleteContents(keepEmpty?) {
-    var range = get();
+    let range = get();
     if (range == null)
         return;
     deleteRangeContents(range,keepEmpty);
@@ -1089,8 +1089,8 @@ export function deleteContents(keepEmpty?) {
 
 // private
 function removeParagraphDescendants(parent) {
-    var next;
-    for (var child = parent.firstChild; child != null; child = next) {
+    let next;
+    for (let child = parent.firstChild; child != null; child = next) {
         next = child.nextSibling;
         removeParagraphDescendants(child);
         if (Types.isParagraphNode(child))
@@ -1103,9 +1103,9 @@ function findFirstParagraph(node) {
     if (Types.isParagraphNode(node))
         return node;
     if (node._type == ElementTypes.HTML_LI) {
-        var nonWhitespaceInline = false;
+        let nonWhitespaceInline = false;
 
-        for (var child = node.firstChild; child != null; child = child.nextSibling) {
+        for (let child = node.firstChild; child != null; child = child.nextSibling) {
             if (Types.isInlineNode(child) && !Traversal.isWhitespaceTextNode(child))
                 nonWhitespaceInline = true;
 
@@ -1126,7 +1126,7 @@ function findFirstParagraph(node) {
     return null;
 
     function putPrecedingSiblingsInParagraph(parent,node) {
-        var p = DOM.createElement(document,"P");
+        let p = DOM.createElement(document,"P");
         while (parent.firstChild != node)
             DOM.appendChild(p,parent.firstChild);
         return p;
@@ -1136,15 +1136,15 @@ function findFirstParagraph(node) {
 // private
 function prepareForMerge(detail) {
     if (Types.isParagraphNode(detail.startAncestor) && Types.isInlineNode(detail.endAncestor)) {
-        var name = detail.startAncestor.nodeName; // check-ok
-        var newParagraph = DOM.createElement(document,name);
+        let name = detail.startAncestor.nodeName; // check-ok
+        let newParagraph = DOM.createElement(document,name);
         DOM.insertBefore(detail.endAncestor.parentNode,newParagraph,detail.endAncestor);
         DOM.appendChild(newParagraph,detail.endAncestor);
         detail.endAncestor = newParagraph;
     }
     else if (Types.isInlineNode(detail.startAncestor) && Types.isParagraphNode(detail.endAncestor)) {
-        var name = detail.endAncestor.nodeName; // check-ok
-        var newParagraph = DOM.createElement(document,name);
+        let name = detail.endAncestor.nodeName; // check-ok
+        let newParagraph = DOM.createElement(document,name);
         DOM.insertBefore(detail.startAncestor.parentNode,newParagraph,
                          detail.startAncestor.nextSibling);
         DOM.appendChild(newParagraph,detail.startAncestor);
@@ -1153,13 +1153,13 @@ function prepareForMerge(detail) {
     else if (Types.isParagraphNode(detail.startAncestor) &&
              Types.isListNode(detail.endAncestor) &&
              (detail.endAncestor.firstChild._type == ElementTypes.HTML_LI)) {
-        var list = detail.endAncestor;
-        var li = detail.endAncestor.firstChild;
+        let list = detail.endAncestor;
+        let li = detail.endAncestor.firstChild;
 
-        var paragraph = findFirstParagraph(li);
+        let paragraph = findFirstParagraph(li);
         if (paragraph != null) {
             DOM.insertBefore(list.parentNode,paragraph,list);
-            var name = detail.startAncestor.nodeName; // check-ok
+            let name = detail.startAncestor.nodeName; // check-ok
             DOM.replaceElement(paragraph,name);
         }
         if (!Util.nodeHasContent(li))
@@ -1170,10 +1170,10 @@ function prepareForMerge(detail) {
     else if (Types.isParagraphNode(detail.endAncestor) &&
              Types.isListNode(detail.startAncestor) &&
              (detail.startAncestor.lastChild._type == ElementTypes.HTML_LI)) {
-        var list = detail.startAncestor;
-        var li = detail.startAncestor.lastChild;
-        var p = detail.endAncestor;
-        var oldLastChild = li.lastChild;
+        let list = detail.startAncestor;
+        let li = detail.startAncestor.lastChild;
+        let p = detail.endAncestor;
+        let oldLastChild = li.lastChild;
         while (p.firstChild != null)
             DOM.insertBefore(li,p.firstChild,null);
         DOM.deleteNode(p);
@@ -1184,7 +1184,7 @@ function prepareForMerge(detail) {
     }
 
     if ((detail.startAncestor.lastChild != null) && (detail.endAncestor.firstChild != null)) {
-        var childDetail: any = new Object();
+        let childDetail: any = new Object();
         childDetail.startAncestor = detail.startAncestor.lastChild;
         childDetail.endAncestor = detail.endAncestor.firstChild;
         prepareForMerge(childDetail);
@@ -1198,8 +1198,8 @@ export function clearSelection() {
 
 // public
 export function preserveWhileExecuting(fun) {
-    var range = get();
-    var result;
+    let range = get();
+    let result;
 
     // Since the selection may have changed as a result of changes to the document, we
     // have to call clear() or set() so that undo history is saved
@@ -1215,7 +1215,7 @@ export function preserveWhileExecuting(fun) {
 }
 
 export function preferElementPositions() {
-    var range = get();
+    let range = get();
     if (range == null)
         return;
     range.start = Position.preferElementPosition(range.start);
@@ -1225,7 +1225,7 @@ export function preferElementPositions() {
 }
 
 function getBoundaryContainer(node,topAncestor) {
-    var container = document.body;
+    let container = document.body;
     for (; node != topAncestor.parentNode; node = node.parentNode) {
         switch (node._type) {
         case ElementTypes.HTML_FIGURE:
@@ -1241,18 +1241,18 @@ function boundaryCompliantRange(range) {
     if (range == null)
         return null;
 
-    var detail = Range.detail(range);
-    var start = range.start;
-    var end = range.end;
-    var startNode = Position.closestActualNode(start);
-    var endNode = Position.closestActualNode(end);
-    var startContainer = getBoundaryContainer(startNode.parentNode,detail.commonAncestor);
-    var endContainer = getBoundaryContainer(endNode.parentNode,detail.commonAncestor);
+    let detail = Range.detail(range);
+    let start = range.start;
+    let end = range.end;
+    let startNode = Position.closestActualNode(start);
+    let endNode = Position.closestActualNode(end);
+    let startContainer = getBoundaryContainer(startNode.parentNode,detail.commonAncestor);
+    let endContainer = getBoundaryContainer(endNode.parentNode,detail.commonAncestor);
 
     if (startContainer != endContainer) {
 
-        var doStart = false;
-        var doEnd = false;
+        let doStart = false;
+        let doEnd = false;
 
         if (nodeHasAncestor(startContainer,endContainer)) {
             doStart = true;
@@ -1287,7 +1287,7 @@ export function print() {
     Util.debug("");
     Util.debug("================================================================================");
 
-    var sel = get();
+    let sel = get();
     if (sel == null) {
         Util.debug("No selection");
         return;
@@ -1296,18 +1296,18 @@ export function print() {
     printSelectionElement(document.body,"");
 
     function printSelectionElement(node,indent) {
-        var className = DOM.getAttribute(node,"class");
+        let className = DOM.getAttribute(node,"class");
         if (className != null)
             Util.debug(indent+node.nodeName+" ("+className+")");
         else
             Util.debug(indent+node.nodeName);
 
-        var child = node.firstChild;
-        var offset = 0;
+        let child = node.firstChild;
+        let offset = 0;
         while (true) {
 
-            var isStart = ((sel.start.node == node) && (sel.start.offset == offset));
-            var isEnd = ((sel.end.node == node) && (sel.end.offset == offset));
+            let isStart = ((sel.start.node == node) && (sel.start.offset == offset));
+            let isEnd = ((sel.end.node == node) && (sel.end.offset == offset));
             if (isStart && isEnd)
                 Util.debug(indent+"    []");
             else if (isStart)
@@ -1329,15 +1329,15 @@ export function print() {
     }
 
     function printSelectionText(node,indent) {
-        var value = node.nodeValue;
+        let value = node.nodeValue;
 
         if (sel.end.node == node) {
-            var afterSelection = value.substring(sel.end.offset);
+            let afterSelection = value.substring(sel.end.offset);
             value = value.substring(0,sel.end.offset) + "]" + afterSelection;
         }
 
         if (sel.start.node == node) {
-            var beforeSelection = value.substring(0,sel.start.offset);
+            let beforeSelection = value.substring(0,sel.start.offset);
             value = beforeSelection + "[" + value.substring(sel.start.offset);
         }
 

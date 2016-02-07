@@ -27,8 +27,8 @@ function positionKey(pos) {
 }
 
 export function removeWhitespaceTextNodes(parent) {
-    var next;
-    for (var child = parent.firstChild; child != null; child = next) {
+    let next;
+    for (let child = parent.firstChild; child != null; child = next) {
         next = child.nextSibling;
         if (Traversal.isWhitespaceTextNode(child) || (child.nodeType == Node.COMMENT_NODE))
             DOM.deleteNode(child);
@@ -37,24 +37,24 @@ export function removeWhitespaceTextNodes(parent) {
     }
 }
 
-export var allPositions = null;
-export var allPositionsIndexMap = null;
+export let allPositions = null;
+export let allPositionsIndexMap = null;
 
 export function setup(root) {
     allPositions = getAllPositions(root);
 
     allPositionsIndexMap = new Object();
-    for (var i = 0; i < allPositions.length; i++) {
-        var pos = allPositions[i];
+    for (let i = 0; i < allPositions.length; i++) {
+        let pos = allPositions[i];
         allPositionsIndexMap[positionKey(pos)] = i;
     }
 }
 
 export function comparePositionsBeforeAndAfter(fun) {
-    var messages = new Array();
-    var positions = getAllPositions(document.body);
-    var positionStrings = new Array();
-    for (var i = 0; i < positions.length; i++) {
+    let messages = new Array();
+    let positions = getAllPositions(document.body);
+    let positionStrings = new Array();
+    for (let i = 0; i < positions.length; i++) {
         messages.push("Before: positions["+i+"] = "+positions[i]);
         positionStrings[i] = positions[i].toString();
     }
@@ -65,7 +65,7 @@ export function comparePositionsBeforeAndAfter(fun) {
     });
 
     messages.push("");
-    for (var i = 0; i < positions.length; i++) {
+    for (let i = 0; i < positions.length; i++) {
         if (positionStrings[i] != positions[i].toString())
             messages.push("After: positions["+i+"] = "+positions[i]+" - changed from "+
                           positionStrings[i]);
@@ -77,10 +77,10 @@ export function comparePositionsBeforeAndAfter(fun) {
 }
 
 export function getAllPositions(root) {
-    var includeEmptyElements = true;
+    let includeEmptyElements = true;
 
-    var positions = new Array();
-    var rootOffset = DOM.nodeOffset(root);
+    let positions = new Array();
+    let rootOffset = DOM.nodeOffset(root);
 //    positions.push(new Position.Position(root.parentNode,rootOffset));
     recurse(root);
 //    positions.push(new Position.Position(root.parentNode,rootOffset+1));
@@ -88,13 +88,13 @@ export function getAllPositions(root) {
 
     function recurse(node) {
         if (node.nodeType == Node.TEXT_NODE) {
-            for (var offset = 0; offset <= node.nodeValue.length; offset++)
+            for (let offset = 0; offset <= node.nodeValue.length; offset++)
                 positions.push(new Position.Position(node,offset));
         }
         else if ((node.nodeType == Node.ELEMENT_NODE) &&
                  (node.firstChild != null) || includeEmptyElements) {
-            var offset = 0;
-            for (var child = node.firstChild; child != null; child = child.nextSibling) {
+            let offset = 0;
+            for (let child = node.firstChild; child != null; child = child.nextSibling) {
                 positions.push(new Position.Position(node,offset));
                 recurse(child);
                 offset++;
@@ -105,50 +105,50 @@ export function getAllPositions(root) {
 }
 
 export function getPositionIndex(pos) {
-    var result = allPositionsIndexMap[pos.node._nodeId+","+pos.offset];
+    let result = allPositionsIndexMap[pos.node._nodeId+","+pos.offset];
     if (result == null)
         throw new Error(pos+": no index for position");
     return result;
 }
 
 export function isForwardsSimple(range) {
-    var startIndex = getPositionIndex(range.start);
-    var endIndex = getPositionIndex(range.end);
+    let startIndex = getPositionIndex(range.start);
+    let endIndex = getPositionIndex(range.end);
 //    Util.debug("startIndex = "+indices.startIndex+", endIndex = "+indices.endIndex);
     return (endIndex >= startIndex);
 }
 
 export function getOutermostNodesSimple(range) {
     if (!isForwardsSimple(range)) {
-        var reverse = new Range.Range(range.end.node,range.end.offset,
+        let reverse = new Range.Range(range.end.node,range.end.offset,
                                 range.start.node,range.start.offset);
         if (!Range.isForwards(reverse)) {
-            var startIndex = getPositionIndex(range.start);
-            var endIndex = getPositionIndex(range.end);
+            let startIndex = getPositionIndex(range.start);
+            let endIndex = getPositionIndex(range.end);
             Util.debug("startIndex = "+startIndex+", endIndex = "+endIndex);
             throw new Error("Both range "+range+" and its reverse are not forwards");
         }
         return getOutermostNodesSimple(reverse);
     }
 
-    var startIndex = getPositionIndex(range.start);
-    var endIndex = getPositionIndex(range.end);
-    var havePositions = new Object();
+    let startIndex = getPositionIndex(range.start);
+    let endIndex = getPositionIndex(range.end);
+    let havePositions = new Object();
 
-    var allArray = new Array();
-    var allSet = new Collections.NodeSet();
+    let allArray = new Array();
+    let allSet = new Collections.NodeSet();
 
-    for (var i = startIndex; i <= endIndex; i++) {
-        var pos = allPositions[i];
+    for (let i = startIndex; i <= endIndex; i++) {
+        let pos = allPositions[i];
 
         if ((pos.node.nodeType == Node.TEXT_NODE) && (i < endIndex)) {
             allArray.push(pos.node);
             allSet.add(pos.node);
         }
         else if (pos.node.nodeType == Node.ELEMENT_NODE) {
-            var prev = new Position.Position(pos.node,pos.offset-1);
+            let prev = new Position.Position(pos.node,pos.offset-1);
             if (havePositions[positionKey(prev)]) {
-                var target = pos.node.childNodes[pos.offset-1];
+                let target = pos.node.childNodes[pos.offset-1];
                 allArray.push(target);
                 allSet.add(target);
             }
@@ -157,8 +157,8 @@ export function getOutermostNodesSimple(range) {
 
     }
 
-    var outermostArray = new Array();
-    var outermostSet = new Collections.NodeSet();
+    let outermostArray = new Array();
+    let outermostSet = new Collections.NodeSet();
 
     allArray.forEach(function (node) {
         if (!outermostSet.contains(node) && !setContainsAncestor(allSet,node)) {
@@ -170,7 +170,7 @@ export function getOutermostNodesSimple(range) {
     return outermostArray;
 
     function setContainsAncestor(set,node) {
-        for (var ancestor = node.parentNode; ancestor != null; ancestor = ancestor.parentNode) {
+        for (let ancestor = node.parentNode; ancestor != null; ancestor = ancestor.parentNode) {
             if (set.contains(ancestor))
                 return true;
         }

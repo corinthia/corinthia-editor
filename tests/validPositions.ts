@@ -24,20 +24,20 @@ import Types = require("../src/types");
 import Util = require("../src/util");
 
 function oldInsertCharacter(character) {
-    var selectionRange = Selection.get();
+    let selectionRange = Selection.get();
     if (selectionRange == null)
         return;
 
     if (!Range.isEmpty(selectionRange))
         Selection.deleteContents();
-    var pos = selectionRange.start;
-    var node = pos.node;
-    var offset = pos.offset;
+    let pos = selectionRange.start;
+    let node = pos.node;
+    let offset = pos.offset;
 
     if (node.nodeType == Node.ELEMENT_NODE) {
-        var prev = node.childNodes[offset-1];
-        var next = node.childNodes[offset];
-        var emptyTextNode = DOM.createTextNode(document,"");
+        let prev = node.childNodes[offset-1];
+        let next = node.childNodes[offset];
+        let emptyTextNode = DOM.createTextNode(document,"");
         if (offset >= node.childNodes.length)
             DOM.appendChild(node,emptyTextNode);
         else
@@ -51,8 +51,8 @@ function oldInsertCharacter(character) {
 }
 
 export function showValidPositions() {
-    var validPositions = new Array();
-    var pos = new Position.Position(document.body,0);
+    let validPositions = new Array();
+    let pos = new Position.Position(document.body,0);
     while (pos != null) {
         if (Position.okForMovement(pos)) {
 //            Util.debug("Valid position: "+pos);
@@ -62,9 +62,9 @@ export function showValidPositions() {
     }
 
     Position.trackWhileExecuting(validPositions,function() {
-//        for (var i = 0; i < validPositions.length; i++) {
-        for (var i = validPositions.length-1; i >= 0; i--) {
-            var pos = validPositions[i];
+//        for (let i = 0; i < validPositions.length; i++) {
+        for (let i = validPositions.length-1; i >= 0; i--) {
+            let pos = validPositions[i];
             Selection.setEmptySelectionAt(pos.node,pos.offset);
             oldInsertCharacter('.');
         }
@@ -72,7 +72,7 @@ export function showValidPositions() {
 }
 
 function flattenTreeToString(node) {
-    var result = new Array();
+    let result = new Array();
     recurse(node);
     return result.join("").replace(/\n/g," ");
 
@@ -89,7 +89,7 @@ function flattenTreeToString(node) {
                 result.push("O");
             }
             else if (node.nodeType == Node.ELEMENT_NODE) {
-                for (var child = node.firstChild; child != null; child = child.nextSibling) {
+                for (let child = node.firstChild; child != null; child = child.nextSibling) {
                     recurse(child);
                 }
             }
@@ -99,11 +99,11 @@ function flattenTreeToString(node) {
 }
 
 function findCursorPositionErrors(text) {
-    var detail = "";
-    for (var i = 0; i < text.length; i++) {
-        var prevChar = (i > 0) ? text.charAt(i-1) : null;
-        var nextChar = (i < text.length-1) ? text.charAt(i+1) : null;
-        var curChar = text.charAt(i);
+    let detail = "";
+    for (let i = 0; i < text.length; i++) {
+        let prevChar = (i > 0) ? text.charAt(i-1) : null;
+        let nextChar = (i < text.length-1) ? text.charAt(i+1) : null;
+        let curChar = text.charAt(i);
 
         if (curChar == '.') {
             if ((prevChar == '.') || (nextChar == '.')) {
@@ -131,12 +131,12 @@ function findCursorPositionErrors(text) {
 }
 
 function checkCursorPositions(node) {
-    var text = flattenTreeToString(document.body);
-    var detail = findCursorPositionErrors(text);
+    let text = flattenTreeToString(document.body);
+    let detail = findCursorPositionErrors(text);
     return text+"\n"+detail;
 }
 
 export function addEmptyTextNode(parent) {
-    var text = DOM.createTextNode(document,"");
+    let text = DOM.createTextNode(document,"");
     DOM.appendChild(parent,text);
 }

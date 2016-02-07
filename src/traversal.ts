@@ -74,14 +74,14 @@ export function nextTextNode(node) {
 }
 
 export function firstChildElement(node) {
-    var first = node.firstChild;
+    let first = node.firstChild;
     while ((first != null) && (first.nodeType != Node.ELEMENT_NODE))
         first = first.nextSibling;
     return first;
 }
 
 export function lastChildElement(node) {
-    var last = node.lastChild;
+    let last = node.lastChild;
     while ((last != null) && (last.nodeType != Node.ELEMENT_NODE))
         last = last.previousSibling;
     return last;
@@ -103,8 +103,8 @@ export function firstDescendantOfType(node,type) {
     if (node._type == type)
         return node;
 
-    for (var child = node.firstChild; child != null; child = child.nextSibling) {
-        var result = firstDescendantOfType(child,type);
+    for (let child = node.firstChild; child != null; child = child.nextSibling) {
+        let result = firstDescendantOfType(child,type);
         if (result != null)
             return result;
     }
@@ -112,7 +112,7 @@ export function firstDescendantOfType(node,type) {
 }
 
 export function firstChildOfType(node,type) {
-    for (var child = node.firstChild; child != null; child = child.nextSibling) {
+    for (let child = node.firstChild; child != null; child = child.nextSibling) {
         if (child._type == type)
             return child;
     }
@@ -120,14 +120,14 @@ export function firstChildOfType(node,type) {
 }
 
 export function getNodeDepth(node) {
-    var depth = 0;
+    let depth = 0;
     for (; node != null; node = node.parentNode)
         depth++;
     return depth;
 }
 
 export function getNodeText(node) {
-    var strings = new Array();
+    let strings = new Array();
     recurse(node);
     return strings.join("").replace(/\s+/g," ");
 
@@ -135,7 +135,7 @@ export function getNodeText(node) {
         if (node.nodeType == Node.TEXT_NODE)
             strings.push(node.nodeValue);
 
-        for (var child = node.firstChild; child != null; child = child.nextSibling)
+        for (let child = node.firstChild; child != null; child = child.nextSibling)
             recurse(child);
     }
 }
@@ -161,8 +161,8 @@ export function printTree(node,indent,offset) {
         Util.debug(indent+offset+Util.nodeString(node)+"."+node.getAttribute("class"));
     else
         Util.debug(indent+offset+Util.nodeString(node));
-    var childOffset = 0;
-    for (var child = node.firstChild; child != null; child = child.nextSibling) {
+    let childOffset = 0;
+    for (let child = node.firstChild; child != null; child = child.nextSibling) {
         printTree(child,indent+"    ",childOffset+" ");
         childOffset++;
     }

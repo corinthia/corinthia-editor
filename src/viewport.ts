@@ -20,12 +20,12 @@ import DOM = require("./dom");
 import ElementTypes = require("./elementTypes");
 import Selection = require("./selection");
 
-var viewportMetaElement = null;
+let viewportMetaElement = null;
 
 // public
 export function init(width,textScale) {
-    var head = DOM.documentHead(document);
-    for (var child = head.firstChild; child != null; child = child.nextSibling) {
+    let head = DOM.documentHead(document);
+    for (let child = head.firstChild; child != null; child = child.nextSibling) {
         if ((child._type == ElementTypes.HTML_META) && (child.getAttribute("name") == "viewport")) {
             viewportMetaElement = child;
             break;
@@ -41,13 +41,13 @@ export function init(width,textScale) {
     if (width != 0) {
         // Only set the width and text scale if they are not already set, to avoid triggering
         // an extra layout at load time
-        var contentValue = "width = "+width+", user-scalable = no";
+        let contentValue = "width = "+width+", user-scalable = no";
         if (viewportMetaElement.getAttribute("content") != contentValue)
             DOM.setAttribute(viewportMetaElement,"content",contentValue);
     }
 
     if (textScale != 0) {
-        var pct = textScale+"%";
+        let pct = textScale+"%";
         if (document.documentElement.style.getPropertyValue("-webkit-text-size-adjust") != pct)
             DOM.setStyleProperties(document.documentElement,{"-webkit-text-size-adjust": pct});
     }
@@ -55,7 +55,7 @@ export function init(width,textScale) {
 
 // public
 export function setViewportWidth(width) {
-    var contentValue = "width = "+width+", user-scalable = no";
+    let contentValue = "width = "+width+", user-scalable = no";
     if (viewportMetaElement.getAttribute("content") != contentValue)
         DOM.setAttribute(viewportMetaElement,"content",contentValue);
 
@@ -65,7 +65,7 @@ export function setViewportWidth(width) {
 
 // public
 export function setTextScale(textScale) {
-    var pct = textScale+"%";
+    let pct = textScale+"%";
     if (document.documentElement.style.getPropertyValue("-webkit-text-size-adjust") != pct)
         DOM.setStyleProperties(document.documentElement,{"-webkit-text-size-adjust": pct});
 

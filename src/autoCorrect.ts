@@ -32,7 +32,7 @@ function removeCorrectionSpan(span) {
     if (span.parentNode == null)
         return;
     Selection.preserveWhileExecuting(function() {
-        var firstChild = span.firstChild;
+        let firstChild = span.firstChild;
         DOM.removeNodeButKeepChildren(span);
         if (firstChild != null)
             Formatting.mergeWithNeighbours(firstChild,{});
@@ -55,8 +55,8 @@ Correction.prototype.toString = function() {
     return this.span.getAttribute("original")+" -> "+Traversal.getNodeText(this.span);
 }
 
-var correctionsByNode = null;
-var correctionList = null;
+let correctionsByNode = null;
+let correctionList = null;
 
 // private
 function docNodeInserted(event) {
@@ -70,7 +70,7 @@ function docNodeInserted(event) {
     function recurse(node) {
         if (Types.isAutoCorrectNode(node))
             addCorrection(node);
-        for (var child = node.firstChild; child != null; child = child.nextSibling)
+        for (let child = node.firstChild; child != null; child = child.nextSibling)
             recurse(child);
     }
 }
@@ -87,7 +87,7 @@ function docNodeRemoved(event) {
     function recurse(node) {
         if (Types.isAutoCorrectNode(node))
             removeCorrection(node);
-        for (var child = node.firstChild; child != null; child = child.nextSibling)
+        for (let child = node.firstChild; child != null; child = child.nextSibling)
             recurse(child);
     }
 }
@@ -106,7 +106,7 @@ export function removeListeners() {
 }
 
 export function addCorrection(span) {
-    var correction = new Correction(span);
+    let correction = new Correction(span);
     correctionsByNode.put(span,correction);
     correctionList.push(correction);
     Editor.updateAutoCorrect();
@@ -115,12 +115,12 @@ export function addCorrection(span) {
 }
 
 export function removeCorrection(span) {
-    var correction = correctionsByNode.get(span);
+    let correction = correctionsByNode.get(span);
     if (correction == null)
         throw new Error("No autocorrect entry for "+JSON.stringify(Traversal.getNodeText(span)));
 
-    var index = null;
-    for (var i = 0; i < correctionList.length; i++) {
+    let index = null;
+    for (let i = 0; i < correctionList.length; i++) {
         if (correctionList[i].span == span) {
             index = i;
             break;
@@ -136,9 +136,9 @@ export function removeCorrection(span) {
 }
 
 export function getCorrections() {
-    var result = new Array();
-    for (var i = 0; i < correctionList.length; i++) {
-        var correction = correctionList[i];
+    let result = new Array();
+    for (let i = 0; i < correctionList.length; i++) {
+        let correction = correctionList[i];
         result.push({ original: correction.span.getAttribute("original"),
                       replacement: Traversal.getNodeText(correction.span)});
     }
@@ -147,16 +147,16 @@ export function getCorrections() {
 
 export function correctPrecedingWord(numChars,replacement,confirmed) {
     Selection.preserveWhileExecuting(function() {
-        var selRange = Selection.get();
+        let selRange = Selection.get();
         if ((selRange == null) && !Range.isEmpty(selRange))
             return;
 
-        var node = selRange.start.node;
-        var offset = selRange.start.offset;
+        let node = selRange.start.node;
+        let offset = selRange.start.offset;
         if (node.nodeType != Node.TEXT_NODE)
             return;
 
-        var original = node.nodeValue.substring(offset-numChars,offset);
+        let original = node.nodeValue.substring(offset-numChars,offset);
 
         if (confirmed) {
             DOM.replaceCharacters(node,offset-numChars,offset,replacement);
@@ -164,10 +164,10 @@ export function correctPrecedingWord(numChars,replacement,confirmed) {
         }
 
         UndoManager.newGroup("Auto-correct");
-        var before = node.nodeValue.substring(0,offset-numChars);
-        var beforeText = DOM.createTextNode(document,before);
-        var replacementText = DOM.createTextNode(document,replacement);
-        var span = DOM.createElement(document,"SPAN");
+        let before = node.nodeValue.substring(0,offset-numChars);
+        let beforeText = DOM.createTextNode(document,before);
+        let replacementText = DOM.createTextNode(document,replacement);
+        let span = DOM.createElement(document,"SPAN");
         DOM.setAttribute(span,"class",Types.Keys.AUTOCORRECT_CLASS);
         DOM.setAttribute(span,"original",original);
         DOM.appendChild(span,replacementText);
@@ -181,7 +181,7 @@ export function correctPrecedingWord(numChars,replacement,confirmed) {
 }
 
 export function getCorrection() {
-    var correction = getCurrent();
+    let correction = getCurrent();
     if (correction == null)
         return null;
 
@@ -190,18 +190,18 @@ export function getCorrection() {
 }
 
 export function getCorrectionCoords() {
-    var correction = getCurrent();
+    let correction = getCurrent();
     if (correction == null)
         return null;
 
-    var textNode = correction.span.firstChild;
+    let textNode = correction.span.firstChild;
     if ((textNode == null) || (textNode.nodeType != Node.TEXT_NODE))
         return null;
 
-    var offset = Math.floor(textNode.nodeValue.length/2);
+    let offset = Math.floor(textNode.nodeValue.length/2);
     Selection.set(textNode,offset,textNode,offset);
     Cursor.ensureCursorVisible();
-    var rect = Position.displayRectAtPos(new Position.Position(textNode,offset));
+    let rect = Position.displayRectAtPos(new Position.Position(textNode,offset));
 
     if (rect == null) // FIXME: pos
         throw new Error("no rect for pos "+(new Position.Position(textNode,offset)));
@@ -213,9 +213,9 @@ export function getCorrectionCoords() {
 }
 
 function getCurrent() {
-    var range = Selection.get();
+    let range = Selection.get();
     if (range != null) {
-        var endNode = Position.closestActualNode(range.end);
+        let endNode = Position.closestActualNode(range.end);
         for (; endNode != null; endNode = endNode.parentNode) {
             if (Types.isAutoCorrectNode(endNode))
                 return correctionsByNode.get(endNode);
@@ -230,7 +230,7 @@ function getCurrent() {
 
 export function acceptCorrection() {
     UndoManager.newGroup("Accept");
-    var correction = getCurrent();
+    let correction = getCurrent();
     if (correction == null)
         return;
 
@@ -239,7 +239,7 @@ export function acceptCorrection() {
 }
 
 export function revertCorrection() {
-    var correction = getCurrent();
+    let correction = getCurrent();
     if (correction == null)
         return;
 
@@ -248,12 +248,12 @@ export function revertCorrection() {
 
 export function replaceCorrection(replacement) {
     UndoManager.newGroup("Replace");
-    var correction = getCurrent();
+    let correction = getCurrent();
     if (correction == null)
         return;
 
     Selection.preserveWhileExecuting(function() {
-        var text = DOM.createTextNode(document,replacement);
+        let text = DOM.createTextNode(document,replacement);
         DOM.insertBefore(correction.span.parentNode,text,correction.span);
         DOM.deleteNode(correction.span);
         Formatting.mergeWithNeighbours(text,{});

@@ -22,8 +22,8 @@ import Range = require("./range");
 import Selection = require("./selection");
 import Traversal = require("./traversal");
 
-var showChangesEnabled = false;
-var trackChangesEnabled = false;
+let showChangesEnabled = false;
+let trackChangesEnabled = false;
 
 export function showChanges() {
     return showChangesEnabled;
@@ -42,19 +42,19 @@ export function setTrackChanges(enabled) {
 }
 
 export function acceptSelectedChanges() {
-    var selRange = Selection.get();
+    let selRange = Selection.get();
     if (selRange == null)
         return;
 
-    var outermost = Range.getOutermostNodes(selRange,true);
-    var checkEmpty = new Array();
+    let outermost = Range.getOutermostNodes(selRange,true);
+    let checkEmpty = new Array();
 
     Selection.preserveWhileExecuting(function() {
-        for (var i = 0; i < outermost.length; i++) {
+        for (let i = 0; i < outermost.length; i++) {
             recurse(outermost[i]);
 
-            var next;
-            for (var ancestor = outermost[i].parentNode; ancestor != null; ancestor = next) {
+            let next;
+            for (let ancestor = outermost[i].parentNode; ancestor != null; ancestor = next) {
                 next = ancestor.parentNode;
                 if (ancestor._type == ElementTypes.HTML_DEL) {
                     checkEmpty.push(ancestor.parentNode);
@@ -65,12 +65,12 @@ export function acceptSelectedChanges() {
             }
         }
 
-        for (var i = 0; i < checkEmpty.length; i++) {
-            var node = checkEmpty[i];
+        for (let i = 0; i < checkEmpty.length; i++) {
+            let node = checkEmpty[i];
             if (node == null)
                 continue;
-            var empty = true;
-            for (var child = node.firstChild; child != null; child = child.nextSibling) {
+            let empty = true;
+            for (let child = node.firstChild; child != null; child = child.nextSibling) {
                 if (!Traversal.isWhitespaceTextNode(child)) {
                     empty = false;
                     break;
@@ -89,10 +89,10 @@ export function acceptSelectedChanges() {
         }
     });
 
-    var selRange = Selection.get();
+    selRange = Selection.get();
     if (selRange != null) {
-        var start = Position.closestMatchForwards(selRange.start,Position.okForInsertion);
-        var end = Position.closestMatchBackwards(selRange.end,Position.okForInsertion);
+        let start = Position.closestMatchForwards(selRange.start,Position.okForInsertion);
+        let end = Position.closestMatchBackwards(selRange.end,Position.okForInsertion);
         if (!Range.isForwards(new Range.Range(start.node,start.offset,end.node,end.offset)))
             end = Position.closestMatchForwards(selRange.end,Position.okForInsertion);
         Selection.set(start.node,start.offset,end.node,end.offset);
@@ -105,8 +105,8 @@ export function acceptSelectedChanges() {
             return;
         }
 
-        var next;
-        for (var child = node.firstChild; child != null; child = next) {
+        let next;
+        for (let child = node.firstChild; child != null; child = next) {
             next = child.nextSibling;
             recurse(child);
         }

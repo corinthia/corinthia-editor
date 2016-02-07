@@ -19,17 +19,17 @@ import Clipboard = require("./clipboard");
 import DOM = require("./dom");
 
 export function insertEquation() {
-    var math = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","math");
-    var mrow = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mrow");
-    var msup = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","msup");
-    var mi = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mi");
-    var mn = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mn");
-    var mfrac = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mfrac");
-    var mrow1 = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mrow");
-    var mrow2 = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mrow");
-    var mi1 = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mi");
-    var mi2 = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mi");
-    var mo = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mo");
+    let math = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","math");
+    let mrow = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mrow");
+    let msup = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","msup");
+    let mi = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mi");
+    let mn = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mn");
+    let mfrac = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mfrac");
+    let mrow1 = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mrow");
+    let mrow2 = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mrow");
+    let mi1 = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mi");
+    let mi2 = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mi");
+    let mo = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mo");
 
     DOM.appendChild(mi,DOM.createTextNode(document,"x"));
     DOM.appendChild(mn,DOM.createTextNode(document,"2"));

@@ -22,10 +22,10 @@ import Tables = require("../src/tables");
 import Traversal = require("../src/traversal");
 
 export function showSelectedTableRegion() {
-    var region = Tables.regionFromRange(Selection.get());
-    for (var row = region.top; row <= region.bottom; row++) {
-        for (var col = region.left; col <= region.right; col++) {
-            var cell = Tables.Table_get(region.structure,row,col);
+    let region = Tables.regionFromRange(Selection.get());
+    for (let row = region.top; row <= region.bottom; row++) {
+        for (let col = region.left; col <= region.right; col++) {
+            let cell = Tables.Table_get(region.structure,row,col);
             DOM.setStyleProperties(cell.element,{"background-color": "silver"});
         }
     }
@@ -36,14 +36,14 @@ export function getSelectedTableRegion() {
 }
 
 export function showTableStructure() {
-    var tableElement = document.getElementsByTagName("TABLE")[0];
-    var table = Tables.analyseStructure(tableElement);
-    var lines = new Array();
+    let tableElement = document.getElementsByTagName("TABLE")[0];
+    let table = Tables.analyseStructure(tableElement);
+    let lines = new Array();
     lines.push(PrettyPrinter.getHTML(document.documentElement));
 
-    for (var row = 0; row < table.numRows; row++) {
-        for (var col = 0; col < table.numCols; col++) {
-            var cell = Tables.Table_get(table,row,col);
+    for (let row = 0; row < table.numRows; row++) {
+        for (let col = 0; col < table.numCols; col++) {
+            let cell = Tables.Table_get(table,row,col);
             if (cell == null) {
                 lines.push("Cell at ("+row+","+col+") = "+null);
             }
