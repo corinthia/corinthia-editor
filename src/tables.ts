@@ -1129,7 +1129,7 @@ function adjustRegionForSpannedCells(region) {
 }
 
 export function getSelectedTableId() {
-    let element = Cursor.getAdjacentNodeWithType(ElementTypes.HTML_TABLE);
+    let element = Cursor.getAdjacentElementWithType(ElementTypes.HTML_TABLE);
     return element ? element.getAttribute("id") : null;
 }
 

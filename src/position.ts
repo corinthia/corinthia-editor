@@ -101,12 +101,7 @@ export class Position {
 
 }
 
-function setNodeAndOffset(pos,node,offset) {
-    pos.node = node;
-    pos.offset = offset;
-}
-
-function positionSpecial(pos,forwards,backwards) {
+function positionSpecial(pos: Position, forwards: boolean, backwards: boolean): Position {
     let node = pos.node;
     let offset = pos.offset;
 
@@ -150,7 +145,7 @@ function positionSpecial(pos,forwards,backwards) {
 }
 
 // public
-export function assertValid(pos,description?) {
+export function assertValid(pos: Position, description?: string): void {
     if (description == null)
         description = "Position";
 
@@ -174,7 +169,7 @@ export function assertValid(pos,description?) {
 }
 
 // public
-export function prev(pos) {
+export function prev(pos: Position): Position {
     if (pos.node instanceof Element) {
         let r = positionSpecial(pos,false,true);
         if (r != null)
@@ -197,7 +192,7 @@ export function prev(pos) {
         return null;
     }
 
-    function upAndBack(pos) {
+    function upAndBack(pos: Position): Position {
         if (pos.node == pos.node.ownerDocument.body)
             return null;
         else
@@ -206,7 +201,7 @@ export function prev(pos) {
 }
 
 // public
-export function next(pos) {
+export function next(pos: Position): Position {
     if (pos.node instanceof Element) {
         let r = positionSpecial(pos,true,false);
         if (r != null)
@@ -226,7 +221,7 @@ export function next(pos) {
         return null;
     }
 
-    function upAndForwards(pos) {
+    function upAndForwards(pos: Position): Position {
         if (pos.node == pos.node.ownerDocument.body)
             return null;
         else
@@ -235,7 +230,7 @@ export function next(pos) {
 }
 
 // public
-export function trackWhileExecuting(positions,fun) {
+export function trackWhileExecuting<T>(positions: Position[], fun: () => T): T {
     for (let i = 0; i < positions.length; i++)
         positions[i].startTracking();
     try {
@@ -248,7 +243,7 @@ export function trackWhileExecuting(positions,fun) {
 }
 
 // public
-export function closestActualNode(pos,preferElement?) {
+export function closestActualNode(pos: Position, preferElement?: boolean): Node {
     let node = pos.node;
     let offset = pos.offset;
     if (!(node instanceof Element) || (node.firstChild == null))
@@ -271,15 +266,15 @@ export function closestActualNode(pos,preferElement?) {
 }
 
 // public
-export function okForInsertion(pos) {
+export function okForInsertion(pos: Position): boolean {
     return okForMovement(pos,true);
 }
 
-function nodeCausesLineBreak(node) {
+function nodeCausesLineBreak(node: Node): boolean {
     return ((node._type == ElementTypes.HTML_BR) || !Types.isInlineNode(node));
 }
 
-function spacesUntilNextContent(node) {
+function spacesUntilNextContent(node: Node): number {
     let spaces = 0;
     while (true) {
         if (node.firstChild) {
@@ -320,7 +315,7 @@ function spacesUntilNextContent(node) {
 }
 
 // public
-export function okForMovement(pos,insertion?) {
+export function okForMovement(pos: Position, insertion?: boolean): boolean {
     let node = pos.node;
     let offset = pos.offset;
     let type = node._type;
@@ -342,8 +337,8 @@ export function okForMovement(pos,insertion?) {
         // If there are multiple adjacent text nodes, consider them as one (adjusting the
         // offset appropriately)
 
-        let firstNode = node;
-        let lastNode = node;
+        let firstNode: Node = node;
+        let lastNode: Node = node;
 
         while ((firstNode.previousSibling != null) &&
                (firstNode.previousSibling instanceof Text)) {
@@ -492,21 +487,21 @@ export function okForMovement(pos,insertion?) {
     return false;
 }
 
-export function prevMatch(pos,fun) {
+export function prevMatch(pos: Position, fun: (Position) => boolean): Position {
     do {
         pos = prev(pos);
     } while ((pos != null) && !fun(pos));
     return pos;
 }
 
-export function nextMatch(pos,fun) {
+export function nextMatch(pos: Position, fun: (Position) => boolean): Position {
     do {
         pos = next(pos);
     } while ((pos != null) && !fun(pos));
     return pos;
 }
 
-function findEquivalentValidPosition(pos,fun) {
+function findEquivalentValidPosition(pos: Position, fun: (Position) => boolean): Position {
     let node = pos.node;
     let offset = pos.offset;
     if (node instanceof Element) {
@@ -538,7 +533,7 @@ function findEquivalentValidPosition(pos,fun) {
 }
 
 // public
-export function closestMatchForwards(pos,fun) {
+export function closestMatchForwards(pos: Position, fun: (Position) => boolean): Position {
     if (pos == null)
         return null;
 
@@ -560,7 +555,7 @@ export function closestMatchForwards(pos,fun) {
 }
 
 // public
-export function closestMatchBackwards(pos,fun) {
+export function closestMatchBackwards(pos: Position, fun: (Position) => boolean): Position {
     if (pos == null)
         return null;
 
@@ -581,15 +576,15 @@ export function closestMatchBackwards(pos,fun) {
     return new Position(document.body,0);
 }
 
-export function track(pos) {
+export function track(pos: Position): void {
     pos.startTracking();
 }
 
-export function untrack(pos) {
+export function untrack(pos: Position): void {
     pos.stopTracking();
 }
 
-export function rectAtPos(pos) {
+export function rectAtPos(pos: Position): ClientRect {
     if (pos == null)
         return null;
     let range = new Range.Range(pos.node,pos.offset,pos.node,pos.offset);
@@ -599,8 +594,9 @@ export function rectAtPos(pos) {
         return rects[0];
     }
 
-    if (Types.isParagraphNode(pos.node) && (pos.offset == 0)) {
-        let rect = pos.node.getBoundingClientRect();
+    let node = pos.node;
+    if ((node instanceof Element) && Types.isParagraphNode(node) && (pos.offset == 0)) {
+        let rect = node.getBoundingClientRect();
         if (!Util.rectIsEmpty(rect))
             return rect;
     }
@@ -608,17 +604,17 @@ export function rectAtPos(pos) {
     return null;
 }
 
-function posAtStartOfParagraph(pos,paragraph) {
+function posAtStartOfParagraph(pos: Position, paragraph): boolean {
     return ((pos.node == paragraph.node) &&
             (pos.offset == paragraph.startOffset));
 }
 
-function posAtEndOfParagraph(pos,paragraph) {
+function posAtEndOfParagraph(pos: Position, paragraph): boolean {
     return ((pos.node == paragraph.node) &&
             (pos.offset == paragraph.endOffset));
 }
 
-function zeroWidthRightRect(rect) {
+function zeroWidthRightRect(rect: ClientRect): ClientRect {
     return { left: rect.right, // 0 width
              right: rect.right,
              top: rect.top,
@@ -627,7 +623,7 @@ function zeroWidthRightRect(rect) {
              height: rect.height };
 }
 
-function zeroWidthLeftRect(rect) {
+function zeroWidthLeftRect(rect: ClientRect): ClientRect {
     return { left: rect.left,
              right: rect.left, // 0 width
              top: rect.top,
@@ -636,7 +632,7 @@ function zeroWidthLeftRect(rect) {
              height: rect.height };
 }
 
-function zeroWidthMidRect(rect) {
+function zeroWidthMidRect(rect: ClientRect): ClientRect {
     let mid = rect.left + rect.width/2;
     return { left: mid,
              right: mid, // 0 width
@@ -646,34 +642,36 @@ function zeroWidthMidRect(rect) {
              height: rect.height };
 }
 
-export function noteAncestor(pos) {
+export function noteAncestor(pos: Position): Element {
     let node = closestActualNode(pos);
     for (; node != null; node = node.parentNode) {
-        if (Types.isNoteNode(node))
+        if ((node instanceof Element) && Types.isNoteNode(node))
             return node;
     }
     return null;
 }
 
-export function captionAncestor(pos) {
+export function captionAncestor(pos: Position): Element {
     let node = closestActualNode(pos);
     for (; node != null; node = node.parentNode) {
-        if ((node._type == ElementTypes.HTML_FIGCAPTION) || (node._type == ElementTypes.HTML_CAPTION))
+        if ((node instanceof Element) &&
+            ((node._type == ElementTypes.HTML_FIGCAPTION) || (node._type == ElementTypes.HTML_CAPTION)))
             return node;
     }
     return null;
 }
 
-export function figureOrTableAncestor(pos) {
+export function figureOrTableAncestor(pos: Position): Element {
     let node = closestActualNode(pos);
     for (; node != null; node = node.parentNode) {
-        if ((node._type == ElementTypes.HTML_FIGURE) || (node._type == ElementTypes.HTML_TABLE))
+        if ((node instanceof Element) &&
+            ((node._type == ElementTypes.HTML_FIGURE) || (node._type == ElementTypes.HTML_TABLE)))
             return node;
     }
     return null;
 }
 
-function exactRectAtPos(pos) {
+function exactRectAtPos(pos: Position): ClientRect {
     let node = pos.node;
     let offset = pos.offset;
 
@@ -685,11 +683,11 @@ function exactRectAtPos(pos) {
         let after = node.childNodes[offset];
 
         // Cursor is immediately before table -> return table rect
-        if ((before != null) && Types.isSpecialBlockNode(before))
+        if ((before != null) && (before instanceof Element) && Types.isSpecialBlockNode(before))
             return zeroWidthRightRect(before.getBoundingClientRect());
 
         // Cursor is immediately after table -> return table rect
-        else if ((after != null) && Types.isSpecialBlockNode(after))
+        else if ((after != null) && (after instanceof Element) && Types.isSpecialBlockNode(after))
             return zeroWidthLeftRect(after.getBoundingClientRect());
 
         // Start of empty paragraph
@@ -720,7 +718,7 @@ function exactRectAtPos(pos) {
         return null;
     }
 
-    function rectAtRightOfRange(range) {
+    function rectAtRightOfRange(range: Range.Range): ClientRect {
         let rects = Range.getClientRects(range);
         if ((rects == null) || (rects.length == 0) || (rects[rects.length-1].height == 0))
             return null;
@@ -728,7 +726,7 @@ function exactRectAtPos(pos) {
     }
 }
 
-function tempSpaceRect(parentNode,nextSibling) {
+function tempSpaceRect(parentNode: Node, nextSibling: Node): ClientRect {
     let space = DOM.createTextNode(document,String.fromCharCode(160));
     DOM.insertBefore(parentNode,space,nextSibling);
     let range = new Range.Range(space,0,space,1);
@@ -740,7 +738,7 @@ function tempSpaceRect(parentNode,nextSibling) {
         return null;
 }
 
-export function displayRectAtPos(pos) {
+export function displayRectAtPos(pos: Position): ClientRect {
     let rect = exactRectAtPos(pos);
     if (rect != null)
         return rect;
@@ -802,11 +800,14 @@ export function displayRectAtPos(pos) {
         let node = pos.node;
         if (node instanceof Text)
             node = node.parentNode;
-        return zeroWidthLeftRect(node.getBoundingClientRect());
+        if (!(node instanceof Element)) // Should never happen; just here for the type guard
+            throw new Error("Expected element node; got "+node.nodeType);
+        else
+            return zeroWidthLeftRect(node.getBoundingClientRect());
     }
 }
 
-export function equal(a,b) {
+export function equal(a: Position, b: Position): boolean {
     if ((a == null) && (b == null))
         return true;
     if ((a != null) && (b != null) &&
@@ -815,7 +816,7 @@ export function equal(a,b) {
     return false;
 }
 
-export function preferTextPosition(pos) {
+export function preferTextPosition(pos: Position): Position {
     let node = pos.node;
     let offset = pos.offset;
     if (node instanceof Element) {
@@ -829,7 +830,7 @@ export function preferTextPosition(pos) {
     return pos;
 }
 
-export function preferElementPosition(pos) {
+export function preferElementPosition(pos: Position): Position {
     if (pos.node instanceof Text) {
         if (pos.node.parentNode == null)
             throw new Error("Position "+pos+" has no parent node");
@@ -841,7 +842,7 @@ export function preferElementPosition(pos) {
     return pos;
 }
 
-export function compare(first,second) {
+export function compare(first: Position, second: Position): number {
     if ((first.node == second.node) && (first.offset == second.offset))
         return 0;
 
@@ -928,7 +929,7 @@ export function compare(first,second) {
 // intended if the document's last text node is a direct child of the body (as it may be in some
 // HTML documents that users open).
 
-function posOutsideSelection(pos) {
+function posOutsideSelection(pos: Position): Position {
     pos = preferElementPosition(pos);
 
     if (!Types.isSelectionSpan(pos.node))
@@ -942,7 +943,7 @@ function posOutsideSelection(pos) {
         return pos;
 }
 
-export function atPoint(x,y) {
+export function atPoint(x: number, y: number): Position {
     // In general, we can use document.caretRangeFromPoint(x,y) to determine the location of the
     // cursor based on screen coordinates. However, this doesn't work if the screen coordinates
     // are outside the bounding box of the document's body. So when this is true, we find either
@@ -976,10 +977,12 @@ export function atPoint(x,y) {
         let prev = outside.node.childNodes[outside.offset-1];
         let next = outside.node.childNodes[outside.offset];
 
-        if ((prev != null) && nodeMayContainPos(prev) && elementContainsPoint(prev,x,y))
+        if ((prev != null) && (prev instanceof Element) &&
+            nodeMayContainPos(prev) && elementContainsPoint(prev,x,y))
             return new Position(prev,0);
 
-        if ((next != null) && nodeMayContainPos(next) && elementContainsPoint(next,x,y))
+        if ((next != null) && (next instanceof Element) &&
+            nodeMayContainPos(next) && elementContainsPoint(next,x,y))
             return new Position(next,0);
 
         if (next != null) {
@@ -992,7 +995,7 @@ export function atPoint(x,y) {
                 next = next.firstChild;
             }
 
-            if ((next != null) && Types.isEmptyNoteNode(next)) {
+            if ((next != null) && (next instanceof Element) && Types.isEmptyNoteNode(next)) {
                 let rect = next.getBoundingClientRect();
                 if (x > rect.right)
                     return new Position(nextNode,nextOffset);
@@ -1007,24 +1010,24 @@ export function atPoint(x,y) {
 
 // This is used for nodes that can potentially be the right match for a hit test, but for
 // which caretRangeFromPoint() returns the wrong result
-function nodeMayContainPos(node) {
+function nodeMayContainPos(node: Node): boolean {
     return ((node._type == ElementTypes.HTML_IMG) || Types.isEmptyNoteNode(node));
 }
 
-function elementContainsPoint(element,x,y) {
+function elementContainsPoint(element: Element, x: number, y: number): boolean {
     let rect = element.getBoundingClientRect();
     return ((x >= rect.left) && (x <= rect.right) &&
             (y >= rect.top) && (y <= rect.bottom));
 }
 
-function isEmptyParagraphNode(node) {
+function isEmptyParagraphNode(node: Node): boolean {
     return ((node._type == ElementTypes.HTML_P) &&
             (node.lastChild != null) &&
             (node.lastChild._type == ElementTypes.HTML_BR) &&
             !Util.nodeHasContent(node));
 }
 
-function findLastTextRect() {
+function findLastTextRect(): ClientRect {
     let node = Traversal.lastDescendant(document.body);
 
     while ((node != null) &&
@@ -1045,7 +1048,7 @@ function findLastTextRect() {
     return null;
 }
 
-function findFirstTextRect() {
+function findFirstTextRect(): ClientRect {
     let node = Traversal.firstDescendant(document.body);
 
     while ((node != null) &&
@@ -1066,7 +1069,7 @@ function findFirstTextRect() {
     return null;
 }
 
-function adjustPositionForFigure(position) {
+function adjustPositionForFigure(position: Position): Position {
     if (position == null)
         return null;
     if (position.node._type == ElementTypes.HTML_FIGURE) {

@@ -93,7 +93,8 @@ export function positionCursor(x,y,wordBoundary) {
     let node = Position.closestActualNode(position);
     for (; node != null; node = node.parentNode) {
         let type = node._type;
-        if ((type == ElementTypes.HTML_A) &&
+        if ((node instanceof Element) &&
+            (type == ElementTypes.HTML_A) &&
             (node.hasAttribute("href")) &&
             (result == null)) {
 
@@ -129,7 +130,7 @@ export function positionCursor(x,y,wordBoundary) {
         else if (Types.isAutoCorrectNode(node) && (result == null)) {
             result = "incorrection";
         }
-        else if (Types.isTOCNode(node)) {
+        else if ((node instanceof Element) && Types.isTOCNode(node)) {
             let rect = node.getBoundingClientRect();
             if (x >= rect.left + rect.width/2)
                 position = new Position.Position(node.parentNode,DOM.nodeOffset(node)+1);
@@ -832,7 +833,7 @@ export function getPrecedingWord() {
     return node.nodeValue.substring(0,offset);
 }
 
-export function getAdjacentNodeWithType(type) {
+export function getAdjacentNodeWithType(type: number): Node {
     let selRange = Selection.get();
     let pos = Position.preferElementPosition(selRange.start);
     let node = pos.node;
@@ -861,8 +862,16 @@ export function getAdjacentNodeWithType(type) {
     }
 }
 
+export function getAdjacentElementWithType(type: number): Element {
+    var node = getAdjacentNodeWithType(type);
+    if ((node != null) && (node instanceof Element))
+        return node;
+    else
+        return null;
+}
+
 export function getLinkProperties() {
-    let a = getAdjacentNodeWithType(ElementTypes.HTML_A);
+    let a = getAdjacentElementWithType(ElementTypes.HTML_A);
     if (a == null)
         return null;
 

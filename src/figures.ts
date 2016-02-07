@@ -60,7 +60,7 @@ export function insertFigure(filename,width,numbered,caption) {
 }
 
 export function getSelectedFigureId() {
-    let element = Cursor.getAdjacentNodeWithType(ElementTypes.HTML_FIGURE);
+    let element = Cursor.getAdjacentElementWithType(ElementTypes.HTML_FIGURE);
     return element ? element.getAttribute("id") : null;
 }
 

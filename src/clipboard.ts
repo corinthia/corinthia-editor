@@ -472,7 +472,7 @@ export function pasteNodes(nodes) {
 
     let pos = new Position.Position(origRange.end.node,origRange.end.offset);
     Range.trackWhileExecuting(pastedRange,function() {
-    Position.trackWhileExecuting(pos,function() {
+    Position.trackWhileExecuting([pos],function() {
         while (true) {
             if (pos.node == document.body)
                 break;
