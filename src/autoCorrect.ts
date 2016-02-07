@@ -153,7 +153,7 @@ export function correctPrecedingWord(numChars,replacement,confirmed) {
 
         let node = selRange.start.node;
         let offset = selRange.start.offset;
-        if (node.nodeType != Node.TEXT_NODE)
+        if (!(node instanceof Text))
             return;
 
         let original = node.nodeValue.substring(offset-numChars,offset);
@@ -195,7 +195,7 @@ export function getCorrectionCoords() {
         return null;
 
     let textNode = correction.span.firstChild;
-    if ((textNode == null) || (textNode.nodeType != Node.TEXT_NODE))
+    if ((textNode == null) || !(textNode instanceof Text))
         return null;
 
     let offset = Math.floor(textNode.nodeValue.length/2);

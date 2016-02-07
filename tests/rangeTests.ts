@@ -30,7 +30,7 @@ export function removeWhitespaceTextNodes(parent) {
     let next;
     for (let child = parent.firstChild; child != null; child = next) {
         next = child.nextSibling;
-        if (Traversal.isWhitespaceTextNode(child) || (child.nodeType == Node.COMMENT_NODE))
+        if (Traversal.isWhitespaceTextNode(child) || (child instanceof Comment))
             DOM.deleteNode(child);
         else
             removeWhitespaceTextNodes(child);
@@ -87,11 +87,11 @@ export function getAllPositions(root) {
     return positions;
 
     function recurse(node) {
-        if (node.nodeType == Node.TEXT_NODE) {
+        if (node instanceof Text) {
             for (let offset = 0; offset <= node.nodeValue.length; offset++)
                 positions.push(new Position.Position(node,offset));
         }
-        else if ((node.nodeType == Node.ELEMENT_NODE) &&
+        else if ((node instanceof Element) &&
                  (node.firstChild != null) || includeEmptyElements) {
             let offset = 0;
             for (let child = node.firstChild; child != null; child = child.nextSibling) {
@@ -141,11 +141,11 @@ export function getOutermostNodesSimple(range) {
     for (let i = startIndex; i <= endIndex; i++) {
         let pos = allPositions[i];
 
-        if ((pos.node.nodeType == Node.TEXT_NODE) && (i < endIndex)) {
+        if ((pos.node instanceof Text) && (i < endIndex)) {
             allArray.push(pos.node);
             allSet.add(pos.node);
         }
-        else if (pos.node.nodeType == Node.ELEMENT_NODE) {
+        else if (pos.node instanceof Element) {
             let prev = new Position.Position(pos.node,pos.offset-1);
             if (havePositions[positionKey(prev)]) {
                 let target = pos.node.childNodes[pos.offset-1];

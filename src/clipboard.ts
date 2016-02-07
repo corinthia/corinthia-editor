@@ -348,7 +348,7 @@ export function pasteNodes(nodes) {
 
     let start = range.start;
     start = Position.preferElementPosition(start);
-    if (start.node.nodeType == Node.ELEMENT_NODE) {
+    if (start.node instanceof Element) {
         parent = start.node;
         nextSibling = start.node.childNodes[start.offset];
         previousSibling = start.node.childNodes[start.offset-1];
@@ -499,7 +499,7 @@ export function pasteNodes(nodes) {
 }
 
 function removeDuplicateIds(node,found) {
-    if ((node.nodeType == Node.ELEMENT_NODE) && node.hasAttribute("id")) {
+    if ((node instanceof Element) && node.hasAttribute("id")) {
         let id = node.getAttribute("id");
 
         let existing = document.getElementById(id);

@@ -250,7 +250,7 @@ export function setStyleProperties(element,properties) {
 
 // public
 export function insertCharacters(textNode,offset,characters) {
-    if (textNode.nodeType != Node.TEXT_NODE)
+    if (!(textNode instanceof Text))
         throw new Error("insertCharacters called on non-text node");
     if ((offset < 0) || (offset > textNode.nodeValue.length))
         throw new Error("insertCharacters called with invalid offset");
@@ -268,7 +268,7 @@ export function insertCharacters(textNode,offset,characters) {
 
 // public
 export function deleteCharacters(textNode,startOffset,endOffset?) {
-    if (textNode.nodeType != Node.TEXT_NODE)
+    if (!(textNode instanceof Text))
         throw new Error("deleteCharacters called on non-text node "+Util.nodeString(textNode));
     if (endOffset == null)
         endOffset = textNode.nodeValue.length;
@@ -341,7 +341,7 @@ export function moveCharacters(srcTextNode,srcStartOffset,srcEndOffset,destTextN
 
 // public
 export function setNodeValue(textNode,value) {
-    if (textNode.nodeType != Node.TEXT_NODE)
+    if (!(textNode instanceof Text))
         throw new Error("setNodeValue called on non-text node");
     trackedPositionsForNode(textNode).forEach(function (position) {
         position.offset = 0;
@@ -466,7 +466,7 @@ export function getStringAttributeNS(element,namespaceURI,localName) {
 // public
 export function getStyleProperties(node) {
     let properties = new Object();
-    if (node.nodeType == Node.ELEMENT_NODE) {
+    if (node instanceof Element) {
         for (let i = 0; i < node.style.length; i++) {
             let name = node.style[i];
             let value = node.style.getPropertyValue(name);
@@ -601,7 +601,7 @@ export function mergeWithNextSibling(current,whiteList) {
 
     let lastChild = null;
 
-    if (current.nodeType == Node.ELEMENT_NODE) {
+    if (current instanceof Element) {
         lastChild = current.lastChild;
         insertBefore(current,next,null);
         removeNodeButKeepChildren(next);
@@ -630,9 +630,9 @@ export function mergeWithNextSibling(current,whiteList) {
 
 // public
 export function nodesMergeable(a,b,whiteList) {
-    if ((a.nodeType == Node.TEXT_NODE) && (b.nodeType == Node.TEXT_NODE))
+    if ((a instanceof Text) && (b instanceof Text))
         return true;
-    else if ((a.nodeType == Node.ELEMENT_NODE) && (b.nodeType == Node.ELEMENT_NODE))
+    else if ((a instanceof Element) && (b instanceof Element))
         return elementsMergableTypes(a,b);
     else
         return false;
@@ -748,7 +748,7 @@ export function ensureUniqueIds(root) {
     return;
 
     function discoverDuplicates(node) {
-        if (node.nodeType != Node.ELEMENT_NODE)
+        if (!(node instanceof Element))
             return;
 
         let id = node.getAttribute("id");
@@ -794,9 +794,9 @@ export function nodeOffset(node,parent?) {
 
 // public
 export function maxChildOffset(node) {
-    if (node.nodeType == Node.TEXT_NODE)
+    if (node instanceof Text)
         return node.nodeValue.length;
-    else if (node.nodeType == Node.ELEMENT_NODE)
+    else if (node instanceof Element)
         return node.childNodes.length;
     else
         throw new Error("maxOffset: invalid node type ("+node.nodeType+")");

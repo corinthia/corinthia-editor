@@ -81,7 +81,7 @@ function entityFix(str) {
 function singleDescendents(node) {
     let count = 0;
     for (let child = node.firstChild; child != null; child = child.nextSibling) {
-        if ((child.nodeType == Node.TEXT_NODE) && (textNodeDisplayValue(child).length == 0))
+        if ((child instanceof Text) && (textNodeDisplayValue(child).length == 0))
             continue;
         count++;
         if (count > 1)
@@ -134,7 +134,7 @@ function textNodeDisplayValue(node) {
 }
 
 function prettyPrintOneLine(output,options,node) {
-    if ((node.nodeType == Node.ELEMENT_NODE) && (node.nodeName != "SCRIPT")) {
+    if ((node instanceof Element) && (node.nodeName != "SCRIPT")) {
         let name = options.preserveCase ? node.nodeName : node.nodeName.toLowerCase();
         if (node.firstChild == null) {
             output.push("<" + name + attributeString(options,node) + "/>");
@@ -146,12 +146,12 @@ function prettyPrintOneLine(output,options,node) {
             output.push("</" + name + ">");
         }
     }
-    else if (node.nodeType == Node.TEXT_NODE) {
+    else if (node instanceof Text) {
         let value = textNodeDisplayValue(node);
         if (value.length > 0)
             output.push(value);
     }
-    else if (node.nodeType == Node.COMMENT_NODE) {
+    else if (node instanceof Comment) {
         output.push("<!--" + entityFix(node.nodeValue) + "-->\n");
     }
 }
@@ -178,7 +178,7 @@ function isContainer(node) {
 }
 
 function prettyPrint(output,options,node,indent) {
-    if ((node.nodeType == Node.ELEMENT_NODE) && (node.nodeName != "SCRIPT")) {
+    if ((node instanceof Element) && (node.nodeName != "SCRIPT")) {
         let name = options.preserveCase ? node.nodeName : node.nodeName.toLowerCase();
         if (node.firstChild == null) {
             output.push(indent + "<" + name + attributeString(options,node) + "/>\n");
@@ -203,13 +203,13 @@ function prettyPrint(output,options,node,indent) {
             }
         }
     }
-    else if (node.nodeType == Node.TEXT_NODE) {
+    else if (node instanceof Text) {
         let value = textNodeDisplayValue(node);
 //            let value = JSON.stringify(node.nodeValue);
         if (value.length > 0)
             output.push(indent + value + "\n");
     }
-    else if (node.nodeType == Node.COMMENT_NODE) {
+    else if (node instanceof Comment) {
         output.push(indent + "<!--" + entityFix(node.nodeValue) + "-->\n");
     }
 }

@@ -70,9 +70,9 @@ export function testHarnessSetup() {
     function positionMergeWithNeighbours(pos) {
         let node = pos.node;
         let offset = pos.offset;
-        if ((node.nodeType == Node.ELEMENT_NODE) && (offset < node.childNodes.length))
+        if ((node instanceof Element) && (offset < node.childNodes.length))
             Formatting.mergeWithNeighbours(node.childNodes[offset],Formatting.MERGEABLE_INLINE);
-        else if ((node.nodeType == Node.ELEMENT_NODE) && (node.lastChild != null))
+        else if ((node instanceof Element) && (node.lastChild != null))
             Formatting.mergeWithNeighbours(node.lastChild,Formatting.MERGEABLE_INLINE);
         else
             Formatting.mergeWithNeighbours(node,Formatting.MERGEABLE_INLINE);
@@ -82,7 +82,7 @@ export function testHarnessSetup() {
         return recurse(document.body);
 
         function recurse(node) {
-            if (node.nodeType == Node.TEXT_NODE) {
+            if (node instanceof Text) {
                 let index = node.nodeValue.indexOf(c);
                 if (index >= 0) {
                     let offsetInParent = DOM.nodeOffset(node);
@@ -116,13 +116,13 @@ export function testHarnessSetup() {
 }
 
 export function insertAtPosition(position,node) {
-    if (position.node.nodeType == Node.ELEMENT_NODE) {
+    if (position.node instanceof Element) {
         if (position.offset == position.node.childNodes.length)
             DOM.appendChild(position.node,node);
         else
             DOM.insertBefore(position.node,node,position.node.childNodes[position.offset]);
     }
-    else if (position.node.nodeType == Node.TEXT_NODE) {
+    else if (position.node instanceof Text) {
         let newText = DOM.createTextNode(document,position.node.nodeValue.slice(position.offset));
         position.node.nodeValue = position.node.nodeValue.slice(0,position.offset);
         DOM.insertBefore(position.node.parentNode,newText,position.node.nextSibling);
@@ -131,18 +131,18 @@ export function insertAtPosition(position,node) {
 }
 
 export function insertTextAtPosition(position,str) {
-    if (position.node.nodeType == Node.ELEMENT_NODE) {
+    if (position.node instanceof Element) {
         let before = position.node.childNodes[position.offset-1];
         let after = position.node.childNodes[position.offset];
-        if ((after != null) && (after.nodeType == Node.TEXT_NODE))
+        if ((after != null) && (after instanceof Text))
             position = new Position.Position(after,0);
-        else if ((before != null) && (before.nodeType == Node.TEXT_NODE))
+        else if ((before != null) && (before instanceof Text))
             position = new Position.Position(before,before.nodeValue.length);
     }
-    if (position.node.nodeType == Node.ELEMENT_NODE) {
+    if (position.node instanceof Element) {
         insertAtPosition(position,DOM.createTextNode(document,str));
     }
-    else if (position.node.nodeType == Node.TEXT_NODE) {
+    else if (position.node instanceof Text) {
         position.node.nodeValue = position.node.nodeValue.slice(0,position.offset) + str +
                                   position.node.nodeValue.slice(position.offset);
     }
@@ -170,7 +170,7 @@ export function removeIds() {
     recurse(document.body);
 
     function recurse(node) {
-        if (node.nodeType == Node.ELEMENT_NODE) {
+        if (node instanceof Element) {
             DOM.removeAttribute(node,"id");
             for (let child = node.firstChild; child != null; child = child.nextSibling)
                 recurse(child);
@@ -189,7 +189,7 @@ export function removeWhitespaceAndCommentNodes(root) {
     });
 
     function recurse(node) {
-        if (Traversal.isWhitespaceTextNode(node) || (node.nodeType == Node.COMMENT_NODE)) {
+        if (Traversal.isWhitespaceTextNode(node) || (node instanceof Comment)) {
             DOM.deleteNode(node);
         }
         else {
@@ -227,7 +227,7 @@ export function showEmptyTextNodes() {
     recurse(document);
 
     function recurse(node) {
-        if ((node.nodeType == Node.TEXT_NODE) && (node.nodeValue.length == 0))
+        if ((node instanceof Text) && (node.nodeValue.length == 0))
             node.nodeValue = "*";
         for (let child = node.firstChild; child != null; child = child.nextSibling)
             recurse(child);
@@ -301,7 +301,7 @@ export function readXML(filename) {
 }
 
 export function findTextMatchingRecursive(node,re) {
-    if (node.nodeType == Node.TEXT_NODE) {
+    if (node instanceof Text) {
         if (node.nodeValue.match(re))
             return node;
         else
@@ -389,9 +389,9 @@ export function simplifyTOCs() {
     function mergeAdjacentTextNodes(node) {
         let child = node.firstChild;
         while (child != null) {
-            if ((child.nodeType == Node.TEXT_NODE) &&
+            if ((child instanceof Text) &&
                 (child.nextSibling != null) &&
-                (child.nextSibling.nodeType == Node.TEXT_NODE)) {
+                (child.nextSibling instanceof Text)) {
                 DOM.insertCharacters(child,child.nodeValue.length,child.nextSibling.nodeValue);
                 DOM.deleteNode(child.nextSibling);
             }
@@ -409,7 +409,7 @@ export function showNonEmptyTextNodes() {
     recurse(document.body);
 
     function recurse(node) {
-        if (node.nodeType == Node.TEXT_NODE) {
+        if (node instanceof Text) {
             if (!Traversal.isWhitespaceTextNode(node))
                 node.nodeValue = "{" + node.nodeValue + "}";
         }

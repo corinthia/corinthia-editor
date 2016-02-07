@@ -22,7 +22,7 @@ export function findTextMatching(re) {
     return recurse(document.body);
 
     function recurse(node) {
-        if (node.nodeType == Node.TEXT_NODE) {
+        if (node instanceof Text) {
             if (node.nodeValue.match(re))
                 return node;
             else

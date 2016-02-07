@@ -179,10 +179,10 @@ export function isEmptyNoteNode(node) {
 }
 
 export function isItemNumber(node) {
-    if (node.nodeType == Node.TEXT_NODE) {
+    if (node instanceof Text) {
         return isItemNumber(node.parentNode);
     }
-    else if (node.nodeType == Node.ELEMENT_NODE) {
+    else if (node instanceof Element) {
         if ((node._type == ElementTypes.HTML_SPAN) && node.hasAttribute("class")) {
             return ITEM_NUMBER_CLASSES[node.getAttribute("class")];
         }
@@ -218,7 +218,7 @@ export function isAutoCorrectNode(node) {
 }
 
 export function isSelectionHighlight(node) {
-    return ((node.nodeType == Node.ELEMENT_NODE) &&
+    return ((node instanceof Element) &&
             node.getAttribute("class") == Keys.SELECTION_CLASS);
 }
 

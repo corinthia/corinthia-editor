@@ -9,7 +9,7 @@ function performTest(api)
     var is = document.getElementsByTagName("I");
 
     var range = api.Selection.get();
-    if (range.start.node.nodeType != Node.TEXT_NODE)
+    if (!(range.start.node instanceof Text))
         throw new Error("range start should be in a text node");
 
     api.Range.trackWhileExecuting(range,function() {

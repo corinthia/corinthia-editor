@@ -55,8 +55,8 @@ export function removeUnsupportedInput() {
 
     function recurse(node) {
         // Delete comments and processing instructions
-        if ((node.nodeType != Node.TEXT_NODE) &&
-            (node.nodeType != Node.ELEMENT_NODE)) {
+        if (!(node instanceof Text) &&
+            !(node instanceof Element)) {
             DOM.deleteNode(node);
         }
         else {
@@ -163,7 +163,7 @@ export function getErrorReportingInfo() {
         case ElementTypes.HTML_SCRIPT:
             return;
         default:
-            if (node.nodeType == Node.ELEMENT_NODE) {
+            if (node instanceof Element) {
                 cleanseAttribute(node,"original");
                 if (node.hasAttribute("href") && !node.getAttribute("href").match(/^#/))
                     cleanseAttribute(node,"href");
@@ -221,11 +221,11 @@ export function getErrorReportingInfo() {
     function addPositionMarker(pos,name,save) {
         let node = pos.node;
         let offset = pos.offset;
-        if (node.nodeType == Node.ELEMENT_NODE) {
+        if (node instanceof Element) {
             save.tempNode = DOM.createTextNode(document,name);
             DOM.insertBefore(node,save.tempNode,node.childNodes[offset]);
         }
-        else if (node.nodeType == Node.TEXT_NODE) {
+        else if (node instanceof Text) {
             save.originalNodeValue = node.nodeValue;
             node.nodeValue = node.nodeValue.slice(0,offset) + name + node.nodeValue.slice(offset);
         }
@@ -234,10 +234,10 @@ export function getErrorReportingInfo() {
     function removePositionMarker(pos,save) {
         let node = pos.node;
         let offset = pos.offset;
-        if (pos.node.nodeType == Node.ELEMENT_NODE) {
+        if (pos.node instanceof Element) {
             DOM.deleteNode(save.tempNode);
         }
-        else if (pos.node.nodeType == Node.TEXT_NODE) {
+        else if (pos.node instanceof Text) {
             node.nodeValue = save.originalNodeValue;
         }
     }
@@ -254,7 +254,7 @@ export function removeSpecial(node) {
     }
 
     let cssClass = null;
-    if ((node.nodeType == Node.ELEMENT_NODE) && node.hasAttribute("class"))
+    if ((node instanceof Element) && node.hasAttribute("class"))
         cssClass = node.getAttribute("class");
 
     if ((cssClass == Types.Keys.HEADING_NUMBER) ||

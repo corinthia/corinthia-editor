@@ -109,14 +109,14 @@ export function splitAroundSelection(range,allowDirectInline) {
             Range.ensureInlineNodesInParagraph(range);
         Range.ensureValidHierarchy(range);
 
-        if ((range.start.node.nodeType == Node.TEXT_NODE) &&
+        if ((range.start.node instanceof Text) &&
             (range.start.offset > 0)) {
             splitTextBefore(range.start);
             if (range.end.node == range.start.node)
                 range.end.offset -= range.start.offset;
             range.start.offset = 0;
         }
-        else if (range.start.node.nodeType == Node.ELEMENT_NODE) {
+        else if (range.start.node instanceof Element) {
             movePreceding(range.start,Types.isBlockOrNoteNode);
         }
         else {
@@ -132,11 +132,11 @@ export function splitAroundSelection(range,allowDirectInline) {
         let endNode = range.end.node;
         let endOffset = range.end.offset;
 
-        if ((range.end.node.nodeType == Node.TEXT_NODE) &&
+        if ((range.end.node instanceof Text) &&
             (range.end.offset < range.end.node.nodeValue.length)) {
             splitTextAfter(range.end);
         }
-        else if (range.end.node.nodeType == Node.ELEMENT_NODE) {
+        else if (range.end.node instanceof Element) {
             moveFollowing(range.end,Types.isBlockOrNoteNode);
         }
         else {
@@ -162,7 +162,7 @@ export function mergeUpwards(node,whiteList) {
 }
 
 function isDiscardable(node) {
-    if (node.nodeType != Node.ELEMENT_NODE)
+    if (!(node instanceof Element))
         return false;
 
     if (!Types.isInlineNode(node))
@@ -209,7 +209,7 @@ export function mergeWithNeighbours(node,whiteList,trim?) {
             lastMerge = (start.nextSibling == end);
 
             let lastChild = null;
-            if (start.nodeType == Node.ELEMENT_NODE)
+            if (start instanceof Element)
                 lastChild = start.lastChild;
 
             DOM.mergeWithNextSibling(start,whiteList);
@@ -354,7 +354,7 @@ export function moveFollowing(pos,parentCheckFn,force?) {
 
 // public
 export function paragraphTextUpToPosition(pos) {
-    if (pos.node.nodeType == Node.TEXT_NODE) {
+    if (pos.node instanceof Text) {
         return stringToStartOfParagraph(pos.node,pos.offset);
     }
     else {
@@ -365,7 +365,7 @@ export function paragraphTextUpToPosition(pos) {
         let start = node;
         let components = new Array();
         while (Types.isInlineNode(node)) {
-            if (node.nodeType == Node.TEXT_NODE) {
+            if (node instanceof Text) {
                 if (node == start)
                     components.push(node.nodeValue.slice(0,offset));
                 else
@@ -514,7 +514,7 @@ export function getAllNodeProperties(node) {
 
     let properties = getAllNodeProperties(node.parentNode);
 
-    if (node.nodeType == Node.ELEMENT_NODE) {
+    if (node instanceof Element) {
         // Note: Style names corresponding to element names must be in lowercase, because
         // canonicaliseSelector() in Styles.js always converts selectors to lowercase.
         if (node.hasAttribute("STYLE")) {
@@ -761,7 +761,7 @@ function pushDownInlinePropertiesSingle(target) {
     return target;
 
     function recurse(node) {
-        if (node.nodeType == Node.DOCUMENT_NODE)
+        if (node instanceof Document)
             return;
 
         if (node.parentNode != null)
@@ -864,7 +864,7 @@ function applyInlineFormatting(target,inlineProperties,special,applyToWhitespace
     }
 
     if ((Object.getOwnPropertyNames(inlineProperties).length > 0) &&
-        ((target.nodeType != Node.ELEMENT_NODE) ||
+        (!(target instanceof Element) ||
          isbiu || isSpecialSpan(target))) {
         target = wrapInline(target,"SPAN");
     }
@@ -958,7 +958,7 @@ function getOutermostParagraphs(paragraphs) {
 
 // private
 function removePropertiesSingle(node,properties,special,remaining) {
-    if ((node.nodeType == Node.ELEMENT_NODE) && (node.hasAttribute("style"))) {
+    if ((node instanceof Element) && (node.hasAttribute("style"))) {
         let remove = new Object();
         for (let name in properties)
             remove[name] = null;
@@ -1052,7 +1052,7 @@ export function applyFormattingChanges(style,properties) {
     // selection start & end is an element, add an empty text node so that we have something
     // to apply the formatting to.
     if (Range.isEmpty(selectionRange) &&
-        (selectionRange.start.node.nodeType == Node.ELEMENT_NODE)) {
+        (selectionRange.start.node instanceof Element)) {
         let node = selectionRange.start.node;
         let offset = selectionRange.start.offset;
         let text = DOM.createTextNode(document,"");

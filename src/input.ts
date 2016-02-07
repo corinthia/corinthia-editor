@@ -133,11 +133,11 @@ export function replaceRange(startId,endId,text) {
     let node = range.start.node;
     let offset = range.start.offset;
 
-    if (node.nodeType == Node.TEXT_NODE) {
+    if (node instanceof Text) {
         DOM.insertCharacters(node,offset,text);
         Cursor.set(node,offset+text.length);
     }
-    else if (node.nodeType == Node.ELEMENT_NODE) {
+    else if (node instanceof Element) {
         let textNode = DOM.createTextNode(document,text);
         DOM.insertBefore(node,textNode,node.childNodes[offset]);
         Cursor.set(node,offset+1);
@@ -384,7 +384,7 @@ function isForward(direction) {
 }
 
 export function isAtWordBoundary(pos,direction) {
-    if (pos.node.nodeType != Node.TEXT_NODE)
+    if (!(pos.node instanceof Text))
         return false;
     let paragraph = Txt.analyseParagraph(pos);
     if (paragraph == null)
@@ -461,7 +461,7 @@ export function isPositionWithinTextUnitInDirection(posId,granularity,direction)
         let paragraph = Txt.analyseParagraph(pos);
         if (paragraph == null)
             return false;
-        if ((pos != null) && (pos.node.nodeType == Node.TEXT_NODE)) {
+        if ((pos != null) && (pos.node instanceof Text)) {
             let offset = Paragraph.offsetAtPosition(paragraph,pos);
             let text = paragraph.text;
             if (isForward(direction))

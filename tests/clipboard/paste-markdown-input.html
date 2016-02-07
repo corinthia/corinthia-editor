@@ -43,7 +43,7 @@ function performTest(api)
         var head = api.DOM.documentHead(document);
         var comment = null;
         for (var child = head.firstChild; child != null; child = child.nextSibling) {
-            if (child.nodeType == Node.COMMENT_NODE) {
+            if (child instanceof Comment) {
                 api.DOM.deleteNode(child);
                 return child.nodeValue;
             }

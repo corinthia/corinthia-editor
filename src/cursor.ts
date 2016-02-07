@@ -288,7 +288,7 @@ function spaceToNbsp(pos) {
     let node = pos.node;
     let offset = pos.offset;
 
-    if ((node.nodeType == Node.TEXT_NODE) && (offset > 0) &&
+    if ((node instanceof Text) && (offset > 0) &&
         (Util.isWhitespaceString(node.nodeValue.charAt(offset-1)))) {
         // Insert first, to preserve any tracked positions
         DOM.insertCharacters(node,offset-1,nbsp);
@@ -300,7 +300,7 @@ function nbspToSpace(pos) {
     let node = pos.node;
     let offset = pos.offset;
 
-    if ((node.nodeType == Node.TEXT_NODE) && (offset > 0) &&
+    if ((node instanceof Text) && (offset > 0) &&
         (node.nodeValue.charAt(offset-1) == nbsp)) {
         // Insert first, to preserve any tracked positions
         DOM.insertCharacters(node,offset-1," ");
@@ -317,7 +317,7 @@ function checkNbsp() {
 }
 
 function isPosAtStartOfParagraph(pos) {
-    if ((pos.node.nodeType == Node.ELEMENT_NODE) && (pos.offset == 0) &&
+    if ((pos.node instanceof Element) && (pos.offset == 0) &&
         !Types.isInlineNode(pos.node)) {
         return true;
     }
@@ -325,13 +325,13 @@ function isPosAtStartOfParagraph(pos) {
 
 
     while (pos != null) {
-        if (pos.node.nodeType == Node.ELEMENT_NODE) {
+        if (pos.node instanceof Element) {
             if ((pos.offset == 0) && !Types.isInlineNode(pos.node))
                 return true;
             else
                 pos = Position.prev(pos);
         }
-        else if (pos.node.nodeType == Node.TEXT_NODE) {
+        else if (pos.node instanceof Text) {
             if (pos.offset > 0)
                 return false;
             else
@@ -394,7 +394,7 @@ export function insertCharacter(str,allowInvalidPos,allowNoParagraph) {
 
     if ((str == " ") &&
         !firstInsertion &&
-        (node.nodeType == Node.TEXT_NODE) &&
+        (node instanceof Text) &&
         (offset > 0) &&
         (node.nodeValue.charAt(offset-1) == nbsp)) {
 
@@ -404,7 +404,7 @@ export function insertCharacter(str,allowInvalidPos,allowNoParagraph) {
         }
     }
 
-    if (Util.isWhitespaceString(str) && (node.nodeType == Node.TEXT_NODE) && (offset > 0)) {
+    if (Util.isWhitespaceString(str) && (node instanceof Text) && (offset > 0)) {
         let prevChar = node.nodeValue.charAt(offset-1);
         if (Util.isWhitespaceString(prevChar) || (prevChar == nbsp)) {
             Selection.update();
@@ -417,14 +417,14 @@ export function insertCharacter(str,allowInvalidPos,allowNoParagraph) {
 
     // If the user enters two double quotes in succession (open and close), replace them with
     // just one plain double quote character
-    if ((str == "”") && (node.nodeType == Node.TEXT_NODE) &&
+    if ((str == "”") && (node instanceof Text) &&
         (offset > 0) && (node.nodeValue.charAt(offset-1) == "“")) {
         DOM.deleteCharacters(node,offset-1,offset);
         offset--;
         str = "\"";
     }
 
-    if (node.nodeType == Node.ELEMENT_NODE) {
+    if (node instanceof Element) {
         let emptyTextNode = DOM.createTextNode(document,"");
         if (offset >= node.childNodes.length)
             DOM.appendChild(node,emptyTextNode);
@@ -518,7 +518,7 @@ export function deleteCharacter() {
         // Special cases of pressing backspace after a table, figure, TOC, hyperlink,
         // footnote, or endnote. For each of these we delete the whole thing.
         let back = Position.closestMatchBackwards(currentPos,Position.okForMovement);
-        if ((back != null) && (back.node.nodeType == Node.ELEMENT_NODE) && (back.offset > 0)) {
+        if ((back != null) && (back.node instanceof Element) && (back.offset > 0)) {
             let prevNode = back.node.childNodes[back.offset-1];
             if (Types.isSpecialBlockNode(prevNode)) {
                 let p = DOM.createElement(document,"P");
@@ -622,7 +622,7 @@ export function enterPressed() {
 
     // Are we inside a footnote or endnote? If so, move the cursor immediately after it
     let note = null;
-    if (selRange.start.node.nodeType == Node.TEXT_NODE) {
+    if (selRange.start.node instanceof Text) {
         note = Position.noteAncestor(selRange.start);
     }
     else {
@@ -642,7 +642,7 @@ export function enterPressed() {
     }
 
     let check = Position.preferElementPosition(selRange.start);
-    if (check.node.nodeType == Node.ELEMENT_NODE) {
+    if (check.node instanceof Element) {
         let before = check.node.childNodes[check.offset-1];
         let after = check.node.childNodes[check.offset];
         if (((before != null) && Types.isSpecialBlockNode(before)) ||
@@ -699,7 +699,7 @@ export function enterPressed() {
             pos = new Position.Position(container,0);
             pos = Formatting.movePreceding(pos,function(n) { return (n == stopAt); },true);
         }
-        else if (pos.node.nodeType == Node.TEXT_NODE) {
+        else if (pos.node instanceof Text) {
             pos = Formatting.splitTextAfter(pos,function(n) { return (n == stopAt); },true);
         }
         else {
@@ -711,7 +711,7 @@ export function enterPressed() {
     selRange = Selection.get();
 
     Range.trackWhileExecuting(selRange,function() {
-        if ((pos.node.nodeType == Node.TEXT_NODE) && (pos.node.nodeValue.length == 0)) {
+        if ((pos.node instanceof Text) && (pos.node.nodeValue.length == 0)) {
             DOM.deleteNode(pos.node);
         }
 
@@ -826,7 +826,7 @@ export function getPrecedingWord() {
 
     let node = selRange.start.node;
     let offset = selRange.start.offset;
-    if (node.nodeType != Node.TEXT_NODE)
+    if (!(node instanceof Text))
         return "";
 
     return node.nodeValue.substring(0,offset);
@@ -843,7 +843,7 @@ export function getAdjacentNodeWithType(type) {
         if (node._type == type)
             return node;
 
-        if (node.nodeType == Node.ELEMENT_NODE) {
+        if (node instanceof Element) {
             let before = node.childNodes[offset-1];
             if ((before != null) && (before._type == type))
                 return before;
@@ -905,7 +905,7 @@ export function makeContainerInsertionPoint() {
     let previousSibling;
     let nextSibling;
 
-    if (selRange.start.node.nodeType == Node.ELEMENT_NODE) {
+    if (selRange.start.node instanceof Element) {
         parent = selRange.start.node;
         nextSibling = selRange.start.node.childNodes[selRange.start.offset];
     }

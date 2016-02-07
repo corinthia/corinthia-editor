@@ -99,7 +99,7 @@ function Category_add(category,node) {
 function findFirstTextDescendant(node) {
     if (Traversal.isWhitespaceTextNode(node))
         return;
-    if (node.nodeType == Node.TEXT_NODE)
+    if (node instanceof Text)
         return node;
     for (let child = node.firstChild; child != null; child = child.nextSibling) {
         let result = findFirstTextDescendant(child);
@@ -615,7 +615,7 @@ function Shadow_outerNext(shadow,structure) {
 }
 
 function firstTextDescendant(node) {
-    if (node.nodeType == Node.TEXT_NODE)
+    if (node instanceof Text)
         return node;
     for (let child = node.firstChild; child != null; child = child.nextSibling) {
         let result = firstTextDescendant(child);

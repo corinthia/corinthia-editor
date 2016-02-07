@@ -62,27 +62,27 @@ export function nextNode(node,entering?,exiting?) {
 export function prevTextNode(node) {
     do {
         node = prevNode(node);
-    } while ((node != null) && (node.nodeType != Node.TEXT_NODE));
+    } while ((node != null) && !(node instanceof Text));
     return node;
 }
 
 export function nextTextNode(node) {
     do {
         node = nextNode(node);
-    } while ((node != null) && (node.nodeType != Node.TEXT_NODE));
+    } while ((node != null) && !(node instanceof Text));
     return node;
 }
 
 export function firstChildElement(node) {
     let first = node.firstChild;
-    while ((first != null) && (first.nodeType != Node.ELEMENT_NODE))
+    while ((first != null) && !(first instanceof Element))
         first = first.nextSibling;
     return first;
 }
 
 export function lastChildElement(node) {
     let last = node.lastChild;
-    while ((last != null) && (last.nodeType != Node.ELEMENT_NODE))
+    while ((last != null) && !(last instanceof Element))
         last = last.previousSibling;
     return last;
 }
@@ -132,7 +132,7 @@ export function getNodeText(node) {
     return strings.join("").replace(/\s+/g," ");
 
     function recurse(node) {
-        if (node.nodeType == Node.TEXT_NODE)
+        if (node instanceof Text)
             strings.push(node.nodeValue);
 
         for (let child = node.firstChild; child != null; child = child.nextSibling)
@@ -141,13 +141,13 @@ export function getNodeText(node) {
 }
 
 export function isWhitespaceTextNode(node) {
-    if (node.nodeType != Node.TEXT_NODE)
+    if (!(node instanceof Text))
         return false;
     return Util.isWhitespaceString(node.nodeValue);
 }
 
 export function isNonWhitespaceTextNode(node) {
-    if (node.nodeType != Node.TEXT_NODE)
+    if (!(node instanceof Text))
         return false;
     return !Util.isWhitespaceString(node.nodeValue);
 }
@@ -157,7 +157,7 @@ export function printTree(node,indent,offset) {
         indent = "";
     if (offset == null)
         offset = "";
-    if ((node.nodeType == Node.ELEMENT_NODE) && node.hasAttribute("class"))
+    if ((node instanceof Element) && node.hasAttribute("class"))
         Util.debug(indent+offset+Util.nodeString(node)+"."+node.getAttribute("class"));
     else
         Util.debug(indent+offset+Util.nodeString(node));

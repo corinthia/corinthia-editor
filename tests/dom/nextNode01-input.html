@@ -15,9 +15,9 @@ function performTest(api)
 
     function stringForNode(node)
     {
-        if ((node.nodeType == Node.ELEMENT_NODE) && (node.hasAttribute("id")))
+        if ((node instanceof Element) && (node.hasAttribute("id")))
             return node.getAttribute("id");
-        else if (node.nodeType == Node.TEXT_NODE)
+        else if (node instanceof Text)
             return node.nodeValue;
         else
             return node.nodeName;

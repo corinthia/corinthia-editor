@@ -79,7 +79,7 @@ export function getRunRects(paragraph) {
 
 export function getRunOrFallbackRects(paragraph,pos) {
     let rects = getRunRects(paragraph);
-    if ((rects.length == 0) && (paragraph.node.nodeType == Node.ELEMENT_NODE)) {
+    if ((rects.length == 0) && (paragraph.node instanceof Element)) {
         if (Types.isBlockNode(paragraph.node) &&
             (paragraph.startOffset == 0) &&
             (paragraph.endOffset == paragraph.node.childNodes.length)) {

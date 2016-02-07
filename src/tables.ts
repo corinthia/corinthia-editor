@@ -259,7 +259,7 @@ function tableAtRightOfRange(range) {
         return null;
 
     let pos = Position.preferElementPosition(range.start);
-    if ((pos.node.nodeType == Node.ELEMENT_NODE) &&
+    if ((pos.node instanceof Element) &&
         (pos.offset < pos.node.childNodes.length) &&
         (pos.node.childNodes[pos.offset]._type == ElementTypes.HTML_TABLE)) {
         let element = pos.node.childNodes[pos.offset];
@@ -274,7 +274,7 @@ function tableAtLeftOfRange(range) {
         return null;
 
     let pos = Position.preferElementPosition(range.start);
-    if ((pos.node.nodeType == Node.ELEMENT_NODE) &&
+    if ((pos.node instanceof Element) &&
         (pos.offset > 0) &&
         (pos.node.childNodes[pos.offset-1]._type == ElementTypes.HTML_TABLE)) {
         let element = pos.node.childNodes[pos.offset-1];

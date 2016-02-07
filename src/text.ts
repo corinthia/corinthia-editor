@@ -63,7 +63,7 @@ export function findParagraphBoundaries(pos) {
         node = node.parentNode;
     }
 
-    if (node.nodeType != Node.ELEMENT_NODE)
+    if (!(node instanceof Element))
         throw new Error("Not an element node: "+Util.nodeString(node));
 
     while ((startOffset > 0) && Types.isInlineNode(node.childNodes[startOffset-1]))
@@ -92,7 +92,7 @@ export function analyseParagraph(pos) {
     return new ParagraphInfo(boundaries.node,boundaries.startOffset,boundaries.endOffset,runs,text);
 
     function recurse(node) {
-        if (node.nodeType == Node.TEXT_NODE) {
+        if (node instanceof Text) {
             strings.push(node.nodeValue);
             let start = offset;
             let end = offset + node.nodeValue.length;
@@ -286,7 +286,7 @@ export function closestPosBackwards(pos) {
     if (Traversal.isNonWhitespaceTextNode(pos.node))
         return pos;
     let node;
-    if ((pos.node.nodeType == Node.ELEMENT_NODE) && (pos.offset > 0)) {
+    if ((pos.node instanceof Element) && (pos.offset > 0)) {
         node = pos.node.childNodes[pos.offset-1];
         while (node.lastChild != null)
             node = node.lastChild;
@@ -307,7 +307,7 @@ export function closestPosForwards(pos) {
     if (Traversal.isNonWhitespaceTextNode(pos.node))
         return pos;
     let node;
-    if ((pos.node.nodeType == Node.ELEMENT_NODE) && (pos.offset < pos.node.childNodes.length)) {
+    if ((pos.node instanceof Element) && (pos.offset < pos.node.childNodes.length)) {
         node = pos.node.childNodes[pos.offset];
         while (node.firstChild != null)
             node = node.firstChild;

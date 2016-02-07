@@ -93,7 +93,7 @@ function setNodeAndOffset(self,node,offset) {
 Position.prototype.toString = function() {
     let self = this.self;
     let result;
-    if (self.node.nodeType == Node.TEXT_NODE) {
+    if (self.node instanceof Text) {
         let extra = "";
         if (self.offset > self.node.nodeValue.length) {
             for (let i = self.node.nodeValue.length; i < self.offset; i++)
@@ -167,9 +167,9 @@ export function assertValid(pos,description?) {
     }
 
     let max;
-    if (pos.node.nodeType == Node.ELEMENT_NODE)
+    if (pos.node instanceof Element)
         max = pos.node.childNodes.length;
-    else if (pos.node.nodeType == Node.TEXT_NODE)
+    else if (pos.node instanceof Text)
         max = pos.node.nodeValue.length;
     else
         throw new Error(description+" has invalid node type "+pos.node.nodeType);
@@ -182,7 +182,7 @@ export function assertValid(pos,description?) {
 
 // public
 export function prev(pos) {
-    if (pos.node.nodeType == Node.ELEMENT_NODE) {
+    if (pos.node instanceof Element) {
         let r = positionSpecial(pos,false,true);
         if (r != null)
             return r;
@@ -194,7 +194,7 @@ export function prev(pos) {
             return new Position(child,DOM.maxChildOffset(child));
         }
     }
-    else if (pos.node.nodeType == Node.TEXT_NODE) {
+    else if (pos.node instanceof Text) {
         if (pos.offset > 0)
             return new Position(pos.node,pos.offset-1);
         else
@@ -214,7 +214,7 @@ export function prev(pos) {
 
 // public
 export function next(pos) {
-    if (pos.node.nodeType == Node.ELEMENT_NODE) {
+    if (pos.node instanceof Element) {
         let r = positionSpecial(pos,true,false);
         if (r != null)
             return r;
@@ -223,7 +223,7 @@ export function next(pos) {
         else
             return new Position(pos.node.childNodes[pos.offset],0);
     }
-    else if (pos.node.nodeType == Node.TEXT_NODE) {
+    else if (pos.node instanceof Text) {
         if (pos.offset < pos.node.nodeValue.length)
             return new Position(pos.node,pos.offset+1);
         else
@@ -258,7 +258,7 @@ export function trackWhileExecuting(positions,fun) {
 export function closestActualNode(pos,preferElement?) {
     let node = pos.node;
     let offset = pos.offset;
-    if ((node.nodeType != Node.ELEMENT_NODE) || (node.firstChild == null))
+    if (!(node instanceof Element) || (node.firstChild == null))
         return node;
     else if (offset == 0)
         return node.firstChild;
@@ -268,8 +268,8 @@ export function closestActualNode(pos,preferElement?) {
     let prev = node.childNodes[offset-1];
     let next = node.childNodes[offset];
     if (preferElement &&
-        (next.nodeType != Node.ELEMENT_NODE) &&
-        (prev.nodeType == Node.ELEMENT_NODE)) {
+        !(next instanceof Element) &&
+        (prev instanceof Element)) {
         return prev;
     }
     else {
@@ -311,7 +311,7 @@ function spacesUntilNextContent(node) {
             return null;
         if (Types.isOpaqueNode(node))
             return spaces;
-        if (node.nodeType == Node.TEXT_NODE) {
+        if (node instanceof Text) {
             if (Traversal.isWhitespaceTextNode(node)) {
                 spaces += node.nodeValue.length;
             }
@@ -343,7 +343,7 @@ export function okForMovement(pos,insertion?) {
             return false;
     }
 
-    if (node.nodeType == Node.TEXT_NODE) {
+    if (node instanceof Text) {
         let value = node.nodeValue;
 
         // If there are multiple adjacent text nodes, consider them as one (adjusting the
@@ -353,14 +353,14 @@ export function okForMovement(pos,insertion?) {
         let lastNode = node;
 
         while ((firstNode.previousSibling != null) &&
-               (firstNode.previousSibling.nodeType == Node.TEXT_NODE)) {
+               (firstNode.previousSibling instanceof Text)) {
             firstNode = firstNode.previousSibling;
             value = firstNode.nodeValue + value;
             offset += firstNode.nodeValue.length;
         }
 
         while ((lastNode.nextSibling != null) &&
-               (lastNode.nextSibling.nodeType == Node.TEXT_NODE)) {
+               (lastNode.nextSibling instanceof Text)) {
             lastNode = lastNode.nextSibling;
             value += lastNode.nodeValue;
         }
@@ -426,7 +426,7 @@ export function okForMovement(pos,insertion?) {
 
         return (havePrevChar || haveNextChar);
     }
-    else if (node.nodeType == Node.ELEMENT_NODE) {
+    else if (node instanceof Element) {
         if (node.firstChild == null) {
             switch (type) {
             case ElementTypes.HTML_LI:
@@ -516,22 +516,22 @@ export function nextMatch(pos,fun) {
 function findEquivalentValidPosition(pos,fun) {
     let node = pos.node;
     let offset = pos.offset;
-    if (node.nodeType == Node.ELEMENT_NODE) {
+    if (node instanceof Element) {
         let before = node.childNodes[offset-1];
         let after = node.childNodes[offset];
-        if ((before != null) && (before.nodeType == Node.TEXT_NODE)) {
+        if ((before != null) && (before instanceof Text)) {
             let candidate = new Position(before,before.nodeValue.length);
             if (fun(candidate))
                 return candidate;
         }
-        if ((after != null) && (after.nodeType == Node.TEXT_NODE)) {
+        if ((after != null) && (after instanceof Text)) {
             let candidate = new Position(after,0);
             if (fun(candidate))
                 return candidate;
         }
     }
 
-    if ((pos.node.nodeType == Node.TEXT_NODE) &&
+    if ((pos.node instanceof Text) &&
         Util.isWhitespaceString(pos.node.nodeValue.slice(pos.offset))) {
         let str = pos.node.nodeValue;
         let whitespace = str.match(/\s+$/);
@@ -684,7 +684,7 @@ function exactRectAtPos(pos) {
     let node = pos.node;
     let offset = pos.offset;
 
-    if (node.nodeType == Node.ELEMENT_NODE) {
+    if (node instanceof Element) {
         if (offset > node.childNodes.length)
             throw new Error("Invalid offset: "+offset+" of "+node.childNodes.length);
 
@@ -700,14 +700,14 @@ function exactRectAtPos(pos) {
             return zeroWidthLeftRect(after.getBoundingClientRect());
 
         // Start of empty paragraph
-        if ((node.nodeType == Node.ELEMENT_NODE) && (offset == 0) &&
+        if ((node instanceof Element) && (offset == 0) &&
             Types.isParagraphNode(node) && !Util.nodeHasContent(node)) {
             return zeroWidthLeftRect(node.getBoundingClientRect());
         }
 
         return null;
     }
-    else if (node.nodeType == Node.TEXT_NODE) {
+    else if (node instanceof Text) {
         // First see if the client rects returned by the range gives us a valid value. This
         // won't be the case if the cursor is surrounded by both sides on whitespace.
         let result = rectAtRightOfRange(new Range.Range(node,offset,node,offset));
@@ -760,7 +760,7 @@ export function displayRectAtPos(pos) {
     // temporarily inserting a space character, and getting the rect at the start of that.
     // This avoids us instead getting a rect inside the note, which is what would otherwise
     // happen if there was no adjacent text node outside the note.
-    if ((pos.node.nodeType == Node.ELEMENT_NODE)) {
+    if ((pos.node instanceof Element)) {
         let before = pos.node.childNodes[pos.offset-1];
         let after = pos.node.childNodes[pos.offset];
         if (((before != null) && Types.isNoteNode(before)) ||
@@ -807,7 +807,7 @@ export function displayRectAtPos(pos) {
     else {
         // Fallback, e.g. for empty LI elements
         let node = pos.node;
-        if (node.nodeType == Node.TEXT_NODE)
+        if (node instanceof Text)
             node = node.parentNode;
         return zeroWidthLeftRect(node.getBoundingClientRect());
     }
@@ -825,19 +825,19 @@ export function equal(a,b) {
 export function preferTextPosition(pos) {
     let node = pos.node;
     let offset = pos.offset;
-    if (node.nodeType == Node.ELEMENT_NODE) {
+    if (node instanceof Element) {
         let before = node.childNodes[offset-1];
         let after = node.childNodes[offset];
-        if ((before != null) && (before.nodeType == Node.TEXT_NODE))
+        if ((before != null) && (before instanceof Text))
             return new Position(before,before.nodeValue.length);
-        if ((after != null) && (after.nodeType == Node.TEXT_NODE))
+        if ((after != null) && (after instanceof Text))
             return new Position(after,0);
     }
     return pos;
 }
 
 export function preferElementPosition(pos) {
-    if (pos.node.nodeType == Node.TEXT_NODE) {
+    if (pos.node instanceof Text) {
         if (pos.node.parentNode == null)
             throw new Error("Position "+pos+" has no parent node");
         if (pos.offset == 0)
@@ -866,7 +866,7 @@ export function compare(first,second) {
     let secondParent = null;
     let secondChild = null;
 
-    if (second.node.nodeType == Node.ELEMENT_NODE) {
+    if (second.node instanceof Element) {
         secondParent = second.node;
         secondChild = second.node.childNodes[second.offset];
     }
@@ -875,7 +875,7 @@ export function compare(first,second) {
         secondChild = second.node;
     }
 
-    if (first.node.nodeType == Node.ELEMENT_NODE) {
+    if (first.node instanceof Element) {
         firstParent = first.node;
         firstChild = first.node.childNodes[first.offset];
     }
@@ -978,7 +978,7 @@ export function atPoint(x,y) {
     let pos = new Position(range.startContainer,range.startOffset);
     pos = preferElementPosition(pos);
 
-    if (pos.node.nodeType == Node.ELEMENT_NODE) {
+    if (pos.node instanceof Element) {
         let outside = posOutsideSelection(pos);
         let prev = outside.node.childNodes[outside.offset-1];
         let next = outside.node.childNodes[outside.offset];
@@ -1035,7 +1035,7 @@ function findLastTextRect() {
     let node = Traversal.lastDescendant(document.body);
 
     while ((node != null) &&
-           ((node.nodeType != Node.TEXT_NODE) || Traversal.isWhitespaceTextNode(node))) {
+           (!(node instanceof Text) || Traversal.isWhitespaceTextNode(node))) {
         if (isEmptyParagraphNode(node))
             return node.getBoundingClientRect();
         node = Traversal.prevNode(node);
@@ -1056,7 +1056,7 @@ function findFirstTextRect() {
     let node = Traversal.firstDescendant(document.body);
 
     while ((node != null) &&
-           ((node.nodeType != Node.TEXT_NODE) || Traversal.isWhitespaceTextNode(node))) {
+           (!(node instanceof Text) || Traversal.isWhitespaceTextNode(node))) {
         if (isEmptyParagraphNode(node))
             return node.getBoundingClientRect();
         node = Traversal.nextNode(node);

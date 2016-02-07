@@ -67,10 +67,10 @@ export function nodeString(node) {
     let id = "";
     if (debugIds)
         id = node._nodeId+":";
-    if (node.nodeType == Node.TEXT_NODE) {
+    if (node instanceof Text) {
         return id+JSON.stringify(node.nodeValue);
     }
-    else if (node.nodeType == Node.ELEMENT_NODE) {
+    else if (node instanceof Element) {
         let name = (node.namespaceURI == null) ? node.nodeName.toUpperCase() : node.nodeName;
         if (node.hasAttribute("id"))
             return id+name+"#"+node.getAttribute("id");

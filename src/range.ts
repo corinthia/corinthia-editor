@@ -137,7 +137,7 @@ export function detail(range) {
     let end = range.end;
 
     // Start location
-    if (start.node.nodeType == Node.ELEMENT_NODE) {
+    if (start.node instanceof Element) {
         result.startParent = start.node;
         result.startChild = start.node.childNodes[start.offset];
     }
@@ -147,7 +147,7 @@ export function detail(range) {
     }
 
     // End location
-    if (end.node.nodeType == Node.ELEMENT_NODE) {
+    if (end.node instanceof Element) {
         result.endParent = end.node;
         result.endChild = end.node.childNodes[end.offset];
     }
@@ -307,7 +307,7 @@ export function getClientRects(range) {
     let domRange = doc.createRange();
     for (let nodeIndex = 0; nodeIndex < nodes.length; nodeIndex++) {
         let node = nodes[nodeIndex];
-        if (node.nodeType == Node.TEXT_NODE) {
+        if (node instanceof Text) {
             let startOffset = (node == range.start.node) ? range.start.offset : 0;
             let endOffset = (node == range.end.node) ? range.end.offset : node.nodeValue.length;
             domRange.setStart(node,startOffset);
@@ -331,7 +331,7 @@ export function getClientRects(range) {
                 }
             }
         }
-        else if (node.nodeType == Node.ELEMENT_NODE) {
+        else if (node instanceof Element) {
             result.push(node.getBoundingClientRect());
         }
     }
@@ -385,19 +385,19 @@ export function cloneContents(range) {
         let clone = DOM.cloneNode(parent,false);
         for (let child = parent.firstChild; child != null; child = child.nextSibling) {
             if (nodeSet.contains(child)) {
-                if ((child.nodeType == Node.TEXT_NODE) &&
+                if ((child instanceof Text) &&
                     (child == range.start.node) &&
                     (child == range.end.node)) {
                     let substring = child.nodeValue.substring(range.start.offset,
                                                               range.end.offset);
                     DOM.appendChild(clone,DOM.createTextNode(document,substring));
                 }
-                else if ((child.nodeType == Node.TEXT_NODE) &&
+                else if ((child instanceof Text) &&
                          (child == range.start.node)) {
                     let substring = child.nodeValue.substring(range.start.offset);
                     DOM.appendChild(clone,DOM.createTextNode(document,substring));
                 }
-                else if ((child.nodeType == Node.TEXT_NODE) &&
+                else if ((child instanceof Text) &&
                          (child == range.end.node)) {
                     let substring = child.nodeValue.substring(0,range.end.offset);
                     DOM.appendChild(clone,DOM.createTextNode(document,substring));
@@ -418,7 +418,7 @@ export function hasContent(range) {
     let outermost = getOutermostNodes(range);
     for (let i = 0; i < outermost.length; i++) {
         let node = outermost[i];
-        if (node.nodeType == Node.TEXT_NODE) {
+        if (node instanceof Text) {
             let value = node.nodeValue;
             if ((node == range.start.node) && (node == range.end.node)) {
                 if (!Util.isWhitespaceString(value.substring(range.start.offset,range.end.offset)))
@@ -437,7 +437,7 @@ export function hasContent(range) {
                     return true;
             }
         }
-        else if (node.nodeType == Node.ELEMENT_NODE) {
+        else if (node instanceof Element) {
             if (Util.nodeHasContent(node))
                 return true;
         }
@@ -454,7 +454,7 @@ export function getText(range) {
     let startNode = start.node;
     let startOffset = start.offset;
 
-    if (start.node.nodeType == Node.ELEMENT_NODE) {
+    if (start.node instanceof Element) {
         if ((start.node.offset == start.node.childNodes.length) &&
             (start.node.offset > 0))
             startNode = Traversal.nextNodeAfter(start.node);
@@ -466,7 +466,7 @@ export function getText(range) {
     let endNode = end.node;
     let endOffset = end.offset;
 
-    if (end.node.nodeType == Node.ELEMENT_NODE) {
+    if (end.node instanceof Element) {
         if ((end.node.offset == end.node.childNodes.length) &&
             (end.node.offset > 0))
             endNode = Traversal.nextNodeAfter(end.node);
@@ -485,7 +485,7 @@ export function getText(range) {
         if (node == null)
             throw new Error("Cannot find end node");
 
-        if (node.nodeType == Node.TEXT_NODE) {
+        if (node instanceof Text) {
 
             if (!significantParagraph && !Util.isWhitespaceString(node.nodeValue)) {
                 significantParagraph = true;

@@ -218,7 +218,7 @@ function getPrevHighlightText(node) {
     if ((node.previousSibling != null) &&
         Types.isSelectionHighlight(node.previousSibling) &&
         (node.previousSibling.lastChild != null) &&
-        (node.previousSibling.lastChild.nodeType == Node.TEXT_NODE))
+        (node.previousSibling.lastChild instanceof Text))
         return node.previousSibling.lastChild;
     else
         return null;
@@ -228,7 +228,7 @@ function getNextHighlightText(node) {
     if ((node.nextSibling != null) &&
         Types.isSelectionHighlight(node.nextSibling) &&
         (node.nextSibling.firstChild != null) &&
-        (node.nextSibling.firstChild.nodeType == Node.TEXT_NODE))
+        (node.nextSibling.firstChild instanceof Text))
         return node.nextSibling.firstChild;
     else
         return null;
@@ -236,7 +236,7 @@ function getNextHighlightText(node) {
 
 function getTextNodeBefore(node) {
     let prev = node.previousSibling;
-    if ((prev != null) && (prev.nodeType == Node.TEXT_NODE)) {
+    if ((prev != null) && (prev instanceof Text)) {
         return prev;
     }
     else {
@@ -248,7 +248,7 @@ function getTextNodeBefore(node) {
 
 function getTextNodeAfter(node) {
     let next = node.nextSibling;
-    if ((next != null) && (next.nodeType == Node.TEXT_NODE)) {
+    if ((next != null) && (next instanceof Text)) {
         return next;
     }
     else {
@@ -288,7 +288,7 @@ function createSelectionHighlights(data) {
                 newHighlights.push(wrapped);
             }
         }
-        else if (node.nodeType == Node.TEXT_NODE) {
+        else if (node instanceof Text) {
             createTextHighlight(node,data,newHighlights);
         }
         else {
@@ -639,7 +639,7 @@ export function posAtStartOfWord(pos) {
     let node = pos.node;
     let offset = pos.offset;
 
-    if (node.nodeType == Node.TEXT_NODE) {
+    if (node instanceof Text) {
         let before = node.nodeValue.substring(0,offset);
         let matches = before.match(reWordEnd);
         if (matches) {
@@ -655,7 +655,7 @@ export function posAtEndOfWord(pos) {
     let node = pos.node;
     let offset = pos.offset;
 
-    if (node.nodeType == Node.TEXT_NODE) {
+    if (node instanceof Text) {
         let after = node.nodeValue.substring(offset);
         let matches = after.match(reWordStart);
         if (matches) {
@@ -671,7 +671,7 @@ function rangeOfWordAtPos(pos) {
     let node = pos.node;
     let offset = pos.offset;
 
-    if (node.nodeType == Node.TEXT_NODE) {
+    if (node instanceof Text) {
         let before = node.nodeValue.substring(0,offset);
         let after = node.nodeValue.substring(offset);
 
@@ -706,7 +706,7 @@ function rangeOfWordAtPos(pos) {
 
         return new Range.Range(node,startOffset,node,endOffset);
     }
-    else if (node.nodeType == Node.ELEMENT_NODE) {
+    else if (node instanceof Element) {
         let nodeBefore = node.childNodes[offset-1];
         let nodeAfter = node.childNodes[offset];
 
@@ -950,7 +950,7 @@ function deleteTextSelection(selRange,keepEmpty) {
             (node == selRange.end.node)) {
             let startOffset = selRange.start.offset;
             let endOffset = selRange.end.offset;
-            if ((node.nodeType == Node.TEXT_NODE) &&
+            if ((node instanceof Text) &&
                 ((startOffset > 0) || (endOffset < node.nodeValue.length))) {
                 DOM.deleteCharacters(node,startOffset,endOffset);
             }
@@ -960,7 +960,7 @@ function deleteTextSelection(selRange,keepEmpty) {
         }
         else if (node == selRange.start.node) {
             let offset = selRange.start.offset;
-            if ((node.nodeType == Node.TEXT_NODE) && (offset > 0)) {
+            if ((node instanceof Text) && (offset > 0)) {
                 DOM.deleteCharacters(node,offset);
             }
             else {
@@ -969,7 +969,7 @@ function deleteTextSelection(selRange,keepEmpty) {
         }
         else if (node == selRange.end.node) {
             let offset = selRange.end.offset;
-            if ((node.nodeType == Node.TEXT_NODE) && (offset < node.nodeValue.length)) {
+            if ((node instanceof Text) && (offset < node.nodeValue.length)) {
                 DOM.deleteCharacters(node,0,offset);
             }
             else {
@@ -996,7 +996,7 @@ function deleteTextSelection(selRange,keepEmpty) {
     let detail = Range.detail(selRange);
 
     let sameTextNode = (selRange.start.node == selRange.end.node) &&
-                       (selRange.start.node.nodeType == Node.TEXT_NODE);
+                       (selRange.start.node instanceof Text);
 
     if ((detail.startAncestor != null) && (detail.endAncestor != null) &&
         (detail.startAncestor.nextSibling == detail.endAncestor) &&
@@ -1023,7 +1023,7 @@ function deleteTextSelection(selRange,keepEmpty) {
 
 function delEmpty(selRange,node) {
     while ((node != document.body) &&
-           (node.nodeType == Node.ELEMENT_NODE) &&
+           (node instanceof Element) &&
            (node.firstChild == null)) {
 
         if (Types.isTableCell(node) || Types.isTableCell(node.parentNode))
@@ -1318,7 +1318,7 @@ export function print() {
             if (child == null)
                 break;
 
-            if (child.nodeType == Node.ELEMENT_NODE)
+            if (child instanceof Element)
                 printSelectionElement(child,indent+"    ");
             else
                 printSelectionText(child,indent+"    ");

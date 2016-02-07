@@ -34,7 +34,7 @@ function oldInsertCharacter(character) {
     let node = pos.node;
     let offset = pos.offset;
 
-    if (node.nodeType == Node.ELEMENT_NODE) {
+    if (node instanceof Element) {
         let prev = node.childNodes[offset-1];
         let next = node.childNodes[offset];
         let emptyTextNode = DOM.createTextNode(document,"");
@@ -88,7 +88,7 @@ function flattenTreeToString(node) {
             if (Types.isOpaqueNode(node)) {
                 result.push("O");
             }
-            else if (node.nodeType == Node.ELEMENT_NODE) {
+            else if (node instanceof Element) {
                 for (let child = node.firstChild; child != null; child = child.nextSibling) {
                     recurse(child);
                 }

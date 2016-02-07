@@ -272,7 +272,7 @@ function getListOperationNodes(range) {
                 let firstElement = true;
 
                 for (let p = ancestor.previousSibling; p != null; p = p.previousSibling) {
-                    if (p.nodeType == Node.ELEMENT_NODE) {
+                    if (p instanceof Element) {
                         firstElement = false;
                         break;
                     }
@@ -380,7 +380,7 @@ export function clearList() {
     if (range == null)
         return;
     if (Range.isEmpty(range) &&
-        (range.start.node.nodeType == Node.ELEMENT_NODE) &&
+        (range.start.node instanceof Element) &&
         (Types.isContainerNode(range.start.node))) {
 
         let p = DOM.createElement(document,"P");
@@ -403,10 +403,10 @@ function setList(type) {
 
     if (nodes.length == 0) {
         let text;
-        if (range.start.node.nodeType == Node.TEXT_NODE) {
+        if (range.start.node instanceof Text) {
             text = range.start.node;
         }
-        else if (range.start.node.nodeType == Node.ELEMENT_NODE) {
+        else if (range.start.node instanceof Element) {
             text = DOM.createTextNode(document,"");
             DOM.insertBefore(range.start.node,
                              text,
