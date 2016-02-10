@@ -296,8 +296,9 @@ function getListOperationNodes(range) {
             }
             break;
         default:
-            if ((child._type == ElementTypes.HTML_DIV) &&
-                 child.getAttribute("class") == Types.Keys.SELECTION_HIGHLIGHT) {
+            if ((child instanceof Element) &&
+                (child._type == ElementTypes.HTML_DIV) &&
+                (child.getAttribute("class") == Types.Keys.SELECTION_HIGHLIGHT)) {
                 // skip
             }
             else if (!Traversal.isWhitespaceTextNode(child)) {

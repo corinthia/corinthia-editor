@@ -42,7 +42,7 @@ export class Range {
 
 }
 
-export function assertValid(range,description) {
+export function assertValid(range: Range, description: string): void {
     if (description == null)
         description = "Range";
     if (range == null)
@@ -51,19 +51,19 @@ export function assertValid(range,description) {
     Position.assertValid(range.end,description+" end");
 }
 
-export function isEmpty(range) {
+export function isEmpty(range: Range): boolean {
     return ((range.start.node == range.end.node) &&
             (range.start.offset == range.end.offset));
 }
 
-export function trackWhileExecuting(range,fun) {
+export function trackWhileExecuting<T>(range: Range, fun: () => T): T {
     if (range == null)
         return fun();
     else
         return Position.trackWhileExecuting([range.start,range.end],fun);
 }
 
-export function expand(range) {
+export function expand(range: Range): void {
     let doc = range.start.node.ownerDocument;
     while ((range.start.offset == 0) && (range.start.node != doc.body)) {
         let offset = DOM.nodeOffset(range.start.node);
@@ -79,29 +79,29 @@ export function expand(range) {
     }
 }
 
-export function isForwards(range) {
+export function isForwards(range: Range): boolean {
     return (Position.compare(range.start,range.end) <= 0);
 }
 
-export function getAllNodes(range,atLeastOne?) {
+export function getAllNodes(range: Range, atLeastOne?: boolean): Node[] {
     let result = new Array();
     let outermost = getOutermostNodes(range,atLeastOne);
     for (let i = 0; i < outermost.length; i++)
         addRecursive(outermost[i]);
     return result;
 
-    function addRecursive(node) {
+    function addRecursive(node: Node): void {
         result.push(node);
         for (let child = node.firstChild; child != null; child = child.nextSibling)
             addRecursive(child);
     }
 }
 
-export function singleNode(range) {
+export function singleNode(range: Range): Node {
     return Position.closestActualNode(range.start,true);
 }
 
-export function ensureInlineNodesInParagraph(range) {
+export function ensureInlineNodesInParagraph(range: Range): void {
     trackWhileExecuting(range,function() {
         let nodes = getAllNodes(range,true);
         for (let i = 0; i < nodes.length; i++)
@@ -109,7 +109,7 @@ export function ensureInlineNodesInParagraph(range) {
     });
 }
 
-export function ensureValidHierarchy(range,allowDirectInline?) {
+export function ensureValidHierarchy(range: Range, allowDirectInline?: boolean): void {
     trackWhileExecuting(range,function() {
         let nodes = getAllNodes(range,true);
         for (let i = nodes.length-1; i >= 0; i--)
@@ -117,7 +117,7 @@ export function ensureValidHierarchy(range,allowDirectInline?) {
     });
 }
 
-export function forwards(range) {
+export function forwards(range: Range): Range {
     if (isForwards(range)) {
         return range;
     }
@@ -130,7 +130,17 @@ export function forwards(range) {
     }
 }
 
-export function detail(range) {
+class RangeDetail {
+    public startParent: Node;
+    public startChild: Node;
+    public endParent: Node;
+    public endChild: Node;
+    public commonAncestor: Node;
+    public startAncestor: Node;
+    public endAncestor: Node;
+}
+
+export function detail(range: Range): RangeDetail {
     if (!isForwards(range)) {
         let reverse = new Range(range.end.node,range.end.offset,
                                 range.start.node,range.start.offset);
@@ -139,7 +149,7 @@ export function detail(range) {
         return detail(reverse);
     }
 
-    let result: any = new Object();
+    let result: any = new RangeDetail();
     let start = range.start;
     let end = range.end;
 
@@ -190,16 +200,10 @@ export function detail(range) {
     throw new Error("Start and end of range have no common ancestor");
 }
 
-export function getOutermostNodes(range,atLeastOne?,info?) {
+export function getOutermostNodes(range: Range, atLeastOne?: boolean): Node[] {
     let beforeNodes = new Array();
     let middleNodes = new Array();
     let afterNodes = new Array();
-
-    if (info != null) {
-        info.beginning = beforeNodes;
-        info.middle = middleNodes;
-        info.end = afterNodes;
-    }
 
     if (isEmpty(range))
         return atLeastOne ? [singleNode(range)] : [];
@@ -280,7 +284,7 @@ export function getOutermostNodes(range,atLeastOne?,info?) {
     else
         return result;
 
-    function getPreviousSibling(parent,child) {
+    function getPreviousSibling(parent: Node, child: Node): Node {
         if (child != null)
             return child.previousSibling;
         else if (parent.lastChild != null)
@@ -289,8 +293,8 @@ export function getOutermostNodes(range,atLeastOne?,info?) {
             return null;
     }
 
-    function isAncestorLocation(ancestorParent,ancestorChild,
-                                descendantParent,descendantChild) {
+    function isAncestorLocation(ancestorParent: Node, ancestorChild: Node,
+                                descendantParent: Node, descendantChild: Node) {
         while ((descendantParent != null) &&
                ((descendantParent != ancestorParent) || (descendantChild != ancestorChild))) {
             descendantChild = descendantParent;
@@ -302,14 +306,14 @@ export function getOutermostNodes(range,atLeastOne?,info?) {
     }
 }
 
-export function getClientRects(range) {
+export function getClientRects(range: Range): ClientRect[] {
     let nodes = getOutermostNodes(range,true);
 
     // WebKit in iOS 5.0 and 5.1 has a bug where if the selection spans multiple paragraphs,
     // the complete rect for paragraphs other than the first is returned, instead of just the
     // portions of it that are actually in the range. To get around this problem, we go through
     // each text node individually and collect all the rects.
-    let result = new Array();
+    let result = new Array<ClientRect>();
     let doc = range.start.node.ownerDocument;
     let domRange = doc.createRange();
     for (let nodeIndex = 0; nodeIndex < nodes.length; nodeIndex++) {
@@ -345,7 +349,7 @@ export function getClientRects(range) {
     return result;
 }
 
-export function cloneContents(range) {
+export function cloneContents(range: Range): Node[] {
     let nodeSet = new Collections.NodeSet();
     let ancestorSet = new Collections.NodeSet();
     let det = detail(range);
@@ -373,7 +377,7 @@ export function cloneContents(range) {
         clone = ancestorClone;
     }
 
-    let childArray = new Array();
+    let childArray = new Array<Node>();
     switch (clone._type) {
     case ElementTypes.HTML_UL:
     case ElementTypes.HTML_OL:
@@ -388,7 +392,7 @@ export function cloneContents(range) {
 
     return childArray;
 
-    function recurse(parent) {
+    function recurse(parent: Node): Node {
         let clone = DOM.cloneNode(parent,false);
         for (let child = parent.firstChild; child != null; child = child.nextSibling) {
             if (nodeSet.contains(child)) {
@@ -421,7 +425,7 @@ export function cloneContents(range) {
     }
 }
 
-export function hasContent(range) {
+export function hasContent(range: Range): boolean {
     let outermost = getOutermostNodes(range);
     for (let i = 0; i < outermost.length; i++) {
         let node = outermost[i];
@@ -452,7 +456,7 @@ export function hasContent(range) {
     return false;
 }
 
-export function getText(range) {
+export function getText(range: Range): string {
     range = forwards(range);
 
     let start = range.start;
@@ -462,8 +466,7 @@ export function getText(range) {
     let startOffset = start.offset;
 
     if (start.node instanceof Element) {
-        if ((start.node.offset == start.node.childNodes.length) &&
-            (start.node.offset > 0))
+        if ((start.offset == start.node.childNodes.length) && (start.offset > 0))
             startNode = Traversal.nextNodeAfter(start.node);
         else
             startNode = start.node.childNodes[start.offset];
@@ -474,8 +477,7 @@ export function getText(range) {
     let endOffset = end.offset;
 
     if (end.node instanceof Element) {
-        if ((end.node.offset == end.node.childNodes.length) &&
-            (end.node.offset > 0))
+        if ((end.offset == end.node.childNodes.length) && (end.offset > 0))
             endNode = Traversal.nextNodeAfter(end.node);
         else
             endNode = end.node.childNodes[end.offset];
@@ -523,14 +525,14 @@ export function getText(range) {
     }
     return components.join("");
 
-    function entering(n) {
+    function entering(n: Node): void {
         if (Types.isParagraphNode(n)) {
             significantParagraph = true;
             components.push("\n");
         }
     }
 
-    function exiting(n) {
+    function exiting(n: Node): void {
         if (Types.isParagraphNode(n))
             significantParagraph = false;
     }
