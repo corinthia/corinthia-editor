@@ -516,7 +516,6 @@ export function removeNodeButKeepChildren(node) {
 
 // public
 export function replaceElement(oldElement,newName) {
-    let listeners = listenersForNode(oldElement);
     let newElement = createElement(document,newName);
     for (let i = 0; i < oldElement.attributes.length; i++) {
         let name = oldElement.attributes[i].nodeName; // check-ok
@@ -542,9 +541,6 @@ export function replaceElement(oldElement,newName) {
     // the same time.
     deleteNodeInternal(oldElement,false);
     insertBeforeInternal(parent,newElement,nextSibling);
-
-    for (let i = 0; i < listeners.length; i++)
-        listeners[i].afterReplaceElement(oldElement,newElement);
 
     return newElement;
 }
@@ -676,14 +672,6 @@ function trackedPositionsForNode(node) {
     else {
         return [];
     }
-}
-
-function listenersForNode(node) {
-    let data = getDataForNode(node,false);
-    if ((data != null) && (data.listeners != null))
-        return data.listeners;
-    else
-        return [];
 }
 
 // public
@@ -829,26 +817,3 @@ export function ignoreMutationsWhileExecuting(fun) {
 export function getIgnoreMutations() {
     return ignoreMutations;
 }
-
-// public
-export function addListener(node,listener) {
-    let data = getDataForNode(node,true);
-    if (data.listeners == null)
-        data.listeners = [listener];
-    else
-        data.listeners.push(listener);
-}
-
-// public
-export function removeListener(node,listener) {
-    let list = listenersForNode(node);
-    let index = list.indexOf(listener);
-    if (index >= 0)
-        list.splice(index,1);
-}
-
-// public
-export function Listener() {
-}
-
-Listener.prototype.afterReplaceElement = function(oldElement,newElement) {}
