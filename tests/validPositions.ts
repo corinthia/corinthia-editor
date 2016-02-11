@@ -34,20 +34,25 @@ function oldInsertCharacter(character) {
     let node = pos.node;
     let offset = pos.offset;
 
-    if (node instanceof Element) {
+    let textNode: Text = null;
+
+    if (node instanceof Text) {
+        textNode = <Text>node; // FIXME: TS: Compiler should allow this due to type guard
+    }
+    else {
         let prev = node.childNodes[offset-1];
         let next = node.childNodes[offset];
-        let emptyTextNode = DOM.createTextNode(document,"");
+        textNode = DOM.createTextNode(document,"");
         if (offset >= node.childNodes.length)
-            DOM.appendChild(node,emptyTextNode);
+            DOM.appendChild(node,textNode);
         else
-            DOM.insertBefore(node,emptyTextNode,node.childNodes[offset]);
-        node = emptyTextNode;
+            DOM.insertBefore(node,textNode,node.childNodes[offset]);
+        node = textNode;
         offset = 0;
     }
 
-    DOM.insertCharacters(node,offset,character);
-    Selection.set(node,offset+1,node,offset+1);
+    DOM.insertCharacters(textNode,offset,character);
+    Selection.set(textNode,offset+1,textNode,offset+1);
 }
 
 export function showValidPositions() {

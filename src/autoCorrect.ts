@@ -153,30 +153,30 @@ export function correctPrecedingWord(numChars,replacement,confirmed) {
 
         let node = selRange.start.node;
         let offset = selRange.start.offset;
-        if (!(node instanceof Text))
-            return;
+        if (node instanceof Text) {
 
-        let original = node.nodeValue.substring(offset-numChars,offset);
+            let original = node.nodeValue.substring(offset-numChars,offset);
 
-        if (confirmed) {
-            DOM.replaceCharacters(node,offset-numChars,offset,replacement);
-            return;
+            if (confirmed) {
+                DOM.replaceCharacters(node,offset-numChars,offset,replacement);
+                return;
+            }
+
+            UndoManager.newGroup("Auto-correct");
+            let before = node.nodeValue.substring(0,offset-numChars);
+            let beforeText = DOM.createTextNode(document,before);
+            let replacementText = DOM.createTextNode(document,replacement);
+            let span = DOM.createElement(document,"SPAN");
+            DOM.setAttribute(span,"class",Types.Keys.AUTOCORRECT_CLASS);
+            DOM.setAttribute(span,"original",original);
+            DOM.appendChild(span,replacementText);
+            DOM.insertBefore(node.parentNode,beforeText,node);
+            DOM.insertBefore(node.parentNode,span,node);
+            DOM.deleteCharacters(node,0,offset);
+            // Add the new group in a postponed action, so that the change to the style element
+            // is not counted as a separate action
+            PostponedActions.add(UndoManager.newGroup);
         }
-
-        UndoManager.newGroup("Auto-correct");
-        let before = node.nodeValue.substring(0,offset-numChars);
-        let beforeText = DOM.createTextNode(document,before);
-        let replacementText = DOM.createTextNode(document,replacement);
-        let span = DOM.createElement(document,"SPAN");
-        DOM.setAttribute(span,"class",Types.Keys.AUTOCORRECT_CLASS);
-        DOM.setAttribute(span,"original",original);
-        DOM.appendChild(span,replacementText);
-        DOM.insertBefore(node.parentNode,beforeText,node);
-        DOM.insertBefore(node.parentNode,span,node);
-        DOM.deleteCharacters(node,0,offset);
-        // Add the new group in a postponed action, so that the change to the style element
-        // is not counted as a separate action
-        PostponedActions.add(UndoManager.newGroup);
     });
 }
 

@@ -856,11 +856,11 @@ export function mergeCells() {
         if (totalRows == 1)
             DOM.removeAttribute(mergedCell.element,"rowspan");
         else
-            DOM.setAttribute(mergedCell.element,"rowspan",totalRows);
+            DOM.setAttribute(mergedCell.element,"rowspan",""+totalRows);
         if (totalCols == 1)
             DOM.removeAttribute(mergedCell.element,"colspan");
         else
-            DOM.setAttribute(mergedCell.element,"colspan",totalCols);
+            DOM.setAttribute(mergedCell.element,"colspan",""+totalCols);
     });
 }
 

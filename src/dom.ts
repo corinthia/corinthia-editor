@@ -16,13 +16,26 @@
 // limitations under the License.
 
 import ElementTypes = require("./elementTypes");
+import Position = require("./position");
 import Traversal = require("./traversal");
 import Types = require("./types");
 import UndoManager = require("./undo");
 import Util = require("./util");
 
+class NodeData {
+    trackedPositions: Position.Position[];
+}
+
+class NodeDataDict {
+    [key: string]: NodeData;
+}
+
+export class StyleProperties {
+    [key: string]: string;
+}
+
 let nextNodeId = 0;
-let nodeData = new Object();
+let nodeData = new NodeDataDict();
 let ignoreMutations = 0;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -31,12 +44,12 @@ let ignoreMutations = 0;
 //                                                                                            //
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-function addUndoAction(...args) {
+function addUndoAction(...args): void {
     if (UndoManager.undoSupported)
         UndoManager.addAction.apply(null,Util.arrayCopy(arguments));
 }
 
-function assignNodeId(node) {
+function assignNodeId<T extends Node>(node: T): T {
     if (node._nodeId != null)
         throw new Error(node+" already has id");
     node._nodeId = nextNodeId++;
@@ -44,19 +57,19 @@ function assignNodeId(node) {
     return node;
 }
 
-function checkNodeId(node) {
+function checkNodeId(node: Node): void {
     if (node._nodeId == null)
         throw new Error(node.nodeName+" lacks _nodeId");
 }
 
 // public
-export function assignNodeIds(root) {
+export function assignNodeIds(root: Node): void {
     if (root._nodeId != null)
         throw new Error(root+" already has id");
     recurse(root);
     return;
 
-    function recurse(node) {
+    function recurse(node: Node): void {
         node._nodeId = nextNodeId++;
         node._type = ElementTypes.fromString[node.nodeName];
         for (let child = node.firstChild; child != null; child = child.nextSibling)
@@ -128,35 +141,35 @@ export function assignNodeIds(root) {
   */
 
 // public
-export function createElement(document,elementName) {
+export function createElement(document: HTMLDocument, elementName: string): HTMLElement {
     return assignNodeId(document.createElement(elementName)); // check-ok
 }
 
 // public
-export function createElementNS(document,namespaceURI,qualifiedName) {
+export function createElementNS(document: HTMLDocument, namespaceURI: string, qualifiedName: string): Element {
     return assignNodeId(document.createElementNS(namespaceURI,qualifiedName)); // check-ok
 }
 
 // public
-export function createTextNode(document,data) {
+export function createTextNode(document: HTMLDocument, data: string): Text {
     return assignNodeId(document.createTextNode(data)); // check-ok
 }
 
 // public
-export function createComment(document,data) {
+export function createComment(document: HTMLDocument, data: string): Comment {
     return assignNodeId(document.createComment(data)); // check-ok
 }
 
 // public
-export function cloneNode(original,deep,noIdAttr?) {
+export function cloneNode<T extends Node>(original: T, deep: boolean, noIdAttr?: boolean): T {
     let clone = original.cloneNode(deep); // check-ok
     assignNodeIds(clone);
-    if (noIdAttr)
+    if (noIdAttr && (clone instanceof Element))
         clone.removeAttribute("id"); // check-ok
-    return clone;
+    return <T>clone;
 }
 
-function insertBeforeInternal(parent,newChild,refChild) {
+function insertBeforeInternal(parent: Node, newChild: Node, refChild: Node): void {
     if (newChild.parentNode == null) {
         addUndoAction(deleteNodeInternal,newChild)
     }
@@ -169,7 +182,7 @@ function insertBeforeInternal(parent,newChild,refChild) {
     parent.insertBefore(newChild,refChild); // check-ok
 }
 
-function deleteNodeInternal(node,deleteDescendantData) {
+function deleteNodeInternal(node: Node, deleteDescendantData: boolean): void {
     checkNodeId(node);
 
     addUndoAction(insertBeforeInternal,node.parentNode,node,node.nextSibling);
@@ -189,11 +202,11 @@ function deleteNodeInternal(node,deleteDescendantData) {
 
     return;
 
-    function deleteNodeData(current) {
+    function deleteNodeData(current: Node): void {
         delete nodeData[current._nodeId];
     }
 
-    function deleteNodeDataRecursive(current) {
+    function deleteNodeDataRecursive(current: Node): void {
         deleteNodeData(current);
         for (let child = current.firstChild; child != null; child = child.nextSibling)
             deleteNodeDataRecursive(child);
@@ -201,7 +214,7 @@ function deleteNodeInternal(node,deleteDescendantData) {
 }
 
 // public
-export function setAttribute(element,name,value) {
+export function setAttribute(element: Element, name: string, value: string): void {
     if (element.hasAttribute(name))
         addUndoAction(setAttribute,element,name,element.getAttribute(name));
     else
@@ -214,7 +227,7 @@ export function setAttribute(element,name,value) {
 }
 
 // public
-export function setAttributeNS(element,namespaceURI,qualifiedName,value) {
+export function setAttributeNS(element: Element, namespaceURI: string, qualifiedName: string, value: string): void {
     let localName = qualifiedName.replace(/^.*:/,"");
     if (element.hasAttributeNS(namespaceURI,localName)) {
         let oldValue = element.getAttributeNS(namespaceURI,localName);
@@ -232,7 +245,7 @@ export function setAttributeNS(element,namespaceURI,qualifiedName,value) {
 }
 
 // public
-export function setStyleProperties(element,properties) {
+export function setStyleProperties(element: HTMLElement, properties: any): void {
     if (Object.getOwnPropertyNames(properties).length == 0)
         return;
 
@@ -249,12 +262,12 @@ export function setStyleProperties(element,properties) {
 }
 
 // public
-export function insertCharacters(textNode,offset,characters) {
+export function insertCharacters(textNode: Text, offset: number, characters: string): void {
     if (!(textNode instanceof Text))
         throw new Error("insertCharacters called on non-text node");
     if ((offset < 0) || (offset > textNode.nodeValue.length))
         throw new Error("insertCharacters called with invalid offset");
-    trackedPositionsForNode(textNode).forEach(function (position) {
+    trackedPositionsForNode(textNode).forEach(function (position: Position.Position) {
         if (position.offset > offset)
             position.offset += characters.length;
     });
@@ -267,14 +280,14 @@ export function insertCharacters(textNode,offset,characters) {
 }
 
 // public
-export function deleteCharacters(textNode,startOffset,endOffset?) {
+export function deleteCharacters(textNode: Text, startOffset: number, endOffset?: number): void {
     if (!(textNode instanceof Text))
         throw new Error("deleteCharacters called on non-text node "+Util.nodeString(textNode));
     if (endOffset == null)
         endOffset = textNode.nodeValue.length;
     if (endOffset < startOffset)
         throw new Error("deleteCharacters called with invalid start/end offset");
-    trackedPositionsForNode(textNode).forEach(function (position) {
+    trackedPositionsForNode(textNode).forEach(function (position: Position.Position) {
         let deleteCount = endOffset - startOffset;
         if ((position.offset > startOffset) && (position.offset < endOffset))
             position.offset = startOffset;
@@ -290,8 +303,9 @@ export function deleteCharacters(textNode,startOffset,endOffset?) {
 }
 
 // public
-export function moveCharacters(srcTextNode,srcStartOffset,srcEndOffset,destTextNode,destOffset,
-                               excludeStartPos?,excludeEndPos?) {
+export function moveCharacters(srcTextNode: Text, srcStartOffset: number, srcEndOffset: number,
+                               destTextNode: Text, destOffset: number,
+                               excludeStartPos?: boolean, excludeEndPos?: boolean): void {
     if (srcTextNode == destTextNode)
         throw new Error("src and dest text nodes cannot be the same");
     if (srcStartOffset > srcEndOffset)
@@ -310,13 +324,13 @@ export function moveCharacters(srcTextNode,srcStartOffset,srcEndOffset,destTextN
     addUndoAction(moveCharacters,destTextNode,destOffset,destOffset+length,
                   srcTextNode,srcStartOffset,excludeStartPos,excludeEndPos);
 
-    trackedPositionsForNode(destTextNode).forEach(function (pos) {
+    trackedPositionsForNode(destTextNode).forEach(function (pos: Position.Position) {
         let startMatch = excludeStartPos ? (pos.offset > destOffset)
                                          : (pos.offset >= destOffset);
         if (startMatch)
             pos.offset += length;
     });
-    trackedPositionsForNode(srcTextNode).forEach(function (pos) {
+    trackedPositionsForNode(srcTextNode).forEach(function (pos: Position.Position) {
 
         let startMatch = excludeStartPos ? (pos.offset > srcStartOffset)
                                          : (pos.offset >= srcStartOffset);
@@ -340,10 +354,10 @@ export function moveCharacters(srcTextNode,srcStartOffset,srcEndOffset,destTextN
 }
 
 // public
-export function setNodeValue(textNode,value) {
+export function setNodeValue(textNode: Text, value: string): void {
     if (!(textNode instanceof Text))
         throw new Error("setNodeValue called on non-text node");
-    trackedPositionsForNode(textNode).forEach(function (position) {
+    trackedPositionsForNode(textNode).forEach(function (position: Position.Position) {
         position.offset = 0;
     });
     let oldValue = textNode.nodeValue;
@@ -357,17 +371,17 @@ export function setNodeValue(textNode,value) {
 //                                                                                            //
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-function appendChildInternal(parent,newChild) {
+function appendChildInternal(parent: Node, newChild: Node): void {
     insertBeforeInternal(parent,newChild,null);
 }
 
 // public
-export function appendChild(node,child) {
+export function appendChild(node: Node, child: Node): void {
     return insertBefore(node,child,null);
 }
 
 // public
-export function insertBefore(parent,child,nextSibling) {
+export function insertBefore(parent: Node, child: Node, nextSibling: Node): void {
     let newOffset;
     if (nextSibling != null)
         newOffset = nodeOffset(nextSibling);
@@ -381,7 +395,7 @@ export function insertBefore(parent,child,nextSibling) {
         if ((oldParent == parent) && (newOffset > oldOffset))
             newOffset--;
 
-        trackedPositionsForNode(oldParent).forEach(function (position) {
+        trackedPositionsForNode(oldParent).forEach(function (position: Position.Position) {
             if (position.offset > oldOffset) {
                 position.offset--;
             }
@@ -393,7 +407,7 @@ export function insertBefore(parent,child,nextSibling) {
     }
 
     let result = insertBeforeInternal(parent,child,nextSibling);
-    trackedPositionsForNode(parent).forEach(function (position) {
+    trackedPositionsForNode(parent).forEach(function (position: Position.Position) {
         if (position.offset > newOffset)
             position.offset++;
     });
@@ -401,23 +415,23 @@ export function insertBefore(parent,child,nextSibling) {
 }
 
 // public
-export function deleteNode(node) {
+export function deleteNode(node: Node): void {
     if (node.parentNode == null) // already deleted
         return;
     adjustPositionsRecursive(node);
     deleteNodeInternal(node,true);
 
-    function adjustPositionsRecursive(current) {
+    function adjustPositionsRecursive(current: Node): void {
         for (let child = current.firstChild; child != null; child = child.nextSibling)
             adjustPositionsRecursive(child);
 
-        trackedPositionsForNode(current.parentNode).forEach(function (position) {
+        trackedPositionsForNode(current.parentNode).forEach(function (position: Position.Position) {
             let offset = nodeOffset(current);
             if (offset < position.offset) {
                 position.offset--;
             }
         });
-        trackedPositionsForNode(current).forEach(function (position) {
+        trackedPositionsForNode(current).forEach(function (position: Position.Position) {
             let offset = nodeOffset(current);
             position.node = current.parentNode;
             position.offset = offset;
@@ -426,17 +440,17 @@ export function deleteNode(node) {
 }
 
 // public
-export function removeAttribute(element,name) {
+export function removeAttribute(element: Element, name: string): void {
     setAttribute(element,name,null);
 }
 
 // public
-export function removeAttributeNS(element,namespaceURI,localName) {
+export function removeAttributeNS(element: Element, namespaceURI: string, localName: string): void {
     setAttributeNS(element,namespaceURI,localName,null)
 }
 
 // public
-export function getAttribute(element,name) {
+export function getAttribute(element: Element, name: string): string {
     if (element.hasAttribute(name))
         return element.getAttribute(name);
     else
@@ -444,7 +458,7 @@ export function getAttribute(element,name) {
 }
 
 // public
-export function getAttributeNS(element,namespaceURI,localName) {
+export function getAttributeNS(element: Element, namespaceURI: string, localName: string): string {
     if (element.hasAttributeNS(namespaceURI,localName))
         return element.getAttributeNS(namespaceURI,localName);
     else
@@ -452,21 +466,21 @@ export function getAttributeNS(element,namespaceURI,localName) {
 }
 
 // public
-export function getStringAttribute(element,name) {
+export function getStringAttribute(element: Element, name: string): string {
     let value = element.getAttribute(name);
     return (value == null) ? "" : value;
 }
 
 // public
-export function getStringAttributeNS(element,namespaceURI,localName) {
+export function getStringAttributeNS(element: Element, namespaceURI: string, localName: string): string {
     let value = element.getAttributeNS(namespaceURI,localName);
     return (value == null) ? "" : value;
 }
 
 // public
-export function getStyleProperties(node) {
-    let properties = new Object();
-    if (node instanceof Element) {
+export function getStyleProperties(node: Node): StyleProperties {
+    let properties = new StyleProperties();
+    if (node instanceof HTMLElement) {
         for (let i = 0; i < node.style.length; i++) {
             let name = node.style[i];
             let value = node.style.getPropertyValue(name);
@@ -477,29 +491,29 @@ export function getStyleProperties(node) {
 }
 
 // public
-export function deleteAllChildren(parent) {
+export function deleteAllChildren(parent: Node): void {
     while (parent.firstChild != null)
         deleteNode(parent.firstChild);
 }
 
 // public
-export function shallowCopyElement(element) {
+export function shallowCopyElement<T extends Node>(element: T): T {
     return cloneNode(element,false,true);
 }
 
 // public
-export function removeNodeButKeepChildren(node) {
+export function removeNodeButKeepChildren(node: Node): void {
     if (node.parentNode == null)
         throw new Error("Node "+Util.nodeString(node)+" has no parent");
     let offset = nodeOffset(node);
     let childCount = node.childNodes.length;
 
-    trackedPositionsForNode(node.parentNode).forEach(function (position) {
+    trackedPositionsForNode(node.parentNode).forEach(function (position: Position.Position) {
         if (position.offset > offset)
             position.offset += childCount-1;
     });
 
-    trackedPositionsForNode(node).forEach(function (position) {
+    trackedPositionsForNode(node).forEach(function (position: Position.Position) {
         position.node = node.parentNode;
         position.offset += offset;
     });
@@ -515,7 +529,7 @@ export function removeNodeButKeepChildren(node) {
 }
 
 // public
-export function replaceElement(oldElement,newName) {
+export function replaceElement(oldElement: Element, newName: string): HTMLElement {
     let newElement = createElement(document,newName);
     for (let i = 0; i < oldElement.attributes.length; i++) {
         let name = oldElement.attributes[i].nodeName; // check-ok
@@ -546,11 +560,11 @@ export function replaceElement(oldElement,newName) {
 }
 
 // public
-export function wrapNode(node,elementName) {
+export function wrapNode(node: Node, elementName: string): HTMLElement {
     return wrapSiblings(node,node,elementName);
 }
 
-export function wrapSiblings(first,last,elementName) {
+export function wrapSiblings(first: Node, last: Node, elementName: string): HTMLElement {
     let parent = first.parentNode;
     let wrapper = createElement(document,elementName);
 
@@ -561,7 +575,7 @@ export function wrapSiblings(first,last,elementName) {
         let firstOffset = nodeOffset(first);
         let lastOffset = nodeOffset(last);
         let nodeCount = lastOffset - firstOffset + 1;
-        trackedPositionsForNode(parent).forEach(function (position) {
+        trackedPositionsForNode(parent).forEach(function (position: Position.Position) {
             if ((position.offset >= firstOffset) && (position.offset <= lastOffset+1)) {
                 position.node = wrapper;
                 position.offset -= firstOffset;
@@ -585,7 +599,7 @@ export function wrapSiblings(first,last,elementName) {
 }
 
 // public
-export function mergeWithNextSibling(current,whiteList) {
+export function mergeWithNextSibling(current: Node, whiteList: any): void {
     let parent = current.parentNode;
     let next = current.nextSibling;
 
@@ -597,20 +611,15 @@ export function mergeWithNextSibling(current,whiteList) {
 
     let lastChild = null;
 
-    if (current instanceof Element) {
-        lastChild = current.lastChild;
-        insertBefore(current,next,null);
-        removeNodeButKeepChildren(next);
-    }
-    else {
+    if (current instanceof Text) {
         insertCharacters(current,current.nodeValue.length,next.nodeValue);
 
-        trackedPositionsForNode(next).forEach(function (position) {
+        trackedPositionsForNode(next).forEach(function (position: Position.Position) {
             position.node = current;
             position.offset = position.offset+currentLength;
         });
 
-        trackedPositionsForNode(current.parentNode).forEach(function (position) {
+        trackedPositionsForNode(current.parentNode).forEach(function (position: Position.Position) {
             if (position.offset == nextOffset) {
                 position.node = current;
                 position.offset = currentLength;
@@ -619,13 +628,18 @@ export function mergeWithNextSibling(current,whiteList) {
 
         deleteNode(next);
     }
+    else {
+        lastChild = current.lastChild;
+        insertBefore(current,next,null);
+        removeNodeButKeepChildren(next);
+    }
 
     if (lastChild != null)
         mergeWithNextSibling(lastChild,whiteList);
 }
 
 // public
-export function nodesMergeable(a,b,whiteList) {
+export function nodesMergeable(a: Node, b: Node, whiteList: any): boolean {
     if ((a instanceof Text) && (b instanceof Text))
         return true;
     else if ((a instanceof Element) && (b instanceof Element))
@@ -633,7 +647,7 @@ export function nodesMergeable(a,b,whiteList) {
     else
         return false;
 
-    function elementsMergableTypes(a,b) {
+    function elementsMergableTypes(a: Element, b: Element) {
         if (whiteList["force"] && Types.isParagraphNode(a) && Types.isParagraphNode(b))
             return true;
         if ((a._type == b._type) &&
@@ -651,15 +665,15 @@ export function nodesMergeable(a,b,whiteList) {
     }
 }
 
-function getDataForNode(node,create) {
+function getDataForNode(node: Node, create: boolean): NodeData {
     if (node._nodeId == null)
         throw new Error("getDataForNode: node "+node.nodeName+" has no _nodeId property");
     if ((nodeData[node._nodeId] == null) && create)
-        nodeData[node._nodeId] = new Object();
+        nodeData[node._nodeId] = new NodeData();
     return nodeData[node._nodeId];
 }
 
-function trackedPositionsForNode(node) {
+function trackedPositionsForNode(node: Node): Position.Position[] {
     let data = getDataForNode(node,false);
     if ((data != null) && (data.trackedPositions != null)) {
         // Sanity check
@@ -667,7 +681,7 @@ function trackedPositionsForNode(node) {
             if (data.trackedPositions[i].node != node)
                 throw new Error("Position "+data.trackedPositions[i]+" has wrong node");
         }
-        return Util.arrayCopy(data.trackedPositions);
+        return Util.arrayCopyTyped(data.trackedPositions);
     }
     else {
         return [];
@@ -675,7 +689,7 @@ function trackedPositionsForNode(node) {
 }
 
 // public
-export function replaceCharacters(textNode,startOffset,endOffset,replacement) {
+export function replaceCharacters(textNode: Text, startOffset: number, endOffset: number, replacement: string): void {
     // Note that we do the insertion *before* the deletion so that the position is properly
     // maintained, and ends up at the end of the replacement (unless it was previously at
     // startOffset, in which case it will stay the same)
@@ -684,15 +698,15 @@ export function replaceCharacters(textNode,startOffset,endOffset,replacement) {
 }
 
 // public
-export function addTrackedPosition(position) {
+export function addTrackedPosition(position: Position.Position): void {
     let data = getDataForNode(position.node,true);
     if (data.trackedPositions == null)
-        data.trackedPositions = new Array();
+        data.trackedPositions = new Array<Position.Position>();
     data.trackedPositions.push(position);
 }
 
 // public
-export function removeTrackedPosition(position) {
+export function removeTrackedPosition(position: Position.Position): void {
     let data = getDataForNode(position.node,false);
     if ((data == null) || (data.trackedPositions == null))
         throw new Error("removeTrackedPosition: no registered positions for this node "+
@@ -708,7 +722,7 @@ export function removeTrackedPosition(position) {
 }
 
 // public
-export function removeAdjacentWhitespace(node) {
+export function removeAdjacentWhitespace(node: Node): void {
     while ((node.previousSibling != null) && (Traversal.isWhitespaceTextNode(node.previousSibling)))
         deleteNode(node.previousSibling);
     while ((node.nextSibling != null) && (Traversal.isWhitespaceTextNode(node.nextSibling)))
@@ -716,17 +730,17 @@ export function removeAdjacentWhitespace(node) {
 }
 
 // public
-export function documentHead(document) {
+export function documentHead(document: HTMLDocument): HTMLHeadElement {
     let html = document.documentElement;
     for (let child = html.firstChild; child != null; child = child.nextSibling) {
-        if (child._type == ElementTypes.HTML_HEAD)
+        if (child instanceof HTMLHeadElement)
             return child;
     }
     throw new Error("Document contains no HEAD element");
 }
 
 // public
-export function ensureUniqueIds(root) {
+export function ensureUniqueIds(root: Node): void {
     let ids = new Object();
     let duplicates = new Array();
 
@@ -735,22 +749,21 @@ export function ensureUniqueIds(root) {
 
     return;
 
-    function discoverDuplicates(node) {
-        if (!(node instanceof Element))
-            return;
-
-        let id = node.getAttribute("id");
-        if ((id != null) && (id != "")) {
-            if (ids[id])
-                duplicates.push(node);
-            else
-                ids[id] = true;
+    function discoverDuplicates(node: Node): void {
+        if (node instanceof Element) {
+            let id = node.getAttribute("id");
+            if ((id != null) && (id != "")) {
+                if (ids[id])
+                    duplicates.push(node);
+                else
+                    ids[id] = true;
+            }
+            for (let child = node.firstChild; child != null; child = child.nextSibling)
+                discoverDuplicates(child);
         }
-        for (let child = node.firstChild; child != null; child = child.nextSibling)
-            discoverDuplicates(child);
     }
 
-    function renameDuplicates() {
+    function renameDuplicates(): void {
         let nextNumberForPrefix = new Object();
         for (let i = 0; i < duplicates.length; i++) {
             let id = duplicates[i].getAttribute("id");
@@ -771,7 +784,7 @@ export function ensureUniqueIds(root) {
 }
 
 // public
-export function nodeOffset(node,parent?) {
+export function nodeOffset(node: Node, parent?: Node): number {
     if ((node == null) && (parent != null))
         return maxChildOffset(parent);
     let offset = 0;
@@ -781,7 +794,7 @@ export function nodeOffset(node,parent?) {
 }
 
 // public
-export function maxChildOffset(node) {
+export function maxChildOffset(node: Node): number {
     if (node instanceof Text)
         return node.nodeValue.length;
     else if (node instanceof Element)
@@ -790,12 +803,12 @@ export function maxChildOffset(node) {
         throw new Error("maxOffset: invalid node type ("+node.nodeType+")");
 }
 
-function incIgnoreMutations() {
+function incIgnoreMutations(): void {
     UndoManager.addAction(decIgnoreMutations);
     ignoreMutations++;
 }
 
-function decIgnoreMutations() {
+function decIgnoreMutations(): void {
     UndoManager.addAction(incIgnoreMutations);
     ignoreMutations--;
     if (ignoreMutations < 0)
@@ -803,7 +816,7 @@ function decIgnoreMutations() {
 }
 
 // public
-export function ignoreMutationsWhileExecuting(fun) {
+export function ignoreMutationsWhileExecuting<T>(fun: () => T): T {
     incIgnoreMutations();
     try {
         return fun();
@@ -814,6 +827,6 @@ export function ignoreMutationsWhileExecuting(fun) {
 }
 
 // public
-export function getIgnoreMutations() {
+export function getIgnoreMutations(): number {
     return ignoreMutations;
 }

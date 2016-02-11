@@ -75,10 +75,10 @@ function addMetaCharset() {
     let next;
     for (let child = head.firstChild; child != null; child = next) {
         next = child.nextSibling;
-        if ((child._type == ElementTypes.HTML_META) && (child.hasAttribute("charset"))) {
+        if ((child instanceof HTMLMetaElement) && child.hasAttribute("charset")) {
             DOM.deleteNode(child);
         }
-        else if ((child._type == ElementTypes.HTML_META) && child.hasAttribute("http-equiv") &&
+        else if ((child instanceof HTMLMetaElement) && child.hasAttribute("http-equiv") &&
                  (child.getAttribute("http-equiv").toLowerCase() == "content-type")) {
             DOM.deleteNode(child);
         }
@@ -94,7 +94,7 @@ export function setGenerator(generator) {
     return UndoManager.disableWhileExecuting(function() {
         let head = DOM.documentHead(document);
         for (let child = head.firstChild; child != null; child = child.nextSibling) {
-            if ((child._type == ElementTypes.HTML_META) &&
+            if ((child instanceof HTMLMetaElement) &&
                 child.hasAttribute("name") &&
                 (child.getAttribute("name").toLowerCase() == "generator")) {
                 let origGenerator = DOM.getAttribute(child,"content");

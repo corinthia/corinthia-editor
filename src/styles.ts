@@ -129,7 +129,7 @@ export function setCSSText(cssText,cssRules) {
 function addBuiltinStylesheet(cssURL) {
     let head = DOM.documentHead(document);
     for (let child = head.firstChild; child != null; child = child.nextSibling) {
-        if ((child._type == ElementTypes.HTML_LINK) &&
+        if ((child instanceof HTMLLinkElement) &&
             (child.getAttribute("rel") == "stylesheet") &&
             (child.getAttribute("href") == cssURL)) {
             // Link element was already added by HTMLInjectionProtocol

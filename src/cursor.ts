@@ -425,20 +425,25 @@ export function insertCharacter(str,allowInvalidPos,allowNoParagraph) {
         str = "\"";
     }
 
-    if (node instanceof Element) {
-        let emptyTextNode = DOM.createTextNode(document,"");
+    let textNode: Text = null;
+
+    if (node instanceof Text) {
+        textNode = <Text>node; // FIXME: TS: Compiler should allow this due to type guard
+    }
+    else {
+        textNode = DOM.createTextNode(document,"");
         if (offset >= node.childNodes.length)
-            DOM.appendChild(node,emptyTextNode);
+            DOM.appendChild(node,textNode);
         else
-            DOM.insertBefore(node,emptyTextNode,node.childNodes[offset]);
-        node = emptyTextNode;
+            DOM.insertBefore(node,textNode,node.childNodes[offset]);
+        node = textNode;
         offset = 0;
     }
 
     if (str == " ")
-        DOM.insertCharacters(node,offset,nbsp);
+        DOM.insertCharacters(textNode,offset,nbsp);
     else
-        DOM.insertCharacters(node,offset,str);
+        DOM.insertCharacters(textNode,offset,str);
 
             // must be done *after* inserting the text
     if (!allowNoParagraph) {
@@ -744,7 +749,9 @@ export function enterPressed() {
 
         for (let ancestor = start; ancestor != null; ancestor = ancestor.parentNode) {
 
-            if (Types.isParagraphNode(ancestor)) {
+            let newAncestor: Element = null;
+
+            if ((ancestor instanceof Element) && Types.isParagraphNode(ancestor)) {
                 let nextSelector = Styles.nextSelectorAfter(ancestor);
                 if (nextSelector != null) {
                     let nextElementName = null;
@@ -760,11 +767,19 @@ export function enterPressed() {
                         nextElementName = nextSelector;
                     }
 
-                    ancestor = DOM.replaceElement(ancestor,nextElementName);
-                    DOM.removeAttribute(ancestor,"id");
-                    DOM.setAttribute(ancestor,"class",nextClassName);
+                    // FIXME: TS: There is a bug in the compiler that causes the typeguard
+                    // above (ancestor instanceof Element) to fail if we assign to ancestor
+                    // below (even if it's at the end of this block). To get around this, we
+                    // use newAncestor as a temporary variable, and then assign it after the
+                    // outer block containing the type guard.
+                    newAncestor = DOM.replaceElement(ancestor,nextElementName);
+                    DOM.removeAttribute(newAncestor,"id");
+                    DOM.setAttribute(newAncestor,"class",nextClassName);
                 }
             }
+
+            if (newAncestor != null)
+                ancestor = newAncestor;
 
             if (Types.isParagraphNode(ancestor) && !Util.nodeHasContent(ancestor)) {
                 updateBRAtEndOfParagraph(prev);
@@ -881,14 +896,13 @@ export function getLinkProperties() {
 
 export function setLinkProperties(properties) {
     let a = getAdjacentNodeWithType(ElementTypes.HTML_A);
-    if (a == null)
-        return null;
-
-    Selection.preserveWhileExecuting(function() {
-        DOM.setAttribute(a,"href",properties.href);
-        DOM.deleteAllChildren(a);
-        DOM.appendChild(a,DOM.createTextNode(document,properties.text));
-    });
+    if ((a != null) && (a instanceof Element)) {
+        Selection.preserveWhileExecuting(function() {
+            DOM.setAttribute(a,"href",properties.href);
+            DOM.deleteAllChildren(a);
+            DOM.appendChild(a,DOM.createTextNode(document,properties.text));
+        });
+    }
 }
 
 export function setReferenceTarget(itemId) {

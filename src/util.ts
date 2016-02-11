@@ -44,6 +44,15 @@ export function arrayCopy(array) {
     return copy;
 }
 
+export function arrayCopyTyped<T>(array: T[]): T[] {
+    if (array == null)
+        return null;
+    let copy = new Array<T>();
+    for (let i = 0; i < array.length; i++)
+        copy.push(array[i]);
+    return copy;
+}
+
 export function quoteString(str) {
     if (str == null)
         return null;

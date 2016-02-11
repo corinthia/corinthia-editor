@@ -26,7 +26,7 @@ let viewportMetaElement = null;
 export function init(width,textScale) {
     let head = DOM.documentHead(document);
     for (let child = head.firstChild; child != null; child = child.nextSibling) {
-        if ((child._type == ElementTypes.HTML_META) && (child.getAttribute("name") == "viewport")) {
+        if ((child instanceof HTMLMetaElement) && (child.getAttribute("name") == "viewport")) {
             viewportMetaElement = child;
             break;
         }
