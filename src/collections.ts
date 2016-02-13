@@ -15,163 +15,189 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export function NodeSet() {
-    this.members = new Object();
+class NodeSetMembers {
+    [key: number]: Node;
 }
 
-NodeSet.prototype.add = function(node) {
-    if (node._nodeId == null)
-        throw new Error("NodeSet.add: node "+node.nodeName+" has no _nodeId property");
-    this.members[node._nodeId] = node;
-}
+export class NodeSet {
 
-NodeSet.prototype.remove = function(node) {
-    if (node._nodeId == null)
-        throw new Error("NodeSet.remove: node "+node.nodeName+" has no _nodeId property");
-    delete this.members[node._nodeId];
-}
+    private members: NodeSetMembers;
 
-NodeSet.prototype.contains = function(node) {
-    if (node._nodeId == null)
-        throw new Error("NodeSet.contains: node "+node.nodeName+" has no _nodeId property");
-    return (this.members[node._nodeId] != null);
-}
+    constructor() {
+        this.members = new NodeSetMembers();
+    }
 
-NodeSet.prototype.toArray = function() {
-    let result = new Array();
-    for (let id in this.members)
-        result.push(this.members[id]);
-    return result;
-}
+    public add(node: Node): void {
+        if (node._nodeId == null)
+            throw new Error("NodeSet.add: node "+node.nodeName+" has no _nodeId property");
+        this.members[node._nodeId] = node;
+    }
 
-NodeSet.prototype.forEach = function(fun) {
-    let ids = Object.getOwnPropertyNames(this.members);
-    let set = this;
-    ids.forEach(function(id) { fun(set.members[id]); });
-}
+    public remove(node: Node): void {
+        if (node._nodeId == null)
+            throw new Error("NodeSet.remove: node "+node.nodeName+" has no _nodeId property");
+        delete this.members[node._nodeId];
+    }
 
-NodeSet.prototype.ancestor = function() {
-    let result = new NodeSet();
-    this.forEach(function (node) {
-        for (let p = node.parentNode; p != null; p = p.parentNode)
-            result.add(p);
-    });
-    return result;
-}
+    public contains(node: Node): boolean {
+        if (node._nodeId == null)
+            throw new Error("NodeSet.contains: node "+node.nodeName+" has no _nodeId property");
+        return (this.members[node._nodeId] != null);
+    }
 
-NodeSet.prototype.ancestorOrSelf = function() {
-    let result = new NodeSet();
-    this.forEach(function (node) {
-        for (let p = node; p != null; p = p.parentNode)
-            result.add(p);
-    });
-    return result;
-}
+    public toArray(): Node[] {
+        let result = new Array();
+        for (let id in this.members)
+            result.push(this.members[id]);
+        return result;
+    }
 
-NodeSet.prototype.descendant = function() {
-    let result = new NodeSet();
-    this.forEach(function (node) {
-        recurse(node);
-    });
-    return result;
+    public forEach(fun: (Node) => void): void {
+        let ids = Object.getOwnPropertyNames(this.members);
+        let set = this;
+        ids.forEach(function(id) { fun(set.members[id]); });
+    }
 
-    function recurse(node) {
-        for (let child = node.firstChild; child != null; child = child.nextSibling) {
-            result.add(child);
-            recurse(child);
+    public ancestor(): NodeSet {
+        let result = new NodeSet();
+        this.forEach(function (node) {
+            for (let p = node.parentNode; p != null; p = p.parentNode)
+                result.add(p);
+        });
+        return result;
+    }
+
+    public ancestorOrSelf(): NodeSet {
+        let result = new NodeSet();
+        this.forEach(function (node) {
+            for (let p = node; p != null; p = p.parentNode)
+                result.add(p);
+        });
+        return result;
+    }
+
+    public descendant(): NodeSet {
+        let result = new NodeSet();
+        this.forEach(function (node) {
+            recurse(node);
+        });
+        return result;
+
+        function recurse(node: Node): void {
+            for (let child = node.firstChild; child != null; child = child.nextSibling) {
+                result.add(child);
+                recurse(child);
+            }
         }
     }
-}
 
-NodeSet.prototype.descendantOrSelf = function() {
-    let result = new NodeSet();
-    this.forEach(function (node) {
-        recurse(node);
-    });
-    return result;
+    public descendantOrSelf(): NodeSet {
+        let result = new NodeSet();
+        this.forEach(function (node) {
+            recurse(node);
+        });
+        return result;
 
-    function recurse(node) {
-        result.add(node);
-        for (let child = node.firstChild; child != null; child = child.nextSibling)
-            recurse(child);
+        function recurse(node: Node): void {
+            result.add(node);
+            for (let child = node.firstChild; child != null; child = child.nextSibling)
+                recurse(child);
+        }
     }
+
+    public union(other): NodeSet {
+        let result = new NodeSet();
+        this.forEach(function (node) { result.add(node); });
+        other.forEach(function (node) { result.add(node); });
+        return result;
+    }
+
+    public intersection(other): NodeSet {
+        let result = new NodeSet();
+        this.forEach(function (node) { if (other.contains(node)) { result.add(node); } });
+        return result;
+    }
+
+    // FIXME: This should be a static method. Is it actually used?
+    public fromArray(array): NodeSet {
+        let set = new NodeSet();
+        array.forEach(function(node) { set.add(node); });
+        return set;
+    }
+
 }
 
-NodeSet.prototype.union = function(other) {
-    let result = new NodeSet();
-    this.forEach(function (node) { result.add(node); });
-    other.forEach(function (node) { result.add(node); });
-    return result;
+class NodeMapKeys {
+    [key: number]: Node;
 }
 
-NodeSet.prototype.intersection = function(other) {
-    let result = new NodeSet();
-    this.forEach(function (node) { if (other.contains(node)) { result.add(node); } });
-    return result;
+class NodeMapValues<T> {
+    [key: number]: T;
 }
 
-NodeSet.prototype.fromArray = function(array) {
-    let set = new NodeSet();
-    array.forEach(function(node) { set.add(node); });
-    return set;
+export class NodeMap<T> {
+
+    private keys: NodeMapKeys;
+    private values: NodeMapValues<T>;
+
+    constructor() {
+        this.keys = new NodeMapKeys();
+        this.values = new NodeMapValues<T>();
+    }
+
+    public clear(): void {
+        this.keys = new NodeMapKeys();
+        this.values = new NodeMapValues<T>();
+    }
+
+    public get(key: Node): T {
+        if (key._nodeId == null)
+            throw new Error("NodeMap.get: key has no _nodeId property");
+        return this.values[key._nodeId];
+    }
+
+    public put(key: Node, value: T): void {
+        if (key._nodeId == null)
+            throw new Error("NodeMap.add: key has no _nodeId property");
+        this.keys[key._nodeId] = key;
+        this.values[key._nodeId] = value;
+    }
+
+    public remove(key: Node): void {
+        if (key._nodeId == null)
+            throw new Error("NodeMap.remove: key has no _nodeId property");
+        delete this.keys[key._nodeId];
+        delete this.values[key._nodeId];
+    }
+
+    public containsKey(key: Node): boolean {
+        if (key._nodeId == null)
+            throw new Error("NodeMap.contains: key has no _nodeId property");
+        return (this.values[key._nodeId] != null);
+    }
+
+    public getKeys(): Node[] {
+        let ids = Object.getOwnPropertyNames(this.values);
+        let result = new Array<Node>(ids.length);
+        for (let i = 0; i < ids.length; i++)
+            result[i] = this.keys[ids[i]];
+        return result;
+    }
+
+    public forEach(fun: (Node,T) => void): void {
+        let ids = Object.getOwnPropertyNames(this.values);
+        let map = this;
+        ids.forEach(function(id) { fun(map.keys[id],map.values[id]); });
+    }
+
+    // FIXME: This should be a static method. Is it actually used?
+    public fromArray(array: Node[], fun: (Node) => T): NodeMap<T> {
+        let map = new NodeMap<T>();
+        if (fun != null)
+            array.forEach(function(node) { map.put(node,fun(node)); });
+        else
+            array.forEach(function(node) { map.put(node,null); });
+        return map;
+    };
+
 }
-
-
-export function NodeMap() {
-    this.keys = new Object();
-    this.values = new Object();
-}
-
-NodeMap.prototype.clear = function() {
-    this.keys = new Object();
-    this.values = new Object();
-}
-
-NodeMap.prototype.get = function(key) {
-    if (key._nodeId == null)
-        throw new Error("NodeMap.get: key "+key.keyName+" has no _nodeId property");
-    return this.values[key._nodeId];
-}
-
-NodeMap.prototype.put = function(key,value) {
-    if (key._nodeId == null)
-        throw new Error("NodeMap.add: key "+key.keyName+" has no _nodeId property");
-    this.keys[key._nodeId] = key;
-    this.values[key._nodeId] = value;
-}
-
-NodeMap.prototype.remove = function(key) {
-    if (key._nodeId == null)
-        throw new Error("NodeMap.remove: key "+key.keyName+" has no _nodeId property");
-    delete this.keys[key._nodeId];
-    delete this.values[key._nodeId];
-}
-
-NodeMap.prototype.containsKey = function(key) {
-    if (key._nodeId == null)
-        throw new Error("NodeMap.contains: key "+key.keyName+" has no _nodeId property");
-    return (this.values[key._nodeId] != null);
-}
-
-NodeMap.prototype.getKeys = function() {
-    let ids = Object.getOwnPropertyNames(this.values);
-    let result = new Array(ids.length);
-    for (let i = 0; i < ids.length; i++)
-        result[i] = this.keys[ids[i]];
-    return result;
-}
-
-NodeMap.prototype.forEach = function(fun) {
-    let ids = Object.getOwnPropertyNames(this.values);
-    let map = this;
-    ids.forEach(function(id) { fun(map.keys[id],map.values[id]); });
-}
-
-NodeMap.prototype.fromArray = function(array,fun) {
-    let map = new NodeMap();
-    if (fun != null)
-        array.forEach(function(node) { map.put(node,fun(node)); });
-    else
-        array.forEach(function(node) { map.put(node,null); });
-    return map;
-};
