@@ -487,21 +487,21 @@ export function okForMovement(pos: Position, insertion?: boolean): boolean {
     return false;
 }
 
-export function prevMatch(pos: Position, fun: (Position) => boolean): Position {
+export function prevMatch(pos: Position, fun: (pos: Position) => boolean): Position {
     do {
         pos = prev(pos);
     } while ((pos != null) && !fun(pos));
     return pos;
 }
 
-export function nextMatch(pos: Position, fun: (Position) => boolean): Position {
+export function nextMatch(pos: Position, fun: (pos: Position) => boolean): Position {
     do {
         pos = next(pos);
     } while ((pos != null) && !fun(pos));
     return pos;
 }
 
-function findEquivalentValidPosition(pos: Position, fun: (Position) => boolean): Position {
+function findEquivalentValidPosition(pos: Position, fun: (pos: Position) => boolean): Position {
     let node = pos.node;
     let offset = pos.offset;
     if (node instanceof Element) {
@@ -533,7 +533,7 @@ function findEquivalentValidPosition(pos: Position, fun: (Position) => boolean):
 }
 
 // public
-export function closestMatchForwards(pos: Position, fun: (Position) => boolean): Position {
+export function closestMatchForwards(pos: Position, fun: (pos: Position) => boolean): Position {
     if (pos == null)
         return null;
 
@@ -555,7 +555,7 @@ export function closestMatchForwards(pos: Position, fun: (Position) => boolean):
 }
 
 // public
-export function closestMatchBackwards(pos: Position, fun: (Position) => boolean): Position {
+export function closestMatchBackwards(pos: Position, fun: (pos: Position) => boolean): Position {
     if (pos == null)
         return null;
 

@@ -52,7 +52,7 @@ export class NodeSet {
         return result;
     }
 
-    public forEach(fun: (Node) => void): void {
+    public forEach(fun: (key: Node) => void): void {
         let ids = Object.getOwnPropertyNames(this.members);
         let set = this;
         ids.forEach(function(id) { fun(set.members[id]); });
@@ -184,14 +184,14 @@ export class NodeMap<T> {
         return result;
     }
 
-    public forEach(fun: (Node,T) => void): void {
+    public forEach(fun: (key: Node, value: T) => void): void {
         let ids = Object.getOwnPropertyNames(this.values);
         let map = this;
         ids.forEach(function(id) { fun(map.keys[id],map.values[id]); });
     }
 
     // FIXME: This should be a static method. Is it actually used?
-    public fromArray(array: Node[], fun: (Node) => T): NodeMap<T> {
+    public fromArray(array: Node[], fun: (key: Node) => T): NodeMap<T> {
         let map = new NodeMap<T>();
         if (fun != null)
             array.forEach(function(node) { map.put(node,fun(node)); });

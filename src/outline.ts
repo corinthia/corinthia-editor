@@ -297,7 +297,7 @@ class OutlineItem {
     public numberSpan: HTMLElement; // FIXME: Does not seem to be set anywhere; still needed?
     public prev: OutlineItem;
     public next: OutlineItem;
-    public modificationListener: (any) => void;
+    public modificationListener: (event: any) => void; // FIXME: TS: specify type of event parameter
 
     constructor(category: Category, node: HTMLElement) {
         let type = category.type;
