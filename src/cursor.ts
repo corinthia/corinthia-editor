@@ -32,7 +32,7 @@ import Util = require("./util");
 
 let cursorX = null;
 
-export function ensurePositionVisible(pos,center?) {
+export function ensurePositionVisible(pos: Position.Position, center?: boolean): void {
     // If we can't find the cursor rect for some reason, just don't do anything.
     // This is better than using an incorrect position or throwing an exception.
     let rect = Position.displayRectAtPos(pos)
@@ -59,13 +59,13 @@ export function ensurePositionVisible(pos,center?) {
 }
 
 // public
-export function ensureCursorVisible(center?) {
+export function ensureCursorVisible(center?: boolean): void {
     let selRange = Selection.get();
     if (selRange != null)
         ensurePositionVisible(selRange.end,center);
 }
 
-export function scrollDocumentForY(y) {
+export function scrollDocumentForY(y: number): number {
     let absY = window.scrollY + y;
     if (absY-44 < window.scrollY) {
         window.scrollTo(window.scrollX,absY-44);
@@ -79,7 +79,7 @@ export function scrollDocumentForY(y) {
 }
 
 // public
-export function positionCursor(x,y,wordBoundary) {
+export function positionCursor(x: number, y: number, wordBoundary: boolean): string {
     if (UndoManager.groupType() != "Cursor movement")
         UndoManager.newGroup("Cursor movement");
 
@@ -144,7 +144,7 @@ export function positionCursor(x,y,wordBoundary) {
     if ((position != null) && Types.isOpaqueNode(position.node))
         position = Position.nextMatch(position,Position.okForMovement);
     if (position == null)
-        return false;
+        return null;
 
     let selectionRange = Selection.get();
     let samePosition = ((selectionRange != null) && Range.isEmpty(selectionRange) &&
@@ -171,7 +171,7 @@ export function positionCursor(x,y,wordBoundary) {
 }
 
 // public
-export function getCursorPosition() {
+export function getCursorPosition(): Util.XYWHRect {
     let selRange = Selection.get();
     if (selRange == null)
         return null;
@@ -189,7 +189,7 @@ export function getCursorPosition() {
 }
 
 // public
-export function moveLeft() {
+export function moveLeft(): void {
     let range = Selection.get();
     if (range == null)
         return;
@@ -201,7 +201,7 @@ export function moveLeft() {
 }
 
 // public
-export function moveRight() {
+export function moveRight(): void {
     let range = Selection.get();
     if (range == null)
         return;
@@ -213,7 +213,7 @@ export function moveRight() {
 }
 
 // public
-export function moveToStartOfDocument() {
+export function moveToStartOfDocument(): void {
     let pos = new Position.Position(document.body,0);
     pos = Position.closestMatchBackwards(pos,Position.okForMovement);
     set(pos.node,pos.offset);
@@ -221,7 +221,7 @@ export function moveToStartOfDocument() {
 }
 
 // public
-export function moveToEndOfDocument() {
+export function moveToEndOfDocument(): void {
     let pos = new Position.Position(document.body,document.body.childNodes.length);
     pos = Position.closestMatchForwards(pos,Position.okForMovement);
     set(pos.node,pos.offset);
@@ -231,7 +231,7 @@ export function moveToEndOfDocument() {
 // An empty paragraph does not get shown and cannot be edited. We can fix this by adding
 // a BR element as a child
 // public
-export function updateBRAtEndOfParagraph(node) {
+export function updateBRAtEndOfParagraph(node: Node): void {
     let paragraph = node;
     while ((paragraph != null) && !Types.isParagraphNode(paragraph))
         paragraph = paragraph.parentNode;
@@ -269,14 +269,14 @@ export function updateBRAtEndOfParagraph(node) {
 }
 
 // public
-export function insertReference(itemId) {
+export function insertReference(itemId: string): void {
     let a = DOM.createElement(document,"A");
     DOM.setAttribute(a,"href","#"+itemId);
     Clipboard.pasteNodes([a]);
 }
 
 // public
-export function insertLink(text,url) {
+export function insertLink(text: string, url: string): void {
     let a = DOM.createElement(document,"A");
     DOM.setAttribute(a,"href",url);
     DOM.appendChild(a,DOM.createTextNode(document,text));
@@ -285,7 +285,7 @@ export function insertLink(text,url) {
 
 let nbsp = String.fromCharCode(160);
 
-function spaceToNbsp(pos) {
+function spaceToNbsp(pos: Position.Position): void {
     let node = pos.node;
     let offset = pos.offset;
 
@@ -297,7 +297,7 @@ function spaceToNbsp(pos) {
     }
 }
 
-function nbspToSpace(pos) {
+function nbspToSpace(pos: Position.Position): void {
     let node = pos.node;
     let offset = pos.offset;
 
@@ -309,7 +309,7 @@ function nbspToSpace(pos) {
     }
 }
 
-function checkNbsp() {
+function checkNbsp(): void {
     Selection.preserveWhileExecuting(function() {
         let selRange = Selection.get();
         if (selRange != null)
@@ -317,13 +317,11 @@ function checkNbsp() {
     });
 }
 
-function isPosAtStartOfParagraph(pos) {
+function isPosAtStartOfParagraph(pos: Position.Position): boolean {
     if ((pos.node instanceof Element) && (pos.offset == 0) &&
         !Types.isInlineNode(pos.node)) {
         return true;
     }
-
-
 
     while (pos != null) {
         if (pos.node instanceof Element) {
@@ -347,7 +345,7 @@ function isPosAtStartOfParagraph(pos) {
 }
 
 // public
-export function insertCharacter(str,allowInvalidPos,allowNoParagraph) {
+export function insertCharacter(str: string, allowInvalidPos: boolean, allowNoParagraph: boolean): void {
     let firstInsertion = (UndoManager.groupType() != "Insert text");
 
     if (firstInsertion)
@@ -474,7 +472,7 @@ export function insertCharacter(str,allowInvalidPos,allowNoParagraph) {
     ensureCursorVisible();
 }
 
-function tryDeleteEmptyCaption(pos) {
+function tryDeleteEmptyCaption(pos: Position.Position): boolean {
     let caption = Position.captionAncestor(pos);
     if ((caption == null) || Util.nodeHasContent(caption))
         return false;
@@ -491,7 +489,7 @@ function tryDeleteEmptyCaption(pos) {
     return true;
 }
 
-function tryDeleteEmptyNote(pos) {
+function tryDeleteEmptyNote(pos: Position.Position): boolean {
     let note = Position.noteAncestor(pos);
     if ((note == null) || Util.nodeHasContent(note))
         return false;
@@ -506,7 +504,7 @@ function tryDeleteEmptyNote(pos) {
 }
 
 // public
-export function deleteCharacter() {
+export function deleteCharacter(): void {
     if (UndoManager.groupType() != "Delete text")
         UndoManager.newGroup("Delete text",checkNbsp);
 
@@ -579,7 +577,7 @@ export function deleteCharacter() {
     Selection.update();
     ensureCursorVisible();
 
-    function firstBlockAncestor(node) {
+    function firstBlockAncestor(node: Node): Node {
         while (Types.isInlineNode(node))
             node = node.parentNode;
         return node;
@@ -587,7 +585,7 @@ export function deleteCharacter() {
 }
 
 // public
-export function enterPressed() {
+export function enterPressed(): void {
     UndoManager.newGroup("New paragraph");
 
     Selection.preferElementPositions();
@@ -799,7 +797,7 @@ export function enterPressed() {
     cursorX = null;
     ensureCursorVisible();
 
-    function getBlockToSplit(pos) {
+    function getBlockToSplit(pos: Position.Position): Node {
         let blockToSplit = null;
         for (let n = pos.node; n != null; n = n.parentNode) {
             if (n._type == ElementTypes.HTML_LI) {
@@ -815,13 +813,13 @@ export function enterPressed() {
         return blockToSplit;
     }
 
-    function getContainerOrParagraph(node) {
+    function getContainerOrParagraph(node: Node): Node {
         while ((node != null) && Types.isInlineNode(node))
             node = node.parentNode;
         return node;
     }
 
-    function positionAtStartOfHeading(pos) {
+    function positionAtStartOfHeading(pos: Position.Position): boolean {
         let container = getContainerOrParagraph(pos.node);
         if (Types.isHeadingNode(container)) {
             let startOffset = 0;
@@ -835,7 +833,7 @@ export function enterPressed() {
     }
 }
 
-export function getPrecedingWord() {
+export function getPrecedingWord(): string {
     let selRange = Selection.get();
     if ((selRange == null) && !Range.isEmpty(selRange))
         return "";
@@ -885,7 +883,12 @@ export function getAdjacentElementWithType(type: number): Element {
         return null;
 }
 
-export function getLinkProperties() {
+export interface LinkProperties {
+    href: string;
+    text: string;
+}
+
+export function getLinkProperties(): LinkProperties {
     let a = getAdjacentElementWithType(ElementTypes.HTML_A);
     if (a == null)
         return null;
@@ -894,7 +897,7 @@ export function getLinkProperties() {
              text: Traversal.getNodeText(a) };
 }
 
-export function setLinkProperties(properties) {
+export function setLinkProperties(properties: LinkProperties): void {
     let a = getAdjacentNodeWithType(ElementTypes.HTML_A);
     if ((a != null) && (a instanceof Element)) {
         Selection.preserveWhileExecuting(function() {
@@ -905,7 +908,7 @@ export function setLinkProperties(properties) {
     }
 }
 
-export function setReferenceTarget(itemId) {
+export function setReferenceTarget(itemId: string): void {
     let a = getAdjacentNodeWithType(ElementTypes.HTML_A);
     if ((a != null) && (a instanceof HTMLElement))
         Outline.setReferenceTarget(a,itemId);
@@ -914,7 +917,7 @@ export function setReferenceTarget(itemId) {
 // Deletes the current selection contents and ensures that the cursor is located directly
 // inside the nearest container element, i.e. not inside a paragraph or inline node. This
 // is intended for preventing things like inserting a table of contants inside a heading
-export function makeContainerInsertionPoint() {
+export function makeContainerInsertionPoint(): void {
     let selRange = Selection.get();
     if (selRange == null)
         return;
@@ -964,13 +967,13 @@ export function makeContainerInsertionPoint() {
     cursorX = null;
 }
 
-export function set(node,offset,keepCursorX?) {
+export function set(node: Node, offset: number, keepCursorX?: boolean): void {
     Selection.set(node,offset,node,offset);
     if (!keepCursorX)
         cursorX = null;
 }
 
-function moveRangeOutsideOfNote(range) {
+function moveRangeOutsideOfNote(range: Range.Range): Range.Range {
     let node = range.start.node;
     let offset = range.start.offset;
 
@@ -985,7 +988,7 @@ function moveRangeOutsideOfNote(range) {
     return range;
 }
 
-function insertNote(className,content) {
+function insertNote(className: string, content: string): void {
     let footnote = DOM.createElement(document,"span");
     DOM.setAttribute(footnote,"class",className);
     DOM.appendChild(footnote,DOM.createTextNode(document,content));
@@ -1016,10 +1019,10 @@ function insertNote(className,content) {
     updateBRAtEndOfParagraph(footnote);
 }
 
-export function insertFootnote(content) {
+export function insertFootnote(content: string): void {
     insertNote("footnote",content);
 }
 
-export function insertEndnote(content) {
+export function insertEndnote(content: string): void {
     insertNote("endnote",content);
 }
