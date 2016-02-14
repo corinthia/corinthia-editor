@@ -36,7 +36,7 @@ export function getSelectedTableRegion() {
 }
 
 export function showTableStructure() {
-    let tableElement = document.getElementsByTagName("TABLE")[0];
+    let tableElement = document.getElementsByTagName("table")[0];
     let table = Tables.analyseStructure(tableElement);
     let lines = new Array();
     lines.push(PrettyPrinter.getHTML(document.documentElement));

@@ -30,74 +30,101 @@ import Types = require("./types");
 import UndoManager = require("./undo");
 import Util = require("./util");
 
-function Cell(element,row,col) {
-    this.element = element;
-    this.row = row;
-    this.col = col;
+class Cell {
 
-    if (element.hasAttribute("colspan"))
-        this.colspan = parseInt(element.getAttribute("colspan"));
-    else
-        this.colspan = 1;
-    if (element.hasAttribute("rowspan"))
-        this.rowspan = parseInt(element.getAttribute("rowspan"));
-    else
-        this.rowspan = 1;
+    public element: HTMLElement;
+    public row: number;
+    public col: number;
+    public colspan: number;
+    public rowspan: number;
+    public top: number;
+    public bottom: number;
+    public left: number;
+    public right: number;
 
-    if (this.colspan < 1)
-        this.colspan = 1;
-    if (this.rowspan < 1)
-        this.rowspan = 1;
+    constructor(element: HTMLElement, row: number, col: number) {
+        this.element = element;
+        this.row = row;
+        this.col = col;
 
-    this.top = this.row;
-    this.bottom = this.top + this.rowspan - 1;
-    this.left = this.col;
-    this.right = this.left + this.colspan - 1;
+        if (element.hasAttribute("colspan"))
+            this.colspan = parseInt(element.getAttribute("colspan"));
+        else
+            this.colspan = 1;
+        if (element.hasAttribute("rowspan"))
+            this.rowspan = parseInt(element.getAttribute("rowspan"));
+        else
+            this.rowspan = 1;
+
+        if (this.colspan < 1)
+            this.colspan = 1;
+        if (this.rowspan < 1)
+            this.rowspan = 1;
+
+        this.top = this.row;
+        this.bottom = this.top + this.rowspan - 1;
+        this.left = this.col;
+        this.right = this.left + this.colspan - 1;
+    }
+
+    public setRowspan(rowspan: number): void {
+        if (rowspan < 1)
+            rowspan = 1;
+        this.rowspan = rowspan;
+        this.bottom = this.top + this.rowspan - 1;
+        if (rowspan == 1)
+            DOM.removeAttribute(this.element,"rowspan");
+        else
+            DOM.setAttribute(this.element,"rowspan",""+rowspan);
+    }
+
+    public setColspan(colspan: number): void {
+        if (colspan < 1)
+            colspan = 1;
+        this.colspan = colspan;
+        this.right = this.left + this.colspan - 1;
+        if (colspan == 1)
+            DOM.removeAttribute(this.element,"colspan");
+        else
+            DOM.setAttribute(this.element,"colspan",""+colspan);
+    }
+
 }
 
-function Cell_setRowspan(cell,rowspan) {
-    if (rowspan < 1)
-        rowspan = 1;
-    cell.rowspan = rowspan;
-    cell.bottom = cell.top + cell.rowspan - 1;
-    if (rowspan == 1)
-        DOM.removeAttribute(cell.element,"rowspan");
-    else
-        DOM.setAttribute(cell.element,"rowspan",rowspan);
-}
+class Table {
 
-function Cell_setColspan(cell,colspan) {
-    if (colspan < 1)
-        colspan = 1;
-    cell.colspan = colspan;
-    cell.right = cell.left + cell.colspan - 1;
-    if (colspan == 1)
-        DOM.removeAttribute(cell.element,"colspan");
-    else
-        DOM.setAttribute(cell.element,"colspan",colspan);
-}
+    public element: HTMLElement;
+    public row: number;
+    public col: number;
+    public cells: Cell[][];
+    public numRows: number;
+    public numCols: number;
+    public translated: boolean;
+    public cellsByElement: Collections.NodeMap<Cell>;
 
-function Table(element) {
-    this.element = element;
-    this.row = 0;
-    this.col = 0;
-    this.cells = new Array();
-    this.numRows = 0;
-    this.numCols = 0;
-    this.translated = false;
-    this.cellsByElement = new Collections.NodeMap();
-    Table_processTable(this,element);
+    constructor(element: HTMLElement) {
+        this.element = element;
+        this.row = 0;
+        this.col = 0;
+        this.cells = new Array();
+        this.numRows = 0;
+        this.numCols = 0;
+        this.translated = false;
+        this.cellsByElement = new Collections.NodeMap<Cell>();
+        Table_processTable(this,element);
+    }
+
 }
 
 // public
-export function Table_get(table,row,col) {
+export function Table_get(table: Table, row: number, col: number): Cell {
     if (table.cells[row] == null)
         return null;
     return table.cells[row][col];
 }
 
 // public
-export function Table_set(table,row,col,cell) {
+export function Table_set(table: Table, row: number, col: number, cell: Cell) {
     if (table.numRows < row+1)
         table.numRows = row+1;
     if (table.numCols < col+1)
@@ -108,7 +135,7 @@ export function Table_set(table,row,col,cell) {
 }
 
 // public
-export function Table_setRegion(table,top,left,bottom,right,cell) {
+export function Table_setRegion(table: Table, top: number, left: number, bottom: number, right: number, cell: Cell) {
     for (let row = top; row <= bottom; row++) {
         for (let col = left; col <= right; col++) {
             let destCell = Table_get(table,row,col);
@@ -118,7 +145,7 @@ export function Table_setRegion(table,top,left,bottom,right,cell) {
     }
 }
 
-function Table_processTable(table,node) {
+function Table_processTable(table: Table, node: HTMLElement): void {
     let type = node._type;
     switch (node._type) {
     case ElementTypes.HTML_TD:
@@ -138,20 +165,25 @@ function Table_processTable(table,node) {
         break;
     }
     case ElementTypes.HTML_TR:
-        for (let child = node.firstChild; child != null; child = child.nextSibling)
-            Table_processTable(table,child);
+        for (let child = node.firstChild; child != null; child = child.nextSibling) {
+            if (child instanceof HTMLElement)
+                Table_processTable(table,child);
+        }
         table.row++;
         table.col = 0;
         break;
     default:
-        for (let child = node.firstChild; child != null; child = child.nextSibling)
-            Table_processTable(table,child);
+        for (let child = node.firstChild; child != null; child = child.nextSibling) {
+            if (child instanceof HTMLElement)
+                Table_processTable(table,child);
+        }
         break;
     }
 }
 
 // public
-export function insertTable(rows,cols,width,numbered,caption,className?) {
+export function insertTable(rows: number, cols: number, width: string, numbered: boolean,
+                            caption: string, className?: string): void {
     UndoManager.newGroup("Insert table");
 
     if (rows < 1)
@@ -220,7 +252,7 @@ export function insertTable(rows,cols,width,numbered,caption,className?) {
 }
 
 // private
-function createEmptyTableCell(elementName) {
+function createEmptyTableCell(elementName): HTMLElement {
     let br = DOM.createElement(document,"BR");
     let p = DOM.createElement(document,"P");
     let td = DOM.createElement(document,elementName);
@@ -230,61 +262,57 @@ function createEmptyTableCell(elementName) {
 }
 
 // private
-function addEmptyTableCell(newTR,elementName) {
+function addEmptyTableCell(newTR: HTMLElement, elementName: string): HTMLElement {
     let td = createEmptyTableCell(elementName);
     DOM.appendChild(newTR,td);
     return td;
 }
 
 // private
-function populateNewRow(structure,newTR,newRow,oldRow) {
+function populateNewRow(structure: Table, newTR: HTMLElement, newRow: number, oldRow: number): void {
     let col = 0;
     while (col < structure.numCols) {
         let existingCell = Table_get(structure,oldRow,col);
         if (((newRow > oldRow) && (newRow < existingCell.row + existingCell.rowspan)) ||
             ((newRow < oldRow) && (newRow >= existingCell.row))) {
-            Cell_setRowspan(existingCell,existingCell.rowspan+1);
+            existingCell.setRowspan(existingCell.rowspan+1);
         }
         else {
             let td = addEmptyTableCell(newTR,existingCell.element.nodeName); // check-ok
             if (existingCell.colspan != 1)
-                DOM.setAttribute(td,"colspan",existingCell.colspan);
+                DOM.setAttribute(td,"colspan",""+existingCell.colspan);
         }
         col += existingCell.colspan;
     }
 }
 
-function tableAtRightOfRange(range) {
+function tableAtRightOfRange(range: Range.Range): Table {
     if (!Range.isEmpty(range))
         return null;
 
     let pos = Position.preferElementPosition(range.start);
-    if ((pos.node instanceof Element) &&
-        (pos.offset < pos.node.childNodes.length) &&
-        (pos.node.childNodes[pos.offset]._type == ElementTypes.HTML_TABLE)) {
+    if ((pos.node instanceof Element) && (pos.offset < pos.node.childNodes.length)) {
         let element = pos.node.childNodes[pos.offset];
-        let table = analyseStructure(element);
-        return table;
+        if (element instanceof HTMLTableElement)
+            return analyseStructure(element);
     }
     return null;
 }
 
-function tableAtLeftOfRange(range) {
+function tableAtLeftOfRange(range: Range.Range): Table {
     if (!Range.isEmpty(range))
         return null;
 
     let pos = Position.preferElementPosition(range.start);
-    if ((pos.node instanceof Element) &&
-        (pos.offset > 0) &&
-        (pos.node.childNodes[pos.offset-1]._type == ElementTypes.HTML_TABLE)) {
+    if ((pos.node instanceof Element) && (pos.offset > 0)) {
         let element = pos.node.childNodes[pos.offset-1];
-        let table = analyseStructure(element);
-        return table;
+        if (element instanceof HTMLTableElement)
+            return analyseStructure(element);
     }
     return null;
 }
 
-function insertRowAbove(table,row) {
+function insertRowAbove(table: Table, row: number): void {
     let cell = Table_get(table,row,0);
     let oldTR = cell.element.parentNode;
     let newTR = DOM.createElement(document,"TR");
@@ -292,7 +320,7 @@ function insertRowAbove(table,row) {
     populateNewRow(table,newTR,row-1,row);
 }
 
-function insertRowBelow(table,row) {
+function insertRowBelow(table: Table, row: number): void {
     let cell = Table_get(table,row,0);
     let oldTR = cell.element.parentNode;
     let newTR = DOM.createElement(document,"TR");
@@ -300,7 +328,7 @@ function insertRowBelow(table,row) {
     populateNewRow(table,newTR,row+1,row);
 }
 
-function insertRowAdjacentToRange(range) {
+function insertRowAdjacentToRange(range: Range.Range): void {
     let table;
 
     table = tableAtLeftOfRange(range);
@@ -317,7 +345,7 @@ function insertRowAdjacentToRange(range) {
 }
 
 // public
-export function addAdjacentRow() {
+export function addAdjacentRow(): void {
     UndoManager.newGroup("Insert row below");
     Selection.preserveWhileExecuting(function() {
         let range = Selection.get();
@@ -331,18 +359,19 @@ export function addAdjacentRow() {
 }
 
 // private
-function getColElements(table) {
-    let cols = new Array();
+function getColElements(table: HTMLElement): HTMLElement[] {
+    let cols = new Array<HTMLElement>();
     for (let child = table.firstChild; child != null; child = child.nextSibling) {
         switch (child._type) {
         case ElementTypes.HTML_COLGROUP:
             for (let gc = child.firstChild; gc != null; gc = gc.nextSibling) {
-                if (gc._type == ElementTypes.HTML_COL)
+                if (gc instanceof HTMLTableColElement)
                     cols.push(gc);
             }
             break;
         case ElementTypes.HTML_COL:
-            cols.push(child);
+            if (child instanceof HTMLTableColElement) // Only needed for type guard
+                cols.push(child);
             break;
         }
     }
@@ -350,11 +379,11 @@ function getColElements(table) {
 }
 
 // private
-function getColWidthsFromElements(colElements,expectedCount) {
+function getColWidthsFromElements(colElements: HTMLElement[], expectedCount: number): string[] {
     // FIXME: also handle the case where the width has been set as a CSS property in the
     // style attribute. There's probably not much we can do if the width comes from a style
     // rule elsewhere in the document though.
-    let colWidths = new Array();
+    let colWidths = new Array<string>();
     for (let i = 0; i < colElements.length; i++) {
         if (colElements[i].hasAttribute("width"))
             colWidths.push(colElements[i].getAttribute("width"));
@@ -365,7 +394,7 @@ function getColWidthsFromElements(colElements,expectedCount) {
 }
 
 // private
-function addMissingColElements(structure,colElements) {
+function addMissingColElements(structure: Table, colElements: HTMLElement[]): void {
     // If there are fewer COL elements than there are colums, add extra ones, copying the
     // width value from the last one
     // FIXME: handle col elements with colspan > 1, as well as colgroups with width set
@@ -380,7 +409,7 @@ function addMissingColElements(structure,colElements) {
 }
 
 // private
-function fixColPercentages(structure,colElements) {
+function fixColPercentages(structure: Table, colElements: HTMLElement[]): void {
     let colWidths = getColWidthsFromElements(colElements,structure.numCols);
 
     let percentages = colWidths.map(getPercentage);
@@ -397,11 +426,11 @@ function fixColPercentages(structure,colElements) {
         }
     }
 
-    function notNull(arg) {
+    function notNull(arg: any): boolean {
         return (arg != null);
     }
 
-    function getPercentage(str) {
+    function getPercentage(str: string): number {
         if (str.match(/^\s*\d+(\.\d+)?\s*%\s*$/))
             return parseInt(str.replace(/\s*%\s*$/,""));
         else
@@ -410,7 +439,10 @@ function fixColPercentages(structure,colElements) {
 }
 
 // private
-function addColElement(structure,oldIndex,right) {
+// FIXME: TS: calls to this function pass in right as a number, but it is treated as a boolean here
+// It may be that the if (right) statements are actually supposed to be if (right != 0), since
+// javascript treats 0 as false for the purpose of if statements.
+function addColElement(structure: Table, oldIndex: number, right: any): void {
     let table = structure.element;
 
     let colElements = getColElements(table);
@@ -440,7 +472,7 @@ function addColElement(structure,oldIndex,right) {
 }
 
 // private
-function deleteColElements(structure,left,right) {
+function deleteColElements(structure: Table, left: number, right: number): void {
     let table = structure.element;
 
     let colElements = getColElements(table);
@@ -459,7 +491,7 @@ function deleteColElements(structure,left,right) {
 }
 
 // private
-function addColumnCells(structure,oldIndex,right) {
+function addColumnCells(structure: Table, oldIndex: number, right: boolean): void {
     for (let row = 0; row < structure.numRows; row++) {
         let cell = Table_get(structure,row,oldIndex);
         let oldTD = cell.element;
@@ -468,7 +500,7 @@ function addColumnCells(structure,oldIndex,right) {
             if (((right && (oldIndex+1 < cell.col + cell.colspan)) ||
                 (!right && (oldIndex-1 >= cell.col))) &&
                 (cell.colspan > 1)) {
-                Cell_setColspan(cell,cell.colspan+1);
+                cell.setColspan(cell.colspan+1);
             }
             else {
                 let newTD = createEmptyTableCell(oldTD.nodeName); // check-ok
@@ -477,13 +509,13 @@ function addColumnCells(structure,oldIndex,right) {
                 else
                     DOM.insertBefore(cell.element.parentNode,newTD,oldTD);
                 if (cell.rowspan != 1)
-                    DOM.setAttribute(newTD,"rowspan",cell.rowspan);
+                    DOM.setAttribute(newTD,"rowspan",""+cell.rowspan);
             }
         }
     }
 }
 
-function insertColumnAdjacentToRange(range) {
+function insertColumnAdjacentToRange(range: Range.Range): void {
     let table;
 
     table = tableAtLeftOfRange(range);
@@ -504,7 +536,7 @@ function insertColumnAdjacentToRange(range) {
 }
 
 // public
-export function addAdjacentColumn() {
+export function addAdjacentColumn(): void {
     UndoManager.newGroup("Insert column at right");
     Selection.preserveWhileExecuting(function() {
         let range = Selection.get();
@@ -520,7 +552,7 @@ export function addAdjacentColumn() {
     UndoManager.newGroup();
 }
 
-function columnHasContent(table,col) {
+function columnHasContent(table: Table, col: number): boolean {
     for (let row = 0; row < table.numRows; row++) {
         let cell = Table_get(table,row,col);
         if ((cell != null) && (cell.col == col) && Util.nodeHasContent(cell.element))
@@ -529,7 +561,7 @@ function columnHasContent(table,col) {
     return false;
 }
 
-function rowHasContent(table,row) {
+function rowHasContent(table: Table, row: number): boolean {
     for (let col = 0; col < table.numCols; col++) {
         let cell = Table_get(table,row,col);
         if ((cell != null) && (cell.row == row) && Util.nodeHasContent(cell.element))
@@ -538,7 +570,7 @@ function rowHasContent(table,row) {
     return false;
 }
 
-function selectRegion(table,top,bottom,left,right) {
+function selectRegion(table: Table, top: number, bottom: number, left: number, right: number): void {
     left = clampCol(table,left);
     right = clampCol(table,right);
     top = clampRow(table,top);
@@ -557,7 +589,7 @@ function selectRegion(table,top,bottom,left,right) {
     }
 }
 
-function clampCol(table,col) {
+function clampCol(table: Table, col: number): number {
     if (col > table.numCols-1)
         col = table.numCols-1;
     if (col < 0)
@@ -565,7 +597,7 @@ function clampCol(table,col) {
     return col;
 }
 
-function clampRow(table,row) {
+function clampRow(table: Table, row: number): number {
     if (row > table.numRows-1)
         row = table.numRows-1;
     if (row < 0)
@@ -573,7 +605,7 @@ function clampRow(table,row) {
     return row;
 }
 
-function removeRowAdjacentToRange(range) {
+function removeRowAdjacentToRange(range: Range.Range): void {
     let table;
 
     table = tableAtLeftOfRange(range);
@@ -594,7 +626,7 @@ function removeRowAdjacentToRange(range) {
     }
 }
 
-export function removeAdjacentRow() {
+export function removeAdjacentRow(): void {
     let range = Selection.get();
     let region = regionFromRange(range,true);
 
@@ -656,7 +688,7 @@ export function removeAdjacentRow() {
     UndoManager.newGroup();
 }
 
-function removeColumnAdjacentToRange(range) {
+function removeColumnAdjacentToRange(range: Range.Range): void {
     let table;
 
     table = tableAtLeftOfRange(range);
@@ -677,7 +709,7 @@ function removeColumnAdjacentToRange(range) {
     }
 }
 
-export function removeAdjacentColumn() {
+export function removeAdjacentColumn(): void {
     let range = Selection.get();
     let region = regionFromRange(range,true);
 
@@ -739,13 +771,13 @@ export function removeAdjacentColumn() {
 }
 
 // private
-function deleteTable(structure) {
+function deleteTable(structure: Table): void {
     DOM.deleteNode(structure.element);
 }
 
 // private
-function deleteRows(structure,top,bottom) {
-    let trElements = new Array();
+function deleteRows(structure: Table, top: number, bottom: number): void {
+    let trElements = new Array<HTMLElement>();
     getTRs(structure.element,trElements);
 
     for (let row = top; row <= bottom; row++)
@@ -753,8 +785,8 @@ function deleteRows(structure,top,bottom) {
 }
 
 // private
-function getTRs(node,result) {
-    if (node._type == ElementTypes.HTML_TR) {
+function getTRs(node: Node, result: HTMLElement[]): void {
+    if ((node instanceof HTMLElement) && (node._type == ElementTypes.HTML_TR)) {
         result.push(node);
     }
     else {
@@ -764,7 +796,7 @@ function getTRs(node,result) {
 }
 
 // private
-function deleteColumns(structure,left,right) {
+function deleteColumns(structure: Table, left: number, right: number): void {
     let nodesToDelete = new Collections.NodeSet();
     for (let row = 0; row < structure.numRows; row++) {
         for (let col = left; col <= right; col++) {
@@ -777,7 +809,7 @@ function deleteColumns(structure,left,right) {
 }
 
 // private
-function deleteCellContents(region) {
+function deleteCellContents(region: TableRegion): void {
     let structure = region.structure;
     for (let row = region.top; row <= region.bottom; row++) {
         for (let col = region.left; col <= region.right; col++) {
@@ -788,7 +820,7 @@ function deleteCellContents(region) {
 }
 
 // public
-export function deleteRegion(region) {
+export function deleteRegion(region: TableRegion): void {
     let structure = region.structure;
 
     let coversEntireWidth = (region.left == 0) && (region.right == structure.numCols-1);
@@ -805,11 +837,12 @@ export function deleteRegion(region) {
 }
 
 // public
-export function clearCells() {
+export function clearCells(): void {
+    // TODO
 }
 
 // public
-export function mergeCells() {
+export function mergeCells(): void {
     Selection.preserveWhileExecuting(function() {
         let region = regionFromRange(Selection.get());
         if (region == null)
@@ -865,7 +898,7 @@ export function mergeCells() {
 }
 
 // public
-export function splitSelection() {
+export function splitSelection(): void {
     Selection.preserveWhileExecuting(function() {
         let range = Selection.get();
         Range.trackWhileExecuting(range,function() {
@@ -877,9 +910,9 @@ export function splitSelection() {
 }
 
 // public
-export function TableRegion_splitCells(region) {
+export function TableRegion_splitCells(region: TableRegion): void {
     let structure = region.structure;
-    let trElements = new Array();
+    let trElements = new Array<HTMLElement>();
     getTRs(structure.element,trElements);
 
     for (let row = region.top; row <= region.bottom; row++) {
@@ -918,7 +951,7 @@ export function TableRegion_splitCells(region) {
 }
 
 // public
-export function cloneRegion(region) {
+export function cloneRegion(region: TableRegion): HTMLElement {
     let cellNodesDone = new Collections.NodeSet();
     let table = DOM.shallowCopyElement(region.structure.element);
     for (let row = region.top; row <= region.bottom; row++) {
@@ -936,13 +969,13 @@ export function cloneRegion(region) {
 }
 
 // private
-function pasteCells(fromTableElement,toRegion) {
-    // FIXME
+function pasteCells(fromTableElement: HTMLElement, toRegion: TableRegion): void {
+    // TODO
     let fromStructure = analyseStructure(fromTableElement);
 }
 
 // public
-export function Table_fix(table) {
+export function Table_fix(table: Table): Table {
     let changed = false;
 
     let tbody = null;
@@ -984,7 +1017,7 @@ export function Table_fix(table) {
 }
 
 // public
-export function Table_fixColumnWidths(structure) {
+export function Table_fixColumnWidths(structure: Table): void {
     let colElements = getColElements(structure.element);
     if (colElements.length == 0)
         return;
@@ -998,7 +1031,7 @@ export function Table_fixColumnWidths(structure) {
 }
 
 // public
-export function analyseStructure(element) {
+export function analyseStructure(element: HTMLElement): Table {
     // FIXME: we should probably be preserving the selection here, since we are modifying
     // the DOM (though I think it's unlikely it would cause problems, becausing the fixup
     // logic only adds elements). However this method is called (indirectly) from within
@@ -1010,37 +1043,41 @@ export function analyseStructure(element) {
 }
 
 // public
-export function findContainingCell(node) {
+export function findContainingCell(node: Node): HTMLElement {
     for (let ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {
-        if (Types.isTableCell(ancestor))
+        if ((ancestor instanceof HTMLElement) && Types.isTableCell(ancestor))
             return ancestor;
     }
     return null;
 }
 
 // public
-export function findContainingTable(node) {
+export function findContainingTable(node: Node): HTMLElement {
     for (let ancestor = node; ancestor != null; ancestor = ancestor.parentNode) {
-        if (ancestor._type == ElementTypes.HTML_TABLE)
+        if (ancestor instanceof HTMLTableElement)
             return ancestor;
     }
     return null;
 }
 
-function TableRegion(structure,top,bottom,left,right) {
-    this.structure = structure;
-    this.top = top;
-    this.bottom = bottom;
-    this.left = left;
-    this.right = right;
-}
+class TableRegion {
 
-TableRegion.prototype.toString = function() {
-    return "("+this.top+","+this.left+") - ("+this.bottom+","+this.right+")";
+    constructor(
+        public structure: Table,
+        public top: number,
+        public bottom: number,
+        public left: number,
+        public right: number
+    ) { }
+
+    public toString(): string {
+        return "("+this.top+","+this.left+") - ("+this.bottom+","+this.right+")";
+    }
+
 }
 
 // public
-export function regionFromRange(range,allowSameCell?) {
+export function regionFromRange(range: Range.Range, allowSameCell?: boolean): TableRegion {
     let region = null;
 
     if (range == null)
@@ -1094,7 +1131,7 @@ export function regionFromRange(range,allowSameCell?) {
 }
 
 // private
-function adjustRegionForSpannedCells(region) {
+function adjustRegionForSpannedCells(region: TableRegion): void {
     let structure = region.structure;
     let boundariesOk;
     let columnsOk;
@@ -1128,12 +1165,18 @@ function adjustRegionForSpannedCells(region) {
     } while (!boundariesOk);
 }
 
-export function getSelectedTableId() {
+export function getSelectedTableId(): string {
     let element = Cursor.getAdjacentElementWithType(ElementTypes.HTML_TABLE);
     return element ? element.getAttribute("id") : null;
 }
 
-export function getProperties(itemId) {
+export interface TableProperties {
+    width: string;
+    rows: number;
+    cols: number;
+}
+
+export function getProperties(itemId): TableProperties {
     let element = document.getElementById(itemId);
     if ((element == null) || (element._type != ElementTypes.HTML_TABLE))
         return null;
@@ -1142,7 +1185,7 @@ export function getProperties(itemId) {
     return { width: width, rows: structure.numRows, cols: structure.numCols };
 }
 
-export function setProperties(itemId,width) {
+export function setProperties(itemId: string, width: string): void {
     let table = document.getElementById(itemId);
     if (table == null)
         return null;
@@ -1155,9 +1198,9 @@ export function setProperties(itemId,width) {
 // their column widths specified, and in all cases as percentages. Any which do not
 // are considered invalid, and have any non-percentage values filled in based on the
 // average values of all valid percentage-based columns.
-export function getColWidths(structure) {
+export function getColWidths(structure: Table): number[] {
     let colElements = getColElements(structure.element);
-    let colWidths = new Array();
+    let colWidths = new Array<number>();
 
     for (let i = 0; i < structure.numCols; i++) {
         let value = null;
@@ -1181,7 +1224,7 @@ export function getColWidths(structure) {
 
     return colWidths;
 
-    function parsePercentage(str) {
+    function parsePercentage(str: string): number {
         if (str.match(/^\s*\d+(\.\d+)?\s*%\s*$/))
             return parseFloat(str.replace(/\s*%\s*$/,""));
         else
@@ -1189,7 +1232,7 @@ export function getColWidths(structure) {
     }
 }
 
-function fixWidths(colWidths,numCols) {
+function fixWidths(colWidths: number[], numCols: number): void {
     let totalWidth = 0;
     let numValidCols = 0;
     for (let i = 0; i < numCols; i++) {
@@ -1220,7 +1263,7 @@ function fixWidths(colWidths,numCols) {
 }
 
 // public
-export function setColWidths(itemId,widths) {
+export function setColWidths(itemId: string, widths: number[]): void {
     let element = document.getElementById(itemId);
     if (element == null)
         return null;
@@ -1236,15 +1279,22 @@ export function setColWidths(itemId,widths) {
     Selection.update();
 }
 
+export interface TableGeometry {
+    contentRect: Util.XYWHRect;
+    fullRect: Util.XYWHRect;
+    parentRect: Util.XYWHRect;
+    columnWidths: number[];
+    hasCaption: boolean;
+}
+
 // public
-export function getGeometry(itemId) {
+// FIXME: TS: Have this return an instance of a new interface called TableGeometry
+export function getGeometry(itemId: string): TableGeometry {
     let element = document.getElementById(itemId);
     if ((element == null) || (element.parentNode == null))
         return null;
 
     let structure = analyseStructure(element);
-
-    let result: any = new Object();
 
     // Calculate the rect based on the cells, not the whole table element;
     // we want to ignore the caption
@@ -1259,20 +1309,19 @@ export function getGeometry(itemId) {
     let topLeftRect = topLeftCell.element.getBoundingClientRect();
     let bottomRightRect = bottomRightCell.element.getBoundingClientRect();
 
-    let left = topLeftRect.left + window.scrollX;
-    let right = bottomRightRect.right + window.scrollX;
-    let top = topLeftRect.top + window.scrollY;
-    let bottom = bottomRightRect.bottom + window.scrollY;
-
-    result.contentRect = { x: left, y: top, width: right - left, height: bottom - top };
-    result.fullRect = Util.xywhAbsElementRect(element);
-    result.parentRect = Util.xywhAbsElementRect(element.parentNode);
-
-    result.columnWidths = getColWidths(structure);
+    let left: number = topLeftRect.left + window.scrollX;
+    let right: number = bottomRightRect.right + window.scrollX;
+    let top: number = topLeftRect.top + window.scrollY;
+    let bottom: number = bottomRightRect.bottom + window.scrollY;
 
     let caption = Traversal.firstChildOfType(element,ElementTypes.HTML_CAPTION);
-    result.hasCaption = (caption != null);
 
-    return result;
-
+    let result: any = new Object();
+    return {
+        contentRect: { x: left, y: top, width: right - left, height: bottom - top },
+        fullRect: Util.xywhAbsElementRect(element),
+        parentRect: Util.xywhAbsElementRect(element.parentNode),
+        columnWidths: getColWidths(structure),
+        hasCaption: (caption != null)
+    };
 }

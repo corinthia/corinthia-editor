@@ -347,7 +347,14 @@ export function toTokenList(properties) {
         return tokens.join(" ");
 }
 
-export function xywhAbsElementRect(element) {
+export interface XYWHRect {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
+
+export function xywhAbsElementRect(element): XYWHRect {
     let rect = element.getBoundingClientRect();
     return { x: rect.left + window.scrollX,
              y: rect.top + window.scrollY,
