@@ -35,7 +35,7 @@ import Types = require("./types");
 import UndoManager = require("./undo");
 import Util = require("./util");
 
-let itemsByNode = null;
+let itemsByNode: Collections.NodeMap<OutlineItem> = null;
 let refsById = null;
 let nextItemId = 1;
 let outlineDirty = false;
@@ -49,31 +49,41 @@ let tables = null;
 let doneInit = false;
 let printMode = false;
 
-function Category(type,nodeFilter,numberRegex) {
-    this.type = type;
-    this.nodeFilter = nodeFilter;
-    this.numberRegex = numberRegex;
-    this.list = new Util.DoublyLinkedList();
-    this.tocs = new Collections.NodeMap();
+class Category {
+
+    public type: string;
+    public nodeFilter: (element: HTMLElement) => boolean;
+    public numberRegex: RegExp;
+    public list: any; // FIXME: type
+    public tocs: Collections.NodeMap<any>; // FIXME: element type
+
+    constructor(type: string, nodeFilter: (element: HTMLElement) => boolean, numberRegex: RegExp) {
+        this.type = type;
+        this.nodeFilter = nodeFilter;
+        this.numberRegex = numberRegex;
+        this.list = new Util.DoublyLinkedList();
+        this.tocs = new Collections.NodeMap();
+    }
+
 }
 
-function addItemInternal(category,item,prevItem,title) {
+function addItemInternal(category: Category, item: OutlineItem, prevItem: OutlineItem, title: string): void {
     UndoManager.addAction(removeItemInternal,category,item);
     category.list.insertAfter(item,prevItem);
     item.title = title;
-    category.tocs.forEach(function(node,toc) { TOC_addOutlineItem(toc,item.id); });
+    category.tocs.forEach(function(node: Node, toc: TOC) { TOC_addOutlineItem(toc,item.id); });
     Editor.addOutlineItem(item.id,category.type,title);
 }
 
-function removeItemInternal(category,item) {
+function removeItemInternal(category: Category, item: OutlineItem): void {
     UndoManager.addAction(addItemInternal,category,item,item.prev,item.title);
     category.list.remove(item);
-    category.tocs.forEach(function(node,toc) { TOC_removeOutlineItem(toc,item.id); });
+    category.tocs.forEach(function(node: Node, toc: TOC) { TOC_removeOutlineItem(toc,item.id); });
     item.title = null;
     Editor.removeOutlineItem(item.id);
 }
 
-function Category_add(category,node) {
+function Category_add(category: Category, node: HTMLElement): OutlineItem {
     let item = itemsByNode.get(node);
     if (item == null)
         item = new OutlineItem(category,node);
@@ -89,14 +99,14 @@ function Category_add(category,node) {
     scheduleUpdateStructure();
     return item;
 
-    function findPrevItemOfType(node,typeFun) {
+    function findPrevItemOfType(node: Node, typeFun: (element: HTMLElement) => boolean) {
         do node = Traversal.prevNode(node);
-        while ((node != null) && !typeFun(node));
+        while ((node != null) && !((node instanceof HTMLElement) && typeFun(node)));
         return (node == null) ? null : itemsByNode.get(node);
     }
 }
 
-function findFirstTextDescendant(node) {
+function findFirstTextDescendant(node: Node): Text {
     if (Traversal.isWhitespaceTextNode(node))
         return;
     if (node instanceof Text)
@@ -109,7 +119,7 @@ function findFirstTextDescendant(node) {
     return null;
 }
 
-function Category_remove(category,node) {
+function Category_remove(category: Category, node: HTMLElement): void {
     let item = itemsByNode.get(node);
     if (item == null) {
         throw new Error("Attempt to remove non-existant "+node.nodeName+
@@ -127,12 +137,12 @@ function Category_remove(category,node) {
     scheduleUpdateStructure();
 }
 
-function addTOCInternal(category,node,toc) {
+function addTOCInternal(category: Category, node: HTMLElement, toc: TOC): void {
     UndoManager.addAction(removeTOCInternal,category,node);
     category.tocs.put(node,toc);
 }
 
-function removeTOCInternal(category,node) {
+function removeTOCInternal(category: Category, node: HTMLElement): void {
     let toc = category.tocs.get(node);
     if (toc == null)
         throw new Error("Attempt to remove ItemList that doesn't exist");
@@ -142,7 +152,7 @@ function removeTOCInternal(category,node) {
     category.tocs.remove(node);
 }
 
-function Category_addTOC(category,node) {
+function Category_addTOC(category: Category, node: HTMLElement): void {
     let toc = new TOC(node);
     addTOCInternal(category,node,toc);
 
@@ -154,28 +164,35 @@ function Category_addTOC(category,node) {
     scheduleUpdateStructure();
 }
 
-function Category_removeTOC(category,node) {
+function Category_removeTOC(category: Category, node: HTMLElement): void {
     removeTOCInternal(category,node);
 }
 
-function TOC(node) {
-    this.node = node;
-    this.textNodes = new Object();
+class TOC {
+
+    public node: HTMLElement;
+    public textNodes: any; // FIXME: type
+
+    constructor(node: HTMLElement) {
+        this.node = node;
+        this.textNodes = new Object();
+    }
+
 }
 
-function TOC_addOutlineItem(toc,id) {
+function TOC_addOutlineItem(toc: TOC, id: string): void {
     toc.textNodes[id] = DOM.createTextNode(document,"");
 }
 
-function TOC_removeOutlineItem(toc,id) {
+function TOC_removeOutlineItem(toc: TOC, id: string): void {
     delete toc.textNodes[id];
 }
 
-function TOC_updateOutlineItem(toc,id,title) {
+function TOC_updateOutlineItem(toc: TOC, id: string, title: string): void {
     DOM.setNodeValue(toc.textNodes[id],title);
 }
 
-function TOC_updateStructure(toc,structure,toplevelShadows,pageNumbers) {
+function TOC_updateStructure(toc: TOC, structure: Structure, toplevelShadows: Shadow[], pageNumbers: Collections.NodeMap<number>): void {
     Hierarchy.ensureValidHierarchy(toc.node);
     DOM.deleteAllChildren(toc.node);
 
@@ -194,7 +211,7 @@ function TOC_updateStructure(toc,structure,toplevelShadows,pageNumbers) {
         DOM.appendChild(toc.node,brk);
     }
 
-    function createEmptyTOC(parent) {
+    function createEmptyTOC(parent: HTMLElement): void {
         if (!printMode) {
             let str = "";
 
@@ -214,7 +231,7 @@ function TOC_updateStructure(toc,structure,toplevelShadows,pageNumbers) {
         }
     }
 
-    function recurse(shadows,parent,level) {
+    function recurse(shadows: Shadow[], parent: HTMLElement, level: number): void {
         if (level > 3)
             return;
 
@@ -246,7 +263,7 @@ function TOC_updateStructure(toc,structure,toplevelShadows,pageNumbers) {
                 if (pageNo == null)
                     DOM.appendChild(rightSpan,DOM.createTextNode(document,"XXXX"));
                 else
-                    DOM.appendChild(rightSpan,DOM.createTextNode(document,pageNo));
+                    DOM.appendChild(rightSpan,DOM.createTextNode(document,""+pageNo));
             }
             else {
                 let div = DOM.createElement(document,"P");
@@ -267,61 +284,78 @@ function TOC_updateStructure(toc,structure,toplevelShadows,pageNumbers) {
     }
 }
 
-function OutlineItem(category,node) {
-    let type = category.type;
-    let item = this;
-    if ((node != null) && (node.hasAttribute("id"))) {
-        this.id = node.getAttribute("id");
+class OutlineItem {
+
+    public id: string;
+    public category: Category;
+    public type: string;
+    public node: HTMLElement;
+    public title: string;
+    public computedNumber: string;
+    public spareSpan: HTMLElement;
+    public spareTitle: HTMLElement;
+    public numberSpan: HTMLElement; // FIXME: Does not seem to be set anywhere; still needed?
+    public prev: OutlineItem;
+    public next: OutlineItem;
+    public modificationListener: (any) => void;
+
+    constructor(category: Category, node: HTMLElement) {
+        let type = category.type;
+        let item = this;
+        if ((node != null) && (node.hasAttribute("id"))) {
+            this.id = node.getAttribute("id");
+        }
+        else {
+            this.id = generateItemId();
+            if (node != null)
+                DOM.setAttribute(node,"id",this.id);
+        }
+        this.category = category;
+        this.type = type;
+        this.node = node;
+        this.title = null;
+        this.computedNumber = null;
+
+        this.spareSpan = DOM.createElement(document,"SPAN");
+        DOM.appendChild(this.spareSpan,DOM.createTextNode(document,""));
+        let spanClass = null;
+        if (this.type == "section")
+            spanClass = Types.Keys.HEADING_NUMBER;
+        else if (this.type == "figure")
+            spanClass = Types.Keys.FIGURE_NUMBER;
+        else if (this.type == "table")
+            spanClass = Types.Keys.TABLE_NUMBER;
+        DOM.setAttribute(this.spareSpan,"class",spanClass);
+
+        // titleNode
+        if (this.type == "figure") {
+            this.spareTitle = DOM.createElement(document,"FIGCAPTION");
+        }
+        else if (this.type == "table") {
+            this.spareTitle = DOM.createElement(document,"CAPTION");
+        }
+
+        this.prev = null;
+        this.next = null;
+        this.modificationListener = function(event) { itemModified(item); }
+
+        itemsByNode.put(this.node,this);
+
+        Object.seal(this);
+        return;
+
+        function generateItemId(): string {
+            let id;
+            do {
+                id = "item"+(nextItemId++);
+            } while (document.getElementById(id) != null);
+            return id;
+        }
     }
-    else {
-        this.id = generateItemId();
-        if (node != null)
-            DOM.setAttribute(node,"id",this.id);
-    }
-    this.category = category;
-    this.type = type;
-    this.node = node;
-    this.title = null;
-    this.computedNumber = null;
 
-    this.spareSpan = DOM.createElement(document,"SPAN");
-    DOM.appendChild(this.spareSpan,DOM.createTextNode(document,""));
-    let spanClass = null;
-    if (this.type == "section")
-        spanClass = Types.Keys.HEADING_NUMBER;
-    else if (this.type == "figure")
-        spanClass = Types.Keys.FIGURE_NUMBER;
-    else if (this.type == "table")
-        spanClass = Types.Keys.TABLE_NUMBER;
-    DOM.setAttribute(this.spareSpan,"class",spanClass);
-
-    // titleNode
-    if (this.type == "figure") {
-        this.spareTitle = DOM.createElement(document,"FIGCAPTION");
-    }
-    else if (this.type == "table") {
-        this.spareTitle = DOM.createElement(document,"CAPTION");
-    }
-
-    this.prev = null;
-    this.next = null;
-    this.modificationListener = function(event) { itemModified(item); }
-
-    itemsByNode.put(this.node,this);
-
-    Object.seal(this);
-    return;
-
-    function generateItemId() {
-        let id;
-        do {
-            id = "item"+(nextItemId++);
-        } while (document.getElementById(id) != null);
-        return id;
-    }
 }
 
-function OutlineItem_getTitleNode(item,create?) {
+function OutlineItem_getTitleNode(item: OutlineItem, create?: boolean): HTMLElement {
     if (item.type == "section") {
         return item.node;
     }
@@ -342,16 +376,16 @@ function OutlineItem_getTitleNode(item,create?) {
         return titleNode;
     }
 
-    function findChild(node,type) {
+    function findChild(node: HTMLElement, type: number): HTMLElement {
         for (let child = node.firstChild; child != null; child = child.nextSibling) {
-            if (child._type == type)
+            if ((child instanceof HTMLElement) && (child._type == type))
                 return child;
         }
         return null;
     }
 }
 
-function OutlineItem_updateItemTitle(item) {
+function OutlineItem_updateItemTitle(item: OutlineItem): void {
     let titleNode = OutlineItem_getTitleNode(item,false);
     let newTitle;
     if (titleNode != null)
@@ -363,13 +397,13 @@ function OutlineItem_updateItemTitle(item) {
         UndoManager.addAction(Editor.updateOutlineItem,item.id,item.title);
         Editor.updateOutlineItem(item.id,newTitle);
         item.title = newTitle;
-        item.category.tocs.forEach(function(node,toc) {
+        item.category.tocs.forEach(function(node: Node, toc: TOC) {
             TOC_updateOutlineItem(toc,item.id,item.title);
         });
     }
 }
 
-function getNodeTextAfter(node) {
+function getNodeTextAfter(node: Node): string {
     let text = "";
     for (let child = node.nextSibling; child != null; child = child.nextSibling)
         text += Traversal.getNodeText(child);
@@ -377,7 +411,7 @@ function getNodeTextAfter(node) {
 }
 
 // private
-function itemModified(item) {
+function itemModified(item: OutlineItem): void {
     if (UndoManager.isActive())
         return;
     if (ignoreModifications > 0)
@@ -386,14 +420,14 @@ function itemModified(item) {
     updateRefsForItem(item);
 }
 
-function addRefForId(id,node) {
+function addRefForId(id: string, node: HTMLElement): void {
     UndoManager.addAction(removeRefForId,id,node);
     if (refsById[id] == null)
         refsById[id] = new Array();
     refsById[id].push(node);
 }
 
-function removeRefForId(id,node) {
+function removeRefForId(id: string, node: HTMLElement): void {
     UndoManager.addAction(addRefForId,id,node);
     if (refsById[id] == null)
         throw new Error("refRemoved: refsById["+id+"] is null");
@@ -406,7 +440,7 @@ function removeRefForId(id,node) {
 }
 
 // private
-function refInserted(node) {
+function refInserted(node: HTMLElement): void {
     let href = node.getAttribute("href");
     if (href.charAt(0) != "#")
         throw new Error("refInserted: not a # reference");
@@ -416,7 +450,7 @@ function refInserted(node) {
 }
 
 // private
-function refRemoved(node) {
+function refRemoved(node: HTMLElement): void {
     let href = node.getAttribute("href");
     if (href.charAt(0) != "#")
         throw new Error("refInserted: not a # reference");
@@ -425,16 +459,16 @@ function refRemoved(node) {
 }
 
 // private
-function acceptNode(node) {
+function acceptNode(node: Node): boolean {
     for (let p = node; p != null; p = p.parentNode) {
-        if ((p._type == ElementTypes.HTML_SPAN) && (p.getAttribute("class") == Types.Keys.HEADING_NUMBER))
+        if ((p instanceof HTMLSpanElement) && (p.getAttribute("class") == Types.Keys.HEADING_NUMBER))
             return false;
     }
     return true;
 }
 
 // private
-function docNodeInserted(event) {
+function docNodeInserted(event: any): void { // FIXME: TS: event parameter
     if (UndoManager.isActive())
         return;
     if (DOM.getIgnoreMutations())
@@ -448,40 +482,42 @@ function docNodeInserted(event) {
         Editor.error(e);
     }
 
-    function recurse(node) {
-        switch (node._type) {
-        case ElementTypes.HTML_H1:
-        case ElementTypes.HTML_H2:
-        case ElementTypes.HTML_H3:
-        case ElementTypes.HTML_H4:
-        case ElementTypes.HTML_H5:
-        case ElementTypes.HTML_H6: {
-            if (!Types.isInTOC(node))
-                Category_add(sections,node);
-            break;
-        }
-        case ElementTypes.HTML_FIGURE:
-            Category_add(figures,node);
-            break;
-        case ElementTypes.HTML_TABLE:
-            Category_add(tables,node);
-            break;
-        case ElementTypes.HTML_A: {
-            if (Types.isRefNode(node) && !Types.isInTOC(node)) {
-                refInserted(node);
+    function recurse(node: Node): void {
+        if (node instanceof HTMLElement) {
+            switch (node._type) {
+            case ElementTypes.HTML_H1:
+            case ElementTypes.HTML_H2:
+            case ElementTypes.HTML_H3:
+            case ElementTypes.HTML_H4:
+            case ElementTypes.HTML_H5:
+            case ElementTypes.HTML_H6: {
+                if (!Types.isInTOC(node))
+                    Category_add(sections,node);
+                break;
             }
-            break;
-        }
-        case ElementTypes.HTML_NAV: {
-            let cls = node.getAttribute("class");
-            if (cls == Types.Keys.SECTION_TOC)
-                Category_addTOC(sections,node);
-            else if (cls == Types.Keys.FIGURE_TOC)
-                Category_addTOC(figures,node);
-            else if (cls == Types.Keys.TABLE_TOC)
-                Category_addTOC(tables,node);
-            break;
-        }
+            case ElementTypes.HTML_FIGURE:
+                Category_add(figures,node);
+                break;
+            case ElementTypes.HTML_TABLE:
+                Category_add(tables,node);
+                break;
+            case ElementTypes.HTML_A: {
+                if (Types.isRefNode(node) && !Types.isInTOC(node)) {
+                    refInserted(node);
+                }
+                break;
+            }
+            case ElementTypes.HTML_NAV: {
+                let cls = node.getAttribute("class");
+                if (cls == Types.Keys.SECTION_TOC)
+                    Category_addTOC(sections,node);
+                else if (cls == Types.Keys.FIGURE_TOC)
+                    Category_addTOC(figures,node);
+                else if (cls == Types.Keys.TABLE_TOC)
+                    Category_addTOC(tables,node);
+                break;
+            }
+            }
         }
 
         let next;
@@ -493,7 +529,7 @@ function docNodeInserted(event) {
 }
 
 // private
-function docNodeRemoved(event) {
+function docNodeRemoved(event): void { // FIXME: TS: event parameter
     if (UndoManager.isActive())
         return;
     if (DOM.getIgnoreMutations())
@@ -507,36 +543,38 @@ function docNodeRemoved(event) {
         Editor.error(e);
     }
 
-    function recurse(node) {
-        switch (node._type) {
-        case ElementTypes.HTML_H1:
-        case ElementTypes.HTML_H2:
-        case ElementTypes.HTML_H3:
-        case ElementTypes.HTML_H4:
-        case ElementTypes.HTML_H5:
-        case ElementTypes.HTML_H6:
-            if (!Types.isInTOC(node))
-                Category_remove(sections,node);
-            break;
-        case ElementTypes.HTML_FIGURE:
-            Category_remove(figures,node);
-            break;
-        case ElementTypes.HTML_TABLE:
-            Category_remove(tables,node);
-            break;
-        case ElementTypes.HTML_A:
-            if (Types.isRefNode(node) && !Types.isInTOC(node))
-                refRemoved(node);
-            break;
-        case ElementTypes.HTML_NAV:
-            let cls = node.getAttribute("class");
-            if (cls == Types.Keys.SECTION_TOC)
-                Category_removeTOC(sections,node);
-            else if (cls == Types.Keys.FIGURE_TOC)
-                Category_removeTOC(figures,node);
-            else if (cls == Types.Keys.TABLE_TOC)
-                Category_removeTOC(tables,node);
-            break;
+    function recurse(node: Node): void {
+        if (node instanceof HTMLElement) {
+            switch (node._type) {
+            case ElementTypes.HTML_H1:
+            case ElementTypes.HTML_H2:
+            case ElementTypes.HTML_H3:
+            case ElementTypes.HTML_H4:
+            case ElementTypes.HTML_H5:
+            case ElementTypes.HTML_H6:
+                if (!Types.isInTOC(node))
+                    Category_remove(sections,node);
+                break;
+            case ElementTypes.HTML_FIGURE:
+                Category_remove(figures,node);
+                break;
+            case ElementTypes.HTML_TABLE:
+                Category_remove(tables,node);
+                break;
+            case ElementTypes.HTML_A:
+                if (Types.isRefNode(node) && !Types.isInTOC(node))
+                    refRemoved(node);
+                break;
+            case ElementTypes.HTML_NAV:
+                let cls = node.getAttribute("class");
+                if (cls == Types.Keys.SECTION_TOC)
+                    Category_removeTOC(sections,node);
+                else if (cls == Types.Keys.FIGURE_TOC)
+                    Category_removeTOC(figures,node);
+                else if (cls == Types.Keys.TABLE_TOC)
+                    Category_removeTOC(tables,node);
+                break;
+            }
         }
 
         for (let child = node.firstChild; child != null; child = child.nextSibling)
@@ -545,7 +583,7 @@ function docNodeRemoved(event) {
 }
 
 // private
-export function scheduleUpdateStructure() {
+export function scheduleUpdateStructure(): void {
     if (UndoManager.isActive())
         return;
     if (!outlineDirty) {
@@ -555,7 +593,7 @@ export function scheduleUpdateStructure() {
 }
 
 // private
-function updateStructure() {
+function updateStructure(): void {
     if (!outlineDirty)
         return;
     outlineDirty = false;
@@ -566,45 +604,56 @@ function updateStructure() {
     });
 }
 
-function Shadow(node) {
-    this.node = node;
-    this.item = itemsByNode.get(node);
-    this.children = [];
-    this.parent = null;
+class Shadow {
 
-    switch (node._type) {
-    case ElementTypes.HTML_H1:
-        this.level = 1;
-        break;
-    case ElementTypes.HTML_H2:
-        this.level = 2;
-        break;
-    case ElementTypes.HTML_H3:
-        this.level = 3;
-        break;
-    case ElementTypes.HTML_H4:
-        this.level = 4;
-        break;
-    case ElementTypes.HTML_H5:
-        this.level = 5;
-        break;
-    case ElementTypes.HTML_H6:
-        this.level = 6;
-        break;
-    default:
-        this.level = 0;
-        break;
+    public node: HTMLElement;
+    public item: OutlineItem;
+    public children: Shadow[];
+    public parent: Node;
+    public level: number;
+    public nextChildSectionNumber: number;
+
+    constructor(node: HTMLElement) {
+        this.node = node;
+        this.item = itemsByNode.get(node);
+        this.children = [];
+        this.parent = null;
+
+        switch (node._type) {
+        case ElementTypes.HTML_H1:
+            this.level = 1;
+            break;
+        case ElementTypes.HTML_H2:
+            this.level = 2;
+            break;
+        case ElementTypes.HTML_H3:
+            this.level = 3;
+            break;
+        case ElementTypes.HTML_H4:
+            this.level = 4;
+            break;
+        case ElementTypes.HTML_H5:
+            this.level = 5;
+            break;
+        case ElementTypes.HTML_H6:
+            this.level = 6;
+            break;
+        default:
+            this.level = 0;
+            break;
+        }
     }
+
 }
 
-function Shadow_last(shadow) {
+function Shadow_last(shadow: Shadow): Shadow {
     if (shadow.children.length == 0)
         return shadow;
     else
         return Shadow_last(shadow.children[shadow.children.length-1]);
 }
 
-function Shadow_outerNext(shadow,structure) {
+function Shadow_outerNext(shadow: Shadow, structure: Structure): Shadow {
     let last = Shadow_last(shadow);
     if (last == null)
         return null;
@@ -614,7 +663,7 @@ function Shadow_outerNext(shadow,structure) {
         return structure.shadowsByNode.get(last.item.next.node);
 }
 
-function firstTextDescendant(node) {
+function firstTextDescendant(node: Node): Text {
     if (node instanceof Text)
         return node;
     for (let child = node.firstChild; child != null; child = child.nextSibling) {
@@ -625,14 +674,23 @@ function firstTextDescendant(node) {
     return null;
 }
 
-function Structure() {
-    this.toplevelSections = new Array();
-    this.toplevelFigures = new Array();
-    this.toplevelTables = new Array();
-    this.shadowsByNode = new Collections.NodeMap();
+class Structure {
+
+    public toplevelSections: Shadow[];
+    public toplevelFigures: Shadow[];
+    public toplevelTables: Shadow[];
+    public shadowsByNode: Collections.NodeMap<Shadow>;
+
+    constructor() {
+        this.toplevelSections = new Array<Shadow>();
+        this.toplevelFigures = new Array<Shadow>();
+        this.toplevelTables = new Array<Shadow>();
+        this.shadowsByNode = new Collections.NodeMap<Shadow>();
+    }
+
 }
 
-function discoverStructure() {
+function discoverStructure(): Structure {
     let structure = new Structure();
     let nextToplevelSectionNumber = 1;
     let nextFigureNumber = 1;
@@ -733,7 +791,7 @@ function discoverStructure() {
     return structure;
 }
 
-function updateStructureReal(pageNumbers?) {
+function updateStructureReal(pageNumbers?: Collections.NodeMap<number>): void {
     let structure = discoverStructure();
 
     for (let section = sections.list.first; section != null; section = section.next) {
@@ -751,24 +809,36 @@ function updateStructureReal(pageNumbers?) {
         updateRefsForItem(shadow.item);
     }
 
-    sections.tocs.forEach(function (node,toc) {
+    sections.tocs.forEach(function (node: Node, toc: TOC) {
         TOC_updateStructure(toc,structure,structure.toplevelSections,pageNumbers);
     });
-    figures.tocs.forEach(function (node,toc) {
+    figures.tocs.forEach(function (node: Node, toc: TOC) {
         TOC_updateStructure(toc,structure,structure.toplevelFigures,pageNumbers);
     });
-    tables.tocs.forEach(function (node,toc) {
+    tables.tocs.forEach(function (node: Node, toc: TOC) {
         TOC_updateStructure(toc,structure,structure.toplevelTables,pageNumbers);
     });
 
     Editor.outlineUpdated();
 }
 
-export function getOutline() {
+export interface EncodedOutline {
+    sections: EncodedOutlineItem[];
+    figures: EncodedOutlineItem[];
+    tables: EncodedOutlineItem[];
+}
+
+export interface EncodedOutlineItem {
+    id: string;
+    number: string;
+    children: EncodedOutlineItem[];
+}
+
+export function getOutline(): EncodedOutline {
     let structure = discoverStructure();
-    let encSections = new Array();
-    let encFigures = new Array();
-    let encTables = new Array();
+    let encSections = new Array<EncodedOutlineItem>();
+    let encFigures = new Array<EncodedOutlineItem>();
+    let encTables = new Array<EncodedOutlineItem>();
 
     for (let i = 0; i < structure.toplevelSections.length; i++)
         encodeShadow(structure.toplevelSections[i],encSections);
@@ -781,8 +851,8 @@ export function getOutline() {
              figures: encFigures,
              tables: encTables };
 
-    function encodeShadow(shadow,result) {
-        let encChildren = new Array();
+    function encodeShadow(shadow: Shadow, result: EncodedOutlineItem[]): void {
+        let encChildren = new Array<EncodedOutlineItem>();
         for (let i = 0; i < shadow.children.length; i++)
             encodeShadow(shadow.children[i],encChildren);
 
@@ -793,7 +863,7 @@ export function getOutline() {
     }
 }
 
-function updateRefsForItem(item) {
+function updateRefsForItem(item: OutlineItem): void {
     let id = item.node.getAttribute("id");
     let refs = refsById[id];
     if (refs == null)
@@ -866,7 +936,7 @@ function updateRefsForItem(item) {
     }
 }
 
-export function plainText() {
+export function plainText(): string {
     let strings = new Array();
     let structure = discoverStructure();
 
@@ -904,7 +974,7 @@ export function plainText() {
     }
     return strings.join("");
 
-    function printSectionRecursive(shadow,indent) {
+    function printSectionRecursive(shadow: Shadow, indent: string): void {
         let titleNode = OutlineItem_getTitleNode(shadow.item,false);
         let content = Traversal.getNodeText(titleNode);
         if (shadow.item.computedNumber != null)
@@ -918,25 +988,25 @@ export function plainText() {
 }
 
 // public
-export function init() {
+export function init(): void {
     Selection.preserveWhileExecuting(function() {
 
-        function isTableNode(node) {
+        function isTableNode(node: HTMLElement): boolean {
             return (node._type == ElementTypes.HTML_TABLE);
         }
 
-        function isFigureNode(node) {
+        function isFigureNode(node: HTMLElement): boolean {
             return (node._type == ElementTypes.HTML_FIGURE);
         }
 
-        function isNonTOCHeadingNode(node) {
+        function isNonTOCHeadingNode(node: HTMLElement): boolean {
             return (Types.HEADING_ELEMENTS[node._type] && !Types.isInTOC(node));
         }
 
         sections = new Category("section",isNonTOCHeadingNode,sectionNumberRegex);
         figures = new Category("figure",isFigureNode,figureNumberRegex);
         tables = new Category("table",isTableNode,tableNumberRegex);
-        itemsByNode = new Collections.NodeMap();
+        itemsByNode = new Collections.NodeMap<OutlineItem>();
         refsById = new Object();
 
         DOM.ensureUniqueIds(document.documentElement);
@@ -949,7 +1019,7 @@ export function init() {
 }
 
 // public (for the undo tests, when they report results)
-export function removeListeners() {
+export function removeListeners(): void {
     document.removeEventListener("DOMNodeInserted",docNodeInserted);
     document.removeEventListener("DOMNodeRemoved",docNodeRemoved);
 
@@ -957,22 +1027,22 @@ export function removeListeners() {
     removeCategoryListeners(figures);
     removeCategoryListeners(tables);
 
-    function removeCategoryListeners(category) {
+    function removeCategoryListeners(category: Category): void {
         for (let item = category.list.first; item != null; item = item.next)
             item.node.removeEventListener("DOMSubtreeModified",item.modificationListener);
     }
 }
 
 // private
-function getShadowNodes(structure,shadow,result) {
+function getShadowNodes(structure: Structure, shadow: Shadow, result: Node[]): void {
     let endShadow = Shadow_outerNext(shadow,structure);
     let endNode = endShadow ? endShadow.item.node : null;
-    for (let n = shadow.item.node; (n != null) && (n != endNode); n = n.nextSibling)
+    for (let n: Node = shadow.item.node; (n != null) && (n != endNode); n = n.nextSibling)
         result.push(n);
 }
 
 // public
-export function moveSection(sectionId,parentId,nextId) {
+export function moveSection(sectionId: string, parentId: string, nextId: string): void {
     UndoManager.newGroup("Move section");
     Selection.clear();
 
@@ -997,7 +1067,7 @@ export function moveSection(sectionId,parentId,nextId) {
     let parent = parentNode ? structure.shadowsByNode.get(parentNode) : null;
     let next = nextNode ? structure.shadowsByNode.get(nextNode) : null;
 
-    let sectionNodes = new Array();
+    let sectionNodes = new Array<Node>();
     getShadowNodes(structure,shadow,sectionNodes);
 
     if ((next == null) && (parent != null))
@@ -1021,7 +1091,7 @@ export function moveSection(sectionId,parentId,nextId) {
 }
 
 // public
-export function deleteItem(itemId) {
+export function deleteItem(itemId: string): void {
     UndoManager.newGroup("Delete outline item");
     let structure = discoverStructure();
     Selection.preserveWhileExecuting(function() {
@@ -1056,7 +1126,7 @@ export function deleteItem(itemId) {
 }
 
 // public
-export function goToItem(itemId) {
+export function goToItem(itemId: string): void {
     if (itemId == null) {
         window.scrollTo(0);
     }
@@ -1081,12 +1151,12 @@ export function goToItem(itemId) {
 }
 
 // public
-export function getItemElement(itemId) {
+export function getItemElement(itemId: string): HTMLElement {
     return document.getElementById(itemId);
 }
 
 // public
-export function setNumbered(itemId,numbered) {
+export function setNumbered(itemId: string, numbered: boolean): void {
     let node = document.getElementById(itemId);
     let item = itemsByNode.get(node);
 
@@ -1118,7 +1188,7 @@ export function setNumbered(itemId,numbered) {
 }
 
 // public
-export function setTitle(itemId,title) {
+export function setTitle(itemId: string, title: string): void {
     let node = document.getElementById(itemId);
     let item = itemsByNode.get(node);
     Selection.preserveWhileExecuting(function() {
@@ -1143,7 +1213,7 @@ export function setTitle(itemId,title) {
 
 // private
 // FIXME: prevent a TOC from being inserted inside a heading, figure, or table
-function insertTOC(key) {
+function insertTOC(key: string): void {
     let div = DOM.createElement(document,"NAV");
     DOM.setAttribute(div,"class",key);
     Cursor.makeContainerInsertionPoint();
@@ -1151,37 +1221,62 @@ function insertTOC(key) {
 }
 
 // public
-export function insertTableOfContents() {
+export function insertTableOfContents(): void {
     insertTOC(Types.Keys.SECTION_TOC);
 }
 
 // public
-export function insertListOfFigures() {
+export function insertListOfFigures(): void {
     insertTOC(Types.Keys.FIGURE_TOC);
 }
 
 // public
-export function insertListOfTables() {
+export function insertListOfTables(): void {
     insertTOC(Types.Keys.TABLE_TOC);
 }
 
 // public
-export function setPrintMode(newPrintMode) {
+export function setPrintMode(newPrintMode: boolean): void {
     printMode = newPrintMode;
     scheduleUpdateStructure();
 }
 
+export interface PrintLayoutInfo {
+    destsByPage: {
+        [key: string]: {
+            itemId: string;
+            x: number;
+            y: number }[]
+        };
+    linksByPage: {
+        [key: string]: {
+            pageNo: number;
+            left: number;
+            top: number;
+            width: number;
+            height: number;
+            href: string }[]
+         };
+    leafRectsByPage: {
+        [key: string]: {
+            left: number;
+            top: number;
+            width: number;
+            height: number; }[]
+        };
+}
+
 // public
-export function examinePrintLayout(pageHeight) {
-    let result: any = new Object();
+export function examinePrintLayout(pageHeight: number): PrintLayoutInfo {
     let structure = discoverStructure();
-    let pageNumbers = new Collections.NodeMap();
+    let pageNumbers = new Collections.NodeMap<number>();
+    let result: PrintLayoutInfo = {
+        destsByPage: {},
+        linksByPage: {},
+        leafRectsByPage: {}
+    }
 
-    result.destsByPage = new Object();
-    result.linksByPage = new Object();
-    result.leafRectsByPage = new Object();
-
-    itemsByNode.forEach(function(node,item) {
+    itemsByNode.forEach(function(node: HTMLElement, item: OutlineItem) {
         let rect = node.getBoundingClientRect();
         let pageNo = 1+Math.floor(rect.top/pageHeight);
         let pageTop = (pageNo-1)*pageHeight;
@@ -1189,7 +1284,7 @@ export function examinePrintLayout(pageHeight) {
         pageNumbers.put(node,pageNo);
 
         if (result.destsByPage[pageNo] == null)
-            result.destsByPage[pageNo] = new Array();
+            result.destsByPage[pageNo] = [];
         result.destsByPage[pageNo].push({ itemId: id,
                                           x: rect.left,
                                           y: rect.top - pageTop});
@@ -1227,7 +1322,7 @@ export function examinePrintLayout(pageHeight) {
     return result;
 
 
-    function recurse(node) {
+    function recurse(node: Node): void {
         if (node.firstChild == null) {
             let offset = DOM.nodeOffset(node);
             let range = new Range.Range(node.parentNode,offset,node.parentNode,offset+1);
@@ -1252,7 +1347,7 @@ export function examinePrintLayout(pageHeight) {
     }
 }
 
-export function setReferenceTarget(node,itemId) {
+export function setReferenceTarget(node: HTMLElement, itemId: string): void {
     Selection.preserveWhileExecuting(function() {
         refRemoved(node);
         DOM.setAttribute(node,"href","#"+itemId);
@@ -1260,7 +1355,7 @@ export function setReferenceTarget(node,itemId) {
     });
 }
 
-export function detectSectionNumbering() {
+export function detectSectionNumbering(): boolean {
     let sectionNumbering = detectNumbering(sections);
     if (sectionNumbering)
         makeNumberingExplicit(sections);
@@ -1269,7 +1364,7 @@ export function detectSectionNumbering() {
     return sectionNumbering;
 }
 
-function detectNumbering(category) {
+function detectNumbering(category: Category): boolean {
     for (let item = category.list.first; item != null; item = item.next) {
 
         let firstText = null;
@@ -1286,7 +1381,7 @@ function detectNumbering(category) {
     }
 }
 
-function makeNumberingExplicit(category) {
+function makeNumberingExplicit(category: Category): void {
     for (let item = category.list.first; item != null; item = item.next) {
         let firstText = null;
         let titleNode = OutlineItem_getTitleNode(item);
@@ -1312,38 +1407,40 @@ function makeNumberingExplicit(category) {
 
 // Search through the document for any elements corresponding to built-in styles that are
 // normally latent (i.e. only included in the stylesheet if used)
-export function findUsedStyles() {
-    let used = new Object();
+export function findUsedStyles(): { [key: string]: boolean } {
+    let used: { [key: string]: boolean } = {};
     recurse(document.body);
     return used;
 
-    function recurse(node) {
+    function recurse(node: Node): void {
+        if (node instanceof HTMLElement) {
         switch (node._type) {
-        case ElementTypes.HTML_NAV: {
-            let className = DOM.getAttribute(node,"class");
-            if ((className == "tableofcontents") ||
-                (className == "listoffigures") ||
-                (className == "listoftables")) {
-                used["nav."+className] = true;
+            case ElementTypes.HTML_NAV: {
+                let className = DOM.getAttribute(node,"class");
+                if ((className == "tableofcontents") ||
+                    (className == "listoffigures") ||
+                    (className == "listoftables")) {
+                    used["nav."+className] = true;
+                }
+                break;
             }
-            break;
-        }
-        case ElementTypes.HTML_FIGCAPTION:
-        case ElementTypes.HTML_CAPTION:
-        case ElementTypes.HTML_H1:
-        case ElementTypes.HTML_H2:
-        case ElementTypes.HTML_H3:
-        case ElementTypes.HTML_H4:
-        case ElementTypes.HTML_H5:
-        case ElementTypes.HTML_H6: {
-            let elementName = node.nodeName.toLowerCase();
-            let className = DOM.getAttribute(node,"class");
-            if ((className == null) || (className == ""))
-                used[elementName] = true;
-            else if (className == "Unnumbered")
-                used[elementName+".Unnumbered"] = true;
-            break;
-        }
+            case ElementTypes.HTML_FIGCAPTION:
+            case ElementTypes.HTML_CAPTION:
+            case ElementTypes.HTML_H1:
+            case ElementTypes.HTML_H2:
+            case ElementTypes.HTML_H3:
+            case ElementTypes.HTML_H4:
+            case ElementTypes.HTML_H5:
+            case ElementTypes.HTML_H6: {
+                let elementName = node.nodeName.toLowerCase();
+                let className = DOM.getAttribute(node,"class");
+                if ((className == null) || (className == ""))
+                    used[elementName] = true;
+                else if (className == "Unnumbered")
+                    used[elementName+".Unnumbered"] = true;
+                break;
+            }
+            }
         }
 
         for (let child = node.firstChild; child != null; child = child.nextSibling)

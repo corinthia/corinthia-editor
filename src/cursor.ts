@@ -907,7 +907,7 @@ export function setLinkProperties(properties) {
 
 export function setReferenceTarget(itemId) {
     let a = getAdjacentNodeWithType(ElementTypes.HTML_A);
-    if (a != null)
+    if ((a != null) && (a instanceof HTMLElement))
         Outline.setReferenceTarget(a,itemId);
 }
 
