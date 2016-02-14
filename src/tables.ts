@@ -30,7 +30,7 @@ import Types = require("./types");
 import UndoManager = require("./undo");
 import Util = require("./util");
 
-class Cell {
+export class Cell {
 
     public element: HTMLElement;
     public row: number;
@@ -91,7 +91,7 @@ class Cell {
 
 }
 
-class Table {
+export class Table {
 
     public element: HTMLElement;
     public row: number;
@@ -1060,7 +1060,7 @@ export function findContainingTable(node: Node): HTMLElement {
     return null;
 }
 
-class TableRegion {
+export class TableRegion {
 
     constructor(
         public structure: Table,

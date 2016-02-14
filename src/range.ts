@@ -130,7 +130,7 @@ export function forwards(range: Range): Range {
     }
 }
 
-class RangeDetail {
+export class RangeDetail {
     public startParent: Node;
     public startChild: Node;
     public endParent: Node;
