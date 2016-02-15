@@ -472,7 +472,7 @@ function removeSelectionHighlights(data: RangeData, force?: boolean): void {
     for (let i = 0; i < checkMerge.length; i++) {
         // if not already merged
         if ((checkMerge[i] != null) && (checkMerge[i].parentNode != null)) {
-            Formatting.mergeWithNeighbours(checkMerge[i],{});
+            Formatting.mergeWithNeighbours(checkMerge[i],[]);
         }
     }
 }

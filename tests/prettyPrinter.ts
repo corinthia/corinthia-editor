@@ -54,7 +54,7 @@ function removeSelectionSpans(root) {
 
     for (let i = 0; i < checkMerge.length; i++) {
         if (checkMerge[i].parentNode != null) { // if not already merged
-            Formatting.mergeWithNeighbours(checkMerge[i],{});
+            Formatting.mergeWithNeighbours(checkMerge[i],[]);
         }
     }
 

@@ -35,7 +35,7 @@ function removeCorrectionSpan(span) {
         let firstChild = span.firstChild;
         DOM.removeNodeButKeepChildren(span);
         if (firstChild != null)
-            Formatting.mergeWithNeighbours(firstChild,{});
+            Formatting.mergeWithNeighbours(firstChild,[]);
     });
 }
 
@@ -256,7 +256,7 @@ export function replaceCorrection(replacement) {
         let text = DOM.createTextNode(document,replacement);
         DOM.insertBefore(correction.span.parentNode,text,correction.span);
         DOM.deleteNode(correction.span);
-        Formatting.mergeWithNeighbours(text,{});
+        Formatting.mergeWithNeighbours(text,[]);
     });
     UndoManager.newGroup();
 }

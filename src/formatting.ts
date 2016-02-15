@@ -79,8 +79,8 @@ let CSS_PROPERTY_REPLACEMENTS = {
 };
 
 // private
-function getStyleProperties(element,dontReplace?) {
-    let properties = new Object();
+function getStyleProperties(element: HTMLElement, dontReplace?: boolean): { [key: string]: string } {
+    let properties: { [key: string]: string } = {};
 
     for (let i = 0; i < element.style.length; i++) {
         let name = element.style[i];
@@ -103,7 +103,7 @@ function getStyleProperties(element,dontReplace?) {
 }
 
 // public (for testing purposes only)
-export function splitAroundSelection(range,allowDirectInline) {
+export function splitAroundSelection(range: Range.Range, allowDirectInline: boolean): void {
     Range.trackWhileExecuting(range,function() {
         if (!allowDirectInline)
             Range.ensureInlineNodesInParagraph(range);
@@ -153,7 +153,7 @@ export function splitAroundSelection(range,allowDirectInline) {
 }
 
 // public
-export function mergeUpwards(node,whiteList) {
+export function mergeUpwards(node: Node, whiteList: boolean[]): void {
     while ((node != null) && whiteList[node._type]) {
         let parent = node.parentNode;
         mergeWithNeighbours(node,whiteList,true);
@@ -161,7 +161,7 @@ export function mergeUpwards(node,whiteList) {
     }
 }
 
-function isDiscardable(node) {
+function isDiscardable(node: Node): boolean {
     if (!(node instanceof Element))
         return false;
 
@@ -180,7 +180,7 @@ function isDiscardable(node) {
 }
 
 // public (for use by tests)
-export function mergeWithNeighbours(node,whiteList,trim?) {
+export function mergeWithNeighbours(node: Node, whiteList: boolean[], trim?: boolean): void {
     let parent = node.parentNode;
     if (parent == null)
         return;
@@ -221,7 +221,7 @@ export function mergeWithNeighbours(node,whiteList,trim?) {
 }
 
 // private
-function mergeRange(range,whiteList) {
+function mergeRange(range: Range.Range, whiteList: boolean[]): void {
     let nodes = Range.getAllNodes(range);
     for (let i = 0; i < nodes.length; i++) {
         let next;
@@ -233,46 +233,58 @@ function mergeRange(range,whiteList) {
 }
 
 // public (called from cursor.js)
-export function splitTextBefore(pos,parentCheckFn?,force?) {
+// FIXME: TS: We require a position in a text node here; replace pos width node: Text, offset: number
+export function splitTextBefore(pos: Position.Position, parentCheckFn?: (n: Node) => boolean, force?: boolean): Position.Position {
     let node = pos.node;
     let offset = pos.offset;
     if (parentCheckFn == null)
         parentCheckFn = Types.isBlockNode;
 
-    if (force || (offset > 0)) {
-        let before = DOM.createTextNode(document,"");
-        DOM.insertBefore(node.parentNode,before,node);
-        DOM.moveCharacters(node,0,offset,before,0,false,true);
-        movePreceding(new Position.Position(node.parentNode,DOM.nodeOffset(node)),
-                      parentCheckFn,force);
-        return new Position.Position(before,before.nodeValue.length);
+    if (node instanceof Text) {
+        if (force || (offset > 0)) {
+            let before = DOM.createTextNode(document,"");
+            DOM.insertBefore(node.parentNode,before,node);
+            DOM.moveCharacters(node,0,offset,before,0,false,true);
+            movePreceding(new Position.Position(node.parentNode,DOM.nodeOffset(node)),
+                          parentCheckFn,force);
+            return new Position.Position(before,before.nodeValue.length);
+        }
+        else {
+            movePreceding(new Position.Position(node.parentNode,DOM.nodeOffset(node)),
+                          parentCheckFn,force);
+            return pos;
+        }
     }
     else {
-        movePreceding(new Position.Position(node.parentNode,DOM.nodeOffset(node)),
-                      parentCheckFn,force);
-        return pos;
+        throw new Error("splitTextBefore called on non-text node");
     }
 }
 
 // public
-export function splitTextAfter(pos,parentCheckFn?,force?) {
+// FIXME: TS: We require a position in a text node here; replace pos width node: Text, offset: number
+export function splitTextAfter(pos: Position.Position, parentCheckFn?: (n: Node) => boolean, force?: boolean): Position.Position {
     let node = pos.node;
     let offset = pos.offset;
     if (parentCheckFn == null)
         parentCheckFn = Types.isBlockNode;
 
-    if (force || (offset < pos.node.nodeValue.length)) {
-        let after = DOM.createTextNode(document,"");
-        DOM.insertBefore(node.parentNode,after,node.nextSibling);
-        DOM.moveCharacters(node,offset,node.nodeValue.length,after,0,true,false);
-        moveFollowing(new Position.Position(node.parentNode,DOM.nodeOffset(node)+1),
-                      parentCheckFn,force);
-        return new Position.Position(after,0);
+    if (node instanceof Text) {
+        if (force || (offset < pos.node.nodeValue.length)) {
+            let after = DOM.createTextNode(document,"");
+            DOM.insertBefore(node.parentNode,after,node.nextSibling);
+            DOM.moveCharacters(node,offset,node.nodeValue.length,after,0,true,false);
+            moveFollowing(new Position.Position(node.parentNode,DOM.nodeOffset(node)+1),
+                          parentCheckFn,force);
+            return new Position.Position(after,0);
+        }
+        else {
+            moveFollowing(new Position.Position(node.parentNode,DOM.nodeOffset(node)+1),
+                          parentCheckFn,force);
+            return pos;
+        }
     }
     else {
-        moveFollowing(new Position.Position(node.parentNode,DOM.nodeOffset(node)+1),
-                      parentCheckFn,force);
-        return pos;
+        throw new Error("splitTextBefore called on non-text node");
     }
 }
 
@@ -281,7 +293,7 @@ export function splitTextAfter(pos,parentCheckFn?,force?) {
 // index of a child, we pass the child itself (or null if the offset is equal to
 // childNodes.length)
 // public
-export function movePreceding(pos,parentCheckFn,force?) {
+export function movePreceding(pos: Position.Position, parentCheckFn?: (n: Node) => boolean, force?: boolean): Position.Position {
     let node = pos.node;
     let offset = pos.offset;
     if (parentCheckFn(node) || (node == document.body))
@@ -317,7 +329,7 @@ export function movePreceding(pos,parentCheckFn,force?) {
 }
 
 // public
-export function moveFollowing(pos,parentCheckFn,force?) {
+export function moveFollowing(pos: Position.Position, parentCheckFn?: (n: Node) => boolean, force?: boolean): Position.Position {
     let node = pos.node;
     let offset = pos.offset;
     if (parentCheckFn(node) || (node == document.body))
@@ -353,7 +365,7 @@ export function moveFollowing(pos,parentCheckFn,force?) {
 }
 
 // public
-export function paragraphTextUpToPosition(pos) {
+export function paragraphTextUpToPosition(pos: Position.Position): string {
     if (pos.node instanceof Text) {
         return stringToStartOfParagraph(pos.node,pos.offset);
     }
@@ -361,7 +373,7 @@ export function paragraphTextUpToPosition(pos) {
         return stringToStartOfParagraph(Position.closestActualNode(pos),0);
     }
 
-    function stringToStartOfParagraph(node,offset) {
+    function stringToStartOfParagraph(node: Node, offset: number): string {
         let start = node;
         let components = new Array();
         while (Types.isInlineNode(node)) {
@@ -386,7 +398,7 @@ export function paragraphTextUpToPosition(pos) {
 }
 
 // public
-export function getFormatting() {
+export function getFormatting(): { [key: string]: string } {
     // FIXME: implement a more efficient version of this algorithm which avoids duplicate checks
 
     let range = Selection.get();
@@ -403,7 +415,7 @@ export function getFormatting() {
     }
     let empty = Range.isEmpty(range);
 
-    let commonProperties = null;
+    let commonProperties: { [key: string]: string } = null;
     for (let i = 0; i < leafNodes.length; i++) {
         if (!Traversal.isWhitespaceTextNode(leafNodes[i]) || empty) {
             let leafNodeProperties = getAllNodeProperties(leafNodes[i]);
@@ -464,7 +476,7 @@ export function getFormatting() {
 
     return commonProperties;
 
-    function getFlags(pos,commonProperties) {
+    function getFlags(pos: Position.Position, commonProperties: { [key: string]: string }): void {
         let strBeforeCursor = paragraphTextUpToPosition(pos);
 
         if (Util.isWhitespaceString(strBeforeCursor)) {
@@ -484,8 +496,8 @@ export function getFormatting() {
             commonProperties["-uxwrite-in-quotes"] = "true";
     }
 
-    function intersection(a,b) {
-        let result = new Object();
+    function intersection(a: { [key: string]: string }, b: { [key: string]: string }): { [key: string]: string } {
+        let result: { [key: string]: string } = {}
         for (let name in a) {
             if (a[name] == b[name])
                 result[name] = a[name];
@@ -493,7 +505,7 @@ export function getFormatting() {
         return result;
     }
 
-    function findLeafNodes(node,result) {
+    function findLeafNodes(node: Node, result: Node[]): void {
         if (node.firstChild == null) {
             result.push(node);
         }
@@ -505,16 +517,16 @@ export function getFormatting() {
 }
 
 // public
-export function getAllNodeProperties(node) {
+export function getAllNodeProperties(node: Node): { [key: string]: string } {
     if (node == null)
         throw new Error("Node is not in tree");
 
     if (node == node.ownerDocument.body)
-        return new Object();
+        return {}
 
     let properties = getAllNodeProperties(node.parentNode);
 
-    if (node instanceof Element) {
+    if (node instanceof HTMLElement) {
         // Note: Style names corresponding to element names must be in lowercase, because
         // canonicaliseSelector() in Styles.js always converts selectors to lowercase.
         if (node.hasAttribute("STYLE")) {
@@ -635,17 +647,17 @@ let SPECIAL_PROPERTIES = {
     "-webkit-text-size-adjust": true, // set on HTML element for text scaling purposes
 };
 
-function isParagraphProperty(name) {
+function isParagraphProperty(name: string): boolean {
     return PARAGRAPH_PROPERTIES[name];
 }
 
-function isInlineProperty(name) {
+function isInlineProperty(name: string): boolean {
     return !PARAGRAPH_PROPERTIES[name] && !SPECIAL_PROPERTIES[name];
 }
 
 // private
-function putDirectInlineChildrenInParagraphs(parent) {
-    let inlineChildren = new Array();
+function putDirectInlineChildrenInParagraphs(parent: Node): void {
+    let inlineChildren: Node[] = [];
     for (let child = parent.firstChild; child != null; child = child.nextSibling)
         if (Types.isInlineNode(child))
             inlineChildren.push(child);
@@ -658,8 +670,8 @@ function putDirectInlineChildrenInParagraphs(parent) {
 }
 
 // private
-function getParagraphs(nodes) {
-    let array = new Array();
+function getParagraphs(nodes: Node[]): HTMLElement[] {
+    let array: HTMLElement[] = [];
     let set = new Collections.NodeSet();
     for (let i = 0; i < nodes.length; i++) {
         for (let anc = nodes[i].parentNode; anc != null; anc = anc.parentNode) {
@@ -675,7 +687,7 @@ function getParagraphs(nodes) {
             remove.add(anc);
     }
 
-    let modified = new Array();
+    let modified: HTMLElement[] = [];
     for (let i = 0; i < array.length; i++) {
         if (!remove.contains(array[i]))
             modified.push(array[i]);
@@ -683,13 +695,13 @@ function getParagraphs(nodes) {
 
     return modified;
 
-    function recurse(node) {
+    function recurse(node: Node): void {
         if (node._type == ElementTypes.HTML_LI)
             putDirectInlineChildrenInParagraphs(node);
         if (node.firstChild == null) {
             // Leaf node
             for (let anc = node; anc != null; anc = anc.parentNode)
-                if (Types.isParagraphNode(anc)) {
+                if ((anc instanceof HTMLElement) && Types.isParagraphNode(anc)) {
                     add(anc);
                 }
         }
@@ -699,7 +711,7 @@ function getParagraphs(nodes) {
         }
     }
 
-    function add(node) {
+    function add(node: HTMLElement): void {
         if (!set.contains(node)) {
             array.push(node);
             set.add(node);
@@ -708,7 +720,7 @@ function getParagraphs(nodes) {
 }
 
 // private
-function setParagraphStyle(paragraph,selector) {
+function setParagraphStyle(paragraph: HTMLElement, selector: string): void {
     let wasHeading = Types.isHeadingNode(paragraph);
     DOM.removeAttribute(paragraph,"class");
     if (selector == "") {
@@ -750,24 +762,24 @@ function setParagraphStyle(paragraph,selector) {
 }
 
 // public
-export function pushDownInlineProperties(outermost) {
+export function pushDownInlineProperties(outermost: Node[]): void {
     for (let i = 0; i < outermost.length; i++)
         outermost[i] = pushDownInlinePropertiesSingle(outermost[i]);
 }
 
 // private
-function pushDownInlinePropertiesSingle(target) {
-    recurse(target.parentNode);
+function pushDownInlinePropertiesSingle(target: Node): Node {
+    let targetParent = target.parentNode;
+    if (targetParent instanceof HTMLElement)
+        recurse(targetParent);
     return target;
 
-    function recurse(node) {
-        if (node instanceof Document)
-            return;
+    function recurse(node: HTMLElement): void {
+        let nodeParent = node.parentNode;
+        if ((nodeParent != null) && (nodeParent instanceof HTMLElement))
+            recurse(nodeParent);
 
-        if (node.parentNode != null)
-            recurse(node.parentNode);
-
-        let inlineProperties = new Object();
+        let inlineProperties: { [key: string]: string } = {};
         let nodeProperties = getStyleProperties(node);
         for (let name in nodeProperties) {
             if (isInlineProperty(name)) {
@@ -828,8 +840,8 @@ function pushDownInlinePropertiesSingle(target) {
 }
 
 // private
-function wrapInline(node,elementName) {
-    if (!Types.isInlineNode(node) || Types.isAbstractSpan(node)) {
+function wrapInline(node: Node, elementName: string): HTMLElement {
+    if ((node instanceof HTMLElement) && (!Types.isInlineNode(node) || Types.isAbstractSpan(node))) {
         let next;
         for (let child = node.firstChild; child != null; child = next) {
             next = child.nextSibling;
@@ -843,19 +855,23 @@ function wrapInline(node,elementName) {
 }
 
 // private
-function applyInlineFormatting(target,inlineProperties,special,applyToWhitespace?) {
-    if (!applyToWhitespace && Traversal.isWhitespaceTextNode(target))
-        return;
+function applyInlineFormatting(targetNode: Node,
+                               inlineProperties: { [key: string]: string },
+                               special: SpecialProperties,
+                               applyToWhitespace?: boolean): Node {
+
+    if (!applyToWhitespace && Traversal.isWhitespaceTextNode(targetNode))
+        return targetNode;
 
     if (special.underline)
-        target = wrapInline(target,"U");
+        targetNode = wrapInline(targetNode,"U");
     if (special.italic)
-        target = wrapInline(target,"I");
+        targetNode = wrapInline(targetNode,"I");
     if (special.bold)
-        target = wrapInline(target,"B");
+        targetNode = wrapInline(targetNode,"B");
 
     let isbiu = false;
-    switch (target._type) {
+    switch (targetNode._type) {
     case ElementTypes.HTML_B:
     case ElementTypes.HTML_I:
     case ElementTypes.HTML_U:
@@ -863,26 +879,35 @@ function applyInlineFormatting(target,inlineProperties,special,applyToWhitespace
         break;
     }
 
-    if ((Object.getOwnPropertyNames(inlineProperties).length > 0) &&
-        (!(target instanceof Element) ||
-         isbiu || isSpecialSpan(target))) {
-        target = wrapInline(target,"SPAN");
-    }
+    if (Object.getOwnPropertyNames(inlineProperties).length == 0)
+        return targetNode;
 
+    let targetElement: HTMLElement = null;
+
+    if (!(targetNode instanceof HTMLElement) || isbiu || isSpecialSpan(targetNode))
+        targetElement = wrapInline(targetNode,"SPAN");
+    else
+        targetElement = targetNode;
 
     let propertiesToSet = new Object();
     for (let name in inlineProperties) {
-        let existing = target.style.getPropertyValue(name);
+        let existing = targetElement.style.getPropertyValue(name);
         if ((existing == null) || (existing == ""))
             propertiesToSet[name] = inlineProperties[name];
     }
-    DOM.setStyleProperties(target,propertiesToSet);
+    DOM.setStyleProperties(targetElement,propertiesToSet);
 
-    return target;
+    return targetElement;
+}
+
+interface SpecialProperties {
+    bold: boolean;
+    italic: boolean;
+    underline: boolean;
 }
 
 // private
-function extractSpecial(properties) {
+function extractSpecial(properties: { [key: string]: string }): SpecialProperties {
     let special = { bold: null, italic: null, underline: null };
     let fontWeight = properties["font-weight"];
     let fontStyle = properties["font-style"];
@@ -925,8 +950,8 @@ function extractSpecial(properties) {
 }
 
 // private
-function removeProperties(outermost,properties) {
-    properties = Util.clone(properties);
+function removeProperties<T extends Node>(outermost: T[], properties: { [key: string]: string }): T[] {
+    properties = Util.cloneStringDict(properties);
     let special = extractSpecial(properties);
     let remaining = new Array();
     for (let i = 0; i < outermost.length; i++) {
@@ -936,12 +961,12 @@ function removeProperties(outermost,properties) {
 }
 
 // private
-function getOutermostParagraphs(paragraphs) {
+function getOutermostParagraphs(paragraphs: HTMLElement[]): HTMLElement[] {
     let all = new Collections.NodeSet();
     for (let i = 0; i < paragraphs.length; i++)
         all.add(paragraphs[i]);
 
-    let result = new Array();
+    let result: HTMLElement[] = [];
     for (let i = 0; i < paragraphs.length; i++) {
         let haveAncestor = false;
         for (let p = paragraphs[i].parentNode; p != null; p = p.parentNode) {
@@ -957,8 +982,9 @@ function getOutermostParagraphs(paragraphs) {
 }
 
 // private
-function removePropertiesSingle(node,properties,special,remaining) {
-    if ((node instanceof Element) && (node.hasAttribute("style"))) {
+function removePropertiesSingle(node: Node, properties: { [key: string]: string },
+                                special: SpecialProperties, remaining: Node[]): void {
+    if ((node instanceof HTMLElement) && (node.hasAttribute("style"))) {
         let remove = new Object();
         for (let name in properties)
             remove[name] = null;
@@ -977,7 +1003,7 @@ function removePropertiesSingle(node,properties,special,remaining) {
         willRemove = (special.underline != null);
         break;
     case ElementTypes.HTML_SPAN:
-        willRemove = (!node.hasAttribute("style") && !isSpecialSpan(node));
+        willRemove = ((node instanceof HTMLElement) && !node.hasAttribute("style") && !isSpecialSpan(node));
         break;
     }
 
@@ -995,7 +1021,7 @@ function removePropertiesSingle(node,properties,special,remaining) {
         remaining.push(node);
 }
 
-function isSpecialSpan(span) {
+function isSpecialSpan(span: HTMLElement): boolean {
     if (span._type == ElementTypes.HTML_SPAN) {
         if (span.hasAttribute(Types.Keys.ABSTRACT_ELEMENT))
             return true;
@@ -1009,7 +1035,7 @@ function isSpecialSpan(span) {
 }
 
 // private
-function containsOnlyWhitespace(ancestor) {
+function containsOnlyWhitespace(ancestor: Node): boolean {
     for (let child = ancestor.firstChild; child != null; child = child.nextSibling) {
         if (!Traversal.isWhitespaceTextNode(child))
             return false;
@@ -1018,7 +1044,7 @@ function containsOnlyWhitespace(ancestor) {
 }
 
 // public
-export function applyFormattingChanges(style,properties) {
+export function applyFormattingChanges(style: string, properties: { [key: string]: string }): void {
     Util.debug("JS: applyFormattingChanges: style = "+JSON.stringify(style));
     if (properties != null) {
         let names = Object.getOwnPropertyNames(properties).sort();
@@ -1029,13 +1055,13 @@ export function applyFormattingChanges(style,properties) {
     UndoManager.newGroup("Apply formatting changes");
 
     if (properties == null)
-        properties = new Object();
+        properties = {};
 
     if (style == Types.Keys.NONE_STYLE)
         style = null;
 
-    let paragraphProperties = new Object();
-    let inlineProperties = new Object();
+    let paragraphProperties: { [key: string]: string } = {};
+    let inlineProperties: { [key: string]: string } = {};
 
     for (let name in properties) {
         if (isParagraphProperty(name))
@@ -1094,7 +1120,7 @@ export function applyFormattingChanges(style,properties) {
         let outermost = Range.getOutermostNodes(range);
         let target = null;
 
-        let paragraphs;
+        let paragraphs: HTMLElement[];
         if (outermost.length > 0)
             paragraphs = getParagraphs(outermost);
         else
@@ -1108,7 +1134,7 @@ export function applyFormattingChanges(style,properties) {
         // Set properties on inline nodes
         for (let i = 0; i < outermost.length; i++) {
             let existing = getAllNodeProperties(outermost[i]);
-            let toSet = new Object();
+            let toSet: { [key: string]: string } = {};
             for (let name in inlineProperties) {
                 if ((inlineProperties[name] != null) &&
                     (existing[name] != inlineProperties[name])) {
@@ -1164,7 +1190,7 @@ export function applyFormattingChanges(style,properties) {
     end = tempRange.end;
     Selection.set(start.node,start.offset,end.node,end.offset);
 
-    function containsOnlyInlineChildren(node) {
+    function containsOnlyInlineChildren(node: Node): boolean {
         for (let child = node.firstChild; child != null; child = child.nextSibling) {
             if (!Types.isInlineNode(child))
                 return false;
@@ -1173,13 +1199,7 @@ export function applyFormattingChanges(style,properties) {
     }
 }
 
-export function formatInlineNode(node,properties) {
-    properties = Util.clone(properties);
-    let special = extractSpecial(properties);
-    return applyInlineFormatting(node,properties,special,true);
-}
-
-export let MERGEABLE_INLINE = new Array(ElementTypes.HTML_COUNT);
+export let MERGEABLE_INLINE: boolean[] = new Array(ElementTypes.HTML_COUNT);
 
 MERGEABLE_INLINE[ElementTypes.HTML_TEXT] = true;
 
@@ -1209,7 +1229,7 @@ MERGEABLE_INLINE[ElementTypes.HTML_SMALL] = true;
 MERGEABLE_INLINE[ElementTypes.HTML_S] = true;
 MERGEABLE_INLINE[ElementTypes.HTML_U] = true;
 
-export let MERGEABLE_BLOCK = new Array(ElementTypes.HTML_COUNT);
+export let MERGEABLE_BLOCK: boolean[] = new Array(ElementTypes.HTML_COUNT);
 
 MERGEABLE_BLOCK[ElementTypes.HTML_P] = true;
 MERGEABLE_BLOCK[ElementTypes.HTML_H1] = true;
@@ -1226,7 +1246,7 @@ MERGEABLE_BLOCK[ElementTypes.HTML_UL] = true;
 MERGEABLE_BLOCK[ElementTypes.HTML_OL] = true;
 MERGEABLE_BLOCK[ElementTypes.HTML_LI] = true;
 
-export let MERGEABLE_BLOCK_AND_INLINE = new Array(ElementTypes.HTML_COUNT);
+export let MERGEABLE_BLOCK_AND_INLINE: boolean[] = new Array(ElementTypes.HTML_COUNT);
 for (let i = 0; i < ElementTypes.HTML_COUNT; i++) {
     if (MERGEABLE_INLINE[i] || MERGEABLE_BLOCK[i])
         MERGEABLE_BLOCK_AND_INLINE[i] = true;

@@ -115,6 +115,20 @@ export function clone(object) {
     return result;
 }
 
+export function cloneStringDict<T>(object: { [key: string]: T }): { [key: string]: T } {
+    let result: { [key: string]: T } = {};
+    for (let name in object)
+        result[name] = object[name];
+    return result;
+}
+
+export function cloneNumberDict<T>(object: { [key: number]: T }): { [key: number]: T } {
+    let result: { [key: number]: T } = {};
+    for (let name in object)
+        result[name] = object[name];
+    return result;
+}
+
 export function nodeHasContent(node) {
     switch (node._type) {
     case ElementTypes.HTML_TEXT:
