@@ -27,8 +27,8 @@ import Types = require("./types");
 import Util = require("./util");
 
 // private
-function findLIElements(range) {
-    let listItems = new Array();
+function findLIElements(range: Range.Range): HTMLElement[] {
+    let listItems: HTMLElement[] = [];
 
     let node = range.start.node;
     while (node != null) {
@@ -42,11 +42,11 @@ function findLIElements(range) {
     }
     return listItems;
 
-    function addListItems(array,node) {
+    function addListItems(array: HTMLElement[], node: Node): void {
         if (node == null)
             return;
 
-        if (node._type == ElementTypes.HTML_LI) {
+        if (node instanceof HTMLLIElement) {
             if (!Util.arrayContains(array,node))
                 array.push(node);
             return;
@@ -58,7 +58,7 @@ function findLIElements(range) {
 }
 
 // public
-export function increaseIndent() {
+export function increaseIndent(): void {
     Selection.preferElementPositions();
     Selection.preserveWhileExecuting(function() {
         let range = Selection.get();
@@ -128,7 +128,7 @@ export function increaseIndent() {
         }
     });
 
-    function firstDescendentList(node) {
+    function firstDescendentList(node: Node): Node {
         while (true) {
             node = Traversal.firstChildElement(node);
             if (node == null)
@@ -141,7 +141,7 @@ export function increaseIndent() {
         }
     }
 
-    function lastDescendentList(node) {
+    function lastDescendentList(node: Node): Node {
         while (true) {
             node = Traversal.lastChildElement(node);
             if (node == null)
@@ -156,7 +156,7 @@ export function increaseIndent() {
 }
 
 // public
-export function decreaseIndent() {
+export function decreaseIndent(): void {
     Selection.preferElementPositions();
     Selection.preserveWhileExecuting(function() {
         let range = Selection.get();
@@ -189,7 +189,7 @@ export function decreaseIndent() {
                 i++;
         }
 
-        function haveContentAfter(node) {
+        function haveContentAfter(node: Node): boolean {
             for (node = node.nextSibling; node != null; node = node.nextSibling) {
                 if (Util.nodeHasContent(node))
                     return true;
@@ -233,7 +233,7 @@ export function decreaseIndent() {
         }
     });
 
-    function findContainerChild(node) {
+    function findContainerChild(node: Node): Node {
         while (node.parentNode != null) {
             if (Types.isContainerNode(node.parentNode) && (node.parentNode._type != ElementTypes.HTML_LI))
                 return node;
@@ -243,7 +243,7 @@ export function decreaseIndent() {
 }
 
 // private
-function getListOperationNodes(range) {
+function getListOperationNodes(range: Range.Range): Node[] {
     let detail = Range.detail(range);
     let dca = detail.commonAncestor;
     let ds = detail.startAncestor;
@@ -255,7 +255,7 @@ function getListOperationNodes(range) {
         dca = dca.parentNode;
     }
 
-    let nodes = new Array();
+    let nodes: Node[] = [];
     let nodeSet = new Collections.NodeSet();
 
     if (dca._type == ElementTypes.HTML_LI)
@@ -311,7 +311,7 @@ function getListOperationNodes(range) {
         nodes.push(dca);
     return nodes;
 
-    function addNode(node) {
+    function addNode(node: Node): void {
         while (Types.isInlineNode(node) && node.parentNode != document.body)
             node = node.parentNode;
         if (!nodeSet.contains(node)) {
@@ -322,7 +322,7 @@ function getListOperationNodes(range) {
 }
 
 // public
-export function clearList() {
+export function clearList(): void {
     Selection.preferElementPositions();
     Selection.preserveWhileExecuting(function() {
         let range = Selection.get();
@@ -395,7 +395,7 @@ export function clearList() {
 }
 
 // private
-function setList(type) {
+function setList(type: number): void {
     let range = Selection.get();
     if (range == null)
         return;
@@ -531,11 +531,11 @@ function setList(type) {
 }
 
 // public
-export function setUnorderedList() {
+export function setUnorderedList(): void {
     setList(ElementTypes.HTML_UL);
 }
 
 // public
-export function setOrderedList() {
+export function setOrderedList(): void {
     setList(ElementTypes.HTML_OL);
 }
