@@ -28,7 +28,7 @@ import UndoManager = require("./undo");
 import Util = require("./util");
 
 // public
-export function insertFigure(filename,width,numbered,caption) {
+export function insertFigure(filename: string, width: string, numbered: boolean, caption: string): void {
     UndoManager.newGroup("Insert figure");
 
     let figure = DOM.createElement(document,"FIGURE");
@@ -59,13 +59,18 @@ export function insertFigure(filename,width,numbered,caption) {
     PostponedActions.add(UndoManager.newGroup);
 }
 
-export function getSelectedFigureId() {
+export function getSelectedFigureId(): string {
     let element = Cursor.getAdjacentElementWithType(ElementTypes.HTML_FIGURE);
     return element ? element.getAttribute("id") : null;
 }
 
+export interface FigureProperties {
+    width: string;
+    src: string;
+}
+
 // public
-export function getProperties(itemId) {
+export function getProperties(itemId: string): FigureProperties {
     let figure = document.getElementById(itemId);
     if (figure == null)
         return null;
@@ -84,7 +89,7 @@ export function getProperties(itemId) {
 }
 
 // public
-export function setProperties(itemId,width,src) {
+export function setProperties(itemId: string, width: string, src: string): void {
     let figure = document.getElementById(itemId);
     if (figure == null)
         return null;
@@ -102,8 +107,15 @@ export function setProperties(itemId,width,src) {
     }
 }
 
+export interface FigureGeometry {
+    contentRect: Util.XYWHRect;
+    fullRect: Util.XYWHRect;
+    parentRect: Util.XYWHRect;
+    hasCaption: boolean;
+}
+
 // public
-export function getGeometry(itemId) {
+export function getGeometry(itemId: string): FigureGeometry {
     let figure = document.getElementById(itemId);
     if ((figure == null) || (figure.parentNode == null))
         return null;
@@ -113,10 +125,10 @@ export function getGeometry(itemId) {
 
     let figcaption = Traversal.firstChildOfType(figure,ElementTypes.HTML_FIGCAPTION);
 
-    let result: any = new Object();
-    result.contentRect = Util.xywhAbsElementRect(img);
-    result.fullRect = Util.xywhAbsElementRect(figure);
-    result.parentRect = Util.xywhAbsElementRect(figure.parentNode);
-    result.hasCaption = (figcaption != null);
-    return result;
+    return {
+        contentRect: Util.xywhAbsElementRect(img),
+        fullRect: Util.xywhAbsElementRect(figure),
+        parentRect: Util.xywhAbsElementRect(figure.parentNode),
+        hasCaption: (figcaption != null)
+    };
 }
