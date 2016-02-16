@@ -25,23 +25,23 @@ import Traversal = require("./traversal");
 let showChangesEnabled = false;
 let trackChangesEnabled = false;
 
-export function showChanges() {
+export function showChanges(): boolean {
     return showChangesEnabled;
 }
 
-export function trackChanges() {
+export function trackChanges(): boolean {
     return trackChangesEnabled;
 }
 
-export function setShowChanges(enabled) {
+export function setShowChanges(enabled: boolean): void {
     showChangesEnabled = enabled;
 }
 
-export function setTrackChanges(enabled) {
+export function setTrackChanges(enabled: boolean): void {
     trackChangesEnabled = enabled;
 }
 
-export function acceptSelectedChanges() {
+export function acceptSelectedChanges(): void {
     let selRange = Selection.get();
     if (selRange == null)
         return;
@@ -98,7 +98,7 @@ export function acceptSelectedChanges() {
         Selection.set(start.node,start.offset,end.node,end.offset);
     }
 
-    function recurse(node) {
+    function recurse(node: Node): void {
         if (node._type == ElementTypes.HTML_DEL) {
             checkEmpty.push(node.parentNode);
             DOM.deleteNode(node);
