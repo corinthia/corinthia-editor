@@ -32,7 +32,7 @@ import Types = require("./types");
 import UndoManager = require("./undo");
 import Util = require("./util");
 
-function expandRangeForCopy(range) {
+function expandRangeForCopy(range: Range.Range): Range.Range {
     if (range == null)
         return range;
 
@@ -65,7 +65,7 @@ function expandRangeForCopy(range) {
     return range;
 }
 
-function copyRange(range) {
+function copyRange(range: Range.Range): { [key: string]: string } {
     let html = "";
     let text = "";
 
@@ -93,12 +93,12 @@ function copyRange(range) {
 }
 
 // public (FIXME: temp: for testing)
-export function htmlToText(node) {
+export function htmlToText(node: Node): string {
     return Markdown.htmlToMarkdown(node);
 }
 
 // public
-export function cut() {
+export function cut(): { [key: string]: string } {
     UndoManager.newGroup("Cut");
     let content;
 
@@ -148,14 +148,14 @@ export function cut() {
 }
 
 // public
-export function copy() {
+export function copy(): { [key: string]: string } {
     let range = Selection.get();
     range = expandRangeForCopy(range);
     return copyRange(range);
 }
 
 // public
-export function pasteText(text) {
+export function pasteText(text: string): void {
     let converter = new Showdown.converter();
     let html = converter.makeHtml(text);
     UndoManager.newGroup("Paste");
@@ -164,7 +164,7 @@ export function pasteText(text) {
 }
 
 // public
-export function pasteHTML(html) {
+export function pasteHTML(html: string): void {
     if (html.match(/^\s*<thead/i))
         html = "<table>" + html + "</table>";
     else if (html.match(/^\s*<tbody/i))
@@ -198,7 +198,7 @@ export function pasteHTML(html) {
     UndoManager.newGroup();
 }
 
-function pasteTable(srcTable,dest) {
+function pasteTable(srcTable: HTMLElement, dest: Tables.TableRegion): void {
     let src = Tables.analyseStructure(srcTable);
 
     // In the destination table, the region into which we will paste the cells will the
@@ -232,7 +232,7 @@ function pasteTable(srcTable,dest) {
     Tables.Table_fixColumnWidths(dest.structure);
 
     // Remove duplicate ids
-    let found = new Object();
+    let found: { [key: string]: Node } = {};
     removeDuplicateIds(dest.structure.element,found);
 
     // Place the cursor in the bottom-right cell that was pasted
@@ -241,7 +241,7 @@ function pasteTable(srcTable,dest) {
     Selection.set(node,node.childNodes.length,node,node.childNodes.length);
 }
 
-function replaceCells(src,dest,destRow,destCol) {
+function replaceCells(src: Tables.Table, dest: Tables.Table, destRow: number, destCol: number): void {
     // By this point, all of the cells have been split. So it is guaranteed that every cell
     // in dest will have rowspan = 1 and colspan = 1.
     for (let srcRow = 0; srcRow < src.numRows; srcRow++) {
@@ -268,7 +268,7 @@ function replaceCells(src,dest,destRow,destCol) {
     }
 }
 
-function insertChildrenBefore(parent,child,nextSibling,pastedNodes) {
+function insertChildrenBefore(parent: Node, child: Node, nextSibling: Node, pastedNodes: Node[]): void {
     let next;
     for (let grandChild = child.firstChild; grandChild != null; grandChild = next) {
         next = grandChild.nextSibling;
@@ -277,8 +277,8 @@ function insertChildrenBefore(parent,child,nextSibling,pastedNodes) {
     }
 }
 
-function fixParagraphStyles(node,paragraphClass) {
-    if (Types.isParagraphNode(node)) {
+function fixParagraphStyles(node: Node, paragraphClass: string): void {
+    if ((node instanceof HTMLElement) && Types.isParagraphNode(node)) {
         if (node._type == ElementTypes.HTML_P) {
             let className = DOM.getAttribute(node,"class");
             if ((className == null) || (className == "")) {
@@ -295,7 +295,7 @@ function fixParagraphStyles(node,paragraphClass) {
 }
 
 // public
-export function pasteNodes(nodes) {
+export function pasteNodes(nodes: Node[]): void {
     if (nodes.length == 0)
         return;
 
@@ -324,7 +324,7 @@ export function pasteNodes(nodes) {
         }
     }
 
-    let found = new Object();
+    let found: { [key: string]: Node } = {};
     for (let i = 0; i < nodes.length; i++)
         removeDuplicateIds(nodes[i],found);
 
@@ -498,11 +498,11 @@ export function pasteNodes(nodes) {
     Cursor.ensureCursorVisible();
 }
 
-function removeDuplicateIds(node,found) {
+function removeDuplicateIds(node: Node, found: { [key: string]: Node }): void {
     if ((node instanceof Element) && node.hasAttribute("id")) {
         let id = node.getAttribute("id");
 
-        let existing = document.getElementById(id);
+        let existing: Node = document.getElementById(id);
         if (existing == null)
             existing = found[id];
 
@@ -515,6 +515,6 @@ function removeDuplicateIds(node,found) {
         removeDuplicateIds(child,found);
 }
 
-function pasteImage(href) {
+function pasteImage(href: string): void {
     // FIXME
 }
