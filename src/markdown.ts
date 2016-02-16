@@ -21,7 +21,8 @@ import Types = require("./types");
 import Util = require("./util");
 
 // private
-function blockToText(md,node,indent,nextIndent,listType,listNo) {
+function blockToText(md: MarkdownBuilder, node: Node, indent: string, nextIndent: string,
+                     listType: string, listNo: { value: number }): void {
     let linesBetweenChildren = 1;
     let childIndent = indent;
     switch (node._type) {
@@ -107,7 +108,7 @@ function blockToText(md,node,indent,nextIndent,listType,listNo) {
 }
 
 // private
-function shipOutParagraph(md) {
+function shipOutParagraph(md: MarkdownBuilder): void {
     let text = md.buildParagraph.join("");
     if (md.buildPre) {
         text = text.replace(/\n$/,"");
@@ -125,7 +126,8 @@ function shipOutParagraph(md) {
 }
 
 // private
-function beginParagraph(md,blankLines?,indent?,nextIndent?,paraPrefix?,paraSuffix?) {
+function beginParagraph(md: MarkdownBuilder, blankLines?: number, indent?: string,
+                        nextIndent?: string, paraPrefix?: string, paraSuffix?: string): void {
     if (blankLines == null)
         blankLines = 1;
     if (indent == null)
@@ -159,7 +161,7 @@ function beginParagraph(md,blankLines?,indent?,nextIndent?,paraPrefix?,paraSuffi
 }
 
 // private
-function inlineToText(md,node) {
+function inlineToText(md: MarkdownBuilder, node: Node): void {
     switch (node._type) {
     case ElementTypes.HTML_TEXT: {
         let text = node.nodeValue;
@@ -185,7 +187,7 @@ function inlineToText(md,node) {
         md.buildParagraph.push("**");
         break;
     case ElementTypes.HTML_A:
-        if (node.hasAttribute("href")) {
+        if ((node instanceof HTMLElement) && node.hasAttribute("href")) {
             md.buildParagraph.push("[");
             processChildren();
             md.buildParagraph.push("]("+node.getAttribute("href")+")");
@@ -196,7 +198,7 @@ function inlineToText(md,node) {
         break;
     }
 
-    function processChildren() {
+    function processChildren(): void {
         for (let child = node.firstChild; child != null; child = child.nextSibling) {
             inlineToText(md,child);
         }
@@ -204,7 +206,7 @@ function inlineToText(md,node) {
 }
 
 // private
-function resetBuild(md) {
+function resetBuild(md: MarkdownBuilder): void {
     md.buildParagraph = new Array();
     md.buildLines = 0;
     md.buildPrefix = "";
@@ -215,11 +217,23 @@ function resetBuild(md) {
 }
 
 // private
-function MarkdownBuilder() {
+class MarkdownBuilder {
+
+    public allText: string[];
+    public preDepth: number;
+
+    public buildParagraph: string[];
+    public buildLines: number;
+    public buildPrefix: string;
+    public buildSuffix: string;
+    public buildPre: boolean;
+    public indent: string;
+    public nextIndent: string;
+
 }
 
 // public
-export function htmlToMarkdown(node) {
+export function htmlToMarkdown(node: Node): string {
     let md = new MarkdownBuilder();
     md.allText = new Array();
     md.preDepth = 0;
