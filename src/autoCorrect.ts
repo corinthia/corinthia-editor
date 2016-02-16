@@ -28,7 +28,7 @@ import Traversal = require("./traversal");
 import Types = require("./types");
 import UndoManager = require("./undo");
 
-function removeCorrectionSpan(span) {
+function removeCorrectionSpan(span: HTMLElement): void {
     if (span.parentNode == null)
         return;
     Selection.preserveWhileExecuting(function() {
@@ -39,27 +39,34 @@ function removeCorrectionSpan(span) {
     });
 }
 
-function Correction(span) {
-    this.span = span;
-    this.modificationListener = function(event) {
-        if (DOM.getIgnoreMutations())
-            return;
-        PostponedActions.add(function() {
-            // This will trigger a removeCorrection() call
-            removeCorrectionSpan(span);
-        });
-    };
+class Correction {
+
+    public span: HTMLElement;
+    public modificationListener: (event: any) => void;
+
+    constructor(span: HTMLElement) {
+        this.span = span;
+        this.modificationListener = function(event: any): void {
+            if (DOM.getIgnoreMutations())
+                return;
+            PostponedActions.add(function() {
+                // This will trigger a removeCorrection() call
+                removeCorrectionSpan(span);
+            });
+        };
+    }
+
+    public toString(): string {
+        return this.span.getAttribute("original")+" -> "+Traversal.getNodeText(this.span);
+    }
+
 }
 
-Correction.prototype.toString = function() {
-    return this.span.getAttribute("original")+" -> "+Traversal.getNodeText(this.span);
-}
-
-let correctionsByNode = null;
-let correctionList = null;
+let correctionsByNode: Collections.NodeMap<Correction> = null;
+let correctionList: Correction[] = null;
 
 // private
-function docNodeInserted(event) {
+function docNodeInserted(event: any): void {
     try {
         recurse(event.target);
     }
@@ -67,8 +74,8 @@ function docNodeInserted(event) {
         Editor.error(e);
     }
 
-    function recurse(node) {
-        if (Types.isAutoCorrectNode(node))
+    function recurse(node: Node): void {
+        if ((node instanceof HTMLElement) && Types.isAutoCorrectNode(node))
             addCorrection(node);
         for (let child = node.firstChild; child != null; child = child.nextSibling)
             recurse(child);
@@ -76,7 +83,7 @@ function docNodeInserted(event) {
 }
 
 // private
-function docNodeRemoved(event) {
+function docNodeRemoved(event: any): void {
     try {
         recurse(event.target);
     }
@@ -84,28 +91,28 @@ function docNodeRemoved(event) {
         Editor.error(e);
     }
 
-    function recurse(node) {
-        if (Types.isAutoCorrectNode(node))
+    function recurse(node: Node): void {
+        if ((node instanceof HTMLElement) && Types.isAutoCorrectNode(node))
             removeCorrection(node);
         for (let child = node.firstChild; child != null; child = child.nextSibling)
             recurse(child);
     }
 }
 
-export function init() {
-    correctionsByNode = new Collections.NodeMap();
+export function init(): void {
+    correctionsByNode = new Collections.NodeMap<Correction>();
     correctionList = new Array();
     document.addEventListener("DOMNodeInserted",docNodeInserted);
     document.addEventListener("DOMNodeRemoved",docNodeRemoved);
 }
 
 // public (for the undo tests, when they report results)
-export function removeListeners() {
+export function removeListeners(): void {
     document.removeEventListener("DOMNodeInserted",docNodeInserted);
     document.removeEventListener("DOMNodeRemoved",docNodeRemoved);
 }
 
-export function addCorrection(span) {
+export function addCorrection(span: HTMLElement): void {
     let correction = new Correction(span);
     correctionsByNode.put(span,correction);
     correctionList.push(correction);
@@ -114,7 +121,7 @@ export function addCorrection(span) {
     span.addEventListener("DOMSubtreeModified",correction.modificationListener);
 }
 
-export function removeCorrection(span) {
+export function removeCorrection(span: HTMLElement): void {
     let correction = correctionsByNode.get(span);
     if (correction == null)
         throw new Error("No autocorrect entry for "+JSON.stringify(Traversal.getNodeText(span)));
@@ -135,8 +142,8 @@ export function removeCorrection(span) {
     correctionsByNode.remove(span);
 }
 
-export function getCorrections() {
-    let result = new Array();
+export function getCorrections(): { original: string; replacement: string }[] {
+    let result: { original: string; replacement: string }[] = new Array();
     for (let i = 0; i < correctionList.length; i++) {
         let correction = correctionList[i];
         result.push({ original: correction.span.getAttribute("original"),
@@ -145,7 +152,7 @@ export function getCorrections() {
     return result;
 }
 
-export function correctPrecedingWord(numChars,replacement,confirmed) {
+export function correctPrecedingWord(numChars: number, replacement: string, confirmed: boolean): void {
     Selection.preserveWhileExecuting(function() {
         let selRange = Selection.get();
         if ((selRange == null) && !Range.isEmpty(selRange))
@@ -180,7 +187,7 @@ export function correctPrecedingWord(numChars,replacement,confirmed) {
     });
 }
 
-export function getCorrection() {
+export function getCorrection(): { original: string; replacement: string } {
     let correction = getCurrent();
     if (correction == null)
         return null;
@@ -189,7 +196,7 @@ export function getCorrection() {
              replacement: Traversal.getNodeText(correction.span) };
 }
 
-export function getCorrectionCoords() {
+export function getCorrectionCoords(): { x: number, y: number } {
     let correction = getCurrent();
     if (correction == null)
         return null;
@@ -212,7 +219,7 @@ export function getCorrectionCoords() {
     return { x: rect.left, y: rect.top };
 }
 
-function getCurrent() {
+function getCurrent(): Correction {
     let range = Selection.get();
     if (range != null) {
         let endNode = Position.closestActualNode(range.end);
@@ -228,7 +235,7 @@ function getCurrent() {
     return null;
 }
 
-export function acceptCorrection() {
+export function acceptCorrection(): void {
     UndoManager.newGroup("Accept");
     let correction = getCurrent();
     if (correction == null)
@@ -238,7 +245,7 @@ export function acceptCorrection() {
     UndoManager.newGroup();
 }
 
-export function revertCorrection() {
+export function revertCorrection(): void {
     let correction = getCurrent();
     if (correction == null)
         return;
@@ -246,7 +253,7 @@ export function revertCorrection() {
     replaceCorrection(correction.span.getAttribute("original"));
 }
 
-export function replaceCorrection(replacement) {
+export function replaceCorrection(replacement: string): void {
     UndoManager.newGroup("Replace");
     let correction = getCurrent();
     if (correction == null)
