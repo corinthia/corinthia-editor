@@ -24,14 +24,14 @@ import Types = require("./types");
 import Util = require("./util");
 
 // private
-function wrapInlineChildren(first,last,ancestors) {
+function wrapInlineChildren(first: Node, last: Node, ancestors: Node[]): void {
     let haveNonWhitespace = false;
     for (let node = first; node != last.nextSibling; node = node.nextSibling) {
         if (!Traversal.isWhitespaceTextNode(node))
             haveNonWhitespace = true;
     }
     if (!haveNonWhitespace)
-        return false;
+        return;
 
     let parentNode = first.parentNode;
     let nextSibling = first;
@@ -53,7 +53,7 @@ function wrapInlineChildren(first,last,ancestors) {
 }
 
 // private
-function wrapInlineChildrenInAncestors(node,ancestors) {
+function wrapInlineChildrenInAncestors(node: Node, ancestors: Node[]): void {
     let firstInline = null;
     let lastInline = null;
 
@@ -81,9 +81,9 @@ function wrapInlineChildrenInAncestors(node,ancestors) {
     }
 }
 
-function checkInvalidNesting(node) {
+function checkInvalidNesting(node: Node): boolean {
     let parent = node.parentNode;
-    if ((parent._type == ElementTypes.HTML_DIV) &&
+    if ((parent instanceof HTMLDivElement) &&
         (DOM.getAttribute(parent,"class") == Types.Keys.SELECTION_CLASS)) {
         parent = parent.parentNode;
     }
@@ -115,7 +115,7 @@ function checkInvalidNesting(node) {
     return invalidNesting;
 }
 
-function checkInvalidHeadingNesting(node) {
+function checkInvalidHeadingNesting(node: Node): boolean {
     switch (node._type) {
     case ElementTypes.HTML_H1:
     case ElementTypes.HTML_H2:
@@ -136,7 +136,7 @@ function checkInvalidHeadingNesting(node) {
     }
 }
 
-function nodeHasSignificantChildren(node) {
+function nodeHasSignificantChildren(node: Node): boolean {
     for (let child = node.firstChild; child != null; child = child.nextSibling) {
         if (!Traversal.isWhitespaceTextNode(child))
             return true;
@@ -149,7 +149,7 @@ function nodeHasSignificantChildren(node) {
 // or container+ paragraph
 // or container+
 // public
-export function ensureValidHierarchy(node) {
+export function ensureValidHierarchy(node: Node): void {
     let count = 0;
     while ((node != null) && (node.parentNode != null) && (node != document.body)) {
         count++;
@@ -217,7 +217,7 @@ export function ensureValidHierarchy(node) {
     }
 }
 
-export function ensureInlineNodesInParagraph(node,weak?) {
+export function ensureInlineNodesInParagraph(node: Node, weak?: boolean): void {
     let count = 0;
     while ((node != null) && (node.parentNode != null) && (node != document.body)) {
         count++;
@@ -235,7 +235,7 @@ export function ensureInlineNodesInParagraph(node,weak?) {
 }
 
 // public
-export function wrapInlineNodesInParagraph(node) {
+export function wrapInlineNodesInParagraph(node: Node): HTMLElement {
     let start = node;
     let end = node;
 
@@ -247,7 +247,7 @@ export function wrapInlineNodesInParagraph(node) {
     return DOM.wrapSiblings(start,end,"P");
 }
 
-export function avoidInlineChildren(parent) {
+export function avoidInlineChildren(parent: Node): void {
     let child = parent.firstChild;
 
     while (child != null) {
