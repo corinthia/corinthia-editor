@@ -22,27 +22,18 @@ import Traversal = require("./traversal");
 import Types = require("./types");
 import Util = require("./util");
 
-function ParagraphInfo(node,startOffset,endOffset,runs,text) {
-    this.node = node;
-    this.startOffset = startOffset;
-    this.endOffset = endOffset;
-    this.runs = runs;
-    this.text = text;
+export class ParagraphInfo {
 
-    Object.defineProperty(this,"first",{
-        get: function() { throw new Error("Attempt to access first property of Position") },
-        set: function() {},
-        enumerable: true });
-    Object.defineProperty(this,"last",{
-        get: function() { throw new Error("Attempt to access last property of Position") },
-        set: function() {},
-        enumerable: true });
+    constructor(public node: Node, public startOffset: number, public endOffset: number,
+                public runs: Run[], public text: string) {
+    }
 }
 
-function Run(node,start,end) {
-    this.node = node;
-    this.start = start;
-    this.end = end;
+export class Run {
+
+    constructor(public node: Node, public start: number, public end: number) {
+    }
+
 }
 
 // In this code, we represent a paragraph by its first and last node. Normally, this will be
@@ -51,7 +42,13 @@ function Run(node,start,end) {
 //
 // <p>...</p> Some <i>inline</i> nodes <p>...</p>
 
-export function findParagraphBoundaries(pos) {
+export interface ParagraphBoundaries {
+    node: Node;
+    startOffset: number;
+    endOffset: number;
+}
+
+export function findParagraphBoundaries(pos: Position.Position): ParagraphBoundaries {
     Position.assertValid(pos);
     let startOffset = pos.offset;
     let endOffset = pos.offset;
@@ -74,7 +71,7 @@ export function findParagraphBoundaries(pos) {
     return { node: node, startOffset: startOffset, endOffset: endOffset };
 }
 
-export function analyseParagraph(pos) {
+export function analyseParagraph(pos: Position.Position): ParagraphInfo {
     let initial = pos.node;
     let strings = new Array();
     let runs = new Array();
@@ -91,7 +88,7 @@ export function analyseParagraph(pos) {
 
     return new ParagraphInfo(boundaries.node,boundaries.startOffset,boundaries.endOffset,runs,text);
 
-    function recurse(node) {
+    function recurse(node: Node): void {
         if (node instanceof Text) {
             strings.push(node.nodeValue);
             let start = offset;
@@ -104,7 +101,7 @@ export function analyseParagraph(pos) {
     }
 }
 
-export function posAbove(pos,cursorRect?,cursorX?) {
+export function posAbove(pos: Position.Position, cursorRect?: ClientRect, cursorX?: number): Position.Position {
     if (cursorX == null)
         cursorX = pos.targetX;
     pos = Position.closestMatchBackwards(pos,Position.okForMovement);
@@ -174,7 +171,7 @@ export function posAbove(pos,cursorRect?,cursorX?) {
     }
 }
 
-function findHighestTop(rects) {
+function findHighestTop(rects: ClientRect[]): number {
     let top = null;
     for (let i = 0; i < rects.length; i++) {
         if ((top == null) || (top > rects[i].top))
@@ -183,7 +180,7 @@ function findHighestTop(rects) {
     return top;
 }
 
-function findLowestBottom(rects) {
+function findLowestBottom(rects: ClientRect[]): number {
     let bottom = null;
     for (let i = 0; i < rects.length; i++) {
         if ((bottom == null) || (bottom < rects[i].bottom))
@@ -192,7 +189,7 @@ function findLowestBottom(rects) {
     return bottom;
 }
 
-function findRightMostRect(rects) {
+function findRightMostRect(rects: ClientRect[]): ClientRect {
     let rightMost = null;
     for (let i = 0; i < rects.length; i++) {
         if ((rightMost == null) || (rightMost.right < rects[i].right))
@@ -201,8 +198,8 @@ function findRightMostRect(rects) {
     return rightMost;
 }
 
-function offsetRects(rects,offsetX,offsetY) {
-    let result = new Array();
+function offsetRects(rects: ClientRect[], offsetX: number, offsetY: number): ClientRect[] {
+    let result: ClientRect[] = [];
     for (let i = 0; i < rects.length; i++) {
         result.push({ top: rects[i].top + offsetY,
                       bottom: rects[i].bottom + offsetY,
@@ -214,7 +211,7 @@ function offsetRects(rects,offsetX,offsetY) {
     return result;
 }
 
-export function posBelow(pos,cursorRect?,cursorX?) {
+export function posBelow(pos: Position.Position, cursorRect?: ClientRect, cursorX?: number): Position.Position {
     if (cursorX == null)
         cursorX = pos.targetX;
     pos = Position.closestMatchForwards(pos,Position.okForMovement);
@@ -282,7 +279,7 @@ export function posBelow(pos,cursorRect?,cursorX?) {
     }
 }
 
-export function closestPosBackwards(pos) {
+export function closestPosBackwards(pos: Position.Position): Position.Position {
     if (Traversal.isNonWhitespaceTextNode(pos.node))
         return pos;
     let node;
@@ -303,7 +300,7 @@ export function closestPosBackwards(pos) {
         return new Position.Position(node,node.nodeValue.length);
 }
 
-export function closestPosForwards(pos) {
+export function closestPosForwards(pos: Position.Position): Position.Position {
     if (Traversal.isNonWhitespaceTextNode(pos.node))
         return pos;
     let node;
@@ -326,7 +323,7 @@ export function closestPosForwards(pos) {
         return new Position.Position(node,0);
 }
 
-export function closestPosInDirection(pos,direction) {
+export function closestPosInDirection(pos: Position.Position, direction: string): Position.Position {
     if ((direction == "forward") ||
         (direction == "right") ||
         (direction == "down")) {
@@ -337,7 +334,7 @@ export function closestPosInDirection(pos,direction) {
     }
 }
 
-function toStartOfParagraph(pos) {
+function toStartOfParagraph(pos: Position.Position): Position.Position {
     pos = Position.closestMatchBackwards(pos,Position.okForMovement);
     if (pos == null)
         return null;
@@ -349,7 +346,7 @@ function toStartOfParagraph(pos) {
     return Position.closestMatchForwards(newPos,Position.okForMovement);
 }
 
-function toEndOfParagraph(pos) {
+function toEndOfParagraph(pos: Position.Position): Position.Position {
     pos = Position.closestMatchForwards(pos,Position.okForMovement);
     if (pos == null)
         return null;
@@ -361,7 +358,7 @@ function toEndOfParagraph(pos) {
     return Position.closestMatchBackwards(newPos,Position.okForMovement);
 }
 
-function toStartOfLine(pos) {
+function toStartOfLine(pos: Position.Position): Position.Position {
     let posRect = Position.rectAtPos(pos);
     if (posRect == null) {
         pos = closestPosBackwards(pos);
@@ -382,7 +379,7 @@ function toStartOfLine(pos) {
     }
 }
 
-function toEndOfLine(pos) {
+function toEndOfLine(pos: Position.Position): Position.Position {
     let posRect = Position.rectAtPos(pos);
     if (posRect == null) {
         pos = closestPosForwards(pos);
@@ -403,7 +400,7 @@ function toEndOfLine(pos) {
     }
 }
 
-export function toStartOfBoundary(pos,boundary) {
+export function toStartOfBoundary(pos: Position.Position, boundary: string): Position.Position {
     if (boundary == "paragraph")
         return toStartOfParagraph(pos);
     else if (boundary == "line")
@@ -412,7 +409,7 @@ export function toStartOfBoundary(pos,boundary) {
         throw new Error("Unsupported boundary: "+boundary);
 }
 
-export function toEndOfBoundary(pos,boundary) {
+export function toEndOfBoundary(pos: Position.Position, boundary: string): Position.Position {
     if (boundary == "paragraph")
         return toEndOfParagraph(pos);
     else if (boundary == "line")

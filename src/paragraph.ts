@@ -18,8 +18,9 @@
 import Position = require("./position");
 import Range = require("./range");
 import Types = require("./types");
+import Text = require("./text");
 
-export function runFromOffset(paragraph,offset,end?) {
+export function runFromOffset(paragraph: Text.ParagraphInfo, offset: number, end?: boolean): Text.Run {
     if (paragraph.runs.length == 0)
         throw new Error("Paragraph has no runs");
     if (!end) {
@@ -46,7 +47,7 @@ export function runFromOffset(paragraph,offset,end?) {
     }
 }
 
-export function runFromNode(paragraph,node) {
+export function runFromNode(paragraph: Text.ParagraphInfo, node: Node): Text.Run {
     for (let i = 0; i < paragraph.runs.length; i++) {
         if (paragraph.runs[i].node == node)
             return paragraph.runs[i];
@@ -54,19 +55,19 @@ export function runFromNode(paragraph,node) {
     throw new Error("Run for text node not found");
 }
 
-export function positionAtOffset(paragraph,offset,end?) {
+export function positionAtOffset(paragraph: Text.ParagraphInfo, offset: number, end?: boolean): Position.Position {
     let run = runFromOffset(paragraph,offset,end);
     if (run == null)
         throw new Error("Run at offset "+offset+" not found");
     return new Position.Position(run.node,offset-run.start);
 }
 
-export function offsetAtPosition(paragraph,pos) {
+export function offsetAtPosition(paragraph: Text.ParagraphInfo, pos: Position.Position): number {
     let run = runFromNode(paragraph,pos.node);
     return run.start + pos.offset;
 }
 
-export function getRunRects(paragraph) {
+export function getRunRects(paragraph: Text.ParagraphInfo): ClientRect[] {
     let rects = new Array();
     for (let i = 0; i < paragraph.runs.length; i++) {
         let run = paragraph.runs[i];
@@ -77,21 +78,25 @@ export function getRunRects(paragraph) {
     return rects;
 }
 
-export function getRunOrFallbackRects(paragraph,pos) {
+export function getRunOrFallbackRects(paragraph: Text.ParagraphInfo, pos: Position.Position): ClientRect[] {
     let rects = getRunRects(paragraph);
     if ((rects.length == 0) && (paragraph.node instanceof Element)) {
-        if (Types.isBlockNode(paragraph.node) &&
-            (paragraph.startOffset == 0) &&
-            (paragraph.endOffset == paragraph.node.childNodes.length)) {
-            rects = [paragraph.node.getBoundingClientRect()];
+        let node = paragraph.node;
+        let startOffset = paragraph.startOffset;
+        let endOffset = paragraph.endOffset;
+        if ((node instanceof HTMLElement) &&
+            Types.isBlockNode(node) &&
+            (startOffset == 0) &&
+            (endOffset == node.childNodes.length)) {
+            rects = [node.getBoundingClientRect()];
         }
         else {
-            let beforeNode = paragraph.node.childNodes[paragraph.startOffset-1];
-            let afterNode = paragraph.node.childNodes[paragraph.endOffset];
-            if ((afterNode != null) && Types.isBlockNode(afterNode)) {
+            let beforeNode = node.childNodes[startOffset-1];
+            let afterNode = node.childNodes[endOffset];
+            if ((afterNode != null) && (afterNode instanceof HTMLElement) && Types.isBlockNode(afterNode)) {
                 rects = [afterNode.getBoundingClientRect()];
             }
-            else if ((beforeNode != null) && Types.isBlockNode(beforeNode)) {
+            else if ((beforeNode != null) && (beforeNode instanceof HTMLElement) && Types.isBlockNode(beforeNode)) {
                 rects = [beforeNode.getBoundingClientRect()];
             }
         }

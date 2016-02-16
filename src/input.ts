@@ -394,12 +394,9 @@ export function isAtWordBoundary(pos,direction) {
     let after = paragraph.text.substring(offset);
     let text = paragraph.text;
 
-    let afterMatch = (offset < text.length) && (text.charAt(offset).match(letterRE));
-    let beforeMatch = (offset > 0) && (text.charAt(offset-1).match(letterRE));
-
-    // coerce to boolean
-    afterMatch = !!afterMatch;
-    beforeMatch = !!beforeMatch;
+    // !! coerces to boolean
+    let afterMatch = !!((offset < text.length) && (text.charAt(offset).match(letterRE)));
+    let beforeMatch = !!((offset > 0) && (text.charAt(offset-1).match(letterRE)));
 
     if (isForward(direction))
         return beforeMatch && !afterMatch;
