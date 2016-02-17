@@ -20,7 +20,7 @@ import Util = require("./util");
 let backMessages: any[] = [];
 
 function addBackMessage(...args) {
-    backMessages.push(Util.arrayCopy(arguments));
+    backMessages.push(Util.arrayCopy(args));
     return null;
 }
 
@@ -30,7 +30,7 @@ export function getBackMessages(): string {
     return result;
 };
 
-export function debug(str) {
+export function debug(str: string): void {
     addBackMessage("debug",str);
 };
 

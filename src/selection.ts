@@ -309,7 +309,7 @@ function setSelectionHighlights(highlights: HTMLElement[]): void {
 }
 
 function createSelectionHighlights(data: RangeData): void {
-    let newHighlights = Util.arrayCopyTyped(selectionHighlights);
+    let newHighlights = Util.arrayCopy(selectionHighlights);
 
     let outermost = data.outermost;
     for (let i = 0; i < outermost.length; i++) {

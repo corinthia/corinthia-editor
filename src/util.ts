@@ -20,11 +20,11 @@ import Editor = require("./editor");
 import ElementTypes = require("./elementTypes");
 import Types = require("./types");
 
-export function debug(str) {
-    Editor.debug(str);
+export function debug(str: any): void {
+    Editor.debug(""+str);
 }
 
-export function arrayContains(array,value) {
+export function arrayContains<T>(array: T[], value: T): boolean {
     for (let i = 0; i < array.length; i++) {
         if (array[i] == value)
             return true;
@@ -32,19 +32,7 @@ export function arrayContains(array,value) {
     return false;
 }
 
-// Note: you can use slice() to copy a real javascript array, but this function can be used to copy
-// DOM NodeLists (e.g. as returned by document.getElementsByTagName) as well, since they don't
-// support the slice method
-export function arrayCopy(array) {
-    if (array == null)
-        return null;
-    let copy = new Array();
-    for (let i = 0; i < array.length; i++)
-        copy.push(array[i]);
-    return copy;
-}
-
-export function arrayCopyTyped<T>(array: T[]): T[] {
+export function arrayCopy<T>(array: T[]): T[] {
     if (array == null)
         return null;
     let copy = new Array<T>();
@@ -53,7 +41,7 @@ export function arrayCopyTyped<T>(array: T[]): T[] {
     return copy;
 }
 
-export function quoteString(str) {
+export function quoteString(str: string): string {
     if (str == null)
         return null;
 
@@ -70,7 +58,7 @@ export function quoteString(str) {
     return quoted;
 }
 
-export function nodeString(node) {
+export function nodeString(node: Node): string {
     if (node == null)
         return "null";
     let id = "";
@@ -91,19 +79,19 @@ export function nodeString(node) {
     }
 }
 
-export function rectString(rect) {
+export function rectString(rect: ClientRect): string {
     if (rect == null)
         return null;
     else
         return "("+rect.left+","+rect.top+") - ("+rect.right+","+rect.bottom+")";
 }
 
-export function rectIsEmpty(rect) {
+export function rectIsEmpty(rect: ClientRect): boolean {
     return ((rect == null) ||
             ((rect.width == 0) && (rect.height == 0)));
 }
 
-export function rectContainsPoint(rect,x,y) {
+export function rectContainsPoint(rect: ClientRect, x: number, y: number): boolean {
     return ((x >= rect.left) && (x < rect.right) &&
             (y >= rect.top) && (y < rect.bottom));
 }
@@ -122,7 +110,7 @@ export function cloneNumberDict<T>(object: { [key: number]: T }): { [key: number
     return result;
 }
 
-export function nodeHasContent(node) {
+export function nodeHasContent(node: Node): boolean {
     switch (node._type) {
     case ElementTypes.HTML_TEXT:
         return !isWhitespaceString(node.nodeValue);
@@ -143,11 +131,11 @@ export function nodeHasContent(node) {
 
 let isWhitespaceStringRegexp = /^\s*$/;
 
-export function isWhitespaceString(str) {
+export function isWhitespaceString(str: string): boolean {
     return (str.match(isWhitespaceStringRegexp) != null);
 }
 
-export function normalizeWhitespace(str) {
+export function normalizeWhitespace(str: string): string {
     str = str.replace(/^\s+/,"");
     str = str.replace(/\s+$/,"");
     str = str.replace(/\s+/g," ");
@@ -197,7 +185,19 @@ DoublyLinkedList.prototype.remove = function(item) {
     item.next = null;
 };
 
-export function diff(src,dest) {
+export class DiffEntry<T> {
+
+    constructor(
+        public srcStart: number,
+        public destStart: number,
+        public srcEnd: number,
+        public destEnd: number,
+        public prev: DiffEntry<T>)
+    { }
+
+}
+
+export function diff<T>(src: T[], dest: T[]): DiffEntry<T>[] {
     let traces = new Array();
 
     traces[1] = new DiffEntry(0,0,0,0,null);
@@ -244,16 +244,8 @@ export function diff(src,dest) {
         }
     }
 
-    function DiffEntry(srcStart,destStart,srcEnd,destEnd,prev) {
-        this.srcStart = srcStart;
-        this.destStart = destStart;
-        this.srcEnd = srcEnd;
-        this.destEnd = destEnd;
-        this.prev = prev;
-    }
-
-    function entryToArray(src,dest,entry) {
-        let results = new Array();
+    function entryToArray(src: T[], dest: T[], entry: DiffEntry<T>): DiffEntry<T>[] {
+        let results: DiffEntry<T>[] = [];
         results.push(entry);
         for (entry = entry.prev; entry != null; entry = entry.prev) {
             if ((entry.srcStart != entry.srcEnd) || (entry.destStart != entry.destEnd))
@@ -263,39 +255,54 @@ export function diff(src,dest) {
     }
 }
 
-export function TimingEntry(name,time) {
-    this.name = name;
-    this.time = time;
-}
+export class TimingEntry {
 
-export function TimingInfo() {
-    this.entries = new Array();
-    this.total = 0;
-    this.lastTime = null;
-}
+    public name: string;
+    public time: number;
 
-TimingInfo.prototype.start = function() {
-    this.entries.length = 0;
-    this.lastTime = new Date();
-}
-
-TimingInfo.prototype.addEntry = function(name) {
-    if (this.lastTime == null)
-        this.start();
-
-    let now = new Date();
-    let interval = now.getTime() - this.lastTime.getTime();
-    this.entries.push(new TimingEntry(name,interval));
-    this.total += interval;
-    this.lastTime = now;
-}
-
-TimingInfo.prototype.print = function(title) {
-    debug(title);
-    for (let i = 0; i < this.entries.length; i++) {
-        let entry = this.entries[i];
-        debug("    "+entry.name+": "+entry.time+"ms");
+    constructor(name: string, time: number) {
+        this.name = name;
+        this.time = time;
     }
+
+}
+
+export class TimingInfo {
+
+    public entries: TimingEntry[];
+    public total: number;
+    public lastTime: Date;
+
+    constructor() {
+        this.entries = [];
+        this.total = 0;
+        this.lastTime = null;
+    }
+
+    public start(): void {
+        this.entries.length = 0;
+        this.lastTime = new Date();
+    }
+
+    public addEntry(name: string): void {
+        if (this.lastTime == null)
+            this.start();
+
+        let now = new Date();
+        let interval = now.getTime() - this.lastTime.getTime();
+        this.entries.push(new TimingEntry(name,interval));
+        this.total += interval;
+        this.lastTime = now;
+    }
+
+    public print(title: string): void {
+        debug(title);
+        for (let i = 0; i < this.entries.length; i++) {
+            let entry = this.entries[i];
+            debug("    "+entry.name+": "+entry.time+"ms");
+        }
+    }
+
 }
 
 export interface XYWHRect {

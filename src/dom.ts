@@ -46,7 +46,7 @@ let ignoreMutations = 0;
 
 function addUndoAction(...args): void {
     if (UndoManager.undoSupported)
-        UndoManager.addAction.apply(null,Util.arrayCopy(arguments));
+        UndoManager.addAction.apply(null,Util.arrayCopy(args));
 }
 
 function assignNodeId<T extends Node>(node: T): T {
@@ -681,7 +681,7 @@ function trackedPositionsForNode(node: Node): Position.Position[] {
             if (data.trackedPositions[i].node != node)
                 throw new Error("Position "+data.trackedPositions[i]+" has wrong node");
         }
-        return Util.arrayCopyTyped(data.trackedPositions);
+        return Util.arrayCopy(data.trackedPositions);
     }
     else {
         return [];
