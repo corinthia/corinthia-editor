@@ -17,7 +17,7 @@
 
 // This file was automatically generated from elements.txt
 
-export const fromString = {
+export const fromString: { [key: string]: number } = {
     "#DOCUMENT": 1,
     "#document": 1,
     "#TEXT": 2,

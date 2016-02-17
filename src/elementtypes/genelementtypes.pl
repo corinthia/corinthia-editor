@@ -38,28 +38,23 @@ print($lic);
 
 print("// This file was automatically generated from $filename\n");
 print("\n");
-print("define(\"ElementTypes\",function(require,exports) {\n");
-print("    \"use strict\";\n");
-print("\n");
-print("    exports.fromString = {\n");
+print("export const fromString: { [key: string]: number } = {\n");
 $nextId = 1;
 for $name (@names) {
   $upper = uc($name);
   $lower = lc($name);
-  print("        \"$upper\": $nextId,\n");
-  print("        \"$lower\": $nextId,\n");
+  print("    \"$upper\": $nextId,\n");
+  print("    \"$lower\": $nextId,\n");
   $nextId++;
 }
-print("    };\n");
+print("};\n");
 print("\n");
 $nextId = 1;
 for $name (@names) {
   $temp = $name;
   $temp =~ s/#//;
   $upper = uc($temp);
-  print("    exports.HTML_$upper = $nextId;\n");
+  print("export const HTML_$upper = $nextId;\n");
   $nextId++;
 }
-print("    exports.HTML_COUNT = $nextId;\n");
-print("\n");
-print("});\n");
+print("export const HTML_COUNT = $nextId;\n");
