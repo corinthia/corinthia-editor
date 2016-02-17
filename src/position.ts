@@ -398,7 +398,7 @@ export function okForMovement(pos: Position, insertion?: boolean): boolean {
                      (node.previousSibling._type == ElementTypes.HTML_BR) ||
                      Types.isNoteNode(node.previousSibling) ||
                      (Types.isParagraphNode(node.previousSibling)) ||
-                     (Traversal.getNodeText(node.previousSibling).match(/\s$/)) ||
+                     (Traversal.getNodeText(node.previousSibling).match(/\s$/) != null) ||
                      Types.isItemNumber(node.previousSibling) ||
                      ((precedingText.length > 0))));
         }

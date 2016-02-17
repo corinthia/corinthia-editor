@@ -105,13 +105,13 @@ export const Keys = {
     MATCH_CLASS: "uxwrite-match",
 };
 
-let ITEM_NUMBER_CLASSES = {
+let ITEM_NUMBER_CLASSES: { [key: string]: boolean } = {
     "uxwrite-heading-number": true,
     "uxwrite-figure-number": true,
     "uxwrite-table-number": true,
 };
 
-let OPAQUE_NODE_CLASSES = {
+let OPAQUE_NODE_CLASSES: { [key: string]: boolean } = {
     "uxwrite-heading-number": true,
     "uxwrite-figure-number": true,
     "uxwrite-table-number": true,
@@ -122,36 +122,38 @@ let OPAQUE_NODE_CLASSES = {
     "uxwrite-field": true,
 };
 
-export function isContainerNode(node) {
-    return CONTAINER_ELEMENTS[node._type];
+// We use !! in the functions below to guarantee that a boolean value is returned. If a node's
+// type does not exist as a property in the relevant object, we would otherwise get undefined.
+export function isContainerNode(node: Node): boolean {
+    return !!CONTAINER_ELEMENTS[node._type];
 }
 
-export function isParagraphNode(node) {
-    return PARAGRAPH_ELEMENTS[node._type];
+export function isParagraphNode(node: Node): boolean {
+    return !!PARAGRAPH_ELEMENTS[node._type];
 }
 
-export function isHeadingNode(node) {
-    return HEADING_ELEMENTS[node._type];
+export function isHeadingNode(node: Node): boolean {
+    return !!HEADING_ELEMENTS[node._type];
 }
 
-export function isBlockNode(node) {
-    return BLOCK_ELEMENTS[node._type];
+export function isBlockNode(node: Node): boolean {
+    return !!BLOCK_ELEMENTS[node._type];
 }
 
-export function isBlockOrNoteNode(node) {
-    return BLOCK_ELEMENTS[node._type] || isNoteNode(node);
+export function isBlockOrNoteNode(node: Node): boolean {
+    return !!(BLOCK_ELEMENTS[node._type] || isNoteNode(node));
 }
 
-export function isInlineNode(node) {
-    return INLINE_ELEMENTS[node._type];
+export function isInlineNode(node: Node): boolean {
+    return !!INLINE_ELEMENTS[node._type];
 }
 
-export function isListNode(node) {
+export function isListNode(node: Node): boolean {
     let type = node._type;
-    return ((type == ElementTypes.HTML_UL) || (type == ElementTypes.HTML_OL));
+    return !!((type == ElementTypes.HTML_UL) || (type == ElementTypes.HTML_OL));
 }
 
-export function isTableCell(node) {
+export function isTableCell(node: Node): boolean {
     switch (node._type) {
     case ElementTypes.HTML_TD:
     case ElementTypes.HTML_TH:
@@ -161,75 +163,80 @@ export function isTableCell(node) {
     }
 }
 
-export function isRefNode(node) {
-    return ((node._type == ElementTypes.HTML_A) &&
+export function isRefNode(node: Node): boolean {
+    return ((node instanceof HTMLAnchorElement) &&
             node.hasAttribute("href") &&
             node.getAttribute("href").charAt(0) == "#");
 }
 
-export function isNoteNode(node) {
-    if (node._type != ElementTypes.HTML_SPAN)
+export function isNoteNode(node: Node): boolean {
+    if (node instanceof HTMLSpanElement) {
+        let className = DOM.getAttribute(node,"class");
+        return !!((className == "footnote") || (className == "endnote"));
+    }
+    else {
         return false;
-    let className = DOM.getAttribute(node,"class");
-    return ((className == "footnote") || (className == "endnote"));
+    }
 }
 
-export function isEmptyNoteNode(node) {
-    return isNoteNode(node) && !Util.nodeHasContent(node);
+export function isEmptyNoteNode(node: Node): boolean {
+    return !!(isNoteNode(node) && !Util.nodeHasContent(node));
 }
 
-export function isItemNumber(node) {
+export function isItemNumber(node: Node): boolean {
     if (node instanceof Text) {
         return isItemNumber(node.parentNode);
     }
     else if (node instanceof Element) {
-        if ((node._type == ElementTypes.HTML_SPAN) && node.hasAttribute("class")) {
-            return ITEM_NUMBER_CLASSES[node.getAttribute("class")];
-        }
+        if ((node._type == ElementTypes.HTML_SPAN) && node.hasAttribute("class"))
+            return !!ITEM_NUMBER_CLASSES[node.getAttribute("class")];
     }
     return false;
 }
 
-export function isOpaqueNode(node) {
-    if (node == null)
-        return false;
-
-    switch (node._type) {
-    case ElementTypes.HTML_TEXT:
-    case ElementTypes.HTML_COMMENT:
-        return isOpaqueNode(node.parentNode);
-    case ElementTypes.HTML_IMG:
-        return true;
-    case ElementTypes.HTML_A:
-        return node.hasAttribute("href");
-    case ElementTypes.HTML_DOCUMENT:
-        return false;
-    default:
-        if (node.hasAttribute("class") && OPAQUE_NODE_CLASSES[node.getAttribute("class")])
-            return true;
-        else
+export function isOpaqueNode(node: Node): boolean {
+    if (node != null) {
+        switch (node._type) {
+        case ElementTypes.HTML_TEXT:
+        case ElementTypes.HTML_COMMENT:
             return isOpaqueNode(node.parentNode);
+        case ElementTypes.HTML_IMG:
+            return true;
+        case ElementTypes.HTML_A:
+            return (node instanceof HTMLElement) && node.hasAttribute("href");
+        case ElementTypes.HTML_DOCUMENT:
+            return false;
+        default:
+            if ((node instanceof HTMLElement) &&
+                node.hasAttribute("class") &&
+                OPAQUE_NODE_CLASSES[node.getAttribute("class")])
+                return true;
+            else
+                return isOpaqueNode(node.parentNode);
+        }
+    }
+    else {
+        return false;
     }
 }
 
-export function isAutoCorrectNode(node) {
-    return ((node._type == ElementTypes.HTML_SPAN) &&
+export function isAutoCorrectNode(node: Node): boolean {
+    return ((node instanceof HTMLSpanElement) &&
             (node.getAttribute("class") == Keys.AUTOCORRECT_CLASS));
 }
 
-export function isSelectionHighlight(node) {
-    return ((node instanceof Element) &&
+export function isSelectionHighlight(node: Node): boolean {
+    return ((node instanceof HTMLElement) &&
             node.getAttribute("class") == Keys.SELECTION_CLASS);
 }
 
-export function isSelectionSpan(node) {
-    return ((node != null) &&
-            (node._type == ElementTypes.HTML_SPAN) &&
+export function isSelectionSpan(node: Node): boolean {
+    return ((node instanceof HTMLSpanElement) &&
             (DOM.getAttribute(node,"class") == Keys.SELECTION_CLASS));
 };
 
-export function isTOCNode(node) {
-    if (node._type == ElementTypes.HTML_NAV) {
+export function isTOCNode(node: Node): boolean {
+    if ((node instanceof HTMLElement) && (node._type == ElementTypes.HTML_NAV)) {
         let cls = node.getAttribute("class");
         if ((cls == Keys.SECTION_TOC) ||
             (cls == Keys.FIGURE_TOC) ||
@@ -239,7 +246,7 @@ export function isTOCNode(node) {
     return false;
 }
 
-export function isInTOC(node) {
+export function isInTOC(node: Node): boolean {
     if (isTOCNode(node))
         return true;
     if (node.parentNode != null)
@@ -247,7 +254,7 @@ export function isInTOC(node) {
     return false;
 }
 
-export function isSpecialBlockNode(node) {
+export function isSpecialBlockNode(node: Node): boolean {
     switch (node._type) {
     case ElementTypes.HTML_TABLE:
     case ElementTypes.HTML_FIGURE:
@@ -259,6 +266,6 @@ export function isSpecialBlockNode(node) {
     }
 }
 
-export function isAbstractSpan(node) {
-    return ((node._type == ElementTypes.HTML_SPAN) && node.hasAttribute(Keys.ABSTRACT_ELEMENT));
+export function isAbstractSpan(node: Node): boolean {
+    return ((node instanceof HTMLSpanElement) && node.hasAttribute(Keys.ABSTRACT_ELEMENT));
 }
