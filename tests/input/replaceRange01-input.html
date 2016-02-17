@@ -5,7 +5,9 @@
 function performTest(api)
 {
     var range = api.Selection.get();
-    api.Input.replaceRange(range.start,range.end,"HELLO");
+    var startId = api.Input.addPosition(range.start);
+    var endId = api.Input.addPosition(range.end);
+    api.Input.replaceRange(startId,endId,"HELLO");
     api.tests.TestLib.showSelection();
 }
 </script>

@@ -62,7 +62,8 @@ export function testPositionFun(fun,granularity,direction) {
         let after = textBetweenPositions(pos,end);
         let total = before+"|"+after;
 
-        let result = fun(pos,granularity,direction);
+        let posId = Input.addPosition(pos);
+        let result = fun(posId,granularity,direction);
         lines.push(JSON.stringify(total)+" -- "+result+"\n");
 
         pos = Position.nextMatch(pos,Position.okForMovement);
@@ -94,7 +95,8 @@ export function testPositionToBoundary(granularity,direction) {
         let oldAfter = textBetweenPositions(pos,end);
         let oldTotal = oldBefore+"|"+oldAfter;
 
-        let resultId = Input.positionFromPositionToBoundaryInDirection(pos,granularity,direction);
+        let posId = Input.addPosition(pos);
+        let resultId = Input.positionFromPositionToBoundaryInDirection(posId,granularity,direction);
         let result = Input.getPosition(resultId);
 
         let newBefore = textBetweenPositions(start,result);
@@ -124,8 +126,9 @@ export function testRangeEnclosing(granularity,direction) {
         let oldAfter = textBetweenPositions(pos,end);
         let oldTotal = oldBefore+"|"+oldAfter;
 
+        let posId = Input.addPosition(pos);
         let resultIds =
-            Input.rangeEnclosingPositionWithGranularityInDirection(pos,granularity,direction);
+            Input.rangeEnclosingPositionWithGranularityInDirection(posId,granularity,direction);
         if (resultIds != null) {
             let startId = resultIds.startId;
             let endId = resultIds.endId;

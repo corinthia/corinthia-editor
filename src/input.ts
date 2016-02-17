@@ -54,8 +54,6 @@ export function addPosition(pos) {
 }
 
 export function getPosition(posId) {
-    if (posId instanceof Position.Position) // for tests
-        return posId;
     if (posId < firstDynamicPosId) {
         switch (posId) {
         case BaseIdNull: {
