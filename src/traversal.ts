@@ -59,20 +59,6 @@ export function nextNode(node,entering?,exiting?) {
     }
 }
 
-export function prevTextNode(node) {
-    do {
-        node = prevNode(node);
-    } while ((node != null) && !(node instanceof Text));
-    return node;
-}
-
-export function nextTextNode(node) {
-    do {
-        node = nextNode(node);
-    } while ((node != null) && !(node instanceof Text));
-    return node;
-}
-
 export function firstChildElement(node) {
     let first = node.firstChild;
     while ((first != null) && !(first instanceof Element))
@@ -117,13 +103,6 @@ export function firstChildOfType(node,type) {
             return child;
     }
     return null;
-}
-
-export function getNodeDepth(node) {
-    let depth = 0;
-    for (; node != null; node = node.parentNode)
-        depth++;
-    return depth;
 }
 
 export function getNodeText(node) {

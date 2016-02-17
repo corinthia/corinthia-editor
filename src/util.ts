@@ -108,13 +108,6 @@ export function rectContainsPoint(rect,x,y) {
             (y >= rect.top) && (y < rect.bottom));
 }
 
-export function clone(object) {
-    let result = new Object();
-    for (let name in object)
-        result[name] = object[name];
-    return result;
-}
-
 export function cloneStringDict<T>(object: { [key: string]: T }): { [key: string]: T } {
     let result: { [key: string]: T } = {};
     for (let name in object)
@@ -303,62 +296,6 @@ TimingInfo.prototype.print = function(title) {
         let entry = this.entries[i];
         debug("    "+entry.name+": "+entry.time+"ms");
     }
-}
-
-export function readFileApp(filename) {
-    let req = new XMLHttpRequest();
-    req.open("POST","/read/"+encodeURI(filename),false);
-    req.send();
-    if (req.status == 404)
-        return null; // file not found
-    else if ((req.status != 200) && (req.status != 0))
-        throw new Error(req.status+": "+req.responseText);
-    let doc = req.responseXML;
-    if (doc != null)
-        DOM.assignNodeIds(doc);
-    return doc;
-}
-
-export function readFileTest(filename) {
-    let req = new XMLHttpRequest();
-    req.open("GET",filename,false);
-    req.send();
-    let xml = req.responseXML;
-    if (xml == null)
-        return null;
-    DOM.assignNodeIds(xml.documentElement);
-    return xml;
-}
-
-export function fromTokenList(value) {
-    let result = new Object();
-    if (value != null) {
-        let components = value.toLowerCase().split(/\s+/);
-        for (let i = 0; i < components.length; i++) {
-            if (components[i].length > 0)
-                result[components[i]] = true;
-        }
-    }
-    return result;
-}
-
-export function toTokenList(properties) {
-    let tokens = new Array();
-
-    if (properties != null) {
-        // Sort the names to ensure deterministic results in test cases
-        let names = Object.getOwnPropertyNames(properties).sort();
-        for (let i = 0; i < names.length; i++) {
-            let name = names[i];
-            if (properties[name])
-                tokens.push(name);
-        }
-    }
-
-    if (tokens.length == null)
-        return null;
-    else
-        return tokens.join(" ");
 }
 
 export interface XYWHRect {
