@@ -1045,13 +1045,6 @@ function containsOnlyWhitespace(ancestor: Node): boolean {
 
 // public
 export function applyFormattingChanges(style: string, properties: { [key: string]: string }): void {
-    Util.debug("JS: applyFormattingChanges: style = "+JSON.stringify(style));
-    if (properties != null) {
-        let names = Object.getOwnPropertyNames(properties).sort();
-        for (let i = 0; i < names.length; i++) {
-            Util.debug("    "+names[i]+" = "+properties[names[i]]);
-        }
-    }
     UndoManager.newGroup("Apply formatting changes");
 
     if (properties == null)
