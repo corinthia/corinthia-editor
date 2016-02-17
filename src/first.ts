@@ -50,7 +50,7 @@ let define;
 
 (function() {
 
-function resolvePath(base,path) {
+function resolvePath(base: string, path: string): string {
 
     // Replace adjacent / characters with a single one
     base = base.replace(/\/+/g,"/");
@@ -80,7 +80,7 @@ function resolvePath(base,path) {
     return baseParts.join("/");
 }
 
-function mapToLegacyModuleName(name) {
+function mapToLegacyModuleName(name: string): string {
     if (name == "tests.testlib") {
         name = "tests.TestLib";
     }
@@ -90,11 +90,11 @@ function mapToLegacyModuleName(name) {
     else if (name == "src.dom") {
         name = "DOM";
     }
-    else if (name.startsWith("src.")) {
+    else if (name.match(/^src\./)) {
         name = name.substring(4);
         name = name[0].toUpperCase()+name.substring(1);
     }
-    else if (name.startsWith("tests.")) {
+    else if (name.match(/^tests\./)) {
         name = name.substring(6);
         name = name[0].toUpperCase()+name.substring(1);
         name = "tests."+name;
@@ -102,7 +102,9 @@ function mapToLegacyModuleName(name) {
     return name;
 }
 
-function getOrCreateModule(name) {
+function getOrCreateModule(name: string): Object {
+    // This function may be called (indirectly) from regular JavaScript, hence the sanity
+    // check here; we can't rely on the TypeScript compiler for untyped code.
     if (typeof(name) !== "string")
         throw new Error("name is not a string: "+(typeof name));
 
@@ -118,7 +120,7 @@ function getOrCreateModule(name) {
     return mod;
 }
 
-function reqmodule(name) {
+function reqmodule(name: string): Object {
     return getOrCreateModule(name);
 }
 
