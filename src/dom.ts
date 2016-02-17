@@ -354,7 +354,7 @@ export function moveCharacters(srcTextNode: Text, srcStartOffset: number, srcEnd
 }
 
 // public
-export function setNodeValue(textNode: Text, value: string): void {
+export function setNodeValue(textNode: CharacterData, value: string): void {
     if (!(textNode instanceof Text))
         throw new Error("setNodeValue called on non-text node");
     trackedPositionsForNode(textNode).forEach(function (position: Position.Position) {

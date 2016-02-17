@@ -21,6 +21,7 @@ import DOM = require("./dom");
 import Editor = require("./editor");
 import ElementTypes = require("./elementTypes");
 import Outline = require("./outline");
+import Position = require("./position");
 import PostponedActions = require("./postponedActions");
 import Range = require("./range");
 import Selection = require("./selection");
@@ -31,7 +32,7 @@ import Util = require("./util");
 import Viewport = require("./viewport");
 
 // public
-export function getLanguage() {
+export function getLanguage(): string {
     let lang = document.documentElement.getAttribute("lang");
     if (lang != null)
         lang = lang.replace(/-/g,"_");
@@ -39,7 +40,7 @@ export function getLanguage() {
 }
 
 // public
-export function setLanguage(lang) {
+export function setLanguage(lang: string): void {
     if ((lang == null) || (lang == "")) {
         DOM.removeAttribute(document.documentElement,"lang");
     }
@@ -50,10 +51,10 @@ export function setLanguage(lang) {
 }
 
 // public
-export function removeUnsupportedInput() {
+export function removeUnsupportedInput(): void {
     recurse(document.documentElement);
 
-    function recurse(node) {
+    function recurse(node: Node): void {
         // Delete comments and processing instructions
         if (!(node instanceof Text) &&
             !(node instanceof Element)) {
@@ -70,7 +71,7 @@ export function removeUnsupportedInput() {
 }
 
 // private
-function addMetaCharset() {
+function addMetaCharset(): void {
     let head = DOM.documentHead(document);
     let next;
     for (let child = head.firstChild; child != null; child = next) {
@@ -90,7 +91,7 @@ function addMetaCharset() {
 }
 
 // public
-export function setGenerator(generator) {
+export function setGenerator(generator: string): string {
     return UndoManager.disableWhileExecuting(function() {
         let head = DOM.documentHead(document);
         for (let child = head.firstChild; child != null; child = child.nextSibling) {
@@ -117,28 +118,33 @@ export function setGenerator(generator) {
 }
 
 // public
-export function isEmptyDocument() {
+export function isEmptyDocument(): boolean {
     return !Util.nodeHasContent(document.body);
 }
 
 // public
-export function prepareForSave() {
+export function prepareForSave(): boolean {
     // Force any end-of-group actions to be performed
     UndoManager.newGroup();
     return true;
 }
 
 // public
-export function getHTML() {
+export function getHTML(): string {
     return document.documentElement.outerHTML;
 }
 
+interface SavedNode {
+    tempNode?: Node;
+    originalNodeValue?: string;
+}
+
 // public
-export function getErrorReportingInfo() {
+export function getErrorReportingInfo(): string {
     if (document.documentElement == null)
         return "(document.documentElement is null)";
     try {
-        let html = htmlWithSelection();
+        let html: HTMLElement = htmlWithSelection();
         cleanse(html);
         return html.outerHTML;
     }
@@ -153,17 +159,18 @@ export function getErrorReportingInfo() {
         }
     }
 
-    function cleanse(node) {
+    function cleanse(node: Node): void {
         switch (node._type) {
         case ElementTypes.HTML_TEXT:
         case ElementTypes.HTML_COMMENT:
-            DOM.setNodeValue(node,cleanseString(node.nodeValue));
+            if ((node instanceof Text) || (node instanceof Comment)) // only needed for type guard
+                DOM.setNodeValue(node,cleanseString(node.nodeValue));
             break;
         case ElementTypes.HTML_STYLE:
         case ElementTypes.HTML_SCRIPT:
             return;
         default:
-            if (node instanceof Element) {
+            if (node instanceof HTMLElement) {
                 cleanseAttribute(node,"original");
                 if (node.hasAttribute("href") && !node.getAttribute("href").match(/^#/))
                     cleanseAttribute(node,"href");
@@ -174,7 +181,7 @@ export function getErrorReportingInfo() {
         }
     }
 
-    function cleanseAttribute(node,name) {
+    function cleanseAttribute(node: HTMLElement, name: string): void {
         if (node.hasAttribute(name)) {
             let value = node.getAttribute(name);
             value = cleanseString(value);
@@ -182,18 +189,18 @@ export function getErrorReportingInfo() {
         }
     }
 
-    function cleanseString(str) {
+    function cleanseString(str: string): string {
         return str.replace(/[^\s\.\@\^]/g,"X");
     }
 
-    function htmlWithSelection() {
+    function htmlWithSelection(): HTMLElement {
         let selectionRange = Selection.get();
         if (selectionRange != null) {
             selectionRange = Range.forwards(selectionRange);
-            let startSave = new Object();
-            let endSave = new Object();
+            let startSave: SavedNode = {};
+            let endSave: SavedNode = {};
 
-            let html = null;
+            let html: HTMLElement = null;
 
             Range.trackWhileExecuting(selectionRange,function() {
                 // We use the strings @@^^ and ^^@@ to represent the selection
@@ -218,7 +225,7 @@ export function getErrorReportingInfo() {
         }
     }
 
-    function addPositionMarker(pos,name,save) {
+    function addPositionMarker(pos: Position.Position, name: string, save: SavedNode): void {
         let node = pos.node;
         let offset = pos.offset;
         if (node instanceof Element) {
@@ -231,7 +238,7 @@ export function getErrorReportingInfo() {
         }
     }
 
-    function removePositionMarker(pos,save) {
+    function removePositionMarker(pos: Position.Position, save: SavedNode): void {
         let node = pos.node;
         let offset = pos.offset;
         if (pos.node instanceof Element) {
@@ -244,7 +251,7 @@ export function getErrorReportingInfo() {
 }
 
 // public
-export function removeSpecial(node) {
+export function removeSpecial(node: Node): void {
     // We process the children first, so that if there are any nested removable elements (e.g.
     // a selection span inside of an autocorrect span), all levels of nesting are taken care of
     let next;
@@ -265,12 +272,12 @@ export function removeSpecial(node) {
         (cssClass == Types.Keys.SELECTION_HIGHLIGHT)) {
         DOM.removeNodeButKeepChildren(node);
     }
-    else if ((node._type == ElementTypes.HTML_META) &&
+    else if ((node instanceof HTMLMetaElement) &&
              node.hasAttribute("name") &&
              (node.getAttribute("name").toLowerCase() == "viewport")) {
         DOM.deleteNode(node);
     }
-    else if (node._type == ElementTypes.HTML_LINK) {
+    else if ((node instanceof HTMLLinkElement)) {
         if ((node.getAttribute("rel") == "stylesheet") &&
             (node.getAttribute("href") == Styles.getBuiltinCSSURL())) {
             DOM.deleteNode(node);
@@ -278,7 +285,7 @@ export function removeSpecial(node) {
     }
 }
 
-function simplifyStackString(e) {
+function simplifyStackString(e: any): string {
     if (e.stack == null)
         return "";
     let lines = e.stack.toString().split(/\n/);
@@ -293,7 +300,7 @@ function simplifyStackString(e) {
 }
 
 // public
-export function execute(fun) {
+export function execute<T>(fun: () => T): T {
     try {
         let res = fun();
         PostponedActions.perform();
@@ -306,7 +313,7 @@ export function execute(fun) {
     }
 }
 
-function fixEmptyBody() {
+function fixEmptyBody(): void {
     for (let child = document.body.firstChild; child != null; child = child.nextSibling) {
         if (Util.nodeHasContent(child))
             return;
@@ -328,7 +335,7 @@ function fixEmptyBody() {
 export let clientRectsBug = false;
 
 // public
-export function init(width,textScale,cssURL,clientRectsBug1) {
+export function init(width: number, textScale: number, cssURL: string, clientRectsBug1: boolean): any {
     try {
         clientRectsBug = clientRectsBug1;
         if (document.documentElement == null)
