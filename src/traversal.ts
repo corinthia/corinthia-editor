@@ -17,7 +17,7 @@
 
 import Util = require("./util");
 
-export function prevNode(node) {
+export function prevNode(node: Node): Node {
     if (node.previousSibling != null) {
         node = node.previousSibling;
         while (node.lastChild != null)
@@ -29,7 +29,7 @@ export function prevNode(node) {
     }
 }
 
-export function nextNodeAfter(node,entering?,exiting?) {
+export function nextNodeAfter(node: Node, entering?: (n: Node) => void, exiting?: (n: Node) => void): Node {
     while (node != null) {
         if (node.nextSibling != null) {
             if (exiting != null)
@@ -47,7 +47,7 @@ export function nextNodeAfter(node,entering?,exiting?) {
     return node;
 }
 
-export function nextNode(node,entering?,exiting?) {
+export function nextNode(node: Node, entering?: (n: Node) => void, exiting?: (n: Node) => void): Node {
     if (node.firstChild) {
         node = node.firstChild;
         if (entering != null)
@@ -59,34 +59,40 @@ export function nextNode(node,entering?,exiting?) {
     }
 }
 
-export function firstChildElement(node) {
+export function firstChildElement(node: Node): HTMLElement {
     let first = node.firstChild;
-    while ((first != null) && !(first instanceof Element))
+    while (first != null) {
+        if (first instanceof HTMLElement)
+            return first;
         first = first.nextSibling;
-    return first;
+    }
+    return null;
 }
 
-export function lastChildElement(node) {
+export function lastChildElement(node: Node): HTMLElement {
     let last = node.lastChild;
-    while ((last != null) && !(last instanceof Element))
+    while (last != null) {
+        if (last instanceof HTMLElement)
+            return last;
         last = last.previousSibling;
-    return last;
+    }
+    return null;
 }
 
-export function firstDescendant(node) {
+export function firstDescendant(node: Node): Node {
     while (node.firstChild != null)
         node = node.firstChild;
     return node;
 }
 
-export function lastDescendant(node) {
+export function lastDescendant(node: Node): Node {
     while (node.lastChild != null)
         node = node.lastChild;
     return node;
 }
 
-export function firstDescendantOfType(node,type) {
-    if (node._type == type)
+export function firstDescendantOfType(node: Node, type: number): HTMLElement {
+    if ((node instanceof HTMLElement) && (node._type == type))
         return node;
 
     for (let child = node.firstChild; child != null; child = child.nextSibling) {
@@ -97,20 +103,20 @@ export function firstDescendantOfType(node,type) {
     return null;
 }
 
-export function firstChildOfType(node,type) {
+export function firstChildOfType(node: Node, type: number): HTMLElement {
     for (let child = node.firstChild; child != null; child = child.nextSibling) {
-        if (child._type == type)
+        if ((child instanceof HTMLElement) && (child._type == type))
             return child;
     }
     return null;
 }
 
-export function getNodeText(node) {
+export function getNodeText(node: Node): string {
     let strings = new Array();
     recurse(node);
     return strings.join("").replace(/\s+/g," ");
 
-    function recurse(node) {
+    function recurse(node: Node): void {
         if (node instanceof Text)
             strings.push(node.nodeValue);
 
@@ -119,19 +125,19 @@ export function getNodeText(node) {
     }
 }
 
-export function isWhitespaceTextNode(node) {
+export function isWhitespaceTextNode(node: Node): boolean {
     if (!(node instanceof Text))
         return false;
     return Util.isWhitespaceString(node.nodeValue);
 }
 
-export function isNonWhitespaceTextNode(node) {
+export function isNonWhitespaceTextNode(node: Node): boolean {
     if (!(node instanceof Text))
         return false;
     return !Util.isWhitespaceString(node.nodeValue);
 }
 
-export function printTree(node,indent,offset) {
+export function printTree(node: Node, indent: string, offset: string): void {
     if (indent == null)
         indent = "";
     if (offset == null)

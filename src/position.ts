@@ -1032,7 +1032,7 @@ function findLastTextRect(): ClientRect {
 
     while ((node != null) &&
            (!(node instanceof Text) || Traversal.isWhitespaceTextNode(node))) {
-        if (isEmptyParagraphNode(node))
+        if ((node instanceof HTMLElement) && isEmptyParagraphNode(node))
             return node.getBoundingClientRect();
         node = Traversal.prevNode(node);
     }
@@ -1053,7 +1053,7 @@ function findFirstTextRect(): ClientRect {
 
     while ((node != null) &&
            (!(node instanceof Text) || Traversal.isWhitespaceTextNode(node))) {
-        if (isEmptyParagraphNode(node))
+        if ((node instanceof HTMLElement) && isEmptyParagraphNode(node))
             return node.getBoundingClientRect();
         node = Traversal.nextNode(node);
     }

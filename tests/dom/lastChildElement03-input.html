@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+function performTest(api)
+{
+    api.DOM.deleteAllChildren(document.body);
+    api.DOM.appendChild(document.body,api.DOM.createElement(document,"div"));
+    api.DOM.appendChild(document.body,api.DOM.createElement(document,"p"));
+    api.DOM.appendChild(document.body,api.DOM.createTextNode(document,"hello"));
+    return (document.body.lastChild+"\n"+
+            api.Traversal.lastChildElement(document.body));
+}
+</script>
+</head>
+<body>
+
+  <div id="n1">
+    <p id="n2">
+      <span id="n3">n4</span>
+      <span id="n5">n6</span>
+    </p>
+    <p id="n7">
+      <span id="n8"></span>
+      <span id="n9"></span>
+    </p>
+    <p id="n10">
+      <span id="n11"></span>
+    </p>
+    <p id="n12">
+    </p>
+  </div>
+
+  <div id="n13">
+    <p id="n14">
+    </p>
+    <p id="n15">
+      <span id="n16"></span>
+    </p>
+    <p id="n17">
+      <span id="n18"></span>
+      <span id="n19"></span>
+    </p>
+    <p id="n20">
+      <span id="n21">n22</span>
+      <span id="n23">n24</span>
+    </p>
+  </div>
+
+</body>
+</html>
