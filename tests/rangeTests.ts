@@ -22,11 +22,11 @@ import Range = require("../src/range");
 import Traversal = require("../src/traversal");
 import Util = require("../src/util");
 
-function positionKey(pos) {
+function positionKey(pos: Position.Position): string {
     return pos.node._nodeId+","+pos.offset;
 }
 
-export function removeWhitespaceTextNodes(parent) {
+export function removeWhitespaceTextNodes(parent: Node): void {
     let next;
     for (let child = parent.firstChild; child != null; child = next) {
         next = child.nextSibling;
@@ -37,20 +37,20 @@ export function removeWhitespaceTextNodes(parent) {
     }
 }
 
-export let allPositions = null;
-export let allPositionsIndexMap = null;
+export let allPositions: Position.Position[] = null;
+export let allPositionsIndexMap: { [key: string]: number } = null;
 
-export function setup(root) {
+export function setup(root: Node): void {
     allPositions = getAllPositions(root);
 
-    allPositionsIndexMap = new Object();
+    allPositionsIndexMap = {};
     for (let i = 0; i < allPositions.length; i++) {
         let pos = allPositions[i];
         allPositionsIndexMap[positionKey(pos)] = i;
     }
 }
 
-export function comparePositionsBeforeAndAfter(fun) {
+export function comparePositionsBeforeAndAfter(fun: () => void): string {
     let messages = new Array();
     let positions = getAllPositions(document.body);
     let positionStrings = new Array();
@@ -59,10 +59,7 @@ export function comparePositionsBeforeAndAfter(fun) {
         positionStrings[i] = positions[i].toString();
     }
 
-    Position.trackWhileExecuting(positions,function() {
-        fun();
-
-    });
+    Position.trackWhileExecuting(positions,fun);
 
     messages.push("");
     for (let i = 0; i < positions.length; i++) {
@@ -76,17 +73,17 @@ export function comparePositionsBeforeAndAfter(fun) {
     return messages.join("\n");
 }
 
-export function getAllPositions(root) {
+export function getAllPositions(root: Node): Position.Position[] {
     let includeEmptyElements = true;
 
-    let positions = new Array();
+    let positions: Position.Position[] = [];
     let rootOffset = DOM.nodeOffset(root);
 //    positions.push(new Position.Position(root.parentNode,rootOffset));
     recurse(root);
 //    positions.push(new Position.Position(root.parentNode,rootOffset+1));
     return positions;
 
-    function recurse(node) {
+    function recurse(node: Node): void {
         if (node instanceof Text) {
             for (let offset = 0; offset <= node.nodeValue.length; offset++)
                 positions.push(new Position.Position(node,offset));
@@ -104,21 +101,21 @@ export function getAllPositions(root) {
     }
 }
 
-export function getPositionIndex(pos) {
+export function getPositionIndex(pos: Position.Position): number {
     let result = allPositionsIndexMap[pos.node._nodeId+","+pos.offset];
     if (result == null)
         throw new Error(pos+": no index for position");
     return result;
 }
 
-export function isForwardsSimple(range) {
+export function isForwardsSimple(range: Range.Range): boolean {
     let startIndex = getPositionIndex(range.start);
     let endIndex = getPositionIndex(range.end);
 //    Util.debug("startIndex = "+indices.startIndex+", endIndex = "+indices.endIndex);
     return (endIndex >= startIndex);
 }
 
-export function getOutermostNodesSimple(range) {
+export function getOutermostNodesSimple(range: Range.Range): Node[] {
     if (!isForwardsSimple(range)) {
         let reverse = new Range.Range(range.end.node,range.end.offset,
                                 range.start.node,range.start.offset);
@@ -157,7 +154,7 @@ export function getOutermostNodesSimple(range) {
 
     }
 
-    let outermostArray = new Array();
+    let outermostArray: Node[] = [];
     let outermostSet = new Collections.NodeSet();
 
     allArray.forEach(function (node) {
@@ -169,7 +166,7 @@ export function getOutermostNodesSimple(range) {
 
     return outermostArray;
 
-    function setContainsAncestor(set,node) {
+    function setContainsAncestor(set: Collections.NodeSet, node: Node): boolean {
         for (let ancestor = node.parentNode; ancestor != null; ancestor = ancestor.parentNode) {
             if (set.contains(ancestor))
                 return true;

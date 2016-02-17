@@ -19,7 +19,8 @@ import DOM = require("../src/dom");
 import Figures = require("../src/figures");
 import Selection = require("../src/selection");
 
-export function figurePropertiesString(index) {
+// FIXME: index is not actually used
+export function figurePropertiesString(index: number): string {
     let figure = document.getElementsByTagName("FIGURE")[0];
     let parent = figure.parentNode;
     let offset = DOM.nodeOffset(figure);

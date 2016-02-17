@@ -17,7 +17,7 @@
 
 import Scan = require("../src/scan");
 
-export function testNext() {
+export function testNext(): string {
     let result = new Array();
     Scan.reset();
     let index = 0;

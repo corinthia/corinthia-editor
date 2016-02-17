@@ -23,7 +23,7 @@ import PrettyPrinter = require("./prettyPrinter");
 import Selection = require("../src/selection");
 import UndoManager = require("../src/undo");
 
-export function testUndo(versions,node) {
+export function testUndo(versions: Node[], node: Node): void {
     let numSteps = UndoManager.getLength();
 
     let back1 = new Array();
@@ -86,7 +86,7 @@ export function testUndo(versions,node) {
     }
 }
 
-export function placeCursorAfterElement(id) {
+export function placeCursorAfterElement(id: string): void {
     UndoManager.disableWhileExecuting(function() {
         let element = document.getElementById(id);
         let node = element.parentNode;

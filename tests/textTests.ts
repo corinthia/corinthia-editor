@@ -18,7 +18,7 @@
 import Selection = require("../src/selection");
 import Txt = require("../src/text");
 
-export function showRuns() {
+export function showRuns(): string {
     let range = Selection.get();
     let paragraph = Txt.analyseParagraph(range.start);
     let runs = paragraph.runs;

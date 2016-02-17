@@ -24,20 +24,20 @@ import Selection = require("../src/selection");
 import TestLib = require("./testlib");
 import Traversal = require("../src/traversal");
 
-export function getNodeArrayText(nodes) {
+export function getNodeArrayText(nodes: Node[]): string {
     let strings = new Array();
     for (let i = 0; i < nodes.length; i++)
         strings.push(Traversal.getNodeText(nodes[i]));
     return strings.join("");
 }
 
-export function textBetweenPositions(from,to) {
+export function textBetweenPositions(from: Position.Position, to: Position.Position): string {
     let range = new Range.Range(from.node,from.offset,to.node,to.offset);
     let contents = Range.cloneContents(range);
     return getNodeArrayText(contents);
 }
 
-export function testMovement(direction,count) {
+export function testMovement(direction: string, count: number): void {
     Outline.init();
     PostponedActions.perform();
     let posId = Input.addPosition(Selection.get().start);
@@ -47,7 +47,8 @@ export function testMovement(direction,count) {
     TestLib.showSelection();
 }
 
-export function testPositionFun(fun,granularity,direction) {
+export function testPositionFun(fun: (p: number, g: string, d: string) => boolean,
+                                granularity: string, direction: string): string {
     let lines = new Array();
     let start = new Position.Position(document.body,0);
     let end = new Position.Position(document.body,document.body.childNodes.length);
@@ -72,15 +73,15 @@ export function testPositionFun(fun,granularity,direction) {
     return lines.join("");
 }
 
-export function testPositionWithin(granularity,direction) {
+export function testPositionWithin(granularity: string, direction: string): string {
     return testPositionFun(Input.isPositionWithinTextUnitInDirection,granularity,direction);
 }
 
-export function testPositionAtBoundary(granularity,direction) {
+export function testPositionAtBoundary(granularity: string, direction: string): string {
     return testPositionFun(Input.isPositionAtBoundaryGranularityInDirection,granularity,direction);
 }
 
-export function testPositionToBoundary(granularity,direction) {
+export function testPositionToBoundary(granularity: string, direction: string): string {
     let lines = new Array();
     let start = new Position.Position(document.body,0);
     let end = new Position.Position(document.body,document.body.childNodes.length);
@@ -111,7 +112,7 @@ export function testPositionToBoundary(granularity,direction) {
     return lines.join("");
 }
 
-export function testRangeEnclosing(granularity,direction) {
+export function testRangeEnclosing(granularity: string, direction: string): string {
     let lines = new Array();
     let start = new Position.Position(document.body,0);
     let end = new Position.Position(document.body,document.body.childNodes.length);

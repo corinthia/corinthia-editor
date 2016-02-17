@@ -28,7 +28,7 @@ import Traversal = require("../src/traversal");
 import Types = require("../src/types");
 import UndoManager = require("../src/undo");
 
-export function testHarnessSetup() {
+export function testHarnessSetup(): void {
     DOM.assignNodeIds(document);
 
     let start;
@@ -67,7 +67,7 @@ export function testHarnessSetup() {
 
     return;
 
-    function positionMergeWithNeighbours(pos) {
+    function positionMergeWithNeighbours(pos: Position.Position): void {
         let node = pos.node;
         let offset = pos.offset;
         if ((node instanceof Element) && (offset < node.childNodes.length))
@@ -78,10 +78,10 @@ export function testHarnessSetup() {
             Formatting.mergeWithNeighbours(node,Formatting.MERGEABLE_INLINE);
     }
 
-    function extractPositionFromCharacter(c) {
+    function extractPositionFromCharacter(c: string): Position.Position {
         return recurse(document.body);
 
-        function recurse(node) {
+        function recurse(node: Node): Position.Position {
             if (node instanceof Text) {
                 let index = node.nodeValue.indexOf(c);
                 if (index >= 0) {
@@ -115,7 +115,7 @@ export function testHarnessSetup() {
     }
 }
 
-export function insertAtPosition(position,node) {
+export function insertAtPosition(position: Position.Position, node: Node): void {
     if (position.node instanceof Element) {
         if (position.offset == position.node.childNodes.length)
             DOM.appendChild(position.node,node);
@@ -130,7 +130,7 @@ export function insertAtPosition(position,node) {
     }
 }
 
-export function insertTextAtPosition(position,str) {
+export function insertTextAtPosition(position: Position.Position, str: string): void {
     if (position.node instanceof Element) {
         let before = position.node.childNodes[position.offset-1];
         let after = position.node.childNodes[position.offset];
@@ -148,7 +148,7 @@ export function insertTextAtPosition(position,str) {
     }
 }
 
-export function showRangeAsBrackets(range) {
+export function showRangeAsBrackets(range: Range.Range): void {
     if (Range.isEmpty(range)) {
         insertTextAtPosition(range.end,"[]");
     }
@@ -158,7 +158,7 @@ export function showRangeAsBrackets(range) {
     }
 }
 
-export function showSelection() {
+export function showSelection(): void {
     let range = Selection.get();
     if (range != null) {
         Range.assertValid(range,"Selection");
@@ -166,10 +166,10 @@ export function showSelection() {
     }
 }
 
-export function removeIds() {
+export function removeIds(): void {
     recurse(document.body);
 
-    function recurse(node) {
+    function recurse(node: Node): void {
         if (node instanceof Element) {
             DOM.removeAttribute(node,"id");
             for (let child = node.firstChild; child != null; child = child.nextSibling)
@@ -178,17 +178,17 @@ export function removeIds() {
     }
 }
 
-export function selectNode(node) {
+export function selectNode(node: Node): void {
     let offset = DOM.nodeOffset(node);
     Selection.set(node.parentNode,offset,node.parentNode,offset+1);
 }
 
-export function removeWhitespaceAndCommentNodes(root) {
+export function removeWhitespaceAndCommentNodes(root: Node): void {
     Selection.preserveWhileExecuting(function() {
         recurse(root);
     });
 
-    function recurse(node) {
+    function recurse(node: Node): void {
         if (Traversal.isWhitespaceTextNode(node) || (node instanceof Comment)) {
             DOM.deleteNode(node);
         }
@@ -205,7 +205,7 @@ export function removeWhitespaceAndCommentNodes(root) {
 // selectionWrapElement() and selectionUnwrapElement() used to be in formatting.js but have
 // now been made obselete by the addition of applyFormattingChanges(). However there are still
 // a few tests which use them.
-export function selectionWrapElement(elementName) {
+export function selectionWrapElement(elementName: string): void {
     if (elementName == "B")
         Formatting.applyFormattingChanges(null,{"font-weight": "bold"});
     else if (elementName == "I")
@@ -214,7 +214,7 @@ export function selectionWrapElement(elementName) {
         Formatting.applyFormattingChanges(null,{"text-decoration": "underline"});
 }
 
-export function selectionUnwrapElement(elementName) {
+export function selectionUnwrapElement(elementName: string): void {
     if (elementName == "B")
         Formatting.applyFormattingChanges(null,{"font-weight": null});
     else if (elementName == "I")
@@ -223,10 +223,10 @@ export function selectionUnwrapElement(elementName) {
         Formatting.applyFormattingChanges(null,{"text-decoration": null});
 }
 
-export function showEmptyTextNodes() {
+export function showEmptyTextNodes(): void {
     recurse(document);
 
-    function recurse(node) {
+    function recurse(node: Node): void {
         if ((node instanceof Text) && (node.nodeValue.length == 0))
             node.nodeValue = "*";
         for (let child = node.firstChild; child != null; child = child.nextSibling)
@@ -234,7 +234,7 @@ export function showEmptyTextNodes() {
     }
 }
 
-export function showClipboard(clipboard) {
+export function showClipboard(clipboard: { [key: string]: string }): string {
     let html = clipboard["text/html"];
     let text = clipboard["text/plain"];
 
@@ -260,14 +260,14 @@ export function showClipboard(clipboard) {
            text;
 }
 
-export function setNumbering(enabled) {
+export function setNumbering(enabled: boolean): void {
     if (enabled)
         setupOutlineNumbering();
 
     recurse(document.body,enabled);
     PostponedActions.perform();
 
-    function recurse(node,enabled) {
+    function recurse(node: Node, enabled: boolean): void {
         switch (node._type) {
         case ElementTypes.HTML_H1:
         case ElementTypes.HTML_H2:
@@ -277,7 +277,7 @@ export function setNumbering(enabled) {
         case ElementTypes.HTML_H6:
         case ElementTypes.HTML_FIGURE:
         case ElementTypes.HTML_TABLE:
-            if (!Types.isInTOC(node)) {
+            if ((node instanceof HTMLElement) && !Types.isInTOC(node)) {
                 Outline.setNumbered(node.getAttribute("id"),enabled);
                 return;
             }
@@ -289,7 +289,7 @@ export function setNumbering(enabled) {
     }
 }
 
-export function readXML(filename) {
+export function readXML(filename: string): Document {
     let req = new XMLHttpRequest();
     req.open("GET",filename,false);
     req.send();
@@ -300,7 +300,7 @@ export function readXML(filename) {
     return xml;
 }
 
-export function findTextMatchingRecursive(node,re) {
+export function findTextMatchingRecursive(node: Node, re: RegExp): Node {
     if (node instanceof Text) {
         if (node.nodeValue.match(re))
             return node;
@@ -317,7 +317,7 @@ export function findTextMatchingRecursive(node,re) {
     }
 }
 
-export function setupOutlineNumbering() {
+export function setupOutlineNumbering(): void {
     Styles.setCSSText("",{
         "h1": {
             "counter-reset": "h2 h3 h4 h5 h6",
@@ -363,18 +363,19 @@ export function setupOutlineNumbering() {
     });
 }
 
-export function prependTableOfContents() {
+export function prependTableOfContents(): void {
     let nav = DOM.createElement(document,"NAV");
     DOM.setAttribute(nav,"class","tableofcontents");
     DOM.insertBefore(document.body,nav,document.body.firstChild);
     PostponedActions.perform();
 }
 
-export function simplifyTOCs() {
+export function simplifyTOCs(): void {
     recurse(document.body);
 
-    function recurse(node) {
-        if ((node._type == ElementTypes.HTML_NAV) &&
+    function recurse(node: Node): void {
+        if ((node instanceof HTMLElement) &&
+            (node._type == ElementTypes.HTML_NAV) &&
             ((DOM.getAttribute(node,"class") == "tableofcontents") ||
              (DOM.getAttribute(node,"class") == "listoffigures") ||
              (DOM.getAttribute(node,"class") == "listoftables"))) {
@@ -386,17 +387,19 @@ export function simplifyTOCs() {
         }
     }
 
-    function mergeAdjacentTextNodes(node) {
+    function mergeAdjacentTextNodes(node: Node): void {
         let child = node.firstChild;
         while (child != null) {
-            if ((child instanceof Text) &&
-                (child.nextSibling != null) &&
-                (child.nextSibling instanceof Text)) {
-                DOM.insertCharacters(child,child.nodeValue.length,child.nextSibling.nodeValue);
-                DOM.deleteNode(child.nextSibling);
+            let curChild = child;
+            let nextChild = child.nextSibling;
+            if ((curChild instanceof Text) &&
+                (nextChild != null) &&
+                (nextChild instanceof Text)) {
+                DOM.insertCharacters(curChild,child.nodeValue.length,nextChild.nodeValue);
+                DOM.deleteNode(nextChild);
             }
             else {
-                child = child.nextSibling;
+                child = nextChild;
             }
         }
 
@@ -405,10 +408,10 @@ export function simplifyTOCs() {
     }
 }
 
-export function showNonEmptyTextNodes() {
+export function showNonEmptyTextNodes(): void {
     recurse(document.body);
 
-    function recurse(node) {
+    function recurse(node: Node): void {
         if (node instanceof Text) {
             if (!Traversal.isWhitespaceTextNode(node))
                 node.nodeValue = "{" + node.nodeValue + "}";

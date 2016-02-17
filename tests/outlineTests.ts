@@ -23,7 +23,7 @@ import Selection = require("../src/selection");
 import TestLib = require("./testlib");
 import Tables = require("../src/tables");
 
-export function createTestSections(topChildren) {
+export function createTestSections(topChildren: any): void {
     let index = 1;
 
     processChildren(1,topChildren);
@@ -32,7 +32,7 @@ export function createTestSections(topChildren) {
 
     TestLib.setNumbering(true);
 
-    function processChildren(level,children) {
+    function processChildren(level: number, children: any): void {
         if (typeof children == "number") {
             for (let i = 0; i < children; i++)
                 recurse(level,null);
@@ -43,7 +43,7 @@ export function createTestSections(topChildren) {
         }
     }
 
-    function recurse(level,children) {
+    function recurse(level: number, children: any): void {
         let heading = DOM.createElement(document,"H"+level);
 
         DOM.appendChild(heading,DOM.createTextNode(document,"Section "+index));
@@ -64,13 +64,13 @@ export function createTestSections(topChildren) {
     }
 }
 
-export function setupOutline(topChildren) {
+export function setupOutline(topChildren: any): void {
     Outline.init();
     PostponedActions.perform();
     createTestSections(topChildren);
 }
 
-export function createTestFigures(count) {
+export function createTestFigures(count: number): void {
     for (let i = 0; i < count; i++) {
         let figure = DOM.createElement(document,"FIGURE");
         let figcaption = DOM.createElement(document,"FIGCAPTION");
@@ -83,7 +83,7 @@ export function createTestFigures(count) {
     }
 }
 
-export function createTestTables(count) {
+export function createTestTables(count: number): void {
     for (let i = 0; i < count; i++) {
         let offset = document.body.childNodes.length;
         Selection.set(document.body,offset,document.body,offset);
@@ -92,8 +92,8 @@ export function createTestTables(count) {
     PostponedActions.perform();
 }
 
-function removeOutlineHTML(node) {
-    if ((node.nodeName == "SPAN") &&
+function removeOutlineHTML(node: Node): void {
+    if ((node instanceof HTMLSpanElement) &&
         (node.getAttribute("class") == "uxwrite-heading-number")) {
         DOM.removeNodeButKeepChildren(node);
     }
@@ -105,7 +105,7 @@ function removeOutlineHTML(node) {
     }
 }
 
-export function cleanupOutline() {
+export function cleanupOutline(): void {
     PostponedActions.perform();
     removeOutlineHTML(document.body);
 }

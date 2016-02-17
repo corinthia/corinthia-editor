@@ -18,10 +18,10 @@
 import AutoCorrect = require("../src/autoCorrect");
 import PrettyPrinter = require("./prettyPrinter");
 
-export function findTextMatching(re) {
+export function findTextMatching(re: RegExp): Node {
     return recurse(document.body);
 
-    function recurse(node) {
+    function recurse(node: Node): Node {
         if (node instanceof Text) {
             if (node.nodeValue.match(re))
                 return node;
@@ -39,7 +39,7 @@ export function findTextMatching(re) {
     }
 }
 
-export function showCorrections() {
+export function showCorrections(): string {
     let corrections = AutoCorrect.getCorrections();
     let lines = new Array();
     lines.push("Corrections:\n");

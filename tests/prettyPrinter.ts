@@ -21,13 +21,14 @@ import Formatting = require("../src/formatting");
 import Types = require("../src/types");
 import UndoManager = require("../src/undo");
 
-// Applicable options:
-// keepSelectionHighlights (boolean)
-// preserveCase (boolean)
-// showNamespaceDetails (boolean)
-// separateLines (boolean)
+export interface Options {
+    keepSelectionHighlights?: boolean;
+    preserveCase?: boolean;
+    showNamespaceDetails?: boolean;
+    separateLines?: boolean;
+}
 
-export function getHTML(root,options?) {
+export function getHTML(root: Node, options?: Options): string {
     let copy;
     UndoManager.disableWhileExecuting(function() {
         if (options == null)
@@ -43,12 +44,12 @@ export function getHTML(root,options?) {
         }
     });
 
-    let output = new Array();
+    let output: string[] = [];
     prettyPrint(output,options,copy,"");
     return output.join("");
 }
 
-function removeSelectionSpans(root) {
+function removeSelectionSpans(root: Node): void {
     let checkMerge = new Array();
     recurse(root);
 
@@ -58,7 +59,7 @@ function removeSelectionSpans(root) {
         }
     }
 
-    function recurse(node) {
+    function recurse(node: Node): void {
         if (Types.isSelectionHighlight(node)) {
             checkMerge.push(node.firstChild);
             checkMerge.push(node.lastChild);
@@ -74,11 +75,11 @@ function removeSelectionSpans(root) {
     }
 }
 
-function entityFix(str) {
+function entityFix(str: string): string {
     return str.replace(/\u00a0/g,"&nbsp;");
 }
 
-function singleDescendents(node) {
+function singleDescendents(node: Node): boolean {
     let count = 0;
     for (let child = node.firstChild; child != null; child = child.nextSibling) {
         if ((child instanceof Text) && (textNodeDisplayValue(child).length == 0))
@@ -92,7 +93,7 @@ function singleDescendents(node) {
     return true;
 }
 
-function sortCSSProperties(value) {
+function sortCSSProperties(value: string): string {
     // Make sure the CSS properties on the "style" attribute appear in a consistent order
     let items = value.trim().split(/\s*;\s*/);
     if ((items.length > 0) && (items[items.length-1] == ""))
@@ -101,7 +102,7 @@ function sortCSSProperties(value) {
     return items.join("; ");
 }
 
-function attributeString(options,node) {
+function attributeString(options: Options, node: Element): string {
     // Make sure the attributes appear in a consistent order
     let names = new Array();
     for (let i = 0; i < node.attributes.length; i++) {
@@ -125,16 +126,18 @@ function attributeString(options,node) {
     return str;
 }
 
-function textNodeDisplayValue(node) {
+function textNodeDisplayValue(node: Text): string {
     let value = entityFix(node.nodeValue);
-    if ((node.parentNode != null) &&
-        (node.parentNode.getAttribute("xml:space") != "preserve"))
+    let parent = node.parentNode;
+    if ((parent != null) &&
+        (parent instanceof HTMLElement) &&
+        (parent.getAttribute("xml:space") != "preserve"))
         value = value.trim();
     return value;
 }
 
-function prettyPrintOneLine(output,options,node) {
-    if ((node instanceof Element) && (node.nodeName != "SCRIPT")) {
+function prettyPrintOneLine(output: string[], options: Options, node: Node): void {
+    if ((node instanceof HTMLElement) && (node.nodeName != "SCRIPT")) {
         let name = options.preserveCase ? node.nodeName : node.nodeName.toLowerCase();
         if (node.firstChild == null) {
             output.push("<" + name + attributeString(options,node) + "/>");
@@ -156,7 +159,7 @@ function prettyPrintOneLine(output,options,node) {
     }
 }
 
-function isContainer(node) {
+function isContainer(node: Node): boolean {
     switch (node._type) {
     case ElementTypes.HTML_BODY:
     case ElementTypes.HTML_SECTION:
@@ -177,7 +180,7 @@ function isContainer(node) {
     }
 }
 
-function prettyPrint(output,options,node,indent) {
+function prettyPrint(output: string[], options: Options, node: Node, indent: string): void {
     if ((node instanceof Element) && (node.nodeName != "SCRIPT")) {
         let name = options.preserveCase ? node.nodeName : node.nodeName.toLowerCase();
         if (node.firstChild == null) {

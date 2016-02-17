@@ -23,7 +23,7 @@ import Selection = require("../src/selection");
 import Types = require("../src/types");
 import Util = require("../src/util");
 
-function oldInsertCharacter(character) {
+function oldInsertCharacter(character: string): void {
     let selectionRange = Selection.get();
     if (selectionRange == null)
         return;
@@ -55,7 +55,7 @@ function oldInsertCharacter(character) {
     Selection.set(textNode,offset+1,textNode,offset+1);
 }
 
-export function showValidPositions() {
+export function showValidPositions(): void {
     let validPositions = new Array();
     let pos = new Position.Position(document.body,0);
     while (pos != null) {
@@ -76,12 +76,12 @@ export function showValidPositions() {
     });
 }
 
-function flattenTreeToString(node) {
+function flattenTreeToString(node: Node): string {
     let result = new Array();
     recurse(node);
     return result.join("").replace(/\n/g," ");
 
-    function recurse(node) {
+    function recurse(node: Node): void {
         switch (node._type) {
         case ElementTypes.HTML_TEXT:
             result.push(node.nodeValue);
@@ -103,7 +103,7 @@ function flattenTreeToString(node) {
     }
 }
 
-function findCursorPositionErrors(text) {
+function findCursorPositionErrors(text: string): string {
     let detail = "";
     for (let i = 0; i < text.length; i++) {
         let prevChar = (i > 0) ? text.charAt(i-1) : null;
@@ -135,13 +135,13 @@ function findCursorPositionErrors(text) {
     return detail;
 }
 
-function checkCursorPositions(node) {
+function checkCursorPositions(node: Node): string {
     let text = flattenTreeToString(document.body);
     let detail = findCursorPositionErrors(text);
     return text+"\n"+detail;
 }
 
-export function addEmptyTextNode(parent) {
+export function addEmptyTextNode(parent: Node): void {
     let text = DOM.createTextNode(document,"");
     DOM.appendChild(parent,text);
 }

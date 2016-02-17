@@ -21,7 +21,7 @@ import Selection = require("../src/selection");
 import Tables = require("../src/tables");
 import Traversal = require("../src/traversal");
 
-export function showSelectedTableRegion() {
+export function showSelectedTableRegion(): void {
     let region = Tables.regionFromRange(Selection.get());
     for (let row = region.top; row <= region.bottom; row++) {
         for (let col = region.left; col <= region.right; col++) {
@@ -31,11 +31,11 @@ export function showSelectedTableRegion() {
     }
 }
 
-export function getSelectedTableRegion() {
+export function getSelectedTableRegion(): Tables.TableRegion {
     return Tables.regionFromRange(Selection.get());
 }
 
-export function showTableStructure() {
+export function showTableStructure(): string {
     let tableElement = document.getElementsByTagName("table")[0];
     let table = Tables.analyseStructure(tableElement);
     let lines = new Array();

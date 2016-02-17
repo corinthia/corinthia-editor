@@ -21,28 +21,28 @@ import Selection = require("../src/selection");
 import Txt = require("../src/text");
 import UndoManager = require("../src/undo");
 
-function pad(str,length) {
+function pad(str: string, length: number): string {
     str = ""+str;
     while (str.length < length)
         str += " ";
     return str;
 }
 
-function selectRange(p,start,end) {
+function selectRange(p: Node, start: number, end: number): void {
     let paragraph = Txt.analyseParagraph(new Position.Position(p,0));
     let startPos = Paragraph.positionAtOffset(paragraph,start);
     let endPos = Paragraph.positionAtOffset(paragraph,end);
     Selection.set(startPos.node,startPos.offset,endPos.node,endPos.offset);
 }
 
-function makeStringArray(input) {
-    let result = new Array();
+function makeStringArray(input: any[]): string[] {
+    let result: string[] = [];
     for (let i = 0; i < input.length; i++)
         result.push(input[i].toString());
     return result;
 }
 
-function createTable(arrays) {
+function createTable(arrays: string[][]): string {
     let maxLength = 0;
     for (let col = 0; col < arrays.length; col++) {
         if (maxLength < arrays[col].length)
@@ -71,15 +71,15 @@ function createTable(arrays) {
     return output.join("");
 }
 
-function rangeString(text,start,end) {
+function rangeString(text: string, start: number, end: number): string {
     return JSON.stringify(text.substring(0,start) + "[" +
                           text.substring(start,end) + "]" +
                           text.substring(end));
 }
 
-let positionList = null
+let positionList: Position.Position[] = null
 
-function setPositionList(newList) {
+function setPositionList(newList: Position.Position[]): void {
     UndoManager.addAction(setPositionList,positionList);
     if (newList == null)
         positionList = null;
@@ -87,11 +87,11 @@ function setPositionList(newList) {
         positionList = newList.map(function (pos) { return new Position.Position(pos.node,pos.offset); });
 }
 
-function getPositionList() {
+function getPositionList(): Position.Position[] {
     return positionList;
 }
 
-export function positionTest(start1,end1,start2,end2) {
+export function positionTest(start1: number, end1: number, start2: number, end2: number): string {
     let ps = document.getElementsByTagName("P");
 
     let p = ps[0];

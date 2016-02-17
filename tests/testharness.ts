@@ -15,27 +15,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-let topArea;
-let leftArea;
-let rightArea;
+let topArea: any;
+let leftArea: any;
+let rightArea: any;
 let leftLoadedContinuation = null;
 let results = new Object();
 let allCode = null;
 let tests: any = null;
 
-function Result(actual,expected) {
-    this.actual = actual;
-    this.expected = expected;
+class Result {
+
+    constructor(public actual: string, public expected: string) {
+    }
+
 }
 
-function readFile(filename) {
+function readFile(filename: string): string {
     let req = new XMLHttpRequest();
     req.open("GET",filename,false);
     req.send();
     return req.responseText;
 }
 
-function loadCode() {
+function loadCode(): void {
     // Sync with Editor.m
     let modules = [
         "src/autoCorrect",
@@ -94,11 +96,11 @@ function loadCode() {
     allCode = allCodeArray.join("\n");
 }
 
-function loadTestIndex() {
+function loadTestIndex(): void {
     tests = JSON.parse(readFile("index.json"));
 }
 
-function doPerformTest() {
+function doPerformTest(): string {
     let testDocument = leftArea.contentDocument;
     let w = leftArea.contentWindow;
     w.outputOptions = new Object();
@@ -118,7 +120,7 @@ function doPerformTest() {
     return resultText;
 }
 
-function showTest(dir,name) {
+function showTest(dir: string, name: string): void {
     leftLoadedContinuation = function() {
         setLeftTitle("Working area");
         setRightTitle("Result");
@@ -128,7 +130,7 @@ function showTest(dir,name) {
     leftArea.src = dir+"/"+name+"-input.html";
 }
 
-function showResult(dirname,filename) {
+function showResult(dirname: string, filename: string): void {
     let fullname = dirname+"-"+filename;
     setLeftTitle("Actual result for "+dirname+"/"+filename);
     setRightTitle("Expected result for "+dirname+"/"+filename);
@@ -137,20 +139,20 @@ function showResult(dirname,filename) {
     setPanelText(rightArea,results[fullname].expected);
 }
 
-function setLeftTitle(title) {
+function setLeftTitle(title: string): void {
     document.getElementById("leftTitle").firstChild.nodeValue = title;
 }
 
-function setRightTitle(title) {
+function setRightTitle(title: string): void {
     document.getElementById("rightTitle").firstChild.nodeValue = title;
 }
 
-function clearPanel(panel) {
+function clearPanel(panel: any): void {
     panel.contentDocument.open();
     panel.contentDocument.close();
 }
 
-function setPanelText(panel,text) {
+function setPanelText(panel: any, text: string): void {
     clearPanel(panel);
     let pre = panel.contentDocument.createElement("PRE");
     panel.contentDocument.body.appendChild(pre);
@@ -159,20 +161,20 @@ function setPanelText(panel,text) {
 
 
 
-function readJSCode(filename) {
+function readJSCode(filename: string): string {
     let req = new XMLHttpRequest();
     req.open("GET",filename,false);
     req.send();
     return req.responseText;
 }
 
-function readModule(baseDir,filename) {
+function readModule(baseDir: string, filename: string): string {
     let code = readJSCode(baseDir+"/"+filename);
     code = "window._nextDefineFilename = "+JSON.stringify(filename)+";\n"+code;
     return code;
 }
 
-function leftLoaded() {
+function leftLoaded(): void {
     if (leftLoadedContinuation == null)
         return;
     let continuation = leftLoadedContinuation;
@@ -188,7 +190,7 @@ function leftLoaded() {
     return;
 }
 
-function runAllTests() {
+function runAllTests(): void {
     let dirno = 0;
     let fileno = 0;
     let haveTest = false;
@@ -208,7 +210,7 @@ function runAllTests() {
     runNextTest();
     return;
 
-    function updateStatistics() {
+    function updateStatistics(): void {
         let statistics = document.getElementById("statistics");
         while (statistics.firstChild != null)
             statistics.removeChild(statistics.firstChild);
@@ -219,7 +221,7 @@ function runAllTests() {
         statistics.appendChild(document.createTextNode(str));
     }
 
-    function runNextTest() {
+    function runNextTest(): void {
         if (haveTest) {
             let expected = readFile(dirname+"/"+filename+"-expected.html");
 
@@ -265,7 +267,7 @@ function runAllTests() {
         }
     }
 
-    function incrementPosition() {
+    function incrementPosition(): void {
         fileno++;
         if (fileno == tests[dirno].files.length) {
             dirno++;
@@ -274,7 +276,7 @@ function runAllTests() {
     }
 }
 
-function loaded() {
+function loaded(): void {
     topArea = document.getElementById("topInner");
     leftArea = document.getElementById("leftInner");
     rightArea = document.getElementById("rightInner");
