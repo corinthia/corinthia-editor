@@ -19,31 +19,6 @@
 // appropriate namespace prefix for the document in question (since we can't rely on the
 // values that LibreOffice/MS Word happen to use by default)
 
-let XML_NAMESPACE = "http://www.w3.org/XML/1998/namespace";
-
-// ODF
-
-let OFFICE_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:office:1.0";
-let STYLE_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:style:1.0";
-let TEXT_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:text:1.0";
-let TABLE_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:table:1.0";
-let FO_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0";
-let SVG_NAMESPACE = "urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0";
-let XLINK_NAMESPACE = "http://www.w3.org/1999/xlink";
-
-let OFFICE_PREFIX = "office:";
-let STYLE_PREFIX = "style:";
-let TEXT_PREFIX = "text:";
-let TABLE_PREFIX = "table:";
-let FO_PREFIX = "fo:";
-let SVG_PREFIX = "svg:";
-let XLINK_PREFIX = "xlink:";
-
-// OOXML
-
-let WORD_NAMESPACE = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
-let WORD_PREFIX = "w:";
-
 let globalAPI = {};
 
 let define;
