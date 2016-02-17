@@ -21,14 +21,22 @@ import Outline = require("./outline");
 import Types = require("./types");
 import UndoManager = require("./undo");
 
-let rules = new Object();
-let paragraphClass = null;
+export class Rule {
+    [property: string]: string;
+}
 
-export function getRule(selector) {
+export class RuleSet {
+    [selector: string]: Rule;
+}
+
+let rules: RuleSet = new RuleSet();
+let paragraphClass: string = null;
+
+export function getRule(selector: string): Rule {
     return rules[selector];
 }
 
-export function nextSelectorAfter(element) {
+export function nextSelectorAfter(element: HTMLElement): string {
     let selector = element.nodeName.toLowerCase();
     let className = DOM.getAttribute(element,"class");
     if (className != null)
@@ -82,20 +90,20 @@ export function nextSelectorAfter(element) {
         return nextElementName+"."+nextClassName;
 }
 
-export function getParagraphClass() {
+export function getParagraphClass(): string {
     return paragraphClass;
 }
 
-export function setParagraphClass(cls) {
+export function setParagraphClass(cls: string): void {
     paragraphClass = cls;
 }
 
-export function headingNumbering() {
+export function headingNumbering(): boolean {
     return ((rules["h1::before"] != null) &&
             (rules["h1::before"]["content"] != null));
 }
 
-export function getCSSText() {
+export function getCSSText(): string {
     let head = DOM.documentHead(document);
     let cssText = "";
     for (let child = head.firstChild; child != null; child = child.nextSibling) {
@@ -109,7 +117,8 @@ export function getCSSText() {
     return cssText;
 }
 
-export function setCSSText(cssText,cssRules) {
+// FIXME: This should return void (need to update Objective C interface)
+export function setCSSText(cssText: string, cssRules: RuleSet): {} {
     UndoManager.newGroup("Update styles");
     let head = DOM.documentHead(document);
     let next;
@@ -126,7 +135,7 @@ export function setCSSText(cssText,cssRules) {
     return {}; // Objective C caller expects JSON result
 }
 
-function addBuiltinStylesheet(cssURL) {
+function addBuiltinStylesheet(cssURL: string): void {
     let head = DOM.documentHead(document);
     for (let child = head.firstChild; child != null; child = child.nextSibling) {
         if ((child instanceof HTMLLinkElement) &&
@@ -145,14 +154,14 @@ function addBuiltinStylesheet(cssURL) {
     DOM.insertBefore(head,link,head.firstChild);
 }
 
-let builtinCSSURL = null;
+let builtinCSSURL: string = null;
 
-export function getBuiltinCSSURL() {
+export function getBuiltinCSSURL(): string {
     return builtinCSSURL;
 }
 
 // public
-export function init(cssURL) {
+export function init(cssURL: string): void {
     if (cssURL != null)
         builtinCSSURL = cssURL;
 

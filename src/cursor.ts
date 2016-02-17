@@ -749,7 +749,7 @@ export function enterPressed(): void {
 
             let newAncestor: Element = null;
 
-            if ((ancestor instanceof Element) && Types.isParagraphNode(ancestor)) {
+            if ((ancestor instanceof HTMLElement) && Types.isParagraphNode(ancestor)) {
                 let nextSelector = Styles.nextSelectorAfter(ancestor);
                 if (nextSelector != null) {
                     let nextElementName = null;
