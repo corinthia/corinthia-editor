@@ -611,9 +611,9 @@ export function rangeEnclosingPositionWithGranularityInDirection(posId,granulari
             return null;
         let paragraph = Txt.analyseParagraph(pos);
         if (pos == null)
-            return addPosition(null);
+            return null;
         if (paragraph == null)
-            return addPosition(null);
+            return null;
         let run = Paragraph.runFromNode(paragraph,pos.node);
         let offset = pos.offset + run.start;
 
