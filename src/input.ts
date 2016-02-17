@@ -27,12 +27,17 @@ import Selection = require("./selection");
 import Txt = require("./text");
 import Util = require("./util");
 
+export interface RangeIds {
+    startId: number;
+    endId: number;
+}
+
 // function idebug(str) {
 //    Util.debug(str);
 // }
 
 let forwardSelection = true;
-let positions = new Object();
+let positions: { [key: number]: Position.Position } = {};
 let BaseIdNull = 0;
 let BaseIdDocumentStart = 1;
 let BaseIdDocumentEnd = 2;
@@ -41,7 +46,7 @@ let BaseIdSelectionEnd = 4;
 let firstDynamicPosId = 5;
 let nextPosId = firstDynamicPosId;
 
-export function addPosition(pos) {
+export function addPosition(pos: Position.Position): number {
     if (pos == null)
         return 0;
     let copy = new Position.Position(pos.node,pos.offset);
@@ -53,7 +58,7 @@ export function addPosition(pos) {
     return pos.posId;
 }
 
-export function getPosition(posId) {
+export function getPosition(posId: number): Position.Position {
     if (posId < firstDynamicPosId) {
         switch (posId) {
         case BaseIdNull: {
@@ -87,7 +92,7 @@ export function getPosition(posId) {
 }
 
 // void
-export function removePosition(posId) {
+export function removePosition(posId: number): void {
     //idebug("removePosition("+posId+")");
     let pos = positions[posId];
     if (pos == null) {
@@ -98,7 +103,7 @@ export function removePosition(posId) {
 }
 
 // string
-export function textInRange(startId,startAdjust,endId,endAdjust) {
+export function textInRange(startId: number, startAdjust: number, endId: number, endAdjust: number): string {
     let start = getPosition(startId);
     let end = getPosition(endId);
     start = positionRight(start,startAdjust);
@@ -114,7 +119,7 @@ export function textInRange(startId,startAdjust,endId,endAdjust) {
 }
 
 // void
-export function replaceRange(startId,endId,text) {
+export function replaceRange(startId: number, endId: number, text: string): void {
     //idebug("replaceRange("+startId+","+endId+","+JSON.stringify(text)+")");
     let start = getPosition(startId);
     let end = getPosition(endId);
@@ -143,7 +148,7 @@ export function replaceRange(startId,endId,text) {
 }
 
 // { startId, endId }
-export function selectedTextRange() {
+export function selectedTextRange(): RangeIds {
     let range = Selection.get();
     if (range == null) {
         //idebug("selectedTextRange = null");
@@ -159,7 +164,7 @@ export function selectedTextRange() {
 }
 
 // void
-export function setSelectedTextRange(startId,endId) {
+export function setSelectedTextRange(startId: number, endId: number): void {
     //idebug("setSelectedTextRange("+startId+","+endId+")");
     let start = getPosition(startId);
     let end = getPosition(endId);
@@ -184,13 +189,13 @@ export function setSelectedTextRange(startId,endId) {
 }
 
 // { startId, endId }
-export function markedTextRange() {
+export function markedTextRange(): RangeIds {
     //idebug("markedTextRange");
     return null;
 }
 
 // void
-export function setMarkedText(text,startOffset,endOffset) {
+export function setMarkedText(text: string, startOffset: number, endOffset: number): void {
     Selection.deleteContents(true);
     let oldSel = Selection.get();
     Range.trackWhileExecuting(oldSel,function() {
@@ -203,25 +208,25 @@ export function setMarkedText(text,startOffset,endOffset) {
 }
 
 // void
-export function unmarkText() {
+export function unmarkText(): void {
     let range = Selection.get();
     Cursor.set(range.end.node,range.end.offset);
     //idebug("unmarkText");
 }
 
 // boolean
-export function forwardSelectionAffinity() {
+export function forwardSelectionAffinity(): boolean {
     //idebug("forwardSelectionAffinity");
     return forwardSelection;
 }
 
 // void
-export function setForwardSelectionAffinity(value) {
+export function setForwardSelectionAffinity(value: boolean): void {
     //idebug("setForwardSelectionAffinity");
     forwardSelection = value;
 }
 
-function positionRight(pos,offset) {
+function positionRight(pos: Position.Position, offset: number): Position.Position {
     if (offset > 0) {
         for (; offset > 0; offset--) {
             let next = Position.nextMatch(pos,Position.okForMovement);
@@ -241,7 +246,7 @@ function positionRight(pos,offset) {
     return pos;
 }
 
-function positionDown(pos,offset) {
+function positionDown(pos: Position.Position, offset: number): Position.Position {
     if (offset > 0) {
         for (; offset > 0; offset--) {
             let below = Txt.posBelow(pos);
@@ -262,7 +267,7 @@ function positionDown(pos,offset) {
 }
 
 // posId
-export function positionFromPositionOffset(posId,offset) {
+export function positionFromPositionOffset(posId: number, offset: number): number {
     let pos = getPosition(posId);
     let res = addPosition(positionRight(pos,offset));
     //idebug("positionFromPositionOffset("+posId+","+offset+") = "+res);
@@ -270,7 +275,7 @@ export function positionFromPositionOffset(posId,offset) {
 }
 
 // posId
-export function positionFromPositionInDirectionOffset(posId,direction,offset) {
+export function positionFromPositionInDirectionOffset(posId: number, direction: string, offset: number): number {
     //idebug("positionFromPositionInDirectionOffset("+posId+","+direction+","+offset+")");
     let pos = getPosition(posId);
     if (direction == "left")
@@ -286,7 +291,7 @@ export function positionFromPositionInDirectionOffset(posId,direction,offset) {
 }
 
 // int
-export function comparePositionToPosition(posId1,posId2) {
+export function comparePositionToPosition(posId1: number, posId2: number): number {
     //idebug("comparePositionToPosition("+posId1+","+posId2+")");
     let pos1 = getPosition(posId1);
     let pos2 = getPosition(posId2);
@@ -298,23 +303,23 @@ export function comparePositionToPosition(posId1,posId2) {
 }
 
 // int
-export function offsetFromPositionToPosition(fromId,toId) {
+export function offsetFromPositionToPosition(fromId: number, toId: number): number {
     //idebug("offsetFromPositionToPosition("+fromId+","+toId+")");
     throw new Error("offsetFromPositionToPosition: not implemented");
 }
 
-export function positionWithinRangeFarthestInDirection(startId,endId,direction) {
+export function positionWithinRangeFarthestInDirection(startId: number, endId: number, direction: string): number {
     //idebug("positionWithinRangeFarthestInDirection("+startId+","+endId+","+direction);
     throw new Error("positionWithinRangeFarthestInDirection: not implemented");
 }
 
 // { startId, endId }
-export function characterRangeByExtendingPositionInDirection(posId,direction) {
+export function characterRangeByExtendingPositionInDirection(posId: number, direction: string): number {
     //idebug("characterRangeByExtendingPositionInDirection("+posId+","+direction);
     throw new Error("characterRangeByExtendingPositionInDirection: not implemented");
 }
 
-export function firstRectForRange(startId,endId) {
+export function firstRectForRange(startId: number, endId: number): Util.XYWHRect {
     //idebug("firstRectForRange("+startId+","+endId+")");
     let start = getPosition(startId);
     let end = getPosition(endId);
@@ -327,7 +332,7 @@ export function firstRectForRange(startId,endId) {
                  width: rects[0].width, height: rects[0].height };
 }
 
-export function caretRectForPosition(posId) {
+export function caretRectForPosition(posId: number): Util.XYWHRect {
     //idebug("caretRectForPosition("+posId+")");
     let pos = getPosition(posId);
     let rect = Position.rectAtPos(pos);
@@ -338,30 +343,30 @@ export function caretRectForPosition(posId) {
 }
 
 // posId
-export function closestPositionToPoint(x,y) {
+export function closestPositionToPoint(x: number, y: number): number {
     return addPosition(Position.atPoint(x,y));
 }
 
 // posId
-export function closestPositionToPointWithinRange(x,y,startId,endId) {
+export function closestPositionToPointWithinRange(x: number, y: number, startId: number, endId: number): number {
     //idebug("closestPositionToPointWithinRange("+x+","+y+")");
     throw new Error("closestPositionToPointWithinRange: not implemented");
 }
 
 // { startId, endId }
-export function characterRangeAtPoint(x,y) {
+export function characterRangeAtPoint(x: number, y: number): RangeIds {
     //idebug("characterRangeAtPoint("+x+","+y+")");
     throw new Error("characterRangeAtPoint: not implemented");
 }
 
 // posId
-export function positionWithinRangeAtCharacterOffset(startId,endId,offset) {
+export function positionWithinRangeAtCharacterOffset(startId: number, endId: number, offset: string): number {
     //idebug("positionWithinRangeAtCharacterOffset("+startId+","+endId+","+offset+")");
     throw new Error("positionWithinRangeAtCharacterOffset: not implemented");
 }
 
 // int
-export function characterOffsetOfPositionWithinRange(posId,startId,endId) {
+export function characterOffsetOfPositionWithinRange(posId: number, startId: number, endId: number): number {
     //idebug("characterOffsetOfPositionWithinRange("+posId+","+startId+","+endId+")");
     throw new Error("characterOffsetOfPositionWithinRange: not implemented");
 }
@@ -375,13 +380,13 @@ let nonWordAtStartRE = new RegExp("^[\\s"+punctuation+"]+");
 let wordAtEndRE = new RegExp("[^\\s"+punctuation+"]+$");
 let nonWordAtEndRE = new RegExp("[\\s"+punctuation+"]+$");
 
-function isForward(direction) {
+function isForward(direction: string): boolean {
     return ((direction == "forward") ||
             (direction == "right") ||
             (direction == "down"));
 }
 
-export function isAtWordBoundary(pos,direction) {
+export function isAtWordBoundary(pos: Position.Position, direction: string): boolean {
     if (!(pos.node instanceof Text))
         return false;
     let paragraph = Txt.analyseParagraph(pos);
@@ -402,10 +407,12 @@ export function isAtWordBoundary(pos,direction) {
         return !beforeMatch;
 }
 
-export function isAtParagraphBoundary(pos,direction) {
+export function isAtParagraphBoundary(pos: Position.Position, direction: string): boolean {
+    // FIXME
+    return false;
 }
 
-export function isPositionAtBoundaryGranularityInDirection(posId,granularity,direction) {
+export function isPositionAtBoundaryGranularityInDirection(posId: number, granularity: string, direction: string): boolean {
     //idebug("isPositionAtBoundaryGranularityInDirection("+
     //       posId+","+granularity+","+direction+")");
     let pos = getPosition(posId);
@@ -435,7 +442,7 @@ export function isPositionAtBoundaryGranularityInDirection(posId,granularity,dir
     throw new Error("unsupported granularity: "+granularity);
 }
 
-export function isPositionWithinTextUnitInDirection(posId,granularity,direction) {
+export function isPositionWithinTextUnitInDirection(posId: number, granularity: string, direction: string): boolean {
     //idebug("isPositionWithinTextUnitInDirection("+
     //       posId+","+granularity+","+direction+")");
     let pos = getPosition(posId);
@@ -489,7 +496,7 @@ export function isPositionWithinTextUnitInDirection(posId,granularity,direction)
     throw new Error("unsupported granularity: "+granularity);
 }
 
-export function toWordBoundary(pos,direction) {
+export function toWordBoundary(pos: Position.Position, direction: string): Position.Position {
     pos = Txt.closestPosInDirection(pos,direction);
     if (pos == null)
         return null;
@@ -535,7 +542,7 @@ export function toWordBoundary(pos,direction) {
     }
 }
 
-export function toParagraphBoundary(pos,direction) {
+export function toParagraphBoundary(pos: Position.Position, direction: string): Position.Position {
     if (isForward(direction)) {
         let end = Txt.toEndOfBoundary(pos,"paragraph");
         if (Position.equal(pos,end)) {
@@ -556,7 +563,7 @@ export function toParagraphBoundary(pos,direction) {
     }
 }
 
-export function toLineBoundary(pos,direction) {
+export function toLineBoundary(pos: Position.Position, direction: string): Position.Position {
     if (isForward(direction)) {
         let end = Txt.toEndOfBoundary(pos,"line");
         return end ? end : pos;
@@ -567,7 +574,7 @@ export function toLineBoundary(pos,direction) {
     }
 }
 
-export function positionFromPositionToBoundaryInDirection(posId,granularity,direction) {
+export function positionFromPositionToBoundaryInDirection(posId: number, granularity: string, direction: string): number {
     //idebug("positionFromPositionToBoundaryInDirection("+
     //       posId+","+granularity+","+direction+")");
     let pos = getPosition(posId);
@@ -592,7 +599,7 @@ export function positionFromPositionToBoundaryInDirection(posId,granularity,dire
         throw new Error("unsupported granularity: "+granularity);
 }
 
-export function rangeEnclosingPositionWithGranularityInDirection(posId,granularity,direction) {
+export function rangeEnclosingPositionWithGranularityInDirection(posId: number, granularity: string, direction: string): RangeIds {
     //idebug("rangeEnclosingPositionWithGranularityInDirection("+
     //       posId+","+granularity+","+direction);
     let pos = getPosition(posId);
