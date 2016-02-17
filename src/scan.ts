@@ -25,26 +25,40 @@ import Selection = require("./selection");
 import Txt = require("./text");
 import Types = require("./types");
 
-function Match(matchId,startPos,endPos) {
-    this.matchId = matchId;
-    this.startPos = startPos;
-    this.endPos = endPos;
-    this.spans = new Array();
+class Match {
+
+    public matchId: number;
+    public startPos: Position.Position;
+    public endPos: Position.Position;
+    public spans: HTMLElement[];
+
+    constructor(matchId: number, startPos: Position.Position, endPos: Position.Position) {
+        this.matchId = matchId;
+        this.startPos = startPos;
+        this.endPos = endPos;
+        this.spans = new Array();
+    }
+
 }
 
-let matchesById = new Object();
+let matchesById: { [key: number]: Match } = {};
 let nextMatchId = 1;
 
-let curPos = null;
-let curParagraph = null;
+let curPos: Position.Position = null;
+let curParagraph: Txt.ParagraphInfo = null;
 
-export function reset() {
+export function reset(): void {
     curPos = new Position.Position(document.body,0);
     curParagraph = null;
     clearMatches();
 }
 
-export function next() {
+export interface ScanParagraph {
+    text: string;
+    sectionId: string;
+}
+
+export function next(): ScanParagraph {
     if (curPos == null)
         return null;
     curPos = Txt.toEndOfBoundary(curPos,"paragraph");
@@ -58,17 +72,19 @@ export function next() {
     curPos = Position.nextMatch(curPos,Position.okForMovement);
 
     let sectionId = null;
-    if (Types.isHeadingNode(curParagraph.node) &&
+    let paragraphNode = curParagraph.node;
+    if ((paragraphNode instanceof HTMLElement) &&
+        Types.isHeadingNode(paragraphNode) &&
         (curParagraph.startOffset == 0) &&
-        (curParagraph.endOffset == curParagraph.node.childNodes.length)) {
-        sectionId = DOM.getAttribute(curParagraph.node,"id");
+        (curParagraph.endOffset == paragraphNode.childNodes.length)) {
+        sectionId = DOM.getAttribute(paragraphNode,"id");
     }
 
     return { text: curParagraph.text,
              sectionId: sectionId };
 }
 
-export function addMatch(start,end) {
+export function addMatch(start: number, end: number): number {
     if (curParagraph == null)
         throw new Error("curParagraph is null");
     if ((start < 0) || (start > curParagraph.text.length))
@@ -96,7 +112,7 @@ export function addMatch(start,end) {
     return matchId;
 }
 
-export function showMatch(matchId) {
+export function showMatch(matchId: number): void {
     let match = matchesById[matchId];
     if (match == null)
         throw new Error("Match "+matchId+" not found");
@@ -113,7 +129,7 @@ export function showMatch(matchId) {
     }
 }
 
-export function replaceMatch(matchId,replacement) {
+export function replaceMatch(matchId: number, replacement: string): void {
     let match = matchesById[matchId];
     if (match == null)
         throw new Error("Match "+matchId+" not found");
@@ -136,17 +152,17 @@ export function replaceMatch(matchId,replacement) {
     delete matchesById[matchId];
 }
 
-function removeSpansForMatch(match) {
+function removeSpansForMatch(match: Match): void {
     for (let i = 0; i < match.spans.length; i++)
         DOM.removeNodeButKeepChildren(match.spans[i]);
 }
 
-export function removeMatch(matchId) {
+export function removeMatch(matchId: number): void {
     removeSpansForMatch(matchesById[matchId]);
     delete matchesById[matchId];
 }
 
-export function goToMatch(matchId) {
+export function goToMatch(matchId: number): void {
     let match = matchesById[matchId];
     if (match == null)
         throw new Error("Match "+matchId+" not found");
@@ -156,7 +172,7 @@ export function goToMatch(matchId) {
     Cursor.ensurePositionVisible(match.startPos,true);
 }
 
-function clearMatches() {
+function clearMatches(): void {
     for (let matchId in matchesById) {
         let match = matchesById[matchId];
         removeSpansForMatch(match);
@@ -164,6 +180,6 @@ function clearMatches() {
         Position.untrack(match.endPos);
     }
 
-    matchesById = new Object();
+    matchesById = {};
     nextMatchId = 1;
 }

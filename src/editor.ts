@@ -17,16 +17,16 @@
 
 import Util = require("./util");
 
-let backMessages = new Array();
+let backMessages: any[] = [];
 
 function addBackMessage(...args) {
     backMessages.push(Util.arrayCopy(arguments));
     return null;
 }
 
-export function getBackMessages() {
+export function getBackMessages(): string {
     let result = JSON.stringify(backMessages);
-    backMessages = new Array();
+    backMessages = [];
     return result;
 };
 
@@ -34,48 +34,49 @@ export function debug(str) {
     addBackMessage("debug",str);
 };
 
-export function error(error,type?) {
+export function error(error: string, type?: string): void {
     if (type == null)
         type = "";
     addBackMessage("error",error.toString(),type);
 };
 
-export function addOutlineItem(itemId,type,title) {
+export function addOutlineItem(itemId: string, type: string, title: string): void {
     addBackMessage("addOutlineItem",itemId,type,title);
 };
 
-export function updateOutlineItem(itemId,title) {
+export function updateOutlineItem(itemId: string, title: string): void {
     addBackMessage("updateOutlineItem",itemId,title);
 };
 
-export function removeOutlineItem(itemId) {
+export function removeOutlineItem(itemId: string): void {
     addBackMessage("removeOutlineItem",itemId);
 };
 
-export function outlineUpdated() {
+export function outlineUpdated(): void {
     addBackMessage("outlineUpdated");
 };
 
-export function setCursor(x,y,width,height) {
+export function setCursor(x: number, y: number, width: number, height: number): void {
     addBackMessage("setCursor",x,y,width,height);
 };
 
-export function setSelectionHandles(x1,y1,height1,x2,y2,height2) {
+export function setSelectionHandles(x1: number, y1: number, height1: number,
+                                    x2: number, y2: number, height2: number) {
     addBackMessage("setSelectionHandles",x1,y1,height1,x2,y2,height2);
 };
 
-export function setTableSelection(x,y,width,height) {
+export function setTableSelection(x: number, y: number, width: number, height: number): void {
     addBackMessage("setTableSelection",x,y,width,height);
 };
 
-export function setSelectionBounds(left,top,right,bottom) {
+export function setSelectionBounds(left: number, top: number, right: number, bottom: number): void {
     addBackMessage("setSelectionBounds",left,top,right,bottom);
 };
 
-export function clearSelectionHandlesAndCursor() {
+export function clearSelectionHandlesAndCursor(): void {
     addBackMessage("clearSelectionHandlesAndCursor");
 };
 
-export function updateAutoCorrect() {
+export function updateAutoCorrect(): void {
     addBackMessage("updateAutoCorrect");
 };

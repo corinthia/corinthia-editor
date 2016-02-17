@@ -17,24 +17,26 @@
 
 import UndoManager = require("./undo");
 
-function PostponedAction(fun,undoDisabled) {
-    this.fun = fun;
-    this.undoDisabled = undoDisabled;
+class PostponedAction {
+
+    constructor(public fun: () => void, public undoDisabled: boolean) {
+    }
+
 }
 
-let actions = new Array();
+let actions: PostponedAction[] = [];
 
-export function add(action) {
+export function add(action: () => void): void {
     actions.push(new PostponedAction(action,UndoManager.isDisabled()));
 }
 
-export function perform() {
+export function perform(): void {
     let count = 0;
     while (actions.length > 0) {
         if (count >= 10)
             throw new Error("Too many postponed actions");
         let actionsToPerform = actions;
-        actions = new Array();
+        actions = [];
         for (let i = 0; i < actionsToPerform.length; i++) {
             let action = actionsToPerform[i];
             if (action.undoDisabled)

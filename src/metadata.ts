@@ -15,9 +15,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export function getMetadata() {
+export function getMetadata(): { [key: string]: string } {
     return {};
 }
 
-export function setMetadata(metadata) {
+export function setMetadata(metadata: { [key: string]: string }) {
 }

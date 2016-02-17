@@ -18,7 +18,7 @@
 import Clipboard = require("./clipboard");
 import DOM = require("./dom");
 
-export function insertEquation() {
+export function insertEquation(): void {
     let math = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","math");
     let mrow = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","mrow");
     let msup = DOM.createElementNS(document,"http://www.w3.org/1998/Math/MathML","msup");

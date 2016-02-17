@@ -19,56 +19,64 @@ import Util = require("./util");
 
 let UNDO_LIMIT = 50;
 
-function UndoGroup(type,onClose) {
-    this.type = type;
-    this.onClose = onClose;
-    this.actions = new Array();
-}
+class UndoGroup {
 
-function UndoAction(fun,args) {
-    this.fun = fun;
-    this.args = args;
-}
+    public type: string;
+    public onClose: () => void;
+    public actions: UndoAction[];
 
-UndoAction.prototype.toString = function() {
-    let name;
-    if (this.fun.wrappedName != null)
-        name = this.fun.wrappedName;
-    else
-        name = this.fun.name;
-
-    let argStrings = new Array();
-    for (let i = 0; i < this.args.length; i++) {
-        if (this.args[i] instanceof Node)
-            argStrings.push(Util.nodeString(this.args[i]));
-        else if (this.args[i] == null)
-            argStrings.push("null");
-        else
-            argStrings.push(this.args[i].toString());
+    constructor(type: string, onClose: () => void) {
+        this.type = type;
+        this.onClose = onClose;
+        this.actions = [];
     }
 
-    return name + "(" + argStrings.join(",") + ")";
 }
 
-let undoStack = new Array();
-let redoStack = new Array();
+class UndoAction {
+
+    public fun: Function;
+    public args: any[];
+
+    constructor(fun: Function, args: any[]) {
+        this.fun = fun;
+        this.args = args;
+    }
+
+    public toString(): string {
+        let argStrings = new Array();
+        for (let i = 0; i < this.args.length; i++) {
+            if (this.args[i] instanceof Node)
+                argStrings.push(Util.nodeString(this.args[i]));
+            else if (this.args[i] == null)
+                argStrings.push("null");
+            else
+                argStrings.push(this.args[i].toString());
+        }
+
+        return name + "(" + argStrings.join(",") + ")";
+    }
+}
+
+let undoStack: UndoGroup[] = [];
+let redoStack: UndoGroup[] = [];
 let inUndo = false;
 let inRedo = false;
-let currentGroup = null;
+let currentGroup: UndoGroup = null;
 let disabled = 0;
 
 // public
-export function getLength() {
+export function getLength(): number {
     return undoStack.length + redoStack.length;
 }
 
 // public
-export function getIndex() {
+export function getIndex(): number {
     return undoStack.length;
 }
 
 // public
-export function setIndex(index) {
+export function setIndex(index: number): void {
     while (undoStack.length > index)
         undo();
     while (undoStack.length < index)
@@ -76,7 +84,7 @@ export function setIndex(index) {
 }
 
 // public
-export function print() {
+export function print(): void {
     Util.debug("");
     Util.debug("--------------------------------------------------------------------");
     Util.debug("Undo stack:");
@@ -102,14 +110,14 @@ export function print() {
     Util.debug("");
 }
 
-function closeCurrentGroup() {
+function closeCurrentGroup(): void {
     if ((currentGroup != null) && (currentGroup.onClose != null))
         currentGroup.onClose();
     currentGroup = null;
 }
 
 // public
-export function undo() {
+export function undo(): void {
     closeCurrentGroup();
     if (undoStack.length > 0) {
         let group = undoStack.pop();
@@ -122,7 +130,7 @@ export function undo() {
 }
 
 // public
-export function redo() {
+export function redo(): void {
     closeCurrentGroup();
     if (redoStack.length > 0) {
         let group = redoStack.pop();
@@ -135,7 +143,7 @@ export function redo() {
 }
 
 // public
-export function addAction(fun,...rest) {
+export function addAction(fun: Function,...rest): void {
     if (disabled > 0)
         return;
 
@@ -163,7 +171,7 @@ export function addAction(fun,...rest) {
 }
 
 // public
-export function newGroup(type?,onClose?) {
+export function newGroup(type?: string, onClose?: () => void): void {
     if (disabled > 0)
         return;
 
@@ -179,14 +187,14 @@ export function newGroup(type?,onClose?) {
 }
 
 // public
-export function groupType() {
+export function groupType(): string {
     if (undoStack.length > 0)
         return undoStack[undoStack.length-1].type;
     else
         return null;
 }
 
-export function disableWhileExecuting(fun) {
+export function disableWhileExecuting<T>(fun: () => T): T {
     disabled++;
     try {
         return fun();
@@ -196,34 +204,34 @@ export function disableWhileExecuting(fun) {
     }
 }
 
-export function isActive() {
+export function isActive(): boolean {
     return (inUndo || inRedo);
 }
 
-export function isDisabled() {
+export function isDisabled(): boolean {
     return (disabled > 0);
 }
 
-export function clear() {
+export function clear(): void {
     undoStack.length = 0;
     redoStack.length = 0;
 }
 
-function saveProperty(obj,name) {
+function saveProperty(obj: Object, name: string): void {
     if (obj.hasOwnProperty(name))
         addAction(setProperty,obj,name,obj[name]);
     else
         addAction(deleteProperty,obj,name);
 }
 
-export function setProperty(obj,name,value) {
+export function setProperty(obj: Object, name: string, value: any): void {
     if (obj.hasOwnProperty(name) && (obj[name] == value))
         return; // no point in adding an undo action
     saveProperty(obj,name);
     obj[name] = value;
 }
 
-export function deleteProperty(obj,name) {
+export function deleteProperty(obj: Object, name: string): void {
     if (!obj.hasOwnProperty(name))
         return; // no point in adding an undo action
     saveProperty(obj,name);

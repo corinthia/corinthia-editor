@@ -20,10 +20,10 @@ import DOM = require("./dom");
 import ElementTypes = require("./elementTypes");
 import Selection = require("./selection");
 
-let viewportMetaElement = null;
+let viewportMetaElement: HTMLElement = null;
 
 // public
-export function init(width,textScale) {
+export function init(width: number, textScale: number): void {
     let head = DOM.documentHead(document);
     for (let child = head.firstChild; child != null; child = child.nextSibling) {
         if ((child instanceof HTMLMetaElement) && (child.getAttribute("name") == "viewport")) {
@@ -54,7 +54,7 @@ export function init(width,textScale) {
 }
 
 // public
-export function setViewportWidth(width) {
+export function setViewportWidth(width: number): void {
     let contentValue = "width = "+width+", user-scalable = no";
     if (viewportMetaElement.getAttribute("content") != contentValue)
         DOM.setAttribute(viewportMetaElement,"content",contentValue);
@@ -64,7 +64,7 @@ export function setViewportWidth(width) {
 }
 
 // public
-export function setTextScale(textScale) {
+export function setTextScale(textScale: number): void {
     let pct = textScale+"%";
     if (document.documentElement.style.getPropertyValue("-webkit-text-size-adjust") != pct)
         DOM.setStyleProperties(document.documentElement,{"-webkit-text-size-adjust": pct});

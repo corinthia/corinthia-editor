@@ -38,7 +38,7 @@ let previewText =
     "venenatis, leo in pulvinar pharetra, eros nisi convallis elit, vitae luctus \n"+
     "magna velit ut lorem."
 
-function setTableCellContents(node) {
+function setTableCellContents(node: Node): void {
     if (Types.isTableCell(node)) {
         DOM.deleteAllChildren(node);
         DOM.appendChild(node,DOM.createTextNode(document,"Cell contents"));
@@ -49,7 +49,7 @@ function setTableCellContents(node) {
     }
 }
 
-export function showForStyle(styleId,uiName,titleText) {
+export function showForStyle(styleId: string, uiName: string, titleText: string): void {
     let elementName = null;
     let className = null;
 
@@ -126,7 +126,7 @@ export function showForStyle(styleId,uiName,titleText) {
         DOM.appendChild(document.body,text);
     }
 
-    function createParagraphElement(elementName,className) {
+    function createParagraphElement(elementName: string, className: string): HTMLElement {
         let element = DOM.createElement(document,elementName);
         if (className != null)
             DOM.setAttribute(element,"class",className);
