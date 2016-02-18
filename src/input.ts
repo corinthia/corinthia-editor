@@ -319,27 +319,22 @@ export function characterRangeByExtendingPositionInDirection(posId: number, dire
     throw new Error("characterRangeByExtendingPositionInDirection: not implemented");
 }
 
-export function firstRectForRange(startId: number, endId: number): Util.XYWHRect {
+export function firstRectForRange(startId: number, endId: number): ClientRect {
     //idebug("firstRectForRange("+startId+","+endId+")");
     let start = getPosition(startId);
     let end = getPosition(endId);
     let range = new Range.Range(start.node,start.offset,end.node,end.offset);
     let rects = Range.getClientRects(range);
     if (rects.length == 0)
-        return { x: 0, y: 0, width: 0, height: 0 };
+        return null;
     else
-        return { x: rects[0].left, y: rects[0].top,
-                 width: rects[0].width, height: rects[0].height };
+        return rects[0];
 }
 
-export function caretRectForPosition(posId: number): Util.XYWHRect {
+export function caretRectForPosition(posId: number): ClientRect {
     //idebug("caretRectForPosition("+posId+")");
     let pos = getPosition(posId);
-    let rect = Position.rectAtPos(pos);
-    if (rect == null)
-        return { x: 0, y: 0, width: 0, height: 0 };
-    else
-        return { x: rect.left, y: rect.top, width: rect.width, height: rect.height };
+    return Position.rectAtPos(pos);
 }
 
 // posId

@@ -171,7 +171,7 @@ export function positionCursor(x: number, y: number, wordBoundary: boolean): str
 }
 
 // public
-export function getCursorPosition(): Util.XYWHRect {
+export function getCursorPosition(): ClientRect {
     let selRange = Selection.get();
     if (selRange == null)
         return null;
@@ -185,7 +185,15 @@ export function getCursorPosition(): Util.XYWHRect {
     let left = rect.left + window.scrollX;
     let top = rect.top + window.scrollY;
     let height = rect.height;
-    return { x: left, y: top, width: 0, height: height };
+    let width = 0;
+    return {
+        left: left,
+        top: top,
+        right: left + width,
+        bottom: top + height,
+        width: 0,
+        height: height
+    };
 }
 
 // public

@@ -305,17 +305,12 @@ export class TimingInfo {
 
 }
 
-export interface XYWHRect {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-}
-
-export function xywhAbsElementRect(element): XYWHRect {
+export function absElementRect(element: HTMLElement): ClientRect {
     let rect = element.getBoundingClientRect();
-    return { x: rect.left + window.scrollX,
-             y: rect.top + window.scrollY,
+    return { left: rect.left + window.scrollX,
+             top: rect.top + window.scrollY,
+             right: rect.right + window.scrollX,
+             bottom: rect.bottom + window.scrollY,
              width: rect.width,
              height: rect.height };
 }

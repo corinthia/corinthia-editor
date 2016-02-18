@@ -1280,9 +1280,9 @@ export function setColWidths(itemId: string, widths: number[]): void {
 }
 
 export interface TableGeometry {
-    contentRect: Util.XYWHRect;
-    fullRect: Util.XYWHRect;
-    parentRect: Util.XYWHRect;
+    contentRect: ClientRect;
+    fullRect: ClientRect;
+    parentRect: ClientRect;
     columnWidths: number[];
     hasCaption: boolean;
 }
@@ -1293,6 +1293,12 @@ export function getGeometry(itemId: string): TableGeometry {
     let element = document.getElementById(itemId);
     if ((element == null) || (element.parentNode == null))
         return null;
+    let parent = element.parentNode;
+    let parentElement: HTMLElement = null;
+    if (parent instanceof HTMLElement)
+        parentElement = parent;
+    else
+        throw new Error("Table parent is not a HTMLElement");
 
     let structure = analyseStructure(element);
 
@@ -1318,9 +1324,9 @@ export function getGeometry(itemId: string): TableGeometry {
 
     let result: any = new Object();
     return {
-        contentRect: { x: left, y: top, width: right - left, height: bottom - top },
-        fullRect: Util.xywhAbsElementRect(element),
-        parentRect: Util.xywhAbsElementRect(element.parentNode),
+        contentRect: { left: left, top: top, right: right, bottom: bottom, width: right - left, height: bottom - top },
+        fullRect: Util.absElementRect(element),
+        parentRect: Util.absElementRect(parentElement),
         columnWidths: getColWidths(structure),
         hasCaption: (caption != null)
     };

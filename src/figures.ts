@@ -108,9 +108,9 @@ export function setProperties(itemId: string, width: string, src: string): void 
 }
 
 export interface FigureGeometry {
-    contentRect: Util.XYWHRect;
-    fullRect: Util.XYWHRect;
-    parentRect: Util.XYWHRect;
+    contentRect: ClientRect;
+    fullRect: ClientRect;
+    parentRect: ClientRect;
     hasCaption: boolean;
 }
 
@@ -122,13 +122,19 @@ export function getGeometry(itemId: string): FigureGeometry {
     let img = Traversal.firstDescendantOfType(figure,ElementTypes.HTML_IMG);
     if (img == null)
         return null;
+    let parent = figure.parentNode;
+    let parentElement: HTMLElement = null;
+    if (parent instanceof HTMLElement)
+        parentElement = parent;
+    else
+        throw new Error("Figure parent is not a HTMLElement");
 
     let figcaption = Traversal.firstChildOfType(figure,ElementTypes.HTML_FIGCAPTION);
 
     return {
-        contentRect: Util.xywhAbsElementRect(img),
-        fullRect: Util.xywhAbsElementRect(figure),
-        parentRect: Util.xywhAbsElementRect(figure.parentNode),
+        contentRect: Util.absElementRect(img),
+        fullRect: Util.absElementRect(figure),
+        parentRect: Util.absElementRect(parentElement),
         hasCaption: (figcaption != null)
     };
 }
