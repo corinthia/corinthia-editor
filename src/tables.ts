@@ -15,6 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Callbacks = require("./callbacks")
 import Clipboard = require("./clipboard");
 import Collections = require("./collections");
 import Cursor = require("./cursor");
@@ -555,7 +556,7 @@ export function addAdjacentColumn(): void {
 function columnHasContent(table: Table, col: number): boolean {
     for (let row = 0; row < table.numRows; row++) {
         let cell = Table_get(table,row,col);
-        if ((cell != null) && (cell.col == col) && Util.nodeHasContent(cell.element))
+        if ((cell != null) && (cell.col == col) && Types.nodeHasContent(cell.element))
             return true;
     }
     return false;
@@ -564,7 +565,7 @@ function columnHasContent(table: Table, col: number): boolean {
 function rowHasContent(table: Table, row: number): boolean {
     for (let col = 0; col < table.numCols; col++) {
         let cell = Table_get(table,row,col);
-        if ((cell != null) && (cell.row == row) && Util.nodeHasContent(cell.element))
+        if ((cell != null) && (cell.row == row) && Types.nodeHasContent(cell.element))
             return true;
     }
     return false;
@@ -863,7 +864,7 @@ export function mergeCells(): void {
 
                 if ((cellFirstRow < region.top) || (cellLastRow > region.bottom) ||
                     (cellFirstCol < region.left) || (cellLastCol > region.right)) {
-                    Util.debug("Can't merge this table: cell at "+row+","+col+
+                    Callbacks.debug("Can't merge this table: cell at "+row+","+col+
                                " goes outside bounds of selection");
                     return;
                 }

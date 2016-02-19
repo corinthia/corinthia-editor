@@ -119,7 +119,7 @@ export function setGenerator(generator: string): string {
 
 // public
 export function isEmptyDocument(): boolean {
-    return !Util.nodeHasContent(document.body);
+    return !Types.nodeHasContent(document.body);
 }
 
 // public
@@ -315,7 +315,7 @@ export function execute<T>(fun: () => T): T {
 
 function fixEmptyBody(): void {
     for (let child = document.body.firstChild; child != null; child = child.nextSibling) {
-        if (Util.nodeHasContent(child))
+        if (Types.nodeHasContent(child))
             return;
     }
 

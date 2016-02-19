@@ -16,6 +16,7 @@
 // limitations under the License.
 
 import Util = require("./util");
+import Callbacks = require("./callbacks")
 
 let UNDO_LIMIT = 50;
 
@@ -85,29 +86,29 @@ export function setIndex(index: number): void {
 
 // public
 export function print(): void {
-    Util.debug("");
-    Util.debug("--------------------------------------------------------------------");
-    Util.debug("Undo stack:");
+    Callbacks.debug("");
+    Callbacks.debug("--------------------------------------------------------------------");
+    Callbacks.debug("Undo stack:");
     for (let groupIndex = 0; groupIndex < undoStack.length; groupIndex++) {
         let group = undoStack[groupIndex];
-        Util.debug("    "+group.type);
+        Callbacks.debug("    "+group.type);
         for (let actionIndex = 0; actionIndex < group.actions.length; actionIndex++) {
             let action = group.actions[actionIndex];
-            Util.debug("        "+action);
+            Callbacks.debug("        "+action);
         }
     }
-    Util.debug("Redo stack:");
+    Callbacks.debug("Redo stack:");
     for (let groupIndex = 0; groupIndex < redoStack.length; groupIndex++) {
         let group = redoStack[groupIndex];
-        Util.debug("    "+group.type);
+        Callbacks.debug("    "+group.type);
         for (let actionIndex = 0; actionIndex < group.actions.length; actionIndex++) {
             let action = group.actions[actionIndex];
-            Util.debug("        "+action);
+            Callbacks.debug("        "+action);
         }
     }
-    Util.debug("Current group = "+currentGroup);
-    Util.debug("--------------------------------------------------------------------");
-    Util.debug("");
+    Callbacks.debug("Current group = "+currentGroup);
+    Callbacks.debug("--------------------------------------------------------------------");
+    Callbacks.debug("");
 }
 
 function closeCurrentGroup(): void {

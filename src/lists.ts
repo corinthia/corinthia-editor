@@ -190,7 +190,7 @@ export function decreaseIndent(): void {
 
         function haveContentAfter(node: Node): boolean {
             for (node = node.nextSibling; node != null; node = node.nextSibling) {
-                if (Util.nodeHasContent(node))
+                if (Types.nodeHasContent(node))
                     return true;
             }
             return false;
@@ -227,7 +227,7 @@ export function decreaseIndent(): void {
                 DOM.removeNodeButKeepChildren(liNode);
             }
 
-            if (!Util.nodeHasContent(listNode))
+            if (!Types.nodeHasContent(listNode))
                 DOM.deleteNode(listNode);
         }
     });

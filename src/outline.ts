@@ -1181,7 +1181,7 @@ export function setNumbered(itemId: string, numbered: boolean): void {
             else {
                 let caption = OutlineItem_getTitleNode(item,false);
                 if (caption != null) {
-                    if (Util.nodeHasContent(caption))
+                    if (Types.nodeHasContent(caption))
                         DOM.setAttribute(caption,"class","Unnumbered");
                     else
                         DOM.deleteNode(caption);

@@ -449,7 +449,7 @@ export function hasContent(range: Range): boolean {
             }
         }
         else if (node instanceof Element) {
-            if (Util.nodeHasContent(node))
+            if (Types.nodeHasContent(node))
                 return true;
         }
     }

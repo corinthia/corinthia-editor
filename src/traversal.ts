@@ -15,6 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Callbacks = require("./callbacks")
 import Util = require("./util");
 
 export function prevNode(node: Node): Node {
@@ -143,9 +144,9 @@ export function printTree(node: Node, indent: string, offset: string): void {
     if (offset == null)
         offset = "";
     if ((node instanceof Element) && node.hasAttribute("class"))
-        Util.debug(indent+offset+Util.nodeString(node)+"."+node.getAttribute("class"));
+        Callbacks.debug(indent+offset+Util.nodeString(node)+"."+node.getAttribute("class"));
     else
-        Util.debug(indent+offset+Util.nodeString(node));
+        Callbacks.debug(indent+offset+Util.nodeString(node));
     let childOffset = 0;
     for (let child = node.firstChild; child != null; child = child.nextSibling) {
         printTree(child,indent+"    ",childOffset+" ");

@@ -15,15 +15,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Callbacks = require("./callbacks")
-import DOM = require("./dom");
-import ElementTypes = require("./elementTypes");
-import Types = require("./types");
-
-export function debug(str: any): void {
-    Callbacks.debug(""+str);
-}
-
 export function arrayContains<T>(array: T[], value: T): boolean {
     for (let i = 0; i < array.length; i++) {
         if (array[i] == value)
@@ -62,8 +53,6 @@ export function nodeString(node: Node): string {
     if (node == null)
         return "null";
     let id = "";
-    if (debugIds)
-        id = node._nodeId+":";
     if (node instanceof Text) {
         return id+JSON.stringify(node.nodeValue);
     }
@@ -108,25 +97,6 @@ export function cloneNumberDict<T>(object: { [key: number]: T }): { [key: number
     for (let name in object)
         result[name] = object[name];
     return result;
-}
-
-export function nodeHasContent(node: Node): boolean {
-    switch (node._type) {
-    case ElementTypes.HTML_TEXT:
-        return !isWhitespaceString(node.nodeValue);
-    case ElementTypes.HTML_IMG:
-    case ElementTypes.HTML_TABLE:
-        return true;
-    default:
-        if (Types.isOpaqueNode(node))
-            return true;
-
-        for (let child = node.firstChild; child != null; child = child.nextSibling) {
-            if (nodeHasContent(child))
-                return true;
-        }
-        return false;
-    }
 }
 
 let isWhitespaceStringRegexp = /^\s*$/;
@@ -307,12 +277,13 @@ export class TimingInfo {
         this.lastTime = now;
     }
 
-    public print(title: string): void {
-        debug(title);
+    public toString(): string {
+        let lines: string[] = [];
         for (let i = 0; i < this.entries.length; i++) {
             let entry = this.entries[i];
-            debug("    "+entry.name+": "+entry.time+"ms");
+            lines.push("    "+entry.name+": "+entry.time+"ms");
         }
+        return lines.join("\n");
     }
 
 }
@@ -326,5 +297,3 @@ export function absElementRect(element: HTMLElement): ClientRect {
              width: rect.width,
              height: rect.height };
 }
-
-export let debugIds = false;

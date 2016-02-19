@@ -1189,7 +1189,7 @@ function prepareForMerge(detail: Range.RangeDetail): void {
             let name = detail.startAncestor.nodeName; // check-ok
             DOM.replaceElement(paragraph,name);
         }
-        if (!Util.nodeHasContent(li))
+        if (!Types.nodeHasContent(li))
             DOM.deleteNode(li);
         if (Traversal.firstChildElement(list) == null)
             DOM.deleteNode(list);
@@ -1311,14 +1311,14 @@ function boundaryCompliantRange(range: Range.Range): Range.Range {
 }
 
 export function print(): void {
-    Util.debug("");
-    Util.debug("");
-    Util.debug("");
-    Util.debug("================================================================================");
+    Callbacks.debug("");
+    Callbacks.debug("");
+    Callbacks.debug("");
+    Callbacks.debug("================================================================================");
 
     let sel = get();
     if (sel == null) {
-        Util.debug("No selection");
+        Callbacks.debug("No selection");
         return;
     }
 
@@ -1327,9 +1327,9 @@ export function print(): void {
     function printSelectionElement(node: HTMLElement, indent: string): void {
         let className = DOM.getAttribute(node,"class");
         if (className != null)
-            Util.debug(indent+node.nodeName+" ("+className+")");
+            Callbacks.debug(indent+node.nodeName+" ("+className+")");
         else
-            Util.debug(indent+node.nodeName);
+            Callbacks.debug(indent+node.nodeName);
 
         let child = node.firstChild;
         let offset = 0;
@@ -1338,11 +1338,11 @@ export function print(): void {
             let isStart = ((sel.start.node == node) && (sel.start.offset == offset));
             let isEnd = ((sel.end.node == node) && (sel.end.offset == offset));
             if (isStart && isEnd)
-                Util.debug(indent+"    []");
+                Callbacks.debug(indent+"    []");
             else if (isStart)
-                Util.debug(indent+"    [");
+                Callbacks.debug(indent+"    [");
             else if (isEnd)
-                Util.debug(indent+"    ]");
+                Callbacks.debug(indent+"    ]");
 
             if (child == null)
                 break;
@@ -1370,6 +1370,6 @@ export function print(): void {
             value = beforeSelection + "[" + value.substring(sel.start.offset);
         }
 
-        Util.debug(indent+JSON.stringify(value));
+        Callbacks.debug(indent+JSON.stringify(value));
     }
 }

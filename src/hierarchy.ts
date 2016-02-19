@@ -254,15 +254,15 @@ export function avoidInlineChildren(parent: Node): void {
         if (Types.isInlineNode(child)) {
             let start = child;
             let end = child;
-            let haveContent = Util.nodeHasContent(end);
+            let haveContent = Types.nodeHasContent(end);
             while ((end.nextSibling != null) && Types.isInlineNode(end.nextSibling)) {
                 end = end.nextSibling;
-                if (Util.nodeHasContent(end))
+                if (Types.nodeHasContent(end))
                     haveContent = true;
             }
             child = DOM.wrapSiblings(start,end,"P");
             let next = child.nextSibling;
-            if (!Util.nodeHasContent(child))
+            if (!Types.nodeHasContent(child))
                 DOM.deleteNode(child);
             child = next;
         }

@@ -15,6 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Callbacks = require("./callbacks")
 import Cursor = require("./cursor");
 import DOM = require("./dom");
 import ElementTypes = require("./elementTypes");
@@ -116,7 +117,7 @@ export function cut(): { [key: string]: string } {
                 let parent = node.parentNode;
                 switch (node._type) {
                 case ElementTypes.HTML_LI:
-                    if (!Util.nodeHasContent(node))
+                    if (!Types.nodeHasContent(node))
                         DOM.deleteNode(node);
                     break;
                 case ElementTypes.HTML_UL:
@@ -282,7 +283,7 @@ function fixParagraphStyles(node: Node, paragraphClass: string): void {
         if (node._type == ElementTypes.HTML_P) {
             let className = DOM.getAttribute(node,"class");
             if ((className == null) || (className == "")) {
-                Util.debug("Setting paragraph class to "+paragraphClass);
+                Callbacks.debug("Setting paragraph class to "+paragraphClass);
                 DOM.setAttribute(node,"class",paragraphClass);
             }
         }
@@ -478,7 +479,7 @@ export function pasteNodes(nodes: Node[]): void {
                 break;
             if (Types.isContainerNode(pos.node) && (pos.node._type != ElementTypes.HTML_LI))
                 break;
-            if (!Util.nodeHasContent(pos.node)) {
+            if (!Types.nodeHasContent(pos.node)) {
                 let oldNode = pos.node;
                 pos = new Position.Position(pos.node.parentNode,DOM.nodeOffset(pos.node));
                 DOM.deleteNode(oldNode);

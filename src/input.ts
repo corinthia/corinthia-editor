@@ -33,7 +33,7 @@ export interface RangeIds {
 }
 
 // function idebug(str) {
-//    Util.debug(str);
+//    Callbacks.debug(str);
 // }
 
 let forwardSelection = true;

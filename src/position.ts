@@ -86,8 +86,6 @@ export class Position {
                     extra += "!";
             }
             let id = "";
-            if (Util.debugIds)
-                id = this.node._nodeId+":";
             result = id+JSON.stringify(this.node.nodeValue.slice(0,this.offset)+extra+"|"+
                                        this.node.nodeValue.slice(this.offset));
         }
@@ -436,9 +434,9 @@ export function okForMovement(pos: Position, insertion?: boolean): boolean {
 
         let prevIsNote = (prevNode != null) && Types.isNoteNode(prevNode);
         let nextIsNote = (nextNode != null) && Types.isNoteNode(nextNode);
-        if (((nextNode == null) || !Util.nodeHasContent(nextNode)) && prevIsNote)
+        if (((nextNode == null) || !Types.nodeHasContent(nextNode)) && prevIsNote)
             return true;
-        if (((prevNode == null) || !Util.nodeHasContent(prevNode)) && nextIsNote)
+        if (((prevNode == null) || !Types.nodeHasContent(prevNode)) && nextIsNote)
             return true;
         if (prevIsNote && nextIsNote)
             return true;
@@ -692,7 +690,7 @@ function exactRectAtPos(pos: Position): ClientRect {
 
         // Start of empty paragraph
         if ((node instanceof Element) && (offset == 0) &&
-            Types.isParagraphNode(node) && !Util.nodeHasContent(node)) {
+            Types.isParagraphNode(node) && !Types.nodeHasContent(node)) {
             return zeroWidthLeftRect(node.getBoundingClientRect());
         }
 
@@ -744,7 +742,7 @@ export function displayRectAtPos(pos: Position): ClientRect {
         return rect;
 
     let noteNode = noteAncestor(pos);
-    if ((noteNode != null) && !Util.nodeHasContent(noteNode)) // In empty footnote or endnote
+    if ((noteNode != null) && !Types.nodeHasContent(noteNode)) // In empty footnote or endnote
         return zeroWidthMidRect(noteNode.getBoundingClientRect());
 
     // If we're immediately before or after a footnote or endnote, calculate the rect by
@@ -763,7 +761,7 @@ export function displayRectAtPos(pos: Position): ClientRect {
     }
 
     let captionNode = captionAncestor(pos);
-    if ((captionNode != null) && !Util.nodeHasContent(captionNode)) {
+    if ((captionNode != null) && !Types.nodeHasContent(captionNode)) {
         // Even if an empty caption has generated content (e.g. "Figure X: ") preceding it,
         // we can't directly get the rect of that generated content. So we temporarily insert
         // a text node containing a single space character, get the position to the right of
@@ -1024,7 +1022,7 @@ function isEmptyParagraphNode(node: Node): boolean {
     return ((node._type == ElementTypes.HTML_P) &&
             (node.lastChild != null) &&
             (node.lastChild._type == ElementTypes.HTML_BR) &&
-            !Util.nodeHasContent(node));
+            !Types.nodeHasContent(node));
 }
 
 function findLastTextRect(): ClientRect {

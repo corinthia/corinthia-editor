@@ -261,7 +261,7 @@ export function updateBRAtEndOfParagraph(node: Node): void {
 
         } while ((last != null) && Types.isInlineNode(last));
 
-        if (Util.nodeHasContent(paragraph)) {
+        if (Types.nodeHasContent(paragraph)) {
             // Paragraph has content: don't want BR at end
             if (br != null) {
                 DOM.deleteNode(br);
@@ -483,7 +483,7 @@ export function insertCharacter(str: string, allowInvalidPos: boolean, allowNoPa
 
 function tryDeleteEmptyCaption(pos: Position.Position): boolean {
     let caption = Position.captionAncestor(pos);
-    if ((caption == null) || Util.nodeHasContent(caption))
+    if ((caption == null) || Types.nodeHasContent(caption))
         return false;
 
     let container = Position.figureOrTableAncestor(pos);
@@ -500,7 +500,7 @@ function tryDeleteEmptyCaption(pos: Position.Position): boolean {
 
 function tryDeleteEmptyNote(pos: Position.Position): boolean {
     let note = Position.noteAncestor(pos);
-    if ((note == null) || Util.nodeHasContent(note))
+    if ((note == null) || Types.nodeHasContent(note))
         return false;
 
     let parent = note.parentNode;
@@ -568,7 +568,7 @@ export function deleteCharacter(): void {
             let startBlock = firstBlockAncestor(Position.closestActualNode(prevPos));
             let endBlock = firstBlockAncestor(Position.closestActualNode(selRange.end));
             if ((startBlock != endBlock) &&
-                Types.isParagraphNode(startBlock) && !Util.nodeHasContent(startBlock)) {
+                Types.isParagraphNode(startBlock) && !Types.nodeHasContent(startBlock)) {
                 DOM.deleteNode(startBlock);
                 set(selRange.end.node,selRange.end.offset)
             }
@@ -736,12 +736,12 @@ export function enterPressed(): void {
         let start = detail.startChild ? detail.startChild : detail.startParent;
         for (let ancestor = start; ancestor != null; ancestor = ancestor.parentNode) {
             prev = ancestor.previousSibling;
-            if ((prev != null) && Types.isParagraphNode(prev) && !Util.nodeHasContent(prev)) {
+            if ((prev != null) && Types.isParagraphNode(prev) && !Types.nodeHasContent(prev)) {
                 DOM.deleteAllChildren(prev);
                 updateBRAtEndOfParagraph(prev);
                 break;
             }
-            else if ((prev != null) && (prev._type == ElementTypes.HTML_LI) && !Util.nodeHasContent(prev)) {
+            else if ((prev != null) && (prev._type == ElementTypes.HTML_LI) && !Types.nodeHasContent(prev)) {
                 let next: Node;
                 for (let child = prev.firstChild; child != null; child = next) {
                     next = child.nextSibling;
@@ -788,11 +788,11 @@ export function enterPressed(): void {
             if (newAncestor != null)
                 ancestor = newAncestor;
 
-            if (Types.isParagraphNode(ancestor) && !Util.nodeHasContent(ancestor)) {
+            if (Types.isParagraphNode(ancestor) && !Types.nodeHasContent(ancestor)) {
                 updateBRAtEndOfParagraph(prev);
                 break;
             }
-            else if ((ancestor._type == ElementTypes.HTML_LI) && !Util.nodeHasContent(ancestor)) {
+            else if ((ancestor._type == ElementTypes.HTML_LI) && !Types.nodeHasContent(ancestor)) {
                 DOM.deleteAllChildren(ancestor);
                 break;
             }

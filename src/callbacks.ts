@@ -30,8 +30,8 @@ export function getBackMessages(): string {
     return result;
 };
 
-export function debug(str: string): void {
-    addBackMessage("debug",str);
+export function debug(message: any): void {
+    addBackMessage("debug",message.toString());
 };
 
 export function error(error: string, type?: string): void {

@@ -15,7 +15,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import DOM = require("./dom");
 import ElementTypes = require("./elementTypes");
 import Util = require("./util");
 
@@ -171,7 +170,7 @@ export function isRefNode(node: Node): boolean {
 
 export function isNoteNode(node: Node): boolean {
     if (node instanceof HTMLSpanElement) {
-        let className = DOM.getAttribute(node,"class");
+        let className = node.getAttribute("class");
         return !!((className == "footnote") || (className == "endnote"));
     }
     else {
@@ -180,7 +179,7 @@ export function isNoteNode(node: Node): boolean {
 }
 
 export function isEmptyNoteNode(node: Node): boolean {
-    return !!(isNoteNode(node) && !Util.nodeHasContent(node));
+    return !!(isNoteNode(node) && !nodeHasContent(node));
 }
 
 export function isItemNumber(node: Node): boolean {
@@ -232,7 +231,7 @@ export function isSelectionHighlight(node: Node): boolean {
 
 export function isSelectionSpan(node: Node): boolean {
     return ((node instanceof HTMLSpanElement) &&
-            (DOM.getAttribute(node,"class") == Keys.SELECTION_CLASS));
+            (node.getAttribute("class") == Keys.SELECTION_CLASS));
 };
 
 export function isTOCNode(node: Node): boolean {
@@ -268,4 +267,23 @@ export function isSpecialBlockNode(node: Node): boolean {
 
 export function isAbstractSpan(node: Node): boolean {
     return ((node instanceof HTMLSpanElement) && node.hasAttribute(Keys.ABSTRACT_ELEMENT));
+}
+
+export function nodeHasContent(node: Node): boolean {
+    switch (node._type) {
+    case ElementTypes.HTML_TEXT:
+        return !Util.isWhitespaceString(node.nodeValue);
+    case ElementTypes.HTML_IMG:
+    case ElementTypes.HTML_TABLE:
+        return true;
+    default:
+        if (isOpaqueNode(node))
+            return true;
+
+        for (let child = node.firstChild; child != null; child = child.nextSibling) {
+            if (nodeHasContent(child))
+                return true;
+        }
+        return false;
+    }
 }
