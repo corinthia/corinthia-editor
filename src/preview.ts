@@ -50,8 +50,8 @@ function setTableCellContents(node: Node): void {
 }
 
 export function showForStyle(styleId: string, uiName: string, titleText: string): void {
-    let elementName = null;
-    let className = null;
+    let elementName: string = null;
+    let className: string = null;
 
     let dotPos = styleId.indexOf(".");
     if (dotPos >= 0) {

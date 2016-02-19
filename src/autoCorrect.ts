@@ -126,7 +126,7 @@ export function removeCorrection(span: HTMLElement): void {
     if (correction == null)
         throw new Error("No autocorrect entry for "+JSON.stringify(Traversal.getNodeText(span)));
 
-    let index = null;
+    let index: number = null;
     for (let i = 0; i < correctionList.length; i++) {
         if (correctionList[i].span == span) {
             index = i;

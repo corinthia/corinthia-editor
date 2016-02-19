@@ -18,9 +18,9 @@
 let topArea: any;
 let leftArea: any;
 let rightArea: any;
-let leftLoadedContinuation = null;
+let leftLoadedContinuation: () => void = null;
 let results = new Object();
-let allCode = null;
+let allCode: string = null;
 let tests: any = null;
 
 class Result {
@@ -182,7 +182,7 @@ function leftLoaded(): void {
 
     let w = leftArea.contentWindow;
     w.eval(allCode);
-    w.globalAPI.Util.debug = function(str) { console.log(str); };
+    w.globalAPI.Util.debug = function(str: any) { console.log(str); };
 
     w.globalAPI.tests.TestLib.testHarnessSetup();
     continuation();
@@ -194,8 +194,8 @@ function runAllTests(): void {
     let dirno = 0;
     let fileno = 0;
     let haveTest = false;
-    let dirname;
-    let filename;
+    let dirname: string;
+    let filename: string;
 
     let passes = 0;
     let failures = 0;
@@ -225,7 +225,7 @@ function runAllTests(): void {
         if (haveTest) {
             let expected = readFile(dirname+"/"+filename+"-expected.html");
 
-            let actual;
+            let actual: string;
             try {
                 actual = doPerformTest();
             }

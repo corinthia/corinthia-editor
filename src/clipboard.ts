@@ -36,13 +36,13 @@ function expandRangeForCopy(range: Range.Range): Range.Range {
     if (range == null)
         return range;
 
-    let startInLI = null;
+    let startInLI: Node = null;
     for (let node = range.start.node; node != null; node = node.parentNode) {
         if (node._type == ElementTypes.HTML_LI)
             startInLI = node;
     }
 
-    let endInLI = null;
+    let endInLI: Node = null;
     for (let node = range.end.node; node != null; node = node.parentNode) {
         if (node._type == ElementTypes.HTML_LI)
             endInLI = node;
@@ -70,7 +70,7 @@ function copyRange(range: Range.Range): { [key: string]: string } {
     let text = "";
 
     if (range != null) {
-        let nodes;
+        let nodes: Node[];
         let region = Tables.regionFromRange(range);
         if (region != null) {
             nodes = [Tables.cloneRegion(region)];
@@ -100,7 +100,7 @@ export function htmlToText(node: Node): string {
 // public
 export function cut(): { [key: string]: string } {
     UndoManager.newGroup("Cut");
-    let content;
+    let content: { [key: string]: string };
 
     let range = Selection.get();
     range = expandRangeForCopy(range);
@@ -269,7 +269,7 @@ function replaceCells(src: Tables.Table, dest: Tables.Table, destRow: number, de
 }
 
 function insertChildrenBefore(parent: Node, child: Node, nextSibling: Node, pastedNodes: Node[]): void {
-    let next;
+    let next: Node;
     for (let grandChild = child.firstChild; grandChild != null; grandChild = next) {
         next = grandChild.nextSibling;
         pastedNodes.push(grandChild);
@@ -342,9 +342,9 @@ export function pasteNodes(nodes: Node[]): void {
     if (range == null)
         throw new Error("No current selection");
 
-    let parent;
-    let previousSibling;
-    let nextSibling;
+    let parent: Node;
+    let previousSibling: Node;
+    let nextSibling: Node;
 
     let start = range.start;
     start = Position.preferElementPosition(start);
@@ -360,10 +360,10 @@ export function pasteNodes(nodes: Node[]): void {
         previousSibling = start.node;
     }
 
-    let prevLI = null;
-    let inItem = null;
-    let inList = null;
-    let containerParent = null;
+    let prevLI: HTMLElement = null;
+    let inItem: Node = null;
+    let inList: Node = null;
+    let containerParent: Node = null;
 
     for (let temp = parent; temp != null; temp = temp.parentNode) {
         if (Types.isContainerNode(temp)) {
@@ -381,7 +381,7 @@ export function pasteNodes(nodes: Node[]): void {
         }
     }
 
-    let pastedNodes;
+    let pastedNodes: Node[];
     if (inItem) {
         pastedNodes = new Array();
         for (let i = 0; i < nodes.length; i++) {
@@ -446,7 +446,7 @@ export function pasteNodes(nodes: Node[]): void {
         }
     }
 
-    let prevOffset;
+    let prevOffset: number;
     if (previousSibling == null)
         prevOffset = 0;
     else

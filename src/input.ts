@@ -622,7 +622,7 @@ export function rangeEnclosingPositionWithGranularityInDirection(posId: number, 
         let beforeWord = before.replace(wordAtEndRE,"");
         let afterWord = after.replace(wordAtStartRE,"");
 
-        let ok;
+        let ok: boolean;
 
         if (isForward(direction))
             ok = (afterWord.length < after.length);

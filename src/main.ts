@@ -61,7 +61,7 @@ export function removeUnsupportedInput(): void {
             DOM.deleteNode(node);
         }
         else {
-            let next;
+            let next: Node;
             for (let child = node.firstChild; child != null; child = next) {
                 next = child.nextSibling;
                 recurse(child);
@@ -73,7 +73,7 @@ export function removeUnsupportedInput(): void {
 // private
 function addMetaCharset(): void {
     let head = DOM.documentHead(document);
-    let next;
+    let next: Node;
     for (let child = head.firstChild; child != null; child = next) {
         next = child.nextSibling;
         if ((child instanceof HTMLMetaElement) && child.hasAttribute("charset")) {
@@ -254,13 +254,13 @@ export function getErrorReportingInfo(): string {
 export function removeSpecial(node: Node): void {
     // We process the children first, so that if there are any nested removable elements (e.g.
     // a selection span inside of an autocorrect span), all levels of nesting are taken care of
-    let next;
+    let next: Node;
     for (let child = node.firstChild; child != null; child = next) {
         next = child.nextSibling;
         removeSpecial(child);
     }
 
-    let cssClass = null;
+    let cssClass: string = null;
     if ((node instanceof Element) && node.hasAttribute("class"))
         cssClass = node.getAttribute("class");
 

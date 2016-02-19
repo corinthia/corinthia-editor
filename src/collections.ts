@@ -105,21 +105,21 @@ export class NodeSet {
         }
     }
 
-    public union(other): NodeSet {
+    public union(other: NodeSet): NodeSet {
         let result = new NodeSet();
         this.forEach(function (node) { result.add(node); });
         other.forEach(function (node) { result.add(node); });
         return result;
     }
 
-    public intersection(other): NodeSet {
+    public intersection(other: NodeSet): NodeSet {
         let result = new NodeSet();
         this.forEach(function (node) { if (other.contains(node)) { result.add(node); } });
         return result;
     }
 
     // FIXME: This should be a static method. Is it actually used?
-    public fromArray(array): NodeSet {
+    public fromArray(array: Node[]): NodeSet {
         let set = new NodeSet();
         array.forEach(function(node) { set.add(node); });
         return set;

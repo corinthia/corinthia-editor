@@ -71,7 +71,7 @@ export function next(): ScanParagraph {
 
     curPos = Position.nextMatch(curPos,Position.okForMovement);
 
-    let sectionId = null;
+    let sectionId: string = null;
     let paragraphNode = curParagraph.node;
     if ((paragraphNode instanceof HTMLElement) &&
         Types.isHeadingNode(paragraphNode) &&

@@ -19,7 +19,7 @@ import Util = require("./util");
 
 let backMessages: any[] = [];
 
-function addBackMessage(...args) {
+function addBackMessage(...args: any[]): void {
     backMessages.push(Util.arrayCopy(args));
     return null;
 }

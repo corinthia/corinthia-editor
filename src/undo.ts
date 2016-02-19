@@ -143,7 +143,7 @@ export function redo(): void {
 }
 
 // public
-export function addAction(fun: Function,...rest): void {
+export function addAction(fun: Function, ...rest: any[]): void {
     if (disabled > 0)
         return;
 

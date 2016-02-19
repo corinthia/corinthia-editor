@@ -85,7 +85,7 @@ export function increaseIndent(): void {
             if (prevLi != null) {
                 let prevList = lastDescendentList(prevLi);
                 let childList = firstDescendentList(li);
-                let childListContainer = null;
+                let childListContainer: Node = null;
                 if (childList != null) {
                     // childList may be contained inside one or more wrapper elements, in which
                     // case we set childListContainer to point to the wrapper element that is a
@@ -108,7 +108,7 @@ export function increaseIndent(): void {
                     }
                 }
                 else {
-                    let newList;
+                    let newList: Node;
                     if (childList != null) {
                         // alert("Case 3: no prevList but childList");
                         newList = childList;
@@ -171,7 +171,6 @@ export function decreaseIndent(): void {
         // Remove from consideration any list items that have an ancestor that is going to
         // be moved
         let i = 0;
-        let changed;
         while (i < listItems.length) {
             let node = listItems[i];
 
@@ -206,7 +205,7 @@ export function decreaseIndent(): void {
             let containerChild = findContainerChild(listNode);
 
             if (haveContentAfter(liNode)) {
-                let secondHalf;
+                let secondHalf: HTMLElement;
                 if (listNode._type == ElementTypes.HTML_UL)
                     secondHalf = DOM.createElement(document,"UL");
                 else
@@ -337,7 +336,7 @@ export function clearList(): void {
             if (node._type == ElementTypes.HTML_LI) {
                 let li = node;
                 let list = li.parentNode;
-                let insertionPoint = null;
+                let insertionPoint: Node = null;
 
                 DOM.removeAdjacentWhitespace(li);
 
@@ -358,7 +357,6 @@ export function clearList(): void {
                     insertionPoint = secondList;
                 }
 
-                let parent = null;
                 let child = li.firstChild;
                 while (child != null) {
                     let next = child.nextSibling;
@@ -403,7 +401,7 @@ function setList(type: number): void {
     let nodes = getListOperationNodes(range);
 
     if (nodes.length == 0) {
-        let text;
+        let text: Node;
         if (range.start.node instanceof Text) {
             text = range.start.node;
         }
@@ -425,11 +423,11 @@ function setList(type: number): void {
 
         for (let i = 0; i < nodes.length; i++) {
             let node = nodes[i];
-            let next;
-            let prev;
-            let li = null;
-            let oldList = null;
-            let listInsertionPoint;
+            let next: Node;
+            let prev: Node;
+            let li: Node = null;
+            let oldList: Node = null;
+            let listInsertionPoint: Node;
 
             if ((node._type == ElementTypes.HTML_LI) && (node.parentNode._type == type)) {
                 // Already in the correct type of list; don't need to do anything
@@ -479,8 +477,8 @@ function setList(type: number): void {
                 listInsertionPoint = node;
             }
 
-            let list;
-            let itemInsertionPoint;
+            let list: Node;
+            let itemInsertionPoint: Node;
 
             if ((prev != null) && (prev._type == type)) {
                 list = prev;

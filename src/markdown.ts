@@ -28,7 +28,7 @@ function blockToText(md: MarkdownBuilder, node: Node, indent: string, nextIndent
     switch (node._type) {
     case ElementTypes.HTML_LI:
         if (listType == "OL") {
-            let listMarker;
+            let listMarker: string;
             if (listNo.value < 10)
                 listMarker = listNo.value+".  ";
             else

@@ -30,7 +30,8 @@ import Types = require("./types");
 import UndoManager = require("./undo");
 import Util = require("./util");
 
-let cursorX = null;
+// FIXME: this variable is unused
+let cursorX: number = null;
 
 export function ensurePositionVisible(pos: Position.Position, center?: boolean): void {
     // If we can't find the cursor rect for some reason, just don't do anything.
@@ -85,7 +86,7 @@ export function positionCursor(x: number, y: number, wordBoundary: boolean): str
 
     y = scrollDocumentForY(y);
 
-    let result = null;
+    let result: string = null;
     let position = Position.atPoint(x,y);
     if (position == null)
         return null;
@@ -245,7 +246,7 @@ export function updateBRAtEndOfParagraph(node: Node): void {
         paragraph = paragraph.parentNode;
     if (paragraph != null) {
 
-        let br = null;
+        let br: Node = null;
         let last = paragraph;
         do {
 
@@ -633,7 +634,7 @@ export function enterPressed(): void {
     }
 
     // Are we inside a footnote or endnote? If so, move the cursor immediately after it
-    let note = null;
+    let note: HTMLElement = null;
     if (selRange.start.node instanceof Text) {
         note = Position.noteAncestor(selRange.start);
     }
@@ -642,7 +643,7 @@ export function enterPressed(): void {
         // the paragraph *before* the note, not after
         let checkNode = selRange.start.node;
         for (let anc = checkNode; anc != null; anc = anc.parentNode) {
-            if (Types.isNoteNode(anc)) {
+            if ((anc instanceof HTMLElement) && Types.isNoteNode(anc)) {
                 note = anc;
                 break;
             }
@@ -728,7 +729,7 @@ export function enterPressed(): void {
         }
 
         let detail = Range.detail(selRange);
-        let prev = null;
+        let prev: Node = null;
 
         // If a preceding paragraph has become empty as a result of enter being pressed
         // while the cursor was in it, then update the BR at the end of the paragraph
@@ -741,7 +742,7 @@ export function enterPressed(): void {
                 break;
             }
             else if ((prev != null) && (prev._type == ElementTypes.HTML_LI) && !Util.nodeHasContent(prev)) {
-                let next;
+                let next: Node;
                 for (let child = prev.firstChild; child != null; child = next) {
                     next = child.nextSibling;
                     if (Traversal.isWhitespaceTextNode(child))
@@ -760,8 +761,8 @@ export function enterPressed(): void {
             if ((ancestor instanceof HTMLElement) && Types.isParagraphNode(ancestor)) {
                 let nextSelector = Styles.nextSelectorAfter(ancestor);
                 if (nextSelector != null) {
-                    let nextElementName = null;
-                    let nextClassName = null;
+                    let nextElementName: string = null;
+                    let nextClassName: string = null;
 
 
                     let dotIndex = nextSelector.indexOf(".");
@@ -806,7 +807,7 @@ export function enterPressed(): void {
     ensureCursorVisible();
 
     function getBlockToSplit(pos: Position.Position): Node {
-        let blockToSplit = null;
+        let blockToSplit: Node = null;
         for (let n = pos.node; n != null; n = n.parentNode) {
             if (n._type == ElementTypes.HTML_LI) {
                 blockToSplit = n;
@@ -935,9 +936,9 @@ export function makeContainerInsertionPoint(): void {
         selRange = Selection.get();
     }
 
-    let parent;
-    let previousSibling;
-    let nextSibling;
+    let parent: Node;
+    let previousSibling: Node;
+    let nextSibling: Node;
 
     if (selRange.start.node instanceof Element) {
         parent = selRange.start.node;

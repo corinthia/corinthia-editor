@@ -216,8 +216,8 @@ export function diff<T>(src: T[], dest: T[]): DiffEntry<T>[] {
 
     for (let distance = 0; true; distance++) {
         for (let k = -distance; k <= distance; k += 2) {
-            let srcEnd;
-            let prev;
+            let srcEnd: number;
+            let prev: DiffEntry<T>;
 
             let del = traces[k-1];
             let ins = traces[k+1];

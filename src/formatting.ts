@@ -45,7 +45,7 @@ import Util = require("./util");
 
 // You should always use getStyleProperties() instead of accessing element.style directly.
 
-let CSS_PROPERTY_REPLACEMENTS = {
+let CSS_PROPERTY_REPLACEMENTS: { [key: string]: string } = {
     "margin-left-value": "margin-left",
     "margin-left-ltr-source": null,
     "margin-left-rtl-source": null,
@@ -86,7 +86,7 @@ function getStyleProperties(element: HTMLElement, dontReplace?: boolean): { [key
         let name = element.style[i];
         let value = element.style.getPropertyValue(name);
 
-        let replacement;
+        let replacement: string;
         if (dontReplace) {
             replacement = name;
         }
@@ -204,11 +204,11 @@ export function mergeWithNeighbours(node: Node, whiteList: boolean[], trim?: boo
     }
 
     if (start != end) {
-        let lastMerge;
+        let lastMerge: boolean;
         do {
             lastMerge = (start.nextSibling == end);
 
-            let lastChild = null;
+            let lastChild: Node = null;
             if (start instanceof Element)
                 lastChild = start.lastChild;
 
@@ -224,7 +224,7 @@ export function mergeWithNeighbours(node: Node, whiteList: boolean[], trim?: boo
 function mergeRange(range: Range.Range, whiteList: boolean[]): void {
     let nodes = Range.getAllNodes(range);
     for (let i = 0; i < nodes.length; i++) {
-        let next;
+        let next: Node;
         for (let p = nodes[i]; p != null; p = next) {
             next = p.parentNode;
             mergeWithNeighbours(p,whiteList);
@@ -586,7 +586,7 @@ export function getAllNodeProperties(node: Node): { [key: string]: string } {
         default:
             if (Types.PARAGRAPH_ELEMENTS[type]) {
                 let name = node.nodeName.toLowerCase();
-                let selector;
+                let selector: string;
                 if (node.hasAttribute("class"))
                     selector = name + "." + node.getAttribute("class");
                 else
@@ -603,7 +603,7 @@ export function getAllNodeProperties(node: Node): { [key: string]: string } {
     return properties;
 }
 
-let PARAGRAPH_PROPERTIES = {
+let PARAGRAPH_PROPERTIES: { [key: string]: boolean } = {
     "margin-left": true,
     "margin-right": true,
     "margin-top": true,
@@ -643,7 +643,7 @@ let PARAGRAPH_PROPERTIES = {
     "height": true,
 };
 
-let SPECIAL_PROPERTIES = {
+let SPECIAL_PROPERTIES: { [key: string]: boolean } = {
     "-webkit-text-size-adjust": true, // set on HTML element for text scaling purposes
 };
 
@@ -813,7 +813,7 @@ function pushDownInlinePropertiesSingle(target: Node): Node {
 
         if ((count > 0) || special.bold || special.italic || special.underline) {
 
-            let next;
+            let next: Node;
             for (let child = node.firstChild; child != null; child = next) {
                 next = child.nextSibling;
 
@@ -842,7 +842,7 @@ function pushDownInlinePropertiesSingle(target: Node): Node {
 // private
 function wrapInline(node: Node, elementName: string): HTMLElement {
     if ((node instanceof HTMLElement) && (!Types.isInlineNode(node) || Types.isAbstractSpan(node))) {
-        let next;
+        let next: Node;
         for (let child = node.firstChild; child != null; child = next) {
             next = child.nextSibling;
             wrapInline(child,elementName);
@@ -908,7 +908,7 @@ interface SpecialProperties {
 
 // private
 function extractSpecial(properties: { [key: string]: string }): SpecialProperties {
-    let special = { bold: null, italic: null, underline: null };
+    let special: SpecialProperties = { bold: null, italic: null, underline: null };
     let fontWeight = properties["font-weight"];
     let fontStyle = properties["font-style"];
     let textDecoration = properties["text-decoration"];
@@ -935,7 +935,7 @@ function extractSpecial(properties: { [key: string]: string }): SpecialPropertie
         special.underline = false;
         if (textDecoration != null) {
             let values = textDecoration.toLowerCase().split(/\s+/);
-            let index;
+            let index: number;
             while ((index = values.indexOf("underline")) >= 0) {
                 values.splice(index,1);
                 special.underline = true;
@@ -1009,7 +1009,7 @@ function removePropertiesSingle(node: Node, properties: { [key: string]: string 
 
     let childRemaining = willRemove ? remaining : null;
 
-    let next;
+    let next: Node;
     for (let child = node.firstChild; child != null; child = next) {
         next = child.nextSibling;
         removePropertiesSingle(child,properties,special,childRemaining);
@@ -1111,7 +1111,8 @@ export function applyFormattingChanges(style: string, properties: { [key: string
         Range.ensureValidHierarchy(range);
         Range.expand(range);
         let outermost = Range.getOutermostNodes(range);
-        let target = null;
+        // FIXME: From the logic below, I don't think this can ever get set
+        let target: Node = null;
 
         let paragraphs: HTMLElement[];
         if (outermost.length > 0)
@@ -1164,7 +1165,7 @@ export function applyFormattingChanges(style: string, properties: { [key: string
         mergeRange(range,MERGEABLE_INLINE);
 
         if (target != null) {
-            let next;
+            let next: Node;
             for (let p = target; p != null; p = next) {
                 next = p.parentNode;
                 mergeWithNeighbours(p,MERGEABLE_INLINE);

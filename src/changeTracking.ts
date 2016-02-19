@@ -53,7 +53,7 @@ export function acceptSelectedChanges(): void {
         for (let i = 0; i < outermost.length; i++) {
             recurse(outermost[i]);
 
-            let next;
+            let next: Node;
             for (let ancestor = outermost[i].parentNode; ancestor != null; ancestor = next) {
                 next = ancestor.parentNode;
                 if (ancestor._type == ElementTypes.HTML_DEL) {
@@ -105,7 +105,7 @@ export function acceptSelectedChanges(): void {
             return;
         }
 
-        let next;
+        let next: Node;
         for (let child = node.firstChild; child != null; child = next) {
             next = child.nextSibling;
             recurse(child);

@@ -54,8 +54,8 @@ function wrapInlineChildren(first: Node, last: Node, ancestors: Node[]): void {
 
 // private
 function wrapInlineChildrenInAncestors(node: Node, ancestors: Node[]): void {
-    let firstInline = null;
-    let lastInline = null;
+    let firstInline: Node = null;
+    let lastInline: Node = null;
 
     let child = node.firstChild;
     while (true) {

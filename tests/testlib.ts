@@ -31,9 +31,9 @@ import UndoManager = require("../src/undo");
 export function testHarnessSetup(): void {
     DOM.assignNodeIds(document);
 
-    let start;
-    let track;
-    let end;
+    let start: Position.Position;
+    let track: Position.Position[];
+    let end: Position.Position;
 
 
     UndoManager.disableWhileExecuting(function() {
@@ -193,7 +193,7 @@ export function removeWhitespaceAndCommentNodes(root: Node): void {
             DOM.deleteNode(node);
         }
         else {
-            let next;
+            let next: Node;
             for (let child = node.firstChild; child != null; child = next) {
                 next = child.nextSibling;
                 recurse(child);

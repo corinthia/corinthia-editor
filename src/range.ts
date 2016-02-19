@@ -502,7 +502,7 @@ export function getText(range: Range): string {
             }
 
             if (significantParagraph) {
-                let str;
+                let str: string;
                 if ((node == startNode) && (node == endNode))
                     str = node.nodeValue.substring(startOffset,endOffset);
                 else if (node == startNode)

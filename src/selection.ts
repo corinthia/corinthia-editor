@@ -337,7 +337,7 @@ function createSelectionHighlights(data: RangeData): void {
             createTextHighlight(node,data,newHighlights);
         }
         else {
-            let next;
+            let next: Node;
             for (let child = node.firstChild; child != null; child = next) {
                 next = child.nextSibling;
                 recurse(child);
@@ -370,8 +370,8 @@ function createTextHighlight(node: Text, data: RangeData, newHighlights: HTMLEle
         return;
     }
 
-    let anext;
-    for (let a = node; a != null; a = anext) {
+    let anext: Node;
+    for (let a: Node = node; a != null; a = anext) {
         anext = a.parentNode;
         if (Types.isSelectionHighlight(a))
             DOM.removeNodeButKeepChildren(a);
@@ -540,10 +540,10 @@ export function update(): void {
     let rects = Range.getClientRects(selRange);
 
     if ((rects != null) && (rects.length > 0)) {
-        let boundsLeft = null;
-        let boundsRight = null;
-        let boundsTop = null;
-        let boundsBottom = null
+        let boundsLeft: number = null;
+        let boundsRight: number = null;
+        let boundsTop: number = null;
+        let boundsBottom: number = null
 
         for (let i = 0; i < rects.length; i++) {
             let left = rects[i].left + window.scrollX;
@@ -837,7 +837,7 @@ function moveBoundary(command: string): string {
     if (range == null)
         return null;
 
-    let pos = null;
+    let pos: Position.Position = null;
     if (command == "start-left")
         range.start = pos = Position.prevMatch(range.start,Position.okForMovement);
     else if (command == "start-right")
@@ -848,7 +848,6 @@ function moveBoundary(command: string): string {
         range.end = pos = Position.nextMatch(range.end,Position.okForMovement);
 
     if ((range.start != null) && (range.end != null)) {
-        let result;
         range = Range.forwards(range);
         set(range.start.node,range.start.offset,range.end.node,range.end.offset);
         if (range.end == pos)
@@ -1117,7 +1116,7 @@ export function deleteContents(keepEmpty?: boolean): void {
 
 // private
 function removeParagraphDescendants(parent: Node): void {
-    let next;
+    let next: Node;
     for (let child = parent.firstChild; child != null; child = next) {
         next = child.nextSibling;
         removeParagraphDescendants(child);
@@ -1227,7 +1226,7 @@ export function clearSelection(): void {
 // public
 export function preserveWhileExecuting<T>(fun: () => T): T {
     let range = get();
-    let result;
+    let result: T;
 
     // Since the selection may have changed as a result of changes to the document, we
     // have to call clear() or set() so that undo history is saved

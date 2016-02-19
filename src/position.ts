@@ -78,7 +78,7 @@ export class Position {
     }
 
     public toString(): string {
-        let result;
+        let result: string;
         if (this.node instanceof Text) {
             let extra = "";
             if (this.offset > this.node.nodeValue.length) {
@@ -154,7 +154,7 @@ export function assertValid(pos: Position, description?: string): void {
             throw new Error(description+" node "+pos.node.nodeName+" is not in tree");
     }
 
-    let max;
+    let max: number;
     if (pos.node instanceof Element)
         max = pos.node.childNodes.length;
     else if (pos.node instanceof Text)
@@ -604,12 +604,12 @@ export function rectAtPos(pos: Position): ClientRect {
     return null;
 }
 
-function posAtStartOfParagraph(pos: Position, paragraph): boolean {
+function posAtStartOfParagraph(pos: Position, paragraph: Txt.ParagraphBoundaries): boolean {
     return ((pos.node == paragraph.node) &&
             (pos.offset == paragraph.startOffset));
 }
 
-function posAtEndOfParagraph(pos: Position, paragraph): boolean {
+function posAtEndOfParagraph(pos: Position, paragraph: Txt.ParagraphBoundaries): boolean {
     return ((pos.node == paragraph.node) &&
             (pos.offset == paragraph.endOffset));
 }
@@ -642,10 +642,10 @@ function zeroWidthMidRect(rect: ClientRect): ClientRect {
              height: rect.height };
 }
 
-export function noteAncestor(pos: Position): Element {
+export function noteAncestor(pos: Position): HTMLElement {
     let node = closestActualNode(pos);
     for (; node != null; node = node.parentNode) {
-        if ((node instanceof Element) && Types.isNoteNode(node))
+        if ((node instanceof HTMLElement) && Types.isNoteNode(node))
             return node;
     }
     return null;
@@ -775,14 +775,14 @@ export function displayRectAtPos(pos: Position): ClientRect {
 
     let paragraph = Txt.findParagraphBoundaries(pos);
 
-    let backRect = null;
+    let backRect: ClientRect = null;
     for (let backPos = pos; backPos != null; backPos = prev(backPos)) {
         backRect = exactRectAtPos(backPos);
         if ((backRect != null) || posAtStartOfParagraph(backPos,paragraph))
             break;
     }
 
-    let forwardRect = null;
+    let forwardRect: ClientRect = null;
     for (let forwardPos = pos; forwardPos != null; forwardPos = next(forwardPos)) {
         forwardRect = exactRectAtPos(forwardPos);
         if ((forwardRect != null) || posAtEndOfParagraph(forwardPos,paragraph))
@@ -855,10 +855,10 @@ export function compare(first: Position, second: Position): number {
     if (first.node == second.node)
         return first.offset - second.offset;
 
-    let firstParent = null;
-    let firstChild = null;
-    let secondParent = null;
-    let secondChild = null;
+    let firstParent: Node = null;
+    let firstChild: Node = null;
+    let secondParent: Node = null;
+    let secondChild: Node = null;
 
     if (second.node instanceof Element) {
         secondParent = second.node;
@@ -953,7 +953,7 @@ export function atPoint(x: number, y: number): Position {
     // the document bounds.
 
     let bodyRect = document.body.getBoundingClientRect();
-    let boundaryRect = null;
+    let boundaryRect: ClientRect = null;
     if (y <= bodyRect.top)
         boundaryRect = findFirstTextRect();
     else if (y >= bodyRect.bottom)

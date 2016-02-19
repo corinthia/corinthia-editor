@@ -172,7 +172,7 @@ export function posAbove(pos: Position.Position, cursorRect?: ClientRect, cursor
 }
 
 function findHighestTop(rects: ClientRect[]): number {
-    let top = null;
+    let top: number = null;
     for (let i = 0; i < rects.length; i++) {
         if ((top == null) || (top > rects[i].top))
             top = rects[i].top;
@@ -181,7 +181,7 @@ function findHighestTop(rects: ClientRect[]): number {
 }
 
 function findLowestBottom(rects: ClientRect[]): number {
-    let bottom = null;
+    let bottom: number = null;
     for (let i = 0; i < rects.length; i++) {
         if ((bottom == null) || (bottom < rects[i].bottom))
             bottom = rects[i].bottom;
@@ -190,7 +190,7 @@ function findLowestBottom(rects: ClientRect[]): number {
 }
 
 function findRightMostRect(rects: ClientRect[]): ClientRect {
-    let rightMost = null;
+    let rightMost: ClientRect = null;
     for (let i = 0; i < rects.length; i++) {
         if ((rightMost == null) || (rightMost.right < rects[i].right))
             rightMost = rects[i];
@@ -282,7 +282,7 @@ export function posBelow(pos: Position.Position, cursorRect?: ClientRect, cursor
 export function closestPosBackwards(pos: Position.Position): Position.Position {
     if (Traversal.isNonWhitespaceTextNode(pos.node))
         return pos;
-    let node;
+    let node: Node;
     if ((pos.node instanceof Element) && (pos.offset > 0)) {
         node = pos.node.childNodes[pos.offset-1];
         while (node.lastChild != null)
@@ -303,7 +303,7 @@ export function closestPosBackwards(pos: Position.Position): Position.Position {
 export function closestPosForwards(pos: Position.Position): Position.Position {
     if (Traversal.isNonWhitespaceTextNode(pos.node))
         return pos;
-    let node;
+    let node: Node;
     if ((pos.node instanceof Element) && (pos.offset < pos.node.childNodes.length)) {
         node = pos.node.childNodes[pos.offset];
         while (node.firstChild != null)

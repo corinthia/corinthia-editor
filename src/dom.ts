@@ -44,7 +44,7 @@ let ignoreMutations = 0;
 //                                                                                            //
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-function addUndoAction(...args): void {
+function addUndoAction(...args: any[]): void {
     if (UndoManager.undoSupported)
         UndoManager.addAction.apply(null,Util.arrayCopy(args));
 }
@@ -382,7 +382,7 @@ export function appendChild(node: Node, child: Node): void {
 
 // public
 export function insertBefore(parent: Node, child: Node, nextSibling: Node): void {
-    let newOffset;
+    let newOffset: number;
     if (nextSibling != null)
         newOffset = nodeOffset(nextSibling);
     else
@@ -609,7 +609,7 @@ export function mergeWithNextSibling(current: Node, whiteList: any): void {
     let currentLength = maxChildOffset(current);
     let nextOffset = nodeOffset(next);
 
-    let lastChild = null;
+    let lastChild: Node = null;
 
     if (current instanceof Text) {
         insertCharacters(current,current.nodeValue.length,next.nodeValue);
@@ -770,7 +770,7 @@ export function ensureUniqueIds(root: Node): void {
             let prefix = id.replace(/[0-9]+$/,"");
             let num = nextNumberForPrefix[prefix] ? nextNumberForPrefix[prefix] : 1;
 
-            let candidate;
+            let candidate: string;
             do {
                 candidate = prefix + num;
                 num++;

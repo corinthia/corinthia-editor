@@ -75,7 +75,7 @@ export function getProperties(itemId: string): FigureProperties {
     if (figure == null)
         return null;
     let rect = figure.getBoundingClientRect();
-    let result = { width: null, src: null };
+    let result: FigureProperties = { width: null, src: null };
 
     let img = Traversal.firstDescendantOfType(figure,ElementTypes.HTML_IMG);
     if (img != null) {

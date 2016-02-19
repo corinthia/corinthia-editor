@@ -42,8 +42,8 @@ export function nextSelectorAfter(element: HTMLElement): string {
     if (className != null)
         selector = selector+"."+className;
 
-    let nextElementName = null;
-    let nextClassName = null;
+    let nextElementName: string = null;
+    let nextClassName: string = null;
 
     let rule = getRule(selector);
     if (rule != null) {
@@ -121,7 +121,7 @@ export function getCSSText(): string {
 export function setCSSText(cssText: string, cssRules: RuleSet): {} {
     UndoManager.newGroup("Update styles");
     let head = DOM.documentHead(document);
-    let next;
+    let next: Node;
     for (let child = head.firstChild; child != null; child = next) {
         next = child.nextSibling;
         if (child._type == ElementTypes.HTML_STYLE)

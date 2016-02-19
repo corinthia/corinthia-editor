@@ -18,6 +18,12 @@
 // FIXME: The TOC/ItemList stuff won't work with Undo, because we're making DOM mutations in
 // response to other DOM mutations, so at undo time the changes will be made twice
 
+// FIXME: DOM mutation events are deprecated; we'll need to implement our own custom mechanism
+// of invoking the functions used in this module for the DOMNodeInserted, DOMNodeRemoved, and
+// DOMSubtreeModified events.
+//
+// See: http://lists.w3.org/Archives/Public/public-webapps/2011JulSep/0779.html
+
 import Clipboard = require("./clipboard");
 import Collections = require("./collections");
 import Cursor = require("./cursor");
@@ -36,16 +42,16 @@ import UndoManager = require("./undo");
 import Util = require("./util");
 
 let itemsByNode: Collections.NodeMap<OutlineItem> = null;
-let refsById = null;
+let refsById: { [id: string]: HTMLElement[] } = null;
 let nextItemId = 1;
 let outlineDirty = false;
 let ignoreModifications = 0;
 let sectionNumberRegex = /^\s*(Chapter\s+)?\d+(\.\d+)*\.?\s+/i;
 let figureNumberRegex = /^\s*Figure\s+\d+(\.\d+)*:?\s*/i;
 let tableNumberRegex = /^\s*Table\s+\d+(\.\d+)*:?\s*/i;
-let sections = null;
-let figures = null;
-let tables = null;
+let sections: Category = null;
+let figures: Category = null;
+let tables: Category = null;
 let doneInit = false;
 let printMode = false;
 
@@ -318,7 +324,7 @@ class OutlineItem {
 
         this.spareSpan = DOM.createElement(document,"SPAN");
         DOM.appendChild(this.spareSpan,DOM.createTextNode(document,""));
-        let spanClass = null;
+        let spanClass: string = null;
         if (this.type == "section")
             spanClass = Types.Keys.HEADING_NUMBER;
         else if (this.type == "figure")
@@ -345,7 +351,7 @@ class OutlineItem {
         return;
 
         function generateItemId(): string {
-            let id;
+            let id: string;
             do {
                 id = "item"+(nextItemId++);
             } while (document.getElementById(id) != null);
@@ -387,7 +393,7 @@ function OutlineItem_getTitleNode(item: OutlineItem, create?: boolean): HTMLElem
 
 function OutlineItem_updateItemTitle(item: OutlineItem): void {
     let titleNode = OutlineItem_getTitleNode(item,false);
-    let newTitle;
+    let newTitle: string;
     if (titleNode != null)
         newTitle = Util.normalizeWhitespace(Traversal.getNodeText(titleNode));
     else
@@ -520,7 +526,7 @@ function docNodeInserted(event: any): void { // FIXME: TS: event parameter
             }
         }
 
-        let next;
+        let next: Node;
         for (let child = node.firstChild; child != null; child = next) {
             next = child.nextSibling;
             recurse(child);
@@ -529,7 +535,7 @@ function docNodeInserted(event: any): void { // FIXME: TS: event parameter
 }
 
 // private
-function docNodeRemoved(event): void { // FIXME: TS: event parameter
+function docNodeRemoved(event: any): void {
     if (UndoManager.isActive())
         return;
     if (DOM.getIgnoreMutations())
@@ -609,7 +615,7 @@ class Shadow {
     public node: HTMLElement;
     public item: OutlineItem;
     public children: Shadow[];
-    public parent: Node;
+    public parent: Shadow;
     public level: number;
     public nextChildSectionNumber: number;
 
@@ -699,7 +705,7 @@ function discoverStructure(): Structure {
 
     let counters = { h1: 0, h2: 0, h3: 0, h4: 0, h5: 0, h6: 0, table: 0, figure: 0 };
 
-    let current = null;
+    let current: Shadow = null;
 
     for (let section = sections.list.first; section != null; section = section.next) {
         structure.shadowsByNode.put(section.node,new Shadow(section.node));
@@ -870,7 +876,7 @@ function updateRefsForItem(item: OutlineItem): void {
         return;
     for (let i = 0; i < refs.length; i++) {
         DOM.deleteAllChildren(refs[i]);
-        let text = null;
+        let text: string = null;
 
         let className = DOM.getAttribute(refs[i],"class");
         if (className == "uxwrite-ref-num") {
@@ -1007,7 +1013,7 @@ export function init(): void {
         figures = new Category("figure",isFigureNode,figureNumberRegex);
         tables = new Category("table",isTableNode,tableNumberRegex);
         itemsByNode = new Collections.NodeMap<OutlineItem>();
-        refsById = new Object();
+        refsById = {};
 
         DOM.ensureUniqueIds(document.documentElement);
         document.addEventListener("DOMNodeInserted",docNodeInserted);
@@ -1367,7 +1373,7 @@ export function detectSectionNumbering(): boolean {
 function detectNumbering(category: Category): boolean {
     for (let item = category.list.first; item != null; item = item.next) {
 
-        let firstText = null;
+        let firstText: Text = null;
         let titleNode = OutlineItem_getTitleNode(item);
 
         if (titleNode != null)
@@ -1383,7 +1389,7 @@ function detectNumbering(category: Category): boolean {
 
 function makeNumberingExplicit(category: Category): void {
     for (let item = category.list.first; item != null; item = item.next) {
-        let firstText = null;
+        let firstText: Text = null;
         let titleNode = OutlineItem_getTitleNode(item);
 
         if (titleNode != null)

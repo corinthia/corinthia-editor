@@ -27,7 +27,7 @@ function positionKey(pos: Position.Position): string {
 }
 
 export function removeWhitespaceTextNodes(parent: Node): void {
-    let next;
+    let next: Node;
     for (let child = parent.firstChild; child != null; child = next) {
         next = child.nextSibling;
         if (Traversal.isWhitespaceTextNode(child) || (child instanceof Comment))

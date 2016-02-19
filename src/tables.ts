@@ -215,7 +215,7 @@ export function insertTable(rows: number, cols: number, width: string, numbered:
         DOM.appendChild(table,col);
     }
 
-    let firstTD = null;
+    let firstTD: HTMLElement = null;
 
     // Then the rows and columns
     let tbody = DOM.createElement(document,"TBODY");
@@ -252,7 +252,7 @@ export function insertTable(rows: number, cols: number, width: string, numbered:
 }
 
 // private
-function createEmptyTableCell(elementName): HTMLElement {
+function createEmptyTableCell(elementName: string): HTMLElement {
     let br = DOM.createElement(document,"BR");
     let p = DOM.createElement(document,"P");
     let td = DOM.createElement(document,elementName);
@@ -329,7 +329,7 @@ function insertRowBelow(table: Table, row: number): void {
 }
 
 function insertRowAdjacentToRange(range: Range.Range): void {
-    let table;
+    let table: Table;
 
     table = tableAtLeftOfRange(range);
     if (table != null) {
@@ -516,7 +516,7 @@ function addColumnCells(structure: Table, oldIndex: number, right: boolean): voi
 }
 
 function insertColumnAdjacentToRange(range: Range.Range): void {
-    let table;
+    let table: Table;
 
     table = tableAtLeftOfRange(range);
     if (table != null) {
@@ -606,7 +606,7 @@ function clampRow(table: Table, row: number): number {
 }
 
 function removeRowAdjacentToRange(range: Range.Range): void {
-    let table;
+    let table: Table;
 
     table = tableAtLeftOfRange(range);
     if ((table != null) && (table.numRows >= 2)) {
@@ -689,7 +689,7 @@ export function removeAdjacentRow(): void {
 }
 
 function removeColumnAdjacentToRange(range: Range.Range): void {
-    let table;
+    let table: Table;
 
     table = tableAtLeftOfRange(range);
     if ((table != null) && (table.numCols >= 2)) {
@@ -927,7 +927,7 @@ export function TableRegion_splitCells(region: TableRegion): void {
                         if ((r == cell.top) && (c == cell.left))
                             continue;
                         let newTD = createEmptyTableCell(original.nodeName); // check-ok
-                        let nextElement = null;
+                        let nextElement: HTMLElement = null;
 
                         let nextCol = cell.right+1;
                         while (nextCol < structure.numCols) {
@@ -978,7 +978,7 @@ function pasteCells(fromTableElement: HTMLElement, toRegion: TableRegion): void 
 export function Table_fix(table: Table): Table {
     let changed = false;
 
-    let tbody = null;
+    let tbody: Node = null;
     for (let child = table.element.firstChild; child != null; child = child.nextSibling) {
         if (child._type == ElementTypes.HTML_TBODY)
             tbody = child;
@@ -1078,8 +1078,6 @@ export class TableRegion {
 
 // public
 export function regionFromRange(range: Range.Range, allowSameCell?: boolean): TableRegion {
-    let region = null;
-
     if (range == null)
         return null;
 
@@ -1125,7 +1123,7 @@ export function regionFromRange(range: Range.Range, allowSameCell?: boolean): Ta
     let left = (startLeftCol < endLeftCol) ? startLeftCol : endLeftCol;
     let right = (startRightCol > endRightCol) ? startRightCol : endRightCol;
 
-    region = new TableRegion(structure,top,bottom,left,right);
+    let region = new TableRegion(structure,top,bottom,left,right);
     adjustRegionForSpannedCells(region);
     return region;
 }
@@ -1133,8 +1131,8 @@ export function regionFromRange(range: Range.Range, allowSameCell?: boolean): Ta
 // private
 function adjustRegionForSpannedCells(region: TableRegion): void {
     let structure = region.structure;
-    let boundariesOk;
-    let columnsOk;
+    let boundariesOk: boolean;
+    let columnsOk: boolean;
     do {
         boundariesOk = true;
         for (let row = region.top; row <= region.bottom; row++) {
@@ -1176,7 +1174,7 @@ export interface TableProperties {
     cols: number;
 }
 
-export function getProperties(itemId): TableProperties {
+export function getProperties(itemId: string): TableProperties {
     let element = document.getElementById(itemId);
     if ((element == null) || (element._type != ElementTypes.HTML_TABLE))
         return null;
@@ -1203,7 +1201,7 @@ export function getColWidths(structure: Table): number[] {
     let colWidths = new Array<number>();
 
     for (let i = 0; i < structure.numCols; i++) {
-        let value = null;
+        let value: number = null;
 
         if (i < colElements.length) {
             let widthStr = DOM.getAttribute(colElements[i],"width");

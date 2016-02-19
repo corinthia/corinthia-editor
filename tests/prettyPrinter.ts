@@ -29,7 +29,7 @@ export interface Options {
 }
 
 export function getHTML(root: Node, options?: Options): string {
-    let copy;
+    let copy: Node;
     UndoManager.disableWhileExecuting(function() {
         if (options == null)
             options = new Object();
@@ -37,7 +37,7 @@ export function getHTML(root: Node, options?: Options): string {
         if (!options.keepSelectionHighlights)
             removeSelectionSpans(copy);
         for (let body = copy.firstChild; body != null; body = body.nextSibling) {
-            if (body.nodeName == "BODY") {
+            if (body instanceof HTMLBodyElement) {
                 DOM.removeAttribute(body,"style");
                 DOM.removeAttribute(body,"contentEditable");
             }
@@ -66,7 +66,7 @@ function removeSelectionSpans(root: Node): void {
             DOM.removeNodeButKeepChildren(node);
         }
         else {
-            let next;
+            let next: Node;
             for (let child = node.firstChild; child != null; child = next) {
                 next = child.nextSibling;
                 recurse(child);

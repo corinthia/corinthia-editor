@@ -21,7 +21,7 @@
 
 let globalAPI = {};
 
-let define;
+let define: (...args: any[]) => void;
 
 (function() {
 
@@ -99,11 +99,11 @@ function reqmodule(name: string): Object {
     return getOrCreateModule(name);
 }
 
-define = function(...args) {
+define = function(...args: any[]): void {
     let index = 0;
-    let id = null;
-    let dependencies = null;
-    let factory = null;
+    let id: string = null;
+    let dependencies: string[] = null;
+    let factory: Function = null;
     if ((index < args.length) && (args[index] != null) && (typeof(args[index]) == "string"))
         id = args[index++];
     if ((index < args.length) && (args[index] != null) && (args[index] instanceof Array))
@@ -132,7 +132,7 @@ define = function(...args) {
 
     let mod = getOrCreateModule(id);
 
-    let factoryArgs = [];
+    let factoryArgs: any[] = [];
     dependencies.forEach(function(dep) {
         if (dep == "require")
             factoryArgs.push(reqmodule);
