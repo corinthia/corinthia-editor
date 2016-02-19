@@ -15,7 +15,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Callbacks = require("./callbacks")
 import Util = require("./util");
 
 export function prevNode(node: Node): Node {
@@ -138,18 +137,24 @@ export function isNonWhitespaceTextNode(node: Node): boolean {
     return !Util.isWhitespaceString(node.nodeValue);
 }
 
-export function printTree(node: Node, indent: string, offset: string): void {
+function treeToStringRecursive(node: Node, indent: string, offset: string, lines: string[]): void {
     if (indent == null)
         indent = "";
     if (offset == null)
         offset = "";
     if ((node instanceof Element) && node.hasAttribute("class"))
-        Callbacks.debug(indent+offset+Util.nodeString(node)+"."+node.getAttribute("class"));
+        lines.push(indent+offset+Util.nodeString(node)+"."+node.getAttribute("class"));
     else
-        Callbacks.debug(indent+offset+Util.nodeString(node));
+        lines.push(indent+offset+Util.nodeString(node));
     let childOffset = 0;
     for (let child = node.firstChild; child != null; child = child.nextSibling) {
-        printTree(child,indent+"    ",childOffset+" ");
+        treeToStringRecursive(child,indent+"    ",childOffset+" ",lines);
         childOffset++;
     }
+}
+
+export function treeToString(node: Node, indent: string, offset: string): string {
+    let lines: string[] = [];
+    treeToStringRecursive(node,indent,offset,lines);
+    return lines.join("\n");
 }
