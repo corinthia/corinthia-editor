@@ -15,13 +15,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Callbacks = require("./callbacks")
 import DOM = require("./dom");
-import Editor = require("./editor");
 import ElementTypes = require("./elementTypes");
 import Types = require("./types");
 
 export function debug(str: any): void {
-    Editor.debug(""+str);
+    Callbacks.debug(""+str);
 }
 
 export function arrayContains<T>(array: T[], value: T): boolean {

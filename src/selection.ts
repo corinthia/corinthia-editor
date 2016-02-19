@@ -17,10 +17,10 @@
 
 // FIXME: cursor does not display correctly if it is after a space at the end of the line
 
+import Callbacks = require("./callbacks")
 import Collections = require("./collections");
 import Cursor = require("./cursor");
 import DOM = require("./dom");
-import Editor = require("./editor");
 import ElementTypes = require("./elementTypes");
 import Formatting = require("./formatting");
 import Input = require("./input");
@@ -243,21 +243,21 @@ function setEditorHandles(info: EditorHandles): void {
         setEditorHandles(oldEditorHandles);
     });
     if (info instanceof CursorHandles) {
-        Editor.setCursor(info.left,info.top,info.width,info.height);
+        Callbacks.setCursor(info.left,info.top,info.width,info.height);
     }
     else if (info instanceof SelectionHandles) {
         if (!isMarked()) {
-            Editor.setSelectionHandles(info.x1,info.y1,
+            Callbacks.setSelectionHandles(info.x1,info.y1,
                                        info.height1,info.x2,info.y2,info.height2);
         }
-        Editor.setSelectionBounds(info.boundsLeft,info.boundsTop,
+        Callbacks.setSelectionBounds(info.boundsLeft,info.boundsTop,
                                   info.boundsRight,info.boundsBottom);
     }
     else if (info instanceof TableHandles) {
-        Editor.setTableSelection(info.x,info.y,info.width,info.height);
+        Callbacks.setTableSelection(info.x,info.y,info.width,info.height);
     }
     else {
-        Editor.clearSelectionHandlesAndCursor();
+        Callbacks.clearSelectionHandlesAndCursor();
     }
 }
 

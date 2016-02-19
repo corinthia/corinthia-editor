@@ -24,11 +24,11 @@
 //
 // See: http://lists.w3.org/Archives/Public/public-webapps/2011JulSep/0779.html
 
+import Callbacks = require("./callbacks")
 import Clipboard = require("./clipboard");
 import Collections = require("./collections");
 import Cursor = require("./cursor");
 import DOM = require("./dom");
-import Editor = require("./editor");
 import ElementTypes = require("./elementTypes");
 import Hierarchy = require("./hierarchy");
 import Position = require("./position");
@@ -78,7 +78,7 @@ function addItemInternal(category: Category, item: OutlineItem, prevItem: Outlin
     category.list.insertAfter(item,prevItem);
     item.title = title;
     category.tocs.forEach(function(node: Node, toc: TOC) { TOC_addOutlineItem(toc,item.id); });
-    Editor.addOutlineItem(item.id,category.type,title);
+    Callbacks.addOutlineItem(item.id,category.type,title);
 }
 
 function removeItemInternal(category: Category, item: OutlineItem): void {
@@ -86,7 +86,7 @@ function removeItemInternal(category: Category, item: OutlineItem): void {
     category.list.remove(item);
     category.tocs.forEach(function(node: Node, toc: TOC) { TOC_removeOutlineItem(toc,item.id); });
     item.title = null;
-    Editor.removeOutlineItem(item.id);
+    Callbacks.removeOutlineItem(item.id);
 }
 
 function Category_add(category: Category, node: HTMLElement): OutlineItem {
@@ -400,8 +400,8 @@ function OutlineItem_updateItemTitle(item: OutlineItem): void {
         newTitle = "";
 
     if (item.title != newTitle) {
-        UndoManager.addAction(Editor.updateOutlineItem,item.id,item.title);
-        Editor.updateOutlineItem(item.id,newTitle);
+        UndoManager.addAction(Callbacks.updateOutlineItem,item.id,item.title);
+        Callbacks.updateOutlineItem(item.id,newTitle);
         item.title = newTitle;
         item.category.tocs.forEach(function(node: Node, toc: TOC) {
             TOC_updateOutlineItem(toc,item.id,item.title);
@@ -485,7 +485,7 @@ function docNodeInserted(event: any): void { // FIXME: TS: event parameter
         recurse(event.target);
     }
     catch (e) {
-        Editor.error(e);
+        Callbacks.error(e);
     }
 
     function recurse(node: Node): void {
@@ -546,7 +546,7 @@ function docNodeRemoved(event: any): void {
         recurse(event.target);
     }
     catch (e) {
-        Editor.error(e);
+        Callbacks.error(e);
     }
 
     function recurse(node: Node): void {
@@ -825,7 +825,7 @@ function updateStructureReal(pageNumbers?: Collections.NodeMap<number>): void {
         TOC_updateStructure(toc,structure,structure.toplevelTables,pageNumbers);
     });
 
-    Editor.outlineUpdated();
+    Callbacks.outlineUpdated();
 }
 
 export interface EncodedOutline {

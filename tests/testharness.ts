@@ -42,12 +42,12 @@ function loadCode(): void {
     let modules = [
         "src/autoCorrect",
         "src/changeTracking",
+        "src/callbacks",
         "src/clipboard",
         "src/collections",
         "src/cursor",
         "src/definitions",
         "src/dom",
-        "src/editor",
         "src/elementTypes",
         "src/equations",
         "src/figures",
@@ -110,7 +110,7 @@ function doPerformTest(): string {
         w.globalAPI.Selection.clearSelection();
     if (resultText == null)
         resultText = w.globalAPI.tests.PrettyPrinter.getHTML(testDocument.documentElement,w.outputOptions)
-    let messages = JSON.parse(w.globalAPI.Editor.getBackMessages());
+    let messages = JSON.parse(w.globalAPI.Callbacks.getBackMessages());
     for (let i = 0; i < messages.length; i++) {
         let message = messages[i];
         if (message[0] == "error")

@@ -16,9 +16,9 @@
 // limitations under the License.
 
 import AutoCorrect = require("./autoCorrect");
+import Callbacks = require("./callbacks")
 import Cursor = require("./cursor");
 import DOM = require("./dom");
-import Editor = require("./editor");
 import ElementTypes = require("./elementTypes");
 import Outline = require("./outline");
 import Position = require("./position");
@@ -309,7 +309,7 @@ export function execute<T>(fun: () => T): T {
     catch (e) {
         let message = (e.message != null) ? e.message : e.toString();
         let stack = simplifyStackString(e);
-        Editor.error(message+"\n"+stack);
+        Callbacks.error(message+"\n"+stack);
     }
 }
 
