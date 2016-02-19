@@ -54,14 +54,14 @@ class Category {
     public type: string;
     public nodeFilter: (element: HTMLElement) => boolean;
     public numberRegex: RegExp;
-    public list: any; // FIXME: type
+    public list: Util.DoublyLinkedList<OutlineItem>;
     public tocs: Collections.NodeMap<any>; // FIXME: element type
 
     constructor(type: string, nodeFilter: (element: HTMLElement) => boolean, numberRegex: RegExp) {
         this.type = type;
         this.nodeFilter = nodeFilter;
         this.numberRegex = numberRegex;
-        this.list = new Util.DoublyLinkedList();
+        this.list = new Util.DoublyLinkedList<OutlineItem>();
         this.tocs = new Collections.NodeMap();
     }
 

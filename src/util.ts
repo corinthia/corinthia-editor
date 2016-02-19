@@ -142,48 +142,60 @@ export function normalizeWhitespace(str: string): string {
     return str;
 }
 
-export function DoublyLinkedList() {
-    this.first = null;
-    this.last = null;
+export interface DoublyLinkedListItem<T> {
+    prev: T;
+    next: T;
 }
 
-DoublyLinkedList.prototype.insertAfter = function(item,after) {
-    item.prev = null;
-    item.next = null;
+export class DoublyLinkedList<T extends DoublyLinkedListItem<any>> {
 
-    if (this.first == null) { // empty list
-        this.first = item;
-        this.last = item;
+    public first: T;
+    public last: T;
+
+    constructor() {
+        this.first = null;
+        this.last = null;
     }
-    else if (after == null) { // insert at start
-        item.next = this.first;
-        this.first = item;
-    }
-    else {
-        item.next = after.next;
-        item.prev = after;
-        if (this.last == after)
+
+    public insertAfter(item: T, after: T): void {
+        item.prev = null;
+        item.next = null;
+
+        if (this.first == null) { // empty list
+            this.first = item;
             this.last = item;
+        }
+        else if (after == null) { // insert at start
+            item.next = this.first;
+            this.first = item;
+        }
+        else {
+            item.next = after.next;
+            item.prev = after;
+            if (this.last == after)
+                this.last = item;
+        }
+
+        if (item.next != null)
+            item.next.prev = item;
+        if (item.prev != null)
+            item.prev.next = item;
     }
 
-    if (item.next != null)
-        item.next.prev = item;
-    if (item.prev != null)
-        item.prev.next = item;
-};
+    public remove(item: T): void {
+        if (this.first == item)
+            this.first = this.first.next;
+        if (this.last == item)
+            this.last = this.last.prev;
+        if (item.prev != null)
+            item.prev.next = item.next;
+        if (item.next != null)
+            item.next.prev = item.prev;
+        item.prev = null;
+        item.next = null;
+    }
 
-DoublyLinkedList.prototype.remove = function(item) {
-    if (this.first == item)
-        this.first = this.first.next;
-    if (this.last == item)
-        this.last = this.last.prev;
-    if (item.prev != null)
-        item.prev.next = item.next;
-    if (item.next != null)
-        item.next.prev = item.prev;
-    item.prev = null;
-    item.next = null;
-};
+}
 
 export class DiffEntry<T> {
 
