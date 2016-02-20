@@ -15,6 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import DOM = require("../src/dom");
 import Input = require("../src/input");
 import Outline = require("../src/outline");
 import Position = require("../src/position");
@@ -33,7 +34,7 @@ export function getNodeArrayText(nodes: Node[]): string {
 
 export function textBetweenPositions(from: Position.Position, to: Position.Position): string {
     let range = new Range.Range(from.node,from.offset,to.node,to.offset);
-    let contents = Range.cloneContents(range);
+    let contents = DOM.cloneRangeContents(range);
     return getNodeArrayText(contents);
 }
 

@@ -15,8 +15,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Collections = require("./collections");
 import ElementTypes = require("./elementTypes");
+import Formatting = require("./formatting");
 import Position = require("./position");
+import Range = require("./range");
 import Traversal = require("./traversal");
 import Types = require("./types");
 import UndoManager = require("./undo");
@@ -768,4 +771,80 @@ export function ignoreMutationsWhileExecuting<T>(fun: () => T): T {
 // public
 export function getIgnoreMutations(): number {
     return ignoreMutations;
+}
+
+export function cloneRangeContents(range: Range.Range): Node[] {
+    let nodeSet = new Collections.NodeSet();
+    let ancestorSet = new Collections.NodeSet();
+    let det = Range.detail(range);
+    let outermost = Range.getOutermostNodes(range);
+
+    let haveContent = false;
+    for (let i = 0; i < outermost.length; i++) {
+        if (!Traversal.isWhitespaceTextNode(outermost[i]))
+            haveContent = true;
+        nodeSet.add(outermost[i]);
+        for (let node = outermost[i]; node != null; node = node.parentNode)
+            ancestorSet.add(node);
+    }
+
+    if (!haveContent)
+        return new Array();
+
+    let clone = recurse(det.commonAncestor);
+
+    let ancestor = det.commonAncestor;
+    while (Types.isInlineNode(ancestor)) {
+        let ancestorClone = cloneNode(ancestor.parentNode,false);
+        appendChild(ancestorClone,clone);
+        ancestor = ancestor.parentNode;
+        clone = ancestorClone;
+    }
+
+    let childArray = new Array<Node>();
+    switch (clone._type) {
+    case ElementTypes.HTML_UL:
+    case ElementTypes.HTML_OL:
+        childArray.push(clone);
+        break;
+    default:
+        for (let child = clone.firstChild; child != null; child = child.nextSibling)
+            childArray.push(child);
+        Formatting.pushDownInlineProperties(childArray);
+        break;
+    }
+
+    return childArray;
+
+    function recurse(parent: Node): Node {
+        let clone = cloneNode(parent,false);
+        for (let child = parent.firstChild; child != null; child = child.nextSibling) {
+            if (nodeSet.contains(child)) {
+                if ((child instanceof Text) &&
+                    (child == range.start.node) &&
+                    (child == range.end.node)) {
+                    let substring = child.nodeValue.substring(range.start.offset,
+                                                              range.end.offset);
+                    appendChild(clone,createTextNode(document,substring));
+                }
+                else if ((child instanceof Text) &&
+                         (child == range.start.node)) {
+                    let substring = child.nodeValue.substring(range.start.offset);
+                    appendChild(clone,createTextNode(document,substring));
+                }
+                else if ((child instanceof Text) &&
+                         (child == range.end.node)) {
+                    let substring = child.nodeValue.substring(0,range.end.offset);
+                    appendChild(clone,createTextNode(document,substring));
+                }
+                else {
+                    appendChild(clone,cloneNode(child,true));
+                }
+            }
+            else if (ancestorSet.contains(child)) {
+                appendChild(clone,recurse(child));
+            }
+        }
+        return clone;
+    }
 }

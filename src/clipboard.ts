@@ -77,7 +77,7 @@ function copyRange(range: Range.Range): { [key: string]: string } {
             nodes = [Tables.cloneRegion(region)];
         }
         else {
-            nodes = Range.cloneContents(range);
+            nodes = DOM.cloneRangeContents(range);
         };
 
         let div = DOM.createElement(document,"DIV");

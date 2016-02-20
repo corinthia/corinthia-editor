@@ -5,7 +5,7 @@
 function performTest(api)
 {
     var selectionRange = api.Selection.get();
-    var clonedElements = api.Range.cloneContents(selectionRange);
+    var clonedElements = api.DOM.cloneRangeContents(selectionRange);
     api.Selection.clear();
     api.DOM.deleteAllChildren(document.body);
 

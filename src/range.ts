@@ -16,9 +16,7 @@
 // limitations under the License.
 
 import Collections = require("./collections");
-import DOM = require("./dom");
 import ElementTypes = require("./elementTypes");
-import Formatting = require("./formatting");
 import Hierarchy = require("./hierarchy");
 import Main = require("./main");
 import Position = require("./position");
@@ -347,82 +345,6 @@ export function getClientRects(range: Range): ClientRect[] {
         }
     }
     return result;
-}
-
-export function cloneContents(range: Range): Node[] {
-    let nodeSet = new Collections.NodeSet();
-    let ancestorSet = new Collections.NodeSet();
-    let det = detail(range);
-    let outermost = getOutermostNodes(range);
-
-    let haveContent = false;
-    for (let i = 0; i < outermost.length; i++) {
-        if (!Traversal.isWhitespaceTextNode(outermost[i]))
-            haveContent = true;
-        nodeSet.add(outermost[i]);
-        for (let node = outermost[i]; node != null; node = node.parentNode)
-            ancestorSet.add(node);
-    }
-
-    if (!haveContent)
-        return new Array();
-
-    let clone = recurse(det.commonAncestor);
-
-    let ancestor = det.commonAncestor;
-    while (Types.isInlineNode(ancestor)) {
-        let ancestorClone = DOM.cloneNode(ancestor.parentNode,false);
-        DOM.appendChild(ancestorClone,clone);
-        ancestor = ancestor.parentNode;
-        clone = ancestorClone;
-    }
-
-    let childArray = new Array<Node>();
-    switch (clone._type) {
-    case ElementTypes.HTML_UL:
-    case ElementTypes.HTML_OL:
-        childArray.push(clone);
-        break;
-    default:
-        for (let child = clone.firstChild; child != null; child = child.nextSibling)
-            childArray.push(child);
-        Formatting.pushDownInlineProperties(childArray);
-        break;
-    }
-
-    return childArray;
-
-    function recurse(parent: Node): Node {
-        let clone = DOM.cloneNode(parent,false);
-        for (let child = parent.firstChild; child != null; child = child.nextSibling) {
-            if (nodeSet.contains(child)) {
-                if ((child instanceof Text) &&
-                    (child == range.start.node) &&
-                    (child == range.end.node)) {
-                    let substring = child.nodeValue.substring(range.start.offset,
-                                                              range.end.offset);
-                    DOM.appendChild(clone,DOM.createTextNode(document,substring));
-                }
-                else if ((child instanceof Text) &&
-                         (child == range.start.node)) {
-                    let substring = child.nodeValue.substring(range.start.offset);
-                    DOM.appendChild(clone,DOM.createTextNode(document,substring));
-                }
-                else if ((child instanceof Text) &&
-                         (child == range.end.node)) {
-                    let substring = child.nodeValue.substring(0,range.end.offset);
-                    DOM.appendChild(clone,DOM.createTextNode(document,substring));
-                }
-                else {
-                    DOM.appendChild(clone,DOM.cloneNode(child,true));
-                }
-            }
-            else if (ancestorSet.contains(child)) {
-                DOM.appendChild(clone,recurse(child));
-            }
-        }
-        return clone;
-    }
 }
 
 export function hasContent(range: Range): boolean {
