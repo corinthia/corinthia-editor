@@ -671,8 +671,8 @@ export function enterPressed(): void {
     }
 
     Range.trackWhileExecuting(selRange,function() {
-        Range.ensureInlineNodesInParagraph(selRange);
-        Range.ensureValidHierarchy(selRange);
+        Hierarchy.ensureRangeInlineNodesInParagraph(selRange);
+        Hierarchy.ensureRangeValidHierarchy(selRange);
     });
 
     let pos = selRange.start;

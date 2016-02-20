@@ -17,7 +17,6 @@
 
 import Collections = require("./collections");
 import ElementTypes = require("./elementTypes");
-import Hierarchy = require("./hierarchy");
 import Main = require("./main");
 import Position = require("./position");
 import Traversal = require("./traversal");
@@ -97,22 +96,6 @@ export function getAllNodes(range: Range, atLeastOne?: boolean): Node[] {
 
 export function singleNode(range: Range): Node {
     return Position.closestActualNode(range.start,true);
-}
-
-export function ensureInlineNodesInParagraph(range: Range): void {
-    trackWhileExecuting(range,function() {
-        let nodes = getAllNodes(range,true);
-        for (let i = 0; i < nodes.length; i++)
-            Hierarchy.ensureInlineNodesInParagraph(nodes[i]);
-    });
-}
-
-export function ensureValidHierarchy(range: Range, allowDirectInline?: boolean): void {
-    trackWhileExecuting(range,function() {
-        let nodes = getAllNodes(range,true);
-        for (let i = nodes.length-1; i >= 0; i--)
-            Hierarchy.ensureValidHierarchy(nodes[i]);
-    });
 }
 
 export function forwards(range: Range): Range {

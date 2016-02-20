@@ -15,7 +15,7 @@ function performTest(api)
     var range = new api.Range.Range(document.body,1,document.body,2);
 
     api.Range.trackWhileExecuting(range,function() {
-        api.Range.ensureInlineNodesInParagraph(range);
+        api.Hierarchy.ensureRangeInlineNodesInParagraph(range);
     });
     api.tests.TestLib.showRangeAsBrackets(range);
 }

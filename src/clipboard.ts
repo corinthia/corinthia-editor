@@ -20,6 +20,7 @@ import Cursor = require("./cursor");
 import DOM = require("./dom");
 import ElementTypes = require("./elementTypes");
 import Formatting = require("./formatting");
+import Hierarchy = require("./hierarchy");
 import Main = require("./main");
 import Markdown = require("./markdown");
 import Position = require("./position");
@@ -468,7 +469,7 @@ export function pasteNodes(nodes: Node[]): void {
 
         Cursor.updateBRAtEndOfParagraph(parent);
 
-        Range.ensureValidHierarchy(pastedRange,true);
+        Hierarchy.ensureRangeValidHierarchy(pastedRange,true);
     })});
 
     let pos = new Position.Position(origRange.end.node,origRange.end.offset);

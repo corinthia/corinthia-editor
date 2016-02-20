@@ -6,7 +6,7 @@ function performTest(api)
 {
     api.Selection.preserveWhileExecuting(function() {
         var range = api.Selection.get();
-        api.Range.ensureValidHierarchy(range);
+        api.Hierarchy.ensureRangeValidHierarchy(range);
         api.Formatting.splitAroundSelection(range);
         var outermost = api.Range.getOutermostNodes(range);
         api.Formatting.pushDownInlineProperties(outermost);

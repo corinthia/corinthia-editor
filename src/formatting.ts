@@ -106,8 +106,8 @@ function getStyleProperties(element: HTMLElement, dontReplace?: boolean): { [key
 export function splitAroundSelection(range: Range.Range, allowDirectInline: boolean): void {
     Range.trackWhileExecuting(range,function() {
         if (!allowDirectInline)
-            Range.ensureInlineNodesInParagraph(range);
-        Range.ensureValidHierarchy(range);
+            Hierarchy.ensureRangeInlineNodesInParagraph(range);
+        Hierarchy.ensureRangeValidHierarchy(range);
 
         if ((range.start.node instanceof Text) &&
             (range.start.offset > 0)) {
@@ -1107,8 +1107,8 @@ export function applyFormattingChanges(style: string, properties: { [key: string
         splitAroundSelection(range,allowDirectInline);
         Range.expand(range);
         if (!allowDirectInline)
-            Range.ensureInlineNodesInParagraph(range);
-        Range.ensureValidHierarchy(range);
+            Hierarchy.ensureRangeInlineNodesInParagraph(range);
+        Hierarchy.ensureRangeValidHierarchy(range);
         Range.expand(range);
         let outermost = Range.getOutermostNodes(range);
         // FIXME: From the logic below, I don't think this can ever get set
@@ -1179,7 +1179,7 @@ export function applyFormattingChanges(style: string, properties: { [key: string
     let end = Position.closestMatchBackwards(selectionRange.end,Position.okForInsertion);
     let tempRange = new Range.Range(start.node,start.offset,end.node,end.offset);
     tempRange = Range.forwards(tempRange);
-    Range.ensureValidHierarchy(tempRange);
+    Hierarchy.ensureRangeValidHierarchy(tempRange);
     start = tempRange.start;
     end = tempRange.end;
     Selection.set(start.node,start.offset,end.node,end.offset);

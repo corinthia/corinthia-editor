@@ -19,6 +19,7 @@ import DOM = require("./dom");
 import ElementTypes = require("./elementTypes");
 import Formatting = require("./formatting");
 import Position = require("./position");
+import Range = require("./range");
 import Traversal = require("./traversal");
 import Types = require("./types");
 import Util = require("./util");
@@ -217,6 +218,14 @@ export function ensureValidHierarchy(node: Node): void {
     }
 }
 
+export function ensureRangeInlineNodesInParagraph(range: Range.Range): void {
+    Range.trackWhileExecuting(range,function() {
+        let nodes = Range.getAllNodes(range,true);
+        for (let i = 0; i < nodes.length; i++)
+            ensureInlineNodesInParagraph(nodes[i]);
+    });
+}
+
 export function ensureInlineNodesInParagraph(node: Node, weak?: boolean): void {
     let count = 0;
     while ((node != null) && (node.parentNode != null) && (node != document.body)) {
@@ -232,6 +241,14 @@ export function ensureInlineNodesInParagraph(node: Node, weak?: boolean): void {
         }
         node = node.parentNode;
     }
+}
+
+export function ensureRangeValidHierarchy(range: Range.Range, allowDirectInline?: boolean): void {
+    Range.trackWhileExecuting(range,function() {
+        let nodes = Range.getAllNodes(range,true);
+        for (let i = nodes.length-1; i >= 0; i--)
+            ensureValidHierarchy(nodes[i]);
+    });
 }
 
 // public

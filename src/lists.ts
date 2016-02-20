@@ -327,7 +327,7 @@ export function clearList(): void {
         let range = Selection.get();
         if (range == null)
             return;
-        Range.ensureInlineNodesInParagraph(range);
+        Hierarchy.ensureRangeInlineNodesInParagraph(range);
 
         let nodes = getListOperationNodes(range);
 
@@ -524,7 +524,7 @@ function setList(type: number): void {
             }
         }
     });
-    Range.ensureValidHierarchy(range);
+    Hierarchy.ensureRangeValidHierarchy(range);
     Selection.set(range.start.node,range.start.offset,range.end.node,range.end.offset);
 }
 
