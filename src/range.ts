@@ -17,7 +17,6 @@
 
 import Collections = require("./collections");
 import ElementTypes = require("./elementTypes");
-import Main = require("./main");
 import Position = require("./position");
 import Traversal = require("./traversal");
 import Types = require("./types");
@@ -305,23 +304,8 @@ export function getClientRects(range: Range): ClientRect[] {
             domRange.setStart(node,startOffset);
             domRange.setEnd(node,endOffset);
             let rects = domRange.getClientRects();
-            for (let rectIndex = 0; rectIndex < rects.length; rectIndex++) {
-                let rect = rects[rectIndex];
-                if (Main.clientRectsBug) {
-                    // Apple Bug ID 14682166 - getClientRects() returns coordinates relative
-                    // to top of document, when it should instead return coordinates relative
-                    // to the current client view (that is, taking into account scroll offsets)
-                    result.push({ left: rect.left - window.scrollX,
-                                  right: rect.right - window.scrollX,
-                                  top: rect.top - window.scrollY,
-                                  bottom: rect.bottom - window.scrollY,
-                                  width: rect.width,
-                                  height: rect.height });
-                }
-                else {
-                    result.push(rect);
-                }
-            }
+            for (let rectIndex = 0; rectIndex < rects.length; rectIndex++)
+                result.push(rects[rectIndex]);
         }
         else if (node instanceof Element) {
             result.push(node.getBoundingClientRect());

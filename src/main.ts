@@ -332,12 +332,9 @@ function fixEmptyBody(): void {
     DOM.appendChild(document.body,p);
 }
 
-export let clientRectsBug = false;
-
 // public
-export function init(width: number, textScale: number, cssURL: string, clientRectsBug1: boolean): any {
+export function init(width: number, textScale: number, cssURL: string): any {
     try {
-        clientRectsBug = clientRectsBug1;
         if (document.documentElement == null)
             throw new Error("document.documentElement is null");
         if (document.body == null)
