@@ -37,6 +37,7 @@
         "src/figures.ts",
         "src/first.ts",
         "src/formatting.ts",
+        "src/geometry.ts",
         "src/hierarchy.ts",
         "src/input.ts",
         "src/lists.ts",

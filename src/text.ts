@@ -16,6 +16,7 @@
 // limitations under the License.
 
 import DOM = require("./dom");
+import Geometry = require("./geometry");
 import Paragraph = require("./paragraph");
 import Position = require("./position");
 import Traversal = require("./traversal");
@@ -106,7 +107,7 @@ export function posAbove(pos: Position.Position, cursorRect?: ClientRect, cursor
         cursorX = pos.targetX;
     pos = Position.closestMatchBackwards(pos,Position.okForMovement);
     if (cursorRect == null) {
-        cursorRect = Position.rectAtPos(pos);
+        cursorRect = Geometry.rectAtPos(pos);
         if (cursorRect == null)
             return null;
     }
@@ -146,7 +147,7 @@ export function posAbove(pos: Position.Position, cursorRect?: ClientRect, cursor
 
         for (let i = 0; i < rects.length; i++) {
             if ((cursorX >= rects[i].left) && (cursorX <= rects[i].right)) {
-                let newPos = Position.atPoint(cursorX,rects[i].top + rects[i].height/2);
+                let newPos = Geometry.positionAtPoint(cursorX,rects[i].top + rects[i].height/2);
                 if (newPos != null) {
                     newPos = Position.closestMatchBackwards(newPos,Position.okForInsertion);
                     newPos.targetX = cursorX;
@@ -157,7 +158,7 @@ export function posAbove(pos: Position.Position, cursorRect?: ClientRect, cursor
 
         let rightMost = findRightMostRect(rects);
         if (rightMost != null) {
-            let newPos = Position.atPoint(rightMost.right,rightMost.top + rightMost.height/2);
+            let newPos = Geometry.positionAtPoint(rightMost.right,rightMost.top + rightMost.height/2);
             if (newPos != null) {
                 newPos = Position.closestMatchBackwards(newPos,Position.okForInsertion);
                 newPos.targetX = cursorX;
@@ -216,7 +217,7 @@ export function posBelow(pos: Position.Position, cursorRect?: ClientRect, cursor
         cursorX = pos.targetX;
     pos = Position.closestMatchForwards(pos,Position.okForMovement);
     if (cursorRect == null) {
-        cursorRect = Position.rectAtPos(pos);
+        cursorRect = Geometry.rectAtPos(pos);
         if (cursorRect == null)
             return null;
     }
@@ -255,7 +256,7 @@ export function posBelow(pos: Position.Position, cursorRect?: ClientRect, cursor
 
         for (let i = 0; i < rects.length; i++) {
             if ((cursorX >= rects[i].left) && (cursorX <= rects[i].right)) {
-                let newPos = Position.atPoint(cursorX,rects[i].top + rects[i].height/2);
+                let newPos = Geometry.positionAtPoint(cursorX,rects[i].top + rects[i].height/2);
                 if (newPos != null) {
                     newPos = Position.closestMatchForwards(newPos,Position.okForInsertion);
                     newPos.targetX = cursorX;
@@ -266,7 +267,7 @@ export function posBelow(pos: Position.Position, cursorRect?: ClientRect, cursor
 
         let rightMost = findRightMostRect(rects);
         if (rightMost != null) {
-            let newPos = Position.atPoint(rightMost.right,rightMost.top + rightMost.height/2);
+            let newPos = Geometry.positionAtPoint(rightMost.right,rightMost.top + rightMost.height/2);
             if (newPos != null) {
                 newPos = Position.closestMatchForwards(newPos,Position.okForInsertion);
                 newPos.targetX = cursorX;
@@ -359,10 +360,10 @@ function toEndOfParagraph(pos: Position.Position): Position.Position {
 }
 
 function toStartOfLine(pos: Position.Position): Position.Position {
-    let posRect = Position.rectAtPos(pos);
+    let posRect = Geometry.rectAtPos(pos);
     if (posRect == null) {
         pos = closestPosBackwards(pos);
-        posRect = Position.rectAtPos(pos);
+        posRect = Geometry.rectAtPos(pos);
         if (posRect == null) {
             return null;
         }
@@ -370,7 +371,7 @@ function toStartOfLine(pos: Position.Position): Position.Position {
 
     while (true) {
         let check = Position.prevMatch(pos,Position.okForMovement);
-        let checkRect = Position.rectAtPos(check); // handles check == null case
+        let checkRect = Geometry.rectAtPos(check); // handles check == null case
         if (checkRect == null)
             return pos;
         if ((checkRect.bottom <= posRect.top) || (checkRect.top >= posRect.bottom))
@@ -380,10 +381,10 @@ function toStartOfLine(pos: Position.Position): Position.Position {
 }
 
 function toEndOfLine(pos: Position.Position): Position.Position {
-    let posRect = Position.rectAtPos(pos);
+    let posRect = Geometry.rectAtPos(pos);
     if (posRect == null) {
         pos = closestPosForwards(pos);
-        posRect = Position.rectAtPos(pos);
+        posRect = Geometry.rectAtPos(pos);
         if (posRect == null) {
             return null;
         }
@@ -391,7 +392,7 @@ function toEndOfLine(pos: Position.Position): Position.Position {
 
     while (true) {
         let check = Position.nextMatch(pos,Position.okForMovement);
-        let checkRect = Position.rectAtPos(check); // handles check == null case
+        let checkRect = Geometry.rectAtPos(check); // handles check == null case
         if (checkRect == null)
             return pos;
         if ((checkRect.bottom <= posRect.top) || (checkRect.top >= posRect.bottom))

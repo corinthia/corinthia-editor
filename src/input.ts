@@ -20,6 +20,7 @@
 
 import Cursor = require("./cursor");
 import DOM = require("./dom");
+import Geometry = require("./geometry");
 import Paragraph = require("./paragraph");
 import Position = require("./position");
 import Range = require("./range");
@@ -334,12 +335,12 @@ export function firstRectForRange(startId: number, endId: number): ClientRect {
 export function caretRectForPosition(posId: number): ClientRect {
     //idebug("caretRectForPosition("+posId+")");
     let pos = getPosition(posId);
-    return Position.rectAtPos(pos);
+    return Geometry.rectAtPos(pos);
 }
 
 // posId
 export function closestPositionToPoint(x: number, y: number): number {
-    return addPosition(Position.atPoint(x,y));
+    return addPosition(Geometry.positionAtPoint(x,y));
 }
 
 // posId

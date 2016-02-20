@@ -20,6 +20,7 @@ import Collections = require("./collections");
 import Cursor = require("./cursor");
 import DOM = require("./dom");
 import Formatting = require("./formatting");
+import Geometry = require("./geometry");
 import Position = require("./position");
 import PostponedActions = require("./postponedActions");
 import Range = require("./range");
@@ -208,7 +209,7 @@ export function getCorrectionCoords(): { x: number, y: number } {
     let offset = Math.floor(textNode.nodeValue.length/2);
     Selection.set(textNode,offset,textNode,offset);
     Cursor.ensureCursorVisible();
-    let rect = Position.displayRectAtPos(new Position.Position(textNode,offset));
+    let rect = Geometry.displayRectAtPos(new Position.Position(textNode,offset));
 
     if (rect == null) // FIXME: pos
         throw new Error("no rect for pos "+(new Position.Position(textNode,offset)));

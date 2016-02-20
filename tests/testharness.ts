@@ -52,6 +52,7 @@ function loadCode(): void {
         "src/equations",
         "src/figures",
         "src/formatting",
+        "src/geometry",
         "src/hierarchy",
         "src/input",
         "src/lists",

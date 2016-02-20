@@ -19,6 +19,7 @@ import Clipboard = require("./clipboard");
 import DOM = require("./dom");
 import ElementTypes = require("./elementTypes");
 import Formatting = require("./formatting");
+import Geometry = require("./geometry");
 import Hierarchy = require("./hierarchy");
 import Outline = require("./outline");
 import Position = require("./position");
@@ -36,7 +37,7 @@ let cursorX: number = null;
 export function ensurePositionVisible(pos: Position.Position, center?: boolean): void {
     // If we can't find the cursor rect for some reason, just don't do anything.
     // This is better than using an incorrect position or throwing an exception.
-    let rect = Position.displayRectAtPos(pos)
+    let rect = Geometry.displayRectAtPos(pos)
     if (rect != null) {
         let extraSpace = 4;
 
@@ -87,7 +88,7 @@ export function positionCursor(x: number, y: number, wordBoundary: boolean): str
     y = scrollDocumentForY(y);
 
     let result: string = null;
-    let position = Position.atPoint(x,y);
+    let position = Geometry.positionAtPoint(x,y);
     if (position == null)
         return null;
 
@@ -179,7 +180,7 @@ export function getCursorPosition(): ClientRect {
 
     // FIXME: in the cases where this is called from Objective C, test what happens if we
     // return a null rect
-    let rect = Position.displayRectAtPos(selRange.end);
+    let rect = Geometry.displayRectAtPos(selRange.end);
     if (rect == null)
         return null;
 

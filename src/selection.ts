@@ -23,6 +23,7 @@ import Cursor = require("./cursor");
 import DOM = require("./dom");
 import ElementTypes = require("./elementTypes");
 import Formatting = require("./formatting");
+import Geometry = require("./geometry");
 import Input = require("./input");
 import Position = require("./position");
 import Range = require("./range");
@@ -523,7 +524,7 @@ export function update(): void {
 
         // If we can't find the cursor rect for some reason, just don't update the position.
         // This is better than using an incorrect position or throwing an exception.
-        let rect = Position.displayRectAtPos(selRange.end);
+        let rect = Geometry.displayRectAtPos(selRange.end);
         if (rect != null) {
             let left = rect.left + window.scrollX;
             let top = rect.top + window.scrollY;
@@ -760,7 +761,7 @@ export function selectWordAtCursor(): void {
 
 // public
 export function dragSelectionBegin(x: number, y: number, selectWord: boolean): string {
-    let pos = Position.closestMatchForwards(Position.atPoint(x,y),Position.okForMovement);
+    let pos = Position.closestMatchForwards(Geometry.positionAtPoint(x,y),Position.okForMovement);
 
     if (pos == null) {
         clear();
@@ -795,7 +796,7 @@ function toEndOfWord(pos: Position.Position): Position.Position {
 export function dragSelectionUpdate(x: number, y: number, selectWord: boolean): string {
     y = Cursor.scrollDocumentForY(y);
 
-    let pos = Position.closestMatchForwards(Position.atPoint(x,y),Position.okForMovement);
+    let pos = Position.closestMatchForwards(Geometry.positionAtPoint(x,y),Position.okForMovement);
     let selRange = get();
     if ((pos == null) || (selRange == null))
         return "none";
@@ -880,7 +881,7 @@ export function moveEndRight(): string {
 
 // public
 export function setSelectionStartAtCoords(x: number, y: number): void {
-    let position = Position.closestMatchForwards(Position.atPoint(x,y),Position.okForMovement);
+    let position = Position.closestMatchForwards(Geometry.positionAtPoint(x,y),Position.okForMovement);
     if (position != null) {
         position = Position.closestMatchBackwards(position,Position.okForMovement);
         let selRange = get();
@@ -895,7 +896,7 @@ export function setSelectionStartAtCoords(x: number, y: number): void {
 
 // public
 export function setSelectionEndAtCoords(x: number, y: number): void {
-    let position = Position.closestMatchForwards(Position.atPoint(x,y),Position.okForMovement);
+    let position = Position.closestMatchForwards(Geometry.positionAtPoint(x,y),Position.okForMovement);
     if (position != null) {
         position = Position.closestMatchBackwards(position,Position.okForMovement);
         let selRange = get();
