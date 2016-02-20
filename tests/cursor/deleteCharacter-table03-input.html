@@ -5,7 +5,7 @@
 function performTest(api)
 {
     var table = document.getElementsByTagName("TABLE")[0];
-    var offset = api.DOM.nodeOffset(table);
+    var offset = api.Traversal.nodeOffset(table);
     api.Cursor.set(table.parentNode,offset+1,table.parentNode,offset+1);
     api.Cursor.deleteCharacter();
     api.tests.TestLib.showSelection();

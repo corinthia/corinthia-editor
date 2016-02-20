@@ -135,9 +135,9 @@ export function positionCursor(x: number, y: number, wordBoundary: boolean): str
         else if ((node instanceof Element) && Types.isTOCNode(node)) {
             let rect = node.getBoundingClientRect();
             if (x >= rect.left + rect.width/2)
-                position = new Position.Position(node.parentNode,DOM.nodeOffset(node)+1);
+                position = new Position.Position(node.parentNode,Traversal.nodeOffset(node)+1);
             else
-                position = new Position.Position(node.parentNode,DOM.nodeOffset(node));
+                position = new Position.Position(node.parentNode,Traversal.nodeOffset(node));
             break;
         }
     }
@@ -491,7 +491,7 @@ function tryDeleteEmptyCaption(pos: Position.Position): boolean {
     if (container == null)
         return false;
 
-    set(container.parentNode,DOM.nodeOffset(container)+1);
+    set(container.parentNode,Traversal.nodeOffset(container)+1);
     Selection.preserveWhileExecuting(function() {
         DOM.deleteNode(caption);
     });
@@ -505,7 +505,7 @@ function tryDeleteEmptyNote(pos: Position.Position): boolean {
         return false;
 
     let parent = note.parentNode;
-    set(note.parentNode,DOM.nodeOffset(note)+1);
+    set(note.parentNode,Traversal.nodeOffset(note)+1);
     Selection.preserveWhileExecuting(function() {
         DOM.deleteNode(note);
     });
@@ -651,7 +651,7 @@ export function enterPressed(): void {
         }
     }
     if (note != null) {
-        let noteOffset = DOM.nodeOffset(note);
+        let noteOffset = Traversal.nodeOffset(note);
         selRange = new Range.Range(note.parentNode,noteOffset+1,note.parentNode,noteOffset+1);
     }
 
@@ -880,7 +880,7 @@ export function getAdjacentNodeWithType(type: number): Node {
         if (node.parentNode == null)
             return null;
 
-        offset = DOM.nodeOffset(node);
+        offset = Traversal.nodeOffset(node);
         node = node.parentNode;
     }
 }
@@ -952,7 +952,7 @@ export function makeContainerInsertionPoint(): void {
         nextSibling = selRange.start.node;
     }
 
-    let offset = DOM.nodeOffset(nextSibling,parent);
+    let offset = Traversal.nodeOffset(nextSibling,parent);
 
     if (Types.isContainerNode(parent)) {
         set(parent,offset);
@@ -968,7 +968,7 @@ export function makeContainerInsertionPoint(): void {
     offset = 0;
     while (!Types.isContainerNode(parent)) {
         let old = parent;
-        offset = DOM.nodeOffset(parent);
+        offset = Traversal.nodeOffset(parent);
         parent = parent.parentNode;
         DOM.deleteNode(old);
     }
@@ -990,7 +990,7 @@ function moveRangeOutsideOfNote(range: Range.Range): Range.Range {
     for (let anc = node; anc != null; anc = anc.parentNode) {
         if (Types.isNoteNode(anc) && (anc.parentNode != null)) {
             node = anc.parentNode;
-            offset = DOM.nodeOffset(anc)+1;
+            offset = Traversal.nodeOffset(anc)+1;
             return new Range.Range(node,offset,node,offset);
         }
     }
@@ -1017,7 +1017,7 @@ function insertNote(className: string, content: string): void {
     if ((pos.node._type == ElementTypes.HTML_TEXT) &&
         (pos.node.nodeValue.length == 0)) {
         let empty = pos.node;
-        pos = new Position.Position(empty.parentNode,DOM.nodeOffset(empty));
+        pos = new Position.Position(empty.parentNode,Traversal.nodeOffset(empty));
         DOM.deleteNode(empty);
     }
     else {

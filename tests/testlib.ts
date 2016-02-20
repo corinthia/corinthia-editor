@@ -85,7 +85,7 @@ export function testHarnessSetup(): void {
             if (node instanceof Text) {
                 let index = node.nodeValue.indexOf(c);
                 if (index >= 0) {
-                    let offsetInParent = DOM.nodeOffset(node);
+                    let offsetInParent = Traversal.nodeOffset(node);
                     if (index == 0) {
                         node.nodeValue = node.nodeValue.substring(1);
                         return new Position.Position(node.parentNode,offsetInParent);
@@ -179,7 +179,7 @@ export function removeIds(): void {
 }
 
 export function selectNode(node: Node): void {
-    let offset = DOM.nodeOffset(node);
+    let offset = Traversal.nodeOffset(node);
     Selection.set(node.parentNode,offset,node.parentNode,offset+1);
 }
 

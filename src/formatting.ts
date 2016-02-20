@@ -121,7 +121,7 @@ export function splitAroundSelection(range: Range.Range, allowDirectInline: bool
         }
         else {
             movePreceding(new Position.Position(range.start.node.parentNode,
-                                                DOM.nodeOffset(range.start.node)),
+                                                Traversal.nodeOffset(range.start.node)),
                           Types.isBlockOrNoteNode);
         }
 
@@ -141,7 +141,7 @@ export function splitAroundSelection(range: Range.Range, allowDirectInline: bool
         }
         else {
             moveFollowing(new Position.Position(range.end.node.parentNode,
-                                                DOM.nodeOffset(range.end.node)+1),
+                                                Traversal.nodeOffset(range.end.node)+1),
                           Types.isBlockOrNoteNode);
         }
 
@@ -245,12 +245,12 @@ export function splitTextBefore(pos: Position.Position, parentCheckFn?: (n: Node
             let before = DOM.createTextNode(document,"");
             DOM.insertBefore(node.parentNode,before,node);
             DOM.moveCharacters(node,0,offset,before,0,false,true);
-            movePreceding(new Position.Position(node.parentNode,DOM.nodeOffset(node)),
+            movePreceding(new Position.Position(node.parentNode,Traversal.nodeOffset(node)),
                           parentCheckFn,force);
             return new Position.Position(before,before.nodeValue.length);
         }
         else {
-            movePreceding(new Position.Position(node.parentNode,DOM.nodeOffset(node)),
+            movePreceding(new Position.Position(node.parentNode,Traversal.nodeOffset(node)),
                           parentCheckFn,force);
             return pos;
         }
@@ -273,12 +273,12 @@ export function splitTextAfter(pos: Position.Position, parentCheckFn?: (n: Node)
             let after = DOM.createTextNode(document,"");
             DOM.insertBefore(node.parentNode,after,node.nextSibling);
             DOM.moveCharacters(node,offset,node.nodeValue.length,after,0,true,false);
-            moveFollowing(new Position.Position(node.parentNode,DOM.nodeOffset(node)+1),
+            moveFollowing(new Position.Position(node.parentNode,Traversal.nodeOffset(node)+1),
                           parentCheckFn,force);
             return new Position.Position(after,0);
         }
         else {
-            moveFollowing(new Position.Position(node.parentNode,DOM.nodeOffset(node)+1),
+            moveFollowing(new Position.Position(node.parentNode,Traversal.nodeOffset(node)+1),
                           parentCheckFn,force);
             return pos;
         }
@@ -323,7 +323,7 @@ export function movePreceding(pos: Position.Position, parentCheckFn?: (n: Node) 
         }
     }
 
-    movePreceding(new Position.Position(node.parentNode,DOM.nodeOffset(node)),
+    movePreceding(new Position.Position(node.parentNode,Traversal.nodeOffset(node)),
                   parentCheckFn,force);
     return result;
 }
@@ -359,7 +359,7 @@ export function moveFollowing(pos: Position.Position, parentCheckFn?: (n: Node) 
         }
     }
 
-    moveFollowing(new Position.Position(node.parentNode,DOM.nodeOffset(node)+1),
+    moveFollowing(new Position.Position(node.parentNode,Traversal.nodeOffset(node)+1),
                   parentCheckFn,force);
     return result;
 }

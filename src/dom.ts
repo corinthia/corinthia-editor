@@ -375,13 +375,13 @@ export function appendChild(node: Node, child: Node): void {
 export function insertBefore(parent: Node, child: Node, nextSibling: Node): void {
     let newOffset: number;
     if (nextSibling != null)
-        newOffset = nodeOffset(nextSibling);
+        newOffset = Traversal.nodeOffset(nextSibling);
     else
         newOffset = parent.childNodes.length;
 
     let oldParent = child.parentNode;
     if (oldParent != null) { // already in tree
-        let oldOffset = nodeOffset(child);
+        let oldOffset = Traversal.nodeOffset(child);
 
         if ((oldParent == parent) && (newOffset > oldOffset))
             newOffset--;
@@ -417,13 +417,13 @@ export function deleteNode(node: Node): void {
             adjustPositionsRecursive(child);
 
         trackedPositionsForNode(current.parentNode).forEach(function (position: Position.Position) {
-            let offset = nodeOffset(current);
+            let offset = Traversal.nodeOffset(current);
             if (offset < position.offset) {
                 position.offset--;
             }
         });
         trackedPositionsForNode(current).forEach(function (position: Position.Position) {
-            let offset = nodeOffset(current);
+            let offset = Traversal.nodeOffset(current);
             position.node = current.parentNode;
             position.offset = offset;
         });
@@ -496,7 +496,7 @@ export function shallowCopyElement<T extends Node>(element: T): T {
 export function removeNodeButKeepChildren(node: Node): void {
     if (node.parentNode == null)
         throw new Error("Node "+Util.nodeString(node)+" has no parent");
-    let offset = nodeOffset(node);
+    let offset = Traversal.nodeOffset(node);
     let childCount = node.childNodes.length;
 
     trackedPositionsForNode(node.parentNode).forEach(function (position: Position.Position) {
@@ -563,8 +563,8 @@ export function wrapSiblings(first: Node, last: Node, elementName: string): HTML
         throw new Error("first and last are not siblings");
 
     if (parent != null) {
-        let firstOffset = nodeOffset(first);
-        let lastOffset = nodeOffset(last);
+        let firstOffset = Traversal.nodeOffset(first);
+        let lastOffset = Traversal.nodeOffset(last);
         let nodeCount = lastOffset - firstOffset + 1;
         trackedPositionsForNode(parent).forEach(function (position: Position.Position) {
             if ((position.offset >= firstOffset) && (position.offset <= lastOffset+1)) {
@@ -597,8 +597,8 @@ export function mergeWithNextSibling(current: Node, whiteList: any): void {
     if ((next == null) || !nodesMergeable(current,next,whiteList))
         return;
 
-    let currentLength = maxChildOffset(current);
-    let nextOffset = nodeOffset(next);
+    let currentLength = Traversal.maxChildOffset(current);
+    let nextOffset = Traversal.nodeOffset(next);
 
     let lastChild: Node = null;
 
@@ -740,16 +740,6 @@ export function ensureUniqueIds(root: Node): void {
             nextNumberForPrefix[prefix] = num;
         }
     }
-}
-
-// public
-export function nodeOffset(node: Node, parent?: Node): number {
-    return Traversal.nodeOffset(node,parent);
-}
-
-// public
-export function maxChildOffset(node: Node): number {
-    return Traversal.maxChildOffset(node);
 }
 
 function incIgnoreMutations(): void {

@@ -7,7 +7,7 @@ function performTest(api)
     api.Outline.init();
     api.PostponedActions.perform();
     var nav = document.getElementsByTagName("NAV")[0];
-    var offset = api.DOM.nodeOffset(nav);
+    var offset = api.Traversal.nodeOffset(nav);
     api.Cursor.set(nav.parentNode,offset+1,nav.parentNode,offset+1);
     api.Cursor.deleteCharacter();
     api.tests.TestLib.showSelection();

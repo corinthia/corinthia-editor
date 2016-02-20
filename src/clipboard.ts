@@ -53,13 +53,13 @@ function expandRangeForCopy(range: Range.Range): Range.Range {
         let beforeRange = new Range.Range(startInLI,0,
                                     range.start.node,range.start.offset);
         let afterRange = new Range.Range(range.end.node,range.end.offset,
-                                   endInLI,DOM.maxChildOffset(endInLI));
+                                   endInLI,Traversal.maxChildOffset(endInLI));
         let contentBefore = Range.hasContent(beforeRange);
         let contentAfter = Range.hasContent(afterRange);
 
         if (!contentBefore && !contentAfter) {
             let li = startInLI;
-            let offset = DOM.nodeOffset(li);
+            let offset = Traversal.nodeOffset(li);
             range = new Range.Range(li.parentNode,offset,li.parentNode,offset+1);
         }
     }
@@ -388,7 +388,7 @@ export function pasteNodes(nodes: Node[]): void {
         for (let i = 0; i < nodes.length; i++) {
             let child = nodes[i];
 
-            let offset = DOM.nodeOffset(nextSibling,parent);
+            let offset = Traversal.nodeOffset(nextSibling,parent);
 
             switch (child._type) {
             case ElementTypes.HTML_UL:
@@ -415,7 +415,7 @@ export function pasteNodes(nodes: Node[]): void {
         for (let i = 0; i < nodes.length; i++) {
             let child = nodes[i];
 
-            let offset = DOM.nodeOffset(nextSibling,parent);
+            let offset = Traversal.nodeOffset(nextSibling,parent);
 
             switch (child._type) {
             case ElementTypes.HTML_UL:
@@ -451,14 +451,14 @@ export function pasteNodes(nodes: Node[]): void {
     if (previousSibling == null)
         prevOffset = 0;
     else
-        prevOffset = DOM.nodeOffset(previousSibling);
-    let nextOffset = DOM.nodeOffset(nextSibling,parent);
+        prevOffset = Traversal.nodeOffset(previousSibling);
+    let nextOffset = Traversal.nodeOffset(nextSibling,parent);
 
     let origRange = new Range.Range(parent,prevOffset,parent,nextOffset);
 
     let firstPasted = pastedNodes[0];
     let lastPasted = pastedNodes[pastedNodes.length-1];
-    let pastedRange = new Range.Range(firstPasted,0,lastPasted,DOM.maxChildOffset(lastPasted));
+    let pastedRange = new Range.Range(firstPasted,0,lastPasted,Traversal.maxChildOffset(lastPasted));
     Range.trackWhileExecuting(origRange,function() {
     Range.trackWhileExecuting(pastedRange,function() {
         if (previousSibling != null)
@@ -481,7 +481,7 @@ export function pasteNodes(nodes: Node[]): void {
                 break;
             if (!Types.nodeHasContent(pos.node)) {
                 let oldNode = pos.node;
-                pos = new Position.Position(pos.node.parentNode,DOM.nodeOffset(pos.node));
+                pos = new Position.Position(pos.node.parentNode,Traversal.nodeOffset(pos.node));
                 DOM.deleteNode(oldNode);
             }
             else
@@ -492,7 +492,7 @@ export function pasteNodes(nodes: Node[]): void {
 
     pos = new Position.Position(pastedRange.end.node,pastedRange.end.offset);
     while (Types.isOpaqueNode(pos.node))
-        pos = new Position.Position(pos.node.parentNode,DOM.nodeOffset(pos.node)+1);
+        pos = new Position.Position(pos.node.parentNode,Traversal.nodeOffset(pos.node)+1);
     pos = Position.closestMatchBackwards(pos,Position.okForInsertion);
 
     Selection.set(pos.node,pos.offset,pos.node,pos.offset);

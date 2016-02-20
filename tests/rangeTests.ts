@@ -78,7 +78,7 @@ export function getAllPositions(root: Node): Position.Position[] {
     let includeEmptyElements = true;
 
     let positions: Position.Position[] = [];
-    let rootOffset = DOM.nodeOffset(root);
+    let rootOffset = Traversal.nodeOffset(root);
 //    positions.push(new Position.Position(root.parentNode,rootOffset));
     recurse(root);
 //    positions.push(new Position.Position(root.parentNode,rootOffset+1));

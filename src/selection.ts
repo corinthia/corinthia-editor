@@ -623,7 +623,7 @@ export function selectParagraph(): void {
         endNode = endNode.parentNode;
 
     let startPos = new Position.Position(startNode,0);
-    let endPos = new Position.Position(endNode,DOM.maxChildOffset(endNode));
+    let endPos = new Position.Position(endNode,Traversal.maxChildOffset(endNode));
     startPos = Position.closestMatchForwards(startPos,Position.okForMovement);
     endPos = Position.closestMatchBackwards(endPos,Position.okForMovement);
 
@@ -938,9 +938,9 @@ export function setTableSelectionEdgeAtCoords(edge: string, x: number, y: number
     let bottomRightCell = Tables.Table_get(structure,tableSelection.bottom,tableSelection.right);
 
     let topLeftNode = topLeftCell.element.parentNode;
-    let topLeftOffset = DOM.nodeOffset(topLeftCell.element);
+    let topLeftOffset = Traversal.nodeOffset(topLeftCell.element);
     let bottomRightNode = bottomRightCell.element.parentNode;
-    let bottomRightOffset = DOM.nodeOffset(bottomRightCell.element)+1;
+    let bottomRightOffset = Traversal.nodeOffset(bottomRightCell.element)+1;
 
     set(topLeftNode,topLeftOffset,bottomRightNode,bottomRightOffset);
 
@@ -1072,8 +1072,8 @@ function delEmpty(selRange: Range.Range, node: Node): void {
 
 function fixPositionOutside(pos: Position.Position, node: Node): boolean {
     if (pos.node == node) {
-        let before = new Position.Position(node.parentNode,DOM.nodeOffset(node));
-        let after = new Position.Position(node.parentNode,DOM.nodeOffset(node)+1);
+        let before = new Position.Position(node.parentNode,Traversal.nodeOffset(node));
+        let after = new Position.Position(node.parentNode,Traversal.nodeOffset(node)+1);
         before = Position.prevMatch(before,Position.okForMovement);
         after = Position.nextMatch(after,Position.okForMovement);
 
@@ -1296,9 +1296,9 @@ function boundaryCompliantRange(range: Range.Range): Range.Range {
         }
 
         if (doStart && (startContainer != document.body))
-            start = new Position.Position(startContainer.parentNode,DOM.nodeOffset(startContainer));
+            start = new Position.Position(startContainer.parentNode,Traversal.nodeOffset(startContainer));
         if (doEnd && (endContainer != document.body))
-            end = new Position.Position(endContainer.parentNode,DOM.nodeOffset(endContainer)+1);
+            end = new Position.Position(endContainer.parentNode,Traversal.nodeOffset(endContainer)+1);
     }
     return new Range.Range(start.node,start.offset,end.node,end.offset);
 

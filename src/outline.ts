@@ -1303,7 +1303,7 @@ export function examinePrintLayout(pageHeight: number): PrintLayoutInfo {
         if (!a.hasAttribute("href"))
             continue;
 
-        let offset = DOM.nodeOffset(a);
+        let offset = Traversal.nodeOffset(a);
         let range = new Range.Range(a.parentNode,offset,a.parentNode,offset+1);
         let rects = Range.getClientRects(range);
         for (let rectIndex = 0; rectIndex < rects.length; rectIndex++) {
@@ -1330,7 +1330,7 @@ export function examinePrintLayout(pageHeight: number): PrintLayoutInfo {
 
     function recurse(node: Node): void {
         if (node.firstChild == null) {
-            let offset = DOM.nodeOffset(node);
+            let offset = Traversal.nodeOffset(node);
             let range = new Range.Range(node.parentNode,offset,node.parentNode,offset+1);
             let rects = Range.getClientRects(range);
             for (let i = 0; i < rects.length; i++) {

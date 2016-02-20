@@ -18,12 +18,13 @@
 import DOM = require("../src/dom");
 import Figures = require("../src/figures");
 import Selection = require("../src/selection");
+import Traversal = require("../src/traversal");
 
 // FIXME: index is not actually used
 export function figurePropertiesString(index: number): string {
     let figure = document.getElementsByTagName("FIGURE")[0];
     let parent = figure.parentNode;
-    let offset = DOM.nodeOffset(figure);
+    let offset = Traversal.nodeOffset(figure);
     Selection.set(parent,offset,parent,offset+1);
     let properties = Figures.getProperties(Figures.getSelectedFigureId());
     let strings = new Array();

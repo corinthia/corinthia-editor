@@ -6,7 +6,7 @@ function performTest(api)
 {
     var range = api.Selection.get();
     var figure = document.getElementsByTagName("FIGURE")[0];
-    var offset = api.DOM.nodeOffset(figure);
+    var offset = api.Traversal.nodeOffset(figure);
     api.Selection.set(figure.parentNode,offset,figure.parentNode,offset);
     api.Selection.selectWordAtCursor();
     api.tests.TestLib.showSelection();

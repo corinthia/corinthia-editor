@@ -413,7 +413,7 @@ function setList(type: number): void {
         }
         nodes = [text];
 
-        let offset = DOM.nodeOffset(text);
+        let offset = Traversal.nodeOffset(text);
         Selection.set(text,0,text,0);
         range = Selection.get();
     }

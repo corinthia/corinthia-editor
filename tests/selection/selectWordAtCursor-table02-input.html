@@ -6,7 +6,7 @@ function performTest(api)
 {
     var range = api.Selection.get();
     var table = document.getElementsByTagName("TABLE")[0];
-    var offset = api.DOM.nodeOffset(table);
+    var offset = api.Traversal.nodeOffset(table);
     api.Selection.set(table.parentNode,offset+1,table.parentNode,offset+1);
     api.Selection.selectWordAtCursor();
     api.tests.TestLib.showSelection();

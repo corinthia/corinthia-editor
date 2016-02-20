@@ -66,14 +66,14 @@ export function trackWhileExecuting<T>(range: Range, fun: () => T): T {
 export function expand(range: Range): void {
     let doc = range.start.node.ownerDocument;
     while ((range.start.offset == 0) && (range.start.node != doc.body)) {
-        let offset = DOM.nodeOffset(range.start.node);
+        let offset = Traversal.nodeOffset(range.start.node);
         range.start.node = range.start.node.parentNode;
         range.start.offset = offset;
     }
 
-    while ((range.end.offset == DOM.maxChildOffset(range.end.node)) &&
+    while ((range.end.offset == Traversal.maxChildOffset(range.end.node)) &&
            (range.end.node != doc.body)) {
-        let offset = DOM.nodeOffset(range.end.node);
+        let offset = Traversal.nodeOffset(range.end.node);
         range.end.node = range.end.node.parentNode;
         range.end.offset = offset+1;
     }

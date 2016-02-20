@@ -6,8 +6,8 @@ function performTest(api)
 {
     var tr1 = document.getElementsByTagName("TR")[1];
     var tr2 = document.getElementsByTagName("TR")[2];
-    var tr1Offset = api.DOM.nodeOffset(tr1);
-    var tr2Offset = api.DOM.nodeOffset(tr2);
+    var tr1Offset = api.Traversal.nodeOffset(tr1);
+    var tr2Offset = api.Traversal.nodeOffset(tr2);
     api.Selection.set(tr1.parentNode,tr1Offset,tr2.parentNode,tr2Offset+1);
     api.Selection.deleteContents();
 }

@@ -7,7 +7,7 @@ function performTest(api)
     var trs = document.getElementsByTagName("TR");
     var tds = document.getElementsByTagName("TD");
     var tbody = document.getElementsByTagName("TBODY")[0];
-    api.Selection.setEmptySelectionAt(tbody.parentNode,api.DOM.nodeOffset(tbody)+1);
+    api.Selection.setEmptySelectionAt(tbody.parentNode,api.Traversal.nodeOffset(tbody)+1);
     api.Cursor.insertCharacter("X");
     api.tests.TestLib.showSelection();
 }

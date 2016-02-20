@@ -5,7 +5,7 @@
 function performTest(api)
 {
     var p = document.getElementsByTagName("P")[2];
-    var offset = api.DOM.nodeOffset(p);
+    var offset = api.Traversal.nodeOffset(p);
     var range = new api.Range.Range(document.body,offset,document.body,offset+1);
     api.Range.trackWhileExecuting(range,function() {
         api.DOM.replaceElement(p,"DIV");

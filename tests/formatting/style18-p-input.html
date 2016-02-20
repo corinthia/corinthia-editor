@@ -8,8 +8,8 @@ function performTest(api)
     // WebKit's parser will move the selection to cover the whole table if we do that
     var table = document.getElementsByTagName("TABLE")[0];
     var trs = document.getElementsByTagName("TR");
-    var tr1Offset = api.DOM.nodeOffset(trs[1]);
-    var tr2Offset = api.DOM.nodeOffset(trs[2]);
+    var tr1Offset = api.Traversal.nodeOffset(trs[1]);
+    var tr2Offset = api.Traversal.nodeOffset(trs[2]);
 
     // The table is not the parent of the TRs - the parser automatically inserts a TBODY
     // between them

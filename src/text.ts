@@ -56,8 +56,8 @@ export function findParagraphBoundaries(pos: Position.Position): ParagraphBounda
     let node = pos.node;
 
     while (Types.isInlineNode(node)) {
-        startOffset = DOM.nodeOffset(node);
-        endOffset = DOM.nodeOffset(node)+1;
+        startOffset = Traversal.nodeOffset(node);
+        endOffset = Traversal.nodeOffset(node)+1;
         node = node.parentNode;
     }
 

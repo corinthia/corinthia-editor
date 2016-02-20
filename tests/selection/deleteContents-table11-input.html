@@ -6,8 +6,8 @@ function performTest(api)
 {
     var tr = document.getElementsByTagName("TR")[1];
     var table = document.getElementsByTagName("TABLE")[0];
-    var trOffset = api.DOM.nodeOffset(tr);
-    var tableOffset = api.DOM.nodeOffset(table);
+    var trOffset = api.Traversal.nodeOffset(tr);
+    var tableOffset = api.Traversal.nodeOffset(table);
     api.Selection.set(table.parentNode,tableOffset,tr.parentNode,trOffset+1);
     api.Selection.deleteContents();
     api.tests.TestLib.showSelection();

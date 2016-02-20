@@ -242,9 +242,9 @@ function posOutsideSelection(pos: Position.Position): Position.Position {
         return pos;
 
     if (pos.offset == 0)
-        return new Position.Position(pos.node.parentNode,DOM.nodeOffset(pos.node));
+        return new Position.Position(pos.node.parentNode,Traversal.nodeOffset(pos.node));
     else if (pos.offset == pos.node.childNodes.length)
-        return new Position.Position(pos.node.parentNode,DOM.nodeOffset(pos.node)+1);
+        return new Position.Position(pos.node.parentNode,Traversal.nodeOffset(pos.node)+1);
     else
         return pos;
 }
@@ -387,11 +387,11 @@ export function positionAtPoint(x: number, y: number): Position.Position {
             let next = position.node.childNodes[position.offset];
             if ((prev != null) && (prev._type == ElementTypes.HTML_IMG)) {
                 position = new Position.Position(position.node.parentNode,
-                                                 DOM.nodeOffset(position.node)+1);
+                                                 Traversal.nodeOffset(position.node)+1);
             }
             else if ((next != null) && (next._type == ElementTypes.HTML_IMG)) {
                 position = new Position.Position(position.node.parentNode,
-                                                 DOM.nodeOffset(position.node));
+                                                 Traversal.nodeOffset(position.node));
             }
         }
         return position;

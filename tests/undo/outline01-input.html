@@ -27,7 +27,7 @@ function performTest(api)
     api.PostponedActions.perform();
     api.UndoManager.newGroup();
 
-    var firstOffset = api.DOM.nodeOffset(first);
+    var firstOffset = api.Traversal.nodeOffset(first);
     api.Selection.set(first.parentNode,firstOffset,first.parentNode,firstOffset+1);
     api.Selection.deleteContents();
 

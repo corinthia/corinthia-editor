@@ -5,7 +5,7 @@
 function performTest(api)
 {
     var figure = document.getElementsByTagName("FIGURE")[0];
-    var offset = api.DOM.nodeOffset(figure);
+    var offset = api.Traversal.nodeOffset(figure);
     api.Cursor.set(figure.parentNode,offset+1,figure.parentNode,offset+1);
     api.Cursor.deleteCharacter();
     api.tests.TestLib.showSelection();

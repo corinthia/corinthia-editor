@@ -21,6 +21,7 @@ import Outline = require("../src/outline");
 import PostponedActions = require("../src/postponedActions");
 import PrettyPrinter = require("./prettyPrinter");
 import Selection = require("../src/selection");
+import Traversal = require("../src/traversal");
 import UndoManager = require("../src/undo");
 
 export function testUndo(versions: Node[], node: Node): void {
@@ -90,7 +91,7 @@ export function placeCursorAfterElement(id: string): void {
     UndoManager.disableWhileExecuting(function() {
         let element = document.getElementById(id);
         let node = element.parentNode;
-        let offset = DOM.nodeOffset(element)+1;
+        let offset = Traversal.nodeOffset(element)+1;
         Selection.set(node,offset,node,offset);
     });
 }
