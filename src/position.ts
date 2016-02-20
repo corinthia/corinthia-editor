@@ -15,7 +15,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import DOM = require("./dom");
 import ElementTypes = require("./elementTypes");
 import Traversal = require("./traversal");
 import Types = require("./types");
@@ -55,12 +54,26 @@ export class Position {
             this.actuallyStartTracking();
     }
 
-    private actuallyStartTracking() {
-        DOM.addTrackedPosition(this);
+    private actuallyStartTracking(): void {
+        let node = this.node;
+        if (node._trackedPositions == null)
+            node._trackedPositions = new Array<Position>();
+        node._trackedPositions.push(this);
     }
 
-    private actuallyStopTracking() {
-        DOM.removeTrackedPosition(this);
+    private actuallyStopTracking(): void {
+        let trackedPositions = this.node._trackedPositions;
+        if (trackedPositions == null)
+            throw new Error("actuallyStopTracking: no registered positions for this node "+
+                            "("+this.node.nodeName+")");
+        for (let i = 0; i < trackedPositions.length; i++) {
+            if (trackedPositions[i] == this) {
+                trackedPositions.splice(i,1);
+                return;
+            }
+        }
+        throw new Error("removeTrackedPosition: position is not registered ("+
+                        trackedPositions.length+" others)");
     }
 
     public startTracking() {
@@ -110,7 +123,7 @@ function positionSpecial(pos: Position, forwards: boolean, backwards: boolean): 
 
     // Moving right from the end of a caption - go after the table
     if ((node._type == ElementTypes.HTML_CAPTION) && forwards && (next == null))
-        return new Position(node.parentNode.parentNode,DOM.nodeOffset(node.parentNode)+1);
+        return new Position(node.parentNode.parentNode,Traversal.nodeOffset(node.parentNode)+1);
 
     // Moving left from just after a table - go to the end of the caption (if there is one)
     if ((prev != null) && (prev._type == ElementTypes.HTML_TABLE) && backwards) {
@@ -123,7 +136,7 @@ function positionSpecial(pos: Position, forwards: boolean, backwards: boolean): 
     if ((next != null) && (next._type == ElementTypes.HTML_TABLE) && forwards) {
         let firstChild = Traversal.firstChildElement(next);
         if (firstChild._type == ElementTypes.HTML_CAPTION)
-            return new Position(next,DOM.nodeOffset(firstChild)+1);
+            return new Position(next,Traversal.nodeOffset(firstChild)+1);
     }
 
     // Moving right from the end of a table - go to the start of the caption (if there is one)
@@ -175,7 +188,7 @@ export function prev(pos: Position): Position {
         }
         else {
             let child = pos.node.childNodes[pos.offset-1];
-            return new Position(child,DOM.maxChildOffset(child));
+            return new Position(child,Traversal.maxChildOffset(child));
         }
     }
     else if (pos.node instanceof Text) {
@@ -192,7 +205,7 @@ export function prev(pos: Position): Position {
         if (pos.node == pos.node.ownerDocument.body)
             return null;
         else
-            return new Position(pos.node.parentNode,DOM.nodeOffset(pos.node));
+            return new Position(pos.node.parentNode,Traversal.nodeOffset(pos.node));
     }
 }
 
@@ -221,7 +234,7 @@ export function next(pos: Position): Position {
         if (pos.node == pos.node.ownerDocument.body)
             return null;
         else
-            return new Position(pos.node.parentNode,DOM.nodeOffset(pos.node)+1);
+            return new Position(pos.node.parentNode,Traversal.nodeOffset(pos.node)+1);
     }
 }
 
@@ -637,9 +650,9 @@ export function preferElementPosition(pos: Position): Position {
         if (pos.node.parentNode == null)
             throw new Error("Position "+pos+" has no parent node");
         if (pos.offset == 0)
-            return new Position(pos.node.parentNode,DOM.nodeOffset(pos.node));
+            return new Position(pos.node.parentNode,Traversal.nodeOffset(pos.node));
         if (pos.offset == pos.node.nodeValue.length)
-            return new Position(pos.node.parentNode,DOM.nodeOffset(pos.node)+1);
+            return new Position(pos.node.parentNode,Traversal.nodeOffset(pos.node)+1);
     }
     return pos;
 }

@@ -158,3 +158,21 @@ export function treeToString(node: Node, indent: string, offset: string): string
     treeToStringRecursive(node,indent,offset,lines);
     return lines.join("\n");
 }
+
+export function nodeOffset(node: Node, parent?: Node): number {
+    if ((node == null) && (parent != null))
+        return maxChildOffset(parent);
+    let offset = 0;
+    for (let n = node.parentNode.firstChild; n != node; n = n.nextSibling)
+        offset++;
+    return offset;
+}
+
+export function maxChildOffset(node: Node): number {
+    if (node instanceof Text)
+        return node.nodeValue.length;
+    else if (node instanceof Element)
+        return node.childNodes.length;
+    else
+        throw new Error("maxOffset: invalid node type ("+node.nodeType+")");
+}

@@ -30,6 +30,7 @@ interface Document {
 interface Node {
     _nodeId?: number;
     _type?: number;
+    _trackedPositions: any[];
 }
 
 interface Window {

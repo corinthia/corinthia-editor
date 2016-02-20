@@ -22,20 +22,11 @@ import Types = require("./types");
 import UndoManager = require("./undo");
 import Util = require("./util");
 
-class NodeData {
-    trackedPositions: Position.Position[];
-}
-
-class NodeDataDict {
-    [key: string]: NodeData;
-}
-
 export class StyleProperties {
     [key: string]: string;
 }
 
 let nextNodeId = 0;
-let nodeData = new NodeDataDict();
 let ignoreMutations = 0;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -203,7 +194,7 @@ function deleteNodeInternal(node: Node, deleteDescendantData: boolean): void {
     return;
 
     function deleteNodeData(current: Node): void {
-        delete nodeData[current._nodeId];
+        current._trackedPositions = null;
     }
 
     function deleteNodeDataRecursive(current: Node): void {
@@ -665,23 +656,15 @@ export function nodesMergeable(a: Node, b: Node, whiteList: any): boolean {
     }
 }
 
-function getDataForNode(node: Node, create: boolean): NodeData {
-    if (node._nodeId == null)
-        throw new Error("getDataForNode: node "+node.nodeName+" has no _nodeId property");
-    if ((nodeData[node._nodeId] == null) && create)
-        nodeData[node._nodeId] = new NodeData();
-    return nodeData[node._nodeId];
-}
-
 function trackedPositionsForNode(node: Node): Position.Position[] {
-    let data = getDataForNode(node,false);
-    if ((data != null) && (data.trackedPositions != null)) {
+    let trackedPositions = node._trackedPositions;
+    if (trackedPositions != null) {
         // Sanity check
-        for (let i = 0; i < data.trackedPositions.length; i++) {
-            if (data.trackedPositions[i].node != node)
-                throw new Error("Position "+data.trackedPositions[i]+" has wrong node");
+        for (let i = 0; i < trackedPositions.length; i++) {
+            if (trackedPositions[i].node != node)
+                throw new Error("Position "+trackedPositions[i]+" has wrong node");
         }
-        return Util.arrayCopy(data.trackedPositions);
+        return Util.arrayCopy(trackedPositions);
     }
     else {
         return [];
@@ -695,30 +678,6 @@ export function replaceCharacters(textNode: Text, startOffset: number, endOffset
     // startOffset, in which case it will stay the same)
     insertCharacters(textNode,startOffset,replacement);
     deleteCharacters(textNode,startOffset+replacement.length,endOffset+replacement.length);
-}
-
-// public
-export function addTrackedPosition(position: Position.Position): void {
-    let data = getDataForNode(position.node,true);
-    if (data.trackedPositions == null)
-        data.trackedPositions = new Array<Position.Position>();
-    data.trackedPositions.push(position);
-}
-
-// public
-export function removeTrackedPosition(position: Position.Position): void {
-    let data = getDataForNode(position.node,false);
-    if ((data == null) || (data.trackedPositions == null))
-        throw new Error("removeTrackedPosition: no registered positions for this node "+
-                        "("+position.node.nodeName+")");
-    for (let i = 0; i < data.trackedPositions.length; i++) {
-        if (data.trackedPositions[i] == position) {
-            data.trackedPositions.splice(i,1);
-            return;
-        }
-    }
-    throw new Error("removeTrackedPosition: position is not registered ("+
-                    data.trackedPositions.length+" others)");
 }
 
 // public
@@ -785,22 +744,12 @@ export function ensureUniqueIds(root: Node): void {
 
 // public
 export function nodeOffset(node: Node, parent?: Node): number {
-    if ((node == null) && (parent != null))
-        return maxChildOffset(parent);
-    let offset = 0;
-    for (let n = node.parentNode.firstChild; n != node; n = n.nextSibling)
-        offset++;
-    return offset;
+    return Traversal.nodeOffset(node,parent);
 }
 
 // public
 export function maxChildOffset(node: Node): number {
-    if (node instanceof Text)
-        return node.nodeValue.length;
-    else if (node instanceof Element)
-        return node.childNodes.length;
-    else
-        throw new Error("maxOffset: invalid node type ("+node.nodeType+")");
+    return Traversal.maxChildOffset(node);
 }
 
 function incIgnoreMutations(): void {
