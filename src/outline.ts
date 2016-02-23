@@ -1304,7 +1304,7 @@ export function examinePrintLayout(pageHeight: number): PrintLayoutInfo {
             continue;
 
         let offset = Traversal.nodeOffset(a);
-        let range = new Range.Range(a.parentNode,offset,a.parentNode,offset+1);
+        let range = new Range(a.parentNode,offset,a.parentNode,offset+1);
         let rects = Range.getClientRects(range);
         for (let rectIndex = 0; rectIndex < rects.length; rectIndex++) {
             let rect = rects[rectIndex];
@@ -1331,7 +1331,7 @@ export function examinePrintLayout(pageHeight: number): PrintLayoutInfo {
     function recurse(node: Node): void {
         if (node.firstChild == null) {
             let offset = Traversal.nodeOffset(node);
-            let range = new Range.Range(node.parentNode,offset,node.parentNode,offset+1);
+            let range = new Range(node.parentNode,offset,node.parentNode,offset+1);
             let rects = Range.getClientRects(range);
             for (let i = 0; i < rects.length; i++) {
                 let rect = rects[i];

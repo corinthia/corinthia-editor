@@ -33,7 +33,7 @@ export function getNodeArrayText(nodes: Node[]): string {
 }
 
 export function textBetweenPositions(from: Position, to: Position): string {
-    let range = new Range.Range(from.node,from.offset,to.node,to.offset);
+    let range = new Range(from.node,from.offset,to.node,to.offset);
     let contents = DOM.cloneRangeContents(range);
     return getNodeArrayText(contents);
 }

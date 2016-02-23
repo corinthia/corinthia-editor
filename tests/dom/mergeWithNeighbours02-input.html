@@ -17,7 +17,7 @@ function performTest(api)
     api.DOM.appendChild(p,text5);
     api.DOM.appendChild(document.body,p);
 
-    var range = new api.Range.Range(text1,1,text5,3);
+    var range = new api.Range(text1,1,text5,3);
     api.Range.trackWhileExecuting(range,function() {
         api.Formatting.mergeWithNeighbours(text3,api.Formatting.MERGEABLE_INLINE);
     });

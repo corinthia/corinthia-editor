@@ -34,7 +34,7 @@ import Types = require("./types");
 import UndoManager = require("./undo");
 import Util = require("./util");
 
-function expandRangeForCopy(range: Range.Range): Range.Range {
+function expandRangeForCopy(range: Range): Range {
     if (range == null)
         return range;
 
@@ -51,9 +51,9 @@ function expandRangeForCopy(range: Range.Range): Range.Range {
     }
 
     if ((startInLI != null) && (startInLI == endInLI)) {
-        let beforeRange = new Range.Range(startInLI,0,
+        let beforeRange = new Range(startInLI,0,
                                     range.start.node,range.start.offset);
-        let afterRange = new Range.Range(range.end.node,range.end.offset,
+        let afterRange = new Range(range.end.node,range.end.offset,
                                    endInLI,Traversal.maxChildOffset(endInLI));
         let contentBefore = Range.hasContent(beforeRange);
         let contentAfter = Range.hasContent(afterRange);
@@ -61,13 +61,13 @@ function expandRangeForCopy(range: Range.Range): Range.Range {
         if (!contentBefore && !contentAfter) {
             let li = startInLI;
             let offset = Traversal.nodeOffset(li);
-            range = new Range.Range(li.parentNode,offset,li.parentNode,offset+1);
+            range = new Range(li.parentNode,offset,li.parentNode,offset+1);
         }
     }
     return range;
 }
 
-function copyRange(range: Range.Range): { [key: string]: string } {
+function copyRange(range: Range): { [key: string]: string } {
     let html = "";
     let text = "";
 
@@ -455,11 +455,11 @@ export function pasteNodes(nodes: Node[]): void {
         prevOffset = Traversal.nodeOffset(previousSibling);
     let nextOffset = Traversal.nodeOffset(nextSibling,parent);
 
-    let origRange = new Range.Range(parent,prevOffset,parent,nextOffset);
+    let origRange = new Range(parent,prevOffset,parent,nextOffset);
 
     let firstPasted = pastedNodes[0];
     let lastPasted = pastedNodes[pastedNodes.length-1];
-    let pastedRange = new Range.Range(firstPasted,0,lastPasted,Traversal.maxChildOffset(lastPasted));
+    let pastedRange = new Range(firstPasted,0,lastPasted,Traversal.maxChildOffset(lastPasted));
     Range.trackWhileExecuting(origRange,function() {
     Range.trackWhileExecuting(pastedRange,function() {
         if (previousSibling != null)

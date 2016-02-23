@@ -287,7 +287,7 @@ function populateNewRow(structure: Table, newTR: HTMLElement, newRow: number, ol
     }
 }
 
-function tableAtRightOfRange(range: Range.Range): Table {
+function tableAtRightOfRange(range: Range): Table {
     if (!Range.isEmpty(range))
         return null;
 
@@ -300,7 +300,7 @@ function tableAtRightOfRange(range: Range.Range): Table {
     return null;
 }
 
-function tableAtLeftOfRange(range: Range.Range): Table {
+function tableAtLeftOfRange(range: Range): Table {
     if (!Range.isEmpty(range))
         return null;
 
@@ -329,7 +329,7 @@ function insertRowBelow(table: Table, row: number): void {
     populateNewRow(table,newTR,row+1,row);
 }
 
-function insertRowAdjacentToRange(range: Range.Range): void {
+function insertRowAdjacentToRange(range: Range): void {
     let table: Table;
 
     table = tableAtLeftOfRange(range);
@@ -516,7 +516,7 @@ function addColumnCells(structure: Table, oldIndex: number, right: boolean): voi
     }
 }
 
-function insertColumnAdjacentToRange(range: Range.Range): void {
+function insertColumnAdjacentToRange(range: Range): void {
     let table: Table;
 
     table = tableAtLeftOfRange(range);
@@ -606,7 +606,7 @@ function clampRow(table: Table, row: number): number {
     return row;
 }
 
-function removeRowAdjacentToRange(range: Range.Range): void {
+function removeRowAdjacentToRange(range: Range): void {
     let table: Table;
 
     table = tableAtLeftOfRange(range);
@@ -689,7 +689,7 @@ export function removeAdjacentRow(): void {
     UndoManager.newGroup();
 }
 
-function removeColumnAdjacentToRange(range: Range.Range): void {
+function removeColumnAdjacentToRange(range: Range): void {
     let table: Table;
 
     table = tableAtLeftOfRange(range);
@@ -1078,7 +1078,7 @@ export class TableRegion {
 }
 
 // public
-export function regionFromRange(range: Range.Range, allowSameCell?: boolean): TableRegion {
+export function regionFromRange(range: Range, allowSameCell?: boolean): TableRegion {
     if (range == null)
         return null;
 

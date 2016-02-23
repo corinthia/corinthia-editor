@@ -773,7 +773,7 @@ export function getIgnoreMutations(): number {
     return ignoreMutations;
 }
 
-export function cloneRangeContents(range: Range.Range): Node[] {
+export function cloneRangeContents(range: Range): Node[] {
     let nodeSet = new Collections.NodeSet();
     let ancestorSet = new Collections.NodeSet();
     let det = Range.detail(range);

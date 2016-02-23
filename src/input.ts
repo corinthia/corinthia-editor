@@ -112,7 +112,7 @@ export function textInRange(startId: number, startAdjust: number, endId: number,
     if ((start == null) || (end == null))
         return "";
 
-    let range = new Range.Range(start.node,start.offset,end.node,end.offset);
+    let range = new Range(start.node,start.offset,end.node,end.offset);
     let result = Range.getText(range);
     //idebug("textInRange("+startId+","+startAdjust+","+endId+","+endAdjust+") = "+
     //       JSON.stringify(result));
@@ -129,7 +129,7 @@ export function replaceRange(startId: number, endId: number, text: string): void
     if (end == null)
         throw new Error("end is null");
 
-    let range = new Range.Range(start.node,start.offset,end.node,end.offset);
+    let range = new Range(start.node,start.offset,end.node,end.offset);
     Range.trackWhileExecuting(range,function() {
         Selection.deleteRangeContents(range,true);
     });
@@ -324,7 +324,7 @@ export function firstRectForRange(startId: number, endId: number): ClientRect {
     //idebug("firstRectForRange("+startId+","+endId+")");
     let start = getPosition(startId);
     let end = getPosition(endId);
-    let range = new Range.Range(start.node,start.offset,end.node,end.offset);
+    let range = new Range(start.node,start.offset,end.node,end.offset);
     let rects = Range.getClientRects(range);
     if (rects.length == 0)
         return null;

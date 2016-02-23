@@ -30,7 +30,7 @@ function performTest(api)
         for (var endIndex = 0; endIndex < api.tests.RangeTests.allPositions.length; endIndex++) {
             var start = api.tests.RangeTests.allPositions[startIndex];
             var end = api.tests.RangeTests.allPositions[endIndex];
-            var range = new api.Range.Range(start.node,start.offset,end.node,end.offset);
+            var range = new api.Range(start.node,start.offset,end.node,end.offset);
 
             total++;
 

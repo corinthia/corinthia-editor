@@ -50,7 +50,7 @@ export function testHarnessSetup(): void {
         throw new Error("End of selection specified, but not start");
 
     if ((start != null) && (end != null)) {
-        let range = new Range.Range(start.node,start.offset,end.node,end.offset);
+        let range = new Range(start.node,start.offset,end.node,end.offset);
 
         UndoManager.disableWhileExecuting(function() {
             Range.trackWhileExecuting(range,function() {
@@ -148,7 +148,7 @@ export function insertTextAtPosition(position: Position, str: string): void {
     }
 }
 
-export function showRangeAsBrackets(range: Range.Range): void {
+export function showRangeAsBrackets(range: Range): void {
     if (Range.isEmpty(range)) {
         insertTextAtPosition(range.end,"[]");
     }

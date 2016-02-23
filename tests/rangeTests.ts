@@ -109,16 +109,16 @@ export function getPositionIndex(pos: Position): number {
     return result;
 }
 
-export function isForwardsSimple(range: Range.Range): boolean {
+export function isForwardsSimple(range: Range): boolean {
     let startIndex = getPositionIndex(range.start);
     let endIndex = getPositionIndex(range.end);
 //    Callbacks.debug("startIndex = "+indices.startIndex+", endIndex = "+indices.endIndex);
     return (endIndex >= startIndex);
 }
 
-export function getOutermostNodesSimple(range: Range.Range): Node[] {
+export function getOutermostNodesSimple(range: Range): Node[] {
     if (!isForwardsSimple(range)) {
-        let reverse = new Range.Range(range.end.node,range.end.offset,
+        let reverse = new Range(range.end.node,range.end.offset,
                                 range.start.node,range.start.offset);
         if (!Range.isForwards(reverse)) {
             let startIndex = getPositionIndex(range.start);

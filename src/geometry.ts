@@ -27,7 +27,7 @@ import Util = require("./util");
 export function rectAtPos(pos: Position): ClientRect {
     if (pos == null)
         return null;
-    let range = new Range.Range(pos.node,pos.offset,pos.node,pos.offset);
+    let range = new Range(pos.node,pos.offset,pos.node,pos.offset);
     let rects = Range.getClientRects(range);
 
     if ((rects.length > 0) && !Util.rectIsEmpty(rects[0])) {
@@ -112,13 +112,13 @@ function exactRectAtPos(pos: Position): ClientRect {
     else if (node instanceof Text) {
         // First see if the client rects returned by the range gives us a valid value. This
         // won't be the case if the cursor is surrounded by both sides on whitespace.
-        let result = rectAtRightOfRange(new Range.Range(node,offset,node,offset));
+        let result = rectAtRightOfRange(new Range(node,offset,node,offset));
         if (result != null)
             return result;
 
         if (offset > 0) {
             // Try and get the rect of the previous character; the cursor goes after that
-            let result = rectAtRightOfRange(new Range.Range(node,offset-1,node,offset));
+            let result = rectAtRightOfRange(new Range(node,offset-1,node,offset));
             if (result != null)
                 return result;
         }
@@ -129,7 +129,7 @@ function exactRectAtPos(pos: Position): ClientRect {
         return null;
     }
 
-    function rectAtRightOfRange(range: Range.Range): ClientRect {
+    function rectAtRightOfRange(range: Range): ClientRect {
         let rects = Range.getClientRects(range);
         if ((rects == null) || (rects.length == 0) || (rects[rects.length-1].height == 0))
             return null;
@@ -140,7 +140,7 @@ function exactRectAtPos(pos: Position): ClientRect {
 function tempSpaceRect(parentNode: Node, nextSibling: Node): ClientRect {
     let space = DOM.createTextNode(document,String.fromCharCode(160));
     DOM.insertBefore(parentNode,space,nextSibling);
-    let range = new Range.Range(space,0,space,1);
+    let range = new Range(space,0,space,1);
     let rects = Range.getClientRects(range);
     DOM.deleteNode(space);
     if (rects.length > 0)

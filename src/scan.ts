@@ -117,7 +117,7 @@ export function showMatch(matchId: number): void {
     if (match == null)
         throw new Error("Match "+matchId+" not found");
 
-    let range = new Range.Range(match.startPos.node,match.startPos.offset,
+    let range = new Range(match.startPos.node,match.startPos.offset,
                           match.endPos.node,match.endPos.offset);
     let text = Range.getText(range);
     Formatting.splitAroundSelection(range,true);

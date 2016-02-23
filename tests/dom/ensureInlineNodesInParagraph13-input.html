@@ -12,7 +12,7 @@ function performTest(api)
     api.DOM.appendChild(document.body,text2);
     api.DOM.appendChild(document.body,text3);
 
-    var range = new api.Range.Range(document.body,0,document.body,3);
+    var range = new api.Range(document.body,0,document.body,3);
 
     api.Range.trackWhileExecuting(range,function() {
         api.Hierarchy.ensureInlineNodesInParagraph(text1);

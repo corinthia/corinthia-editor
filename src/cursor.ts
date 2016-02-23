@@ -100,7 +100,7 @@ export function positionCursor(x: number, y: number, wordBoundary: boolean): str
             (node.hasAttribute("href")) &&
             (result == null)) {
 
-            let arange = new Range.Range(node,0,node,node.childNodes.length);
+            let arange = new Range(node,0,node,node.childNodes.length);
             let rects = Range.getClientRects(arange);
             let insideLink = false;
             for (let i = 0; i < rects.length; i++) {
@@ -389,7 +389,7 @@ export function insertCharacter(str: string, allowInvalidPos: boolean, allowNoPa
         else {
             let oldPos = pos;
             pos = Position.closestMatchForwards(selRange.start,Position.okForInsertion);
-            let difference = new Range.Range(oldPos.node,oldPos.offset,pos.node,pos.offset);
+            let difference = new Range(oldPos.node,oldPos.offset,pos.node,pos.offset);
             difference = Range.forwards(difference);
             Position.trackWhileExecuting([pos],function() {
                 if (!Range.hasContent(difference)) {
@@ -574,7 +574,7 @@ export function deleteCharacter(): void {
                 set(selRange.end.node,selRange.end.offset)
             }
             else {
-                let range = new Range.Range(prevPos.node,prevPos.offset,
+                let range = new Range(prevPos.node,prevPos.offset,
                                       selRange.end.node,selRange.end.offset);
                 Selection.deleteRangeContents(range,true);
             }
@@ -652,7 +652,7 @@ export function enterPressed(): void {
     }
     if (note != null) {
         let noteOffset = Traversal.nodeOffset(note);
-        selRange = new Range.Range(note.parentNode,noteOffset+1,note.parentNode,noteOffset+1);
+        selRange = new Range(note.parentNode,noteOffset+1,note.parentNode,noteOffset+1);
     }
 
     let check = Position.preferElementPosition(selRange.start);
@@ -835,7 +835,7 @@ export function enterPressed(): void {
             let startOffset = 0;
             if (Types.isOpaqueNode(container.firstChild))
                 startOffset = 1;
-            let range = new Range.Range(container,startOffset,pos.node,pos.offset);
+            let range = new Range(container,startOffset,pos.node,pos.offset);
             return !Range.hasContent(range);
         }
         else
@@ -983,7 +983,7 @@ export function set(node: Node, offset: number, keepCursorX?: boolean): void {
         cursorX = null;
 }
 
-function moveRangeOutsideOfNote(range: Range.Range): Range.Range {
+function moveRangeOutsideOfNote(range: Range): Range {
     let node = range.start.node;
     let offset = range.start.offset;
 
@@ -991,7 +991,7 @@ function moveRangeOutsideOfNote(range: Range.Range): Range.Range {
         if (Types.isNoteNode(anc) && (anc.parentNode != null)) {
             node = anc.parentNode;
             offset = Traversal.nodeOffset(anc)+1;
-            return new Range.Range(node,offset,node,offset);
+            return new Range(node,offset,node,offset);
         }
     }
 

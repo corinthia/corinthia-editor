@@ -103,7 +103,7 @@ function getStyleProperties(element: HTMLElement, dontReplace?: boolean): { [key
 }
 
 // public (for testing purposes only)
-export function splitAroundSelection(range: Range.Range, allowDirectInline: boolean): void {
+export function splitAroundSelection(range: Range, allowDirectInline: boolean): void {
     Range.trackWhileExecuting(range,function() {
         if (!allowDirectInline)
             Hierarchy.ensureRangeInlineNodesInParagraph(range);
@@ -221,7 +221,7 @@ export function mergeWithNeighbours(node: Node, whiteList: boolean[], trim?: boo
 }
 
 // private
-function mergeRange(range: Range.Range, whiteList: boolean[]): void {
+function mergeRange(range: Range, whiteList: boolean[]): void {
     let nodes = Range.getAllNodes(range);
     for (let i = 0; i < nodes.length; i++) {
         let next: Node;
@@ -1097,7 +1097,7 @@ export function applyFormattingChanges(style: string, properties: { [key: string
     }
 
 
-    let range = new Range.Range(selectionRange.start.node,selectionRange.start.offset,
+    let range = new Range(selectionRange.start.node,selectionRange.start.offset,
                           selectionRange.end.node,selectionRange.end.offset);
     let positions = [selectionRange.start,selectionRange.end,
                      range.start,range.end];
@@ -1177,7 +1177,7 @@ export function applyFormattingChanges(style: string, properties: { [key: string
     // and the cursor is at a position that is now immediately before the span.
     let start = Position.closestMatchForwards(selectionRange.start,Position.okForInsertion);
     let end = Position.closestMatchBackwards(selectionRange.end,Position.okForInsertion);
-    let tempRange = new Range.Range(start.node,start.offset,end.node,end.offset);
+    let tempRange = new Range(start.node,start.offset,end.node,end.offset);
     tempRange = Range.forwards(tempRange);
     Hierarchy.ensureRangeValidHierarchy(tempRange);
     start = tempRange.start;

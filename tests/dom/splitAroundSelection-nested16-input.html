@@ -5,7 +5,7 @@
 function performTest(api)
 {
     var a = document.getElementsByTagName("A")[0];
-    var range = new api.Range.Range(a,0,a,2);
+    var range = new api.Range(a,0,a,2);
     api.Formatting.splitAroundSelection(range);
     api.tests.TestLib.showRangeAsBrackets(range);
 }

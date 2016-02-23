@@ -63,11 +63,11 @@ export function isMarked(): boolean {
 }
 
 // public
-export function get(): Range.Range {
+export function get(): Range {
     if (internalSelection.value == null)
         return null;
     else
-        return new Range.Range(internalSelection.value.startNode,internalSelection.value.startOffset,
+        return new Range(internalSelection.value.startNode,internalSelection.value.startOffset,
                                internalSelection.value.endNode,internalSelection.value.endOffset);
 }
 
@@ -75,9 +75,9 @@ export function get(): Range.Range {
 export function setInternal(newStartNode: Node, newStartOffset: number,
                             newEndNode: Node, newEndOffset: number,
                             isMarked?: boolean): void {
-    let range = new Range.Range(newStartNode,newStartOffset,newEndNode,newEndOffset);
+    let range = new Range(newStartNode,newStartOffset,newEndNode,newEndOffset);
     if (!Range.isForwards(range))
-        range = new Range.Range(newEndNode,newEndOffset,newStartNode,newStartOffset);
+        range = new Range(newEndNode,newEndOffset,newStartNode,newStartOffset);
     range = boundaryCompliantRange(range);
 
     UndoManager.setProperty(internalSelection,"value",
@@ -114,7 +114,7 @@ let selectionHighlights: HTMLElement[] = [];
 let tableSelection: Tables.TableRegion = null;
 
 // public (for tests)
-export function updateTableSelection(selRange: Range.Range): boolean {
+export function updateTableSelection(selRange: Range): boolean {
     tableSelection = Tables.regionFromRange(selRange);
     if (tableSelection == null)
         return false;
@@ -426,13 +426,13 @@ function createTextHighlight(node: Text, data: RangeData, newHighlights: HTMLEle
 }
 
 interface RangeData {
-    range: Range.Range;
+    range: Range;
     nodeSet: Collections.NodeSet;
     nodes: Node[];
     outermost: Node[];
 }
 
-function getRangeData(selRange: Range.Range): RangeData {
+function getRangeData(selRange: Range): RangeData {
     let nodeSet = new Collections.NodeSet();
     let nodes: Node[];
     let outermost: Node[];
@@ -694,7 +694,7 @@ export function posAtEndOfWord(pos: Position): Position {
     return pos;
 }
 
-function rangeOfWordAtPos(pos: Position): Range.Range {
+function rangeOfWordAtPos(pos: Position): Range {
     let node = pos.node;
     let offset = pos.offset;
 
@@ -731,16 +731,16 @@ function rangeOfWordAtPos(pos: Position): Range.Range {
             endOffset = offset + wordOtherAfter.length;
         }
 
-        return new Range.Range(node,startOffset,node,endOffset);
+        return new Range(node,startOffset,node,endOffset);
     }
     else if (node instanceof Element) {
         let nodeBefore = node.childNodes[offset-1];
         let nodeAfter = node.childNodes[offset];
 
         if ((nodeBefore != null) && !Traversal.isWhitespaceTextNode(nodeBefore))
-            return new Range.Range(node,offset-1,node,offset);
+            return new Range(node,offset-1,node,offset);
         else if ((nodeAfter != null) && !Traversal.isWhitespaceTextNode(nodeAfter))
-            return new Range.Range(node,offset,node,offset+1);
+            return new Range(node,offset,node,offset+1);
     }
 
     return null;
@@ -885,7 +885,7 @@ export function setSelectionStartAtCoords(x: number, y: number): void {
     if (position != null) {
         position = Position.closestMatchBackwards(position,Position.okForMovement);
         let selRange = get();
-        let newRange = new Range.Range(position.node,position.offset,
+        let newRange = new Range(position.node,position.offset,
                                  selRange.end.node,selRange.end.offset);
         if (Range.isForwards(newRange)) {
             set(newRange.start.node,newRange.start.offset,
@@ -900,7 +900,7 @@ export function setSelectionEndAtCoords(x: number, y: number): void {
     if (position != null) {
         position = Position.closestMatchBackwards(position,Position.okForMovement);
         let selRange = get();
-        let newRange = new Range.Range(selRange.start.node,selRange.start.offset,
+        let newRange = new Range(selRange.start.node,selRange.start.offset,
                                  position.node,position.offset);
         if (Range.isForwards(newRange)) {
             set(newRange.start.node,newRange.start.offset,
@@ -967,7 +967,7 @@ export function setEmptySelectionAt(node: Node, offset: number): void {
 }
 
 // private
-function deleteTextSelection(selRange: Range.Range, keepEmpty: boolean): void {
+function deleteTextSelection(selRange: Range, keepEmpty: boolean): void {
     let nodes = Range.getOutermostNodes(selRange);
     for (let i = 0; i < nodes.length; i++) {
         let node = nodes[i];
@@ -1049,7 +1049,7 @@ function deleteTextSelection(selRange: Range.Range, keepEmpty: boolean): void {
     Cursor.updateBRAtEndOfParagraph(Range.singleNode(selRange));
 }
 
-function delEmpty(selRange: Range.Range, node: Node): void {
+function delEmpty(selRange: Range, node: Node): void {
     while ((node != document.body) &&
            (node instanceof Element) &&
            (node.firstChild == null)) {
@@ -1092,7 +1092,7 @@ function fixPositionOutside(pos: Position, node: Node): boolean {
     return true;
 }
 
-export function deleteRangeContents(range: Range.Range, keepEmpty: boolean): void {
+export function deleteRangeContents(range: Range, keepEmpty: boolean): void {
     Range.trackWhileExecuting(range,function() {
         DOM.ignoreMutationsWhileExecuting(function() {
             removeSelectionHighlights(getRangeData(range),true);
@@ -1212,7 +1212,7 @@ function prepareForMerge(detail: Range.RangeDetail): void {
     }
 
     if ((detail.startAncestor.lastChild != null) && (detail.endAncestor.firstChild != null)) {
-        let childDetail: any = new Object();
+        let childDetail = new Range.RangeDetail();
         childDetail.startAncestor = detail.startAncestor.lastChild;
         childDetail.endAncestor = detail.endAncestor.firstChild;
         prepareForMerge(childDetail);
@@ -1267,7 +1267,7 @@ function getBoundaryContainer(node: Node, topAncestor: Node): HTMLElement {
     return container;
 }
 
-function boundaryCompliantRange(range: Range.Range): Range.Range {
+function boundaryCompliantRange(range: Range): Range {
     if (range == null)
         return null;
 
@@ -1300,7 +1300,7 @@ function boundaryCompliantRange(range: Range.Range): Range.Range {
         if (doEnd && (endContainer != document.body))
             end = new Position(endContainer.parentNode,Traversal.nodeOffset(endContainer)+1);
     }
-    return new Range.Range(start.node,start.offset,end.node,end.offset);
+    return new Range(start.node,start.offset,end.node,end.offset);
 
     function nodeHasAncestor(node: Node, ancestor: Node): boolean {
         for (; node != null; node = node.parentNode) {

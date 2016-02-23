@@ -5,7 +5,7 @@
 function performTest(api)
 {
     var p = document.getElementsByTagName("P")[2];
-    var range = new api.Range.Range(p,0,p,1);
+    var range = new api.Range(p,0,p,1);
     api.Range.trackWhileExecuting(range,function() {
         api.DOM.replaceElement(p,"DIV");
     });

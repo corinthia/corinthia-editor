@@ -27,7 +27,7 @@ import Types = require("./types");
 import Util = require("./util");
 
 // private
-function findLIElements(range: Range.Range): HTMLElement[] {
+function findLIElements(range: Range): HTMLElement[] {
     let listItems: HTMLElement[] = [];
 
     let node = range.start.node;
@@ -242,7 +242,7 @@ export function decreaseIndent(): void {
 }
 
 // private
-function getListOperationNodes(range: Range.Range): Node[] {
+function getListOperationNodes(range: Range): Node[] {
     let detail = Range.detail(range);
     let dca = detail.commonAncestor;
     let ds = detail.startAncestor;
