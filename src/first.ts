@@ -15,15 +15,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// FIXME: The _PREFIX variables below must be replaced with functions that return the
-// appropriate namespace prefix for the document in question (since we can't rely on the
-// values that LibreOffice/MS Word happen to use by default)
-
 let globalAPI = {};
 
 let define: (...args: any[]) => void;
+let loadAllModules: () => void;
+
+class Module {
+    public imports: Module[] = [];
+    public factoryArgs: any[] = [];
+    public filename: string;
+    public exports: any;
+    public value: any;
+    public firstImportedFrom: string;
+    public changed: boolean = false;
+    constructor(public id: string, public dependencies: string[], public factory: Function) {
+    }
+}
 
 (function() {
+
+let modules: { [id: string]: Module } = {};
 
 function resolvePath(base: string, path: string): string {
 
@@ -95,8 +106,30 @@ function getOrCreateModule(name: string): Object {
     return mod;
 }
 
+function updateModuleValue(name: string, value: any): void {
+    name = mapToLegacyModuleName(name);
+
+    let path = name.split(".");
+    let mod = globalAPI;
+    for (let i = 0; i < path.length-1; i++) {
+        mod = mod[path[i]];
+    }
+    mod[path[path.length-1]] = value;
+}
+
+let currentModuleId: string = null;
+
 function reqmodule(name: string): Object {
-    return getOrCreateModule(name);
+    if (modules[name] == null)
+        throw new Error("No such module: "+name);
+    if ((modules[name].firstImportedFrom != null) && modules[name].changed)
+        throw new Error("Attempt to load module "+name+", whose value has changed (from "+currentModuleId+
+                        "; first import was from "+modules[name].firstImportedFrom+")");
+    if (currentModuleId == null)
+        modules[name].firstImportedFrom = "(unknown)";
+    else
+        modules[name].firstImportedFrom = currentModuleId;
+    return modules[name].value;
 }
 
 define = function(...args: any[]): void {
@@ -122,6 +155,8 @@ define = function(...args: any[]): void {
         window._nextDefineFilename = null;
     }
 
+    currentModuleId = id;
+
     if (factory == null)
         throw new Error("No factory specified");
     if (id == null)
@@ -130,24 +165,98 @@ define = function(...args: any[]): void {
     if (dependencies == null)
         dependencies = ["require","exports","module"];
 
-    let mod = getOrCreateModule(id);
+    modules[id] = new Module(id,dependencies,factory);
+    modules[id].filename = moduleFilename;
+    modules[id].exports = getOrCreateModule(id);
+    modules[id].value = modules[id].exports;
+}
 
-    let factoryArgs: any[] = [];
-    dependencies.forEach(function(dep) {
-        if (dep == "require")
-            factoryArgs.push(reqmodule);
-        else if (dep == "exports")
-            factoryArgs.push(mod);
-        else if (dep == "module")
-            factoryArgs.push(null);
-        else {
-            let resolved = resolvePath(moduleFilename,dep);
-            let resolved2 = resolved.replace(/\//g,".");
-            factoryArgs.push(getOrCreateModule(resolved2));
+let builtinNames: { [id: string]: boolean } = {
+    "require": true,
+    "exports": true,
+    "module": true,
+}
+
+function getModule(filename: string, dep: string) {
+    let resolved = resolvePath(filename,dep);
+    let resolved2 = resolved.replace(/\//g,".");
+    return modules[resolved2];
+}
+
+loadAllModules = function() {
+
+    Object.keys(modules).sort().forEach(function(key) {
+        let module = modules[key];
+        module.dependencies.forEach(function(dep) {
+            if (!builtinNames[dep]) {
+                let reference = getModule(module.filename,dep);
+                if (reference == null)
+                    throw new Error("Module not found (from "+module.filename+"): "+dep);
+                module.imports.push(reference);
+            }
+        });
+    })
+
+    let remaining: { [id: string]: Module } = {};
+    for (let id in modules) {
+        let module = modules[id];
+        remaining[id] = module;
+    }
+
+    let loadOrder: Module[] = [];
+
+    let allIds: string[] = Object.keys(remaining).sort();
+    let allModules: Module[] = allIds.map(function(id) { return remaining[id]; });
+    let recurseCount = 0;
+    allModules.forEach(function(topModule) {
+        let stack: string[] = [];
+        recurse(topModule);
+        return;
+
+        function recurse(module: Module): void {
+            if (!remaining[module.id])
+                return;
+            let index = stack.indexOf(module.id);
+            if (index >= 0)
+                return; // Circular reference; ignore
+
+            stack.push(module.id);
+            module.imports.forEach(recurse);
+            stack.pop();
+
+            delete remaining[module.id];
+            loadOrder.push(module);
+            recurseCount++;
         }
     });
 
-    factory.apply(null,factoryArgs);
+    loadOrder.forEach(function(module) {
+        currentModuleId = module.id;
+        module.dependencies.forEach(function(dep) {
+            if (dep == "require")
+                module.factoryArgs.push(reqmodule);
+            else if (dep == "exports")
+                module.factoryArgs.push(module.exports);
+            else if (dep == "module")
+                module.factoryArgs.push(null);
+            else {
+                let resolved = resolvePath(module.filename,dep);
+                let resolved2 = resolved.replace(/\//g,".");
+                let importedModule = modules[resolved2];
+                if (importedModule == null)
+                    throw new Error("No such module: "+resolved2+" (while loading "+module.id+")");
+                module.factoryArgs.push(reqmodule(resolved2));
+            }
+        });
+
+        let result = module.factory.apply(null,module.factoryArgs);
+        if (result != null) {
+            module.value = result;
+            if (module.firstImportedFrom != null)
+                module.changed = true;
+            updateModuleValue(module.id,result);
+        }
+    });
 }
 
 })();

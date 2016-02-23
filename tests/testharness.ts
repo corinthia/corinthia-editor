@@ -183,6 +183,7 @@ function leftLoaded(): void {
 
     let w = leftArea.contentWindow;
     w.eval(allCode);
+    w.eval("loadAllModules()");
     w.globalAPI.Callbacks.debug = function(str: any) { console.log(str); };
 
     w.globalAPI.tests.TestLib.testHarnessSetup();
