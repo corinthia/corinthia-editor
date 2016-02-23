@@ -113,7 +113,7 @@ export function cut(): { [key: string]: string } {
     let selRange = Selection.get();
     if (selRange != null) {
         Range.trackWhileExecuting(selRange,function() {
-            let node = Position.closestActualNode(selRange.start);
+            let node = selRange.start.closestActualNode();
             while (node != null) {
                 let parent = node.parentNode;
                 switch (node._type) {
@@ -349,7 +349,7 @@ export function pasteNodes(nodes: Node[]): void {
     let nextSibling: Node;
 
     let start = range.start;
-    start = Position.preferElementPosition(start);
+    start = start.preferElementPosition();
     if (start.node instanceof Element) {
         parent = start.node;
         nextSibling = start.node.childNodes[start.offset];

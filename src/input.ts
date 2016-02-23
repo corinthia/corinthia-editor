@@ -55,7 +55,7 @@ export function addPosition(pos: Position): number {
     pos = copy;
     pos.posId = nextPosId++;
     positions[pos.posId] = pos;
-    Position.track(pos);
+    pos.track();
     return pos.posId;
 }
 
@@ -99,7 +99,7 @@ export function removePosition(posId: number): void {
     if (pos == null) {
         throw new Error("no position for id "+posId);
     }
-    Position.untrack(pos);
+    pos.untrack();
     delete positions[posId];
 }
 
@@ -133,7 +133,7 @@ export function replaceRange(startId: number, endId: number, text: string): void
     Range.trackWhileExecuting(range,function() {
         Selection.deleteRangeContents(range,true);
     });
-    range.start = Position.preferTextPosition(range.start);
+    range.start = range.start.preferTextPosition();
     let node = range.start.node;
     let offset = range.start.offset;
 
@@ -230,7 +230,7 @@ export function setForwardSelectionAffinity(value: boolean): void {
 function positionRight(pos: Position, offset: number): Position {
     if (offset > 0) {
         for (; offset > 0; offset--) {
-            let next = Position.nextMatch(pos,Position.okForMovement);
+            let next = pos.nextMatch(Position.okForMovement);
             if (next == null)
                 return pos;
             pos = next;
@@ -238,7 +238,7 @@ function positionRight(pos: Position, offset: number): Position {
     }
     else {
         for (; offset < 0; offset++) {
-            let prev = Position.prevMatch(pos,Position.okForMovement);
+            let prev = pos.prevMatch(Position.okForMovement);
             if (prev == null)
                 return pos;
             pos = prev;
@@ -300,7 +300,7 @@ export function comparePositionToPosition(posId1: number, posId2: number): numbe
         throw new Error("pos1 is null");
     if (pos2 == null)
         throw new Error("pos2 is null");
-    return Position.compare(pos1,pos2);
+    return pos1.compare(pos2);
 }
 
 // int
@@ -479,12 +479,12 @@ export function isPositionWithinTextUnitInDirection(posId: number, granularity: 
         start = start ? start : pos;
         end = end ? end : pos;
         if (isForward(direction)) {
-            return ((Position.compare(start,pos) <= 0) &&
-                    (Position.compare(pos,end) < 0));
+            return ((start.compare(pos) <= 0) &&
+                    (pos.compare(end) < 0));
         }
         else {
-            return ((Position.compare(start,pos) < 0) &&
-                    (Position.compare(pos,end) <= 0));
+            return ((start.compare(pos) < 0) &&
+                    (pos.compare(end) <= 0));
         }
     }
     else if (granularity == "document") {
@@ -542,7 +542,7 @@ export function toParagraphBoundary(pos: Position, direction: string): Position 
     if (isForward(direction)) {
         let end = Txt.toEndOfBoundary(pos,"paragraph");
         if (Position.equal(pos,end)) {
-            end = Position.nextMatch(end,Position.okForMovement);
+            end = end.nextMatch(Position.okForMovement);
             end = Txt.toEndOfBoundary(end,"paragraph");
             end = Txt.toStartOfBoundary(end,"paragraph");
         }
@@ -551,7 +551,7 @@ export function toParagraphBoundary(pos: Position, direction: string): Position 
     else {
         let start = Txt.toStartOfBoundary(pos,"paragraph");
         if (Position.equal(pos,start)) {
-            start = Position.prevMatch(start,Position.okForMovement);
+            start = start.prevMatch(Position.okForMovement);
             start = Txt.toStartOfBoundary(start,"paragraph");
             start = Txt.toEndOfBoundary(start,"paragraph");
         }

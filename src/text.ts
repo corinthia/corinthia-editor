@@ -50,7 +50,7 @@ export interface ParagraphBoundaries {
 }
 
 export function findParagraphBoundaries(pos: Position): ParagraphBoundaries {
-    Position.assertValid(pos);
+    pos.assertValid();
     let startOffset = pos.offset;
     let endOffset = pos.offset;
     let node = pos.node;
@@ -168,7 +168,7 @@ export function posAbove(pos: Position, cursorRect?: ClientRect, cursorX?: numbe
 
 
         pos = new Position(paragraph.node,paragraph.startOffset);
-        pos = Position.prevMatch(pos,Position.okForMovement);
+        pos = pos.prevMatch(Position.okForMovement);
     }
 }
 
@@ -276,7 +276,7 @@ export function posBelow(pos: Position, cursorRect?: ClientRect, cursorX?: numbe
         }
 
         pos = new Position(paragraph.node,paragraph.endOffset);
-        pos = Position.nextMatch(pos,Position.okForMovement);
+        pos = pos.nextMatch(Position.okForMovement);
     }
 }
 
@@ -370,7 +370,7 @@ function toStartOfLine(pos: Position): Position {
     }
 
     while (true) {
-        let check = Position.prevMatch(pos,Position.okForMovement);
+        let check = pos.prevMatch(Position.okForMovement);
         let checkRect = Geometry.rectAtPos(check); // handles check == null case
         if (checkRect == null)
             return pos;
@@ -391,7 +391,7 @@ function toEndOfLine(pos: Position): Position {
     }
 
     while (true) {
-        let check = Position.nextMatch(pos,Position.okForMovement);
+        let check = pos.nextMatch(Position.okForMovement);
         let checkRect = Geometry.rectAtPos(check); // handles check == null case
         if (checkRect == null)
             return pos;

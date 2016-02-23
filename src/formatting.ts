@@ -370,7 +370,7 @@ export function paragraphTextUpToPosition(pos: Position): string {
         return stringToStartOfParagraph(pos.node,pos.offset);
     }
     else {
-        return stringToStartOfParagraph(Position.closestActualNode(pos),0);
+        return stringToStartOfParagraph(pos.closestActualNode(),0);
     }
 
     function stringToStartOfParagraph(node: Node, offset: number): string {

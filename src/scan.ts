@@ -69,7 +69,7 @@ export function next(): ScanParagraph {
     if (curParagraph == null)
         return null;
 
-    curPos = Position.nextMatch(curPos,Position.okForMovement);
+    curPos = curPos.nextMatch(Position.okForMovement);
 
     let sectionId: string = null;
     let paragraphNode = curParagraph.node;
@@ -104,8 +104,8 @@ export function addMatch(start: number, end: number): number {
 
     let startPos = new Position(startRun.node,start - startRun.start);
     let endPos = new Position(endRun.node,end - endRun.start);
-    Position.track(startPos);
-    Position.track(endPos);
+    startPos.track();
+    endPos.track();
 
     let match = new Match(matchId,startPos,endPos);
     matchesById[matchId] = match;
@@ -176,8 +176,8 @@ function clearMatches(): void {
     for (let matchId in matchesById) {
         let match = matchesById[matchId];
         removeSpansForMatch(match);
-        Position.untrack(match.startPos);
-        Position.untrack(match.endPos);
+        match.startPos.untrack();
+        match.endPos.untrack();
     }
 
     matchesById = {};

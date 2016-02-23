@@ -291,7 +291,7 @@ function tableAtRightOfRange(range: Range): Table {
     if (!Range.isEmpty(range))
         return null;
 
-    let pos = Position.preferElementPosition(range.start);
+    let pos = range.start.preferElementPosition();
     if ((pos.node instanceof Element) && (pos.offset < pos.node.childNodes.length)) {
         let element = pos.node.childNodes[pos.offset];
         if (element instanceof HTMLTableElement)
@@ -304,7 +304,7 @@ function tableAtLeftOfRange(range: Range): Table {
     if (!Range.isEmpty(range))
         return null;
 
-    let pos = Position.preferElementPosition(range.start);
+    let pos = range.start.preferElementPosition();
     if ((pos.node instanceof Element) && (pos.offset > 0)) {
         let element = pos.node.childNodes[pos.offset-1];
         if (element instanceof HTMLTableElement)
@@ -1082,8 +1082,8 @@ export function regionFromRange(range: Range, allowSameCell?: boolean): TableReg
     if (range == null)
         return null;
 
-    let start = Position.closestActualNode(range.start,true);
-    let end = Position.closestActualNode(range.end,true);
+    let start = range.start.closestActualNode(true);
+    let end = range.end.closestActualNode(true);
 
     let startTD = findContainingCell(start);
     let endTD = findContainingCell(end);

@@ -154,7 +154,7 @@ export function displayRectAtPos(pos: Position): ClientRect {
     if (rect != null)
         return rect;
 
-    let noteNode = Position.noteAncestor(pos);
+    let noteNode = pos.noteAncestor();
     if ((noteNode != null) && !Types.nodeHasContent(noteNode)) // In empty footnote or endnote
         return zeroWidthMidRect(noteNode.getBoundingClientRect());
 
@@ -173,7 +173,7 @@ export function displayRectAtPos(pos: Position): ClientRect {
         }
     }
 
-    let captionNode = Position.captionAncestor(pos);
+    let captionNode = pos.captionAncestor();
     if ((captionNode != null) && !Types.nodeHasContent(captionNode)) {
         // Even if an empty caption has generated content (e.g. "Figure X: ") preceding it,
         // we can't directly get the rect of that generated content. So we temporarily insert
@@ -187,14 +187,14 @@ export function displayRectAtPos(pos: Position): ClientRect {
     let paragraph = Txt.findParagraphBoundaries(pos);
 
     let backRect: ClientRect = null;
-    for (let backPos = pos; backPos != null; backPos = Position.prev(backPos)) {
+    for (let backPos = pos; backPos != null; backPos = backPos.prev()) {
         backRect = exactRectAtPos(backPos);
         if ((backRect != null) || posAtStartOfParagraph(backPos,paragraph))
             break;
     }
 
     let forwardRect: ClientRect = null;
-    for (let forwardPos = pos; forwardPos != null; forwardPos = Position.next(forwardPos)) {
+    for (let forwardPos = pos; forwardPos != null; forwardPos = forwardPos.next()) {
         forwardRect = exactRectAtPos(forwardPos);
         if ((forwardRect != null) || posAtEndOfParagraph(forwardPos,paragraph))
             break;
@@ -236,7 +236,7 @@ export function displayRectAtPos(pos: Position): ClientRect {
 // HTML documents that users open).
 
 function posOutsideSelection(pos: Position): Position {
-    pos = Position.preferElementPosition(pos);
+    pos = pos.preferElementPosition();
 
     if (!Types.isSelectionSpan(pos.node))
         return pos;
@@ -280,7 +280,7 @@ export function positionAtPoint(x: number, y: number): Position {
             return null;
 
         let pos = new Position(range.startContainer,range.startOffset);
-        pos = Position.preferElementPosition(pos);
+        pos = pos.preferElementPosition();
 
         if (pos.node instanceof Element) {
             let outside = posOutsideSelection(pos);

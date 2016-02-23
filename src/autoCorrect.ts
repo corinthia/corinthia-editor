@@ -223,7 +223,7 @@ export function getCorrectionCoords(): { x: number, y: number } {
 function getCurrent(): Correction {
     let range = Selection.get();
     if (range != null) {
-        let endNode = Position.closestActualNode(range.end);
+        let endNode = range.end.closestActualNode();
         for (; endNode != null; endNode = endNode.parentNode) {
             if (Types.isAutoCorrectNode(endNode))
                 return correctionsByNode.get(endNode);

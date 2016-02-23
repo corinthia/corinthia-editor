@@ -614,11 +614,11 @@ export function selectParagraph(): void {
     let selRange = get();
     if (selRange == null)
         return;
-    let startNode = Position.closestActualNode(selRange.start);
+    let startNode = selRange.start.closestActualNode();
     while (!Types.isParagraphNode(startNode) && !Types.isContainerNode(startNode))
         startNode = startNode.parentNode;
 
-    let endNode = Position.closestActualNode(selRange.end);
+    let endNode = selRange.end.closestActualNode();
     while (!Types.isParagraphNode(endNode) && !Types.isContainerNode(endNode))
         endNode = endNode.parentNode;
 
@@ -805,7 +805,7 @@ export function dragSelectionUpdate(x: number, y: number, selectWord: boolean): 
     let end = selRange.end;
 
     if (selectionHandleEnd) {
-        if (Position.compare(pos,start) < 0) {
+        if (pos.compare(start) < 0) {
             if (selectWord)
                 pos = toStartOfWord(pos);
             selectionHandleEnd = false;
@@ -817,7 +817,7 @@ export function dragSelectionUpdate(x: number, y: number, selectWord: boolean): 
         set(start.node,start.offset,pos.node,pos.offset);
     }
     else {
-        if (Position.compare(pos,end) > 0) {
+        if (pos.compare(end) > 0) {
             if (selectWord)
                 pos = toEndOfWord(pos);
             selectionHandleEnd = true;
@@ -840,13 +840,13 @@ function moveBoundary(command: string): string {
 
     let pos: Position = null;
     if (command == "start-left")
-        range.start = pos = Position.prevMatch(range.start,Position.okForMovement);
+        range.start = pos = range.start.prevMatch(Position.okForMovement);
     else if (command == "start-right")
-        range.start = pos = Position.nextMatch(range.start,Position.okForMovement);
+        range.start = pos = range.start.nextMatch(Position.okForMovement);
     else if (command == "end-left")
-        range.end = pos = Position.prevMatch(range.end,Position.okForMovement);
+        range.end = pos = range.end.prevMatch(Position.okForMovement);
     else if (command == "end-right")
-        range.end = pos = Position.nextMatch(range.end,Position.okForMovement);
+        range.end = pos = range.end.nextMatch(Position.okForMovement);
 
     if ((range.start != null) && (range.end != null)) {
         range = Range.forwards(range);
@@ -1074,8 +1074,8 @@ function fixPositionOutside(pos: Position, node: Node): boolean {
     if (pos.node == node) {
         let before = new Position(node.parentNode,Traversal.nodeOffset(node));
         let after = new Position(node.parentNode,Traversal.nodeOffset(node)+1);
-        before = Position.prevMatch(before,Position.okForMovement);
-        after = Position.nextMatch(after,Position.okForMovement);
+        before = before.prevMatch(Position.okForMovement);
+        after = after.nextMatch(Position.okForMovement);
 
         if (before != null) {
             pos.node = before.node;
@@ -1246,8 +1246,8 @@ export function preferElementPositions(): void {
     let range = get();
     if (range == null)
         return;
-    range.start = Position.preferElementPosition(range.start);
-    range.end = Position.preferElementPosition(range.end);
+    range.start = range.start.preferElementPosition();
+    range.end = range.end.preferElementPosition();
     set(range.start.node,range.start.offset,
                   range.end.node,range.end.offset);
 }
@@ -1274,8 +1274,8 @@ function boundaryCompliantRange(range: Range): Range {
     let detail = Range.detail(range);
     let start = range.start;
     let end = range.end;
-    let startNode = Position.closestActualNode(start);
-    let endNode = Position.closestActualNode(end);
+    let startNode = start.closestActualNode();
+    let endNode = end.closestActualNode();
     let startContainer = getBoundaryContainer(startNode.parentNode,detail.commonAncestor);
     let endContainer = getBoundaryContainer(endNode.parentNode,detail.commonAncestor);
 

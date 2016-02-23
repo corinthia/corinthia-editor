@@ -92,7 +92,7 @@ export function positionCursor(x: number, y: number, wordBoundary: boolean): str
     if (position == null)
         return null;
 
-    let node = Position.closestActualNode(position);
+    let node = position.closestActualNode();
     for (; node != null; node = node.parentNode) {
         let type = node._type;
         if ((node instanceof Element) &&
@@ -144,7 +144,7 @@ export function positionCursor(x: number, y: number, wordBoundary: boolean): str
 
     position = Position.closestMatchForwards(position,Position.okForMovement);
     if ((position != null) && Types.isOpaqueNode(position.node))
-        position = Position.nextMatch(position,Position.okForMovement);
+        position = position.nextMatch(Position.okForMovement);
     if (position == null)
         return null;
 
@@ -204,7 +204,7 @@ export function moveLeft(): void {
     if (range == null)
         return;
 
-    let pos = Position.prevMatch(range.start,Position.okForMovement);
+    let pos = range.start.prevMatch(Position.okForMovement);
     if (pos != null)
         set(pos.node,pos.offset);
     ensureCursorVisible();
@@ -216,7 +216,7 @@ export function moveRight(): void {
     if (range == null)
         return;
 
-    let pos = Position.nextMatch(range.start,Position.okForMovement);
+    let pos = range.start.nextMatch(Position.okForMovement);
     if (pos != null)
         set(pos.node,pos.offset);
     ensureCursorVisible();
@@ -338,13 +338,13 @@ function isPosAtStartOfParagraph(pos: Position): boolean {
             if ((pos.offset == 0) && !Types.isInlineNode(pos.node))
                 return true;
             else
-                pos = Position.prev(pos);
+                pos = pos.prev();
         }
         else if (pos.node instanceof Text) {
             if (pos.offset > 0)
                 return false;
             else
-                pos = Position.prev(pos);
+                pos = pos.prev();
         }
         else {
             return false;
@@ -378,11 +378,11 @@ export function insertCharacter(str: string, allowInvalidPos: boolean, allowNoPa
         selRange = Selection.get();
     }
     let pos = selRange.start;
-    pos = Position.preferTextPosition(pos);
+    pos = pos.preferTextPosition();
     if ((str == " ") && isPosAtStartOfParagraph(pos))
         return;
     if (!allowInvalidPos && !Position.okForInsertion(pos)) {
-        let elemPos = Position.preferElementPosition(pos);
+        let elemPos = pos.preferElementPosition();
         if (Position.okForInsertion(elemPos)) {
             pos = elemPos;
         }
@@ -483,11 +483,11 @@ export function insertCharacter(str: string, allowInvalidPos: boolean, allowNoPa
 }
 
 function tryDeleteEmptyCaption(pos: Position): boolean {
-    let caption = Position.captionAncestor(pos);
+    let caption = pos.captionAncestor();
     if ((caption == null) || Types.nodeHasContent(caption))
         return false;
 
-    let container = Position.figureOrTableAncestor(pos);
+    let container = pos.figureOrTableAncestor();
     if (container == null)
         return false;
 
@@ -500,7 +500,7 @@ function tryDeleteEmptyCaption(pos: Position): boolean {
 }
 
 function tryDeleteEmptyNote(pos: Position): boolean {
-    let note = Position.noteAncestor(pos);
+    let note = pos.noteAncestor();
     if ((note == null) || Types.nodeHasContent(note))
         return false;
 
@@ -556,8 +556,8 @@ export function deleteCharacter(): void {
         if (tryDeleteEmptyCaption(currentPos))
             return;
 
-        currentPos = Position.preferTextPosition(currentPos);
-        let prevPos = Position.prevMatch(currentPos,Position.okForMovement);
+        currentPos = currentPos.preferTextPosition();
+        let prevPos = currentPos.prevMatch(Position.okForMovement);
 
         // Backspace inside or just after a footnote or endnote
         if (tryDeleteEmptyNote(currentPos))
@@ -566,8 +566,8 @@ export function deleteCharacter(): void {
             return;
 
         if (prevPos != null) {
-            let startBlock = firstBlockAncestor(Position.closestActualNode(prevPos));
-            let endBlock = firstBlockAncestor(Position.closestActualNode(selRange.end));
+            let startBlock = firstBlockAncestor(prevPos.closestActualNode());
+            let endBlock = firstBlockAncestor(selRange.end.closestActualNode());
             if ((startBlock != endBlock) &&
                 Types.isParagraphNode(startBlock) && !Types.nodeHasContent(startBlock)) {
                 DOM.deleteNode(startBlock);
@@ -611,7 +611,7 @@ export function enterPressed(): void {
     // Are we inside a figure or table caption? If so, put an empty paragraph directly after it
     let inCaption = false;
     let inFigCaption = false;
-    let closestNode = Position.closestActualNode(selRange.start);
+    let closestNode = selRange.start.closestActualNode();
     for (let ancestor = closestNode; ancestor != null; ancestor = ancestor.parentNode) {
         switch (ancestor._type) {
         case ElementTypes.HTML_CAPTION:
@@ -637,7 +637,7 @@ export function enterPressed(): void {
     // Are we inside a footnote or endnote? If so, move the cursor immediately after it
     let note: HTMLElement = null;
     if (selRange.start.node instanceof Text) {
-        note = Position.noteAncestor(selRange.start);
+        note = selRange.start.noteAncestor();
     }
     else {
         // We can't use Position.noteAncestor in this case, because we want to to break
@@ -655,7 +655,7 @@ export function enterPressed(): void {
         selRange = new Range(note.parentNode,noteOffset+1,note.parentNode,noteOffset+1);
     }
 
-    let check = Position.preferElementPosition(selRange.start);
+    let check = selRange.start.preferElementPosition();
     if (check.node instanceof Element) {
         let before = check.node.childNodes[check.offset-1];
         let after = check.node.childNodes[check.offset];
@@ -691,7 +691,7 @@ export function enterPressed(): void {
     }
 
     if (Types.isAutoCorrectNode(pos.node)) {
-        pos = Position.preferTextPosition(pos);
+        pos = pos.preferTextPosition();
         selRange.start = selRange.end = pos;
     }
 
@@ -858,7 +858,7 @@ export function getPrecedingWord(): string {
 
 export function getAdjacentNodeWithType(type: number): Node {
     let selRange = Selection.get();
-    let pos = Position.preferElementPosition(selRange.start);
+    let pos = selRange.start.preferElementPosition();
     let node = pos.node;
     let offset = pos.offset;
 
@@ -1021,7 +1021,7 @@ function insertNote(className: string, content: string): void {
         DOM.deleteNode(empty);
     }
     else {
-        pos = Position.preferElementPosition(pos);
+        pos = pos.preferElementPosition();
     }
 
     DOM.insertBefore(pos.node,footnote,pos.node.childNodes[pos.offset]);

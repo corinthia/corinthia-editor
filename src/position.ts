@@ -151,7 +151,8 @@ class Position {
         return null;
     }
 
-    public static assertValid(pos: Position, description?: string): void {
+    public assertValid(description?: string): void {
+        let pos = this;
         if (description == null)
             description = "Position";
 
@@ -174,7 +175,8 @@ class Position {
         }
     }
 
-    public static prev(pos: Position): Position {
+    public prev(): Position {
+        let pos = this;
         if (pos.node instanceof Element) {
             let r = Position.positionSpecial(pos,false,true);
             if (r != null)
@@ -205,7 +207,8 @@ class Position {
         }
     }
 
-    public static next(pos: Position): Position {
+    public next(): Position {
+        let pos = this;
         if (pos.node instanceof Element) {
             let r = Position.positionSpecial(pos,true,false);
             if (r != null)
@@ -245,7 +248,8 @@ class Position {
         }
     }
 
-    public static closestActualNode(pos: Position, preferElement?: boolean): Node {
+    public closestActualNode(preferElement?: boolean): Node {
+        let pos = this;
         let node = pos.node;
         let offset = pos.offset;
         if (!(node instanceof Element) || (node.firstChild == null))
@@ -487,16 +491,18 @@ class Position {
         return false;
     }
 
-    public static prevMatch(pos: Position, fun: (pos: Position) => boolean): Position {
+    public prevMatch(fun: (pos: Position) => boolean): Position {
+        let pos: Position = this;
         do {
-            pos = Position.prev(pos);
+            pos = pos.prev();
         } while ((pos != null) && !fun(pos));
         return pos;
     }
 
-    public static nextMatch(pos: Position, fun: (pos: Position) => boolean): Position {
+    public nextMatch(fun: (pos: Position) => boolean): Position {
+        let pos: Position = this;
         do {
-            pos = Position.next(pos);
+            pos = pos.next();
         } while ((pos != null) && !fun(pos));
         return pos;
     }
@@ -542,11 +548,11 @@ class Position {
         if (fun(pos))
             return pos;
 
-        let next = Position.nextMatch(pos,fun);
+        let next = pos.nextMatch(fun);
         if (next != null)
             return next;
 
-        let prev = Position.prevMatch(pos,fun);
+        let prev = pos.prevMatch(fun);
         if (prev != null)
             return prev;
 
@@ -563,27 +569,28 @@ class Position {
         if (fun(pos))
             return pos;
 
-        let prev = Position.prevMatch(pos,fun);
+        let prev = pos.prevMatch(fun);
         if (prev != null)
             return prev;
 
-        let next = Position.nextMatch(pos,fun);
+        let next = pos.nextMatch(fun);
         if (next != null)
             return next;
 
         return new Position(document.body,0);
     }
 
-    public static track(pos: Position): void {
-        pos.startTracking();
+    public track(): void {
+        this.startTracking();
     }
 
-    public static untrack(pos: Position): void {
-        pos.stopTracking();
+    public untrack(): void {
+        this.stopTracking();
     }
 
-    public static noteAncestor(pos: Position): HTMLElement {
-        let node = Position.closestActualNode(pos);
+    public noteAncestor(): HTMLElement {
+        let pos = this;
+        let node = pos.closestActualNode();
         for (; node != null; node = node.parentNode) {
             if ((node instanceof HTMLElement) && Types.isNoteNode(node))
                 return node;
@@ -591,8 +598,9 @@ class Position {
         return null;
     }
 
-    public static captionAncestor(pos: Position): Element {
-        let node = Position.closestActualNode(pos);
+    public captionAncestor(): Element {
+        let pos = this;
+        let node = pos.closestActualNode();
         for (; node != null; node = node.parentNode) {
             if ((node instanceof Element) &&
                 ((node._type == ElementTypes.HTML_FIGCAPTION) || (node._type == ElementTypes.HTML_CAPTION)))
@@ -601,8 +609,9 @@ class Position {
         return null;
     }
 
-    public static figureOrTableAncestor(pos: Position): Element {
-        let node = Position.closestActualNode(pos);
+    public figureOrTableAncestor(): Element {
+        let pos = this;
+        let node = pos.closestActualNode();
         for (; node != null; node = node.parentNode) {
             if ((node instanceof Element) &&
                 ((node._type == ElementTypes.HTML_FIGURE) || (node._type == ElementTypes.HTML_TABLE)))
@@ -620,7 +629,8 @@ class Position {
         return false;
     }
 
-    public static preferTextPosition(pos: Position): Position {
+    public preferTextPosition(): Position {
+        let pos = this;
         let node = pos.node;
         let offset = pos.offset;
         if (node instanceof Element) {
@@ -634,7 +644,8 @@ class Position {
         return pos;
     }
 
-    public static preferElementPosition(pos: Position): Position {
+    public preferElementPosition(): Position {
+        let pos = this;
         if (pos.node instanceof Text) {
             if (pos.node.parentNode == null)
                 throw new Error("Position "+pos+" has no parent node");
@@ -646,7 +657,8 @@ class Position {
         return pos;
     }
 
-    public static compare(first: Position, second: Position): number {
+    public compare(second: Position): number {
+        let first = this;
         if ((first.node == second.node) && (first.offset == second.offset))
             return 0;
 

@@ -68,7 +68,7 @@ export function testPositionFun(fun: (p: number, g: string, d: string) => boolea
         let result = fun(posId,granularity,direction);
         lines.push(JSON.stringify(total)+" -- "+result+"\n");
 
-        pos = Position.nextMatch(pos,Position.okForMovement);
+        pos = pos.nextMatch(Position.okForMovement);
     }
 
     return lines.join("");
@@ -107,7 +107,7 @@ export function testPositionToBoundary(granularity: string, direction: string): 
 
         lines.push(JSON.stringify(oldTotal)+" -- "+JSON.stringify(newTotal)+"\n");
 
-        pos = Position.nextMatch(pos,Position.okForMovement);
+        pos = pos.nextMatch(Position.okForMovement);
     }
 
     return lines.join("");
@@ -149,7 +149,7 @@ export function testRangeEnclosing(granularity: string, direction: string): stri
             lines.push(JSON.stringify(oldTotal)+" -- null\n");
         }
 
-        pos = Position.nextMatch(pos,Position.okForMovement);
+        pos = pos.nextMatch(Position.okForMovement);
     }
 
     return lines.join("");

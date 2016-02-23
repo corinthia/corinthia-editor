@@ -59,8 +59,8 @@ export function testHarnessSetup(): void {
             });
         });
 
-        range.start = Position.preferTextPosition(range.start);
-        range.end = Position.preferTextPosition(range.end);
+        range.start = range.start.preferTextPosition();
+        range.end = range.end.preferTextPosition();
 
         Selection.set(range.start.node,range.start.offset,range.end.node,range.end.offset);
     }

@@ -63,7 +63,7 @@ export function showValidPositions(): void {
 //            Callbacks.debug("Valid position: "+pos);
             validPositions.push(pos);
         }
-        pos = Position.next(pos);
+        pos = pos.next();
     }
 
     Position.trackWhileExecuting(validPositions,function() {

@@ -31,7 +31,7 @@ function performTest(api)
 
         total++;
 
-        var actual = api.Position.next(pos);
+        var actual = pos.next();
         var expected = api.tests.RangeTests.allPositions[index+1];
 
         if (comparePositions(actual,expected))

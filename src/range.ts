@@ -41,8 +41,8 @@ class Range {
             description = "Range";
         if (range == null)
             throw new Error(description+" is null");
-        Position.assertValid(range.start,description+" start");
-        Position.assertValid(range.end,description+" end");
+        range.start.assertValid(description+" start");
+        range.end.assertValid(description+" end");
     }
 
     public static isEmpty(range: Range): boolean {
@@ -74,7 +74,7 @@ class Range {
     }
 
     public static isForwards(range: Range): boolean {
-        return (Position.compare(range.start,range.end) <= 0);
+        return (range.start.compare(range.end) <= 0);
     }
 
     public static getAllNodes(range: Range, atLeastOne?: boolean): Node[] {
@@ -92,7 +92,7 @@ class Range {
     }
 
     public static singleNode(range: Range): Node {
-        return Position.closestActualNode(range.start,true);
+        return range.start.closestActualNode(true);
     }
 
     public static forwards(range: Range): Range {
