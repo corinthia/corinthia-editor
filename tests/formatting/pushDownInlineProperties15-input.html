@@ -9,7 +9,7 @@ function performTest(api)
         api.Range.trackWhileExecuting(range,function() {
             api.tests.TestLib.removeWhitespaceAndCommentNodes(document.body);
         });
-        var outermost = api.Range.getOutermostNodes(range);
+        var outermost = range.getOutermostNodes();
         api.Formatting.pushDownInlineProperties(outermost);
     });
 }

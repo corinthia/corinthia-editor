@@ -28,7 +28,7 @@ export function rectAtPos(pos: Position): ClientRect {
     if (pos == null)
         return null;
     let range = new Range(pos.node,pos.offset,pos.node,pos.offset);
-    let rects = Range.getClientRects(range);
+    let rects = range.getClientRects();
 
     if ((rects.length > 0) && !Util.rectIsEmpty(rects[0])) {
         return rects[0];
@@ -130,7 +130,7 @@ function exactRectAtPos(pos: Position): ClientRect {
     }
 
     function rectAtRightOfRange(range: Range): ClientRect {
-        let rects = Range.getClientRects(range);
+        let rects = range.getClientRects();
         if ((rects == null) || (rects.length == 0) || (rects[rects.length-1].height == 0))
             return null;
         return zeroWidthRightRect(rects[rects.length-1]);
@@ -141,7 +141,7 @@ function tempSpaceRect(parentNode: Node, nextSibling: Node): ClientRect {
     let space = DOM.createTextNode(document,String.fromCharCode(160));
     DOM.insertBefore(parentNode,space,nextSibling);
     let range = new Range(space,0,space,1);
-    let rects = Range.getClientRects(range);
+    let rects = range.getClientRects();
     DOM.deleteNode(space);
     if (rects.length > 0)
         return rects[0];

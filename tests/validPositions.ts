@@ -28,7 +28,7 @@ function oldInsertCharacter(character: string): void {
     if (selectionRange == null)
         return;
 
-    if (!Range.isEmpty(selectionRange))
+    if (!selectionRange.isEmpty())
         Selection.deleteContents();
     let pos = selectionRange.start;
     let node = pos.node;

@@ -288,7 +288,7 @@ function populateNewRow(structure: Table, newTR: HTMLElement, newRow: number, ol
 }
 
 function tableAtRightOfRange(range: Range): Table {
-    if (!Range.isEmpty(range))
+    if (!range.isEmpty())
         return null;
 
     let pos = range.start.preferElementPosition();
@@ -301,7 +301,7 @@ function tableAtRightOfRange(range: Range): Table {
 }
 
 function tableAtLeftOfRange(range: Range): Table {
-    if (!Range.isEmpty(range))
+    if (!range.isEmpty())
         return null;
 
     let pos = range.start.preferElementPosition();

@@ -8,7 +8,7 @@ function performTest(api)
     var output = new Array();
     for (var i = 0; i <= p.childNodes.length; i++) {
         var range = new api.Range(p,i,p,i);
-        output.push("At offset "+i+": "+JSON.stringify(api.Range.getText(range)));
+        output.push("At offset "+i+": "+JSON.stringify(range.getText()));
     }
     return output.join("\n");
 }

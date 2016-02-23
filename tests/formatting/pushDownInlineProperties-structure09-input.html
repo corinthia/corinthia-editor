@@ -8,7 +8,7 @@ function performTest(api)
         var range = api.Selection.get();
         api.Hierarchy.ensureRangeValidHierarchy(range);
         api.Formatting.splitAroundSelection(range);
-        var outermost = api.Range.getOutermostNodes(range);
+        var outermost = range.getOutermostNodes();
         api.Formatting.pushDownInlineProperties(outermost);
     });
 }

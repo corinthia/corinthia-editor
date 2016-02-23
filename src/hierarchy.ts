@@ -220,7 +220,7 @@ export function ensureValidHierarchy(node: Node): void {
 
 export function ensureRangeInlineNodesInParagraph(range: Range): void {
     Range.trackWhileExecuting(range,function() {
-        let nodes = Range.getAllNodes(range,true);
+        let nodes = range.getAllNodes(true);
         for (let i = 0; i < nodes.length; i++)
             ensureInlineNodesInParagraph(nodes[i]);
     });
@@ -245,7 +245,7 @@ export function ensureInlineNodesInParagraph(node: Node, weak?: boolean): void {
 
 export function ensureRangeValidHierarchy(range: Range, allowDirectInline?: boolean): void {
     Range.trackWhileExecuting(range,function() {
-        let nodes = Range.getAllNodes(range,true);
+        let nodes = range.getAllNodes(true);
         for (let i = nodes.length-1; i >= 0; i--)
             ensureValidHierarchy(nodes[i]);
     });

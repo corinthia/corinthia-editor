@@ -46,7 +46,7 @@ export function acceptSelectedChanges(): void {
     if (selRange == null)
         return;
 
-    let outermost = Range.getOutermostNodes(selRange,true);
+    let outermost = selRange.getOutermostNodes(true);
     let checkEmpty = new Array();
 
     Selection.preserveWhileExecuting(function() {
@@ -93,7 +93,7 @@ export function acceptSelectedChanges(): void {
     if (selRange != null) {
         let start = Position.closestMatchForwards(selRange.start,Position.okForInsertion);
         let end = Position.closestMatchBackwards(selRange.end,Position.okForInsertion);
-        if (!Range.isForwards(new Range(start.node,start.offset,end.node,end.offset)))
+        if (!(new Range(start.node,start.offset,end.node,end.offset)).isForwards())
             end = Position.closestMatchForwards(selRange.end,Position.okForInsertion);
         Selection.set(start.node,start.offset,end.node,end.offset);
     }

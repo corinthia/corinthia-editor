@@ -34,7 +34,7 @@ function performTest(api)
 
             total++;
 
-            var actual = api.Range.isForwards(range);
+            var actual = range.isForwards();
             var expected = api.tests.RangeTests.isForwardsSimple(range);
             if (actual == expected)
                 pass++;

@@ -72,7 +72,7 @@ export function getRunRects(paragraph: Text.ParagraphInfo): ClientRect[] {
     for (let i = 0; i < paragraph.runs.length; i++) {
         let run = paragraph.runs[i];
         let runRange = new Range(run.node,0,run.node,run.node.nodeValue.length);
-        let runRects = Range.getClientRects(runRange);
+        let runRects = runRange.getClientRects();
         Array.prototype.push.apply(rects,runRects);
     }
     return rects;

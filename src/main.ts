@@ -196,7 +196,7 @@ export function getErrorReportingInfo(): string {
     function htmlWithSelection(): HTMLElement {
         let selectionRange = Selection.get();
         if (selectionRange != null) {
-            selectionRange = Range.forwards(selectionRange);
+            selectionRange = selectionRange.forwards();
             let startSave: SavedNode = {};
             let endSave: SavedNode = {};
 

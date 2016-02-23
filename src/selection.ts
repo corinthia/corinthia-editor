@@ -76,7 +76,7 @@ export function setInternal(newStartNode: Node, newStartOffset: number,
                             newEndNode: Node, newEndOffset: number,
                             isMarked?: boolean): void {
     let range = new Range(newStartNode,newStartOffset,newEndNode,newEndOffset);
-    if (!Range.isForwards(range))
+    if (!range.isForwards())
         range = new Range(newEndNode,newEndOffset,newStartNode,newStartOffset);
     range = boundaryCompliantRange(range);
 
@@ -437,8 +437,8 @@ function getRangeData(selRange: Range): RangeData {
     let nodes: Node[];
     let outermost: Node[];
     if (selRange != null) {
-        outermost = Range.getOutermostNodes(selRange);
-        nodes = Range.getAllNodes(selRange);
+        outermost = selRange.getOutermostNodes();
+        nodes = selRange.getAllNodes();
         for (let i = 0; i < nodes.length; i++)
             nodeSet.add(nodes[i]);
     }
@@ -506,9 +506,9 @@ export function update(): void {
         return;
     }
 
-    Range.assertValid(selRange,"Selection");
+    selRange.assertValid("Selection");
 
-    if (Range.isEmpty(selRange)) {
+    if (selRange.isEmpty()) {
         // We just have a cursor
 
         Range.trackWhileExecuting(selRange,function() {
@@ -538,7 +538,7 @@ export function update(): void {
     if (updateTableSelection(selRange))
         return;
 
-    let rects = Range.getClientRects(selRange);
+    let rects = selRange.getClientRects();
 
     if ((rects != null) && (rects.length > 0)) {
         let boundsLeft: number = null;
@@ -849,7 +849,7 @@ function moveBoundary(command: string): string {
         range.end = pos = range.end.nextMatch(Position.okForMovement);
 
     if ((range.start != null) && (range.end != null)) {
-        range = Range.forwards(range);
+        range = range.forwards();
         set(range.start.node,range.start.offset,range.end.node,range.end.offset);
         if (range.end == pos)
             return "end";
@@ -887,7 +887,7 @@ export function setSelectionStartAtCoords(x: number, y: number): void {
         let selRange = get();
         let newRange = new Range(position.node,position.offset,
                                  selRange.end.node,selRange.end.offset);
-        if (Range.isForwards(newRange)) {
+        if (newRange.isForwards()) {
             set(newRange.start.node,newRange.start.offset,
                           newRange.end.node,newRange.end.offset);
         }
@@ -902,7 +902,7 @@ export function setSelectionEndAtCoords(x: number, y: number): void {
         let selRange = get();
         let newRange = new Range(selRange.start.node,selRange.start.offset,
                                  position.node,position.offset);
-        if (Range.isForwards(newRange)) {
+        if (newRange.isForwards()) {
             set(newRange.start.node,newRange.start.offset,
                           newRange.end.node,newRange.end.offset);
         }
@@ -968,7 +968,7 @@ export function setEmptySelectionAt(node: Node, offset: number): void {
 
 // private
 function deleteTextSelection(selRange: Range, keepEmpty: boolean): void {
-    let nodes = Range.getOutermostNodes(selRange);
+    let nodes = selRange.getOutermostNodes();
     for (let i = 0; i < nodes.length; i++) {
         let node = nodes[i];
 
@@ -1021,7 +1021,7 @@ function deleteTextSelection(selRange: Range, keepEmpty: boolean): void {
         }
     }
 
-    let detail = Range.detail(selRange);
+    let detail = selRange.detail();
 
     let sameTextNode = (selRange.start.node == selRange.end.node) &&
                        (selRange.start.node instanceof Text);
@@ -1046,7 +1046,7 @@ function deleteTextSelection(selRange: Range, keepEmpty: boolean): void {
             delEmpty(selRange,endNode);
     }
 
-    Cursor.updateBRAtEndOfParagraph(Range.singleNode(selRange));
+    Cursor.updateBRAtEndOfParagraph(selRange.singleNode());
 }
 
 function delEmpty(selRange: Range, node: Node): void {
@@ -1271,7 +1271,7 @@ function boundaryCompliantRange(range: Range): Range {
     if (range == null)
         return null;
 
-    let detail = Range.detail(range);
+    let detail = range.detail();
     let start = range.start;
     let end = range.end;
     let startNode = start.closestActualNode();

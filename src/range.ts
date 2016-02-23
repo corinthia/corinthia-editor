@@ -36,16 +36,16 @@ class Range {
         return this.start.toString() + " - " + this.end.toString();
     }
 
-    public static assertValid(range: Range, description: string): void {
+    public assertValid(description: string): void {
+        let range = this;
         if (description == null)
             description = "Range";
-        if (range == null)
-            throw new Error(description+" is null");
         range.start.assertValid(description+" start");
         range.end.assertValid(description+" end");
     }
 
-    public static isEmpty(range: Range): boolean {
+    public isEmpty(): boolean {
+        let range = this;
         return ((range.start.node == range.end.node) &&
                 (range.start.offset == range.end.offset));
     }
@@ -57,7 +57,8 @@ class Range {
             return Position.trackWhileExecuting([range.start,range.end],fun);
     }
 
-    public static expand(range: Range): void {
+    public expand(): void {
+        let range = this;
         let doc = range.start.node.ownerDocument;
         while ((range.start.offset == 0) && (range.start.node != doc.body)) {
             let offset = Traversal.nodeOffset(range.start.node);
@@ -73,13 +74,15 @@ class Range {
         }
     }
 
-    public static isForwards(range: Range): boolean {
+    public isForwards(): boolean {
+        let range = this;
         return (range.start.compare(range.end) <= 0);
     }
 
-    public static getAllNodes(range: Range, atLeastOne?: boolean): Node[] {
+    public getAllNodes(atLeastOne?: boolean): Node[] {
+        let range = this;
         let result = new Array();
-        let outermost = Range.getOutermostNodes(range,atLeastOne);
+        let outermost = range.getOutermostNodes(atLeastOne);
         for (let i = 0; i < outermost.length; i++)
             addRecursive(outermost[i]);
         return result;
@@ -91,30 +94,33 @@ class Range {
         }
     }
 
-    public static singleNode(range: Range): Node {
+    public singleNode(): Node {
+        let range = this;
         return range.start.closestActualNode(true);
     }
 
-    public static forwards(range: Range): Range {
-        if (Range.isForwards(range)) {
+    public forwards(): Range {
+        let range = this;
+        if (range.isForwards()) {
             return range;
         }
         else {
             let reverse = new Range(range.end.node,range.end.offset,
                                     range.start.node,range.start.offset);
-            if (!Range.isForwards(reverse))
+            if (!reverse.isForwards())
                 throw new Error("Both range "+range+" and its reverse are not forwards");
             return reverse;
         }
     }
 
-    public static detail(range: Range): Range.RangeDetail {
-        if (!Range.isForwards(range)) {
+    public detail(): Range.RangeDetail {
+        let range = this;
+        if (!range.isForwards()) {
             let reverse = new Range(range.end.node,range.end.offset,
                                     range.start.node,range.start.offset);
-            if (!Range.isForwards(reverse))
+            if (!reverse.isForwards())
                 throw new Error("Both range "+range+" and its reverse are not forwards");
-            return Range.detail(reverse);
+            return reverse.detail();
         }
 
         let result: any = new Range.RangeDetail();
@@ -168,13 +174,14 @@ class Range {
         throw new Error("Start and end of range have no common ancestor");
     }
 
-    public static getOutermostNodes(range: Range, atLeastOne?: boolean): Node[] {
+    public getOutermostNodes(atLeastOne?: boolean): Node[] {
+        let range = this;
         let beforeNodes = new Array();
         let middleNodes = new Array();
         let afterNodes = new Array();
 
-        if (Range.isEmpty(range))
-            return atLeastOne ? [Range.singleNode(range)] : [];
+        if (range.isEmpty())
+            return atLeastOne ? [range.singleNode()] : [];
 
         // Note: start and end are *points* - they are always *in between* nodes or characters, never
         // *at* a node or character.
@@ -185,9 +192,9 @@ class Range {
         // the child nodes in a container - in which case the child is null. The parent, however, is
         // always non-null;
 
-        let det = Range.detail(range);
+        let det = range.detail();
         if (det.commonAncestor == null)
-            return atLeastOne ? [Range.singleNode(range)] : [];
+            return atLeastOne ? [range.singleNode()] : [];
         let startParent = det.startParent;
         let startChild = det.startChild;
         let endParent = det.endParent;
@@ -248,7 +255,7 @@ class Range {
         Array.prototype.push.apply(result,afterNodes);
 
         if (result.length == 0)
-            return atLeastOne ? [Range.singleNode(range)] : [];
+            return atLeastOne ? [range.singleNode()] : [];
         else
             return result;
 
@@ -274,8 +281,9 @@ class Range {
         }
     }
 
-    public static getClientRects(range: Range): ClientRect[] {
-        let nodes = Range.getOutermostNodes(range,true);
+    public getClientRects(): ClientRect[] {
+        let range = this;
+        let nodes = range.getOutermostNodes(true);
 
         // WebKit in iOS 5.0 and 5.1 has a bug where if the selection spans multiple paragraphs,
         // the complete rect for paragraphs other than the first is returned, instead of just the
@@ -302,8 +310,9 @@ class Range {
         return result;
     }
 
-    public static hasContent(range: Range): boolean {
-        let outermost = Range.getOutermostNodes(range);
+    public hasContent(): boolean {
+        let range = this;
+        let outermost = range.getOutermostNodes();
         for (let i = 0; i < outermost.length; i++) {
             let node = outermost[i];
             if (node instanceof Text) {
@@ -333,8 +342,9 @@ class Range {
         return false;
     }
 
-    public static getText(range: Range): string {
-        range = Range.forwards(range);
+    public getText(): string {
+        let range: Range = this;
+        range = range.forwards();
 
         let start = range.start;
         let end = range.end;

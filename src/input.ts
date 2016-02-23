@@ -113,7 +113,7 @@ export function textInRange(startId: number, startAdjust: number, endId: number,
         return "";
 
     let range = new Range(start.node,start.offset,end.node,end.offset);
-    let result = Range.getText(range);
+    let result = range.getText();
     //idebug("textInRange("+startId+","+startAdjust+","+endId+","+endAdjust+") = "+
     //       JSON.stringify(result));
     return result;
@@ -325,7 +325,7 @@ export function firstRectForRange(startId: number, endId: number): ClientRect {
     let start = getPosition(startId);
     let end = getPosition(endId);
     let range = new Range(start.node,start.offset,end.node,end.offset);
-    let rects = Range.getClientRects(range);
+    let rects = range.getClientRects();
     if (rects.length == 0)
         return null;
     else

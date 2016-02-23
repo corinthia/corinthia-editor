@@ -243,7 +243,7 @@ export function decreaseIndent(): void {
 
 // private
 function getListOperationNodes(range: Range): Node[] {
-    let detail = Range.detail(range);
+    let detail = range.detail();
     let dca = detail.commonAncestor;
     let ds = detail.startAncestor;
     let de = detail.endAncestor;
@@ -378,7 +378,7 @@ export function clearList(): void {
     let range = Selection.get();
     if (range == null)
         return;
-    if (Range.isEmpty(range) &&
+    if (range.isEmpty() &&
         (range.start.node instanceof Element) &&
         (Types.isContainerNode(range.start.node))) {
 

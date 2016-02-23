@@ -149,7 +149,7 @@ export function insertTextAtPosition(position: Position, str: string): void {
 }
 
 export function showRangeAsBrackets(range: Range): void {
-    if (Range.isEmpty(range)) {
+    if (range.isEmpty()) {
         insertTextAtPosition(range.end,"[]");
     }
     else {
@@ -161,7 +161,7 @@ export function showRangeAsBrackets(range: Range): void {
 export function showSelection(): void {
     let range = Selection.get();
     if (range != null) {
-        Range.assertValid(range,"Selection");
+        range.assertValid("Selection");
         showRangeAsBrackets(range);
     }
 }

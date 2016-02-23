@@ -5,7 +5,7 @@
 function performTest(api)
 {
     var range = api.Selection.get();
-    var text = api.Range.getText(range);
+    var text = range.getText();
     return JSON.stringify(text);
 }
 </script>

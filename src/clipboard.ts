@@ -55,8 +55,8 @@ function expandRangeForCopy(range: Range): Range {
                                     range.start.node,range.start.offset);
         let afterRange = new Range(range.end.node,range.end.offset,
                                    endInLI,Traversal.maxChildOffset(endInLI));
-        let contentBefore = Range.hasContent(beforeRange);
-        let contentAfter = Range.hasContent(afterRange);
+        let contentBefore = beforeRange.hasContent();
+        let contentAfter = afterRange.hasContent();
 
         if (!contentBefore && !contentAfter) {
             let li = startInLI;

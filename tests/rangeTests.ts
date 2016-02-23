@@ -120,7 +120,7 @@ export function getOutermostNodesSimple(range: Range): Node[] {
     if (!isForwardsSimple(range)) {
         let reverse = new Range(range.end.node,range.end.offset,
                                 range.start.node,range.start.offset);
-        if (!Range.isForwards(reverse)) {
+        if (!reverse.isForwards()) {
             let startIndex = getPositionIndex(range.start);
             let endIndex = getPositionIndex(range.end);
             Callbacks.debug("startIndex = "+startIndex+", endIndex = "+endIndex);

@@ -101,7 +101,7 @@ export function positionCursor(x: number, y: number, wordBoundary: boolean): str
             (result == null)) {
 
             let arange = new Range(node,0,node,node.childNodes.length);
-            let rects = Range.getClientRects(arange);
+            let rects = arange.getClientRects();
             let insideLink = false;
             for (let i = 0; i < rects.length; i++) {
                 if (Util.rectContainsPoint(rects[i],x,y))
@@ -149,7 +149,7 @@ export function positionCursor(x: number, y: number, wordBoundary: boolean): str
         return null;
 
     let selectionRange = Selection.get();
-    let samePosition = ((selectionRange != null) && Range.isEmpty(selectionRange) &&
+    let samePosition = ((selectionRange != null) && selectionRange.isEmpty() &&
                         (position.node == selectionRange.start.node) &&
                         (position.offset == selectionRange.start.offset));
     if (samePosition && (result == null))
@@ -373,7 +373,7 @@ export function insertCharacter(str: string, allowInvalidPos: boolean, allowNoPa
     if (selRange == null)
         return;
 
-    if (!Range.isEmpty(selRange)) {
+    if (!selRange.isEmpty()) {
         Selection.deleteContents(true);
         selRange = Selection.get();
     }
@@ -390,9 +390,9 @@ export function insertCharacter(str: string, allowInvalidPos: boolean, allowNoPa
             let oldPos = pos;
             pos = Position.closestMatchForwards(selRange.start,Position.okForInsertion);
             let difference = new Range(oldPos.node,oldPos.offset,pos.node,pos.offset);
-            difference = Range.forwards(difference);
+            difference = difference.forwards();
             Position.trackWhileExecuting([pos],function() {
-                if (!Range.hasContent(difference)) {
+                if (!difference.hasContent()) {
                     Selection.deleteRangeContents(difference,true);
                 }
             });
@@ -523,7 +523,7 @@ export function deleteCharacter(): void {
     if (selRange == null)
         return;
 
-    if (!Range.isEmpty(selRange)) {
+    if (!selRange.isEmpty()) {
         Selection.deleteContents(true);
     }
     else {
@@ -604,7 +604,7 @@ export function enterPressed(): void {
         return;
 
     Range.trackWhileExecuting(selRange,function() {
-        if (!Range.isEmpty(selRange))
+        if (!selRange.isEmpty())
             Selection.deleteContents(true);
     });
 
@@ -677,7 +677,7 @@ export function enterPressed(): void {
 
     let pos = selRange.start;
 
-    let detail = Range.detail(selRange);
+    let detail = selRange.detail();
     switch (detail.startParent._type) {
     case ElementTypes.HTML_OL:
     case ElementTypes.HTML_UL: {
@@ -729,7 +729,7 @@ export function enterPressed(): void {
             DOM.deleteNode(pos.node);
         }
 
-        let detail = Range.detail(selRange);
+        let detail = selRange.detail();
         let prev: Node = null;
 
         // If a preceding paragraph has become empty as a result of enter being pressed
@@ -799,7 +799,7 @@ export function enterPressed(): void {
             }
         }
 
-        updateBRAtEndOfParagraph(Range.singleNode(selRange));
+        updateBRAtEndOfParagraph(selRange.singleNode());
     });
 
     Selection.set(selRange.start.node,selRange.start.offset,
@@ -836,7 +836,7 @@ export function enterPressed(): void {
             if (Types.isOpaqueNode(container.firstChild))
                 startOffset = 1;
             let range = new Range(container,startOffset,pos.node,pos.offset);
-            return !Range.hasContent(range);
+            return !range.hasContent();
         }
         else
             return false;
@@ -845,7 +845,7 @@ export function enterPressed(): void {
 
 export function getPrecedingWord(): string {
     let selRange = Selection.get();
-    if ((selRange == null) && !Range.isEmpty(selRange))
+    if ((selRange == null) && !selRange.isEmpty())
         return "";
 
     let node = selRange.start.node;
@@ -932,7 +932,7 @@ export function makeContainerInsertionPoint(): void {
     if (selRange == null)
         return;
 
-    if (!Range.isEmpty(selRange)) {
+    if (!selRange.isEmpty()) {
         Selection.deleteContents();
         selRange = Selection.get();
     }

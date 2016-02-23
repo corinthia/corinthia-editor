@@ -222,7 +222,7 @@ export function mergeWithNeighbours(node: Node, whiteList: boolean[], trim?: boo
 
 // private
 function mergeRange(range: Range, whiteList: boolean[]): void {
-    let nodes = Range.getAllNodes(range);
+    let nodes = range.getAllNodes();
     for (let i = 0; i < nodes.length; i++) {
         let next: Node;
         for (let p = nodes[i]; p != null; p = next) {
@@ -405,15 +405,15 @@ export function getFormatting(): { [key: string]: string } {
     if (range == null)
         return {};
 
-    Range.assertValid(range,"Selection");
+    range.assertValid("Selection");
 
-    let outermost = Range.getOutermostNodes(range,true);
+    let outermost = range.getOutermostNodes(true);
 
     let leafNodes = new Array();
     for (let i = 0; i < outermost.length; i++) {
         findLeafNodes(outermost[i],leafNodes);
     }
-    let empty = Range.isEmpty(range);
+    let empty = range.isEmpty();
 
     let commonProperties: { [key: string]: string } = null;
     for (let i = 0; i < leafNodes.length; i++) {
@@ -1070,7 +1070,7 @@ export function applyFormattingChanges(style: string, properties: { [key: string
     // If we're applying formatting properties to an empty selection, and the node of the
     // selection start & end is an element, add an empty text node so that we have something
     // to apply the formatting to.
-    if (Range.isEmpty(selectionRange) &&
+    if (selectionRange.isEmpty() &&
         (selectionRange.start.node instanceof Element)) {
         let node = selectionRange.start.node;
         let offset = selectionRange.start.offset;
@@ -1083,8 +1083,8 @@ export function applyFormattingChanges(style: string, properties: { [key: string
     // If the cursor is in a container (such as BODY OR FIGCAPTION), and not inside a paragraph,
     // put it in one so we can set a paragraph style
 
-    if ((style != null) && Range.isEmpty(selectionRange)) {
-        let node = Range.singleNode(selectionRange);
+    if ((style != null) && selectionRange.isEmpty()) {
+        let node = selectionRange.singleNode();
         while (Types.isInlineNode(node))
             node = node.parentNode;
         if (Types.isContainerNode(node) && containsOnlyInlineChildren(node)) {
@@ -1105,12 +1105,12 @@ export function applyFormattingChanges(style: string, properties: { [key: string
     let allowDirectInline = (style == null);
     Position.trackWhileExecuting(positions,function() {
         splitAroundSelection(range,allowDirectInline);
-        Range.expand(range);
+        range.expand();
         if (!allowDirectInline)
             Hierarchy.ensureRangeInlineNodesInParagraph(range);
         Hierarchy.ensureRangeValidHierarchy(range);
-        Range.expand(range);
-        let outermost = Range.getOutermostNodes(range);
+        range.expand();
+        let outermost = range.getOutermostNodes();
         // FIXME: From the logic below, I don't think this can ever get set
         let target: Node = null;
 
@@ -1118,7 +1118,7 @@ export function applyFormattingChanges(style: string, properties: { [key: string
         if (outermost.length > 0)
             paragraphs = getParagraphs(outermost);
         else
-            paragraphs = getParagraphs([Range.singleNode(range)]);
+            paragraphs = getParagraphs([range.singleNode()]);
 
         // Push down inline properties
         pushDownInlineProperties(outermost);
@@ -1178,7 +1178,7 @@ export function applyFormattingChanges(style: string, properties: { [key: string
     let start = Position.closestMatchForwards(selectionRange.start,Position.okForInsertion);
     let end = Position.closestMatchBackwards(selectionRange.end,Position.okForInsertion);
     let tempRange = new Range(start.node,start.offset,end.node,end.offset);
-    tempRange = Range.forwards(tempRange);
+    tempRange = tempRange.forwards();
     Hierarchy.ensureRangeValidHierarchy(tempRange);
     start = tempRange.start;
     end = tempRange.end;

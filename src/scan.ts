@@ -119,9 +119,9 @@ export function showMatch(matchId: number): void {
 
     let range = new Range(match.startPos.node,match.startPos.offset,
                           match.endPos.node,match.endPos.offset);
-    let text = Range.getText(range);
+    let text = range.getText();
     Formatting.splitAroundSelection(range,true);
-    let outermost = Range.getOutermostNodes(range);
+    let outermost = range.getOutermostNodes();
     for (let i = 0; i < outermost.length; i++) {
         let span = DOM.wrapNode(outermost[i],"SPAN");
         DOM.setAttribute(span,"class",Types.Keys.MATCH_CLASS);

@@ -776,8 +776,8 @@ export function getIgnoreMutations(): number {
 export function cloneRangeContents(range: Range): Node[] {
     let nodeSet = new Collections.NodeSet();
     let ancestorSet = new Collections.NodeSet();
-    let det = Range.detail(range);
-    let outermost = Range.getOutermostNodes(range);
+    let det = range.detail();
+    let outermost = range.getOutermostNodes();
 
     let haveContent = false;
     for (let i = 0; i < outermost.length; i++) {

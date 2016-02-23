@@ -11,7 +11,7 @@ function performTest(api)
     api.Selection.set(selRange.start.node,selRange.start.offset,
                   tds[1].firstChild,13);
     selRange = api.Selection.get();
-    api.Range.assertValid(selRange,"Selection");
+    selRange.assertValid("Selection");
     api.tests.TestLib.showSelection();
 }
 </script>

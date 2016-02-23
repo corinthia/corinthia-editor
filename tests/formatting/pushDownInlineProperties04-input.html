@@ -7,7 +7,7 @@ function performTest(api)
     api.Selection.preserveWhileExecuting(function() {
         var range = api.Selection.get();
         api.Formatting.splitAroundSelection(range);
-        var outermost = api.Range.getOutermostNodes(range);
+        var outermost = range.getOutermostNodes();
         api.Formatting.pushDownInlineProperties(outermost);
     });
 }

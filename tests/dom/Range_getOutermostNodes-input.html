@@ -34,7 +34,7 @@ function performTest(api)
 
             total++;
 
-            var actual = api.Range.getOutermostNodes(range);
+            var actual = range.getOutermostNodes();
             var expected = api.tests.RangeTests.getOutermostNodesSimple(range);
             if (arraysEqual(actual,expected))
                 pass++;
