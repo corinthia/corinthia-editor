@@ -156,7 +156,7 @@ export function getCorrections(): { original: string; replacement: string }[] {
 export function correctPrecedingWord(numChars: number, replacement: string, confirmed: boolean): void {
     Selection.preserveWhileExecuting(function() {
         let selRange = Selection.get();
-        if ((selRange == null) && !selRange.isEmpty())
+        if ((selRange == null) && !selRange.isEmpty()) // FIXME: Second part of this doesn't look right
             return;
 
         let node = selRange.start.node;
