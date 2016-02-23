@@ -622,8 +622,8 @@ export function selectParagraph(): void {
     while (!Types.isParagraphNode(endNode) && !Types.isContainerNode(endNode))
         endNode = endNode.parentNode;
 
-    let startPos = new Position.Position(startNode,0);
-    let endPos = new Position.Position(endNode,Traversal.maxChildOffset(endNode));
+    let startPos = new Position(startNode,0);
+    let endPos = new Position(endNode,Traversal.maxChildOffset(endNode));
     startPos = Position.closestMatchForwards(startPos,Position.okForMovement);
     endPos = Position.closestMatchBackwards(endPos,Position.okForMovement);
 
@@ -662,7 +662,7 @@ let reWordOtherStart = new RegExp("^["+wsPunctuation+"]*[^"+wsPunctuation+"]*");
 let reWordStart = new RegExp("^[^"+wsPunctuation+"]+");
 let reWordEnd = new RegExp("[^"+wsPunctuation+"]+$");
 
-export function posAtStartOfWord(pos: Position.Position): Position.Position {
+export function posAtStartOfWord(pos: Position): Position {
     let node = pos.node;
     let offset = pos.offset;
 
@@ -671,14 +671,14 @@ export function posAtStartOfWord(pos: Position.Position): Position.Position {
         let matches = before.match(reWordEnd);
         if (matches) {
             let wordStart = offset - matches[0].length;
-            return new Position.Position(node,wordStart);
+            return new Position(node,wordStart);
         }
     }
 
     return pos;
 }
 
-export function posAtEndOfWord(pos: Position.Position): Position.Position {
+export function posAtEndOfWord(pos: Position): Position {
     let node = pos.node;
     let offset = pos.offset;
 
@@ -687,14 +687,14 @@ export function posAtEndOfWord(pos: Position.Position): Position.Position {
         let matches = after.match(reWordStart);
         if (matches) {
             let wordEnd = offset + matches[0].length;
-            return new Position.Position(node,wordEnd);
+            return new Position(node,wordEnd);
         }
     }
 
     return pos;
 }
 
-function rangeOfWordAtPos(pos: Position.Position): Range.Range {
+function rangeOfWordAtPos(pos: Position): Range.Range {
     let node = pos.node;
     let offset = pos.offset;
 
@@ -778,14 +778,14 @@ export function dragSelectionBegin(x: number, y: number, selectWord: boolean): s
 
 let selectionHandleEnd = true;
 
-function toStartOfWord(pos: Position.Position): Position.Position {
+function toStartOfWord(pos: Position): Position {
     if (Input.isAtWordBoundary(pos,"backward"))
         return pos;
     let boundary = Input.toWordBoundary(pos,"backward");
     return (boundary != null) ? boundary : pos;
 }
 
-function toEndOfWord(pos: Position.Position): Position.Position {
+function toEndOfWord(pos: Position): Position {
     if (Input.isAtWordBoundary(pos,"forward"))
         return pos;
     let boundary = Input.toWordBoundary(pos,"forward");
@@ -838,7 +838,7 @@ function moveBoundary(command: string): string {
     if (range == null)
         return null;
 
-    let pos: Position.Position = null;
+    let pos: Position = null;
     if (command == "start-left")
         range.start = pos = Position.prevMatch(range.start,Position.okForMovement);
     else if (command == "start-right")
@@ -1070,10 +1070,10 @@ function delEmpty(selRange: Range.Range, node: Node): void {
     }
 }
 
-function fixPositionOutside(pos: Position.Position, node: Node): boolean {
+function fixPositionOutside(pos: Position, node: Node): boolean {
     if (pos.node == node) {
-        let before = new Position.Position(node.parentNode,Traversal.nodeOffset(node));
-        let after = new Position.Position(node.parentNode,Traversal.nodeOffset(node)+1);
+        let before = new Position(node.parentNode,Traversal.nodeOffset(node));
+        let after = new Position(node.parentNode,Traversal.nodeOffset(node)+1);
         before = Position.prevMatch(before,Position.okForMovement);
         after = Position.nextMatch(after,Position.okForMovement);
 
@@ -1296,9 +1296,9 @@ function boundaryCompliantRange(range: Range.Range): Range.Range {
         }
 
         if (doStart && (startContainer != document.body))
-            start = new Position.Position(startContainer.parentNode,Traversal.nodeOffset(startContainer));
+            start = new Position(startContainer.parentNode,Traversal.nodeOffset(startContainer));
         if (doEnd && (endContainer != document.body))
-            end = new Position.Position(endContainer.parentNode,Traversal.nodeOffset(endContainer)+1);
+            end = new Position(endContainer.parentNode,Traversal.nodeOffset(endContainer)+1);
     }
     return new Range.Range(start.node,start.offset,end.node,end.offset);
 

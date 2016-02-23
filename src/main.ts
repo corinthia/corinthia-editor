@@ -225,7 +225,7 @@ export function getErrorReportingInfo(): string {
         }
     }
 
-    function addPositionMarker(pos: Position.Position, name: string, save: SavedNode): void {
+    function addPositionMarker(pos: Position, name: string, save: SavedNode): void {
         let node = pos.node;
         let offset = pos.offset;
         if (node instanceof Element) {
@@ -238,7 +238,7 @@ export function getErrorReportingInfo(): string {
         }
     }
 
-    function removePositionMarker(pos: Position.Position, save: SavedNode): void {
+    function removePositionMarker(pos: Position, save: SavedNode): void {
         let node = pos.node;
         let offset = pos.offset;
         if (pos.node instanceof Element) {

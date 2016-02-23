@@ -6,7 +6,7 @@ function performTest(api)
 {
     var positions = new Array();
     for (var i = 0; i <= document.body.childNodes.length; i++)
-        positions[i] = new api.Position.Position(document.body,i);
+        positions[i] = new api.Position(document.body,i);
     var p = document.getElementsByTagName("P")[2];
 
     api.Position.trackWhileExecuting(positions,function() {

@@ -52,7 +52,7 @@ export function insertFigure(filename: string, width: string, numbered: boolean,
 
     // Place the cursor directly after the figure
     let offset = Traversal.nodeOffset(figure);
-    let pos = new Position.Position(figure.parentNode,offset);
+    let pos = new Position(figure.parentNode,offset);
     pos = Position.closestMatchForwards(pos,Position.okForMovement);
     Selection.set(pos.node,pos.offset,pos.node,pos.offset);
 

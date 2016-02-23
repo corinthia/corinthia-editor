@@ -261,7 +261,7 @@ export function insertCharacters(textNode: Text, offset: number, characters: str
         throw new Error("insertCharacters called on non-text node");
     if ((offset < 0) || (offset > textNode.nodeValue.length))
         throw new Error("insertCharacters called with invalid offset");
-    trackedPositionsForNode(textNode).forEach(function (position: Position.Position) {
+    trackedPositionsForNode(textNode).forEach(function (position: Position) {
         if (position.offset > offset)
             position.offset += characters.length;
     });
@@ -281,7 +281,7 @@ export function deleteCharacters(textNode: Text, startOffset: number, endOffset?
         endOffset = textNode.nodeValue.length;
     if (endOffset < startOffset)
         throw new Error("deleteCharacters called with invalid start/end offset");
-    trackedPositionsForNode(textNode).forEach(function (position: Position.Position) {
+    trackedPositionsForNode(textNode).forEach(function (position: Position) {
         let deleteCount = endOffset - startOffset;
         if ((position.offset > startOffset) && (position.offset < endOffset))
             position.offset = startOffset;
@@ -318,13 +318,13 @@ export function moveCharacters(srcTextNode: Text, srcStartOffset: number, srcEnd
     addUndoAction(moveCharacters,destTextNode,destOffset,destOffset+length,
                   srcTextNode,srcStartOffset,excludeStartPos,excludeEndPos);
 
-    trackedPositionsForNode(destTextNode).forEach(function (pos: Position.Position) {
+    trackedPositionsForNode(destTextNode).forEach(function (pos: Position) {
         let startMatch = excludeStartPos ? (pos.offset > destOffset)
                                          : (pos.offset >= destOffset);
         if (startMatch)
             pos.offset += length;
     });
-    trackedPositionsForNode(srcTextNode).forEach(function (pos: Position.Position) {
+    trackedPositionsForNode(srcTextNode).forEach(function (pos: Position) {
 
         let startMatch = excludeStartPos ? (pos.offset > srcStartOffset)
                                          : (pos.offset >= srcStartOffset);
@@ -351,7 +351,7 @@ export function moveCharacters(srcTextNode: Text, srcStartOffset: number, srcEnd
 export function setNodeValue(textNode: CharacterData, value: string): void {
     if (!(textNode instanceof Text))
         throw new Error("setNodeValue called on non-text node");
-    trackedPositionsForNode(textNode).forEach(function (position: Position.Position) {
+    trackedPositionsForNode(textNode).forEach(function (position: Position) {
         position.offset = 0;
     });
     let oldValue = textNode.nodeValue;
@@ -389,7 +389,7 @@ export function insertBefore(parent: Node, child: Node, nextSibling: Node): void
         if ((oldParent == parent) && (newOffset > oldOffset))
             newOffset--;
 
-        trackedPositionsForNode(oldParent).forEach(function (position: Position.Position) {
+        trackedPositionsForNode(oldParent).forEach(function (position: Position) {
             if (position.offset > oldOffset) {
                 position.offset--;
             }
@@ -401,7 +401,7 @@ export function insertBefore(parent: Node, child: Node, nextSibling: Node): void
     }
 
     let result = insertBeforeInternal(parent,child,nextSibling);
-    trackedPositionsForNode(parent).forEach(function (position: Position.Position) {
+    trackedPositionsForNode(parent).forEach(function (position: Position) {
         if (position.offset > newOffset)
             position.offset++;
     });
@@ -419,13 +419,13 @@ export function deleteNode(node: Node): void {
         for (let child = current.firstChild; child != null; child = child.nextSibling)
             adjustPositionsRecursive(child);
 
-        trackedPositionsForNode(current.parentNode).forEach(function (position: Position.Position) {
+        trackedPositionsForNode(current.parentNode).forEach(function (position: Position) {
             let offset = Traversal.nodeOffset(current);
             if (offset < position.offset) {
                 position.offset--;
             }
         });
-        trackedPositionsForNode(current).forEach(function (position: Position.Position) {
+        trackedPositionsForNode(current).forEach(function (position: Position) {
             let offset = Traversal.nodeOffset(current);
             position.node = current.parentNode;
             position.offset = offset;
@@ -502,12 +502,12 @@ export function removeNodeButKeepChildren(node: Node): void {
     let offset = Traversal.nodeOffset(node);
     let childCount = node.childNodes.length;
 
-    trackedPositionsForNode(node.parentNode).forEach(function (position: Position.Position) {
+    trackedPositionsForNode(node.parentNode).forEach(function (position: Position) {
         if (position.offset > offset)
             position.offset += childCount-1;
     });
 
-    trackedPositionsForNode(node).forEach(function (position: Position.Position) {
+    trackedPositionsForNode(node).forEach(function (position: Position) {
         position.node = node.parentNode;
         position.offset += offset;
     });
@@ -569,7 +569,7 @@ export function wrapSiblings(first: Node, last: Node, elementName: string): HTML
         let firstOffset = Traversal.nodeOffset(first);
         let lastOffset = Traversal.nodeOffset(last);
         let nodeCount = lastOffset - firstOffset + 1;
-        trackedPositionsForNode(parent).forEach(function (position: Position.Position) {
+        trackedPositionsForNode(parent).forEach(function (position: Position) {
             if ((position.offset >= firstOffset) && (position.offset <= lastOffset+1)) {
                 position.node = wrapper;
                 position.offset -= firstOffset;
@@ -608,12 +608,12 @@ export function mergeWithNextSibling(current: Node, whiteList: any): void {
     if (current instanceof Text) {
         insertCharacters(current,current.nodeValue.length,next.nodeValue);
 
-        trackedPositionsForNode(next).forEach(function (position: Position.Position) {
+        trackedPositionsForNode(next).forEach(function (position: Position) {
             position.node = current;
             position.offset = position.offset+currentLength;
         });
 
-        trackedPositionsForNode(current.parentNode).forEach(function (position: Position.Position) {
+        trackedPositionsForNode(current.parentNode).forEach(function (position: Position) {
             if (position.offset == nextOffset) {
                 position.node = current;
                 position.offset = currentLength;
@@ -659,7 +659,7 @@ export function nodesMergeable(a: Node, b: Node, whiteList: any): boolean {
     }
 }
 
-function trackedPositionsForNode(node: Node): Position.Position[] {
+function trackedPositionsForNode(node: Node): Position[] {
     let trackedPositions = node._trackedPositions;
     if (trackedPositions != null) {
         // Sanity check

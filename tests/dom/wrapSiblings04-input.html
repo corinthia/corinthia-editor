@@ -12,9 +12,9 @@ function performTest(api)
         var b = api.DOM.createElement(document,"B");
         api.DOM.appendChild(b,api.DOM.createTextNode(document,String.fromCharCode(baseCode+i)));
         api.DOM.appendChild(p,b);
-        positions.push(new api.Position.Position(p,i));
+        positions.push(new api.Position(p,i));
     }
-    positions.push(new api.Position.Position(p,nchildren));
+    positions.push(new api.Position(p,nchildren));
     api.DOM.appendChild(document.body,p);
 
     api.Position.trackWhileExecuting(positions,function() {

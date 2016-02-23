@@ -34,7 +34,7 @@ import Util = require("./util");
 // FIXME: this variable is unused
 let cursorX: number = null;
 
-export function ensurePositionVisible(pos: Position.Position, center?: boolean): void {
+export function ensurePositionVisible(pos: Position, center?: boolean): void {
     // If we can't find the cursor rect for some reason, just don't do anything.
     // This is better than using an incorrect position or throwing an exception.
     let rect = Geometry.displayRectAtPos(pos)
@@ -135,9 +135,9 @@ export function positionCursor(x: number, y: number, wordBoundary: boolean): str
         else if ((node instanceof Element) && Types.isTOCNode(node)) {
             let rect = node.getBoundingClientRect();
             if (x >= rect.left + rect.width/2)
-                position = new Position.Position(node.parentNode,Traversal.nodeOffset(node)+1);
+                position = new Position(node.parentNode,Traversal.nodeOffset(node)+1);
             else
-                position = new Position.Position(node.parentNode,Traversal.nodeOffset(node));
+                position = new Position(node.parentNode,Traversal.nodeOffset(node));
             break;
         }
     }
@@ -224,7 +224,7 @@ export function moveRight(): void {
 
 // public
 export function moveToStartOfDocument(): void {
-    let pos = new Position.Position(document.body,0);
+    let pos = new Position(document.body,0);
     pos = Position.closestMatchBackwards(pos,Position.okForMovement);
     set(pos.node,pos.offset);
     ensureCursorVisible();
@@ -232,7 +232,7 @@ export function moveToStartOfDocument(): void {
 
 // public
 export function moveToEndOfDocument(): void {
-    let pos = new Position.Position(document.body,document.body.childNodes.length);
+    let pos = new Position(document.body,document.body.childNodes.length);
     pos = Position.closestMatchForwards(pos,Position.okForMovement);
     set(pos.node,pos.offset);
     ensureCursorVisible();
@@ -295,7 +295,7 @@ export function insertLink(text: string, url: string): void {
 
 let nbsp = String.fromCharCode(160);
 
-function spaceToNbsp(pos: Position.Position): void {
+function spaceToNbsp(pos: Position): void {
     let node = pos.node;
     let offset = pos.offset;
 
@@ -307,7 +307,7 @@ function spaceToNbsp(pos: Position.Position): void {
     }
 }
 
-function nbspToSpace(pos: Position.Position): void {
+function nbspToSpace(pos: Position): void {
     let node = pos.node;
     let offset = pos.offset;
 
@@ -327,7 +327,7 @@ function checkNbsp(): void {
     });
 }
 
-function isPosAtStartOfParagraph(pos: Position.Position): boolean {
+function isPosAtStartOfParagraph(pos: Position): boolean {
     if ((pos.node instanceof Element) && (pos.offset == 0) &&
         !Types.isInlineNode(pos.node)) {
         return true;
@@ -468,7 +468,7 @@ export function insertCharacter(str: string, allowInvalidPos: boolean, allowNoPa
 
     offset += str.length;
 
-    pos = new Position.Position(node,offset);
+    pos = new Position(node,offset);
     Position.trackWhileExecuting([pos],function() {
         Formatting.mergeWithNeighbours(pos.node,Formatting.MERGEABLE_INLINE);
     });
@@ -482,7 +482,7 @@ export function insertCharacter(str: string, allowInvalidPos: boolean, allowNoPa
     ensureCursorVisible();
 }
 
-function tryDeleteEmptyCaption(pos: Position.Position): boolean {
+function tryDeleteEmptyCaption(pos: Position): boolean {
     let caption = Position.captionAncestor(pos);
     if ((caption == null) || Types.nodeHasContent(caption))
         return false;
@@ -499,7 +499,7 @@ function tryDeleteEmptyCaption(pos: Position.Position): boolean {
     return true;
 }
 
-function tryDeleteEmptyNote(pos: Position.Position): boolean {
+function tryDeleteEmptyNote(pos: Position): boolean {
     let note = Position.noteAncestor(pos);
     if ((note == null) || Types.nodeHasContent(note))
         return false;
@@ -702,7 +702,7 @@ export function enterPressed(): void {
         if (Types.isContainerNode(pos.node) && (pos.node._type != ElementTypes.HTML_LI)) {
             let p = DOM.createElement(document,"P");
             DOM.insertBefore(pos.node,p,pos.node.childNodes[pos.offset]);
-            pos = new Position.Position(p,0);
+            pos = new Position(p,0);
         }
 
         let blockToSplit = getBlockToSplit(pos);
@@ -710,7 +710,7 @@ export function enterPressed(): void {
 
         if (positionAtStartOfHeading(pos)) {
             let container = getContainerOrParagraph(pos.node);
-            pos = new Position.Position(container,0);
+            pos = new Position(container,0);
             pos = Formatting.movePreceding(pos,function(n) { return (n == stopAt); },true);
         }
         else if (pos.node instanceof Text) {
@@ -807,7 +807,7 @@ export function enterPressed(): void {
     cursorX = null;
     ensureCursorVisible();
 
-    function getBlockToSplit(pos: Position.Position): Node {
+    function getBlockToSplit(pos: Position): Node {
         let blockToSplit: Node = null;
         for (let n = pos.node; n != null; n = n.parentNode) {
             if (n._type == ElementTypes.HTML_LI) {
@@ -829,7 +829,7 @@ export function enterPressed(): void {
         return node;
     }
 
-    function positionAtStartOfHeading(pos: Position.Position): boolean {
+    function positionAtStartOfHeading(pos: Position): boolean {
         let container = getContainerOrParagraph(pos.node);
         if (Types.isHeadingNode(container)) {
             let startOffset = 0;
@@ -962,8 +962,8 @@ export function makeContainerInsertionPoint(): void {
     if ((offset > 0) && Types.isItemNumber(parent.childNodes[offset-1]))
         offset--;
 
-    Formatting.moveFollowing(new Position.Position(parent,offset),Types.isContainerNode);
-    Formatting.movePreceding(new Position.Position(parent,offset),Types.isContainerNode);
+    Formatting.moveFollowing(new Position(parent,offset),Types.isContainerNode);
+    Formatting.movePreceding(new Position(parent,offset),Types.isContainerNode);
 
     offset = 0;
     while (!Types.isContainerNode(parent)) {
@@ -1017,7 +1017,7 @@ function insertNote(className: string, content: string): void {
     if ((pos.node._type == ElementTypes.HTML_TEXT) &&
         (pos.node.nodeValue.length == 0)) {
         let empty = pos.node;
-        pos = new Position.Position(empty.parentNode,Traversal.nodeOffset(empty));
+        pos = new Position(empty.parentNode,Traversal.nodeOffset(empty));
         DOM.deleteNode(empty);
     }
     else {

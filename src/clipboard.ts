@@ -394,12 +394,12 @@ export function pasteNodes(nodes: Node[]): void {
             switch (child._type) {
             case ElementTypes.HTML_UL:
             case ElementTypes.HTML_OL:
-                Formatting.movePreceding(new Position.Position(parent,offset),
+                Formatting.movePreceding(new Position(parent,offset),
                                          function(x) { return (x == containerParent); });
                 insertChildrenBefore(inItem.parentNode,child,inItem,pastedNodes);
                 break;
             case ElementTypes.HTML_LI:
-                Formatting.movePreceding(new Position.Position(parent,offset),
+                Formatting.movePreceding(new Position(parent,offset),
                                          function(x) { return (x == containerParent); });
                 DOM.insertBefore(inItem.parentNode,child,inItem);
                 pastedNodes.push(child);
@@ -472,7 +472,7 @@ export function pasteNodes(nodes: Node[]): void {
         Hierarchy.ensureRangeValidHierarchy(pastedRange,true);
     })});
 
-    let pos = new Position.Position(origRange.end.node,origRange.end.offset);
+    let pos = new Position(origRange.end.node,origRange.end.offset);
     Range.trackWhileExecuting(pastedRange,function() {
     Position.trackWhileExecuting([pos],function() {
         while (true) {
@@ -482,7 +482,7 @@ export function pasteNodes(nodes: Node[]): void {
                 break;
             if (!Types.nodeHasContent(pos.node)) {
                 let oldNode = pos.node;
-                pos = new Position.Position(pos.node.parentNode,Traversal.nodeOffset(pos.node));
+                pos = new Position(pos.node.parentNode,Traversal.nodeOffset(pos.node));
                 DOM.deleteNode(oldNode);
             }
             else
@@ -491,9 +491,9 @@ export function pasteNodes(nodes: Node[]): void {
     });
     });
 
-    pos = new Position.Position(pastedRange.end.node,pastedRange.end.offset);
+    pos = new Position(pastedRange.end.node,pastedRange.end.offset);
     while (Types.isOpaqueNode(pos.node))
-        pos = new Position.Position(pos.node.parentNode,Traversal.nodeOffset(pos.node)+1);
+        pos = new Position(pos.node.parentNode,Traversal.nodeOffset(pos.node)+1);
     pos = Position.closestMatchBackwards(pos,Position.okForInsertion);
 
     Selection.set(pos.node,pos.offset,pos.node,pos.offset);

@@ -160,7 +160,7 @@ export function ensureValidHierarchy(node: Node): void {
         if (checkInvalidHeadingNesting(node)) {
             let offset = Traversal.nodeOffset(node);
             let parent = node.parentNode;
-            Formatting.moveFollowing(new Position.Position(node.parentNode,offset+1),
+            Formatting.moveFollowing(new Position(node.parentNode,offset+1),
                                      function() { return false; });
             DOM.insertBefore(node.parentNode.parentNode,
                              node,
@@ -201,7 +201,7 @@ export function ensureValidHierarchy(node: Node): void {
                 while (checkInvalidNesting(node)) {
                     let offset = Traversal.nodeOffset(node);
                     let parent = node.parentNode;
-                    Formatting.moveFollowing(new Position.Position(node.parentNode,offset+1),
+                    Formatting.moveFollowing(new Position(node.parentNode,offset+1),
                                              Types.isContainerNode);
                     DOM.insertBefore(node.parentNode.parentNode,
                                      node,

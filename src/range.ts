@@ -24,12 +24,12 @@ import Util = require("./util");
 
 export class Range {
 
-    public start: Position.Position;
-    public end: Position.Position;
+    public start: Position;
+    public end: Position;
 
     constructor(startNode: Node, startOffset: number, endNode: Node, endOffset: number) {
-        this.start = new Position.Position(startNode,startOffset);
-        this.end = new Position.Position(endNode,endOffset);
+        this.start = new Position(startNode,startOffset);
+        this.end = new Position(endNode,endOffset);
     }
 
     public toString(): string {

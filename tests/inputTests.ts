@@ -32,7 +32,7 @@ export function getNodeArrayText(nodes: Node[]): string {
     return strings.join("");
 }
 
-export function textBetweenPositions(from: Position.Position, to: Position.Position): string {
+export function textBetweenPositions(from: Position, to: Position): string {
     let range = new Range.Range(from.node,from.offset,to.node,to.offset);
     let contents = DOM.cloneRangeContents(range);
     return getNodeArrayText(contents);
@@ -51,8 +51,8 @@ export function testMovement(direction: string, count: number): void {
 export function testPositionFun(fun: (p: number, g: string, d: string) => boolean,
                                 granularity: string, direction: string): string {
     let lines = new Array();
-    let start = new Position.Position(document.body,0);
-    let end = new Position.Position(document.body,document.body.childNodes.length);
+    let start = new Position(document.body,0);
+    let end = new Position(document.body,document.body.childNodes.length);
 
     start = Position.closestMatchForwards(start,Position.okForMovement);
     end = Position.closestMatchBackwards(end,Position.okForMovement);
@@ -84,8 +84,8 @@ export function testPositionAtBoundary(granularity: string, direction: string): 
 
 export function testPositionToBoundary(granularity: string, direction: string): string {
     let lines = new Array();
-    let start = new Position.Position(document.body,0);
-    let end = new Position.Position(document.body,document.body.childNodes.length);
+    let start = new Position(document.body,0);
+    let end = new Position(document.body,document.body.childNodes.length);
 
     start = Position.closestMatchForwards(start,Position.okForMovement);
     end = Position.closestMatchBackwards(end,Position.okForMovement);
@@ -115,8 +115,8 @@ export function testPositionToBoundary(granularity: string, direction: string): 
 
 export function testRangeEnclosing(granularity: string, direction: string): string {
     let lines = new Array();
-    let start = new Position.Position(document.body,0);
-    let end = new Position.Position(document.body,document.body.childNodes.length);
+    let start = new Position(document.body,0);
+    let end = new Position(document.body,document.body.childNodes.length);
 
     start = Position.closestMatchForwards(start,Position.okForMovement);
     end = Position.closestMatchBackwards(end,Position.okForMovement);

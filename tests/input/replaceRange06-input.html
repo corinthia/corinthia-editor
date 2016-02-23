@@ -5,7 +5,7 @@
 function performTest(api)
 {
     var p = document.getElementsByTagName("P")[0];
-    var pos = new api.Position.Position(p,p.childNodes.length);
+    var pos = new api.Position(p,p.childNodes.length);
     var posId = api.Input.addPosition(pos);
     api.Input.replaceRange(posId,posId,"HELLO");
     api.tests.TestLib.showSelection();

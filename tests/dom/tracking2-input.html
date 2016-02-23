@@ -7,14 +7,14 @@ function performTest(api)
     var messages = new Array();
 
     var ps = document.getElementsByTagName("P");
-    var position = new api.Position.Position(document.body,document.body.childNodes.length);
+    var position = new api.Position(document.body,document.body.childNodes.length);
     messages.push("Before insertion: position = "+position);
     api.Position.trackWhileExecuting([position],function() {
         api.DOM.appendChild(ps[0],api.DOM.createTextNode(document,"X"));
     });
     messages.push("After insertion: position = "+position);
 
-    var position = new api.Position.Position(document.body,document.body.childNodes.length);
+    var position = new api.Position(document.body,document.body.childNodes.length);
     messages.push("Before removal: position = "+position);
     api.Position.trackWhileExecuting([position],function() {
         api.DOM.deleteNode(ps[0].firstChild);

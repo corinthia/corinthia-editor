@@ -31,9 +31,9 @@ import UndoManager = require("../src/undo");
 export function testHarnessSetup(): void {
     DOM.assignNodeIds(document);
 
-    let start: Position.Position;
-    let track: Position.Position[];
-    let end: Position.Position;
+    let start: Position;
+    let track: Position[];
+    let end: Position;
 
 
     UndoManager.disableWhileExecuting(function() {
@@ -67,7 +67,7 @@ export function testHarnessSetup(): void {
 
     return;
 
-    function positionMergeWithNeighbours(pos: Position.Position): void {
+    function positionMergeWithNeighbours(pos: Position): void {
         let node = pos.node;
         let offset = pos.offset;
         if ((node instanceof Element) && (offset < node.childNodes.length))
@@ -78,28 +78,28 @@ export function testHarnessSetup(): void {
             Formatting.mergeWithNeighbours(node,Formatting.MERGEABLE_INLINE);
     }
 
-    function extractPositionFromCharacter(c: string): Position.Position {
+    function extractPositionFromCharacter(c: string): Position {
         return recurse(document.body);
 
-        function recurse(node: Node): Position.Position {
+        function recurse(node: Node): Position {
             if (node instanceof Text) {
                 let index = node.nodeValue.indexOf(c);
                 if (index >= 0) {
                     let offsetInParent = Traversal.nodeOffset(node);
                     if (index == 0) {
                         node.nodeValue = node.nodeValue.substring(1);
-                        return new Position.Position(node.parentNode,offsetInParent);
+                        return new Position(node.parentNode,offsetInParent);
                     }
                     else if (index == node.nodeValue.length - 1) {
                         node.nodeValue = node.nodeValue.substring(0,node.nodeValue.length-1);
-                        return new Position.Position(node.parentNode,offsetInParent+1);
+                        return new Position(node.parentNode,offsetInParent+1);
                     }
                     else {
                         let rest = node.nodeValue.substring(index+1);
                         node.nodeValue = node.nodeValue.substring(0,index);
                         let restNode = DOM.createTextNode(document,rest);
                         DOM.insertBefore(node.parentNode,restNode,node.nextSibling);
-                        return new Position.Position(node.parentNode,offsetInParent+1);
+                        return new Position(node.parentNode,offsetInParent+1);
                     }
                 }
             }
@@ -115,7 +115,7 @@ export function testHarnessSetup(): void {
     }
 }
 
-export function insertAtPosition(position: Position.Position, node: Node): void {
+export function insertAtPosition(position: Position, node: Node): void {
     if (position.node instanceof Element) {
         if (position.offset == position.node.childNodes.length)
             DOM.appendChild(position.node,node);
@@ -130,14 +130,14 @@ export function insertAtPosition(position: Position.Position, node: Node): void 
     }
 }
 
-export function insertTextAtPosition(position: Position.Position, str: string): void {
+export function insertTextAtPosition(position: Position, str: string): void {
     if (position.node instanceof Element) {
         let before = position.node.childNodes[position.offset-1];
         let after = position.node.childNodes[position.offset];
         if ((after != null) && (after instanceof Text))
-            position = new Position.Position(after,0);
+            position = new Position(after,0);
         else if ((before != null) && (before instanceof Text))
-            position = new Position.Position(before,before.nodeValue.length);
+            position = new Position(before,before.nodeValue.length);
     }
     if (position.node instanceof Element) {
         insertAtPosition(position,DOM.createTextNode(document,str));

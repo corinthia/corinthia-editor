@@ -209,10 +209,10 @@ export function getCorrectionCoords(): { x: number, y: number } {
     let offset = Math.floor(textNode.nodeValue.length/2);
     Selection.set(textNode,offset,textNode,offset);
     Cursor.ensureCursorVisible();
-    let rect = Geometry.displayRectAtPos(new Position.Position(textNode,offset));
+    let rect = Geometry.displayRectAtPos(new Position(textNode,offset));
 
     if (rect == null) // FIXME: pos
-        throw new Error("no rect for pos "+(new Position.Position(textNode,offset)));
+        throw new Error("no rect for pos "+(new Position(textNode,offset)));
 
     if (rect == null)
         return null;

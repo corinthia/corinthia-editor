@@ -10,7 +10,7 @@ function performTest(api)
     api.Tables.insertTable(2,3,"100%",true,"Test caption");
     api.PostponedActions.perform();
 
-    var pos = new api.Position.Position(document.body,0);
+    var pos = new api.Position(document.body,0);
     pos = api.Position.closestMatchForwards(pos,api.Position.okForMovement);
     api.Selection.set(pos.node,pos.offset,pos.node,pos.offset);
 

@@ -5,8 +5,8 @@
 function performTest(api)
 {
     var ps = document.getElementsByTagName("P");
-    var pos1 = new api.Position.Position(ps[0],0);
-    var pos2 = new api.Position.Position(ps[0],2);
+    var pos1 = new api.Position(ps[0],0);
+    var pos2 = new api.Position(ps[0],2);
 
     api.Position.trackWhileExecuting([pos1,pos2],function() {
         api.tests.TestLib.insertAtPosition(pos1,api.DOM.createElement(document,"b"));

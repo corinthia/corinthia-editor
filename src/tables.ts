@@ -245,7 +245,7 @@ export function insertTable(rows: number, cols: number, width: string, numbered:
     Outline.setNumbered(table.getAttribute("id"),numbered);
 
     // Place the cursor at the start of the first cell on the first row
-    let pos = new Position.Position(firstTD,0);
+    let pos = new Position(firstTD,0);
     pos = Position.closestMatchForwards(pos,Position.okForMovement);
     Selection.set(pos.node,pos.offset,pos.node,pos.offset);
 
@@ -580,10 +580,10 @@ function selectRegion(table: Table, top: number, bottom: number, left: number, r
     let tlCell = Table_get(table,top,left);
     let brCell = Table_get(table,bottom,right);
     if ((tlCell != null) && (brCell != null)) {
-        let tlPos = new Position.Position(tlCell.element,0);
+        let tlPos = new Position(tlCell.element,0);
         tlPos = Position.closestMatchForwards(tlPos,Position.okForMovement);
 
-        let brPos = new Position.Position(brCell.element,brCell.element.childNodes.length);
+        let brPos = new Position(brCell.element,brCell.element.childNodes.length);
         brPos = Position.closestMatchBackwards(brPos,Position.okForMovement);
 
         Selection.set(tlPos.node,tlPos.offset,brPos.node,brPos.offset);
@@ -679,7 +679,7 @@ export function removeAdjacentRow(): void {
             let newRow = clampRow(table,bottom);
             let newCell = Table_get(table,newRow,left);
             if (newCell != null) {
-                let pos = new Position.Position(newCell.element,0);
+                let pos = new Position(newCell.element,0);
                 pos = Position.closestMatchForwards(pos,Position.okForMovement);
                 Selection.set(pos.node,pos.offset,pos.node,pos.offset);
             }
@@ -761,7 +761,7 @@ export function removeAdjacentColumn(): void {
             let newCol = clampCol(table,right);
             let newCell = Table_get(table,top,newCol);
             if (newCell != null) {
-                let pos = new Position.Position(newCell.element,0);
+                let pos = new Position(newCell.element,0);
                 pos = Position.closestMatchForwards(pos,Position.okForMovement);
                 Selection.set(pos.node,pos.offset,pos.node,pos.offset);
             }

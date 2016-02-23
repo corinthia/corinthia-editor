@@ -57,7 +57,7 @@ function oldInsertCharacter(character: string): void {
 
 export function showValidPositions(): void {
     let validPositions = new Array();
-    let pos = new Position.Position(document.body,0);
+    let pos = new Position(document.body,0);
     while (pos != null) {
         if (Position.okForMovement(pos)) {
 //            Callbacks.debug("Valid position: "+pos);

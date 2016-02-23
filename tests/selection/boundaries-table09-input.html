@@ -7,7 +7,7 @@ function performTest(api)
     var range = api.Selection.get();
     var table = document.getElementsByTagName("TABLE")[0];
     var offset = api.Traversal.nodeOffset(table);
-    range.start = new api.Position.Position(table.parentNode,api.Traversal.nodeOffset(table));
+    range.start = new api.Position(table.parentNode,api.Traversal.nodeOffset(table));
     api.Selection.set(range.start.node,range.start.offset,range.end.node,range.end.offset);
     api.tests.TestLib.showSelection();
 }

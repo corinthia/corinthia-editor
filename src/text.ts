@@ -49,7 +49,7 @@ export interface ParagraphBoundaries {
     endOffset: number;
 }
 
-export function findParagraphBoundaries(pos: Position.Position): ParagraphBoundaries {
+export function findParagraphBoundaries(pos: Position): ParagraphBoundaries {
     Position.assertValid(pos);
     let startOffset = pos.offset;
     let endOffset = pos.offset;
@@ -72,7 +72,7 @@ export function findParagraphBoundaries(pos: Position.Position): ParagraphBounda
     return { node: node, startOffset: startOffset, endOffset: endOffset };
 }
 
-export function analyseParagraph(pos: Position.Position): ParagraphInfo {
+export function analyseParagraph(pos: Position): ParagraphInfo {
     let initial = pos.node;
     let strings = new Array();
     let runs = new Array();
@@ -102,7 +102,7 @@ export function analyseParagraph(pos: Position.Position): ParagraphInfo {
     }
 }
 
-export function posAbove(pos: Position.Position, cursorRect?: ClientRect, cursorX?: number): Position.Position {
+export function posAbove(pos: Position, cursorRect?: ClientRect, cursorX?: number): Position {
     if (cursorX == null)
         cursorX = pos.targetX;
     pos = Position.closestMatchBackwards(pos,Position.okForMovement);
@@ -167,7 +167,7 @@ export function posAbove(pos: Position.Position, cursorRect?: ClientRect, cursor
         }
 
 
-        pos = new Position.Position(paragraph.node,paragraph.startOffset);
+        pos = new Position(paragraph.node,paragraph.startOffset);
         pos = Position.prevMatch(pos,Position.okForMovement);
     }
 }
@@ -212,7 +212,7 @@ function offsetRects(rects: ClientRect[], offsetX: number, offsetY: number): Cli
     return result;
 }
 
-export function posBelow(pos: Position.Position, cursorRect?: ClientRect, cursorX?: number): Position.Position {
+export function posBelow(pos: Position, cursorRect?: ClientRect, cursorX?: number): Position {
     if (cursorX == null)
         cursorX = pos.targetX;
     pos = Position.closestMatchForwards(pos,Position.okForMovement);
@@ -275,12 +275,12 @@ export function posBelow(pos: Position.Position, cursorRect?: ClientRect, cursor
             }
         }
 
-        pos = new Position.Position(paragraph.node,paragraph.endOffset);
+        pos = new Position(paragraph.node,paragraph.endOffset);
         pos = Position.nextMatch(pos,Position.okForMovement);
     }
 }
 
-export function closestPosBackwards(pos: Position.Position): Position.Position {
+export function closestPosBackwards(pos: Position): Position {
     if (Traversal.isNonWhitespaceTextNode(pos.node))
         return pos;
     let node: Node;
@@ -298,10 +298,10 @@ export function closestPosBackwards(pos: Position.Position): Position.Position {
     if ((node == null) || (node == document.body))
         return null;
     else
-        return new Position.Position(node,node.nodeValue.length);
+        return new Position(node,node.nodeValue.length);
 }
 
-export function closestPosForwards(pos: Position.Position): Position.Position {
+export function closestPosForwards(pos: Position): Position {
     if (Traversal.isNonWhitespaceTextNode(pos.node))
         return pos;
     let node: Node;
@@ -321,10 +321,10 @@ export function closestPosForwards(pos: Position.Position): Position.Position {
     if (node == null)
         return null;
     else
-        return new Position.Position(node,0);
+        return new Position(node,0);
 }
 
-export function closestPosInDirection(pos: Position.Position, direction: string): Position.Position {
+export function closestPosInDirection(pos: Position, direction: string): Position {
     if ((direction == "forward") ||
         (direction == "right") ||
         (direction == "down")) {
@@ -335,7 +335,7 @@ export function closestPosInDirection(pos: Position.Position, direction: string)
     }
 }
 
-function toStartOfParagraph(pos: Position.Position): Position.Position {
+function toStartOfParagraph(pos: Position): Position {
     pos = Position.closestMatchBackwards(pos,Position.okForMovement);
     if (pos == null)
         return null;
@@ -343,11 +343,11 @@ function toStartOfParagraph(pos: Position.Position): Position.Position {
     if (paragraph == null)
         return null;
 
-    let newPos = new Position.Position(paragraph.node,paragraph.startOffset);
+    let newPos = new Position(paragraph.node,paragraph.startOffset);
     return Position.closestMatchForwards(newPos,Position.okForMovement);
 }
 
-function toEndOfParagraph(pos: Position.Position): Position.Position {
+function toEndOfParagraph(pos: Position): Position {
     pos = Position.closestMatchForwards(pos,Position.okForMovement);
     if (pos == null)
         return null;
@@ -355,11 +355,11 @@ function toEndOfParagraph(pos: Position.Position): Position.Position {
     if (paragraph == null)
         return null;
 
-    let newPos = new Position.Position(paragraph.node,paragraph.endOffset);
+    let newPos = new Position(paragraph.node,paragraph.endOffset);
     return Position.closestMatchBackwards(newPos,Position.okForMovement);
 }
 
-function toStartOfLine(pos: Position.Position): Position.Position {
+function toStartOfLine(pos: Position): Position {
     let posRect = Geometry.rectAtPos(pos);
     if (posRect == null) {
         pos = closestPosBackwards(pos);
@@ -380,7 +380,7 @@ function toStartOfLine(pos: Position.Position): Position.Position {
     }
 }
 
-function toEndOfLine(pos: Position.Position): Position.Position {
+function toEndOfLine(pos: Position): Position {
     let posRect = Geometry.rectAtPos(pos);
     if (posRect == null) {
         pos = closestPosForwards(pos);
@@ -401,7 +401,7 @@ function toEndOfLine(pos: Position.Position): Position.Position {
     }
 }
 
-export function toStartOfBoundary(pos: Position.Position, boundary: string): Position.Position {
+export function toStartOfBoundary(pos: Position, boundary: string): Position {
     if (boundary == "paragraph")
         return toStartOfParagraph(pos);
     else if (boundary == "line")
@@ -410,7 +410,7 @@ export function toStartOfBoundary(pos: Position.Position, boundary: string): Pos
         throw new Error("Unsupported boundary: "+boundary);
 }
 
-export function toEndOfBoundary(pos: Position.Position, boundary: string): Position.Position {
+export function toEndOfBoundary(pos: Position, boundary: string): Position {
     if (boundary == "paragraph")
         return toEndOfParagraph(pos);
     else if (boundary == "line")

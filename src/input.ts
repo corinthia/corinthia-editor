@@ -38,7 +38,7 @@ export interface RangeIds {
 // }
 
 let forwardSelection = true;
-let positions: { [key: number]: Position.Position } = {};
+let positions: { [key: number]: Position } = {};
 let BaseIdNull = 0;
 let BaseIdDocumentStart = 1;
 let BaseIdDocumentEnd = 2;
@@ -47,10 +47,10 @@ let BaseIdSelectionEnd = 4;
 let firstDynamicPosId = 5;
 let nextPosId = firstDynamicPosId;
 
-export function addPosition(pos: Position.Position): number {
+export function addPosition(pos: Position): number {
     if (pos == null)
         return 0;
-    let copy = new Position.Position(pos.node,pos.offset);
+    let copy = new Position(pos.node,pos.offset);
     copy.targetX = pos.targetX;
     pos = copy;
     pos.posId = nextPosId++;
@@ -59,19 +59,19 @@ export function addPosition(pos: Position.Position): number {
     return pos.posId;
 }
 
-export function getPosition(posId: number): Position.Position {
+export function getPosition(posId: number): Position {
     if (posId < firstDynamicPosId) {
         switch (posId) {
         case BaseIdNull: {
             return null;
         }
         case BaseIdDocumentStart: {
-            let pos = new Position.Position(document.body,0);
+            let pos = new Position(document.body,0);
             pos = Position.closestMatchForwards(pos,Position.okForMovement);
             return pos;
         }
         case BaseIdDocumentEnd: {
-            let pos = new Position.Position(document.body,document.body.childNodes.length);
+            let pos = new Position(document.body,document.body.childNodes.length);
             pos = Position.closestMatchBackwards(pos,Position.okForMovement);
             return pos;
         }
@@ -227,7 +227,7 @@ export function setForwardSelectionAffinity(value: boolean): void {
     forwardSelection = value;
 }
 
-function positionRight(pos: Position.Position, offset: number): Position.Position {
+function positionRight(pos: Position, offset: number): Position {
     if (offset > 0) {
         for (; offset > 0; offset--) {
             let next = Position.nextMatch(pos,Position.okForMovement);
@@ -247,7 +247,7 @@ function positionRight(pos: Position.Position, offset: number): Position.Positio
     return pos;
 }
 
-function positionDown(pos: Position.Position, offset: number): Position.Position {
+function positionDown(pos: Position, offset: number): Position {
     if (offset > 0) {
         for (; offset > 0; offset--) {
             let below = Txt.posBelow(pos);
@@ -382,7 +382,7 @@ function isForward(direction: string): boolean {
             (direction == "down"));
 }
 
-export function isAtWordBoundary(pos: Position.Position, direction: string): boolean {
+export function isAtWordBoundary(pos: Position, direction: string): boolean {
     if (!(pos.node instanceof Text))
         return false;
     let paragraph = Txt.analyseParagraph(pos);
@@ -403,7 +403,7 @@ export function isAtWordBoundary(pos: Position.Position, direction: string): boo
         return !beforeMatch;
 }
 
-export function isAtParagraphBoundary(pos: Position.Position, direction: string): boolean {
+export function isAtParagraphBoundary(pos: Position, direction: string): boolean {
     // FIXME
     return false;
 }
@@ -492,7 +492,7 @@ export function isPositionWithinTextUnitInDirection(posId: number, granularity: 
     throw new Error("unsupported granularity: "+granularity);
 }
 
-export function toWordBoundary(pos: Position.Position, direction: string): Position.Position {
+export function toWordBoundary(pos: Position, direction: string): Position {
     pos = Txt.closestPosInDirection(pos,direction);
     if (pos == null)
         return null;
@@ -538,7 +538,7 @@ export function toWordBoundary(pos: Position.Position, direction: string): Posit
     }
 }
 
-export function toParagraphBoundary(pos: Position.Position, direction: string): Position.Position {
+export function toParagraphBoundary(pos: Position, direction: string): Position {
     if (isForward(direction)) {
         let end = Txt.toEndOfBoundary(pos,"paragraph");
         if (Position.equal(pos,end)) {
@@ -559,7 +559,7 @@ export function toParagraphBoundary(pos: Position.Position, direction: string): 
     }
 }
 
-export function toLineBoundary(pos: Position.Position, direction: string): Position.Position {
+export function toLineBoundary(pos: Position, direction: string): Position {
     if (isForward(direction)) {
         let end = Txt.toEndOfBoundary(pos,"line");
         return end ? end : pos;

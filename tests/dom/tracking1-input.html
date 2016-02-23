@@ -10,7 +10,7 @@ function performTest(api)
     var nodeCount = document.body.childNodes.length;
     for (var posOffset = 0; posOffset <= nodeCount; posOffset++) {
         for (var nodeOffset = 0; nodeOffset <= nodeCount; nodeOffset++) {
-            var position = new api.Position.Position(document.body,posOffset);
+            var position = new api.Position(document.body,posOffset);
             var temp = api.DOM.createElement(document,"B");
             api.Position.trackWhileExecuting([position],function() {
                 var message = "posOffset "+posOffset+", nodeOffset "+nodeOffset+": "+position;

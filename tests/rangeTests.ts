@@ -23,7 +23,7 @@ import Range = require("../src/range");
 import Traversal = require("../src/traversal");
 import Util = require("../src/util");
 
-function positionKey(pos: Position.Position): string {
+function positionKey(pos: Position): string {
     return pos.node._nodeId+","+pos.offset;
 }
 
@@ -38,7 +38,7 @@ export function removeWhitespaceTextNodes(parent: Node): void {
     }
 }
 
-export let allPositions: Position.Position[] = null;
+export let allPositions: Position[] = null;
 export let allPositionsIndexMap: { [key: string]: number } = null;
 
 export function setup(root: Node): void {
@@ -74,35 +74,35 @@ export function comparePositionsBeforeAndAfter(fun: () => void): string {
     return messages.join("\n");
 }
 
-export function getAllPositions(root: Node): Position.Position[] {
+export function getAllPositions(root: Node): Position[] {
     let includeEmptyElements = true;
 
-    let positions: Position.Position[] = [];
+    let positions: Position[] = [];
     let rootOffset = Traversal.nodeOffset(root);
-//    positions.push(new Position.Position(root.parentNode,rootOffset));
+//    positions.push(new Position(root.parentNode,rootOffset));
     recurse(root);
-//    positions.push(new Position.Position(root.parentNode,rootOffset+1));
+//    positions.push(new Position(root.parentNode,rootOffset+1));
     return positions;
 
     function recurse(node: Node): void {
         if (node instanceof Text) {
             for (let offset = 0; offset <= node.nodeValue.length; offset++)
-                positions.push(new Position.Position(node,offset));
+                positions.push(new Position(node,offset));
         }
         else if ((node instanceof Element) &&
                  (node.firstChild != null) || includeEmptyElements) {
             let offset = 0;
             for (let child = node.firstChild; child != null; child = child.nextSibling) {
-                positions.push(new Position.Position(node,offset));
+                positions.push(new Position(node,offset));
                 recurse(child);
                 offset++;
             }
-            positions.push(new Position.Position(node,offset));
+            positions.push(new Position(node,offset));
         }
     }
 }
 
-export function getPositionIndex(pos: Position.Position): number {
+export function getPositionIndex(pos: Position): number {
     let result = allPositionsIndexMap[pos.node._nodeId+","+pos.offset];
     if (result == null)
         throw new Error(pos+": no index for position");
@@ -144,7 +144,7 @@ export function getOutermostNodesSimple(range: Range.Range): Node[] {
             allSet.add(pos.node);
         }
         else if (pos.node instanceof Element) {
-            let prev = new Position.Position(pos.node,pos.offset-1);
+            let prev = new Position(pos.node,pos.offset-1);
             if (havePositions[positionKey(prev)]) {
                 let target = pos.node.childNodes[pos.offset-1];
                 allArray.push(target);

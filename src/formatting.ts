@@ -120,7 +120,7 @@ export function splitAroundSelection(range: Range.Range, allowDirectInline: bool
             movePreceding(range.start,Types.isBlockOrNoteNode);
         }
         else {
-            movePreceding(new Position.Position(range.start.node.parentNode,
+            movePreceding(new Position(range.start.node.parentNode,
                                                 Traversal.nodeOffset(range.start.node)),
                           Types.isBlockOrNoteNode);
         }
@@ -140,7 +140,7 @@ export function splitAroundSelection(range: Range.Range, allowDirectInline: bool
             moveFollowing(range.end,Types.isBlockOrNoteNode);
         }
         else {
-            moveFollowing(new Position.Position(range.end.node.parentNode,
+            moveFollowing(new Position(range.end.node.parentNode,
                                                 Traversal.nodeOffset(range.end.node)+1),
                           Types.isBlockOrNoteNode);
         }
@@ -234,7 +234,7 @@ function mergeRange(range: Range.Range, whiteList: boolean[]): void {
 
 // public (called from cursor.js)
 // FIXME: TS: We require a position in a text node here; replace pos width node: Text, offset: number
-export function splitTextBefore(pos: Position.Position, parentCheckFn?: (n: Node) => boolean, force?: boolean): Position.Position {
+export function splitTextBefore(pos: Position, parentCheckFn?: (n: Node) => boolean, force?: boolean): Position {
     let node = pos.node;
     let offset = pos.offset;
     if (parentCheckFn == null)
@@ -245,12 +245,12 @@ export function splitTextBefore(pos: Position.Position, parentCheckFn?: (n: Node
             let before = DOM.createTextNode(document,"");
             DOM.insertBefore(node.parentNode,before,node);
             DOM.moveCharacters(node,0,offset,before,0,false,true);
-            movePreceding(new Position.Position(node.parentNode,Traversal.nodeOffset(node)),
+            movePreceding(new Position(node.parentNode,Traversal.nodeOffset(node)),
                           parentCheckFn,force);
-            return new Position.Position(before,before.nodeValue.length);
+            return new Position(before,before.nodeValue.length);
         }
         else {
-            movePreceding(new Position.Position(node.parentNode,Traversal.nodeOffset(node)),
+            movePreceding(new Position(node.parentNode,Traversal.nodeOffset(node)),
                           parentCheckFn,force);
             return pos;
         }
@@ -262,7 +262,7 @@ export function splitTextBefore(pos: Position.Position, parentCheckFn?: (n: Node
 
 // public
 // FIXME: TS: We require a position in a text node here; replace pos width node: Text, offset: number
-export function splitTextAfter(pos: Position.Position, parentCheckFn?: (n: Node) => boolean, force?: boolean): Position.Position {
+export function splitTextAfter(pos: Position, parentCheckFn?: (n: Node) => boolean, force?: boolean): Position {
     let node = pos.node;
     let offset = pos.offset;
     if (parentCheckFn == null)
@@ -273,12 +273,12 @@ export function splitTextAfter(pos: Position.Position, parentCheckFn?: (n: Node)
             let after = DOM.createTextNode(document,"");
             DOM.insertBefore(node.parentNode,after,node.nextSibling);
             DOM.moveCharacters(node,offset,node.nodeValue.length,after,0,true,false);
-            moveFollowing(new Position.Position(node.parentNode,Traversal.nodeOffset(node)+1),
+            moveFollowing(new Position(node.parentNode,Traversal.nodeOffset(node)+1),
                           parentCheckFn,force);
-            return new Position.Position(after,0);
+            return new Position(after,0);
         }
         else {
-            moveFollowing(new Position.Position(node.parentNode,Traversal.nodeOffset(node)+1),
+            moveFollowing(new Position(node.parentNode,Traversal.nodeOffset(node)+1),
                           parentCheckFn,force);
             return pos;
         }
@@ -293,15 +293,15 @@ export function splitTextAfter(pos: Position.Position, parentCheckFn?: (n: Node)
 // index of a child, we pass the child itself (or null if the offset is equal to
 // childNodes.length)
 // public
-export function movePreceding(pos: Position.Position, parentCheckFn?: (n: Node) => boolean, force?: boolean): Position.Position {
+export function movePreceding(pos: Position, parentCheckFn?: (n: Node) => boolean, force?: boolean): Position {
     let node = pos.node;
     let offset = pos.offset;
     if (parentCheckFn(node) || (node == document.body))
-        return new Position.Position(node,offset);
+        return new Position(node,offset);
 
     let toMove = new Array();
     let justWhitespace = true;
-    let result = new Position.Position(node,offset);
+    let result = new Position(node,offset);
     for (let i = 0; i < offset; i++) {
         if (!Traversal.isWhitespaceTextNode(node.childNodes[i]))
             justWhitespace = false;
@@ -319,25 +319,25 @@ export function movePreceding(pos: Position.Position, parentCheckFn?: (n: Node) 
 
             for (let i = 0; i < toMove.length; i++)
                 DOM.insertBefore(copy,toMove[i],null);
-            result = new Position.Position(copy,copy.childNodes.length);
+            result = new Position(copy,copy.childNodes.length);
         }
     }
 
-    movePreceding(new Position.Position(node.parentNode,Traversal.nodeOffset(node)),
+    movePreceding(new Position(node.parentNode,Traversal.nodeOffset(node)),
                   parentCheckFn,force);
     return result;
 }
 
 // public
-export function moveFollowing(pos: Position.Position, parentCheckFn?: (n: Node) => boolean, force?: boolean): Position.Position {
+export function moveFollowing(pos: Position, parentCheckFn?: (n: Node) => boolean, force?: boolean): Position {
     let node = pos.node;
     let offset = pos.offset;
     if (parentCheckFn(node) || (node == document.body))
-        return new Position.Position(node,offset);
+        return new Position(node,offset);
 
     let toMove = new Array();
     let justWhitespace = true;
-    let result =  new Position.Position(node,offset);
+    let result =  new Position(node,offset);
     for (let i = offset; i < node.childNodes.length; i++) {
         if (!Traversal.isWhitespaceTextNode(node.childNodes[i]))
             justWhitespace = false;
@@ -355,17 +355,17 @@ export function moveFollowing(pos: Position.Position, parentCheckFn?: (n: Node) 
 
             for (let i = 0; i < toMove.length; i++)
                 DOM.insertBefore(copy,toMove[i],null);
-            result = new Position.Position(copy,0);
+            result = new Position(copy,0);
         }
     }
 
-    moveFollowing(new Position.Position(node.parentNode,Traversal.nodeOffset(node)+1),
+    moveFollowing(new Position(node.parentNode,Traversal.nodeOffset(node)+1),
                   parentCheckFn,force);
     return result;
 }
 
 // public
-export function paragraphTextUpToPosition(pos: Position.Position): string {
+export function paragraphTextUpToPosition(pos: Position): string {
     if (pos.node instanceof Text) {
         return stringToStartOfParagraph(pos.node,pos.offset);
     }
@@ -476,7 +476,7 @@ export function getFormatting(): { [key: string]: string } {
 
     return commonProperties;
 
-    function getFlags(pos: Position.Position, commonProperties: { [key: string]: string }): void {
+    function getFlags(pos: Position, commonProperties: { [key: string]: string }): void {
         let strBeforeCursor = paragraphTextUpToPosition(pos);
 
         if (Util.isWhitespaceString(strBeforeCursor)) {

@@ -5,7 +5,7 @@
 function performTest(api)
 {
     var ps = document.getElementsByTagName("P");
-    var position = new api.Position.Position(ps[0],0);
+    var position = new api.Position(ps[0],0);
 
     api.Position.trackWhileExecuting([position],function() {
         api.DOM.insertBefore(document.body,ps[0].childNodes[0],ps[3]);

@@ -55,14 +55,14 @@ export function runFromNode(paragraph: Text.ParagraphInfo, node: Node): Text.Run
     throw new Error("Run for text node not found");
 }
 
-export function positionAtOffset(paragraph: Text.ParagraphInfo, offset: number, end?: boolean): Position.Position {
+export function positionAtOffset(paragraph: Text.ParagraphInfo, offset: number, end?: boolean): Position {
     let run = runFromOffset(paragraph,offset,end);
     if (run == null)
         throw new Error("Run at offset "+offset+" not found");
-    return new Position.Position(run.node,offset-run.start);
+    return new Position(run.node,offset-run.start);
 }
 
-export function offsetAtPosition(paragraph: Text.ParagraphInfo, pos: Position.Position): number {
+export function offsetAtPosition(paragraph: Text.ParagraphInfo, pos: Position): number {
     let run = runFromNode(paragraph,pos.node);
     return run.start + pos.offset;
 }
@@ -78,7 +78,7 @@ export function getRunRects(paragraph: Text.ParagraphInfo): ClientRect[] {
     return rects;
 }
 
-export function getRunOrFallbackRects(paragraph: Text.ParagraphInfo, pos: Position.Position): ClientRect[] {
+export function getRunOrFallbackRects(paragraph: Text.ParagraphInfo, pos: Position): ClientRect[] {
     let rects = getRunRects(paragraph);
     if ((rects.length == 0) && (paragraph.node instanceof Element)) {
         let node = paragraph.node;

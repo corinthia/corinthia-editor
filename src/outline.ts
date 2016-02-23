@@ -1088,7 +1088,7 @@ export function moveSection(sectionId: string, parentId: string, nextId: string)
             DOM.insertBefore(next.item.node.parentNode,sectionNodes[i],next.item.node);
     }
 
-    let pos = new Position.Position(node,0);
+    let pos = new Position(node,0);
     pos = Position.closestMatchForwards(pos,Position.okForInsertion);
     Selection.set(pos.node,pos.offset,pos.node,pos.offset);
 
@@ -1146,7 +1146,7 @@ export function goToItem(itemId: string): void {
             // be thrown.
             return;
         }
-        let position = new Position.Position(node,0);
+        let position = new Position(node,0);
         position = Position.closestMatchForwards(position,Position.okForMovement);
         Selection.set(position.node,position.offset,position.node,position.offset);
 

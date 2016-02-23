@@ -16,7 +16,7 @@ function performTest(api)
 
         // Place the cursor directly after the heading
         var offset = api.Traversal.nodeOffset(h1);
-        var pos = new api.Position.Position(h1.parentNode,offset);
+        var pos = new api.Position(h1.parentNode,offset);
         pos = api.Position.closestMatchForwards(pos,api.Position.okForMovement);
         api.Selection.set(pos.node,pos.offset,pos.node,pos.offset);
 

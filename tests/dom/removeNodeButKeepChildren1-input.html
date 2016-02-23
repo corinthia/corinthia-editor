@@ -7,7 +7,7 @@ function performTest(api)
     var p = document.getElementsByTagName("P")[0];
     var positions = new Array();
     for (var i = 0; i <= p.childNodes.length; i++)
-        positions[i] = new api.Position.Position(p,i);
+        positions[i] = new api.Position(p,i);
 
     api.Position.trackWhileExecuting(positions,function() {
         api.DOM.removeNodeButKeepChildren(p);

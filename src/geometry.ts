@@ -24,7 +24,7 @@ import Txt = require("./text");
 import Types = require("./types");
 import Util = require("./util");
 
-export function rectAtPos(pos: Position.Position): ClientRect {
+export function rectAtPos(pos: Position): ClientRect {
     if (pos == null)
         return null;
     let range = new Range.Range(pos.node,pos.offset,pos.node,pos.offset);
@@ -44,12 +44,12 @@ export function rectAtPos(pos: Position.Position): ClientRect {
     return null;
 }
 
-function posAtStartOfParagraph(pos: Position.Position, paragraph: Txt.ParagraphBoundaries): boolean {
+function posAtStartOfParagraph(pos: Position, paragraph: Txt.ParagraphBoundaries): boolean {
     return ((pos.node == paragraph.node) &&
             (pos.offset == paragraph.startOffset));
 }
 
-function posAtEndOfParagraph(pos: Position.Position, paragraph: Txt.ParagraphBoundaries): boolean {
+function posAtEndOfParagraph(pos: Position, paragraph: Txt.ParagraphBoundaries): boolean {
     return ((pos.node == paragraph.node) &&
             (pos.offset == paragraph.endOffset));
 }
@@ -82,7 +82,7 @@ function zeroWidthMidRect(rect: ClientRect): ClientRect {
              height: rect.height };
 }
 
-function exactRectAtPos(pos: Position.Position): ClientRect {
+function exactRectAtPos(pos: Position): ClientRect {
     let node = pos.node;
     let offset = pos.offset;
 
@@ -149,7 +149,7 @@ function tempSpaceRect(parentNode: Node, nextSibling: Node): ClientRect {
         return null;
 }
 
-export function displayRectAtPos(pos: Position.Position): ClientRect {
+export function displayRectAtPos(pos: Position): ClientRect {
     let rect = exactRectAtPos(pos);
     if (rect != null)
         return rect;
@@ -235,25 +235,25 @@ export function displayRectAtPos(pos: Position.Position): ClientRect {
 // intended if the document's last text node is a direct child of the body (as it may be in some
 // HTML documents that users open).
 
-function posOutsideSelection(pos: Position.Position): Position.Position {
+function posOutsideSelection(pos: Position): Position {
     pos = Position.preferElementPosition(pos);
 
     if (!Types.isSelectionSpan(pos.node))
         return pos;
 
     if (pos.offset == 0)
-        return new Position.Position(pos.node.parentNode,Traversal.nodeOffset(pos.node));
+        return new Position(pos.node.parentNode,Traversal.nodeOffset(pos.node));
     else if (pos.offset == pos.node.childNodes.length)
-        return new Position.Position(pos.node.parentNode,Traversal.nodeOffset(pos.node)+1);
+        return new Position(pos.node.parentNode,Traversal.nodeOffset(pos.node)+1);
     else
         return pos;
 }
 
-export function positionAtPoint(x: number, y: number): Position.Position {
+export function positionAtPoint(x: number, y: number): Position {
 
     return atPoint(x,y);
 
-    function atPoint(x: number, y: number): Position.Position {
+    function atPoint(x: number, y: number): Position {
         // In general, we can use document.caretRangeFromPoint(x,y) to determine the location of the
         // cursor based on screen coordinates. However, this doesn't work if the screen coordinates
         // are outside the bounding box of the document's body. So when this is true, we find either
@@ -279,7 +279,7 @@ export function positionAtPoint(x: number, y: number): Position.Position {
         if (range == null)
             return null;
 
-        let pos = new Position.Position(range.startContainer,range.startOffset);
+        let pos = new Position(range.startContainer,range.startOffset);
         pos = Position.preferElementPosition(pos);
 
         if (pos.node instanceof Element) {
@@ -289,11 +289,11 @@ export function positionAtPoint(x: number, y: number): Position.Position {
 
             if ((prev != null) && (prev instanceof Element) &&
                 nodeMayContainPos(prev) && elementContainsPoint(prev,x,y))
-                return new Position.Position(prev,0);
+                return new Position(prev,0);
 
             if ((next != null) && (next instanceof Element) &&
                 nodeMayContainPos(next) && elementContainsPoint(next,x,y))
-                return new Position.Position(next,0);
+                return new Position(next,0);
 
             if (next != null) {
                 let nextNode = outside.node;
@@ -308,7 +308,7 @@ export function positionAtPoint(x: number, y: number): Position.Position {
                 if ((next != null) && (next instanceof Element) && Types.isEmptyNoteNode(next)) {
                     let rect = next.getBoundingClientRect();
                     if (x > rect.right)
-                        return new Position.Position(nextNode,nextOffset);
+                        return new Position(nextNode,nextOffset);
                 }
             }
         }
@@ -379,18 +379,18 @@ export function positionAtPoint(x: number, y: number): Position.Position {
         return null;
     }
 
-    function adjustPositionForFigure(position: Position.Position): Position.Position {
+    function adjustPositionForFigure(position: Position): Position {
         if (position == null)
             return null;
         if (position.node._type == ElementTypes.HTML_FIGURE) {
             let prev = position.node.childNodes[position.offset-1];
             let next = position.node.childNodes[position.offset];
             if ((prev != null) && (prev._type == ElementTypes.HTML_IMG)) {
-                position = new Position.Position(position.node.parentNode,
+                position = new Position(position.node.parentNode,
                                                  Traversal.nodeOffset(position.node)+1);
             }
             else if ((next != null) && (next._type == ElementTypes.HTML_IMG)) {
-                position = new Position.Position(position.node.parentNode,
+                position = new Position(position.node.parentNode,
                                                  Traversal.nodeOffset(position.node));
             }
         }

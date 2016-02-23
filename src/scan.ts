@@ -28,11 +28,11 @@ import Types = require("./types");
 class Match {
 
     public matchId: number;
-    public startPos: Position.Position;
-    public endPos: Position.Position;
+    public startPos: Position;
+    public endPos: Position;
     public spans: HTMLElement[];
 
-    constructor(matchId: number, startPos: Position.Position, endPos: Position.Position) {
+    constructor(matchId: number, startPos: Position, endPos: Position) {
         this.matchId = matchId;
         this.startPos = startPos;
         this.endPos = endPos;
@@ -44,11 +44,11 @@ class Match {
 let matchesById: { [key: number]: Match } = {};
 let nextMatchId = 1;
 
-let curPos: Position.Position = null;
+let curPos: Position = null;
 let curParagraph: Txt.ParagraphInfo = null;
 
 export function reset(): void {
-    curPos = new Position.Position(document.body,0);
+    curPos = new Position(document.body,0);
     curParagraph = null;
     clearMatches();
 }
@@ -102,8 +102,8 @@ export function addMatch(start: number, end: number): number {
     if (endRun == null)
         throw new Error("No end run");
 
-    let startPos = new Position.Position(startRun.node,start - startRun.start);
-    let endPos = new Position.Position(endRun.node,end - endRun.start);
+    let startPos = new Position(startRun.node,start - startRun.start);
+    let endPos = new Position(endRun.node,end - endRun.start);
     Position.track(startPos);
     Position.track(endPos);
 

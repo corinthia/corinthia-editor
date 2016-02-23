@@ -29,7 +29,7 @@ function pad(str: string, length: number): string {
 }
 
 function selectRange(p: Node, start: number, end: number): void {
-    let paragraph = Txt.analyseParagraph(new Position.Position(p,0));
+    let paragraph = Txt.analyseParagraph(new Position(p,0));
     let startPos = Paragraph.positionAtOffset(paragraph,start);
     let endPos = Paragraph.positionAtOffset(paragraph,end);
     Selection.set(startPos.node,startPos.offset,endPos.node,endPos.offset);
@@ -77,17 +77,17 @@ function rangeString(text: string, start: number, end: number): string {
                           text.substring(end));
 }
 
-let positionList: Position.Position[] = null
+let positionList: Position[] = null
 
-function setPositionList(newList: Position.Position[]): void {
+function setPositionList(newList: Position[]): void {
     UndoManager.addAction(setPositionList,positionList);
     if (newList == null)
         positionList = null;
     else
-        positionList = newList.map(function (pos) { return new Position.Position(pos.node,pos.offset); });
+        positionList = newList.map(function (pos) { return new Position(pos.node,pos.offset); });
 }
 
-function getPositionList(): Position.Position[] {
+function getPositionList(): Position[] {
     return positionList;
 }
 
@@ -102,7 +102,7 @@ export function positionTest(start1: number, end1: number, start2: number, end2:
 
     let positions = new Array();
     for (let i = 0; i <= text.length; i++)
-        positions.push(new Position.Position(text,i));
+        positions.push(new Position(text,i));
     setPositionList(positions);
 
     let origStrings = makeStringArray(positions);
