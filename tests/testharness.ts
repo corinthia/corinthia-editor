@@ -91,7 +91,7 @@ function loadCode(): void {
     ];
     let allCodeArray = new Array();
     allCodeArray.push(readJSCode("../src/3rdparty/showdown/showdown.js"));
-    allCodeArray.push(readJSCode("../build/src/first.js"));
+    allCodeArray.push(readJSCode("../build/src/loader.js"));
     for (let i = 0; i < modules.length; i++)
         allCodeArray.push(readModule("../build",modules[i]+".js"));
     allCode = allCodeArray.join("\n");
