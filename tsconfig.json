@@ -71,6 +71,7 @@
         "tests/tableTests.ts",
         "tests/testharness.ts",
         "tests/testlib.ts",
+        "tests/testrun.ts",
         "tests/textTests.ts",
         "tests/undoTests.ts",
         "tests/validPositions.ts"

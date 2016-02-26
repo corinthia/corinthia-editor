@@ -85,6 +85,7 @@ function loadCode(): void {
         "tests/scanTests",
         "tests/tableTests",
         "tests/testlib",
+        "tests/testrun",
         "tests/textTests",
         "tests/undoTests",
         "tests/validPositions"
@@ -102,23 +103,7 @@ function loadTestIndex(): void {
 }
 
 function doPerformTest(): string {
-    let testDocument = leftArea.contentDocument;
-    let w = leftArea.contentWindow;
-    w.outputOptions = new Object();
-    w.disableOutlineRedoHack = true;
-    let resultText = w.performTest(w.globalAPI);
-    if (!w.outputOptions.keepSelectionHighlights)
-        w.globalAPI.Selection.clearSelection();
-    if (resultText == null)
-        resultText = w.globalAPI.tests.PrettyPrinter.getHTML(testDocument.documentElement,w.outputOptions)
-    let messages = JSON.parse(w.globalAPI.Callbacks.getBackMessages());
-    for (let i = 0; i < messages.length; i++) {
-        let message = messages[i];
-        if (message[0] == "error")
-            throw new Error(message[1]);
-    }
-
-    return resultText;
+    return leftArea.contentWindow.run();
 }
 
 function showTest(dir: string, name: string): void {
@@ -184,9 +169,6 @@ function leftLoaded(): void {
     let w = leftArea.contentWindow;
     w.eval(allCode);
     w.eval("loadAllModules()");
-    w.globalAPI.Callbacks.debug = function(str: any) { console.log(str); };
-
-    w.globalAPI.tests.TestLib.testHarnessSetup();
     continuation();
 
     return;
