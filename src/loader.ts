@@ -90,21 +90,18 @@ define = function(...args: any[]): void {
     if ((index < args.length) && (args[index] != null) && (args[index] instanceof Function))
         factory = args[index++];
 
-    let moduleFilename = "";
-    let filePrefix = "";
     if (id == null) {
-        if (window._nextDefineFilename == null)
-            throw new Error("_nextDefineFilename is not set");
-        moduleFilename = window._nextDefineFilename;
-        filePrefix = moduleFilename.replace(/\/[^\/]+$/,"/");
-        id = moduleFilename.replace(/\.js$/,"");
-        window._nextDefineFilename = null;
+        // In this case we're actually supposed to determine the id based on the script filename.
+        // Currently, however, we have no way to determine this. Although the .js files produced
+        // by the TypeScript compiler call define without specifying the name, the test harness
+        // that loads these files inserts the parameter via string replacement before calling eval.
+        throw new Error("Module id not specified");
     }
+
+    let moduleFilename = id+".js";;
 
     if (factory == null)
         throw new Error("No factory specified");
-    if (id == null)
-        throw new Error("No id specified");
 
     if (dependencies == null)
         dependencies = ["require","exports","module"];
@@ -127,7 +124,7 @@ loadAllModules = function() {
                 let resolved = resolvePath(module.filename,dep);
                 let reference = modules[resolved];
                 if (reference == null)
-                    throw new Error("Module not found (from "+module.filename+"): "+dep);
+                    throw new Error("Module not found (from "+JSON.stringify(module.filename)+"): "+dep);
                 module.imports.push(reference);
             }
         });

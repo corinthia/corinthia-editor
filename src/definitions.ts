@@ -32,7 +32,3 @@ interface Node {
     _type?: number;
     _trackedPositions: any[];
 }
-
-interface Window {
-    _nextDefineFilename?: string;
-}

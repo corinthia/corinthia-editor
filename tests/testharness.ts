@@ -46,7 +46,6 @@ function loadCode(): void {
         "src/clipboard",
         "src/collections",
         "src/cursor",
-        "src/definitions",
         "src/dom",
         "src/elementTypes",
         "src/equations",
@@ -155,8 +154,22 @@ function readJSCode(filename: string): string {
 }
 
 function readModule(baseDir: string, filename: string): string {
+    // The .js files produced by the TypeScript compiler have define() calls which do not supply
+    // the module name as a parameter. Because we are using eval() to execute the code, rather than
+    // inserting a <script> element into the DOM, the loader has no way of determining the module
+    // name based on the filename. So after reading the file we have to modify the call to insert
+    // an extra parameter to define() which specifies the name.
     let code = readJSCode(baseDir+"/"+filename);
-    code = "window._nextDefineFilename = "+JSON.stringify(filename)+";\n"+code;
+    let defineIndex = code.indexOf("define");
+    if (defineIndex == -1) {
+        throw new Error("Module "+filename+" does not contain a define() call");
+    }
+    else {
+        let moduleName = filename.replace(/\.js$/,"");
+        let before = code.substring(0,defineIndex);
+        let after = code.substring(defineIndex+7);
+        code = before+"define("+JSON.stringify(moduleName)+","+after;
+    }
     return code;
 }
 
