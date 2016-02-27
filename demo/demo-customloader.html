@@ -10,9 +10,11 @@
 <p>Loading...</p>
 <script src="../build/demo/demo-customloader.js"></script>
 <script>
-    loadDemo(function() {
-        window.startDemo();
+loadDemo("../build/demo/demo",function() {
+    require(["demo"],function(demo) {
+        demo.start();
     });
+});
 </script>
 </body>
 </html>

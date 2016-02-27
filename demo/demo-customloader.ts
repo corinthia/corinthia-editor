@@ -15,7 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-function loadDemo(continuation?: () => any): void {
+function loadDemo(mainScriptURL: string, continuation?: () => any): void {
     let moduleNames = [
         "src/autoCorrect",
         "src/changeTracking",
@@ -57,9 +57,6 @@ function loadDemo(continuation?: () => any): void {
     ];
     let base: string = window.location.href.replace(/\/demo\/[^\/]+$/,"/build/");
     let urls: string[] = moduleNames.map((name) => base+name+".js");
-    urls.forEach((url) => {
-        console.log("Will inject: "+url);
-    });
 
     let urlIndex = 0;
     next();
@@ -67,7 +64,7 @@ function loadDemo(continuation?: () => any): void {
 
     function next(): void {
         if (urlIndex == urls.length) {
-            loadAllModules();
+            loadAllModules(mainScriptURL);
             if (continuation != null)
                 continuation();
             else

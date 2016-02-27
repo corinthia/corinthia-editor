@@ -16,7 +16,7 @@
 // limitations under the License.
 
 let define: (...args: any[]) => void;
-let loadAllModules: () => void;
+let loadAllModules: (mainScriptURL?: string) => void;
 
 class Module {
     public imports: Module[] = [];
@@ -124,13 +124,7 @@ function determineModuleFilename(): string {
     if (lastScriptSrc == null)
         throw new Error("Cannot find <script> element associated with current module definition");
 
-    let result = lastScriptSrc.replace(/^.*\/build\//,"build/");
-
-    // FIXME (not urgent for our use case); should use a resolution scheme similar to above
-    if (result == lastScriptSrc)
-        throw new Error("Currently only loading files within the build directory is supported");
-
-    return result;
+    return lastScriptSrc;
 }
 
 define = function(...args: any[]): void {
@@ -171,7 +165,30 @@ let builtinNames: { [id: string]: boolean } = {
     "module": true,
 }
 
-loadAllModules = function() {
+// This function is made available as a global function called require() after loadAllModules()
+// has completed. The reason why it is not made available before then is that our loader, unlike
+// require.js, does not support asynchronous loading. Assuming however that all of the required
+// modules have been defined (e.g. via <script> element insertion), and loadAllModules() has been
+// called, then require() can be used in the same way as in require.js and other AMD-based module
+// loaders.
+function postLoadRequire(mainScriptURL: string, names: string[], fun: () => any) {
+    let absScriptURL = resolvePath(window.location.href,mainScriptURL);
+    let baseDir = absScriptURL.replace(/[^/]*$/,"");
+
+    let args: string[] = [];
+    for (let i = 0; i < names.length; i++) {
+        let moduleName = resolvePath(baseDir,names[i]);
+        let importedModule = modules[moduleName];
+        if (importedModule == null)
+            throw new Error("No such module: "+moduleName);
+        else
+            args.push(importedModule.value);
+    }
+
+    fun.apply(null,args);
+}
+
+loadAllModules = function(mainScriptURL?: string): void {
 
     Object.keys(modules).sort().forEach(function(key) {
         let module = modules[key];
@@ -247,6 +264,16 @@ loadAllModules = function() {
                 module.changed = true;
         }
     });
+
+    // Now that we have loaded all of the modules, make require() available as a global function,
+    // with the intention that it be used by JavaScript code embedded directly within the HTML
+    // file. See demo-customloader.html for an example use case of this.
+    let w: any = window;
+    if (w.require != null)
+        throw new Error("window.require is already defined");
+    w.require = (names: string[], fun: () => any) => {
+        postLoadRequire(mainScriptURL,names,fun);
+    };
 }
 
 })();
