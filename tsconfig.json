@@ -24,6 +24,7 @@
     "compileOnSave": true,
     "buildOnSave": false,
     "files": [
+        "demo/demo-customloader.ts",
         "demo/demo.ts",
         "src/autoCorrect.ts",
         "src/callbacks.ts",

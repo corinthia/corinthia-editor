@@ -37,9 +37,9 @@ let modules: { [id: string]: Module } = {};
 
 function resolvePath(base: string, path: string): string {
 
-    // Replace adjacent / characters with a single one
-    base = base.replace(/\/+/g,"/");
-    path = path.replace(/\/+/g,"/");
+    // This function assumes that all / characters in a path will be separated by at least one
+    // other character. We used to collapse multiple adjacent / characters into one, but this
+    // breaks the scheme separator in URLs.
 
     let baseParts = base.split("/");
     let pathParts = path.split("/");
@@ -78,6 +78,61 @@ function reqmodule(currentModuleId: string, name: string): Object {
     return modules[name].value;
 }
 
+function determineModuleFilename(): string {
+    // This function is called if there is no module id parameter supplied to define(). We try to
+    // determine the filename of the module based on the <script> element that loaded the code
+    // containing the define() call.
+    //
+    // On all modern browsers except IE, there is a currentScript property on the document we can
+    // use to find this element. To cater for IE, we also check for the last <script> element in
+    // document order. In doing so, we make the assumption (regardless of browser) that scripts
+    // are being loaded synchronously (that is, the "async" attribute is missing or set to "false").
+    //
+    // If we're running in a browser that supports currentScript, we do a sanity check to verify
+    // that it's the same as the last <script> element, to help identify cases where this loader
+    // is being used with <script> elements that are either asynchronous or inserted into the
+    // document somewhere before the last such element.
+
+    let currentScriptElement = document.currentScript;
+    let scripts = document.getElementsByTagName("script");
+    let scriptsLength = scripts.length;
+    let lastScriptElement = (scriptsLength > 0) ? scripts[scriptsLength-1] : null;
+
+    let currentScriptSrc: string = null;
+    let lastScriptSrc: string = null;
+
+    // Note: The instanceof expressions below are type guards only; they will always be true if
+    // the non-null check in the first part of the if statement is true.
+    if ((currentScriptElement != null) && (currentScriptElement instanceof HTMLScriptElement))
+        currentScriptSrc = currentScriptElement.src;
+
+    if ((lastScriptElement != null) && (lastScriptElement instanceof HTMLScriptElement))
+        lastScriptSrc = lastScriptElement.src;
+
+    if ((currentScriptSrc != null) && (currentScriptSrc != lastScriptSrc)) {
+        let currentQuoted = JSON.stringify(currentScriptSrc);
+        let lastQuoted = JSON.stringify(lastScriptSrc);
+        throw new Error("document.currentScript ("+currentQuoted+") differs from the last "+
+                        "script element in the document ("+lastQuoted+"). This may be caused "+
+                        "by asynchronous loading; the current module definition logic assumes "+
+                        "that all scripts are loaded synchronously");
+    }
+
+    // If, at this point, currentScriptSrc is null - that's ok. We're probably running in IE.
+    // All we wanted it for was as a sanity check that it doesn't differ from the last script
+    // element.
+    if (lastScriptSrc == null)
+        throw new Error("Cannot find <script> element associated with current module definition");
+
+    let result = lastScriptSrc.replace(/^.*\/build\//,"build/");
+
+    // FIXME (not urgent for our use case); should use a resolution scheme similar to above
+    if (result == lastScriptSrc)
+        throw new Error("Currently only loading files within the build directory is supported");
+
+    return result;
+}
+
 define = function(...args: any[]): void {
     let index = 0;
     let id: string = null;
@@ -90,15 +145,16 @@ define = function(...args: any[]): void {
     if ((index < args.length) && (args[index] != null) && (args[index] instanceof Function))
         factory = args[index++];
 
+    let moduleFilename: string = null;
     if (id == null) {
-        // In this case we're actually supposed to determine the id based on the script filename.
-        // Currently, however, we have no way to determine this. Although the .js files produced
-        // by the TypeScript compiler call define without specifying the name, the test harness
-        // that loads these files inserts the parameter via string replacement before calling eval.
-        throw new Error("Module id not specified");
+        moduleFilename = determineModuleFilename();
+        if (moduleFilename == null)
+            throw new Error("Cannot determine modile filename");
+        id = moduleFilename.replace(/\.js$/,"");
     }
-
-    let moduleFilename = id+".js";;
+    else {
+        moduleFilename = id+".js";
+    }
 
     if (factory == null)
         throw new Error("No factory specified");

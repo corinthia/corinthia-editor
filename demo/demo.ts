@@ -101,3 +101,9 @@ export function start(): void {
 
     runNextAction();
 }
+
+// Exposing the start function as a global variable is only necessary for the version of the
+// demo HTML file that does uses our own module loader, rather than require.js, since the former
+// does not presently have a require() function that callable from scripts within HTML files.
+let w: any = window;
+w.startDemo = start;
