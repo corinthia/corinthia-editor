@@ -172,12 +172,15 @@ let builtinNames: { [id: string]: boolean } = {
 // called, then require() can be used in the same way as in require.js and other AMD-based module
 // loaders.
 function postLoadRequire(mainScriptURL: string, names: string[], fun: () => any) {
-    let absScriptURL = resolvePath(window.location.href,mainScriptURL);
-    let baseDir = absScriptURL.replace(/[^/]*$/,"");
+    let baseDir: string = null;
+    if (mainScriptURL != null) {
+        let absScriptURL = resolvePath(window.location.href,mainScriptURL);
+        baseDir = absScriptURL.replace(/[^/]*$/,"");
+    }
 
     let args: string[] = [];
     for (let i = 0; i < names.length; i++) {
-        let moduleName = resolvePath(baseDir,names[i]);
+        let moduleName = (baseDir != null) ? resolvePath(baseDir,names[i]) : names[i];
         let importedModule = modules[moduleName];
         if (importedModule == null)
             throw new Error("No such module: "+moduleName);
