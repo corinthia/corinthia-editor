@@ -310,6 +310,7 @@ export function execute<T>(fun: () => T): T {
         let message = (e.message != null) ? e.message : e.toString();
         let stack = simplifyStackString(e);
         Callbacks.error(message+"\n"+stack);
+        return null;
     }
 }
 

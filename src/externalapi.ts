@@ -19,6 +19,7 @@ import PostponedActions = require("./postponedActions");
 
 import AutoCorrect = require("./autoCorrect");
 import ChangeTracking = require("./changeTracking");
+import Callbacks = require("./callbacks");
 import Clipboard = require("./clipboard");
 import Cursor = require("./cursor");
 import Equations = require("./equations");
@@ -96,6 +97,14 @@ export module changeTracking {
 
     export function setTrackChanges(enabled: boolean): void {
         return execute(() => ChangeTracking.setTrackChanges(enabled));
+    }
+
+}
+
+export module callbacks {
+
+    export function getBackMessages(): string {
+        return execute(() => Callbacks.getBackMessages());
     }
 
 }
@@ -398,6 +407,13 @@ export module main {
 
     export function isEmptyDocument(): boolean {
         return execute(() => Main.isEmptyDocument());
+    }
+
+    export function execute<T>(fun: () => T): T {
+        // Note: We do not wrap this in the execute() function defined above, since Main.execute()
+        // serves a similar purpose. The difference between the two is that Main.execute() does not
+        // propagate exceptions, but instead invokes the error() callback, and returns null.
+        return Main.execute(fun);
     }
 
     export function init(width: number, textScale: number, cssURL: string): any {
