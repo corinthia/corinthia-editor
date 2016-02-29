@@ -301,18 +301,6 @@ export module input {
         return execute(() => Input.comparePositionToPosition(posId1,posId2));
     }
 
-    export function offsetFromPositionToPosition(fromId: number, toId: number): number {
-        return execute(() => Input.offsetFromPositionToPosition(fromId,toId));
-    }
-
-    export function positionWithinRangeFarthestInDirection(startId: number, endId: number, direction: string): number {
-        return execute(() => Input.positionWithinRangeFarthestInDirection(startId,endId,direction));
-    }
-
-    export function characterRangeByExtendingPositionInDirection(posId: number, direction: string): number {
-        return execute(() => Input.characterRangeByExtendingPositionInDirection(posId,direction));
-    }
-
     export function firstRectForRange(startId: number, endId: number): ClientRect {
         return execute(() => Input.firstRectForRange(startId,endId));
     }
@@ -323,22 +311,6 @@ export module input {
 
     export function closestPositionToPoint(x: number, y: number): number {
         return execute(() => Input.closestPositionToPoint(x,y));
-    }
-
-    export function closestPositionToPointWithinRange(x: number, y: number, startId: number, endId: number): number {
-        return execute(() => Input.closestPositionToPointWithinRange(x,y,startId,endId));
-    }
-
-    export function characterRangeAtPoint(x: number, y: number): Input.RangeIds {
-        return execute(() => Input.characterRangeAtPoint(x,y));
-    }
-
-    export function positionWithinRangeAtCharacterOffset(startId: number, endId: number, offset: string): number {
-        return execute(() => Input.positionWithinRangeAtCharacterOffset(startId,endId,offset));
-    }
-
-    export function characterOffsetOfPositionWithinRange(posId: number, startId: number, endId: number): number {
-        return execute(() => Input.characterOffsetOfPositionWithinRange(posId,startId,endId));
     }
 
     export function isPositionAtBoundaryGranularityInDirection(posId: number, granularity: string, direction: string): boolean {

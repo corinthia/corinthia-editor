@@ -303,23 +303,6 @@ export function comparePositionToPosition(posId1: number, posId2: number): numbe
     return pos1.compare(pos2);
 }
 
-// int
-export function offsetFromPositionToPosition(fromId: number, toId: number): number {
-    //idebug("offsetFromPositionToPosition("+fromId+","+toId+")");
-    throw new Error("offsetFromPositionToPosition: not implemented");
-}
-
-export function positionWithinRangeFarthestInDirection(startId: number, endId: number, direction: string): number {
-    //idebug("positionWithinRangeFarthestInDirection("+startId+","+endId+","+direction);
-    throw new Error("positionWithinRangeFarthestInDirection: not implemented");
-}
-
-// { startId, endId }
-export function characterRangeByExtendingPositionInDirection(posId: number, direction: string): number {
-    //idebug("characterRangeByExtendingPositionInDirection("+posId+","+direction);
-    throw new Error("characterRangeByExtendingPositionInDirection: not implemented");
-}
-
 export function firstRectForRange(startId: number, endId: number): ClientRect {
     //idebug("firstRectForRange("+startId+","+endId+")");
     let start = getPosition(startId);
@@ -341,30 +324,6 @@ export function caretRectForPosition(posId: number): ClientRect {
 // posId
 export function closestPositionToPoint(x: number, y: number): number {
     return addPosition(Geometry.positionAtPoint(x,y));
-}
-
-// posId
-export function closestPositionToPointWithinRange(x: number, y: number, startId: number, endId: number): number {
-    //idebug("closestPositionToPointWithinRange("+x+","+y+")");
-    throw new Error("closestPositionToPointWithinRange: not implemented");
-}
-
-// { startId, endId }
-export function characterRangeAtPoint(x: number, y: number): RangeIds {
-    //idebug("characterRangeAtPoint("+x+","+y+")");
-    throw new Error("characterRangeAtPoint: not implemented");
-}
-
-// posId
-export function positionWithinRangeAtCharacterOffset(startId: number, endId: number, offset: string): number {
-    //idebug("positionWithinRangeAtCharacterOffset("+startId+","+endId+","+offset+")");
-    throw new Error("positionWithinRangeAtCharacterOffset: not implemented");
-}
-
-// int
-export function characterOffsetOfPositionWithinRange(posId: number, startId: number, endId: number): number {
-    //idebug("characterOffsetOfPositionWithinRange("+posId+","+startId+","+endId+")");
-    throw new Error("characterOffsetOfPositionWithinRange: not implemented");
 }
 
 // UITextInputTokenizer methods
