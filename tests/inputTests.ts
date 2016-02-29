@@ -43,7 +43,7 @@ export function testMovement(direction: string, count: number): void {
     PostponedActions.perform();
     let posId = Input.addPosition(Selection.get().start);
     for (let i = 0; i < count; i++)
-        posId = Input.positionFromPositionInDirectionOffset(posId,direction,1);
+        posId = Input.positionRelativeTo(posId,direction,1);
     Input.setSelectedTextRange(posId,posId);
     TestLib.showSelection();
 }
@@ -75,11 +75,11 @@ export function testPositionFun(fun: (p: number, g: string, d: string) => boolea
 }
 
 export function testPositionWithin(granularity: string, direction: string): string {
-    return testPositionFun(Input.isPositionWithinTextUnitInDirection,granularity,direction);
+    return testPositionFun(Input.isPositionWithinTextUnit,granularity,direction);
 }
 
 export function testPositionAtBoundary(granularity: string, direction: string): string {
-    return testPositionFun(Input.isPositionAtBoundaryGranularityInDirection,granularity,direction);
+    return testPositionFun(Input.isPositionAtBoundary,granularity,direction);
 }
 
 export function testPositionToBoundary(granularity: string, direction: string): string {
@@ -98,7 +98,7 @@ export function testPositionToBoundary(granularity: string, direction: string): 
         let oldTotal = oldBefore+"|"+oldAfter;
 
         let posId = Input.addPosition(pos);
-        let resultId = Input.positionFromPositionToBoundaryInDirection(posId,granularity,direction);
+        let resultId = Input.positionToBoundary(posId,granularity,direction);
         let result = Input.getPosition(resultId);
 
         let newBefore = textBetweenPositions(start,result);
@@ -129,8 +129,7 @@ export function testRangeEnclosing(granularity: string, direction: string): stri
         let oldTotal = oldBefore+"|"+oldAfter;
 
         let posId = Input.addPosition(pos);
-        let resultIds =
-            Input.rangeEnclosingPositionWithGranularityInDirection(posId,granularity,direction);
+        let resultIds = Input.rangeEnclosingPosition(posId,granularity,direction);
         if (resultIds != null) {
             let startId = resultIds.startId;
             let endId = resultIds.endId;

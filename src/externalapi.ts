@@ -289,16 +289,12 @@ export module input {
         return execute(() => Input.setForwardSelectionAffinity(value));
     }
 
-    export function positionFromPositionOffset(posId: number, offset: number): number {
-        return execute(() => Input.positionFromPositionOffset(posId,offset));
+    export function positionRelativeTo(posId: number, direction: string, offset: number): number {
+        return execute(() => Input.positionRelativeTo(posId,direction,offset));
     }
 
-    export function positionFromPositionInDirectionOffset(posId: number, direction: string, offset: number): number {
-        return execute(() => Input.positionFromPositionInDirectionOffset(posId,direction,offset));
-    }
-
-    export function comparePositionToPosition(posId1: number, posId2: number): number {
-        return execute(() => Input.comparePositionToPosition(posId1,posId2));
+    export function comparePositions(posId1: number, posId2: number): number {
+        return execute(() => Input.comparePositions(posId1,posId2));
     }
 
     export function firstRectForRange(startId: number, endId: number): ClientRect {
@@ -313,20 +309,20 @@ export module input {
         return execute(() => Input.closestPositionToPoint(x,y));
     }
 
-    export function isPositionAtBoundaryGranularityInDirection(posId: number, granularity: string, direction: string): boolean {
-        return execute(() => Input.isPositionAtBoundaryGranularityInDirection(posId,granularity,direction));
+    export function isPositionAtBoundary(posId: number, granularity: string, direction: string): boolean {
+        return execute(() => Input.isPositionAtBoundary(posId,granularity,direction));
     }
 
-    export function isPositionWithinTextUnitInDirection(posId: number, granularity: string, direction: string): boolean {
-        return execute(() => Input.isPositionWithinTextUnitInDirection(posId,granularity,direction));
+    export function isPositionWithinTextUnit(posId: number, granularity: string, direction: string): boolean {
+        return execute(() => Input.isPositionWithinTextUnit(posId,granularity,direction));
     }
 
-    export function positionFromPositionToBoundaryInDirection(posId: number, granularity: string, direction: string): number {
-        return execute(() => Input.positionFromPositionToBoundaryInDirection(posId,granularity,direction));
+    export function positionToBoundary(posId: number, granularity: string, direction: string): number {
+        return execute(() => Input.positionToBoundary(posId,granularity,direction));
     }
 
-    export function rangeEnclosingPositionWithGranularityInDirection(posId: number, granularity: string, direction: string): Input.RangeIds {
-        return execute(() => Input.rangeEnclosingPositionWithGranularityInDirection(posId,granularity,direction));
+    export function rangeEnclosingPosition(posId: number, granularity: string, direction: string): Input.RangeIds {
+        return execute(() => Input.rangeEnclosingPosition(posId,granularity,direction));
     }
 
 }

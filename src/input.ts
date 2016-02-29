@@ -268,16 +268,8 @@ function positionDown(pos: Position, offset: number): Position {
 }
 
 // posId
-export function positionFromPositionOffset(posId: number, offset: number): number {
-    let pos = getPosition(posId);
-    let res = addPosition(positionRight(pos,offset));
-    //idebug("positionFromPositionOffset("+posId+","+offset+") = "+res);
-    return res;
-}
-
-// posId
-export function positionFromPositionInDirectionOffset(posId: number, direction: string, offset: number): number {
-    //idebug("positionFromPositionInDirectionOffset("+posId+","+direction+","+offset+")");
+export function positionRelativeTo(posId: number, direction: string, offset: number): number {
+    //idebug("positionRelativeTo("+posId+","+direction+","+offset+")");
     let pos = getPosition(posId);
     if (direction == "left")
         return addPosition(positionRight(pos,-offset));
@@ -292,8 +284,8 @@ export function positionFromPositionInDirectionOffset(posId: number, direction: 
 }
 
 // int
-export function comparePositionToPosition(posId1: number, posId2: number): number {
-    //idebug("comparePositionToPosition("+posId1+","+posId2+")");
+export function comparePositions(posId1: number, posId2: number): number {
+    //idebug("comparePositions("+posId1+","+posId2+")");
     let pos1 = getPosition(posId1);
     let pos2 = getPosition(posId2);
     if (pos1 == null)
@@ -367,8 +359,8 @@ export function isAtParagraphBoundary(pos: Position, direction: string): boolean
     return false;
 }
 
-export function isPositionAtBoundaryGranularityInDirection(posId: number, granularity: string, direction: string): boolean {
-    //idebug("isPositionAtBoundaryGranularityInDirection("+
+export function isPositionAtBoundary(posId: number, granularity: string, direction: string): boolean {
+    //idebug("isPositionAtBoundary("+
     //       posId+","+granularity+","+direction+")");
     let pos = getPosition(posId);
     if (pos == null)
@@ -397,8 +389,8 @@ export function isPositionAtBoundaryGranularityInDirection(posId: number, granul
     throw new Error("unsupported granularity: "+granularity);
 }
 
-export function isPositionWithinTextUnitInDirection(posId: number, granularity: string, direction: string): boolean {
-    //idebug("isPositionWithinTextUnitInDirection("+
+export function isPositionWithinTextUnit(posId: number, granularity: string, direction: string): boolean {
+    //idebug("isPositionWithinTextUnit("+
     //       posId+","+granularity+","+direction+")");
     let pos = getPosition(posId);
     if (pos == null)
@@ -529,8 +521,8 @@ export function toLineBoundary(pos: Position, direction: string): Position {
     }
 }
 
-export function positionFromPositionToBoundaryInDirection(posId: number, granularity: string, direction: string): number {
-    //idebug("positionFromPositionToBoundaryInDirection("+
+export function positionToBoundary(posId: number, granularity: string, direction: string): number {
+    //idebug("positionToBoundary("+
     //       posId+","+granularity+","+direction+")");
     let pos = getPosition(posId);
     if (pos == null)
@@ -547,15 +539,15 @@ export function positionFromPositionToBoundaryInDirection(posId: number, granula
     else if (granularity == "line")
         return addPosition(toLineBoundary(pos,direction));
     else if (granularity == "character")
-        return positionFromPositionInDirectionOffset(posId,direction,1);
+        return positionRelativeTo(posId,direction,1);
     else if (granularity == "document")
         return isForward(direction) ? BaseIdDocumentEnd : BaseIdDocumentStart;
     else
         throw new Error("unsupported granularity: "+granularity);
 }
 
-export function rangeEnclosingPositionWithGranularityInDirection(posId: number, granularity: string, direction: string): RangeIds {
-    //idebug("rangeEnclosingPositionWithGranularityInDirection("+
+export function rangeEnclosingPosition(posId: number, granularity: string, direction: string): RangeIds {
+    //idebug("rangeEnclosingPosition("+
     //       posId+","+granularity+","+direction);
     let pos = getPosition(posId);
     if (pos == null)
