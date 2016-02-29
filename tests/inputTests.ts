@@ -38,7 +38,7 @@ export function textBetweenPositions(from: Position, to: Position): string {
     return getNodeArrayText(contents);
 }
 
-export function testMovement(direction: string, count: number): void {
+export function testMovement(direction: Input.Direction, count: number): void {
     Outline.init();
     PostponedActions.perform();
     let posId = Input.addPosition(Selection.get().start);
@@ -82,7 +82,7 @@ export function testPositionAtBoundary(granularity: string, direction: string): 
     return testPositionFun(Input.isPositionAtBoundary,granularity,direction);
 }
 
-export function testPositionToBoundary(granularity: string, direction: string): string {
+export function testPositionToBoundary(granularity: Input.Granularity, direction: Input.Direction): string {
     let lines = new Array();
     let start = new Position(document.body,0);
     let end = new Position(document.body,document.body.childNodes.length);
@@ -113,7 +113,7 @@ export function testPositionToBoundary(granularity: string, direction: string): 
     return lines.join("");
 }
 
-export function testRangeEnclosing(granularity: string, direction: string): string {
+export function testRangeEnclosing(granularity: Input.Granularity, direction: Input.Direction): string {
     let lines = new Array();
     let start = new Position(document.body,0);
     let end = new Position(document.body,document.body.childNodes.length);

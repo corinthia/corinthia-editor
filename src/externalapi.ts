@@ -49,6 +49,8 @@ function execute<T>(fun: () => T): T {
 // Cursor.LinkProperties
 // Figures.FigureProperties
 // Figures.FigureGeometry
+// Input.Direction
+// Input.Granularity
 // Input.RangeIds
 // Outline.EncodedOutline
 // Outline.PrintLayoutInfo
@@ -289,7 +291,7 @@ export module input {
         return execute(() => Input.setForwardSelectionAffinity(value));
     }
 
-    export function positionRelativeTo(posId: number, direction: string, offset: number): number {
+    export function positionRelativeTo(posId: number, direction: Input.Direction, offset: number): number {
         return execute(() => Input.positionRelativeTo(posId,direction,offset));
     }
 
@@ -309,19 +311,19 @@ export module input {
         return execute(() => Input.closestPositionToPoint(x,y));
     }
 
-    export function isPositionAtBoundary(posId: number, granularity: string, direction: string): boolean {
+    export function isPositionAtBoundary(posId: number, granularity: Input.Granularity, direction: Input.Direction): boolean {
         return execute(() => Input.isPositionAtBoundary(posId,granularity,direction));
     }
 
-    export function isPositionWithinTextUnit(posId: number, granularity: string, direction: string): boolean {
+    export function isPositionWithinTextUnit(posId: number, granularity: Input.Granularity, direction: Input.Direction): boolean {
         return execute(() => Input.isPositionWithinTextUnit(posId,granularity,direction));
     }
 
-    export function positionToBoundary(posId: number, granularity: string, direction: string): number {
+    export function positionToBoundary(posId: number, granularity: Input.Granularity, direction: Input.Direction): number {
         return execute(() => Input.positionToBoundary(posId,granularity,direction));
     }
 
-    export function rangeEnclosingPosition(posId: number, granularity: string, direction: string): Input.RangeIds {
+    export function rangeEnclosingPosition(posId: number, granularity: Input.Granularity, direction: Input.Direction): Input.RangeIds {
         return execute(() => Input.rangeEnclosingPosition(posId,granularity,direction));
     }
 

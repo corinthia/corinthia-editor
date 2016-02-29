@@ -28,6 +28,10 @@ import Selection = require("./selection");
 import Txt = require("./text");
 import Util = require("./util");
 
+export type Direction = "left" | "right" | "up" | "down" | "forward" | "backward";
+
+export type Granularity = "character" | "word" | "sentence" | "paragraph" | "line" | "document";
+
 export interface RangeIds {
     startId: number;
     endId: number;
@@ -268,12 +272,12 @@ function positionDown(pos: Position, offset: number): Position {
 }
 
 // posId
-export function positionRelativeTo(posId: number, direction: string, offset: number): number {
+export function positionRelativeTo(posId: number, direction: Direction, offset: number): number {
     //idebug("positionRelativeTo("+posId+","+direction+","+offset+")");
     let pos = getPosition(posId);
-    if (direction == "left")
+    if ((direction == "left") || (direction == "backward"))
         return addPosition(positionRight(pos,-offset));
-    else if (direction == "right")
+    else if ((direction == "right") || (direction == "forward"))
         return addPosition(positionRight(pos,offset));
     else if (direction == "up")
         return addPosition(positionDown(pos,-offset));
@@ -359,7 +363,7 @@ export function isAtParagraphBoundary(pos: Position, direction: string): boolean
     return false;
 }
 
-export function isPositionAtBoundary(posId: number, granularity: string, direction: string): boolean {
+export function isPositionAtBoundary(posId: number, granularity: Granularity, direction: Direction): boolean {
     //idebug("isPositionAtBoundary("+
     //       posId+","+granularity+","+direction+")");
     let pos = getPosition(posId);
@@ -389,7 +393,7 @@ export function isPositionAtBoundary(posId: number, granularity: string, directi
     throw new Error("unsupported granularity: "+granularity);
 }
 
-export function isPositionWithinTextUnit(posId: number, granularity: string, direction: string): boolean {
+export function isPositionWithinTextUnit(posId: number, granularity: Granularity, direction: Direction): boolean {
     //idebug("isPositionWithinTextUnit("+
     //       posId+","+granularity+","+direction+")");
     let pos = getPosition(posId);
@@ -521,7 +525,7 @@ export function toLineBoundary(pos: Position, direction: string): Position {
     }
 }
 
-export function positionToBoundary(posId: number, granularity: string, direction: string): number {
+export function positionToBoundary(posId: number, granularity: Granularity, direction: Direction): number {
     //idebug("positionToBoundary("+
     //       posId+","+granularity+","+direction+")");
     let pos = getPosition(posId);
@@ -546,7 +550,7 @@ export function positionToBoundary(posId: number, granularity: string, direction
         throw new Error("unsupported granularity: "+granularity);
 }
 
-export function rangeEnclosingPosition(posId: number, granularity: string, direction: string): RangeIds {
+export function rangeEnclosingPosition(posId: number, granularity: Granularity, direction: Direction): RangeIds {
     //idebug("rangeEnclosingPosition("+
     //       posId+","+granularity+","+direction);
     let pos = getPosition(posId);
