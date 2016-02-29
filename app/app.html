@@ -36,13 +36,16 @@ function contentLoaded() {
     console.log("Content loaded");
 
     var iframe = document.getElementById("content");
-    iframe.contentWindow.apiLoadedCallback = start;
     var requireScript = iframe.contentDocument.createElement("script");
     requireScript.src = "require.js";
     requireScript.setAttribute("src","../demo/require.js");
     requireScript.setAttribute("data-main","iframe-code");
     requireScript.addEventListener("load",function(){
         console.log("require.js loaded in content iframe");
+        iframe.contentWindow.require(["../build/src/externalapi"],function(api) {
+            console.log("** here");
+            start(api);
+        });
     });
     iframe.contentDocument.body.appendChild(requireScript);
 }
