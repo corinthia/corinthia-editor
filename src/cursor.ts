@@ -31,6 +31,11 @@ import Types = require("./types");
 import UndoManager = require("./undo");
 import Util = require("./util");
 
+// We only import the externalapi module to get access to the type definitions it contains.
+// The external API functions are *not* intended for use by internal modules.
+import ExternallyVisibleTypes = require("./externalapi");
+export type LinkProperties = ExternallyVisibleTypes.LinkProperties;
+
 // FIXME: this variable is unused
 let cursorX: number = null;
 
@@ -891,11 +896,6 @@ export function getAdjacentElementWithType(type: number): Element {
         return node;
     else
         return null;
-}
-
-export interface LinkProperties {
-    href: string;
-    text: string;
 }
 
 export function getLinkProperties(): LinkProperties {

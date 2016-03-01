@@ -7,7 +7,7 @@
         "jsx": "react",
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
-        "declaration": false,
+        "declaration": true,
         "noImplicitAny": true,
         "removeComments": true,
         "noLib": false,
@@ -19,7 +19,8 @@
     "filesGlob": [
         "**/*.ts",
         "**/*.tsx",
-        "!node_modules/**"
+        "!node_modules/**",
+        "!build/**"
     ],
     "compileOnSave": true,
     "buildOnSave": false,

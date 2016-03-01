@@ -21,15 +21,13 @@ import Outline = require("./outline");
 import Types = require("./types");
 import UndoManager = require("./undo");
 
-export class Rule {
-    [property: string]: string;
-}
+// We only import the externalapi module to get access to the type definitions it contains.
+// The external API functions are *not* intended for use by internal modules.
+import ExternallyVisibleTypes = require("./externalapi");
+export type Rule = ExternallyVisibleTypes.Rule;
+export type RuleSet = ExternallyVisibleTypes.RuleSet;
 
-export class RuleSet {
-    [selector: string]: Rule;
-}
-
-let rules: RuleSet = new RuleSet();
+let rules: RuleSet = {};
 let paragraphClass: string = null;
 
 export function getRule(selector: string): Rule {

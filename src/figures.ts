@@ -27,6 +27,12 @@ import Traversal = require("./traversal");
 import UndoManager = require("./undo");
 import Util = require("./util");
 
+// We only import the externalapi module to get access to the type definitions it contains.
+// The external API functions are *not* intended for use by internal modules.
+import ExternallyVisibleTypes = require("./externalapi");
+export type FigureProperties = ExternallyVisibleTypes.FigureProperties;
+export type FigureGeometry = ExternallyVisibleTypes.FigureGeometry;
+
 // public
 export function insertFigure(filename: string, width: string, numbered: boolean, caption: string): void {
     UndoManager.newGroup("Insert figure");
@@ -62,11 +68,6 @@ export function insertFigure(filename: string, width: string, numbered: boolean,
 export function getSelectedFigureId(): string {
     let element = Cursor.getAdjacentElementWithType(ElementTypes.HTML_FIGURE);
     return element ? element.getAttribute("id") : null;
-}
-
-export interface FigureProperties {
-    width: string;
-    src: string;
 }
 
 // public
@@ -105,13 +106,6 @@ export function setProperties(itemId: string, width: string, src: string): void 
             DOM.removeAttribute(img,"style");
         Selection.update();
     }
-}
-
-export interface FigureGeometry {
-    contentRect: ClientRect;
-    fullRect: ClientRect;
-    parentRect: ClientRect;
-    hasCaption: boolean;
 }
 
 // public

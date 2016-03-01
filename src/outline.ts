@@ -41,6 +41,13 @@ import Types = require("./types");
 import UndoManager = require("./undo");
 import Util = require("./util");
 
+// We only import the externalapi module to get access to the type definitions it contains.
+// The external API functions are *not* intended for use by internal modules.
+import ExternallyVisibleTypes = require("./externalapi");
+export type EncodedOutline = ExternallyVisibleTypes.EncodedOutline;
+export type EncodedOutlineItem = ExternallyVisibleTypes.EncodedOutlineItem;
+export type PrintLayoutInfo = ExternallyVisibleTypes.PrintLayoutInfo;
+
 let itemsByNode: Collections.NodeMap<OutlineItem> = null;
 let refsById: { [id: string]: HTMLElement[] } = null;
 let nextItemId = 1;
@@ -828,18 +835,6 @@ function updateStructureReal(pageNumbers?: Collections.NodeMap<number>): void {
     Callbacks.outlineUpdated();
 }
 
-export interface EncodedOutline {
-    sections: EncodedOutlineItem[];
-    figures: EncodedOutlineItem[];
-    tables: EncodedOutlineItem[];
-}
-
-export interface EncodedOutlineItem {
-    id: string;
-    number: string;
-    children: EncodedOutlineItem[];
-}
-
 export function getOutline(): EncodedOutline {
     let structure = discoverStructure();
     let encSections = new Array<EncodedOutlineItem>();
@@ -1245,31 +1240,6 @@ export function insertListOfTables(): void {
 export function setPrintMode(newPrintMode: boolean): void {
     printMode = newPrintMode;
     scheduleUpdateStructure();
-}
-
-export interface PrintLayoutInfo {
-    destsByPage: {
-        [key: string]: {
-            itemId: string;
-            x: number;
-            y: number }[]
-        };
-    linksByPage: {
-        [key: string]: {
-            pageNo: number;
-            left: number;
-            top: number;
-            width: number;
-            height: number;
-            href: string }[]
-         };
-    leafRectsByPage: {
-        [key: string]: {
-            left: number;
-            top: number;
-            width: number;
-            height: number; }[]
-        };
 }
 
 // public

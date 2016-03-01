@@ -49,6 +49,7 @@ function loadCode(): void {
         "src/dom",
         "src/elementTypes",
         "src/equations",
+        "src/externalapi",
         "src/figures",
         "src/formatting",
         "src/geometry",

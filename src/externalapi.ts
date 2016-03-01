@@ -38,26 +38,101 @@ import Tables = require("./tables");
 import UndoManager = require("./undo");
 import Viewport = require("./viewport");
 
+export interface LinkProperties {
+    href: string;
+    text: string;
+}
+
+export interface FigureProperties {
+    width: string;
+    src: string;
+}
+
+export interface FigureGeometry {
+    contentRect: ClientRect;
+    fullRect: ClientRect;
+    parentRect: ClientRect;
+    hasCaption: boolean;
+}
+
+export type Direction = "left" | "right" | "up" | "down" | "forward" | "backward";
+
+export type Granularity = "character" | "word" | "sentence" | "paragraph" | "line" | "document";
+
+export interface RangeIds {
+    startId: number;
+    endId: number;
+}
+
+export interface EncodedOutline {
+    sections: EncodedOutlineItem[];
+    figures: EncodedOutlineItem[];
+    tables: EncodedOutlineItem[];
+}
+
+export interface EncodedOutlineItem {
+    id: string;
+    number: string;
+    children: EncodedOutlineItem[];
+}
+
+export interface PrintLayoutInfo {
+    destsByPage: {
+        [key: string]: {
+            itemId: string;
+            x: number;
+            y: number }[]
+        };
+    linksByPage: {
+        [key: string]: {
+            pageNo: number;
+            left: number;
+            top: number;
+            width: number;
+            height: number;
+            href: string }[]
+         };
+    leafRectsByPage: {
+        [key: string]: {
+            left: number;
+            top: number;
+            width: number;
+            height: number; }[]
+        };
+}
+
+export interface ScanParagraph {
+    text: string;
+    sectionId: string;
+}
+
+export interface Rule {
+    [property: string]: string;
+}
+
+export interface RuleSet {
+    [selector: string]: Rule;
+}
+
+export interface TableProperties {
+    width: string;
+    rows: number;
+    cols: number;
+}
+
+export interface TableGeometry {
+    contentRect: ClientRect;
+    fullRect: ClientRect;
+    parentRect: ClientRect;
+    columnWidths: number[];
+    hasCaption: boolean;
+}
+
 function execute<T>(fun: () => T): T {
     let result = fun();
     PostponedActions.perform();
     return result;
 }
-
-// FIXME: Find a way to make the following types (currently defined in internal modules) public:
-//
-// Cursor.LinkProperties
-// Figures.FigureProperties
-// Figures.FigureGeometry
-// Input.Direction
-// Input.Granularity
-// Input.RangeIds
-// Outline.EncodedOutline
-// Outline.PrintLayoutInfo
-// Scan.ScanParagraph
-// Styles.RuleSet
-// Tables.TableProperties
-// Tables.TableGeometry
 
 export module autoCorrect {
 
@@ -183,11 +258,11 @@ export module cursor {
         return execute(() => Cursor.getPrecedingWord());
     }
 
-    export function getLinkProperties(): Cursor.LinkProperties {
+    export function getLinkProperties(): LinkProperties {
         return execute(() => Cursor.getLinkProperties());
     }
 
-    export function setLinkProperties(properties: Cursor.LinkProperties): void {
+    export function setLinkProperties(properties: LinkProperties): void {
         return execute(() => Cursor.setLinkProperties(properties));
     }
 
@@ -223,7 +298,7 @@ export module figures {
         return execute(() => Figures.getSelectedFigureId());
     }
 
-    export function getProperties(itemId: string): Figures.FigureProperties {
+    export function getProperties(itemId: string): FigureProperties {
         return execute(() => Figures.getProperties(itemId));
     }
 
@@ -231,7 +306,7 @@ export module figures {
         return execute(() => Figures.setProperties(itemId,width,src));
     }
 
-    export function getGeometry(itemId: string): Figures.FigureGeometry {
+    export function getGeometry(itemId: string): FigureGeometry {
         return execute(() => Figures.getGeometry(itemId));
     }
 
@@ -263,7 +338,7 @@ export module input {
         return execute(() => Input.replaceRange(startId,endId,text));
     }
 
-    export function selectedTextRange(): Input.RangeIds {
+    export function selectedTextRange(): RangeIds {
         return execute(() => Input.selectedTextRange());
     }
 
@@ -271,7 +346,7 @@ export module input {
         return execute(() => Input.setSelectedTextRange(startId,endId));
     }
 
-    export function markedTextRange(): Input.RangeIds {
+    export function markedTextRange(): RangeIds {
         return execute(() => Input.markedTextRange());
     }
 
@@ -291,7 +366,7 @@ export module input {
         return execute(() => Input.setForwardSelectionAffinity(value));
     }
 
-    export function positionRelativeTo(posId: number, direction: Input.Direction, offset: number): number {
+    export function positionRelativeTo(posId: number, direction: Direction, offset: number): number {
         return execute(() => Input.positionRelativeTo(posId,direction,offset));
     }
 
@@ -311,19 +386,19 @@ export module input {
         return execute(() => Input.closestPositionToPoint(x,y));
     }
 
-    export function isPositionAtBoundary(posId: number, granularity: Input.Granularity, direction: Input.Direction): boolean {
+    export function isPositionAtBoundary(posId: number, granularity: Granularity, direction: Direction): boolean {
         return execute(() => Input.isPositionAtBoundary(posId,granularity,direction));
     }
 
-    export function isPositionWithinTextUnit(posId: number, granularity: Input.Granularity, direction: Input.Direction): boolean {
+    export function isPositionWithinTextUnit(posId: number, granularity: Granularity, direction: Direction): boolean {
         return execute(() => Input.isPositionWithinTextUnit(posId,granularity,direction));
     }
 
-    export function positionToBoundary(posId: number, granularity: Input.Granularity, direction: Input.Direction): number {
+    export function positionToBoundary(posId: number, granularity: Granularity, direction: Direction): number {
         return execute(() => Input.positionToBoundary(posId,granularity,direction));
     }
 
-    export function rangeEnclosingPosition(posId: number, granularity: Input.Granularity, direction: Input.Direction): Input.RangeIds {
+    export function rangeEnclosingPosition(posId: number, granularity: Granularity, direction: Direction): RangeIds {
         return execute(() => Input.rangeEnclosingPosition(posId,granularity,direction));
     }
 
@@ -406,7 +481,7 @@ export module metadata {
 
 export module outline {
 
-    export function getOutline(): Outline.EncodedOutline {
+    export function getOutline(): EncodedOutline {
         return execute(() => Outline.getOutline());
     }
 
@@ -450,7 +525,7 @@ export module outline {
         return execute(() => Outline.setPrintMode(newPrintMode));
     }
 
-    export function examinePrintLayout(pageHeight: number): Outline.PrintLayoutInfo {
+    export function examinePrintLayout(pageHeight: number): PrintLayoutInfo {
         return execute(() => Outline.examinePrintLayout(pageHeight));
     }
 
@@ -478,7 +553,7 @@ export module scan {
         return execute(() => Scan.reset());
     }
 
-    export function next(): Scan.ScanParagraph {
+    export function next(): ScanParagraph {
         return execute(() => Scan.next());
     }
 
@@ -571,7 +646,7 @@ export module styles {
     }
 
     // FIXME: This should return void (need to update Objective C interface)
-    export function setCSSText(cssText: string, cssRules: Styles.RuleSet): {} {
+    export function setCSSText(cssText: string, cssRules: RuleSet): {} {
         return execute(() => Styles.setCSSText(cssText,cssRules));
     }
 
@@ -624,7 +699,7 @@ export module tables {
         return execute(() => Tables.getSelectedTableId());
     }
 
-    export function getProperties(itemId: string): Tables.TableProperties {
+    export function getProperties(itemId: string): TableProperties {
         return execute(() => Tables.getProperties(itemId));
     }
 
@@ -636,7 +711,7 @@ export module tables {
         return execute(() => Tables.setColWidths(itemId,widths));
     }
 
-    export function getGeometry(itemId: string): Tables.TableGeometry {
+    export function getGeometry(itemId: string): TableGeometry {
         return execute(() => Tables.getGeometry(itemId));
     }
 

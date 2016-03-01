@@ -31,6 +31,12 @@ import Types = require("./types");
 import UndoManager = require("./undo");
 import Util = require("./util");
 
+// We only import the externalapi module to get access to the type definitions it contains.
+// The external API functions are *not* intended for use by internal modules.
+import ExternallyVisibleTypes = require("./externalapi");
+export type TableProperties = ExternallyVisibleTypes.TableProperties;
+export type TableGeometry = ExternallyVisibleTypes.TableGeometry;
+
 export class Cell {
 
     public element: HTMLElement;
@@ -1169,12 +1175,6 @@ export function getSelectedTableId(): string {
     return element ? element.getAttribute("id") : null;
 }
 
-export interface TableProperties {
-    width: string;
-    rows: number;
-    cols: number;
-}
-
 export function getProperties(itemId: string): TableProperties {
     let element = document.getElementById(itemId);
     if ((element == null) || (element._type != ElementTypes.HTML_TABLE))
@@ -1276,14 +1276,6 @@ export function setColWidths(itemId: string, widths: number[]): void {
         DOM.setAttribute(colElements[i],"width",widths[i]+"%");
 
     Selection.update();
-}
-
-export interface TableGeometry {
-    contentRect: ClientRect;
-    fullRect: ClientRect;
-    parentRect: ClientRect;
-    columnWidths: number[];
-    hasCaption: boolean;
 }
 
 // public

@@ -26,6 +26,7 @@ function loadDemo(mainScriptURL: string, continuation?: () => any): void {
         "src/dom",
         "src/elementTypes",
         "src/equations",
+        "src/externalapi",
         "src/figures",
         "src/formatting",
         "src/geometry",

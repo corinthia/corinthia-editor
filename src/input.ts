@@ -28,14 +28,12 @@ import Selection = require("./selection");
 import Txt = require("./text");
 import Util = require("./util");
 
-export type Direction = "left" | "right" | "up" | "down" | "forward" | "backward";
-
-export type Granularity = "character" | "word" | "sentence" | "paragraph" | "line" | "document";
-
-export interface RangeIds {
-    startId: number;
-    endId: number;
-}
+// We only import the externalapi module to get access to the type definitions it contains.
+// The external API functions are *not* intended for use by internal modules.
+import ExternallyVisibleTypes = require("./externalapi");
+export type Granularity = ExternallyVisibleTypes.Granularity;
+export type Direction = ExternallyVisibleTypes.Direction;
+export type RangeIds = ExternallyVisibleTypes.RangeIds;
 
 // function idebug(str) {
 //    Callbacks.debug(str);

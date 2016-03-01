@@ -25,6 +25,11 @@ import Selection = require("./selection");
 import Txt = require("./text");
 import Types = require("./types");
 
+// We only import the externalapi module to get access to the type definitions it contains.
+// The external API functions are *not* intended for use by internal modules.
+import ExternallyVisibleTypes = require("./externalapi");
+export type ScanParagraph = ExternallyVisibleTypes.ScanParagraph;
+
 class Match {
 
     public matchId: number;
@@ -51,11 +56,6 @@ export function reset(): void {
     curPos = new Position(document.body,0);
     curParagraph = null;
     clearMatches();
-}
-
-export interface ScanParagraph {
-    text: string;
-    sectionId: string;
 }
 
 export function next(): ScanParagraph {
