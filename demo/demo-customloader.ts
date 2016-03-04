@@ -32,6 +32,7 @@ function loadDemo(mainScriptURL: string, continuation?: () => any): void {
         "src/geometry",
         "src/hierarchy",
         "src/input",
+        "src/inputref",
         "src/lists",
         "src/main",
         "src/markdown",

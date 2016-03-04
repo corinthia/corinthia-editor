@@ -43,6 +43,7 @@
         "src/geometry.ts",
         "src/hierarchy.ts",
         "src/input.ts",
+        "src/inputref.ts",
         "src/lists.ts",
         "src/loader.ts",
         "src/main.ts",

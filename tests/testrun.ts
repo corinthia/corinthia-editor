@@ -25,6 +25,7 @@ import Figures = require("../src/figures");
 import Formatting = require("../src/formatting");
 import Hierarchy = require("../src/hierarchy");
 import Input = require("../src/input");
+import InputRef = require("../src/inputref");
 import Lists = require("../src/lists");
 import Main = require("../src/main");
 import Outline = require("../src/outline");
@@ -65,6 +66,7 @@ function run() {
         Formatting: Formatting,
         Hierarchy: Hierarchy,
         Input: Input,
+        InputRef: InputRef,
         Lists: Lists,
         Main: Main,
         Outline: Outline,

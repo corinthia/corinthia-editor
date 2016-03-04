@@ -5,9 +5,9 @@
 function performTest(api)
 {
     var range = api.Selection.get();
-    var startId = api.Input.addPosition(range.start);
-    var endId = api.Input.addPosition(range.end);
-    api.Input.replaceRange(startId,endId,"HELLO");
+    var startId = api.InputRef.wrapPosition(range.start);
+    var endId = api.InputRef.wrapPosition(range.end);
+    api.InputRef.replaceRange(startId,endId,"HELLO");
     api.tests.TestLib.showSelection();
 }
 </script>

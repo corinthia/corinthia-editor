@@ -16,7 +16,7 @@
 // limitations under the License.
 
 import DOM = require("../src/dom");
-import Input = require("../src/input");
+import InputRef = require("../src/inputref");
 import Outline = require("../src/outline");
 import Position = require("../src/position");
 import PostponedActions = require("../src/postponedActions");
@@ -30,6 +30,7 @@ import Traversal = require("../src/traversal");
 import ExternallyVisibleTypes = require("../src/externalapi");
 export type Granularity = ExternallyVisibleTypes.Granularity;
 export type Direction = ExternallyVisibleTypes.Direction;
+export type PositionRef = ExternallyVisibleTypes.PositionRef;
 
 export function getNodeArrayText(nodes: Node[]): string {
     let strings = new Array();
@@ -47,14 +48,14 @@ export function textBetweenPositions(from: Position, to: Position): string {
 export function testMovement(direction: Direction, count: number): void {
     Outline.init();
     PostponedActions.perform();
-    let posId = Input.addPosition(Selection.get().start);
+    let posId = InputRef.wrapPosition(Selection.get().start);
     for (let i = 0; i < count; i++)
-        posId = Input.positionRelativeTo(posId,direction,1);
-    Input.setSelectedTextRange(posId,posId);
+        posId = InputRef.positionRelativeTo(posId,direction,1);
+    InputRef.setSelectedTextRange(posId,posId);
     TestLib.showSelection();
 }
 
-export function testPositionFun(fun: (p: number, g: string, d: string) => boolean,
+export function testPositionFun(fun: (p: PositionRef, g: string, d: string) => boolean,
                                 granularity: string, direction: string): string {
     let lines = new Array();
     let start = new Position(document.body,0);
@@ -70,7 +71,7 @@ export function testPositionFun(fun: (p: number, g: string, d: string) => boolea
         let after = textBetweenPositions(pos,end);
         let total = before+"|"+after;
 
-        let posId = Input.addPosition(pos);
+        let posId = InputRef.wrapPosition(pos);
         let result = fun(posId,granularity,direction);
         lines.push(JSON.stringify(total)+" -- "+result+"\n");
 
@@ -81,11 +82,11 @@ export function testPositionFun(fun: (p: number, g: string, d: string) => boolea
 }
 
 export function testPositionWithin(granularity: string, direction: string): string {
-    return testPositionFun(Input.isPositionWithinTextUnit,granularity,direction);
+    return testPositionFun(InputRef.isPositionWithinTextUnit,granularity,direction);
 }
 
 export function testPositionAtBoundary(granularity: string, direction: string): string {
-    return testPositionFun(Input.isPositionAtBoundary,granularity,direction);
+    return testPositionFun(InputRef.isPositionAtBoundary,granularity,direction);
 }
 
 export function testPositionToBoundary(granularity: Granularity, direction: Direction): string {
@@ -103,9 +104,9 @@ export function testPositionToBoundary(granularity: Granularity, direction: Dire
         let oldAfter = textBetweenPositions(pos,end);
         let oldTotal = oldBefore+"|"+oldAfter;
 
-        let posId = Input.addPosition(pos);
-        let resultId = Input.positionToBoundary(posId,granularity,direction);
-        let result = Input.getPosition(resultId);
+        let posId = InputRef.wrapPosition(pos);
+        let resultId = InputRef.positionToBoundary(posId,granularity,direction);
+        let result = InputRef.unwrapPosition(resultId);
 
         let newBefore = textBetweenPositions(start,result);
         let newAfter = textBetweenPositions(result,end);
@@ -134,13 +135,11 @@ export function testRangeEnclosing(granularity: Granularity, direction: Directio
         let oldAfter = textBetweenPositions(pos,end);
         let oldTotal = oldBefore+"|"+oldAfter;
 
-        let posId = Input.addPosition(pos);
-        let resultIds = Input.rangeEnclosingPosition(posId,granularity,direction);
-        if (resultIds != null) {
-            let startId = resultIds.startId;
-            let endId = resultIds.endId;
-            let rangeStart = Input.getPosition(startId);
-            let rangeEnd = Input.getPosition(endId);
+        let posId = InputRef.wrapPosition(pos);
+        let result = InputRef.rangeEnclosingPosition(posId,granularity,direction);
+        if (result != null) {
+            let rangeStart = InputRef.unwrapPosition(result.start);
+            let rangeEnd = InputRef.unwrapPosition(result.end);
 
             let before = textBetweenPositions(start,rangeStart);
             let middle = textBetweenPositions(rangeStart,rangeEnd);

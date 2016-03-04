@@ -35,97 +35,30 @@ export type Granularity = ExternallyVisibleTypes.Granularity;
 export type Direction = ExternallyVisibleTypes.Direction;
 export type RangeIds = ExternallyVisibleTypes.RangeIds;
 
-// function idebug(str) {
-//    Callbacks.debug(str);
-// }
-
 let forwardSelection = true;
-let positions: { [key: number]: Position } = {};
-let BaseIdNull = 0;
-let BaseIdDocumentStart = 1;
-let BaseIdDocumentEnd = 2;
-let BaseIdSelectionStart = 3;
-let BaseIdSelectionEnd = 4;
-let firstDynamicPosId = 5;
-let nextPosId = firstDynamicPosId;
 
-export function addPosition(pos: Position): number {
-    if (pos == null)
-        return 0;
-    let copy = new Position(pos.node,pos.offset);
-    copy.targetX = pos.targetX;
-    pos = copy;
-    pos.posId = nextPosId++;
-    positions[pos.posId] = pos;
-    pos.track();
-    return pos.posId;
+export function documentStartPosition(): Position {
+    let pos = new Position(document.body,0);
+    pos = Position.closestMatchForwards(pos,Position.okForMovement);
+    return pos;
 }
 
-export function getPosition(posId: number): Position {
-    if (posId < firstDynamicPosId) {
-        switch (posId) {
-        case BaseIdNull: {
-            return null;
-        }
-        case BaseIdDocumentStart: {
-            let pos = new Position(document.body,0);
-            pos = Position.closestMatchForwards(pos,Position.okForMovement);
-            return pos;
-        }
-        case BaseIdDocumentEnd: {
-            let pos = new Position(document.body,document.body.childNodes.length);
-            pos = Position.closestMatchBackwards(pos,Position.okForMovement);
-            return pos;
-        }
-        case BaseIdSelectionStart: {
-            let range = Selection.get();
-            return (range != null) ? range.start : null;
-        }
-        case BaseIdSelectionEnd: {
-            let range = Selection.get();
-            return (range != null) ? range.end : null;
-        }
-        default:
-            return null;
-        }
-    }
-    if (positions[posId] == null)
-        throw new Error("No position for pos id "+posId);
-    return positions[posId];
+export function documentEndPosition(): Position {
+    let pos = new Position(document.body,document.body.childNodes.length);
+    pos = Position.closestMatchBackwards(pos,Position.okForMovement);
+    return pos;
 }
 
-// void
-export function removePosition(posId: number): void {
-    //idebug("removePosition("+posId+")");
-    let pos = positions[posId];
-    if (pos == null) {
-        throw new Error("no position for id "+posId);
-    }
-    pos.untrack();
-    delete positions[posId];
-}
-
-// string
-export function textInRange(startId: number, startAdjust: number, endId: number, endAdjust: number): string {
-    let start = getPosition(startId);
-    let end = getPosition(endId);
-    start = positionRight(start,startAdjust);
-    end = positionRight(end,endAdjust);
+export function textInRange(start: Position, end: Position): string {
     if ((start == null) || (end == null))
         return "";
 
     let range = new Range(start.node,start.offset,end.node,end.offset);
     let result = range.getText();
-    //idebug("textInRange("+startId+","+startAdjust+","+endId+","+endAdjust+") = "+
-    //       JSON.stringify(result));
     return result;
 }
 
-// void
-export function replaceRange(startId: number, endId: number, text: string): void {
-    //idebug("replaceRange("+startId+","+endId+","+JSON.stringify(text)+")");
-    let start = getPosition(startId);
-    let end = getPosition(endId);
+export function replaceRange(start: Position, end: Position, text: string): void {
     if (start == null)
         throw new Error("start is null");
     if (end == null)
@@ -150,28 +83,11 @@ export function replaceRange(startId: number, endId: number, text: string): void
     }
 }
 
-// { startId, endId }
-export function selectedTextRange(): RangeIds {
-    let range = Selection.get();
-    if (range == null) {
-        //idebug("selectedTextRange = null");
-        return null;
-    }
-    else {
-        let startId = addPosition(range.start);
-        let endId = addPosition(range.end);
-        //idebug("selectedTextRange = "+startId+", "+endId);
-        return { startId: startId,
-                 endId: endId };
-    }
+export function selectedTextRange(): Range {
+    return Selection.get();
 }
 
-// void
-export function setSelectedTextRange(startId: number, endId: number): void {
-    //idebug("setSelectedTextRange("+startId+","+endId+")");
-    let start = getPosition(startId);
-    let end = getPosition(endId);
-
+export function setSelectedTextRange(start: Position, end: Position): void {
     let oldSelection = Selection.get();
     let oldStart = (oldSelection != null) ? oldSelection.start : null;
     let oldEnd = (oldSelection != null) ? oldSelection.end : null;
@@ -191,13 +107,10 @@ export function setSelectedTextRange(startId: number, endId: number): void {
         Cursor.ensurePositionVisible(start);
 }
 
-// { startId, endId }
-export function markedTextRange(): RangeIds {
-    //idebug("markedTextRange");
+export function markedTextRange(): Range {
     return null;
 }
 
-// void
 export function setMarkedText(text: string, startOffset: number, endOffset: number): void {
     Selection.deleteContents(true);
     let oldSel = Selection.get();
@@ -210,26 +123,20 @@ export function setMarkedText(text: string, startOffset: number, endOffset: numb
                   newSel.end.node,newSel.end.offset,false,true);
 }
 
-// void
 export function unmarkText(): void {
     let range = Selection.get();
     Cursor.set(range.end.node,range.end.offset);
-    //idebug("unmarkText");
 }
 
-// boolean
 export function forwardSelectionAffinity(): boolean {
-    //idebug("forwardSelectionAffinity");
     return forwardSelection;
 }
 
-// void
 export function setForwardSelectionAffinity(value: boolean): void {
-    //idebug("setForwardSelectionAffinity");
     forwardSelection = value;
 }
 
-function positionRight(pos: Position, offset: number): Position {
+export function positionRight(pos: Position, offset: number): Position {
     if (offset > 0) {
         for (; offset > 0; offset--) {
             let next = pos.nextMatch(Position.okForMovement);
@@ -269,27 +176,20 @@ function positionDown(pos: Position, offset: number): Position {
     return pos;
 }
 
-// posId
-export function positionRelativeTo(posId: number, direction: Direction, offset: number): number {
-    //idebug("positionRelativeTo("+posId+","+direction+","+offset+")");
-    let pos = getPosition(posId);
+export function positionRelativeTo(pos: Position, direction: Direction, offset: number): Position {
     if ((direction == "left") || (direction == "backward"))
-        return addPosition(positionRight(pos,-offset));
+        return positionRight(pos,-offset);
     else if ((direction == "right") || (direction == "forward"))
-        return addPosition(positionRight(pos,offset));
+        return positionRight(pos,offset);
     else if (direction == "up")
-        return addPosition(positionDown(pos,-offset));
+        return positionDown(pos,-offset);
     else if (direction == "down")
-        return addPosition(positionDown(pos,offset));
+        return positionDown(pos,offset);
     else
         throw new Error("unknown direction: "+direction);
 }
 
-// int
-export function comparePositions(posId1: number, posId2: number): number {
-    //idebug("comparePositions("+posId1+","+posId2+")");
-    let pos1 = getPosition(posId1);
-    let pos2 = getPosition(posId2);
+export function comparePositions(pos1: Position, pos2: Position): number {
     if (pos1 == null)
         throw new Error("pos1 is null");
     if (pos2 == null)
@@ -297,10 +197,7 @@ export function comparePositions(posId1: number, posId2: number): number {
     return pos1.compare(pos2);
 }
 
-export function firstRectForRange(startId: number, endId: number): ClientRect {
-    //idebug("firstRectForRange("+startId+","+endId+")");
-    let start = getPosition(startId);
-    let end = getPosition(endId);
+export function firstRectForRange(start: Position, end: Position): ClientRect {
     let range = new Range(start.node,start.offset,end.node,end.offset);
     let rects = range.getClientRects();
     if (rects.length == 0)
@@ -309,15 +206,12 @@ export function firstRectForRange(startId: number, endId: number): ClientRect {
         return rects[0];
 }
 
-export function caretRectForPosition(posId: number): ClientRect {
-    //idebug("caretRectForPosition("+posId+")");
-    let pos = getPosition(posId);
+export function caretRectForPosition(pos: Position): ClientRect {
     return Geometry.rectAtPos(pos);
 }
 
-// posId
-export function closestPositionToPoint(x: number, y: number): number {
-    return addPosition(Geometry.positionAtPoint(x,y));
+export function closestPositionToPoint(x: number, y: number): Position {
+    return Geometry.positionAtPoint(x,y);
 }
 
 // UITextInputTokenizer methods
@@ -361,10 +255,7 @@ export function isAtParagraphBoundary(pos: Position, direction: string): boolean
     return false;
 }
 
-export function isPositionAtBoundary(posId: number, granularity: Granularity, direction: Direction): boolean {
-    //idebug("isPositionAtBoundary("+
-    //       posId+","+granularity+","+direction+")");
-    let pos = getPosition(posId);
+export function isPositionAtBoundary(pos: Position, granularity: Granularity, direction: Direction): boolean {
     if (pos == null)
         return false;
 
@@ -391,10 +282,7 @@ export function isPositionAtBoundary(posId: number, granularity: Granularity, di
     throw new Error("unsupported granularity: "+granularity);
 }
 
-export function isPositionWithinTextUnit(posId: number, granularity: Granularity, direction: Direction): boolean {
-    //idebug("isPositionWithinTextUnit("+
-    //       posId+","+granularity+","+direction+")");
-    let pos = getPosition(posId);
+export function isPositionWithinTextUnit(pos: Position, granularity: Granularity, direction: Direction): boolean {
     if (pos == null)
         return false;
 
@@ -523,10 +411,7 @@ export function toLineBoundary(pos: Position, direction: string): Position {
     }
 }
 
-export function positionToBoundary(posId: number, granularity: Granularity, direction: Direction): number {
-    //idebug("positionToBoundary("+
-    //       posId+","+granularity+","+direction+")");
-    let pos = getPosition(posId);
+export function positionToBoundary(pos: Position, granularity: Granularity, direction: Direction): Position {
     if (pos == null)
         return null;
 
@@ -535,23 +420,20 @@ export function positionToBoundary(posId: number, granularity: Granularity, dire
         granularity = "paragraph";
 
     if (granularity == "word")
-        return addPosition(toWordBoundary(pos,direction));
+        return toWordBoundary(pos,direction);
     else if (granularity == "paragraph")
-        return addPosition(toParagraphBoundary(pos,direction));
+        return toParagraphBoundary(pos,direction);
     else if (granularity == "line")
-        return addPosition(toLineBoundary(pos,direction));
+        return toLineBoundary(pos,direction);
     else if (granularity == "character")
-        return positionRelativeTo(posId,direction,1);
+        return positionRelativeTo(pos,direction,1);
     else if (granularity == "document")
-        return isForward(direction) ? BaseIdDocumentEnd : BaseIdDocumentStart;
+        return isForward(direction) ? documentEndPosition() : documentStartPosition();
     else
         throw new Error("unsupported granularity: "+granularity);
 }
 
-export function rangeEnclosingPosition(posId: number, granularity: Granularity, direction: Direction): RangeIds {
-    //idebug("rangeEnclosingPosition("+
-    //       posId+","+granularity+","+direction);
-    let pos = getPosition(posId);
+export function rangeEnclosingPosition(pos: Position, granularity: Granularity, direction: Direction): Range {
     if (pos == null)
         return null;
 
@@ -591,8 +473,7 @@ export function rangeEnclosingPosition(posId: number, granularity: Granularity, 
 
             let startPos = Paragraph.positionAtOffset(paragraph,startOffset);
             let endPos = Paragraph.positionAtOffset(paragraph,endOffset);
-            return { startId: addPosition(startPos),
-                     endId: addPosition(endPos) };
+            return new Range(startPos.node,startPos.offset,endPos.node,endPos.offset);
         }
         else {
             return null;
@@ -614,8 +495,7 @@ export function rangeEnclosingPosition(posId: number, granularity: Granularity, 
                     return null;
             }
         }
-        return { startId: addPosition(start),
-                 endId: addPosition(end) };
+        return new Range(start.node,start.offset,end.node,end.offset);
     }
     else {
         throw new Error("unsupported granularity: "+granularity);

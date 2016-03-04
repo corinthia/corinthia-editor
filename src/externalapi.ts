@@ -25,7 +25,7 @@ import Cursor = require("./cursor");
 import Equations = require("./equations");
 import Figures = require("./figures");
 import Formatting = require("./formatting");
-import Input = require("./input");
+import InputRef = require("./inputref");
 import Lists = require("./lists");
 import Main = require("./main");
 import Metadata = require("./metadata");
@@ -58,6 +58,15 @@ export interface FigureGeometry {
 export type Direction = "left" | "right" | "up" | "down" | "forward" | "backward";
 
 export type Granularity = "character" | "word" | "sentence" | "paragraph" | "line" | "document";
+
+export interface PositionRef {
+    PositionRefId: string;
+}
+
+export interface RangeRef {
+    start: PositionRef;
+    end: PositionRef;
+}
 
 export interface RangeIds {
     startId: number;
@@ -326,80 +335,96 @@ export module formatting {
 
 export module input {
 
-    export function removePosition(posId: number): void {
-        return execute(() => Input.removePosition(posId));
+    export function removePosition(pos: PositionRef): void {
+        return execute(() => InputRef.invalidatePosition(pos));
     }
 
-    export function textInRange(startId: number, startAdjust: number, endId: number, endAdjust: number): string {
-        return execute(() => Input.textInRange(startId,startAdjust,endId,endAdjust));
+    export function documentStartAnchor(): PositionRef {
+        return execute(() => InputRef.documentStartAnchor());
     }
 
-    export function replaceRange(startId: number, endId: number, text: string): void {
-        return execute(() => Input.replaceRange(startId,endId,text));
+    export function documentEndAnchor(): PositionRef {
+        return execute(() => InputRef.documentEndAnchor());
     }
 
-    export function selectedTextRange(): RangeIds {
-        return execute(() => Input.selectedTextRange());
+    export function selectionStartAnchor(): PositionRef {
+        return execute(() => InputRef.selectionStartAnchor());
     }
 
-    export function setSelectedTextRange(startId: number, endId: number): void {
-        return execute(() => Input.setSelectedTextRange(startId,endId));
+    export function selectionEndAnchor(): PositionRef {
+        return execute(() => InputRef.selectionEndAnchor());
     }
 
-    export function markedTextRange(): RangeIds {
-        return execute(() => Input.markedTextRange());
+    export function textInRange(start: PositionRef, end: PositionRef): string {
+        return execute(() => InputRef.textInRange(start,end));
+    }
+
+    export function replaceRange(start: PositionRef, end: PositionRef, text: string): void {
+        return execute(() => InputRef.replaceRange(start,end,text));
+    }
+
+    export function selectedTextRange(): RangeRef {
+        return execute(() => InputRef.selectedTextRange());
+    }
+
+    export function setSelectedTextRange(start: PositionRef, end: PositionRef): void {
+        return execute(() => InputRef.setSelectedTextRange(start,end));
+    }
+
+    export function markedTextRange(): RangeRef {
+        return execute(() => InputRef.markedTextRange());
     }
 
     export function setMarkedText(text: string, startOffset: number, endOffset: number): void {
-        return execute(() => Input.setMarkedText(text,startOffset,endOffset));
+        return execute(() => InputRef.setMarkedText(text,startOffset,endOffset));
     }
 
     export function unmarkText(): void {
-        return execute(() => Input.unmarkText());
+        return execute(() => InputRef.unmarkText());
     }
 
     export function forwardSelectionAffinity(): boolean {
-        return execute(() => Input.forwardSelectionAffinity());
+        return execute(() => InputRef.forwardSelectionAffinity());
     }
 
     export function setForwardSelectionAffinity(value: boolean): void {
-        return execute(() => Input.setForwardSelectionAffinity(value));
+        return execute(() => InputRef.setForwardSelectionAffinity(value));
     }
 
-    export function positionRelativeTo(posId: number, direction: Direction, offset: number): number {
-        return execute(() => Input.positionRelativeTo(posId,direction,offset));
+    export function positionRelativeTo(pos: PositionRef, direction: Direction, offset: number): PositionRef {
+        return execute(() => InputRef.positionRelativeTo(pos,direction,offset));
     }
 
-    export function comparePositions(posId1: number, posId2: number): number {
-        return execute(() => Input.comparePositions(posId1,posId2));
+    export function comparePositions(pos1: PositionRef, pos2: PositionRef): number {
+        return execute(() => InputRef.comparePositions(pos1,pos2));
     }
 
-    export function firstRectForRange(startId: number, endId: number): ClientRect {
-        return execute(() => Input.firstRectForRange(startId,endId));
+    export function firstRectForRange(start: PositionRef, end: PositionRef): ClientRect {
+        return execute(() => InputRef.firstRectForRange(start,end));
     }
 
-    export function caretRectForPosition(posId: number): ClientRect {
-        return execute(() => Input.caretRectForPosition(posId));
+    export function caretRectForPosition(pos: PositionRef): ClientRect {
+        return execute(() => InputRef.caretRectForPosition(pos));
     }
 
-    export function closestPositionToPoint(x: number, y: number): number {
-        return execute(() => Input.closestPositionToPoint(x,y));
+    export function closestPositionToPoint(x: number, y: number): PositionRef {
+        return execute(() => InputRef.closestPositionToPoint(x,y));
     }
 
-    export function isPositionAtBoundary(posId: number, granularity: Granularity, direction: Direction): boolean {
-        return execute(() => Input.isPositionAtBoundary(posId,granularity,direction));
+    export function isPositionAtBoundary(pos: PositionRef, granularity: Granularity, direction: Direction): boolean {
+        return execute(() => InputRef.isPositionAtBoundary(pos,granularity,direction));
     }
 
-    export function isPositionWithinTextUnit(posId: number, granularity: Granularity, direction: Direction): boolean {
-        return execute(() => Input.isPositionWithinTextUnit(posId,granularity,direction));
+    export function isPositionWithinTextUnit(pos: PositionRef, granularity: Granularity, direction: Direction): boolean {
+        return execute(() => InputRef.isPositionWithinTextUnit(pos,granularity,direction));
     }
 
-    export function positionToBoundary(posId: number, granularity: Granularity, direction: Direction): number {
-        return execute(() => Input.positionToBoundary(posId,granularity,direction));
+    export function positionToBoundary(pos: PositionRef, granularity: Granularity, direction: Direction): PositionRef {
+        return execute(() => InputRef.positionToBoundary(pos,granularity,direction));
     }
 
-    export function rangeEnclosingPosition(posId: number, granularity: Granularity, direction: Direction): RangeIds {
-        return execute(() => Input.rangeEnclosingPosition(posId,granularity,direction));
+    export function rangeEnclosingPosition(pos: PositionRef, granularity: Granularity, direction: Direction): RangeRef {
+        return execute(() => InputRef.rangeEnclosingPosition(pos,granularity,direction));
     }
 
 }
