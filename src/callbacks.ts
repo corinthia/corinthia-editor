@@ -80,3 +80,7 @@ export function clearSelectionHandlesAndCursor(): void {
 export function updateAutoCorrect(): void {
     addBackMessage("updateAutoCorrect");
 };
+
+export function documentModified(): void {
+    addBackMessage("documentModified");
+}

@@ -143,10 +143,21 @@ function execute<T>(fun: () => T): T {
     return result;
 }
 
+function modify<T>(fun: () => T): T {
+    try {
+        let result = fun();
+        PostponedActions.perform();
+        return result;
+    }
+    finally {
+        Callbacks.documentModified();
+    }
+}
+
 export module autoCorrect {
 
     export function correctPrecedingWord(numChars: number, replacement: string, confirmed: boolean): void {
-        return execute(() => AutoCorrect.correctPrecedingWord(numChars,replacement,confirmed));
+        return modify(() => AutoCorrect.correctPrecedingWord(numChars,replacement,confirmed));
     }
 
     export function getCorrection(): { original: string; replacement: string } {
@@ -158,11 +169,11 @@ export module autoCorrect {
     }
 
     export function acceptCorrection(): void {
-        return execute(() => AutoCorrect.acceptCorrection());
+        return modify(() => AutoCorrect.acceptCorrection());
     }
 
     export function replaceCorrection(replacement: string): void {
-        return execute(() => AutoCorrect.replaceCorrection(replacement));
+        return modify(() => AutoCorrect.replaceCorrection(replacement));
     }
 
 }
@@ -178,11 +189,11 @@ export module changeTracking {
     }
 
     export function setShowChanges(enabled: boolean): void {
-        return execute(() => ChangeTracking.setShowChanges(enabled));
+        return modify(() => ChangeTracking.setShowChanges(enabled));
     }
 
     export function setTrackChanges(enabled: boolean): void {
-        return execute(() => ChangeTracking.setTrackChanges(enabled));
+        return modify(() => ChangeTracking.setTrackChanges(enabled));
     }
 
 }
@@ -198,7 +209,7 @@ export module callbacks {
 export module clipboard {
 
     export function cut(): { [key: string]: string } {
-        return execute(() => Clipboard.cut());
+        return modify(() => Clipboard.cut());
     }
 
     export function copy(): { [key: string]: string } {
@@ -206,11 +217,11 @@ export module clipboard {
     }
 
     export function pasteText(text: string): void {
-        return execute(() => Clipboard.pasteText(text));
+        return modify(() => Clipboard.pasteText(text));
     }
 
     export function pasteHTML(html: string): void {
-        return execute(() => Clipboard.pasteHTML(html));
+        return modify(() => Clipboard.pasteHTML(html));
     }
 
 }
@@ -242,25 +253,25 @@ export module cursor {
     }
 
     export function insertReference(itemId: string): void {
-        return execute(() => Cursor.insertReference(itemId));
+        return modify(() => Cursor.insertReference(itemId));
     }
 
     export function insertLink(text: string, url: string): void {
-        return execute(() => Cursor.insertLink(text,url));
+        return modify(() => Cursor.insertLink(text,url));
     }
 
     export function insertCharacter(str: string, allowInvalidPos: boolean): void {
         // FIXME: do we need to have the allowInvalidPos parameter? Should it be false by default
         // (to match the behaviour of the Objective C API)?
-        return execute(() => Cursor.insertCharacter(str,allowInvalidPos,true));
+        return modify(() => Cursor.insertCharacter(str,allowInvalidPos,true));
     }
 
     export function deleteCharacter(): void {
-        return execute(() => Cursor.deleteCharacter());
+        return modify(() => Cursor.deleteCharacter());
     }
 
     export function enterPressed(): void {
-        return execute(() => Cursor.enterPressed());
+        return modify(() => Cursor.enterPressed());
     }
 
     export function getPrecedingWord(): string {
@@ -272,19 +283,19 @@ export module cursor {
     }
 
     export function setLinkProperties(properties: LinkProperties): void {
-        return execute(() => Cursor.setLinkProperties(properties));
+        return modify(() => Cursor.setLinkProperties(properties));
     }
 
     export function setReferenceTarget(itemId: string): void {
-        return execute(() => Cursor.setReferenceTarget(itemId));
+        return modify(() => Cursor.setReferenceTarget(itemId));
     }
 
     export function insertFootnote(content: string): void {
-        return execute(() => Cursor.insertFootnote(content));
+        return modify(() => Cursor.insertFootnote(content));
     }
 
     export function insertEndnote(content: string): void {
-        return execute(() => Cursor.insertEndnote(content));
+        return modify(() => Cursor.insertEndnote(content));
     }
 
 }
@@ -292,7 +303,7 @@ export module cursor {
 export module equations {
 
     export function insertEquation(): void {
-        return execute(() => Equations.insertEquation());
+        return modify(() => Equations.insertEquation());
     }
 
 }
@@ -300,7 +311,7 @@ export module equations {
 export module figures {
 
     export function insertFigure(filename: string, width: string, numbered: boolean, caption: string): void {
-        return execute(() => Figures.insertFigure(filename,width,numbered,caption));
+        return modify(() => Figures.insertFigure(filename,width,numbered,caption));
     }
 
     export function getSelectedFigureId(): string {
@@ -312,7 +323,7 @@ export module figures {
     }
 
     export function setProperties(itemId: string, width: string, src: string): void {
-        return execute(() => Figures.setProperties(itemId,width,src));
+        return modify(() => Figures.setProperties(itemId,width,src));
     }
 
     export function getGeometry(itemId: string): FigureGeometry {
@@ -328,7 +339,7 @@ export module formatting {
     }
 
     export function applyFormattingChanges(style: string, properties: { [key: string]: string }): void {
-        return execute(() => Formatting.applyFormattingChanges(style,properties));
+        return modify(() => Formatting.applyFormattingChanges(style,properties));
     }
 
 }
@@ -432,23 +443,23 @@ export module input {
 export module lists {
 
     export function increaseIndent(): void {
-        return execute(() => Lists.increaseIndent());
+        return modify(() => Lists.increaseIndent());
     }
 
     export function decreaseIndent(): void {
-        return execute(() => Lists.decreaseIndent());
+        return modify(() => Lists.decreaseIndent());
     }
 
     export function clearList(): void {
-        return execute(() => Lists.clearList());
+        return modify(() => Lists.clearList());
     }
 
     export function setUnorderedList(): void {
-        return execute(() => Lists.setUnorderedList());
+        return modify(() => Lists.setUnorderedList());
     }
 
     export function setOrderedList(): void {
-        return execute(() => Lists.setOrderedList());
+        return modify(() => Lists.setOrderedList());
     }
 
 }
@@ -460,7 +471,7 @@ export module main {
     }
 
     export function setLanguage(lang: string): void {
-        return execute(() => Main.setLanguage(lang));
+        return modify(() => Main.setLanguage(lang));
     }
 
     export function setGenerator(generator: string): string {
@@ -468,7 +479,7 @@ export module main {
     }
 
     export function prepareForSave(): boolean {
-        return execute(() => Main.prepareForSave());
+        return modify(() => Main.prepareForSave());
     }
 
     export function getHTML(): string {
@@ -499,7 +510,7 @@ export module metadata {
     }
 
     export function setMetadata(metadata: { [key: string]: string }) {
-        return execute(() => Metadata.setMetadata(metadata));
+        return modify(() => Metadata.setMetadata(metadata));
     }
 
 }
@@ -511,11 +522,11 @@ export module outline {
     }
 
     export function moveSection(sectionId: string, parentId: string, nextId: string): void {
-        return execute(() => Outline.moveSection(sectionId,parentId,nextId));
+        return modify(() => Outline.moveSection(sectionId,parentId,nextId));
     }
 
     export function deleteItem(itemId: string): void {
-        return execute(() => Outline.deleteItem(itemId));
+        return modify(() => Outline.deleteItem(itemId));
     }
 
     export function goToItem(itemId: string): void {
@@ -523,35 +534,35 @@ export module outline {
     }
 
     export function scheduleUpdateStructure(): void {
-        return execute(() => Outline.scheduleUpdateStructure());
+        return modify(() => Outline.scheduleUpdateStructure());
     }
 
     export function setNumbered(itemId: string, numbered: boolean): void {
-        return execute(() => Outline.setNumbered(itemId,numbered));
+        return modify(() => Outline.setNumbered(itemId,numbered));
     }
 
     export function setTitle(itemId: string, title: string): void {
-        return execute(() => Outline.setTitle(itemId,title));
+        return modify(() => Outline.setTitle(itemId,title));
     }
 
     export function insertTableOfContents(): void {
-        return execute(() => Outline.insertTableOfContents());
+        return modify(() => Outline.insertTableOfContents());
     }
 
     export function insertListOfFigures(): void {
-        return execute(() => Outline.insertListOfFigures());
+        return modify(() => Outline.insertListOfFigures());
     }
 
     export function insertListOfTables(): void {
-        return execute(() => Outline.insertListOfTables());
+        return modify(() => Outline.insertListOfTables());
     }
 
     export function setPrintMode(newPrintMode: boolean): void {
-        return execute(() => Outline.setPrintMode(newPrintMode));
+        return modify(() => Outline.setPrintMode(newPrintMode));
     }
 
     export function examinePrintLayout(pageHeight: number): PrintLayoutInfo {
-        return execute(() => Outline.examinePrintLayout(pageHeight));
+        return modify(() => Outline.examinePrintLayout(pageHeight));
     }
 
     export function detectSectionNumbering(): boolean {
@@ -591,7 +602,7 @@ export module scan {
     }
 
     export function replaceMatch(matchId: number, replacement: string): void {
-        return execute(() => Scan.replaceMatch(matchId,replacement));
+        return modify(() => Scan.replaceMatch(matchId,replacement));
     }
 
     export function removeMatch(matchId: number): void {
@@ -672,7 +683,7 @@ export module styles {
 
     // FIXME: This should return void (need to update Objective C interface)
     export function setCSSText(cssText: string, cssRules: RuleSet): {} {
-        return execute(() => Styles.setCSSText(cssText,cssRules));
+        return modify(() => Styles.setCSSText(cssText,cssRules));
     }
 
     export function getParagraphClass(): string {
@@ -689,35 +700,35 @@ export module tables {
 
     export function insertTable(rows: number, cols: number, width: string, numbered: boolean,
                                 caption: string, className?: string): void {
-        return execute(() => Tables.insertTable(rows,cols,width,numbered,caption,className));
+        return modify(() => Tables.insertTable(rows,cols,width,numbered,caption,className));
     }
 
     export function addAdjacentRow(): void {
-        return execute(() => Tables.addAdjacentRow());
+        return modify(() => Tables.addAdjacentRow());
     }
 
     export function addAdjacentColumn(): void {
-        return execute(() => Tables.addAdjacentColumn());
+        return modify(() => Tables.addAdjacentColumn());
     }
 
     export function removeAdjacentRow(): void {
-        return execute(() => Tables.removeAdjacentRow());
+        return modify(() => Tables.removeAdjacentRow());
     }
 
     export function removeAdjacentColumn(): void {
-        return execute(() => Tables.removeAdjacentColumn());
+        return modify(() => Tables.removeAdjacentColumn());
     }
 
     export function clearCells(): void {
-        return execute(() => Tables.clearCells());
+        return modify(() => Tables.clearCells());
     }
 
     export function mergeCells(): void {
-        return execute(() => Tables.mergeCells());
+        return modify(() => Tables.mergeCells());
     }
 
     export function splitSelection(): void {
-        return execute(() => Tables.splitSelection());
+        return modify(() => Tables.splitSelection());
     }
 
     export function getSelectedTableId(): string {
@@ -729,11 +740,11 @@ export module tables {
     }
 
     export function setProperties(itemId: string, width: string): void {
-        return execute(() => Tables.setProperties(itemId,width));
+        return modify(() => Tables.setProperties(itemId,width));
     }
 
     export function setColWidths(itemId: string, widths: number[]): void {
-        return execute(() => Tables.setColWidths(itemId,widths));
+        return modify(() => Tables.setColWidths(itemId,widths));
     }
 
     export function getGeometry(itemId: string): TableGeometry {
@@ -757,11 +768,11 @@ export module undoManager {
     }
 
     export function undo(): void {
-        return execute(() => UndoManager.undo());
+        return modify(() => UndoManager.undo());
     }
 
     export function redo(): void {
-        return execute(() => UndoManager.redo());
+        return modify(() => UndoManager.redo());
     }
 
     export function newGroup(type?: string): void {
