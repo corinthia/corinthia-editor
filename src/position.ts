@@ -76,13 +76,13 @@ class Position {
                         trackedPositions.length+" others)");
     }
 
-    public startTracking() {
+    public track() {
         if (this.tracking == 0)
             this.actuallyStartTracking();
         this.tracking++;
     }
 
-    public stopTracking() {
+    public untrack() {
         this.tracking--;
         if (this.tracking == 0)
             this.actuallyStopTracking();
@@ -238,13 +238,13 @@ class Position {
 
     public static trackWhileExecuting<T>(positions: Position[], fun: () => T): T {
         for (let i = 0; i < positions.length; i++)
-            positions[i].startTracking();
+            positions[i].track();
         try {
             return fun();
         }
         finally {
             for (let i = 0; i < positions.length; i++)
-                positions[i].stopTracking();
+                positions[i].untrack();
         }
     }
 
@@ -578,14 +578,6 @@ class Position {
             return next;
 
         return new Position(document.body,0);
-    }
-
-    public track(): void {
-        this.startTracking();
-    }
-
-    public untrack(): void {
-        this.stopTracking();
     }
 
     public noteAncestor(): HTMLElement {
