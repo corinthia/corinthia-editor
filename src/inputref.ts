@@ -30,28 +30,27 @@ export type PositionRef = ExternallyVisibleTypes.PositionRef;
 export type RangeRef = ExternallyVisibleTypes.RangeRef;
 
 let positions: { [key: string]: Position } = {};
-let BaseIdNull = 0;
-let BaseIdDocumentStart = 1;
-let BaseIdDocumentEnd = 2;
-let BaseIdSelectionStart = 3;
-let BaseIdSelectionEnd = 4;
-let firstDynamicRefId = 5;
-let nextRefId = firstDynamicRefId;
+let nextRefId = 1;
+
+const documentStartId = "ADocumentStart";
+const documentEndId = "ADocumentEnd";
+const selectionStartId = "ASelectionStart";
+const selectionEndId = "ASelectionEnd";
 
 export function documentStartAnchor(): PositionRef {
-    return { "PositionRefId": ""+BaseIdDocumentStart };
+    return { "PositionRefId": documentStartId };
 }
 
 export function documentEndAnchor(): PositionRef {
-    return { "PositionRefId": ""+BaseIdDocumentEnd };
+    return { "PositionRefId": documentEndId };
 }
 
 export function selectionStartAnchor(): PositionRef {
-    return { "PositionRefId": ""+BaseIdSelectionStart }
+    return { "PositionRefId": selectionStartId }
 }
 
 export function selectionEndAnchor(): PositionRef {
-    return { "PositionRefId": ""+BaseIdSelectionEnd };
+    return { "PositionRefId": selectionEndId };
 }
 
 export function wrapPosition(pos: Position): PositionRef {
@@ -61,7 +60,7 @@ export function wrapPosition(pos: Position): PositionRef {
     copy.targetX = pos.targetX;
     pos = copy;
 
-    let refId = ""+(nextRefId++);
+    let refId = "D"+(nextRefId++);
     positions[refId] = pos;
 
     pos.track();
@@ -69,60 +68,65 @@ export function wrapPosition(pos: Position): PositionRef {
     return { PositionRefId: refId };
 }
 
-export function unwrapPosition(ref: PositionRef): Position {
+function getPositionId(ref: PositionRef): string {
     if (ref == null)
-        throw new Error("Supplied position is null");
-    if (ref.PositionRefId == null)
-        throw new Error("Supplied position has null reference id");
-    let posId = parseInt(ref.PositionRefId);
-    if (isNaN(posId))
-        throw new Error("Supplied position has invalid reference id");
+        throw new Error("Supplied position reference is null");
+    let id = ref.PositionRefId;
+    if (id == null)
+        throw new Error("Supplied position reference has no id");
+    if ((id.length == 0) || ((id[0] != "A") && (id[0] != "D")))
+        throw new Error("Invalid reference id "+JSON.stringify(id)+"; neither an anchor or a dynamic position");
+    return id;
+}
 
-    if (posId < firstDynamicRefId) {
-        switch (posId) {
-        case BaseIdNull: {
-            return null;
-        }
-        case BaseIdDocumentStart: {
+function isAnchorPositionId(id: string): boolean {
+    return (id[0] == "A");
+}
+
+export function unwrapPosition(ref: PositionRef): Position {
+    let id = getPositionId(ref);
+
+    if (isAnchorPositionId(id)) {
+        // Anchor position
+        if (id == documentStartId) {
             return Input.documentStartPosition();
         }
-        case BaseIdDocumentEnd: {
+        else if (id == documentEndId) {
             return Input.documentEndPosition();
         }
-        case BaseIdSelectionStart: {
+        else if (id == selectionStartId) {
             let range = Selection.get();
             return (range != null) ? range.start : null;
         }
-        case BaseIdSelectionEnd: {
+        else if (id == selectionEndId) {
             let range = Selection.get();
             return (range != null) ? range.end : null;
         }
-        default:
-            return null;
+        else {
+            throw new Error("Invalid anchor position id "+JSON.stringify(id));
         }
     }
-    if (positions[""+posId] == null)
-        throw new Error("No position for pos id "+posId);
-    return positions[""+posId];
+    else {
+        // Dynamic position
+        let pos = positions[id];
+        if (pos == null)
+            throw new Error("No position for reference id "+JSON.stringify(id));
+        return pos;
+    }
 }
 
 export function invalidatePosition(ref: PositionRef): void {
-    if (ref == null)
-        throw new Error("Supplied position is null");
-    if (ref.PositionRefId == null)
-        throw new Error("Supplied position has null reference id");
-    let posId = parseInt(ref.PositionRefId);
-    if (isNaN(posId))
-        throw new Error("Supplied position has invalid reference id");
-    if (posId < firstDynamicRefId)
+    let id = getPositionId(ref);
+
+    if (isAnchorPositionId(id))
         return;
 
-    let pos = positions[ref.PositionRefId];
-    if (pos == null) {
-        throw new Error("no position for id "+ref.PositionRefId);
-    }
+    let pos = positions[id];
+    if (pos == null)
+        throw new Error("No position for reference id "+JSON.stringify(id));
+
     pos.untrack();
-    delete positions[ref.PositionRefId];
+    delete positions[id];
 }
 
 function wrapRange(range: Range): RangeRef {
