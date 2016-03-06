@@ -151,6 +151,7 @@ function modify<T>(fun: () => T): T {
     }
     finally {
         Callbacks.documentModified();
+        InputRef.invalidatePositions();
     }
 }
 
@@ -345,10 +346,6 @@ export module formatting {
 }
 
 export module input {
-
-    export function removePosition(pos: PositionRef): void {
-        return execute(() => InputRef.invalidatePosition(pos));
-    }
 
     export function documentStartAnchor(): PositionRef {
         return execute(() => InputRef.documentStartAnchor());

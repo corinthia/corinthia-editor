@@ -115,18 +115,15 @@ export function unwrapPosition(ref: PositionRef): Position {
     }
 }
 
-export function invalidatePosition(ref: PositionRef): void {
-    let id = getPositionId(ref);
-
-    if (isAnchorPositionId(id))
-        return;
-
-    let pos = positions[id];
-    if (pos == null)
-        throw new Error("No position for reference id "+JSON.stringify(id));
-
-    pos.untrack();
-    delete positions[id];
+export function invalidatePositions(): void {
+    Object.keys(positions).forEach((id) => {
+        if (isAnchorPositionId(id))
+            throw new Error("Found anchored position "+JSON.stringify(id)+" in positions map - "+
+                            "this should not happen");
+        let pos = positions[id];
+        pos.untrack();
+        delete positions[id];
+    });
 }
 
 function wrapRange(range: Range): RangeRef {
