@@ -15,10 +15,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Callbacks = require("./callbacks")
 import Collections = require("./collections");
 import Cursor = require("./cursor");
 import DOM = require("./dom");
+import Events = require("./events")
 import Formatting = require("./formatting");
 import Geometry = require("./geometry");
 import Position = require("./position");
@@ -72,7 +72,7 @@ function docNodeInserted(event: any): void {
         recurse(event.target);
     }
     catch (e) {
-        Callbacks.error(e);
+        Events.error(e);
     }
 
     function recurse(node: Node): void {
@@ -89,7 +89,7 @@ function docNodeRemoved(event: any): void {
         recurse(event.target);
     }
     catch (e) {
-        Callbacks.error(e);
+        Events.error(e);
     }
 
     function recurse(node: Node): void {
@@ -117,7 +117,7 @@ export function addCorrection(span: HTMLElement): void {
     let correction = new Correction(span);
     correctionsByNode.put(span,correction);
     correctionList.push(correction);
-    Callbacks.updateAutoCorrect();
+    Events.updateAutoCorrect();
 
     span.addEventListener("DOMSubtreeModified",correction.modificationListener);
 }
@@ -137,7 +137,7 @@ export function removeCorrection(span: HTMLElement): void {
     if (index == null)
         throw new Error("Correction "+correction+" not found in correctionList");
     correctionList.splice(index,1);
-    Callbacks.updateAutoCorrect();
+    Events.updateAutoCorrect();
 
     span.removeEventListener("DOMSubtreeModified",correction.modificationListener);
     correctionsByNode.remove(span);

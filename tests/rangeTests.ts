@@ -15,9 +15,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Callbacks = require("../src/callbacks")
 import Collections = require("../src/collections");
 import DOM = require("../src/dom");
+import Events = require("../src/events")
 import Position = require("../src/position");
 import Range = require("../src/range");
 import Traversal = require("../src/traversal");
@@ -112,7 +112,7 @@ export function getPositionIndex(pos: Position): number {
 export function isForwardsSimple(range: Range): boolean {
     let startIndex = getPositionIndex(range.start);
     let endIndex = getPositionIndex(range.end);
-//    Callbacks.debug("startIndex = "+indices.startIndex+", endIndex = "+indices.endIndex);
+//    Events.debug("startIndex = "+indices.startIndex+", endIndex = "+indices.endIndex);
     return (endIndex >= startIndex);
 }
 
@@ -123,7 +123,7 @@ export function getOutermostNodesSimple(range: Range): Node[] {
         if (!reverse.isForwards()) {
             let startIndex = getPositionIndex(range.start);
             let endIndex = getPositionIndex(range.end);
-            Callbacks.debug("startIndex = "+startIndex+", endIndex = "+endIndex);
+            Events.debug("startIndex = "+startIndex+", endIndex = "+endIndex);
             throw new Error("Both range "+range+" and its reverse are not forwards");
         }
         return getOutermostNodesSimple(reverse);

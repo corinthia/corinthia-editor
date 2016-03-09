@@ -15,10 +15,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Callbacks = require("./callbacks")
 import Cursor = require("./cursor");
 import DOM = require("./dom");
 import ElementTypes = require("./elementTypes");
+import Events = require("./events")
 import Formatting = require("./formatting");
 import Hierarchy = require("./hierarchy");
 import Main = require("./main");
@@ -284,7 +284,7 @@ function fixParagraphStyles(node: Node, paragraphClass: string): void {
         if (node._type == ElementTypes.HTML_P) {
             let className = DOM.getAttribute(node,"class");
             if ((className == null) || (className == "")) {
-                Callbacks.debug("Setting paragraph class to "+paragraphClass);
+                Events.debug("Setting paragraph class to "+paragraphClass);
                 DOM.setAttribute(node,"class",paragraphClass);
             }
         }

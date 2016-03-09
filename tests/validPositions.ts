@@ -60,7 +60,7 @@ export function showValidPositions(): void {
     let pos = new Position(document.body,0);
     while (pos != null) {
         if (Position.okForMovement(pos)) {
-//            Callbacks.debug("Valid position: "+pos);
+//            Events..debug("Valid position: "+pos);
             validPositions.push(pos);
         }
         pos = pos.next();

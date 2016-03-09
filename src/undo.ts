@@ -15,8 +15,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Events = require("./events")
 import Util = require("./util");
-import Callbacks = require("./callbacks")
 
 let UNDO_LIMIT = 50;
 
@@ -86,29 +86,29 @@ export function setIndex(index: number): void {
 
 // public
 export function print(): void {
-    Callbacks.debug("");
-    Callbacks.debug("--------------------------------------------------------------------");
-    Callbacks.debug("Undo stack:");
+    Events.debug("");
+    Events.debug("--------------------------------------------------------------------");
+    Events.debug("Undo stack:");
     for (let groupIndex = 0; groupIndex < undoStack.length; groupIndex++) {
         let group = undoStack[groupIndex];
-        Callbacks.debug("    "+group.type);
+        Events.debug("    "+group.type);
         for (let actionIndex = 0; actionIndex < group.actions.length; actionIndex++) {
             let action = group.actions[actionIndex];
-            Callbacks.debug("        "+action);
+            Events.debug("        "+action);
         }
     }
-    Callbacks.debug("Redo stack:");
+    Events.debug("Redo stack:");
     for (let groupIndex = 0; groupIndex < redoStack.length; groupIndex++) {
         let group = redoStack[groupIndex];
-        Callbacks.debug("    "+group.type);
+        Events.debug("    "+group.type);
         for (let actionIndex = 0; actionIndex < group.actions.length; actionIndex++) {
             let action = group.actions[actionIndex];
-            Callbacks.debug("        "+action);
+            Events.debug("        "+action);
         }
     }
-    Callbacks.debug("Current group = "+currentGroup);
-    Callbacks.debug("--------------------------------------------------------------------");
-    Callbacks.debug("");
+    Events.debug("Current group = "+currentGroup);
+    Events.debug("--------------------------------------------------------------------");
+    Events.debug("");
 }
 
 function closeCurrentGroup(): void {

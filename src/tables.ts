@@ -15,12 +15,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Callbacks = require("./callbacks")
 import Clipboard = require("./clipboard");
 import Collections = require("./collections");
 import Cursor = require("./cursor");
 import DOM = require("./dom");
 import ElementTypes = require("./elementTypes");
+import Events = require("./events")
 import Outline = require("./outline");
 import Position = require("./position");
 import PostponedActions = require("./postponedActions");
@@ -870,7 +870,7 @@ export function mergeCells(): void {
 
                 if ((cellFirstRow < region.top) || (cellLastRow > region.bottom) ||
                     (cellFirstCol < region.left) || (cellLastCol > region.right)) {
-                    Callbacks.debug("Can't merge this table: cell at "+row+","+col+
+                    Events.debug("Can't merge this table: cell at "+row+","+col+
                                " goes outside bounds of selection");
                     return;
                 }

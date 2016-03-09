@@ -16,11 +16,11 @@
 // limitations under the License.
 
 import AutoCorrect = require("../src/autoCorrect");
-import Callbacks = require("../src/callbacks");
 import ChangeTracking = require("../src/changeTracking");
 import Clipboard = require("../src/clipboard");
 import Cursor = require("../src/cursor");
 import DOM = require("../src/dom");
+import Events = require("../src/events");
 import Figures = require("../src/figures");
 import Formatting = require("../src/formatting");
 import Hierarchy = require("../src/hierarchy");
@@ -57,11 +57,11 @@ import ValidPositions = require("./validPositions");
 function run() {
     let api = {
         AutoCorrect: AutoCorrect,
-        Callbacks: Callbacks,
         ChangeTracking: ChangeTracking,
         Clipboard: Clipboard,
         Cursor: Cursor,
         DOM: DOM,
+        Events: Events,
         Figures: Figures,
         Formatting: Formatting,
         Hierarchy: Hierarchy,
@@ -98,7 +98,7 @@ function run() {
     };
     let w: any = window;
 
-    Callbacks.debug = function(str: any) { console.log(str); };
+    Events.debug = function(str: any) { console.log(str); };
     TestLib.testHarnessSetup();
 
     w.outputOptions = new Object();
@@ -108,7 +108,7 @@ function run() {
         Selection.clearSelection();
     if (resultText == null)
         resultText = PrettyPrinter.getHTML(document.documentElement,w.outputOptions)
-    let messages = JSON.parse(Callbacks.getBackMessages());
+    let messages = JSON.parse(Events.getBackMessages());
     for (let i = 0; i < messages.length; i++) {
         let message = messages[i];
         if (message[0] == "error")

@@ -16,10 +16,10 @@
 // limitations under the License.
 
 import AutoCorrect = require("./autoCorrect");
-import Callbacks = require("./callbacks")
 import Cursor = require("./cursor");
 import DOM = require("./dom");
 import ElementTypes = require("./elementTypes");
+import Events = require("./events")
 import Outline = require("./outline");
 import Position = require("./position");
 import PostponedActions = require("./postponedActions");
@@ -309,7 +309,7 @@ export function execute<T>(fun: () => T): T {
     catch (e) {
         let message = (e.message != null) ? e.message : e.toString();
         let stack = simplifyStackString(e);
-        Callbacks.error(message+"\n"+stack);
+        Events.error(message+"\n"+stack);
         return null;
     }
 }

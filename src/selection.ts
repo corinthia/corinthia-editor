@@ -17,11 +17,11 @@
 
 // FIXME: cursor does not display correctly if it is after a space at the end of the line
 
-import Callbacks = require("./callbacks")
 import Collections = require("./collections");
 import Cursor = require("./cursor");
 import DOM = require("./dom");
 import ElementTypes = require("./elementTypes");
+import Events = require("./events")
 import Formatting = require("./formatting");
 import Geometry = require("./geometry");
 import Input = require("./input");
@@ -244,21 +244,21 @@ function setEditorHandles(info: EditorHandles): void {
         setEditorHandles(oldEditorHandles);
     });
     if (info instanceof CursorHandles) {
-        Callbacks.setCursor(info.left,info.top,info.width,info.height);
+        Events.setCursor(info.left,info.top,info.width,info.height);
     }
     else if (info instanceof SelectionHandles) {
         if (!isMarked()) {
-            Callbacks.setSelectionHandles(info.x1,info.y1,
+            Events.setSelectionHandles(info.x1,info.y1,
                                        info.height1,info.x2,info.y2,info.height2);
         }
-        Callbacks.setSelectionBounds(info.boundsLeft,info.boundsTop,
+        Events.setSelectionBounds(info.boundsLeft,info.boundsTop,
                                   info.boundsRight,info.boundsBottom);
     }
     else if (info instanceof TableHandles) {
-        Callbacks.setTableSelection(info.x,info.y,info.width,info.height);
+        Events.setTableSelection(info.x,info.y,info.width,info.height);
     }
     else {
-        Callbacks.clearSelectionHandlesAndCursor();
+        Events.clearSelectionHandlesAndCursor();
     }
 }
 
@@ -1312,14 +1312,14 @@ function boundaryCompliantRange(range: Range): Range {
 }
 
 export function print(): void {
-    Callbacks.debug("");
-    Callbacks.debug("");
-    Callbacks.debug("");
-    Callbacks.debug("================================================================================");
+    Events.debug("");
+    Events.debug("");
+    Events.debug("");
+    Events.debug("================================================================================");
 
     let sel = get();
     if (sel == null) {
-        Callbacks.debug("No selection");
+        Events.debug("No selection");
         return;
     }
 
@@ -1328,9 +1328,9 @@ export function print(): void {
     function printSelectionElement(node: HTMLElement, indent: string): void {
         let className = DOM.getAttribute(node,"class");
         if (className != null)
-            Callbacks.debug(indent+node.nodeName+" ("+className+")");
+            Events.debug(indent+node.nodeName+" ("+className+")");
         else
-            Callbacks.debug(indent+node.nodeName);
+            Events.debug(indent+node.nodeName);
 
         let child = node.firstChild;
         let offset = 0;
@@ -1339,11 +1339,11 @@ export function print(): void {
             let isStart = ((sel.start.node == node) && (sel.start.offset == offset));
             let isEnd = ((sel.end.node == node) && (sel.end.offset == offset));
             if (isStart && isEnd)
-                Callbacks.debug(indent+"    []");
+                Events.debug(indent+"    []");
             else if (isStart)
-                Callbacks.debug(indent+"    [");
+                Events.debug(indent+"    [");
             else if (isEnd)
-                Callbacks.debug(indent+"    ]");
+                Events.debug(indent+"    ]");
 
             if (child == null)
                 break;
@@ -1371,6 +1371,6 @@ export function print(): void {
             value = beforeSelection + "[" + value.substring(sel.start.offset);
         }
 
-        Callbacks.debug(indent+JSON.stringify(value));
+        Events.debug(indent+JSON.stringify(value));
     }
 }

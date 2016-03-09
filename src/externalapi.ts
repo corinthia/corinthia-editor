@@ -19,10 +19,10 @@ import PostponedActions = require("./postponedActions");
 
 import AutoCorrect = require("./autoCorrect");
 import ChangeTracking = require("./changeTracking");
-import Callbacks = require("./callbacks");
 import Clipboard = require("./clipboard");
 import Cursor = require("./cursor");
 import Equations = require("./equations");
+import Events = require("./events");
 import Figures = require("./figures");
 import Formatting = require("./formatting");
 import InputRef = require("./inputref");
@@ -150,7 +150,7 @@ function modify<T>(fun: () => T): T {
         return result;
     }
     finally {
-        Callbacks.documentModified();
+        Events.documentModified();
         InputRef.invalidatePositions();
     }
 }
@@ -199,10 +199,10 @@ export module changeTracking {
 
 }
 
-export module callbacks {
+export module events {
 
-    export function getBackMessages(): string {
-        return execute(() => Callbacks.getBackMessages());
+    export function getEventMessages(): string {
+        return execute(() => Events.getBackMessages());
     }
 
 }
