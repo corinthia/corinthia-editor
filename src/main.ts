@@ -300,7 +300,7 @@ function simplifyStackString(e: any): string {
 }
 
 // public
-export function execute<T>(fun: () => T): T {
+export function executeSafe<T>(fun: () => T): T {
     try {
         let res = fun();
         PostponedActions.perform();

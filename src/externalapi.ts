@@ -517,11 +517,11 @@ export module main {
         return execute(() => Main.isEmptyDocument());
     }
 
-    export function execute<T>(fun: () => T): T {
+    export function executeSafe<T>(fun: () => T): T {
         // Note: We do not wrap this in the execute() function defined above, since Main.execute()
         // serves a similar purpose. The difference between the two is that Main.execute() does not
         // propagate exceptions, but instead invokes the error() callback, and returns null.
-        return Main.execute(fun);
+        return Main.executeSafe(fun);
     }
 
     export function init(width: number, textScale: number, cssURL: string): any {
