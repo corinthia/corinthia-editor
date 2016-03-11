@@ -17,70 +17,199 @@
 
 import Util = require("./util");
 
-let backMessages: any[] = [];
+// We only import the externalapi module to get access to the type definitions it contains.
+// The external API functions are *not* intended for use by internal modules.
+import ExternallyVisibleTypes = require("./externalapi");
+export type EventReceiver = ExternallyVisibleTypes.EventReceiver;
 
-function addBackMessage(...args: any[]): void {
-    backMessages.push(Util.arrayCopy(args));
-    return null;
+class StoredReceiver {
+
+    private backMessages: any[] = [];
+
+    private addBackMessage(...args: any[]): void {
+        this.backMessages.push(Util.arrayCopy(args));
+        return null;
+    }
+
+    public clearBackMessages(): void {
+        this.backMessages = [];
+    }
+
+    public getBackMessages(): string {
+        return JSON.stringify(this.backMessages);
+    };
+
+    public debug(message: any): void {
+        this.addBackMessage("debug",message.toString());
+    };
+
+    public error(error: string, type?: string): void {
+        if (type == null)
+            type = "";
+        this.addBackMessage("error",error.toString(),type);
+    };
+
+    public addOutlineItem(itemId: string, type: string, title: string): void {
+        this.addBackMessage("addOutlineItem",itemId,type,title);
+    };
+
+    public updateOutlineItem(itemId: string, title: string): void {
+        this.addBackMessage("updateOutlineItem",itemId,title);
+    };
+
+    public removeOutlineItem(itemId: string): void {
+        this.addBackMessage("removeOutlineItem",itemId);
+    };
+
+    public outlineUpdated(): void {
+        this.addBackMessage("outlineUpdated");
+    };
+
+    public setCursor(x: number, y: number, width: number, height: number): void {
+        this.addBackMessage("setCursor",x,y,width,height);
+    };
+
+    public setSelectionHandles(x1: number, y1: number, height1: number,
+                                        x2: number, y2: number, height2: number): void {
+        this.addBackMessage("setSelectionHandles",x1,y1,height1,x2,y2,height2);
+    };
+
+    public setTableSelection(x: number, y: number, width: number, height: number): void {
+        this.addBackMessage("setTableSelection",x,y,width,height);
+    };
+
+    public setSelectionBounds(left: number, top: number, right: number, bottom: number): void {
+        this.addBackMessage("setSelectionBounds",left,top,right,bottom);
+    };
+
+    public clearSelectionHandlesAndCursor(): void {
+        this.addBackMessage("clearSelectionHandlesAndCursor");
+    };
+
+    public updateAutoCorrect(): void {
+        this.addBackMessage("updateAutoCorrect");
+    };
+
+    public documentModified(): void {
+        this.addBackMessage("documentModified");
+    }
+
 }
 
+let storedReceiver = new StoredReceiver();
+let customReceiver: EventReceiver = null;
+let pending: ((r: EventReceiver) => void)[] = [];
+
 export function getBackMessages(): string {
-    let result = JSON.stringify(backMessages);
-    backMessages = [];
-    return result;
-};
+    return storedReceiver.getBackMessages();
+}
+
+function addPending(fun: (r: EventReceiver) => void) {
+    pending.push(fun);
+}
+
+export function executePending() {
+    storedReceiver.clearBackMessages();
+    pending.forEach((fun) => fun(storedReceiver));
+    if (customReceiver != null)
+        pending.forEach((fun) => fun(customReceiver));
+    pending = [];
+}
 
 export function debug(message: any): void {
-    addBackMessage("debug",message.toString());
-};
+    addPending((r) => {
+        if (r.debug !== undefined)
+            r.debug(message);
+    });
+}
 
 export function error(error: string, type?: string): void {
     if (type == null)
         type = "";
-    addBackMessage("error",error.toString(),type);
-};
+    addPending((r) => {
+        if (r.error !== undefined)
+            r.error(error,type);
+    });
+}
 
 export function addOutlineItem(itemId: string, type: string, title: string): void {
-    addBackMessage("addOutlineItem",itemId,type,title);
-};
+    addPending((r) => {
+        if (r.addOutlineItem !== undefined)
+            r.addOutlineItem(itemId,type,title);
+    });
+}
 
 export function updateOutlineItem(itemId: string, title: string): void {
-    addBackMessage("updateOutlineItem",itemId,title);
-};
+    addPending((r) => {
+        if (r.updateOutlineItem !== undefined)
+            r.updateOutlineItem(itemId,title);
+    });
+}
 
 export function removeOutlineItem(itemId: string): void {
-    addBackMessage("removeOutlineItem",itemId);
-};
+    addPending((r) => {
+        if (r.removeOutlineItem !== undefined)
+            r.removeOutlineItem(itemId);
+    });
+}
 
 export function outlineUpdated(): void {
-    addBackMessage("outlineUpdated");
-};
+    addPending((r) => {
+        if (r.outlineUpdated !== undefined)
+            r.outlineUpdated();
+    });
+}
 
 export function setCursor(x: number, y: number, width: number, height: number): void {
-    addBackMessage("setCursor",x,y,width,height);
-};
+    addPending((r) => {
+        if (r.setCursor !== undefined)
+            r.setCursor(x,y,width,height);
+    });
+}
 
 export function setSelectionHandles(x1: number, y1: number, height1: number,
-                                    x2: number, y2: number, height2: number) {
-    addBackMessage("setSelectionHandles",x1,y1,height1,x2,y2,height2);
-};
+                                    x2: number, y2: number, height2: number): void {
+    addPending((r) => {
+        if (r.setSelectionHandles !== undefined)
+            r.setSelectionHandles(x1,y1,height1,x2,y2,height2);
+    });
+}
 
 export function setTableSelection(x: number, y: number, width: number, height: number): void {
-    addBackMessage("setTableSelection",x,y,width,height);
-};
+    addPending((r) => {
+        if (r.setTableSelection !== undefined)
+            r.setTableSelection(x,y,width,height);
+    });
+}
 
 export function setSelectionBounds(left: number, top: number, right: number, bottom: number): void {
-    addBackMessage("setSelectionBounds",left,top,right,bottom);
-};
+    addPending((r) => {
+        if (r.setSelectionBounds !== undefined)
+            r.setSelectionBounds(left,top,right,bottom);
+    });
+}
 
 export function clearSelectionHandlesAndCursor(): void {
-    addBackMessage("clearSelectionHandlesAndCursor");
-};
+    addPending((r) => {
+        if (r.clearSelectionHandlesAndCursor !== undefined)
+            r.clearSelectionHandlesAndCursor();
+    });
+}
 
 export function updateAutoCorrect(): void {
-    addBackMessage("updateAutoCorrect");
-};
+    addPending((r) => {
+        if (r.updateAutoCorrect !== undefined)
+            r.updateAutoCorrect();
+    });
+}
 
 export function documentModified(): void {
-    addBackMessage("documentModified");
+    addPending((r) => {
+        if (r.documentModified !== undefined)
+            r.documentModified();
+    });
+}
+
+export function setReceiver(receiver: EventReceiver): void {
+    customReceiver = receiver;
 }

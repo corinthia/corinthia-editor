@@ -137,10 +137,33 @@ export interface TableGeometry {
     hasCaption: boolean;
 }
 
+export interface EventReceiver {
+
+    debug?(message: any): void;
+    error?(error: string, type?: string): void;
+    addOutlineItem?(itemId: string, type: string, title: string): void;
+    updateOutlineItem?(itemId: string, title: string): void;
+    removeOutlineItem?(itemId: string): void;
+    outlineUpdated?(): void;
+    setCursor?(x: number, y: number, width: number, height: number): void;
+    setSelectionHandles?(x1: number, y1: number, height1: number, x2: number, y2: number, height2: number): void;
+    setTableSelection?(x: number, y: number, width: number, height: number): void;
+    setSelectionBounds?(left: number, top: number, right: number, bottom: number): void;
+    clearSelectionHandlesAndCursor?(): void;
+    updateAutoCorrect?(): void;
+    documentModified?(): void;
+
+}
+
 function execute<T>(fun: () => T): T {
-    let result = fun();
-    PostponedActions.perform();
-    return result;
+    try {
+        let result = fun();
+        PostponedActions.perform();
+        return result;
+    }
+    finally {
+        Events.executePending();
+    }
 }
 
 function modify<T>(fun: () => T): T {
@@ -150,8 +173,9 @@ function modify<T>(fun: () => T): T {
         return result;
     }
     finally {
-        Events.documentModified();
         InputRef.invalidatePositions();
+        Events.documentModified();
+        Events.executePending();
     }
 }
 
@@ -202,7 +226,13 @@ export module changeTracking {
 export module events {
 
     export function getEventMessages(): string {
-        return execute(() => Events.getBackMessages());
+        // Note: We deliberately do not use execute() here
+        return Events.getBackMessages();
+    }
+
+    export function setReceiver(receiver: EventReceiver): void {
+        // Note: We deliberately do not use execute() here
+        Events.setReceiver(receiver);
     }
 
 }
