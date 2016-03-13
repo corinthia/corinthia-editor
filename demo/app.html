@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../tests/generic.css" type="text/css">
+    <script data-main="../build/demo/app" src="../demo/require.js"></script>
+    <style>
+        html {
+            min-height:100%;
+            position:relative;
+        }
+        body {
+            height:100%;
+        }
+        #toolbar {
+            position:absolute;
+            top: 0;
+            height: 40px;
+            left: 0;
+            right: 0;
+            overflow: hidden;
+            background-color: #f0f0f0;
+            font-family: sans-serif;
+            font-style: bold;
+            border-bottom: 1px solid #808080;
+        }
+        #content{
+            position:absolute;
+            top: 40px;
+            bottom: 40px;
+            left: 0;
+            right: 0;
+            overflow: hidden;
+        }
+        #status {
+            position: absolute;
+            height: 40px;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            overflow: hidden;
+            background-color: #f0f0f0;
+            font-family: sans-serif;
+            font-style: bold;
+            border-top: 1px solid #808080;
+        }
+    </style>
+</head>
+<body>
+<div id="toolbar">Toolbar goes here</div>
+<div id="content"></div>
+<div id="status">Status bar goes here</div>
+<script>
+require(["app"],function(app) {
+    app.init();
+});
+</script>
+</body>
+</html>

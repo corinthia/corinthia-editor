@@ -25,6 +25,7 @@
     "compileOnSave": true,
     "buildOnSave": false,
     "files": [
+        "demo/app.ts",
         "demo/demo-customloader.ts",
         "demo/demo.ts",
         "src/autoCorrect.ts",
