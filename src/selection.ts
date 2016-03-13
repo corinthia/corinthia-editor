@@ -534,7 +534,7 @@ export function update(): void {
 
             if (!Cursor.isCursorHidden()) {
                 let div = makeSelectionDiv();
-                DOM.setAttribute(div,"class","uxwrite-cursor");
+                DOM.setAttribute(div,"class","corinthia-cursor");
                 DOM.setStyleProperties(div,{ "position": "absolute",
                                              "left": left+"px",
                                              "top": top+"px",

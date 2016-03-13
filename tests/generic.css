@@ -56,8 +56,8 @@ figcaption::before {
   content: "Figure " counter(figure) ": ";
 }
 
-.uxwrite-autocorrect { background-color: #c0ffc0; }
-.uxwrite-selection { background-color: rgb(201,221,238); }
-.uxwrite-cursor { background-color: blue; z-index: 1 }
-.uxwrite-spelling { background-color: rgb(255,128,128); }
-.uxwrite-match { background-color: rgb(255,255,0); }
+.corinthia-autocorrect { background-color: #c0ffc0; }
+.corinthia-selection { background-color: rgb(201,221,238); }
+.corinthia-cursor { background-color: blue; z-index: 1 }
+.corinthia-spelling { background-color: rgb(255,128,128); }
+.corinthia-match { background-color: rgb(255,255,0); }

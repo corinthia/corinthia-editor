@@ -5,7 +5,7 @@
 function performTest(api)
 {
     // 123 is valid JSON but is not a string, and should be ignored
-    api.Styles.setCSSText(" ",{ "p": { "-uxwrite-next": "123" } });
+    api.Styles.setCSSText(" ",{ "p": { "-corinthia-next": "123" } });
     api.Cursor.enterPressed();
     api.Selection.preserveWhileExecuting(api.tests.TestLib.showEmptyTextNodes);
     api.tests.TestLib.showSelection();

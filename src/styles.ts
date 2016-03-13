@@ -45,7 +45,7 @@ export function nextSelectorAfter(element: HTMLElement): string {
 
     let rule = getRule(selector);
     if (rule != null) {
-        let nextSelector = rule["-uxwrite-next"];
+        let nextSelector = rule["-corinthia-next"];
         if (nextSelector != null) {
             try {
                 nextSelector = JSON.parse(nextSelector);

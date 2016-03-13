@@ -5,7 +5,7 @@
 function performTest(api)
 {
     // { a: 'x' } is valid JSON but is not a string, and should be ignored
-    api.Styles.setCSSText(" ",{ "p": { "-uxwrite-next": "{ \"a\": \"x\" }" } });
+    api.Styles.setCSSText(" ",{ "p": { "-corinthia-next": "{ \"a\": \"x\" }" } });
     api.Cursor.enterPressed();
     api.Selection.preserveWhileExecuting(api.tests.TestLib.showEmptyTextNodes);
     api.tests.TestLib.showSelection();

@@ -874,10 +874,10 @@ function updateRefsForItem(item: OutlineItem): void {
         let text: string = null;
 
         let className = DOM.getAttribute(refs[i],"class");
-        if (className == "uxwrite-ref-num") {
+        if (className == "corinthia-ref-num") {
             text = item.computedNumber;
         }
-        else if (className == "uxwrite-ref-text") {
+        else if (className == "corinthia-ref-text") {
             if (item.type == "section") {
                 if (item.numberSpan != null)
                     text = getNodeTextAfter(item.numberSpan);
@@ -896,7 +896,7 @@ function updateRefsForItem(item: OutlineItem): void {
                 }
             }
         }
-        else if (className == "uxwrite-ref-caption-text") {
+        else if (className == "corinthia-ref-caption-text") {
             if (item.type == "section") {
                 if (item.numberSpan != null)
                     text = getNodeTextAfter(item.numberSpan);
@@ -913,7 +913,7 @@ function updateRefsForItem(item: OutlineItem): void {
                 }
             }
         }
-        else if (className == "uxwrite-ref-label-num") {
+        else if (className == "corinthia-ref-label-num") {
             if (item.computedNumber != null) {
                 if (item.type == "section")
                     text = "Section "+item.computedNumber;

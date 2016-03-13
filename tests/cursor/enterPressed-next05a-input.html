@@ -5,7 +5,7 @@
 function performTest(api)
 {
     // p.Foo is not valid JSON and should generate a parser error, and be ignored
-    api.Styles.setCSSText(" ",{ "p": { "-uxwrite-next": "p.Foo" } });
+    api.Styles.setCSSText(" ",{ "p": { "-corinthia-next": "p.Foo" } });
     api.Cursor.enterPressed();
     api.Selection.preserveWhileExecuting(api.tests.TestLib.showEmptyTextNodes);
     api.tests.TestLib.showSelection();

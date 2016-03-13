@@ -5,7 +5,7 @@
 function performTest(api)
 {
     // null is valid JSON but is not a string, and should be ignored
-    api.Styles.setCSSText(" ",{ "p": { "-uxwrite-next": "null" } });
+    api.Styles.setCSSText(" ",{ "p": { "-corinthia-next": "null" } });
     api.Cursor.enterPressed();
     api.Selection.preserveWhileExecuting(api.tests.TestLib.showEmptyTextNodes);
     api.tests.TestLib.showSelection();

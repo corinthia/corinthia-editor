@@ -8,7 +8,7 @@ function performTest(api)
     api.DOM.deleteAllChildren(node);
     api.Selection.set(node,0,node,0);
     var properties = api.Formatting.getFormatting();
-    delete properties["-uxwrite-shift"];
+    delete properties["-corinthia-shift"];
     api.Selection.clearSelection();
 
     var lines = new Array();

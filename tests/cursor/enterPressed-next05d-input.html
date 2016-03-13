@@ -5,7 +5,7 @@
 function performTest(api)
 {
     // true is valid JSON string but is not a string, and should be ignored
-    api.Styles.setCSSText(" ",{ "p": { "-uxwrite-next": "true" } });
+    api.Styles.setCSSText(" ",{ "p": { "-corinthia-next": "true" } });
     api.Cursor.enterPressed();
     api.Selection.preserveWhileExecuting(api.tests.TestLib.showEmptyTextNodes);
     api.tests.TestLib.showSelection();

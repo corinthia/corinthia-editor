@@ -94,7 +94,7 @@ export function createTestTables(count: number): void {
 
 function removeOutlineHTML(node: Node): void {
     if ((node instanceof HTMLSpanElement) &&
-        (node.getAttribute("class") == "uxwrite-heading-number")) {
+        (node.getAttribute("class") == "corinthia-heading-number")) {
         DOM.removeNodeButKeepChildren(node);
     }
     else {

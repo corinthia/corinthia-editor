@@ -419,8 +419,8 @@ export function getFormatting(): { [key: string]: string } {
     for (let i = 0; i < leafNodes.length; i++) {
         if (!Traversal.isWhitespaceTextNode(leafNodes[i]) || empty) {
             let leafNodeProperties = getAllNodeProperties(leafNodes[i]);
-            if (leafNodeProperties["-uxwrite-paragraph-style"] == null)
-                leafNodeProperties["-uxwrite-paragraph-style"] = Types.Keys.NONE_STYLE;
+            if (leafNodeProperties["-corinthia-paragraph-style"] == null)
+                leafNodeProperties["-corinthia-paragraph-style"] = Types.Keys.NONE_STYLE;
             if (commonProperties == null)
                 commonProperties = leafNodeProperties;
             else
@@ -429,17 +429,17 @@ export function getFormatting(): { [key: string]: string } {
     }
 
     if (commonProperties == null)
-        commonProperties = {"-uxwrite-paragraph-style": Types.Keys.NONE_STYLE};
+        commonProperties = {"-corinthia-paragraph-style": Types.Keys.NONE_STYLE};
 
     for (let i = 0; i < leafNodes.length; i++) {
         let leaf = leafNodes[i];
         if (leaf._type == ElementTypes.HTML_LI) {
             switch (leaf.parentNode._type) {
             case ElementTypes.HTML_UL:
-                commonProperties["-uxwrite-in-ul"] = "true";
+                commonProperties["-corinthia-in-ul"] = "true";
                 break;
             case ElementTypes.HTML_OL:
-                commonProperties["-uxwrite-in-ol"] = "true";
+                commonProperties["-corinthia-in-ol"] = "true";
                 break;
             }
         }
@@ -460,10 +460,10 @@ export function getFormatting(): { [key: string]: string } {
                         let listNode = ancestor.parentNode.parentNode;
                         switch (listNode._type) {
                         case ElementTypes.HTML_UL:
-                            commonProperties["-uxwrite-in-ul"] = "true";
+                            commonProperties["-corinthia-in-ul"] = "true";
                             break;
                         case ElementTypes.HTML_OL:
-                            commonProperties["-uxwrite-in-ol"] = "true";
+                            commonProperties["-corinthia-in-ol"] = "true";
                             break;
                         }
                     }
@@ -486,14 +486,14 @@ export function getFormatting(): { [key: string]: string } {
                     firstInParagraph = false;
             }
             if (firstInParagraph)
-                commonProperties["-uxwrite-shift"] = "true";
+                commonProperties["-corinthia-shift"] = "true";
         }
         if (strBeforeCursor.match(/\.\s*$/))
-            commonProperties["-uxwrite-shift"] = "true";
+            commonProperties["-corinthia-shift"] = "true";
         if (strBeforeCursor.match(/\([^\)]*$/))
-            commonProperties["-uxwrite-in-brackets"] = "true";
+            commonProperties["-corinthia-in-brackets"] = "true";
         if (strBeforeCursor.match(/\u201c[^\u201d]*$/))
-            commonProperties["-uxwrite-in-quotes"] = "true";
+            commonProperties["-corinthia-in-quotes"] = "true";
     }
 
     function intersection(a: { [key: string]: string }, b: { [key: string]: string }): { [key: string]: string } {
@@ -555,24 +555,24 @@ export function getAllNodeProperties(node: Node): { [key: string]: string } {
             break;
         }
 //            case ElementTypes.HTML_TT:
-//                properties["-uxwrite-in-tt"] = "true";
+//                properties["-corinthia-in-tt"] = "true";
 //                break;
         case ElementTypes.HTML_IMG:
-            properties["-uxwrite-in-image"] = "true";
+            properties["-corinthia-in-image"] = "true";
             break;
         case ElementTypes.HTML_FIGURE:
-            properties["-uxwrite-in-figure"] = "true";
+            properties["-corinthia-in-figure"] = "true";
             break;
         case ElementTypes.HTML_TABLE:
-            properties["-uxwrite-in-table"] = "true";
+            properties["-corinthia-in-table"] = "true";
             break;
         case ElementTypes.HTML_A:
             if (node.hasAttribute("href")) {
                 let href = node.getAttribute("href");
                 if (href.charAt(0) == "#")
-                    properties["-uxwrite-in-reference"] = "true";
+                    properties["-corinthia-in-reference"] = "true";
                 else
-                    properties["-uxwrite-in-link"] = "true";
+                    properties["-corinthia-in-link"] = "true";
             }
             break;
         case ElementTypes.HTML_NAV: {
@@ -580,7 +580,7 @@ export function getAllNodeProperties(node: Node): { [key: string]: string } {
             if ((className == Types.Keys.SECTION_TOC) ||
                 (className == Types.Keys.FIGURE_TOC) ||
                 (className == Types.Keys.TABLE_TOC))
-                properties["-uxwrite-in-toc"] = "true";
+                properties["-corinthia-in-toc"] = "true";
             break;
         }
         default:
@@ -591,13 +591,13 @@ export function getAllNodeProperties(node: Node): { [key: string]: string } {
                     selector = name + "." + node.getAttribute("class");
                 else
                     selector = name;
-                properties["-uxwrite-paragraph-style"] = selector;
+                properties["-corinthia-paragraph-style"] = selector;
             }
             break;
         }
 
         if (Types.OUTLINE_TITLE_ELEMENTS[type] && node.hasAttribute("id"))
-            properties["-uxwrite-in-item-title"] = node.getAttribute("id");
+            properties["-corinthia-in-item-title"] = node.getAttribute("id");
     }
 
     return properties;

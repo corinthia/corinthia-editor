@@ -87,38 +87,38 @@ OUTLINE_TITLE_ELEMENTS[ElementTypes.HTML_FIGCAPTION] = true;
 OUTLINE_TITLE_ELEMENTS[ElementTypes.HTML_CAPTION] = true;
 
 export const Keys = {
-    HEADING_NUMBER: "uxwrite-heading-number",
-    FIGURE_NUMBER: "uxwrite-figure-number",
-    TABLE_NUMBER: "uxwrite-table-number",
+    HEADING_NUMBER: "corinthia-heading-number",
+    FIGURE_NUMBER: "corinthia-figure-number",
+    TABLE_NUMBER: "corinthia-table-number",
     SECTION_TOC: "tableofcontents",
     FIGURE_TOC: "listoffigures",
     TABLE_TOC: "listoftables",
-    SELECTION_HIGHLIGHT: "uxwrite-selection-highlight",
-    AUTOCORRECT_ENTRY: "uxwrite-autocorrect-entry",
-    UXWRITE_PREFIX: "uxwrite-",
+    SELECTION_HIGHLIGHT: "corinthia-selection-highlight",
+    AUTOCORRECT_ENTRY: "corinthia-autocorrect-entry",
+    UXWRITE_PREFIX: "corinthia-",
     NONE_STYLE: "__none",
-    AUTOCORRECT_CLASS: "uxwrite-autocorrect",
-    SELECTION_CLASS: "uxwrite-selection",
-    ABSTRACT_ELEMENT: "uxwrite-abstract",
-    SPELLING_CLASS: "uxwrite-spelling",
-    MATCH_CLASS: "uxwrite-match",
+    AUTOCORRECT_CLASS: "corinthia-autocorrect",
+    SELECTION_CLASS: "corinthia-selection",
+    ABSTRACT_ELEMENT: "corinthia-abstract",
+    SPELLING_CLASS: "corinthia-spelling",
+    MATCH_CLASS: "corinthia-match",
 };
 
 let ITEM_NUMBER_CLASSES: { [key: string]: boolean } = {
-    "uxwrite-heading-number": true,
-    "uxwrite-figure-number": true,
-    "uxwrite-table-number": true,
+    "corinthia-heading-number": true,
+    "corinthia-figure-number": true,
+    "corinthia-table-number": true,
 };
 
 let OPAQUE_NODE_CLASSES: { [key: string]: boolean } = {
-    "uxwrite-heading-number": true,
-    "uxwrite-figure-number": true,
-    "uxwrite-table-number": true,
+    "corinthia-heading-number": true,
+    "corinthia-figure-number": true,
+    "corinthia-table-number": true,
     "tableofcontents": true,
     "listoffigures": true,
     "listoftables": true,
-    "uxwrite-selection-highlight": true,
-    "uxwrite-field": true,
+    "corinthia-selection-highlight": true,
+    "corinthia-field": true,
 };
 
 // We use !! in the functions below to guarantee that a boolean value is returned. If a node's
