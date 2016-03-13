@@ -100,11 +100,11 @@ export function setSelectedTextRange(start: Position, end: Position): void {
     end = newRange.end;
 
     if (Position.equal(start,end))
-        Cursor.ensurePositionVisible(end);
+        Cursor.scrollViewForPosition(end);
     else if (Position.equal(oldStart,start) && !Position.equal(oldEnd,end))
-        Cursor.ensurePositionVisible(end);
+        Cursor.scrollViewForPosition(end);
     else if (Position.equal(oldEnd,end) && !Position.equal(oldStart,start))
-        Cursor.ensurePositionVisible(start);
+        Cursor.scrollViewForPosition(start);
 }
 
 export function markedTextRange(): Range {

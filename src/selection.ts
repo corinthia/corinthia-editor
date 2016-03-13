@@ -531,6 +531,16 @@ export function update(): void {
             let height = rect.height;
             let width = rect.width ? rect.width : 2;
             setEditorHandles(new CursorHandles(left,top,width,height));
+
+            if (!Cursor.isCursorHidden()) {
+                let div = makeSelectionDiv();
+                DOM.setAttribute(div,"class","uxwrite-cursor");
+                DOM.setStyleProperties(div,{ "position": "absolute",
+                                             "left": left+"px",
+                                             "top": top+"px",
+                                             "width": width+"px",
+                                             "height": height+"px" });
+            }
         }
         return;
     }

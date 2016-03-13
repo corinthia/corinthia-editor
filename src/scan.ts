@@ -169,7 +169,7 @@ export function goToMatch(matchId: number): void {
 
     Selection.set(match.startPos.node,match.startPos.offset,
                   match.endPos.node,match.endPos.offset);
-    Cursor.ensurePositionVisible(match.startPos,true);
+    Cursor.scrollViewForPosition(match.startPos,true);
 }
 
 function clearMatches(): void {

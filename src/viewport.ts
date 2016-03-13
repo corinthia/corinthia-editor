@@ -60,7 +60,7 @@ export function setViewportWidth(width: number): void {
         DOM.setAttribute(viewportMetaElement,"content",contentValue);
 
     Selection.update();
-    Cursor.ensureCursorVisible();
+    Cursor.scrollViewForCursor();
 }
 
 // public
@@ -70,5 +70,5 @@ export function setTextScale(textScale: number): void {
         DOM.setStyleProperties(document.documentElement,{"-webkit-text-size-adjust": pct});
 
     Selection.update();
-    Cursor.ensureCursorVisible();
+    Cursor.scrollViewForCursor();
 }

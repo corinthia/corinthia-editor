@@ -1122,7 +1122,7 @@ export function deleteItem(itemId: string): void {
     }
 
     scheduleUpdateStructure();
-    PostponedActions.add(Cursor.ensureCursorVisible);
+    PostponedActions.add(Cursor.scrollViewForCursor);
     PostponedActions.add(UndoManager.newGroup);
 }
 

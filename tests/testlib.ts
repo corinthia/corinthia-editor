@@ -15,6 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Cursor = require("../src/cursor");
 import DOM = require("../src/dom");
 import ElementTypes = require("../src/elementTypes");
 import Formatting = require("../src/formatting");
@@ -37,6 +38,7 @@ export function testHarnessSetup(): void {
 
 
     UndoManager.disableWhileExecuting(function() {
+        Cursor.setCursorHidden(true);
         start = extractPositionFromCharacter("[");
         track = (start == null) ? [] : [start];
         Position.trackWhileExecuting(track,function() {

@@ -39,7 +39,18 @@ export type LinkProperties = ExternallyVisibleTypes.LinkProperties;
 // FIXME: this variable is unused
 let cursorX: number = null;
 
-export function ensurePositionVisible(pos: Position, center?: boolean): void {
+let cursorHidden = false;
+
+export function isCursorHidden(): boolean {
+    return cursorHidden;
+}
+
+export function setCursorHidden(hidden: boolean): void {
+    cursorHidden = hidden;
+    Selection.update();
+}
+
+export function scrollViewForPosition(pos: Position, center?: boolean): void {
     // If we can't find the cursor rect for some reason, just don't do anything.
     // This is better than using an incorrect position or throwing an exception.
     let rect = Geometry.displayRectAtPos(pos)
@@ -66,10 +77,10 @@ export function ensurePositionVisible(pos: Position, center?: boolean): void {
 }
 
 // public
-export function ensureCursorVisible(center?: boolean): void {
+export function scrollViewForCursor(center?: boolean): void {
     let selRange = Selection.get();
     if (selRange != null)
-        ensurePositionVisible(selRange.end,center);
+        scrollViewForPosition(selRange.end,center);
 }
 
 export function scrollDocumentForY(y: number): number {
@@ -212,7 +223,7 @@ export function moveLeft(): void {
     let pos = range.start.prevMatch(Position.okForMovement);
     if (pos != null)
         set(pos.node,pos.offset);
-    ensureCursorVisible();
+    scrollViewForCursor();
 }
 
 // public
@@ -224,7 +235,7 @@ export function moveRight(): void {
     let pos = range.start.nextMatch(Position.okForMovement);
     if (pos != null)
         set(pos.node,pos.offset);
-    ensureCursorVisible();
+    scrollViewForCursor();
 }
 
 // public
@@ -232,7 +243,7 @@ export function moveToStartOfDocument(): void {
     let pos = new Position(document.body,0);
     pos = Position.closestMatchBackwards(pos,Position.okForMovement);
     set(pos.node,pos.offset);
-    ensureCursorVisible();
+    scrollViewForCursor();
 }
 
 // public
@@ -240,7 +251,7 @@ export function moveToEndOfDocument(): void {
     let pos = new Position(document.body,document.body.childNodes.length);
     pos = Position.closestMatchForwards(pos,Position.okForMovement);
     set(pos.node,pos.offset);
-    ensureCursorVisible();
+    scrollViewForCursor();
 }
 
 // An empty paragraph does not get shown and cannot be edited. We can fix this by adding
@@ -422,7 +433,7 @@ export function insertCharacter(str: string, allowInvalidPos: boolean, allowNoPa
         let prevChar = node.nodeValue.charAt(offset-1);
         if (Util.isWhitespaceString(prevChar) || (prevChar == nbsp)) {
             Selection.update();
-            ensureCursorVisible();
+            scrollViewForCursor();
             return;
         }
     }
@@ -484,7 +495,7 @@ export function insertCharacter(str: string, allowInvalidPos: boolean, allowNoPa
     });
 
     Selection.update();
-    ensureCursorVisible();
+    scrollViewForCursor();
 }
 
 function tryDeleteEmptyCaption(pos: Position): boolean {
@@ -545,7 +556,7 @@ export function deleteCharacter(): void {
                 DOM.deleteNode(prevNode);
                 updateBRAtEndOfParagraph(p);
                 set(p,0);
-                ensureCursorVisible();
+                scrollViewForCursor();
                 return;
             }
             if ((prevNode._type == ElementTypes.HTML_A) || Types.isNoteNode(prevNode)) {
@@ -590,7 +601,7 @@ export function deleteCharacter(): void {
     if (selRange != null)
         spaceToNbsp(selRange.end);
     Selection.update();
-    ensureCursorVisible();
+    scrollViewForCursor();
 
     function firstBlockAncestor(node: Node): Node {
         while (Types.isInlineNode(node))
@@ -670,7 +681,7 @@ export function enterPressed(): void {
             DOM.insertBefore(check.node,p,check.node.childNodes[check.offset]);
             updateBRAtEndOfParagraph(p);
             set(p,0);
-            ensureCursorVisible();
+            scrollViewForCursor();
             return;
         }
     }
@@ -690,7 +701,7 @@ export function enterPressed(): void {
         DOM.insertBefore(detail.startParent,li,detail.startChild);
 
         set(li,0);
-        ensureCursorVisible();
+        scrollViewForCursor();
         return;
     }
     }
@@ -810,7 +821,7 @@ export function enterPressed(): void {
     Selection.set(selRange.start.node,selRange.start.offset,
                   selRange.end.node,selRange.end.offset);
     cursorX = null;
-    ensureCursorVisible();
+    scrollViewForCursor();
 
     function getBlockToSplit(pos: Position): Node {
         let blockToSplit: Node = null;

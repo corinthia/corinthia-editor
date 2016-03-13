@@ -143,7 +143,7 @@ export function cut(): { [key: string]: string } {
         Selection.set(pos.node,pos.offset,pos.node,pos.offset);
     }
 
-    Cursor.ensureCursorVisible();
+    Cursor.scrollViewForCursor();
 
     PostponedActions.add(UndoManager.newGroup);
     return content;
@@ -497,7 +497,7 @@ export function pasteNodes(nodes: Node[]): void {
     pos = Position.closestMatchBackwards(pos,Position.okForInsertion);
 
     Selection.set(pos.node,pos.offset,pos.node,pos.offset);
-    Cursor.ensureCursorVisible();
+    Cursor.scrollViewForCursor();
 }
 
 function removeDuplicateIds(node: Node, found: { [key: string]: Node }): void {

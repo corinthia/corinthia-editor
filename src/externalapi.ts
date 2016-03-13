@@ -259,6 +259,14 @@ export module clipboard {
 
 export module cursor {
 
+    export function isCursorHidden(): boolean {
+        return execute(() => Cursor.isCursorHidden());
+    }
+
+    export function setCursorHidden(hidden: boolean): void {
+        return execute(() => Cursor.setCursorHidden(hidden));
+    }
+
     export function positionCursor(x: number, y: number, wordBoundary: boolean): string {
         return execute(() => Cursor.positionCursor(x,y,wordBoundary));
     }

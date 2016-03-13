@@ -208,7 +208,7 @@ export function getCorrectionCoords(): { x: number, y: number } {
 
     let offset = Math.floor(textNode.nodeValue.length/2);
     Selection.set(textNode,offset,textNode,offset);
-    Cursor.ensureCursorVisible();
+    Cursor.scrollViewForCursor();
     let rect = Geometry.displayRectAtPos(new Position(textNode,offset));
 
     if (rect == null) // FIXME: pos
