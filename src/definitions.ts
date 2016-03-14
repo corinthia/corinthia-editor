@@ -23,7 +23,16 @@ declare let Showdown: {
     converter: ShowdownConverter;
 }
 
+// https://developer.mozilla.org/en-US/docs/Web/API/CaretPosition
+interface CaretPosition {
+    offsetNode: Node;
+    offset: number;
+}
+
 interface Document {
+    // Firefox
+    caretPositionFromPoint(x: number, y: number): CaretPosition;
+    // WebKit/Blink/Edge
     caretRangeFromPoint(x: number, y: number): Range;
 }
 

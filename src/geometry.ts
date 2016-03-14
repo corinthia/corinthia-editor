@@ -249,6 +249,33 @@ function posOutsideSelection(pos: Position): Position {
         return pos;
 }
 
+function rawPositionAtPoint(x: number, y: number): Position {
+    let caretNode: Node = null;
+    let caretOffset: number = null;
+
+    if (document.caretPositionFromPoint !== undefined) {
+        // Firefox only
+        // https://developer.mozilla.org/en-US/docs/Web/API/Document/caretPositionFromPoint
+        let pos = document.caretPositionFromPoint(x,y);
+        if (pos == null)
+            return null;
+        else
+            return new Position(pos.offsetNode,pos.offset);
+    }
+    else if (document.caretRangeFromPoint !== undefined) {
+        // WebKit/Blink/Edge
+        let range = document.caretRangeFromPoint(x,y);
+        if (range == null)
+            return null;
+        else
+            return new Position(range.startContainer,range.startOffset);
+    }
+    else {
+        // All versions of IE
+        throw new Error("Neither caretPositionFromPoint nor caretRangeFromPoint implemented");
+    }
+}
+
 export function positionAtPoint(x: number, y: number): Position {
 
     return atPoint(x,y);
@@ -275,11 +302,7 @@ export function positionAtPoint(x: number, y: number): Position {
         // We get here if the coordinates are inside the document's bounding rect, or if getting the
         // position from the first or last rect failed for some reason.
 
-        let range = document.caretRangeFromPoint(x,y);
-        if (range == null)
-            return null;
-
-        let pos = new Position(range.startContainer,range.startOffset);
+        let pos = rawPositionAtPoint(x,y);
         pos = pos.preferElementPosition();
 
         if (pos.node instanceof Element) {
