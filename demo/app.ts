@@ -29,6 +29,7 @@ enum Key {
     Down,
     Left,
     Right,
+    Enter,
     Backspace
 }
 
@@ -90,6 +91,7 @@ function getKeyFromEvent(event: KeyboardEvent): Key {
         case 40: return Key.Down;
         case 37: return Key.Left;
         case 39: return Key.Right;
+        case 13: return Key.Enter;
         case 8: return Key.Backspace;
         default: return null;
     }
@@ -101,6 +103,7 @@ function isSpecialKey(key: Key): boolean {
         case Key.Down:
         case Key.Left:
         case Key.Right:
+        case Key.Enter:
         case Key.Backspace:
             return true;
         default:
@@ -231,6 +234,10 @@ function setupEditor(iframe: HTMLIFrameElement) {
                 event.preventDefault();
                 break;
             }
+            case Key.Enter: {
+                api.cursor.enterPressed();
+                break;
+            }
             case Key.Backspace: {
                 api.cursor.deleteCharacter();
                 event.preventDefault();
@@ -250,10 +257,7 @@ function setupEditor(iframe: HTMLIFrameElement) {
             str = String.fromCharCode(event.charCode);
         if (str != null) {
             let extra = modifierKeysString(event);
-            if ((str == "\r") || (str == "\n")) {
-                api.cursor.enterPressed();
-            }
-            else if ((str == "b") && (event.metaKey)) {
+            if ((str == "b") && (event.metaKey)) {
                 let fmt = api.formatting.getFormatting();
                 console.log(fmt);
                 if (fmt["font-weight"] !== "bold")
