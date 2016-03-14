@@ -55,6 +55,31 @@ let internalSelection: {
     }
 } = { value: null };
 
+/**
+ * For certain operations, such as querying the browser to find out the node and offset
+ * corresponding to a particular set of (x,y) coordinates, we need to execute these on a version of
+ * the rendered document that excludes the "special" div elements we use to display the cursor and
+ * selection. If those divs are visible, then if the coordinates being queried will return the a
+ * position in the div element, not the content underneath it. This function first hides all such
+ * divs, executes the specified function, and then unhides the divs (even in the event of an
+ * exception).
+ */
+export function hideSelectionDivsWhileExecuting<T>(fun: () => T): T {
+    let oldVisibility: string[] = [];
+    for (let i = 0; i < selectionDivs.length; i++) {
+        oldVisibility[i] = selectionDivs[i].style.visibility;
+        selectionDivs[i].style.visibility = "hidden";
+    }
+    try {
+        return fun();
+    }
+    finally {
+        for (let i = 0; i < selectionDivs.length; i++) {
+            selectionDivs[i].style.visibility = oldVisibility[i];
+        }
+    }
+}
+
 export function isMarked(): boolean {
     if (internalSelection.value == null)
         return null;

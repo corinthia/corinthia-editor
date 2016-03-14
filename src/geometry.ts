@@ -19,6 +19,7 @@ import DOM = require("./dom");
 import ElementTypes = require("./elementTypes");
 import Position = require("./position");
 import Range = require("./range");
+import Selection = require("./selection");
 import Traversal = require("./traversal");
 import Txt = require("./text");
 import Types = require("./types");
@@ -278,7 +279,7 @@ function rawPositionAtPoint(x: number, y: number): Position {
 
 export function positionAtPoint(x: number, y: number): Position {
 
-    return atPoint(x,y);
+    return Selection.hideSelectionDivsWhileExecuting(() => atPoint(x,y));
 
     function atPoint(x: number, y: number): Position {
         // In general, we can use document.caretRangeFromPoint(x,y) to determine the location of the
