@@ -919,8 +919,9 @@ export function getLinkProperties(): LinkProperties {
 }
 
 export function setLinkProperties(properties: LinkProperties): void {
-    let a = getAdjacentNodeWithType(ElementTypes.HTML_A);
-    if ((a != null) && (a instanceof Element)) {
+    const aNode = getAdjacentNodeWithType(ElementTypes.HTML_A);
+    if ((aNode != null) && (aNode instanceof Element)) {
+        const a = aNode;
         Selection.preserveWhileExecuting(function() {
             DOM.setAttribute(a,"href",properties.href);
             DOM.deleteAllChildren(a);
