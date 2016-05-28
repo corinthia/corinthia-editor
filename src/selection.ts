@@ -559,7 +559,7 @@ export function update(): void {
 
             if (!Cursor.isCursorHidden()) {
                 let div = makeSelectionDiv();
-                DOM.setAttribute(div,"class","corinthia-cursor");
+                DOM.setAttribute(div,"class",Types.Keys.CURSOR_CLASS);
                 DOM.setStyleProperties(div,{ "position": "absolute",
                                              "left": left+"px",
                                              "top": top+"px",

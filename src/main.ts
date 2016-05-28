@@ -269,7 +269,8 @@ export function removeSpecial(node: Node): void {
         (cssClass == Types.Keys.TABLE_NUMBER) ||
         (cssClass == Types.Keys.AUTOCORRECT_CLASS) ||
         (cssClass == Types.Keys.SELECTION_CLASS) ||
-        (cssClass == Types.Keys.SELECTION_HIGHLIGHT)) {
+        (cssClass == Types.Keys.SELECTION_HIGHLIGHT) ||
+        (cssClass == Types.Keys.CURSOR_CLASS)) {
         DOM.removeNodeButKeepChildren(node);
     }
     else if ((node instanceof HTMLMetaElement) &&

@@ -102,6 +102,7 @@ export const Keys = {
     ABSTRACT_ELEMENT: "corinthia-abstract",
     SPELLING_CLASS: "corinthia-spelling",
     MATCH_CLASS: "corinthia-match",
+    CURSOR_CLASS: "corinthia-cursor",
 };
 
 let ITEM_NUMBER_CLASSES: { [key: string]: boolean } = {
