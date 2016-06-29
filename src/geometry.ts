@@ -304,6 +304,8 @@ export function positionAtPoint(x: number, y: number): Position {
         // position from the first or last rect failed for some reason.
 
         let pos = rawPositionAtPoint(x,y);
+        if (pos == null)
+            return null;
         pos = pos.preferElementPosition();
 
         if (pos.node instanceof Element) {
