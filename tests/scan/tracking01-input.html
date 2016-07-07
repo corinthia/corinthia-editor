@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href="../generic.css" rel="stylesheet"/>
+<script>
+function performTest(api)
+{
+    outputOptions.keepSelectionHighlights = true;
+    api.Cursor.setCursorHidden(false);
+    api.Cursor.moveToStartOfDocument();
+    api.Scan.reset();
+    api.Scan.next();
+    api.Scan.addMatch(10,20);
+    api.Scan.showMatch(1);
+    api.Scan.goToMatch(1);
+    // If the scanned curPos is not tracked, this will give an error
+    // saying the position is invalid
+    api.Scan.next();
+}
+</script>
+</head>
+<body>
+  <p>This is a qwertyuiop test</p>
+</body>
+</html>

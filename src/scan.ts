@@ -52,8 +52,21 @@ let nextMatchId = 1;
 let curPos: Position = null;
 let curParagraph: Txt.ParagraphInfo = null;
 
+// We must always ensure the current scan position is tracked, as the DOM tree may be modified even
+// if the user doesn't necessarily select a replacement. For example, the act of flashing the cursor
+// on or off can make the position invalid if it is not tracked.
+function setCurPos(pos: Position): void {
+    if (curPos != null)
+        curPos.untrack();
+
+    curPos = pos;
+
+    if (curPos != null)
+        curPos.track();
+}
+
 export function reset(): void {
-    curPos = new Position(document.body,0);
+    setCurPos(new Position(document.body,0));
     curParagraph = null;
     clearMatches();
 }
@@ -61,7 +74,7 @@ export function reset(): void {
 export function next(): ScanParagraph {
     if (curPos == null)
         return null;
-    curPos = Txt.toEndOfBoundary(curPos,"paragraph");
+    setCurPos(Txt.toEndOfBoundary(curPos,"paragraph"));
     if (curPos == null)
         return null;
 
@@ -69,7 +82,7 @@ export function next(): ScanParagraph {
     if (curParagraph == null)
         return null;
 
-    curPos = curPos.nextMatch(Position.okForMovement);
+    setCurPos(curPos.nextMatch(Position.okForMovement));
 
     let sectionId: string = null;
     let paragraphNode = curParagraph.node;
